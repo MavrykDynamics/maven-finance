@@ -130,17 +130,6 @@ describe("Treasury tests", async () => {
         mavrykFa12TokenStorage  = await mavrykFa12TokenInstance.storage();
         mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
 
-        // console.log('-- -- -- -- -- Treasury Tests -- -- -- --')
-        // console.log('Treasury Contract deployed at:', treasuryInstance.address);
-        // console.log('Doorman Contract deployed at:', doormanInstance.address);
-        // console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-        // console.log('Governance Contract deployed at:', governanceInstance.address);
-        // console.log('Mavryk Fa12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
-        // console.log('Mavryk Fa2 Token Contract deployed at:' , mavrykFa2TokenInstance.address);
-        // console.log('Bob address: ' + bob.pkh);
-        // console.log('Alice address: ' + alice.pkh);
-        // console.log('Eve address: ' + eve.pkh);
-
     });
 
     describe('test: Treasury deposit tests', function() {
@@ -148,9 +137,9 @@ describe("Treasury tests", async () => {
         it('test: any user (alice) can deposit tez into treasury', async () => {
             try{        
                 
-                // Alice transfers 80 XTZ to Treasury
-                const depositAmount             = 80;
-                const depositAmountMutez        = 80000000;
+                // Alice transfers 8 XTZ to Treasury
+                const depositAmount             = 8;
+                const depositAmountMutez        = 8000000;
                 const initTreasuryTezBalance    = await utils.tezos.tz.getBalance(treasuryAddress);
                 
                 await signerFactory(tezos, alice.sk)
@@ -168,8 +157,8 @@ describe("Treasury tests", async () => {
         it('test: any user (alice) can deposit mavryk FA12 Tokens into treasury', async () => {
             try{        
                 
-                // Alice transfers 80 Mavryk FA12 Tokens to Treasury
-                const depositAmount                         = 80000000;
+                // Alice transfers 0.8 Mavryk FA12 Tokens to Treasury
+                const depositAmount                         = 800000;
                 mavrykFa12TokenStorage                      = await mavrykFa12TokenInstance.storage();
                 var initTreasuryMavrykFa12TokenBalance      = await mavrykFa12TokenStorage.ledger.get(treasuryAddress);
                 initTreasuryMavrykFa12TokenBalance          = initTreasuryMavrykFa12TokenBalance ? initTreasuryMavrykFa12TokenBalance.balance : new BigNumber(0);
@@ -229,8 +218,8 @@ describe("Treasury tests", async () => {
         it('test: any user (alice) can deposit MVK Tokens into treasury', async () => {
             try{        
                 
-                // Alice transfers 80 MVK Tokens to Treasury
-                const depositAmount = MVK(80);
+                // Alice transfers 2 MVK Tokens to Treasury
+                const depositAmount = MVK(2);
         
                 mvkTokenStorage                         = await mvkTokenInstance.storage();
                 var initTreasuryMvkTokenBalance         = await mvkTokenStorage.ledger.get(treasuryAddress);
@@ -395,7 +384,7 @@ describe("Treasury tests", async () => {
             try{        
 
                 const to_                      = oscar.pkh;
-                const amount                   = MVK(10);
+                const amount                   = MVK(2);
                 const tokenContractAddress     = mvkTokenAddress;
                 const tokenId                  = 0;
                 
@@ -438,13 +427,13 @@ describe("Treasury tests", async () => {
                 const tokenType  = "tez";
 
                 const recipient_one   = mallory.pkh;
-                const amount_one      = 2000000;
+                const amount_one      = 20000;
 
                 const recipient_two   = oscar.pkh;
-                const amount_two      = 3000000;
+                const amount_two      = 30000;
 
                 const recipient_three = trudy.pkh;
-                const amount_three    = 5000000;
+                const amount_three    = 50000;
 
                 const initialRecipientOneTezBalance   = await utils.tezos.tz.getBalance(recipient_one);
                 const initialRecipientTwoTezBalance   = await utils.tezos.tz.getBalance(recipient_two);
@@ -499,13 +488,13 @@ describe("Treasury tests", async () => {
                 const tokenContractAddress  = mavrykFa12TokenAddress;
 
                 const recipient_one   = mallory.pkh;
-                const amount_one      = 2000000;
+                const amount_one      = 20000;
 
                 const recipient_two   = oscar.pkh;
-                const amount_two      = 3000000;
+                const amount_two      = 30000;
 
                 const recipient_three = trudy.pkh;
-                const amount_three    = 5000000;
+                const amount_three    = 50000;
 
                 const mavrykFa12TokenStorage           = await mavrykFa12TokenInstance.storage();
                 const initialRecipientOneAccount     = await mavrykFa12TokenStorage.ledger.get(recipient_one);
@@ -544,7 +533,7 @@ describe("Treasury tests", async () => {
                 ).send();
                 await adminBatchTransferOperation.confirmation();
 
-                const updatedMavrykFa12TokenStorage    = await mavrykFa12TokenInstance.storage();
+                const updatedMavrykFa12TokenStorage  = await mavrykFa12TokenInstance.storage();
                 const finalRecipientOneBalance       = await updatedMavrykFa12TokenStorage.ledger.get(recipient_one);
                 const finalRecipientTwoBalance       = await updatedMavrykFa12TokenStorage.ledger.get(recipient_two);
                 const finalRecipientThreeBalance     = await updatedMavrykFa12TokenStorage.ledger.get(recipient_three);
@@ -574,7 +563,7 @@ describe("Treasury tests", async () => {
                 const recipient_three = trudy.pkh;
                 const amount_three    = 5000000;
 
-                const mavrykFa2TokenStorage            = await mavrykFa2TokenInstance.storage();
+                const mavrykFa2TokenStorage          = await mavrykFa2TokenInstance.storage();
                 const initialRecipientOneAccount     = await mavrykFa2TokenStorage.ledger.get(recipient_one);
                 const initialRecipientTwoAccount     = await mavrykFa2TokenStorage.ledger.get(recipient_two);
                 const initialRecipientThreeAccount   = await mavrykFa2TokenStorage.ledger.get(recipient_three);
@@ -620,7 +609,7 @@ describe("Treasury tests", async () => {
                 ).send();
                 await adminBatchTransferOperation.confirmation();
 
-                const updatedMavrykFa2TokenStorage     = await mavrykFa2TokenInstance.storage();
+                const updatedMavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
                 const finalRecipientOneBalance       = await updatedMavrykFa2TokenStorage.ledger.get(recipient_one);
                 const finalRecipientTwoBalance       = await updatedMavrykFa2TokenStorage.ledger.get(recipient_two);
                 const finalRecipientThreeBalance     = await updatedMavrykFa2TokenStorage.ledger.get(recipient_three);
@@ -642,13 +631,13 @@ describe("Treasury tests", async () => {
                 const tokenId               = 0;
 
                 const recipient_one   = mallory.pkh;
-                const amount_one      = 2000000;
+                const amount_one      = 20000;
 
                 const recipient_two   = oscar.pkh;
-                const amount_two      = 3000000;
+                const amount_two      = 30000;
 
                 const recipient_three = trudy.pkh;
-                const amount_three    = 5000000;
+                const amount_three    = 50000;
 
                 const mvkTokenStorage                = await mvkTokenInstance.storage();
                 const initialRecipientOneAccount     = await mvkTokenStorage.ledger.get(recipient_one);
@@ -722,23 +711,23 @@ describe("Treasury tests", async () => {
 
                 // receive tez
                 const recipient_one   = isaac.pkh;
-                const amount_one      = 2000000;
+                const amount_one      = 20000;
 
                 // receive mavryk FA12 tokens
                 const recipient_two   = oscar.pkh;
-                const amount_two      = 3000000;
+                const amount_two      = 30000;
 
                 // receive mavryk FA2 tokens
                 const recipient_three = trudy.pkh;
-                const amount_three    = 5000000;
+                const amount_three    = 50000;
 
                 // receive MVK Tokens
                 const recipient_four  = david.pkh;
-                const amount_four     = 5000000;
+                const amount_four     = 50000;
 
                 const mvkTokenStorage                = await mvkTokenInstance.storage();
-                const mavrykFa12TokenStorage           = await mavrykFa12TokenInstance.storage();
-                const mavrykFa2TokenStorage            = await mavrykFa2TokenInstance.storage();
+                const mavrykFa12TokenStorage         = await mavrykFa12TokenInstance.storage();
+                const mavrykFa2TokenStorage          = await mavrykFa2TokenInstance.storage();
 
                 const initRecipientOneTezBalance     = await utils.tezos.tz.getBalance(recipient_one);
                 const initialRecipientTwoAccount     = await mavrykFa12TokenStorage.ledger.get(recipient_two);
@@ -790,14 +779,14 @@ describe("Treasury tests", async () => {
                 ).send();
                 await adminBatchTransferOperation.confirmation();
 
-                const updatedMvkTokenStorage         = await mvkTokenInstance.storage();
+                const updatedMvkTokenStorage           = await mvkTokenInstance.storage();
                 const updatedMavrykFa12TokenStorage    = await mavrykFa12TokenInstance.storage();
                 const updatedMavrykFa2TokenStorage     = await mavrykFa2TokenInstance.storage();
 
-                const finalRecipientOneTezBalance             = await utils.tezos.tz.getBalance(recipient_one);
+                const finalRecipientOneTezBalance               = await utils.tezos.tz.getBalance(recipient_one);
                 const finalRecipientTwoMavrykFa12TokenBalance   = await updatedMavrykFa12TokenStorage.ledger.get(recipient_two);
                 const finalRecipientThreeMavrykFa2TokenBalance  = await updatedMavrykFa2TokenStorage.ledger.get(recipient_three);
-                const finalRecipientThreeMvkTokenBalance      = await updatedMvkTokenStorage.ledger.get(recipient_four);
+                const finalRecipientThreeMvkTokenBalance        = await updatedMvkTokenStorage.ledger.get(recipient_four);
 
                 assert.deepEqual(finalRecipientOneTezBalance,   initRecipientOneTezBalance.plus(amount_one));
                 assert.deepEqual(finalRecipientTwoMavrykFa12TokenBalance.balance,  initialRecipientTwoBalance.plus(amount_two));
@@ -812,11 +801,11 @@ describe("Treasury tests", async () => {
 
     describe('%mintMvkAndTransfer', function() {
 
-        it('%mintMvkAndTransfer      - whitelisted contract (eve) should be able to call this entrypoint and mintAndTransfer MVK', async () => {
+        it('%mintMvkAndTransfer       - whitelisted contract (eve) should be able to call this entrypoint and mintAndTransfer MVK', async () => {
             try{        
                 
                 const to_        = userOne;
-                const amount     = MVK(10); // 10 MVK
+                const amount     = MVK(2); // 2 MVK
 
                 const mvkTokenStorage           = await mvkTokenInstance.storage();
                 const initialBobMvkTokenBalance = await mvkTokenStorage.ledger.get(userOne);
@@ -852,7 +841,7 @@ describe("Treasury tests", async () => {
                 const initTreasuryMvkTokenBalance   = await mvkTokenStorage.ledger.get(treasuryAddress);
                 var initTreasurySMvkTokenBalance    = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress);
                 initTreasurySMvkTokenBalance        = initTreasurySMvkTokenBalance ? initTreasurySMvkTokenBalance.balance : new BigNumber(0);
-                const stakeAmount                   = MVK(10);
+                const stakeAmount                   = MVK(4);
 
                 // Operations
                 const stakeOperation                = await treasuryInstance.methods.stakeTokens(
@@ -875,10 +864,10 @@ describe("Treasury tests", async () => {
             } 
         });
 
-        it('%stakeTokens             - admin (bob) should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map', async () => {
+        it('%stakeTokens              - admin (bob) should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map', async () => {
             try{
                 // Initial values
-                const stakeAmount     = MVK(10);
+                const stakeAmount     = MVK(2);
 
                 // Update config
                 await signerFactory(tezos, adminSk);
@@ -904,7 +893,7 @@ describe("Treasury tests", async () => {
 
     describe('%unstakeTokens', function() {
 
-        it('%unstakeTokens              - admin (bob) should be able to call this entrypoint and unstake MVK', async () => {
+        it('%unstakeTokens            - admin (bob) should be able to call this entrypoint and unstake MVK', async () => {
             try{        
                 // Initial values
                 await signerFactory(tezos, adminSk);
@@ -912,7 +901,7 @@ describe("Treasury tests", async () => {
                 mvkTokenStorage                     = await mvkTokenInstance.storage();
                 const initTreasuryMvkTokenBalance   = await mvkTokenStorage.ledger.get(treasuryAddress);
                 const initTreasurySMvkTokenBalance  = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress);
-                const unstakeAmount                 = MVK(5);
+                const unstakeAmount                 = MVK(2);
 
                 // Operations
                 const stakeOperation = await treasuryInstance.methods.unstakeTokens(
@@ -934,7 +923,7 @@ describe("Treasury tests", async () => {
             } 
         });
 
-        it('%unstakeTokens           - admin (bob) should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map', async () => {
+        it('%unstakeTokens            - admin (bob) should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map', async () => {
             try{
                 // Initial values
                 const unstakeAmount     = MVK(2);
@@ -1529,7 +1518,7 @@ describe("Treasury tests", async () => {
             try{        
                 
                 const to_        = userOne;
-                const amount     = 10000000;
+                const amount     = 100000;
                 const tokenType  = "tez"
 
                 await signerFactory(tezos, adminSk);
@@ -1554,7 +1543,7 @@ describe("Treasury tests", async () => {
         it('%transfer                 - non-whitelisted contract (admin) should not be able to call this entrypoint and transfer FA12', async () => {
             try{
                 const to_                   = userOne;
-                const amount                = 10000000;
+                const amount                = 100000;
                 const tokenContractAddress  = mavrykFa12TokenAddress;
 
                 await signerFactory(tezos, adminSk);
@@ -1579,7 +1568,7 @@ describe("Treasury tests", async () => {
         it('%transfer                 - non-whitelisted contract (admin) should not be able to call this entrypoint and transfer FA2', async () => {
             try{
                 const to_        = userOne;
-                const amount     = 10000000;
+                const amount     = 100000;
                 const tokenContractAddress      = mavrykFa12TokenAddress;
                 const tokenId    = 0;
 
@@ -1608,7 +1597,7 @@ describe("Treasury tests", async () => {
         it('%transfer                 - non-whitelisted contract (admin) should not be able to call this entrypoint and transfer MVK', async () => {
             try{
                 const to_                   = userOne;
-                const amount                = MVK(10);
+                const amount                = MVK(2);
                 const tokenContractAddress  = mvkTokenAddress;
                 const tokenId               = 0;
 
@@ -1636,7 +1625,7 @@ describe("Treasury tests", async () => {
         it('%mintMvkAndTransfer      - non-whitelisted contract (admin) should not be able to call this entrypoint and mintAndTransfer MVK', async () => {
             try{
                 const to_        = userOne;
-                const amount     = 10000000;
+                const amount     = 100000;
 
                 await signerFactory(tezos, adminSk);
                 const failMintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
@@ -1653,7 +1642,7 @@ describe("Treasury tests", async () => {
         it('%stakeTokens             - non-admin (eve) should not be able to call this entrypoint and stake MVK', async () => {
             try{
                 // Initial values
-                const stakeAmount     = MVK(10);
+                const stakeAmount     = MVK(2);
 
                 // Operations
                 await chai.expect(treasuryInstance.methods.stakeTokens(
