@@ -613,6 +613,8 @@ describe("Test: Break Glass Contract", async () => {
         it('%breakGlass                     - emergency governance contract should be able to trigger breakGlass with enough votes', async () => {
             try{
 
+                let tempStakeAmount = 0 
+
                 // set signer to proposer (eve)
                 user    = eve.pkh;
                 userSk  = eve.sk;
@@ -662,7 +664,7 @@ describe("Test: Break Glass Contract", async () => {
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
 
-                // ensure that user has enough staked MVK to trigger emergency governance
+                // ensure that user has enough staked MVK to trigger break glass
                 const emergencyGovernanceRecord = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyGovernanceStorage.currentEmergencyGovernanceId);
                 const sMvkRequired              = emergencyGovernanceRecord.stakedMvkRequiredForBreakGlass.toNumber();
                 if(initialUserStakedBalance < sMvkRequired){
@@ -671,47 +673,27 @@ describe("Test: Break Glass Contract", async () => {
                     await updateOperatorsOperation.confirmation();
 
                     // set stake amount so that user's final staked balance will be above sMvkRequired
-                    stakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequired) + 1;
-                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    tempStakeAmount  = Math.abs(initialUserStakedBalance - sMvkRequired) + 1;
+                    stakeOperation   = await doormanInstance.methods.stake(tempStakeAmount).send();
                     await stakeOperation.confirmation();
                 }
 
-                // user (eve) vote for emergency control
+                // user (eve) vote for emergency control and trigger break glass
                 await signerFactory(tezos, userSk)
                 voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                await voteOperation.confirmation();
-
-                // user (alice) vote for emergency control
-                breakGlassStorage   = await breakGlassInstance.storage();
-                var glassBroken     = breakGlassStorage.glassBroken;
-                if(glassBroken = false){
-                    await signerFactory(tezos, alice.sk)
-                    voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                    await voteOperation.confirmation();
-                }
-
-                // user (mallory) vote for emergency control
-                breakGlassStorage   = await breakGlassInstance.storage();
-                glassBroken         = breakGlassStorage.glassBroken;
-                if(glassBroken = false){
-                    await signerFactory(tezos, mallory.sk)
-                    voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                    await voteOperation.confirmation();
-                }
-
-                // user (trudy) vote for emergency control
-                breakGlassStorage   = await breakGlassInstance.storage();
-                glassBroken         = breakGlassStorage.glassBroken;
-                if(glassBroken = false){
-                    await signerFactory(tezos, trudy.sk)
-                    voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                    await voteOperation.confirmation();
-                }
+                await voteOperation.confirmation();                
 
                 // Check if glass was broken
                 breakGlassStorage   = await breakGlassInstance.storage();
-                glassBroken         = breakGlassStorage.glassBroken;
+                const glassBroken   = breakGlassStorage.glassBroken;
                 assert.equal(glassBroken, true);
+
+                // reset stake balance (so that it will not affect subsequent tests)
+                if(tempStakeAmount > 0){
+                    // reset stake balance to initial
+                    unstakeOperation     = await doormanInstance.methods.unstake(tempStakeAmount).send();
+                    await unstakeOperation.confirmation();
+                }
 
             } catch(e){
                 console.dir(e, {depth: 5});
