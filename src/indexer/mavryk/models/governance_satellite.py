@@ -40,10 +40,10 @@ class GovernanceSatelliteAction(Model):
     id                                      = fields.BigIntField(pk=True)
     internal_id                             = fields.BigIntField(default=0)
     governance_satellite                    = fields.ForeignKeyField('models.GovernanceSatellite', related_name='actions')
-    initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_initiators', index=True)
+    initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_initiators')
     governance_type                         = fields.CharField(max_length=255)
     status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus, default=GovernanceActionStatus.ACTIVE, index=True)
-    executed                                = fields.BooleanField(default=False, index=True)
+    executed                                = fields.BooleanField(default=False)
     governance_purpose                      = fields.TextField(default="")
     yay_vote_smvk_total                     = fields.FloatField(default=0.0)
     nay_vote_smvk_total                     = fields.FloatField(default=0.0)
@@ -51,28 +51,28 @@ class GovernanceSatelliteAction(Model):
     snapshot_smvk_total_supply              = fields.FloatField(default=0.0)
     smvk_percentage_for_approval            = fields.SmallIntField(default=0)
     smvk_required_for_approval              = fields.FloatField(default=0.0)
-    execution_datetime                      = fields.DatetimeField(index=True, null=True)
-    expiration_datetime                     = fields.DatetimeField(index=True)
-    start_datetime                          = fields.DatetimeField(index=True)
-    governance_cycle_id                     = fields.BigIntField(default=0, index=True)
-    dropped_datetime                        = fields.DatetimeField(index=True, null=True)
+    execution_datetime                      = fields.DatetimeField()
+    expiration_datetime                     = fields.DatetimeField()
+    start_datetime                          = fields.DatetimeField()
+    governance_cycle_id                     = fields.BigIntField(default=0)
+    dropped_datetime                        = fields.DatetimeField(null=True)
 
     class Meta:
         table = 'governance_satellite_action'
 
 class GovernanceSatelliteActionVote(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteAction', related_name='votes', index=True)
-    voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_actions_votes', index=True)
-    satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshot', related_name='governance_satellite_actions_votes', index=True)
-    timestamp                               = fields.DatetimeField(index=True, auto_now=True)
-    vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY, index=True)
+    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteAction', related_name='votes')
+    voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_actions_votes')
+    satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshot', related_name='governance_satellite_actions_votes')
+    timestamp                               = fields.DatetimeField(auto_now=True)
+    vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
     class Meta:
         table = 'governance_satellite_action_vote'
 
 class GovernanceSatelliteActionParameter(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteAction', related_name='parameters', index=True)
+    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteAction', related_name='parameters')
     name                                    = fields.TextField(default="")
     value                                   = fields.TextField(default="")
 
@@ -81,17 +81,17 @@ class GovernanceSatelliteActionParameter(Model):
 
 class GovernanceSatelliteOracle(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_satellite                    = fields.ForeignKeyField('models.GovernanceSatellite', related_name='oracles', index=True)
-    oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_oracles', index=True)
+    governance_satellite                    = fields.ForeignKeyField('models.GovernanceSatellite', related_name='oracles')
+    oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_oracles')
 
     class Meta:
         table = 'governance_satellite_oracle'
 
 class GovernanceSatelliteOracleAggregator(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_satellite_oracle             = fields.ForeignKeyField('models.GovernanceSatelliteOracle', related_name='aggregators', index=True)
-    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='governance_satellite_oracle_aggregators', index=True)
-    start_timestamp                         = fields.DatetimeField(index=True)
+    governance_satellite_oracle             = fields.ForeignKeyField('models.GovernanceSatelliteOracle', related_name='aggregators')
+    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='governance_satellite_oracle_aggregators')
+    start_timestamp                         = fields.DatetimeField()
 
     class Meta:
         table = 'governance_satellite_oracle_aggregator'

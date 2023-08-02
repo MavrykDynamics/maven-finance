@@ -9,7 +9,7 @@ from mavryk.models.enums import RewardType
 class Aggregator(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='aggregators')
     factory                                 = fields.ForeignKeyField('models.AggregatorFactory', related_name='aggregators', null=True)
-    creation_timestamp                      = fields.DatetimeField(index=True)
+    creation_timestamp                      = fields.DatetimeField()
     name                                    = fields.TextField(default='')
     decimals                                = fields.SmallIntField(default=0)
     alpha_pct_per_thousand                  = fields.SmallIntField(default=0)
@@ -20,34 +20,34 @@ class Aggregator(MavrykContract, Model):
     update_data_paused                      = fields.BooleanField(default=False)
     withdraw_reward_xtz_paused              = fields.BooleanField(default=False)
     withdraw_reward_smvk_paused             = fields.BooleanField(default=False)
-    last_completed_data_round               = fields.BigIntField(default=0, index=True)
-    last_completed_data_epoch               = fields.BigIntField(default=0, index=True)
+    last_completed_data_round               = fields.BigIntField(default=0)
+    last_completed_data_epoch               = fields.BigIntField(default=0)
     last_completed_data                     = fields.FloatField(default=0.0)
     last_completed_data_pct_oracle_resp     = fields.SmallIntField(default=0)
-    last_completed_data_last_updated_at     = fields.DatetimeField(index=True)
+    last_completed_data_last_updated_at     = fields.DatetimeField()
 
     class Meta:
         table = 'aggregator'
 
 class AggregatorOracle(Model):
     id                                      = fields.BigIntField(pk=True)
-    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='oracles', index=True)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracles', index=True)
+    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='oracles')
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracles')
     public_key                              = fields.CharField(max_length=54, default="")
     peer_id                                 = fields.TextField(default="")
-    init_round                              = fields.BigIntField(index=True)
-    init_epoch                              = fields.BigIntField(index=True)
+    init_round                              = fields.BigIntField()
+    init_epoch                              = fields.BigIntField()
 
     class Meta:
         table = 'aggregator_oracle'
 
 class AggregatorOracleObservation(Model):
     id                                      = fields.BigIntField(pk=True)
-    oracle                                  = fields.ForeignKeyField('models.AggregatorOracle', related_name='observations', index=True)
-    timestamp                               = fields.DatetimeField(index=True)
+    oracle                                  = fields.ForeignKeyField('models.AggregatorOracle', related_name='observations')
+    timestamp                               = fields.DatetimeField()
     data                                    = fields.FloatField(default=0.0)
-    epoch                                   = fields.BigIntField(default=0, index=True)
-    round                                   = fields.BigIntField(default=0, index=True)
+    epoch                                   = fields.BigIntField(default=0)
+    round                                   = fields.BigIntField(default=0)
 
     class Meta:
         table = 'aggregator_oracle_observation'
@@ -82,10 +82,10 @@ class AggregatorWhitelistContract(LinkedContract, Model):
 
 class AggregatorHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
-    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='history_data', index=True)
-    timestamp                               = fields.DatetimeField(index=True)
-    round                                   = fields.BigIntField(default=0, index=True)
-    epoch                                   = fields.BigIntField(default=0, index=True)
+    aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='history_data')
+    timestamp                               = fields.DatetimeField()
+    round                                   = fields.BigIntField(default=0)
+    epoch                                   = fields.BigIntField(default=0)
     data                                    = fields.FloatField(default=0.0)
     pct_oracle_resp                         = fields.SmallIntField(default=0)
 

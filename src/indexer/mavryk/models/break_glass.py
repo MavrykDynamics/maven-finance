@@ -41,7 +41,7 @@ class BreakGlassWhitelistContract(LinkedContract, Model):
 
 class BreakGlassCouncilMember(Model):
     id                                      = fields.BigIntField(pk=True)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_council_members', index=True)
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_council_members')
     break_glass                             = fields.ForeignKeyField('models.BreakGlass', related_name='council_members')
     name                                    = fields.TextField(default="")
     website                                 = fields.TextField(default="")
@@ -55,11 +55,11 @@ class BreakGlassAction(Model):
     internal_id                             = fields.BigIntField(default=0)
     break_glass                             = fields.ForeignKeyField('models.BreakGlass', related_name='actions')
     initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_actions_initiator', index=True)
-    start_datetime                          = fields.DatetimeField(index=True)
-    execution_datetime                      = fields.DatetimeField(index=True, null=True)
-    execution_level                         = fields.BigIntField(default=0, index=True, null=True)
+    start_datetime                          = fields.DatetimeField()
+    execution_datetime                      = fields.DatetimeField()
+    execution_level                         = fields.BigIntField(default=0)
     expiration_datetime                     = fields.DatetimeField(index=True)
-    flushed_datetime                        = fields.DatetimeField(index=True, null=True)
+    flushed_datetime                        = fields.DatetimeField(null=True)
     action_type                             = fields.CharField(max_length=48)
     status                                  = fields.IntEnumField(enum_type=ActionStatus, index=True)
     executed                                = fields.BooleanField(default=False, index=True)
@@ -71,7 +71,7 @@ class BreakGlassAction(Model):
 
 class BreakGlassActionSigner(Model):
     id                                      = fields.BigIntField(pk=True)
-    break_glass_action                      = fields.ForeignKeyField('models.BreakGlassAction', related_name='signers', index=True)
+    break_glass_action                      = fields.ForeignKeyField('models.BreakGlassAction', related_name='signers')
     signer                                  = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_action_signers', index=True)
 
     class Meta:
@@ -79,7 +79,7 @@ class BreakGlassActionSigner(Model):
 
 class BreakGlassActionParameter(Model):
     id                                      = fields.BigIntField(pk=True)
-    break_glass_action                      = fields.ForeignKeyField('models.BreakGlassAction', related_name='parameters', index=True)
+    break_glass_action                      = fields.ForeignKeyField('models.BreakGlassAction', related_name='parameters')
     name                                    = fields.TextField(default="")
     value                                   = fields.TextField(default="")
 

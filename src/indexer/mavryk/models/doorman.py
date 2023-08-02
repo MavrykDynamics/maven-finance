@@ -44,7 +44,7 @@ class DoormanWhitelistContract(LinkedContract, Model):
 
 class DoormanStakeAccount(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='doorman_stake_accounts', index=True)
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='doorman_stake_accounts')
     doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stake_accounts')
     participation_fees_per_share            = fields.FloatField(default=0)
     total_exit_fee_rewards_claimed          = fields.FloatField(default=0)
@@ -58,8 +58,8 @@ class DoormanStakeAccount(Model):
 class StakeHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stakes_history_data')
-    from_                                   = fields.ForeignKeyField('models.MavrykUser', related_name='stakes_history_data', index=True)
-    timestamp                               = fields.DatetimeField(index=True)
+    from_                                   = fields.ForeignKeyField('models.MavrykUser', related_name='stakes_history_data')
+    timestamp                               = fields.DatetimeField()
     type                                    = fields.IntEnumField(enum_type=StakeType, index=True)
     desired_amount                          = fields.FloatField(default=0.0)
     final_amount                            = fields.FloatField(default=0.0)
@@ -71,7 +71,7 @@ class SMVKHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stakes_mvk_history_data')
     level                                   = fields.BigIntField(default=0)
-    timestamp                               = fields.DatetimeField(index=True)
+    timestamp                               = fields.DatetimeField()
     smvk_total_supply                       = fields.FloatField(default=0.0)
     mvk_total_supply                        = fields.FloatField(default=0.0)
     avg_smvk_by_user                        = fields.FloatField(default=0.0)

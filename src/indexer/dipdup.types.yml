@@ -68,7 +68,6 @@ indexes:
     kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
-    - origination
     - transaction
     handlers:
     - callback: farm.set_admin
@@ -131,10 +130,7 @@ indexes:
     kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
-    - origination
     - transaction
-    contracts:
-    - farm_m_token
     handlers:
     - callback: m_farm.set_admin
       pattern:
@@ -196,7 +192,6 @@ indexes:
     kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
-    - origination
     - transaction
     handlers:
     - callback: aggregator.set_admin
@@ -271,7 +266,6 @@ indexes:
     kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
-    - origination
     - transaction
     handlers:
     - callback: treasury.set_admin
@@ -326,7 +320,6 @@ indexes:
     kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
-    - origination
     - transaction
     handlers:
     - callback: vault.set_baker
@@ -766,15 +759,13 @@ indexes:
       pattern:
       - destination: farm_factory
         entrypoint: createFarm
-      - source: farm_factory
-        type: origination
+      - type: origination
         originated_contract: farm
     - callback: farm_factory.create_farm_m_token
       pattern:
       - destination: farm_factory
         entrypoint: createFarmMToken
-      - source: farm_factory
-        type: origination
+      - type: origination
         originated_contract: farm_m_token
     - callback: farm_factory.track_farm
       pattern:
@@ -1256,8 +1247,7 @@ indexes:
       pattern:
       - destination: aggregator_factory
         entrypoint: createAggregator
-      - source: aggregator_factory
-        type: origination
+      - type: origination
         originated_contract: aggregator
     - callback: aggregator_factory.track_aggregator
       pattern:
@@ -1317,8 +1307,7 @@ indexes:
       pattern:
       - destination: treasury_factory
         entrypoint: createTreasury
-      - source: treasury_factory
-        type: origination
+      - type: origination
         originated_contract: treasury
     - callback: treasury_factory.track_treasury
       pattern:
@@ -1374,8 +1363,7 @@ indexes:
       pattern:
       - destination: vault_factory
         entrypoint: createVault
-      - source: vault_factory
-        type: origination
+      - type: origination
         originated_contract: vault
       - source: vault_factory
         destination: lending_controller
@@ -1384,8 +1372,7 @@ indexes:
       pattern:
       - destination: vault_factory
         entrypoint: createVault
-      - source: vault_factory
-        type: origination
+      - type: origination
         originated_contract: vault
       - source: vault_factory
         destination: lending_controller_mock_time
