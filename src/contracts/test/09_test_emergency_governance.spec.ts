@@ -777,6 +777,8 @@ describe("Emergency Governance tests", async () => {
         it('proposer (eve) should not be able to vote emergency control and trigger break glass if relevant contracts (breakGlass) is missing in Governance General Contracts Map', async () => {
             try{
 
+                let tempStakeAmount = 0 
+
                 // Remove breakGlass contract in Governance General Contracts map
                 await signerFactory(tezos, adminSk);
                 updateGeneralContractsOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", contractDeployments.breakGlass.address, "remove").send();
@@ -798,15 +800,15 @@ describe("Emergency Governance tests", async () => {
                 initialUserStakeRecord      = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance    = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
-                // ensure that user has enough staked MVK to vote for emergency governance
+                // ensure that user has enough staked MVK to trigger the emergency governance
                 if(initialUserStakedBalance < sMvkRequired){
                     
                     updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // set stake amount so that user's final staked balance will be above sMvkRequired
-                    stakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequired) + 1;
-                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    tempStakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequired) + 1;
+                    stakeOperation     = await doormanInstance.methods.stake(tempStakeAmount).send();
                     await stakeOperation.confirmation();
                 }
 
@@ -819,6 +821,14 @@ describe("Emergency Governance tests", async () => {
 
                 updateGeneralContractsOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", contractDeployments.breakGlass.address, "update").send();
                 await updateGeneralContractsOperation.confirmation()
+
+                // reset stake balance (so that it will not affect subsequent tests)
+                await signerFactory(tezos, userSk);
+                if(tempStakeAmount > 0){
+                    // reset stake balance to initial
+                    unstakeOperation = await doormanInstance.methods.unstake(tempStakeAmount).send();
+                    await unstakeOperation.confirmation();
+                }
 
             } catch(e){
                 console.dir(e, {depth: 5});
