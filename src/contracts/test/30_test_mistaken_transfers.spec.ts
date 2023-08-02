@@ -117,7 +117,9 @@ describe("Mistaken transfers tests", async () => {
         vestingInstance                 = await utils.tezos.contract.at(contractDeployments.vesting.address);
         aggregatorInstance              = await utils.tezos.contract.at(contractDeployments.aggregator.address);
         aggregatorFactoryInstance       = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
+        vaultFactoryInstance            = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
         governanceSatelliteInstance     = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
+        mTokenInstance                  = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
             
         doormanStorage                  = await doormanInstance.storage();
         delegationStorage               = await delegationInstance.storage();
@@ -138,6 +140,8 @@ describe("Mistaken transfers tests", async () => {
         aggregatorStorage               = await aggregatorInstance.storage();
         aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
         governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+        vaultFactoryStorage             = await vaultFactoryInstance.storage();
+        mTokenStorage                   = await mTokenInstance.storage();
 
     });
 
