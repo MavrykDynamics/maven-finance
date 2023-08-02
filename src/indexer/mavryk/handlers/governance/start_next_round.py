@@ -2,7 +2,8 @@ from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from mavryk.types.governance.tezos_storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
-from dipdup.models.tezos_tzkt import TzktTransaction, Q
+from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models import Q
 from mavryk.types.governance.tezos_parameters.start_next_round import StartNextRoundParameter
 import mavryk.models as models
 

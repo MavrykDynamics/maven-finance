@@ -9,7 +9,7 @@ class Treasury(MavrykContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='treasuries')
     factory                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='treasuries', null=True)
     baker                                   = fields.ForeignKeyField('models.MavrykUser', related_name='delegated_treasuries', null=True)
-    creation_timestamp                      = fields.DatetimeField(auto_now=True, index=True)
+    creation_timestamp                      = fields.DatetimeField(auto_now=True)
     name                                    = fields.TextField(default='')
     transfer_paused                         = fields.BooleanField(default=False)
     mint_mvk_and_transfer_paused            = fields.BooleanField(default=False)
@@ -41,17 +41,17 @@ class TreasuryWhitelistContract(LinkedContract, Model):
 
 class TreasuryWhitelistTokenContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.Treasury', related_name='whitelist_token_contracts')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_whitelist_token_contracts', index=True)
+    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_whitelist_token_contracts')
 
     class Meta:
         table = 'treasury_whitelist_token_contract'
 
 class TreasuryTransferHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
-    timestamp                               = fields.DatetimeField(index=True)
-    treasury                                = fields.ForeignKeyField('models.Treasury', related_name='transfer_history_data', index=True)
-    token_address                           = fields.CharField(max_length=36, default="", index=True)
-    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='treasury_transfer_receiver', index=True)
+    timestamp                               = fields.DatetimeField()
+    treasury                                = fields.ForeignKeyField('models.Treasury', related_name='transfer_history_data')
+    token_address                           = fields.CharField(max_length=36, default="")
+    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='treasury_transfer_receiver')
     amount                                  = fields.BigIntField(default=0)
 
     class Meta:
@@ -59,8 +59,8 @@ class TreasuryTransferHistoryData(Model):
 
 class TreasuryBalance(Model):
     id                                      = fields.BigIntField(pk=True)
-    treasury                                = fields.ForeignKeyField('models.Treasury', related_name='balances', index=True)
-    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_balances', index=True)
+    treasury                                = fields.ForeignKeyField('models.Treasury', related_name='balances')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_balances')
     tzkt_token_id                           = fields.BigIntField(default=0)
     balance                                 = fields.FloatField(default=0.0)
     whitelisted                             = fields.BooleanField(default=False)

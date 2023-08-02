@@ -1,13 +1,13 @@
 from mavryk.utils.contracts import get_token_standard
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import TokenTransferData
+from dipdup.models.tezos_tzkt import TzktTokenTransferData
 from mavryk import models as models
 import mavryk.models as models
 
 async def token_transfer_receiver(
     ctx: HandlerContext,
-    token_transfer: TokenTransferData,
+    token_transfer: TzktTokenTransferData,
 ) -> None:
 
     try:    

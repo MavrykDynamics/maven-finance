@@ -42,7 +42,7 @@ class CouncilWhitelistContract(LinkedContract, Model):
 
 class CouncilCouncilMember(Model):
     id                                      = fields.BigIntField(pk=True)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='council_council_members', index=True)
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='council_council_members')
     council                                 = fields.ForeignKeyField('models.Council', related_name='members')
     name                                    = fields.TextField(default="")
     website                                 = fields.TextField(default="")
@@ -56,11 +56,11 @@ class CouncilAction(Model):
     internal_id                             = fields.BigIntField(default=0)
     council                                 = fields.ForeignKeyField('models.Council', related_name='actions')
     initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_initiator', index=True)
-    start_datetime                          = fields.DatetimeField(index=True)
-    execution_datetime                      = fields.DatetimeField(index=True, null=True)
-    execution_level                         = fields.BigIntField(default=0, index=True, null=True)
+    start_datetime                          = fields.DatetimeField()
+    execution_datetime                      = fields.DatetimeField()
+    execution_level                         = fields.BigIntField(default=0)
     expiration_datetime                     = fields.DatetimeField(index=True)
-    flushed_datetime                        = fields.DatetimeField(index=True, null=True)
+    flushed_datetime                        = fields.DatetimeField(null=True)
     action_type                             = fields.CharField(max_length=48)
     status                                  = fields.IntEnumField(enum_type=ActionStatus, index=True)
     executed                                = fields.BooleanField(default=False, index=True)
@@ -72,7 +72,7 @@ class CouncilAction(Model):
 
 class CouncilActionSigner(Model):
     id                                      = fields.BigIntField(pk=True)
-    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='signers', index=True)
+    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='signers')
     signer                                  = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_signer', index=True)
 
     class Meta:
@@ -80,7 +80,7 @@ class CouncilActionSigner(Model):
 
 class CouncilActionParameter(Model):
     id                                      = fields.BigIntField(pk=True)
-    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='parameters', index=True)
+    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='parameters')
     name                                    = fields.TextField(default="")
     value                                   = fields.TextField(default="")
 
