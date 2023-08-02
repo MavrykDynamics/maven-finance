@@ -43,28 +43,28 @@ class EmergencyGovernanceWhitelistContract(LinkedContract, Model):
 class EmergencyGovernanceRecord(Model):
     id                                      = fields.BigIntField(pk=True)
     internal_id                             = fields.BigIntField(default=0)
-    emergency_governance                    = fields.ForeignKeyField('models.EmergencyGovernance', related_name='emergency_governance_records', index=True)
-    proposer                                = fields.ForeignKeyField('models.MavrykUser', related_name='emergency_governance_proposer', index=True)
-    executed                                = fields.BooleanField(default=False, index=True)
+    emergency_governance                    = fields.ForeignKeyField('models.EmergencyGovernance', related_name='emergency_governance_records')
+    proposer                                = fields.ForeignKeyField('models.MavrykUser', related_name='emergency_governance_proposer')
+    executed                                = fields.BooleanField(default=False)
     title                                   = fields.TextField(default="")
     description                             = fields.TextField(default="")
     total_smvk_votes                        = fields.FloatField(default=0)
     smvk_percentage_required                = fields.FloatField(default=0)
     smvk_required_for_trigger               = fields.FloatField(default=0)
-    start_timestamp                         = fields.DatetimeField(index=True)
-    execution_datetime                      = fields.DatetimeField(index=True, null=True)
-    expiration_timestamp                    = fields.DatetimeField(index=True)
-    start_level                             = fields.BigIntField(default=0, index=True)
-    execution_level                         = fields.BigIntField(default=0, index=True, null=True)
+    start_timestamp                         = fields.DatetimeField()
+    execution_datetime                      = fields.DatetimeField()
+    expiration_timestamp                    = fields.DatetimeField()
+    start_level                             = fields.BigIntField(default=0)
+    execution_level                         = fields.BigIntField(default=0)
 
     class Meta:
         table = 'emergency_governance_record'
 
 class EmergencyGovernanceVote(Model):
     id                                      = fields.BigIntField(pk=True)
-    emergency_governance_record             = fields.ForeignKeyField('models.EmergencyGovernanceRecord', related_name='voters', index=True)
-    voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='emergency_governance_votes', index=True)
-    timestamp                               = fields.DatetimeField(index=True)
+    emergency_governance_record             = fields.ForeignKeyField('models.EmergencyGovernanceRecord', related_name='voters')
+    voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='emergency_governance_votes')
+    timestamp                               = fields.DatetimeField()
     smvk_amount                             = fields.FloatField(default=0.0)
 
     class Meta:

@@ -47,8 +47,8 @@ class DelegationWhitelistContract(LinkedContract, Model):
 
 class SatelliteRewards(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='satellite_rewardss', index=True)
-    reference                               = fields.ForeignKeyField('models.SatelliteRewards', related_name='satellite_references', null=True, index=True)
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='satellite_rewardss')
+    reference                               = fields.ForeignKeyField('models.SatelliteRewards', related_name='satellite_references', null=True)
     delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellite_rewardss')
     unpaid                                  = fields.FloatField(default=0)
     paid                                    = fields.FloatField(default=0)
@@ -66,14 +66,14 @@ class Satellite(Model):
     delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellites')
     public_key                              = fields.CharField(max_length=54, null=True)
     peer_id                                 = fields.TextField(null=True)
-    status                                  = fields.IntEnumField(enum_type=SatelliteStatus, default=SatelliteStatus.ACTIVE, index=True)
+    status                                  = fields.IntEnumField(enum_type=SatelliteStatus, default=SatelliteStatus.ACTIVE)
     fee                                     = fields.SmallIntField(default=0)
     name                                    = fields.TextField(default="")
     description                             = fields.TextField(default="")
     image                                   = fields.TextField(default="")
-    website                                 = fields.TextField(default="")
+    website                                 = fields.TextField(default="", index=True)
     registration_timestamp                  = fields.DatetimeField(auto_now=True)
-    currently_registered                    = fields.BooleanField(default=True, index=True)
+    currently_registered                    = fields.BooleanField(default=True)
     total_delegated_amount                  = fields.FloatField(default=0.0)
     satellite_action_counter                = fields.BigIntField(default=0)
     financial_request_counter               = fields.BigIntField(default=0)
@@ -84,8 +84,8 @@ class Satellite(Model):
 
 class DelegationRecord(Model):
     id                                      = fields.BigIntField(pk=True)
-    satellite                               = fields.ForeignKeyField('models.Satellite', related_name='delegations', index=True)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='delegations', index=True)
+    satellite                               = fields.ForeignKeyField('models.Satellite', related_name='delegations')
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='delegations')
     delegation                              = fields.ForeignKeyField('models.Delegation', related_name='delegations')
     satellite_registration_timestamp        = fields.DatetimeField(auto_now=True)
 

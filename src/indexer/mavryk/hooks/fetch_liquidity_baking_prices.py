@@ -11,9 +11,6 @@ async def fetch_liquidity_baking_prices(
     # Print in console
     print("Fetching XTZUSD prices for liquidity baking history data")
 
-    # Execute SQL query
-    await ctx.execute_sql('fetch_liquidity_baking_prices')
-
     # Set USD Prices for records
     history_data    = await models.LiquidityBakingHistoryData.filter(token_price_usd=None).order_by('level').all()
     if len(history_data) > 0:
