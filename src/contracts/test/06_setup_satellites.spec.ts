@@ -60,7 +60,7 @@ describe("Setup: Mock Satellites", async () => {
     let tokenId = 0
 
     let stakeAmount
-    let highStakeBonusAmount = MVK(900)
+    let highStakeBonusAmount = MVK(700)
     let lowStakeBonusAmount  = MVK(500)
 
     // contract instances
