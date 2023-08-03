@@ -46,7 +46,7 @@
   "author": "devteam@mavryk.finance",
   "license": "MIT",
   "dependencies": {
-    "@mavrykdynamics/create-lambda-bytes": "^0.2.1",
+    "@mavrykdynamics/create-lambda-bytes": "^0.2.3",
     "@taquito/signer": "^16.0.0",
     "@taquito/taquito": "^16.0.0",
     "@taquito/tezbridge-signer": "^14.2.0",
