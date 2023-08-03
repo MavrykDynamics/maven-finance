@@ -20,6 +20,7 @@ import contractDeployments from './contractDeployments.json'
 
 import { alice, baker, bob, eve, mallory, oscar } from "../scripts/sandbox/accounts";
 import { depositorsType, vaultStorageType } from "../storage/storageTypes/vaultStorageType"
+import { createLambdaBytes } from '@mavrykdynamics/create-lambda-bytes';
 import { mockSatelliteData } from "./helpers/mockSampleData";
 import { 
     signerFactory, 
@@ -1908,7 +1909,7 @@ describe("Vault tests", async () => {
 
             const mvkDepositAmount    = 10000000000;   
             const satelliteAddress    = oscar.pkh;
-            const newSatelliteAddress = bob.pkh;
+            const newSatelliteAddress = alice.pkh;
 
             const vaultHandle = {
                 "id"    : vaultId,
@@ -1928,8 +1929,8 @@ describe("Vault tests", async () => {
             const initialOscarSatelliteRecord                = await delegationStorage.satelliteLedger.get(satelliteAddress);
             const initialOscarSatelliteTotalDelegatedAmount  = initialOscarSatelliteRecord.totalDelegatedAmount.toNumber();
 
-            const initialBobSatelliteRecord                  = await delegationStorage.satelliteLedger.get(newSatelliteAddress);
-            const initialBobSatelliteTotalDelegatedAmount    = initialBobSatelliteRecord.totalDelegatedAmount.toNumber();
+            const initialAliceSatelliteRecord                = await delegationStorage.satelliteLedger.get(newSatelliteAddress);
+            const initialAliceSatelliteTotalDelegatedAmount  = initialAliceSatelliteRecord.totalDelegatedAmount.toNumber();
 
             // redelegate from oscar to bob
             const delegationOperation   = await eveVaultInstance.methods.initVaultAction(
@@ -1941,11 +1942,11 @@ describe("Vault tests", async () => {
             const updatedOscarSatelliteRecord               = await delegationStorage.satelliteLedger.get(satelliteAddress);
             const updatedOscarSatelliteTotalDelegatedAmount = updatedOscarSatelliteRecord.totalDelegatedAmount.toNumber();
 
-            const updatedBobSatelliteRecord                 = await delegationStorage.satelliteLedger.get(newSatelliteAddress);
-            const updatedBobSatelliteTotalDelegatedAmount   = updatedBobSatelliteRecord.totalDelegatedAmount.toNumber();
+            const updatedAliceSatelliteRecord               = await delegationStorage.satelliteLedger.get(newSatelliteAddress);
+            const updatedAliceSatelliteTotalDelegatedAmount = updatedAliceSatelliteRecord.totalDelegatedAmount.toNumber();
 
             // assert correct changes in both satellite's total delegated amount
-            assert.equal(updatedBobSatelliteTotalDelegatedAmount, initialBobSatelliteTotalDelegatedAmount + vaultStakedMvkBalance);
+            assert.equal(updatedAliceSatelliteTotalDelegatedAmount, initialAliceSatelliteTotalDelegatedAmount + vaultStakedMvkBalance);
             assert.equal(updatedOscarSatelliteTotalDelegatedAmount, initialOscarSatelliteTotalDelegatedAmount - vaultStakedMvkBalance);
 
         });
