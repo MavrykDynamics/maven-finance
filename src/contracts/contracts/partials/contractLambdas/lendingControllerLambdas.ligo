@@ -694,8 +694,10 @@ block {
                     
                     if collateralTokenName = "tez" then block {
 
-                        const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mutez );
-                        operations := transferTezOperation # operations;
+                        if finalTokenBalance > 0n then {
+                            const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mutez );
+                            operations := transferTezOperation # operations;
+                        } else skip;
 
                         vault.collateralBalanceLedger[collateralTokenName]  := 0n;
                         
@@ -713,14 +715,16 @@ block {
                             finalTokenBalance := getBalanceFromStakingContract(vaultAddress, stakingContractAddress);
 
                             // for special case of sMVK
-                            const withdrawAllStakedMvkOperation : operation = onWithdrawStakedTokenFromVaultOperation(
-                                vaultOwner,                         // vault owner
-                                vaultAddress,                       // vault address
-                                finalTokenBalance,                  // withdraw amount
-                                stakingContractAddress              // staking contract address
-                            );
+                            if finalTokenBalance > 0n then {
+                                const withdrawAllStakedMvkOperation : operation = onWithdrawStakedTokenFromVaultOperation(
+                                    vaultOwner,                         // vault owner
+                                    vaultAddress,                       // vault address
+                                    finalTokenBalance,                  // withdraw amount
+                                    stakingContractAddress              // staking contract address
+                                );
 
-                            operations := withdrawAllStakedMvkOperation # operations;
+                                operations := withdrawAllStakedMvkOperation # operations;
+                            } else skip;
 
                         } else if collateralTokenRecord.isScaledToken then {
 
@@ -730,24 +734,28 @@ block {
                             finalTokenBalance := getBalanceFromScaledTokenContract(vaultAddress, collateralTokenRecord.tokenContractAddress);
 
                             // for other collateral token types besides sMVK and scaled tokens
-                            const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                vaultOwner,                         // to_
-                                collateralTokenName,                // token name
-                                finalTokenBalance,                  // token amount to be withdrawn
-                                vaultAddress                        // vault address
-                            );
-                            operations := withdrawTokenOperation # operations;
+                            if finalTokenBalance > 0n then {
+                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                    vaultOwner,                         // to_
+                                    collateralTokenName,                // token name
+                                    finalTokenBalance,                  // token amount to be withdrawn
+                                    vaultAddress                        // vault address
+                                );
+                                operations := withdrawTokenOperation # operations;
+                            } else skip;
 
                         } else {
 
                             // for other collateral token types besides sMVK and scaled tokens
-                            const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                vaultOwner,                         // to_
-                                collateralTokenName,                // token name
-                                finalTokenBalance,                  // token amount to be withdrawn
-                                vaultAddress                        // vault address
-                            );
-                            operations := withdrawTokenOperation # operations;
+                            if finalTokenBalance > 0n then {
+                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                    vaultOwner,                         // to_
+                                    collateralTokenName,                // token name
+                                    finalTokenBalance,                  // token amount to be withdrawn
+                                    vaultAddress                        // vault address
+                                );
+                                operations := withdrawTokenOperation # operations;
+                            } else skip;
 
                         };
 
