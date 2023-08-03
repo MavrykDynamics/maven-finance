@@ -51,6 +51,8 @@ describe('Governance proxy lambdas tests', async () => {
     let tokenId = 0
     let tokenAmount
 
+    let lambdaFunction;
+
     let governanceProxyInstance;
     let mvkTokenInstance;
     let vestingInstance;
@@ -102,6 +104,7 @@ describe('Governance proxy lambdas tests', async () => {
     let transferOperation
     let mistakenTransferOperation
     let setGovernanceOperation
+    let executeGovernanceActionOperation
 
 
     before('setup', async () => {
@@ -175,8 +178,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(mvkTokenStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation = await mvkTokenInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation = await mvkTokenInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -191,7 +194,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const newInflationRate              = initInflationRate * 2;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -201,8 +204,8 @@ describe('Governance proxy lambdas tests', async () => {
                             newInflationRate
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     mvkTokenStorage                     = await mvkTokenInstance.storage();
@@ -225,7 +228,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initMaximumSupply             = mvkTokenStorage.maximumSupply;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -234,8 +237,8 @@ describe('Governance proxy lambdas tests', async () => {
                             contractDeployments.mvkToken.address
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     mvkTokenStorage                     = await mvkTokenInstance.storage();
@@ -258,7 +261,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initMvkGovernance     = mvkTokenStorage.governanceAddress;
     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -269,8 +272,8 @@ describe('Governance proxy lambdas tests', async () => {
                         ]
                     );
 
-                    const operation             = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation             = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     mvkTokenStorage             = await mvkTokenInstance.storage();
@@ -293,7 +296,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initMvkAdmin  = mvkTokenStorage.admin;
     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -303,9 +306,10 @@ describe('Governance proxy lambdas tests', async () => {
                             newAdmin
                         ]
                     );
-                    const operation     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
-    
+
+                    executeGovernanceActionOperation     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
+
                     // Final values
                     mvkTokenStorage     = await mvkTokenInstance.storage();
                     const finalMvkAdmin = mvkTokenStorage.admin;
@@ -317,18 +321,9 @@ describe('Governance proxy lambdas tests', async () => {
 
                     // Reset Operation
                     newAdmin = bob.pkh;
-                    const lambdaFunction        = await createLambdaBytes(
-                        tezos.rpc.url,
-                        contractDeployments.governanceProxy.address,
-                        
-                        'setAdmin',
-                        [
-                            contractDeployments.mvkToken.address,
-                            newAdmin
-                        ]
-                    );
-                    const operation     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    await signerFactory(tezos, alice.sk);
+                    setAdminOperation     = await mvkTokenInstance.methods.setAdmin(newAdmin).send();
+                    await setAdminOperation.confirmation();
     
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -347,8 +342,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(vestingStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation = await vestingInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation = await vestingInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -366,7 +361,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initVesteeRecord      = await vestingStorage.vesteeLedger.get(vesteeAddress);
     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -379,8 +374,8 @@ describe('Governance proxy lambdas tests', async () => {
                             vestingInMonths
                         ]
                     );
-                    const operation             = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation             = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     vestingStorage              = await vestingInstance.storage();
@@ -409,7 +404,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initVesteeRecord          = await vestingStorage.vesteeLedger.get(vesteeAddress);
     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -422,8 +417,8 @@ describe('Governance proxy lambdas tests', async () => {
                             newVestingInMonths
                         ]
                     );
-                    const operation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     vestingStorage                  = await vestingInstance.storage();
@@ -449,7 +444,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initVesteeRecord          = await vestingStorage.vesteeLedger.get(vesteeAddress);
     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -459,8 +454,8 @@ describe('Governance proxy lambdas tests', async () => {
                             vesteeAddress
                         ]
                     );
-                    const operation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     vestingStorage                  = await vestingInstance.storage();
@@ -486,7 +481,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initVesteeRecord          = await vestingStorage.vesteeLedger.get(vesteeAddress);
     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -496,8 +491,8 @@ describe('Governance proxy lambdas tests', async () => {
                             vesteeAddress
                         ]
                     );
-                    const operation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     vestingStorage                  = await vestingInstance.storage();
@@ -523,8 +518,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(farmStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation = await farmInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation = await farmInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -539,7 +534,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initFarmName              = farmStorage.name;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -549,8 +544,8 @@ describe('Governance proxy lambdas tests', async () => {
                             farmNewName
                         ]
                     );
-                    const operation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     farmStorage                     = await farmInstance.storage();
@@ -578,7 +573,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initFarmOpen              = farmStorage.open;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -591,8 +586,8 @@ describe('Governance proxy lambdas tests', async () => {
                             infinite
                         ]
                     );
-                    const operation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     farmStorage                     = await farmInstance.storage();
@@ -621,7 +616,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initFarmOpen              = farmStorage.open;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -630,8 +625,8 @@ describe('Governance proxy lambdas tests', async () => {
                             contractDeployments.farm.address
                         ]
                     );
-                    const operation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     farmStorage                     = await farmInstance.storage();
@@ -653,7 +648,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initFarmBreakGlassConfig  = await farmStorage.breakGlassConfig;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -662,8 +657,8 @@ describe('Governance proxy lambdas tests', async () => {
                             contractDeployments.farm.address
                         ]
                     );
-                    const operation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     farmStorage                     = await farmInstance.storage();
@@ -690,7 +685,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initFarmBreakGlassConfig  = await farmStorage.breakGlassConfig;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -699,8 +694,8 @@ describe('Governance proxy lambdas tests', async () => {
                             contractDeployments.farm.address
                         ]
                     );
-                    const operation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     farmStorage                     = await farmInstance.storage();
@@ -730,7 +725,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = farmStorage.config.forceRewardFromTransfer;
                     
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -742,8 +737,8 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     farmStorage                         = await farmInstance.storage();
@@ -767,7 +762,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = farmStorage.breakGlassConfig.depositIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -779,8 +774,8 @@ describe('Governance proxy lambdas tests', async () => {
                             true
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     farmStorage                         = await farmInstance.storage();
@@ -806,8 +801,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(farmFactoryStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation = await farmFactoryInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation = await farmFactoryInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -853,7 +848,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initFarmTestGovernance    = await governanceStorage.generalContracts.get(farmName);
     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -872,8 +867,8 @@ describe('Governance proxy lambdas tests', async () => {
                             lpTokenStandard
                         ]
                     );
-                    const operation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                 = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     farmFactoryStorage              = await farmFactoryInstance.storage();
@@ -902,42 +897,6 @@ describe('Governance proxy lambdas tests', async () => {
                 } 
             });
 
-            it('%setProductLambda', async () => {
-                try{
-                    // Initial values
-                    farmFactoryStorage                  = await farmFactoryInstance.storage();
-                    const lambdaName                    = "lambdaUnstake";
-                    const newFarmUnstakeLambda          = doormanLambdas.lambdaNewUnstake;
-                    const initFarmUnstakeLambda         = farmFactoryStorage.farmLambdaLedger.get(lambdaName);
-                    
-                    // Operation
-                    const lambdaFunction        = await createLambdaBytes(
-                        tezos.rpc.url,
-                        contractDeployments.governanceProxy.address,
-                        
-                        'setProductLambda',
-                        [
-                            contractDeployments.farmFactory.address,
-                            lambdaName,
-                            newFarmUnstakeLambda
-                        ]
-                    );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
-    
-                    // Final values
-                    farmFactoryStorage                  = await farmFactoryInstance.storage();
-                    const finalFarmFactoryUnstakeLambda = farmFactoryStorage.farmLambdaLedger.get(lambdaName);
-
-                    // Assertions
-                    assert.notStrictEqual(initFarmUnstakeLambda, finalFarmFactoryUnstakeLambda);
-                    assert.strictEqual(finalFarmFactoryUnstakeLambda, newFarmUnstakeLambda);
-
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                } 
-            });
-
             it('%updateConfig', async () => {
                 try{
                     // Initial values
@@ -948,7 +907,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = farmFactoryStorage.config.farmNameMaxLength.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -960,8 +919,8 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     farmFactoryStorage                  = await farmFactoryInstance.storage();
@@ -985,7 +944,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -997,8 +956,8 @@ describe('Governance proxy lambdas tests', async () => {
                             true
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     farmFactoryStorage                  = await farmFactoryInstance.storage();
@@ -1022,7 +981,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTrackProductContracts     = farmFactoryStorage.trackedFarms.length;
 
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1033,8 +992,8 @@ describe('Governance proxy lambdas tests', async () => {
                             targetContractAddress
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     farmFactoryStorage                  = await farmFactoryInstance.storage();
@@ -1057,7 +1016,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTrackProductContracts     = farmFactoryStorage.trackedFarms.length;
 
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1068,8 +1027,8 @@ describe('Governance proxy lambdas tests', async () => {
                             targetContractAddress
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     farmFactoryStorage                  = await farmFactoryInstance.storage();
@@ -1081,6 +1040,43 @@ describe('Governance proxy lambdas tests', async () => {
                 } catch(e){
                     console.dir(e, {depth: 5});
                 }
+            });
+
+            it('%setProductLambda', async () => {
+                try{
+                    // Initial values
+                    farmFactoryStorage                  = await farmFactoryInstance.storage();
+                    const lambdaName                    = "lambdaUnstake";
+                    const newFarmUnstakeLambda          = doormanLambdas.lambdaNewUnstake;
+                    const initFarmUnstakeLambda         = await farmFactoryStorage.mFarmLambdaLedger.get(lambdaName);
+                    
+                    // Operation
+                    lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
+                        contractDeployments.governanceProxy.address,
+                        
+                        'setProductLambda',
+                        [
+                            contractDeployments.farmFactory.address,
+                            lambdaName,
+                            newFarmUnstakeLambda,
+                            "MFarm"
+                        ]
+                    );
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
+    
+                    // Final values
+                    farmFactoryStorage                  = await farmFactoryInstance.storage();
+                    const finalFarmFactoryUnstakeLambda = await farmFactoryStorage.mFarmLambdaLedger.get(lambdaName);
+
+                    // Assertions
+                    assert.notStrictEqual(initFarmUnstakeLambda, finalFarmFactoryUnstakeLambda);
+                    assert.strictEqual(finalFarmFactoryUnstakeLambda, newFarmUnstakeLambda);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                } 
             });
         });
 
@@ -1135,8 +1131,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Set Admin Operation
                     if(treasuryStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation = await treasuryInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation = await treasuryInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -1154,7 +1150,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initReceiverMvkBalance        = initReceiverMvkLedger ? initReceiverMvkLedger.toNumber() : 0;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1165,8 +1161,8 @@ describe('Governance proxy lambdas tests', async () => {
                             mintedAmount
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
@@ -1210,7 +1206,7 @@ describe('Governance proxy lambdas tests', async () => {
                     ];
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1221,8 +1217,8 @@ describe('Governance proxy lambdas tests', async () => {
                             operators
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
@@ -1252,19 +1248,19 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTreasurySMvkBalance       = initTreasurySMvkLedger ? initTreasurySMvkLedger.balance.toNumber() : 0;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'stakeTokens',
                         [
                             contractDeployments.treasury.address,
-                            contractDeployments.mvkToken.address,
+                            contractDeployments.doorman.address,
                             stakedAmount
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
@@ -1290,19 +1286,19 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTreasurySMvkBalance       = initTreasurySMvkLedger ? initTreasurySMvkLedger.balance.toNumber() : 0;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
                         'unstakeTokens',
                         [
                             contractDeployments.treasury.address,
-                            contractDeployments.mvkToken.address,
+                            contractDeployments.doorman.address,
                             unstakedAmount
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
@@ -1324,7 +1320,7 @@ describe('Governance proxy lambdas tests', async () => {
                     treasuryStorage                     = await treasuryInstance.storage();
                     mavrykFa12TokenStorage              = await mavrykFa12TokenInstance.storage();
                     mavrykFa2TokenStorage               = await mavrykFa2TokenInstance.storage();
-                    const receiver                      = bob.pkh;
+                    const receiver                      = alice.pkh;
                     const initUserFA12Ledger            = await mavrykFa12TokenStorage.ledger.get(receiver)
                     const initUserFA12Balance           = initUserFA12Ledger ? initUserFA12Ledger.balance.toNumber() : 0;
                     const initUserFA2Ledger             = await mavrykFa2TokenStorage.ledger.get(receiver)
@@ -1357,7 +1353,7 @@ describe('Governance proxy lambdas tests', async () => {
                     ];
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1367,8 +1363,8 @@ describe('Governance proxy lambdas tests', async () => {
                             transfers
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
@@ -1399,7 +1395,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = treasuryStorage.breakGlassConfig.transferIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1411,8 +1407,8 @@ describe('Governance proxy lambdas tests', async () => {
                             true
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
@@ -1438,8 +1434,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(treasuryFactoryStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation     = await treasuryFactoryInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation     = await treasuryFactoryInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -1478,7 +1474,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTreasuryTestGovernance    = await governanceStorage.generalContracts.get(treasuryName);
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1491,8 +1487,8 @@ describe('Governance proxy lambdas tests', async () => {
                             metadataBytes
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
@@ -1526,7 +1522,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = treasuryFactoryStorage.config.treasuryNameMaxLength.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1538,8 +1534,8 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
@@ -1563,7 +1559,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1575,8 +1571,8 @@ describe('Governance proxy lambdas tests', async () => {
                             true
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
@@ -1600,7 +1596,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTrackProductContracts     = treasuryFactoryStorage.trackedTreasuries.length;
 
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1611,8 +1607,8 @@ describe('Governance proxy lambdas tests', async () => {
                             targetContractAddress
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
@@ -1635,7 +1631,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTrackProductContracts     = treasuryFactoryStorage.trackedTreasuries.length;
 
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1646,8 +1642,8 @@ describe('Governance proxy lambdas tests', async () => {
                             targetContractAddress
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
@@ -1672,8 +1668,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(governanceStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation     = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation     = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -1688,7 +1684,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initGovernanceProxyAddress    = governanceStorage.governanceProxyAddress;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1698,8 +1694,8 @@ describe('Governance proxy lambdas tests', async () => {
                             newGovernanceProxyAddress
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     governanceStorage                   = await governanceInstance.storage();
@@ -1723,7 +1719,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initGovernanceWhitelistedDevelopers   = await governanceStorage.whitelistDevelopers;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1733,8 +1729,8 @@ describe('Governance proxy lambdas tests', async () => {
                             newWhistlistedDeveloperAddress
                         ]
                     );
-                    const operation                             = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                             = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     governanceStorage                           = await governanceInstance.storage();
@@ -1758,7 +1754,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = governanceStorage.config.successReward.toNumber();
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1770,8 +1766,8 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     governanceStorage                   = await governanceInstance.storage();
@@ -1797,8 +1793,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(aggregatorStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation     = await aggregatorInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation     = await aggregatorInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -1815,7 +1811,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = aggregatorStorage.config.decimals.toNumber();
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1827,8 +1823,8 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     aggregatorStorage                   = await aggregatorInstance.storage();
@@ -1852,7 +1848,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = aggregatorStorage.breakGlassConfig.updateDataIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1864,8 +1860,8 @@ describe('Governance proxy lambdas tests', async () => {
                             true
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     aggregatorStorage                   = await aggregatorInstance.storage();
@@ -1891,8 +1887,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(aggregatorFactoryStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation     = await aggregatorFactoryInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation     = await aggregatorFactoryInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -1909,7 +1905,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = aggregatorFactoryStorage.config.aggregatorNameMaxLength.toNumber();
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1921,8 +1917,8 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     aggregatorFactoryStorage            = await aggregatorFactoryInstance.storage();
@@ -1969,7 +1965,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initAggregatorTestGovernance  = await governanceStorage.generalContracts.get(aggregatorName);
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -1988,8 +1984,8 @@ describe('Governance proxy lambdas tests', async () => {
                             metadata
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     aggregatorFactoryStorage            = await aggregatorFactoryInstance.storage();
@@ -2027,7 +2023,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2039,8 +2035,8 @@ describe('Governance proxy lambdas tests', async () => {
                             true
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     aggregatorFactoryStorage            = await aggregatorFactoryInstance.storage();
@@ -2064,7 +2060,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTrackProductContracts     = aggregatorFactoryStorage.trackedAggregators.length;
 
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2075,8 +2071,8 @@ describe('Governance proxy lambdas tests', async () => {
                             targetContractAddress
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     aggregatorFactoryStorage            = await aggregatorFactoryInstance.storage();
@@ -2099,7 +2095,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTrackProductContracts     = aggregatorFactoryStorage.trackedAggregators.length;
 
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2110,8 +2106,8 @@ describe('Governance proxy lambdas tests', async () => {
                             targetContractAddress
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     aggregatorFactoryStorage            = await aggregatorFactoryInstance.storage();
@@ -2136,8 +2132,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(breakGlassStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation     = await breakGlassInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation     = await breakGlassInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -2154,7 +2150,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = breakGlassStorage.config.actionExpiryDays.toNumber();
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2166,8 +2162,8 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     breakGlassStorage            = await breakGlassInstance.storage();
@@ -2193,8 +2189,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(councilStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation     = await councilInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation     = await councilInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -2211,7 +2207,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = councilStorage.config.actionExpiryDays.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2223,8 +2219,8 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     councilStorage                      = await councilInstance.storage();
@@ -2250,8 +2246,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(delegationStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation     = await delegationInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation     = await delegationInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -2268,7 +2264,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = delegationStorage.config.delegationRatio.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2280,8 +2276,8 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     delegationStorage                   = await delegationInstance.storage();
@@ -2305,7 +2301,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2317,8 +2313,8 @@ describe('Governance proxy lambdas tests', async () => {
                             true
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     delegationStorage                   = await delegationInstance.storage();
@@ -2344,8 +2340,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(doormanStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation     = await doormanInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation     = await doormanInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -2362,7 +2358,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = doormanStorage.config.minMvkAmount.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2374,8 +2370,8 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     doormanStorage                      = await doormanInstance.storage();
@@ -2399,7 +2395,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = doormanStorage.breakGlassConfig.stakeIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2411,8 +2407,8 @@ describe('Governance proxy lambdas tests', async () => {
                             true
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     doormanStorage                      = await doormanInstance.storage();
@@ -2438,8 +2434,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(emergencyGovernanceStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation     = await emergencyGovernanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation     = await emergencyGovernanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -2456,7 +2452,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = emergencyGovernanceStorage.config.durationInMinutes.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2468,8 +2464,8 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     emergencyGovernanceStorage          = await emergencyGovernanceInstance.storage();
@@ -2495,8 +2491,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(governanceFinancialStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation     = await governanceFinancialInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation     = await governanceFinancialInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -2507,13 +2503,13 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     governanceFinancialStorage          = await governanceFinancialInstance.storage();
-                    const updateConfigAction            = "ConfigFinancialReqApprovalPct";
+                    const updateConfigAction            = "ConfigApprovalPercentage";
                     const targetContractType            = "governanceFinancial";
                     const updateConfigNewValue          = 10;
-                    const initConfigValue               = governanceFinancialStorage.config.financialRequestApprovalPercentage.toNumber();
+                    const initConfigValue               = governanceFinancialStorage.config.approvalPercentage.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2525,12 +2521,12 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     governanceFinancialStorage          = await governanceFinancialInstance.storage();
-                    const finalConfigValue              = governanceFinancialStorage.config.financialRequestApprovalPercentage.toNumber();
+                    const finalConfigValue              = governanceFinancialStorage.config.approvalPercentage.toNumber();
 
                     // Assertions
                     assert.notEqual(initConfigValue, finalConfigValue);
@@ -2552,8 +2548,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(governanceSatelliteStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation     = await governanceSatelliteInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation     = await governanceSatelliteInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -2567,10 +2563,10 @@ describe('Governance proxy lambdas tests', async () => {
                     const updateConfigAction            = "ConfigApprovalPercentage";
                     const targetContractType            = "governanceSatellite";
                     const updateConfigNewValue          = 10;
-                    const initConfigValue               = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage.toNumber();
+                    const initConfigValue               = governanceSatelliteStorage.config.approvalPercentage.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2582,12 +2578,12 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     governanceSatelliteStorage          = await governanceSatelliteInstance.storage();
-                    const finalConfigValue              = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage.toNumber();
+                    const finalConfigValue              = governanceSatelliteStorage.config.approvalPercentage.toNumber();
 
                     // Assertions
                     assert.notEqual(initConfigValue, finalConfigValue);
@@ -2609,8 +2605,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(lendingControllerStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation     = await lendingControllerInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation     = await lendingControllerInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -2627,7 +2623,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = lendingControllerStorage.config.collateralRatio.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2639,8 +2635,8 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     lendingControllerStorage          = await lendingControllerInstance.storage();
@@ -2696,7 +2692,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initLoanToken                 = await lendingControllerStorage.loanTokenLedger.get(tokenName);
 
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2706,8 +2702,8 @@ describe('Governance proxy lambdas tests', async () => {
                             setLoanTokenAction
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     lendingControllerStorage            = await lendingControllerInstance.storage();
@@ -2768,7 +2764,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initLoanToken                 = await lendingControllerStorage.loanTokenLedger.get(tokenName);
 
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2778,8 +2774,8 @@ describe('Governance proxy lambdas tests', async () => {
                             setLoanTokenAction
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     lendingControllerStorage            = await lendingControllerInstance.storage();
@@ -2835,7 +2831,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initCollateralToken                   = await lendingControllerStorage.collateralTokenLedger.get(tokenName);
 
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2845,12 +2841,12 @@ describe('Governance proxy lambdas tests', async () => {
                             setCollateralTokenAction
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     lendingControllerStorage            = await lendingControllerInstance.storage();
-                    const finalCollateralToken          = await lendingControllerStorage.loanTokenLedger.get("Test");
+                    const finalCollateralToken          = await lendingControllerStorage.collateralTokenLedger.get(tokenName);
 
                     // Assertions
                     assert.strictEqual(initCollateralToken, undefined);
@@ -2891,7 +2887,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initCollateralToken                   = await lendingControllerStorage.collateralTokenLedger.get(tokenName);
 
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2901,19 +2897,19 @@ describe('Governance proxy lambdas tests', async () => {
                             setCollateralTokenAction
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     lendingControllerStorage            = await lendingControllerInstance.storage();
-                    const finalCollateralToken          = await lendingControllerStorage.loanTokenLedger.get("Test");
+                    const finalCollateralToken          = await lendingControllerStorage.collateralTokenLedger.get(tokenName);
 
                     // Assertions
                     assert.notStrictEqual(initCollateralToken, undefined);
                     assert.notStrictEqual(finalCollateralToken, undefined);
                     assert.equal(finalCollateralToken.tokenName, tokenName);
                     assert.equal(finalCollateralToken.oracleAddress, oracleAddress);
-                    assert.equal(finalCollateralToken.protected, isPaused);
+                    assert.equal(finalCollateralToken.isPaused, isPaused);
                     assert.equal(finalCollateralToken.stakingContractAddress, stakingContractAddress);
                     assert.equal(finalCollateralToken.maxDepositAmount.toNumber(), maxDepositAmount);
 
@@ -2931,7 +2927,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = lendingControllerStorage.breakGlassConfig.setLoanTokenIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -2943,8 +2939,8 @@ describe('Governance proxy lambdas tests', async () => {
                             true
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     lendingControllerStorage            = await lendingControllerInstance.storage();
@@ -2971,8 +2967,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Operation
                     if(vaultFactoryStorage.admin !== contractDeployments.governanceProxy.address){
-                        const operation     = await vaultFactoryInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await operation.confirmation();
+                        executeGovernanceActionOperation     = await vaultFactoryInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -2989,7 +2985,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = vaultFactoryStorage.config.vaultNameMaxLength.toNumber();
                     
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -3001,8 +2997,8 @@ describe('Governance proxy lambdas tests', async () => {
                             updateConfigNewValue
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     vaultFactoryStorage                 = await vaultFactoryInstance.storage();
@@ -3026,7 +3022,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initConfigValue               = vaultFactoryStorage.breakGlassConfig.createVaultIsPaused;
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -3038,8 +3034,8 @@ describe('Governance proxy lambdas tests', async () => {
                             true
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     vaultFactoryStorage                 = await vaultFactoryInstance.storage();
@@ -3066,7 +3062,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initDoormanUnstakeLambda      = doormanStorage.lambdaLedger.get(lambdaName);
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -3077,12 +3073,12 @@ describe('Governance proxy lambdas tests', async () => {
                             newDoormanUnstakeLambda
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     doormanStorage                      = await doormanInstance.storage();
-                    const finalDoormanUnstakeLambda     = doormanStorage.lambdaLedger.get(lambdaName);
+                    const finalDoormanUnstakeLambda     = await doormanStorage.lambdaLedger.get(lambdaName);
 
                     // Assertions
                     assert.notStrictEqual(initDoormanUnstakeLambda, finalDoormanUnstakeLambda);
@@ -3091,6 +3087,42 @@ describe('Governance proxy lambdas tests', async () => {
                 } catch(e){
                     console.dir(e, {depth: 5});
                 }
+            });
+
+            it('%setProductLambda', async () => {
+                try{
+                    // Initial values
+                    treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
+                    const lambdaName                    = "lambdaUnstake";
+                    const newTreasuryUnstakeLambda      = doormanLambdas.lambdaNewUnstake;
+                    const initTreasuryUnstakeLambda     = await treasuryFactoryStorage.treasuryLambdaLedger.get(lambdaName);
+                    
+                    // Operation
+                    lambdaFunction        = await createLambdaBytes(
+                        tezos.rpc.url,
+                        contractDeployments.governanceProxy.address,
+                        
+                        'setProductLambda',
+                        [
+                            contractDeployments.treasuryFactory.address,
+                            lambdaName,
+                            newTreasuryUnstakeLambda
+                        ]
+                    );
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
+    
+                    // Final values
+                    treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
+                    const finalTreasuryFactoryUnstakeLambda = await treasuryFactoryStorage.treasuryLambdaLedger.get(lambdaName);
+
+                    // Assertions
+                    assert.notStrictEqual(initTreasuryUnstakeLambda, finalTreasuryFactoryUnstakeLambda);
+                    assert.strictEqual(finalTreasuryFactoryUnstakeLambda, newTreasuryUnstakeLambda);
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                } 
             });
 
             it('%updateMetadata', async () => {
@@ -3122,7 +3154,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initDoormanMetadata           = await doormanStorage.metadata.get(metadataKey);
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -3133,8 +3165,8 @@ describe('Governance proxy lambdas tests', async () => {
                             newDoormanMetadata
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     doormanStorage                      = await doormanInstance.storage();
@@ -3157,7 +3189,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initDoormanWhitelistContract  = await doormanStorage.whitelistContracts.get(whitelistContractAddress);
                     
                     // Operation
-                    const lambdaFunction        = await createLambdaBytes(
+                    lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -3168,16 +3200,16 @@ describe('Governance proxy lambdas tests', async () => {
                             "Update"
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     doormanStorage                      = await doormanInstance.storage();
                     const finalDoormanWhitelistContract = await doormanStorage.whitelistContracts.get(whitelistContractAddress);
 
                     // Assertions
-                    assert.notStrictEqual(initDoormanWhitelistContract, finalDoormanWhitelistContract);
-                    assert.strictEqual(finalDoormanWhitelistContract, whitelistContractAddress);
+                    assert.strictEqual(initDoormanWhitelistContract, undefined);
+                    assert.notStrictEqual(finalDoormanWhitelistContract, undefined);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -3193,7 +3225,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initDoormanGeneralContract    = await doormanStorage.generalContracts.get(generalContractName);
                     
                     // Operation
-                    const lambdaFunction                = await createLambdaBytes(
+                    lambdaFunction                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -3205,8 +3237,8 @@ describe('Governance proxy lambdas tests', async () => {
                             "Update"
                         ]
                     );
-                    const operation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     doormanStorage                      = await doormanInstance.storage();
@@ -3229,7 +3261,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initTreasuryFactoryWhitelistTokenContract     = await treasuryFactoryStorage.whitelistTokenContracts.get(whitelistTokenContractAddress);
                     
                     // Operation
-                    const lambdaFunction                                = await createLambdaBytes(
+                    lambdaFunction                                = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
@@ -3240,8 +3272,8 @@ describe('Governance proxy lambdas tests', async () => {
                             "Update"
                         ]
                     );
-                    const operation                                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
-                    await operation.confirmation();
+                    executeGovernanceActionOperation                                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
+                    await executeGovernanceActionOperation.confirmation();
     
                     // Final values
                     treasuryFactoryStorage                              = await treasuryFactoryInstance.storage();
@@ -3355,14 +3387,14 @@ describe('Governance proxy lambdas tests', async () => {
 
                 // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to Contract
                 await signerFactory(tezos, userSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, contractDeployments.aggregatorFactory.address, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, contractDeployments.governanceProxy.address, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
                 const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(aggregatorFactoryInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(governanceProxyInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
@@ -3375,134 +3407,131 @@ describe('Governance proxy lambdas tests', async () => {
                 console.dir(e, {depth: 5})
             }
         })
+    })
 
+    describe('Access Control Checks', function () {
 
-        describe('Access Control Checks', function () {
+        beforeEach("Set signer to non-admin (mallory)", async () => {
+            governanceProxyStorage = await governanceProxyInstance.storage();
+            await signerFactory(tezos, mallory.sk);
+        });
 
-            beforeEach("Set signer to non-admin (mallory)", async () => {
-                governanceProxyStorage = await governanceProxyInstance.storage();
-                await signerFactory(tezos, mallory.sk);
-            });
-    
-            it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
-                try{
-                    // Initial Values
-                    governanceProxyStorage  = await governanceProxyInstance.storage();
-                    const currentAdmin      = governanceProxyStorage.admin;
-    
-                    // Operation
-                    setAdminOperation = await governanceProxyInstance.methods.setAdmin(mallory.pkh);
-                    await chai.expect(setAdminOperation.send()).to.be.rejected;
-    
-                    // Final values
-                    governanceProxyStorage  = await governanceProxyInstance.storage();
-                    const newAdmin          = governanceProxyStorage.admin;
-    
-                    // Assertions
-                    assert.strictEqual(newAdmin, currentAdmin);
-    
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            });
-    
-            it('%setGovernance            - non-admin (mallory) should not be able to call this entrypoint', async () => {
-                try{
-                    // Initial Values
-                    governanceProxyStorage   = await governanceProxyInstance.storage();
-                    const currentGovernance  = governanceProxyStorage.governanceAddress;
-    
-                    // Operation
-                    setGovernanceOperation = await governanceProxyInstance.methods.setGovernance(mallory.pkh);
-                    await chai.expect(setGovernanceOperation.send()).to.be.rejected;
-    
-                    // Final values
-                    governanceProxyStorage   = await governanceProxyInstance.storage();
-                    const updatedGovernance  = governanceProxyStorage.governanceAddress;
-    
-                    // Assertions
-                    assert.strictEqual(updatedGovernance, currentGovernance);
-    
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                }
-            });
-    
-            it('%updateMetadata           - non-admin (mallory) should not be able to update the contract metadata', async () => {
-                try{
-                    // Initial values
-                    const key   = ''
-                    const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
-    
-                    governanceProxyStorage  = await governanceProxyInstance.storage();   
-                    const initialMetadata   = await governanceProxyStorage.metadata.get(key);
-    
-                    // Operation
-                    const updateOperation = await governanceProxyInstance.methods.updateMetadata(key, hash);
-                    await chai.expect(updateOperation.send()).to.be.rejected;
-    
-                    // Final values
-                    governanceProxyStorage  = await governanceProxyInstance.storage();            
-                    const updatedData       = await governanceProxyStorage.metadata.get(key);
-    
-                    // check that there is no change in metadata
-                    assert.equal(updatedData, initialMetadata);
-                    assert.notEqual(updatedData, hash);
-    
-                } catch(e){
-                    console.dir(e, {depth: 5});
-                } 
-            });
+        it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
+            try{
+                // Initial Values
+                governanceProxyStorage  = await governanceProxyInstance.storage();
+                const currentAdmin      = governanceProxyStorage.admin;
 
-            it('%mistakenTransfer         - non-admin (mallory) should not be able to call this entrypoint', async () => {
-                try {
-    
-                    // Initial values
-                    const tokenAmount = 10;
-    
-                    // Mistaken Operation - send 10 MavrykFa2Tokens to Contract
-                    transferOperation = await fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, contractDeployments.aggregatorFactory.address, tokenId, tokenAmount);
-                    await transferOperation.confirmation();
-    
-                    // mistaken transfer operation
-                    mistakenTransferOperation = await mistakenTransferFa2Token(governanceProxyInstance, mallory.pkh, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount);
-                    await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
-    
-                } catch (e) {
-                    console.dir(e, {depth: 5})
-                }
-            })
+                // Operation
+                setAdminOperation = await governanceProxyInstance.methods.setAdmin(mallory.pkh);
+                await chai.expect(setAdminOperation.send()).to.be.rejected;
 
-            it("%executeGovernanceAction  - non-admin (mallory) should not be able to call this entrypoint", async() => {
-                try{
-    
-                    // random lambda for testing
-                    const randomGovernanceActionBytes = mockPackedLambdaData.updateCouncilConfig;
-    
-                    const executeGovernanceActionOperation = governanceProxyInstance.methods.executeGovernanceAction(randomGovernanceActionBytes); 
-                    await chai.expect(executeGovernanceActionOperation.send()).to.be.rejected;
-    
-                } catch(e) {
-                    console.dir(e, {depth: 5})
-                }
-            })
-            
-            it("%setLambda                - non-admin (mallory) should not be able to call this entrypoint", async() => {
-                try{
-    
-                    // random lambda for testing
-                    const randomLambdaName  = "randomLambdaName";
-                    const randomLambdaBytes = "050200000cba0743096500000112075e09650000005a036e036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a0362036203620362036200000000036203620760036803690000000009650000000a0362036203620362036e00000000075e09650000006c09650000000a0362036203620362036200000000036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a036203620362036203620000000003620362076003680369000000000362075e07650765036203620362036c075e076507650368036e0362036e036200000000070702000001770743075e076507650368036e0362036e020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c03200342020000010e037a034c037a07430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700002034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f02000000090743036200810303270200000000072f020000000907430362009c0203270200000000070702000000600743036200808080809d8fc0d0bff2f1b26703420200000047037a034c037a0321052900080570000205290015034b031105710002031605700002033a0322072f020000001307430368010000000844495620627920300327020000000003160707020000001a037a037a03190332072c0200000002032002000000020327034f0707020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c032000808080809d8fc0d0bff2f1b2670342020000092d037a057a000505700005037a034c07430362008f03052100020529000f0529000307430359030a034c03190325072c0200000002032702000000020320053d036d05700002072e02000008a4072e020000007c057000030570000405700005057000060570000705200005072e020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000081c072e0200000044057000030570000405700005057000060570000705200005072e0200000010072e02000000020320020000000203200200000010072e020000000203200200000002032002000007cc072e0200000028057000030570000405700005057000060570000705200005072e02000000020320020000000203200200000798072e0200000774034c032003480521000305210003034c052900050316034c03190328072c020000000002000000090743036200880303270570000205210002034c0321052100030521000205290011034c0329072f020000002005290015074303620000074303620000074303620000074303620000054200050200000004034c03200743036200000521000203160319032a072c020000021c052100020521000407430362008e02057000020529000907430368010000000a64656c65676174696f6e034203420521000b034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f0200000009074303620081030327020000001a072f02000000060743035903030200000008032007430359030a074303620000034c072c020000007303200521000205210004034205210007034c0326052100030521000205290008034205700007034c03260521000205290005034c05290007034b0311052100030316033a0521000b034c0322072f02000000130743036801000000084449562062792030032702000000000316034c0316031202000000060570000603200521000305210003034205210008034c0326052100030521000205700004052900030312055000030571000205210003052100030570000405290005031205500005057100020521000305700002052100030570000403160312031205500001034c05210003034c0570000305290013034b031105500013034c02000000060570000503200521000205290015055000080521000205700002052900110570000205700003034c0346034c0350055000110571000205210003052900070743036200000790010000000c746f74616c5f737570706c790362072f020000000907430362008a01032702000000000521000405290007074303620000037703420790010000000b6765745f62616c616e63650362072f02000000090743036200890103270200000000034c052100090743036200a40105210004033a033a0322072f0200000013074303680100000008444956206279203003270200000000031605210009074303620002033a0312052100090521000a07430362008803033a033a0322072f020000001307430368010000000844495620627920300327020000000003160743036200a401034c0322072f0200000013074303680100000008444956206279203003270200000000031605210004033a05210009052100020322072f0200000013074303680100000008444956206279203003270200000000031605210005034b0311052100060570000a052100040322072f0200000013074303680100000008444956206279203003270200000000031605700007052900130312055000130571000507430362008c0305210004052100070342034205210009034c0326032005700005057000030342052100050570000305700002037a034c0570000305700002034b0311074303620000052100020319032a072c020000003b05210002034c057000030322072f02000000130743036801000000084449562062792030032702000000000316057000020529001503120550001502000000080570000205200002057100030521000405210003034c05290011034c0329072f0200000009074303620089030327020000000003210521000507430362008b03057000020316057000020342034205700007034c03260320032105700004057000020316034b031105500001052100040529000707430362000005700003034205210004037705700002037a057000040655055f0765046e000000062566726f6d5f065f096500000026046e0000000425746f5f04620000000925746f6b656e5f696404620000000725616d6f756e7400000000000000042574787300000009257472616e73666572072f0200000008074303620027032702000000000743036a0000053d0765036e055f096500000006036e0362036200000000053d096500000006036e036203620000000005700004057000050570000705420003031b057000040342031b034d0743036200000521000303160319032a072c02000000440521000405210003034205700005034c032605210003052100020570000403160312055000010571000205210005034c0570000505290013034b031105500013057100030200000006057000040320034c052100040529001505500008034c0521000405700004052900110570000305210005034c0346034c03500550001105710002052100030570000207430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700004034c03260655036e0000000e256f6e5374616b654368616e6765072f02000000090743036200b702032702000000000743036a000005700002034d053d036d034c031b034c031b02000000180570000305700004057000050570000605700007052000060200000036057000030570000405700005057000060570000705200005072e0200000010072e0200000002032002000000020320020000000203200342";
-    
-                    const setLambdaOperation = governanceProxyInstance.methods.setLambda(randomLambdaName, randomLambdaBytes); 
-                    await chai.expect(setLambdaOperation.send()).to.be.rejected;
-    
-                } catch(e) {
-                    console.dir(e, {depth: 5})
-                }
-            })
+                // Final values
+                governanceProxyStorage  = await governanceProxyInstance.storage();
+                const newAdmin          = governanceProxyStorage.admin;
+
+                // Assertions
+                assert.strictEqual(newAdmin, currentAdmin);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%setGovernance            - non-admin (mallory) should not be able to call this entrypoint', async () => {
+            try{
+                // Initial Values
+                governanceProxyStorage   = await governanceProxyInstance.storage();
+                const currentGovernance  = governanceProxyStorage.governanceAddress;
+
+                // Operation
+                setGovernanceOperation = await governanceProxyInstance.methods.setGovernance(mallory.pkh);
+                await chai.expect(setGovernanceOperation.send()).to.be.rejected;
+
+                // Final values
+                governanceProxyStorage   = await governanceProxyInstance.storage();
+                const updatedGovernance  = governanceProxyStorage.governanceAddress;
+
+                // Assertions
+                assert.strictEqual(updatedGovernance, currentGovernance);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%updateMetadata           - non-admin (mallory) should not be able to update the contract metadata', async () => {
+            try{
+                // Initial values
+                const key   = ''
+                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+
+                governanceProxyStorage  = await governanceProxyInstance.storage();   
+                const initialMetadata   = await governanceProxyStorage.metadata.get(key);
+
+                // Operation
+                const updateOperation = await governanceProxyInstance.methods.updateMetadata(key, hash);
+                await chai.expect(updateOperation.send()).to.be.rejected;
+
+                // Final values
+                governanceProxyStorage  = await governanceProxyInstance.storage();            
+                const updatedData       = await governanceProxyStorage.metadata.get(key);
+
+                // check that there is no change in metadata
+                assert.equal(updatedData, initialMetadata);
+                assert.notEqual(updatedData, hash);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('%mistakenTransfer         - non-admin (mallory) should not be able to call this entrypoint', async () => {
+            try {
+
+                // Initial values
+                const tokenAmount = 10;
+
+                // Mistaken Operation - send 10 MavrykFa2Tokens to Contract
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, contractDeployments.aggregatorFactory.address, tokenId, tokenAmount);
+                await transferOperation.confirmation();
+
+                // mistaken transfer operation
+                mistakenTransferOperation = await mistakenTransferFa2Token(governanceProxyInstance, mallory.pkh, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount);
+                await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
+
+            } catch (e) {
+                console.dir(e, {depth: 5})
+            }
         })
 
+        it("%executeGovernanceAction  - non-admin (mallory) should not be able to call this entrypoint", async() => {
+            try{
 
+                // random lambda for testing
+                const randomGovernanceActionBytes = mockPackedLambdaData.updateCouncilConfig;
+
+                const executeGovernanceActionOperation = governanceProxyInstance.methods.executeGovernanceAction(randomGovernanceActionBytes); 
+                await chai.expect(executeGovernanceActionOperation.send()).to.be.rejected;
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+        
+        it("%setLambda                - non-admin (mallory) should not be able to call this entrypoint", async() => {
+            try{
+
+                // random lambda for testing
+                const randomLambdaName  = "randomLambdaName";
+                const randomLambdaBytes = "050200000cba0743096500000112075e09650000005a036e036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a0362036203620362036200000000036203620760036803690000000009650000000a0362036203620362036e00000000075e09650000006c09650000000a0362036203620362036200000000036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a036203620362036203620000000003620362076003680369000000000362075e07650765036203620362036c075e076507650368036e0362036e036200000000070702000001770743075e076507650368036e0362036e020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c03200342020000010e037a034c037a07430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700002034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f02000000090743036200810303270200000000072f020000000907430362009c0203270200000000070702000000600743036200808080809d8fc0d0bff2f1b26703420200000047037a034c037a0321052900080570000205290015034b031105710002031605700002033a0322072f020000001307430368010000000844495620627920300327020000000003160707020000001a037a037a03190332072c0200000002032002000000020327034f0707020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c032000808080809d8fc0d0bff2f1b2670342020000092d037a057a000505700005037a034c07430362008f03052100020529000f0529000307430359030a034c03190325072c0200000002032702000000020320053d036d05700002072e02000008a4072e020000007c057000030570000405700005057000060570000705200005072e020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000081c072e0200000044057000030570000405700005057000060570000705200005072e0200000010072e02000000020320020000000203200200000010072e020000000203200200000002032002000007cc072e0200000028057000030570000405700005057000060570000705200005072e02000000020320020000000203200200000798072e0200000774034c032003480521000305210003034c052900050316034c03190328072c020000000002000000090743036200880303270570000205210002034c0321052100030521000205290011034c0329072f020000002005290015074303620000074303620000074303620000074303620000054200050200000004034c03200743036200000521000203160319032a072c020000021c052100020521000407430362008e02057000020529000907430368010000000a64656c65676174696f6e034203420521000b034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f0200000009074303620081030327020000001a072f02000000060743035903030200000008032007430359030a074303620000034c072c020000007303200521000205210004034205210007034c0326052100030521000205290008034205700007034c03260521000205290005034c05290007034b0311052100030316033a0521000b034c0322072f02000000130743036801000000084449562062792030032702000000000316034c0316031202000000060570000603200521000305210003034205210008034c0326052100030521000205700004052900030312055000030571000205210003052100030570000405290005031205500005057100020521000305700002052100030570000403160312031205500001034c05210003034c0570000305290013034b031105500013034c02000000060570000503200521000205290015055000080521000205700002052900110570000205700003034c0346034c0350055000110571000205210003052900070743036200000790010000000c746f74616c5f737570706c790362072f020000000907430362008a01032702000000000521000405290007074303620000037703420790010000000b6765745f62616c616e63650362072f02000000090743036200890103270200000000034c052100090743036200a40105210004033a033a0322072f0200000013074303680100000008444956206279203003270200000000031605210009074303620002033a0312052100090521000a07430362008803033a033a0322072f020000001307430368010000000844495620627920300327020000000003160743036200a401034c0322072f0200000013074303680100000008444956206279203003270200000000031605210004033a05210009052100020322072f0200000013074303680100000008444956206279203003270200000000031605210005034b0311052100060570000a052100040322072f0200000013074303680100000008444956206279203003270200000000031605700007052900130312055000130571000507430362008c0305210004052100070342034205210009034c0326032005700005057000030342052100050570000305700002037a034c0570000305700002034b0311074303620000052100020319032a072c020000003b05210002034c057000030322072f02000000130743036801000000084449562062792030032702000000000316057000020529001503120550001502000000080570000205200002057100030521000405210003034c05290011034c0329072f0200000009074303620089030327020000000003210521000507430362008b03057000020316057000020342034205700007034c03260320032105700004057000020316034b031105500001052100040529000707430362000005700003034205210004037705700002037a057000040655055f0765046e000000062566726f6d5f065f096500000026046e0000000425746f5f04620000000925746f6b656e5f696404620000000725616d6f756e7400000000000000042574787300000009257472616e73666572072f0200000008074303620027032702000000000743036a0000053d0765036e055f096500000006036e0362036200000000053d096500000006036e036203620000000005700004057000050570000705420003031b057000040342031b034d0743036200000521000303160319032a072c02000000440521000405210003034205700005034c032605210003052100020570000403160312055000010571000205210005034c0570000505290013034b031105500013057100030200000006057000040320034c052100040529001505500008034c0521000405700004052900110570000305210005034c0346034c03500550001105710002052100030570000207430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700004034c03260655036e0000000e256f6e5374616b654368616e6765072f02000000090743036200b702032702000000000743036a000005700002034d053d036d034c031b034c031b02000000180570000305700004057000050570000605700007052000060200000036057000030570000405700005057000060570000705200005072e0200000010072e0200000002032002000000020320020000000203200342";
+
+                const setLambdaOperation = governanceProxyInstance.methods.setLambda(randomLambdaName, randomLambdaBytes); 
+                await chai.expect(setLambdaOperation.send()).to.be.rejected;
+
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
     })
 });
