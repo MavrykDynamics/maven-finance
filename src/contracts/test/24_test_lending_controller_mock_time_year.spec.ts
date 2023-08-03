@@ -1206,8 +1206,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Deposit Collateral into Vault
             // ----------------------------------------------------------------------------------------------
 
-            const mockFa12DepositAmount      = 150000000;   // 150 Mock FA12 Tokens
-            const mockFa2DepositAmount       = 150000000;   // 150 Mock FA12 Tokens
+            const mockFa12DepositAmount      = 15000000;   // 15 Mock FA12 Tokens
+            const mockFa2DepositAmount       = 15000000;   // 15 Mock FA12 Tokens
 
             // ---------------------------------
             // Deposit Mock FA12 Tokens
@@ -1258,8 +1258,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
 
-            // borrow amount - 20 Mock FA12 Tokens
-            const borrowAmount = 20000000;   
+            // borrow amount - 2 Mock FA12 Tokens
+            const borrowAmount = 2000000;   
 
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -1469,8 +1469,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Deposit Collateral into Vault
             // ----------------------------------------------------------------------------------------------
 
-            const mockFa12DepositAmount      = 150000000;   // 150 Mock FA12 Tokens
-            const mockFa2DepositAmount       = 150000000;   // 150 Mock FA12 Tokens
+            const mockFa12DepositAmount      = 15000000;   // 15 Mock FA12 Tokens
+            const mockFa2DepositAmount       = 15000000;   // 15 Mock FA12 Tokens
 
             // ---------------------------------
             // Deposit Mock FA12 Tokens
@@ -1521,8 +1521,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
 
-            // borrow amount - 20 Mock FA12 Tokens
-            const borrowAmount = 20000000;   
+            // borrow amount - 2 Mock FA12 Tokens
+            const borrowAmount = 2000000;   
 
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -1731,8 +1731,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Deposit Collateral into Vault
             // ----------------------------------------------------------------------------------------------
 
-            const mockFa12DepositAmount      = 150000000;   // 150 Mock FA12 Tokens
-            const mockFa2DepositAmount       = 150000000;   // 150 Mock FA12 Tokens
+            const mockFa12DepositAmount      = 15000000;   // 15 Mock FA12 Tokens
+            const mockFa2DepositAmount       = 15000000;   // 15 Mock FA12 Tokens
 
             // ---------------------------------
             // Deposit Mock FA12 Tokens
@@ -1783,8 +1783,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
 
-            // borrow amount - 20 Mock FA12 Tokens
-            const borrowAmount = 20000000;   
+            // borrow amount - 2 Mock FA12 Tokens
+            const borrowAmount = 2000000;   
 
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -1994,8 +1994,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Deposit Collateral into Vault
             // ----------------------------------------------------------------------------------------------
 
-            const mockFa12DepositAmount      = 150000000;   // 150 Mock FA12 Tokens
-            const mockFa2DepositAmount       = 150000000;   // 150 Mock FA12 Tokens
+            const mockFa12DepositAmount      = 15000000;   // 15 Mock FA12 Tokens
+            const mockFa2DepositAmount       = 15000000;   // 15 Mock FA12 Tokens
 
             // ---------------------------------
             // Deposit Mock FA12 Tokens
@@ -2046,8 +2046,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
 
-            // borrow amount - 20 Mock FA12 Tokens
-            const borrowAmount = 20000000;   
+            // borrow amount - 2 Mock FA12 Tokens
+            const borrowAmount = 2000000;   
 
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -2258,8 +2258,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Deposit Collateral into Vault
             // ----------------------------------------------------------------------------------------------
 
-            const mockFa12DepositAmount      = 150000000;   // 150 Mock FA12 Tokens
-            const mockFa2DepositAmount       = 150000000;   // 150 Mock FA12 Tokens
+            const mockFa12DepositAmount      = 15000000;   // 15 Mock FA12 Tokens
+            const mockFa2DepositAmount       = 15000000;   // 15 Mock FA12 Tokens
 
             // ---------------------------------
             // Deposit Mock FA12 Tokens
@@ -2310,8 +2310,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
 
-            // borrow amount - 20 Mock FA12 Tokens
-            const borrowAmount = 20000000;   
+            // borrow amount - 2 Mock FA12 Tokens
+            const borrowAmount = 2000000;   
 
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -2522,8 +2522,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Deposit Collateral into Vault
             // ----------------------------------------------------------------------------------------------
 
-            const mockFa12DepositAmount      = 150000000;   // 150 Mock FA12 Tokens
-            const mockFa2DepositAmount       = 150000000;   // 150 Mock FA12 Tokens
+            const mockFa12DepositAmount      = 15000000;   // 15 Mock FA12 Tokens
+            const mockFa2DepositAmount       = 15000000;   // 15 Mock FA12 Tokens
 
             // ---------------------------------
             // Deposit Mock FA12 Tokens
@@ -2574,8 +2574,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
 
-            // borrow amount - 20 Mock FA12 Tokens
-            const borrowAmount = 20000000;   
+            // borrow amount - 2 Mock FA12 Tokens
+            const borrowAmount = 2000000;   
 
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -2785,8 +2785,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Deposit Collateral into Vault
             // ----------------------------------------------------------------------------------------------
 
-            const mockFa12DepositAmount      = 150000000;   // 150 Mock FA12 Tokens
-            const mockFa2DepositAmount       = 150000000;   // 150 Mock FA12 Tokens
+            const mockFa12DepositAmount      = 15000000;   // 15 Mock FA12 Tokens
+            const mockFa2DepositAmount       = 15000000;   // 15 Mock FA12 Tokens
 
             // ---------------------------------
             // Deposit Mock FA12 Tokens
@@ -2837,8 +2837,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
 
-            // borrow amount - 20 Mock FA12 Tokens
-            const borrowAmount = 20000000;   
+            // borrow amount - 2 Mock FA12 Tokens
+            const borrowAmount = 2000000;   
 
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -3047,8 +3047,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Deposit Collateral into Vault
             // ----------------------------------------------------------------------------------------------
 
-            const mockFa12DepositAmount      = 150000000;   // 150 Mock FA12 Tokens
-            const mockFa2DepositAmount       = 150000000;   // 150 Mock FA12 Tokens
+            const mockFa12DepositAmount      = 15000000;   // 15 Mock FA12 Tokens
+            const mockFa2DepositAmount       = 15000000;   // 15 Mock FA12 Tokens
 
             // ---------------------------------
             // Deposit Mock FA12 Tokens
@@ -3099,8 +3099,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
 
-            // borrow amount - 20 Mock FA12 Tokens
-            const borrowAmount = 20000000;   
+            // borrow amount - 2 Mock FA12 Tokens
+            const borrowAmount = 2000000;   
 
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -3315,8 +3315,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Deposit Collateral into Vault
             // ----------------------------------------------------------------------------------------------
 
-            const mockFa12DepositAmount      = 150000000;   // 150 Mock FA12 Tokens
-            const mockFa2DepositAmount       = 150000000;   // 150 Mock FA12 Tokens
+            const mockFa12DepositAmount      = 15000000;   // 15 Mock FA12 Tokens
+            const mockFa2DepositAmount       = 15000000;   // 15 Mock FA12 Tokens
 
             // ---------------------------------
             // Deposit Mock FA12 Tokens
@@ -3367,8 +3367,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
 
-            // borrow amount - 20 Tez
-            const borrowAmount = 20000000;   
+            // borrow amount - 2 Tez
+            const borrowAmount = 2000000;   
 
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -3565,8 +3565,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Deposit Collateral into Vault
             // ----------------------------------------------------------------------------------------------
 
-            const mockFa12DepositAmount      = 150000000;   // 150 Mock FA12 Tokens
-            const mockFa2DepositAmount       = 150000000;   // 150 Mock FA12 Tokens
+            const mockFa12DepositAmount      = 15000000;   // 15 Mock FA12 Tokens
+            const mockFa2DepositAmount       = 15000000;   // 15 Mock FA12 Tokens
 
             // ---------------------------------
             // Deposit Mock FA12 Tokens
@@ -3617,8 +3617,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
 
-            // borrow amount - 20 Tez
-            const borrowAmount = 20000000;   
+            // borrow amount - 2 Tez
+            const borrowAmount = 2000000;   
 
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -3816,8 +3816,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Deposit Collateral into Vault
             // ----------------------------------------------------------------------------------------------
 
-            const mockFa12DepositAmount      = 150000000;   // 150 Mock FA12 Tokens
-            const mockFa2DepositAmount       = 150000000;   // 150 Mock FA12 Tokens
+            const mockFa12DepositAmount      = 15000000;   // 15 Mock FA12 Tokens
+            const mockFa2DepositAmount       = 15000000;   // 15 Mock FA12 Tokens
 
             // ---------------------------------
             // Deposit Mock FA12 Tokens
@@ -3868,8 +3868,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
 
-            // borrow amount - 20 Tez
-            const borrowAmount = 20000000;   
+            // borrow amount - 2 Tez
+            const borrowAmount = 2000000;   
 
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -4066,8 +4066,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Deposit Collateral into Vault
             // ----------------------------------------------------------------------------------------------
 
-            const mockFa12DepositAmount      = 150000000;   // 150 Mock FA12 Tokens
-            const mockFa2DepositAmount       = 150000000;   // 150 Mock FA12 Tokens
+            const mockFa12DepositAmount      = 15000000;   // 15 Mock FA12 Tokens
+            const mockFa2DepositAmount       = 15000000;   // 15 Mock FA12 Tokens
 
             // ---------------------------------
             // Deposit Mock FA12 Tokens
@@ -4118,8 +4118,8 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // Borrow with Vault
             // ----------------------------------------------------------------------------------------------
 
-            // borrow amount - 20 Tez
-            const borrowAmount = 20000000;   
+            // borrow amount - 2 Tez
+            const borrowAmount = 2000000;   
 
             // borrow operation
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
