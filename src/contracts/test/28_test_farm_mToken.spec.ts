@@ -27,6 +27,7 @@ import {
     updateWhitelistContracts,
     updateGeneralContracts
 } from './helpers/helperFunctions'
+import { mockMetadata } from "./helpers/mockSampleData";
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -129,18 +130,16 @@ describe("Farm mToken", async () => {
         userThree   = mallory.pkh
         userThreeSk = mallory.sk
 
-        farmAddress                             = contractDeployments.farmMToken.address;
         farmFactoryAddress                      = contractDeployments.farmFactory.address;
         mvkTokenAddress                         = contractDeployments.mvkToken.address;
         lpTokenAddress                          = contractDeployments.mavrykFa12Token.address;
         treasuryAddress                         = contractDeployments.treasury.address;
         doormanAddress                          = contractDeployments.doorman.address;
-        lendingControllerAddress                = contractDeployments.lendingController.address;
+        lendingControllerAddress                = contractDeployments.lendingControllerMockTime.address;
         mTokenUsdtAddress                       = contractDeployments.mTokenUsdt.address;
         mockFa12TokenAddress                    = contractDeployments.mavrykFa12Token.address;
         mockUsdMockFa12TokenAggregatorAddress   = contractDeployments.mockUsdMockFa12TokenAggregator.address;
         
-        farmInstance                = await utils.tezos.contract.at(farmAddress);
         farmFactoryInstance         = await utils.tezos.contract.at(farmFactoryAddress);
         mvkTokenInstance            = await utils.tezos.contract.at(mvkTokenAddress);
         treasuryInstance            = await utils.tezos.contract.at(treasuryAddress);
@@ -149,7 +148,6 @@ describe("Farm mToken", async () => {
         mockFa12TokenInstance       = await utils.tezos.contract.at(mockFa12TokenAddress);
         mTokenUsdtInstance          = await utils.tezos.contract.at(mTokenUsdtAddress);
 
-        farmStorage                 = await farmInstance.storage();
         farmFactoryStorage          = await farmFactoryInstance.storage();
         mvkTokenStorage             = await mvkTokenInstance.storage();
         treasuryStorage             = await treasuryInstance.storage();
@@ -163,10 +161,39 @@ describe("Farm mToken", async () => {
         mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
 
         // Make farm factory track the farm
-        if(!farmFactoryStorage.trackedFarms.includes(farmAddress)){
-            const trackOperation = await farmFactoryInstance.methods.trackFarm(farmAddress).send();
-            await trackOperation.confirmation();
-        }
+        // if(!farmFactoryStorage.trackedFarms.includes(farmAddress)){
+        //     const trackOperation = await farmFactoryInstance.methods.trackFarm(farmAddress).send();
+        //     await trackOperation.confirmation();
+        // }
+
+
+        const initTrackedFarms = farmFactoryStorage.trackedFarms;
+
+        // Create a new farm for retesting
+        const operation = await farmFactoryInstance.methods.createFarmMToken(
+            "testFarm",
+            'usdt',
+            false,
+            false,
+            false,
+            12000,
+            100,
+            mockMetadata.farmMToken,
+            mTokenUsdtAddress,
+            0,
+            "fa2",
+        ).send();
+        await operation.confirmation()
+
+        // Created farms
+        farmFactoryStorage                      = await farmFactoryInstance.storage();
+        const finalTrackedFarms                 = farmFactoryStorage.trackedFarms;
+        const newFarmAddresses                  = finalTrackedFarms.filter(item => initTrackedFarms.indexOf(item) < 0);
+        farmAddress                             = newFarmAddresses[0];
+
+        // Get the new farm
+        farmInstance                            = await utils.tezos.contract.at(farmAddress);
+        farmStorage                             = await farmInstance.storage();
 
         // ----------------------------------------------
         // Loan token setup
@@ -259,7 +286,7 @@ describe("Farm mToken", async () => {
         farmStorage         = await farmInstance.storage();
         farmFactoryStorage  = await farmFactoryInstance.storage();
         mvkTokenStorage     = await mvkTokenInstance.storage();
-        mTokenUsdtStorage      = await mTokenUsdtInstance.storage();
+        mTokenUsdtStorage   = await mTokenUsdtInstance.storage();
 
         await signerFactory(tezos, adminSk);
     })
@@ -434,14 +461,14 @@ describe("Farm mToken", async () => {
             try{
                 // init variables
                 await signerFactory(tezos, userOneSk);
-                const loanTokenName = "usdt";
+                const loanTokenName   = "usdt";
                 const liquidityAmount = 30000000; // 30 Mock FA12 Tokens
 
                 lendingControllerStorage = await lendingControllerInstance.storage();
                 
                 // get mock fa12 token storage and lp token pool mock fa12 token storage
                 const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
-                const mTokenPoolMockFa12TokenStorage   = await mTokenUsdtInstance.storage();
+                const mTokenPoolMockFa12TokenStorage    = await mTokenUsdtInstance.storage();
                 
                 // get initial eve's Mock FA12 Token balance
                 const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(userOne);            
@@ -515,20 +542,18 @@ describe("Farm mToken", async () => {
     describe("Non-initialized farm", function() {
 
         beforeEach("Set signer to userOne (eve)", async () => {
-            farmStorage = await farmInstance.storage();
-            farmFactoryStorage = await farmFactoryInstance.storage();
-            mvkTokenStorage = await mvkTokenInstance.storage();
-            mTokenUsdtStorage = await mTokenUsdtInstance.storage();
+            farmStorage         = await farmInstance.storage();
+            farmFactoryStorage  = await farmFactoryInstance.storage();
+            mvkTokenStorage     = await mvkTokenInstance.storage();
+            mTokenUsdtStorage   = await mTokenUsdtInstance.storage();
             await signerFactory(tezos, userOneSk);
         });
 
         describe("%deposit", function() {
             it('user (eve) should not be able to deposit in a farm that has not been initialized yet', async () => {
                 try{
-                    // Initial values
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
                     
+                    // Initial values
                     const farmInit          = farmStorage.init;
                     const amountToDeposit   = 2000000;
     
@@ -556,8 +581,6 @@ describe("Farm mToken", async () => {
             it('user (eve) should not be able to withdraw from a farm that has not been initialized yet', async () => {
                 try{
                     // Initial values
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
                     const farmInit          = farmStorage.init;
                     const amountToWithdraw  = 1000000;
     
@@ -577,9 +600,8 @@ describe("Farm mToken", async () => {
         describe("%claim", function() {
             it('user (eve) should not be able to claim in a farm that has not been initialized yet', async () => {
                 try{
+                    
                     // Initial values
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
                     const farmInit          = farmStorage.init;
     
                     // Operation
@@ -603,10 +625,10 @@ describe("Farm mToken", async () => {
         describe('%initFarm', function() {
 
             beforeEach("Set signer to admin (bob)", async () => {
-                farmStorage = await farmInstance.storage();
-                farmFactoryStorage = await farmFactoryInstance.storage();
-                mvkTokenStorage = await mvkTokenInstance.storage();
-                mTokenUsdtStorage = await mTokenUsdtInstance.storage();
+                farmStorage         = await farmInstance.storage();
+                farmFactoryStorage  = await farmFactoryInstance.storage();
+                mvkTokenStorage     = await mvkTokenInstance.storage();
+                mTokenUsdtStorage   = await mTokenUsdtInstance.storage();
                 await signerFactory(tezos, adminSk);
             });
 
@@ -646,8 +668,6 @@ describe("Farm mToken", async () => {
             it('admin (bob) should be able to initialize a farm', async () => {
                 try{
                     
-                    farmStorage    = await farmInstance.storage();
-                    
                     if(farmStorage.open == false){
                         // Operation
                         const operation = await farmInstance.methods.initFarm(
@@ -684,6 +704,7 @@ describe("Farm mToken", async () => {
                         false,
                         false
                     ).send()).to.be.rejected;
+
                 }catch(e){
                     console.dir(e, {depth: 5})
                 }
@@ -693,20 +714,18 @@ describe("Farm mToken", async () => {
         describe('%deposit', function() {
 
             beforeEach("Set signer to user (eve)", async () => {
-                farmStorage = await farmInstance.storage();
-                farmFactoryStorage = await farmFactoryInstance.storage();
-                mvkTokenStorage = await mvkTokenInstance.storage();
-                mTokenUsdtStorage = await mTokenUsdtInstance.storage();
+                farmStorage         = await farmInstance.storage();
+                farmFactoryStorage  = await farmFactoryInstance.storage();
+                mvkTokenStorage     = await mvkTokenInstance.storage();
+                mTokenUsdtStorage   = await mTokenUsdtInstance.storage();
+                lendingControllerStorage   = await lendingControllerInstance.storage();
                 await signerFactory(tezos, userOneSk);
             });
             
             it('user (eve) should be able to deposit LP Tokens into a farm', async () => {
                 try{
-                    // Initial values
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    lendingControllerStorage = await lendingControllerInstance.storage();
                     
+                    // Initial values
                     const lpBalanceStart    = await mTokenUsdtStorage.ledger.get(userOne);
                     
                     const depositRecord     = await farmStorage.depositorLedger.get(userOne);
@@ -722,7 +741,7 @@ describe("Farm mToken", async () => {
                     await depositOperation.confirmation();
 
                     // Final values
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
+                    mTokenUsdtStorage       = await mTokenUsdtInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     
                     // console.log("REWARDS: ", farmStorage.config.plannedRewards)
@@ -743,12 +762,12 @@ describe("Farm mToken", async () => {
 
             it('user (alice) should be able to deposit LP Tokens into a farm', async () => {
                 try{
+                    
+                    compoundOperation = await mTokenUsdtInstance.methods.compound([farmAddress, userOne, userTwo]).send();
+                    await compoundOperation.confirmation();
+                    
                     // Initial values
                     await signerFactory(tezos, userTwoSk)
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    lendingControllerStorage = await lendingControllerInstance.storage();
-                    
                     const lpBalanceStart    = await mTokenUsdtStorage.ledger.get(userTwo);
                     
                     const depositRecord     = await farmStorage.depositorLedger.get(userTwo);
@@ -764,7 +783,7 @@ describe("Farm mToken", async () => {
                     await depositOperation.confirmation();
 
                     // Final values
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
+                    mTokenUsdtStorage       = await mTokenUsdtInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     
                     // console.log("REWARDS: ", farmStorage.config.plannedRewards)
@@ -785,28 +804,28 @@ describe("Farm mToken", async () => {
 
             it('multiple users (eve/alice) should be able to deposit LP Tokens into a farm', async () => {
                 try{
+
+                    compoundOperation = await mTokenUsdtInstance.methods.compound([farmAddress, userOne, userTwo]).send();
+                    await compoundOperation.confirmation();
+
                     // Initial values
                     await signerFactory(tezos, userOneSk);
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    lendingControllerStorage = await lendingControllerInstance.storage();
-                    
-                    const lpBalanceStart    = await mTokenUsdtStorage.ledger.get(userOne);
-                    
-                    const depositRecord     = await farmStorage.depositorLedger.get(userOne);
-                    const depositBalance    = depositRecord === undefined ? 0 : depositRecord.balance.toNumber();
-                    const amountToDeposit   = 1000000;
+                    const lpBalanceStart     = await mTokenUsdtStorage.ledger.get(userOne);
+
+                    const depositRecord      = await farmStorage.depositorLedger.get(userOne);
+                    const depositBalance     = depositRecord === undefined ? 0 : depositRecord.balance.toNumber();
 
                     // Update operators for farm
                     updateOperatorsOperation = await updateOperators(mTokenUsdtInstance, userOne, farmAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // Operation
+                    const amountToDeposit   = 10000;
                     depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
                     await depositOperation.confirmation();
 
                     // Final values
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
+                    mTokenUsdtStorage       = await mTokenUsdtInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     
                     // console.log("REWARDS: ", farmStorage.config.plannedRewards)
@@ -822,14 +841,17 @@ describe("Farm mToken", async () => {
 
                     await signerFactory(tezos, userTwoSk)
                     mTokenUsdtStorage           = await mTokenUsdtInstance.storage();
-                    farmStorage              = await farmInstance.storage();
-                    lendingControllerStorage = await lendingControllerInstance.storage();
+                    farmStorage                 = await farmInstance.storage();
+                    lendingControllerStorage    = await lendingControllerInstance.storage();
                     
-                    const aliceLpBalanceStart    = await mTokenUsdtStorage.ledger.get(userTwo);
+                    const aliceLpBalanceStart   = await mTokenUsdtStorage.ledger.get(userTwo);
                     
-                    const aliceDepositRecord     = await farmStorage.depositorLedger.get(userTwo);
-                    const aliceDepositBalance    = aliceDepositRecord === undefined ? 0 : aliceDepositRecord.balance.toNumber();
-                    const aliceAmountToDeposit   = 1000000;
+                    const aliceDepositRecord    = await farmStorage.depositorLedger.get(userTwo);
+                    const aliceDepositBalance   = aliceDepositRecord === undefined ? 0 : aliceDepositRecord.balance.toNumber();
+                    const aliceAmountToDeposit  = 1000000;
+
+                    compoundOperation = await mTokenUsdtInstance.methods.compound([farmAddress, userOne, userTwo]).send();
+                    await compoundOperation.confirmation();
 
                     // Update operators for farm
                     updateOperatorsOperation = await updateOperators(mTokenUsdtInstance, userTwo, farmAddress, tokenId);
@@ -841,7 +863,7 @@ describe("Farm mToken", async () => {
 
                     // Final values
                     mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
+                    farmStorage                = await farmInstance.storage();
                     
                     // console.log("REWARDS: ", farmStorage.config.plannedRewards)
                     // console.log("TIME: ", farmStorage.minBlockTimeSnapshot.toNumber())
@@ -862,11 +884,8 @@ describe("Farm mToken", async () => {
             it('user (eve) should not be able to able to deposit more LP Tokens than it has', async () => {
                 try{
                     // Initial values
-                    mTokenUsdtStorage                  = await mTokenUsdtInstance.storage();
-                    farmStorage                     = await farmInstance.storage();
-                    
                     const lpBalanceStart     = await mTokenUsdtStorage.ledger.get(userOne);
-                    const amountToDeposit   = lpBalanceStart + 1000000;
+                    const amountToDeposit    = lpBalanceStart + 1000000;
 
                     // Update operators for farm
                     updateOperatorsOperation = await updateOperators(mTokenUsdtInstance, userOne, farmAddress, tokenId);
@@ -883,10 +902,10 @@ describe("Farm mToken", async () => {
         describe('%withdraw', function() {
 
             beforeEach("Set signer to user (eve)", async () => {
-                farmStorage = await farmInstance.storage();
-                farmFactoryStorage = await farmFactoryInstance.storage();
-                mvkTokenStorage = await mvkTokenInstance.storage();
-                mTokenUsdtStorage = await mTokenUsdtInstance.storage();
+                farmStorage         = await farmInstance.storage();
+                farmFactoryStorage  = await farmFactoryInstance.storage();
+                mvkTokenStorage     = await mvkTokenInstance.storage();
+                mTokenUsdtStorage   = await mTokenUsdtInstance.storage();
                 await signerFactory(tezos, userOneSk);
             });
 
@@ -894,13 +913,10 @@ describe("Farm mToken", async () => {
                 try{
 
                     // Initial values
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    
                     const lpLedgerStart      = await mTokenUsdtStorage.ledger.get(userOne);
                     const lpBalance : number = lpLedgerStart.toNumber();
 
-                    const depositRecord      = await farmStorage.depositorLedger.get(userOne);
+                    const depositRecord           = await farmStorage.depositorLedger.get(userOne);
                     const depositBalance : number = depositRecord === undefined ? 0 : depositRecord.balance.toNumber();
                     
                     const amountToWithdraw : number = 100000;
@@ -938,9 +954,6 @@ describe("Farm mToken", async () => {
 
                     // Initial values
                     await signerFactory(tezos, userTwoSk);
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    
                     const lpLedgerStart      = await mTokenUsdtStorage.ledger.get(userTwo);
                     const lpBalance : number = lpLedgerStart.toNumber();
 
@@ -954,7 +967,7 @@ describe("Farm mToken", async () => {
                     await withdrawOperation.confirmation();
 
                     // Final values
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
+                    mTokenUsdtStorage       = await mTokenUsdtInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     
                     const depositRecordEnd  = await farmStorage.depositorLedger.get(userTwo);
@@ -977,8 +990,6 @@ describe("Farm mToken", async () => {
 
                     // Initial values
                     await signerFactory(tezos, userThreeSk);
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
                     const amountToWithdraw  = 1;
 
                     // Operation
@@ -994,8 +1005,6 @@ describe("Farm mToken", async () => {
                 try{
 
                     // Initial values
-                    mTokenUsdtStorage                  = await mTokenUsdtInstance.storage();
-                    farmStorage                     = await farmInstance.storage();
                     const firstLpLedgerStart        = await mTokenUsdtStorage.ledger.get(userOne);
                     const firstLpBalance            = firstLpLedgerStart.toNumber();
                     
@@ -1059,9 +1068,6 @@ describe("Farm mToken", async () => {
 
                     // Initial values
                     await signerFactory(tezos, userOneSk);
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    
                     const lpLedgerStart     = await mTokenUsdtStorage.ledger.get(userOne);
                     const lpBalance         = lpLedgerStart === undefined ? 0 : lpLedgerStart.toNumber();
 
@@ -1087,7 +1093,7 @@ describe("Farm mToken", async () => {
                     const withdrawOperation  = await farmInstance.methods.withdraw(amountToWithdraw).send();
                     await withdrawOperation.confirmation();
 
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
+                    mTokenUsdtStorage       = await mTokenUsdtInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     
                     const depositRecordEnd  = await farmStorage.depositorLedger.get(userOne);
@@ -1102,7 +1108,7 @@ describe("Farm mToken", async () => {
 
                     // reset - deposit some lpToken into farm again for subsequent tests
 
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
+                    mTokenUsdtStorage       = await mTokenUsdtInstance.storage();
                     farmStorage             = await farmInstance.storage();
                     
                     const amountToDeposit   = 10000;
@@ -1126,22 +1132,23 @@ describe("Farm mToken", async () => {
         describe('%claim', function() {
 
             beforeEach("Set signer to user (eve)", async () => {
-                farmStorage = await farmInstance.storage();
-                farmFactoryStorage = await farmFactoryInstance.storage();
-                mvkTokenStorage = await mvkTokenInstance.storage();
-                mTokenUsdtStorage = await mTokenUsdtInstance.storage();
+                farmStorage         = await farmInstance.storage();
+                farmFactoryStorage  = await farmFactoryInstance.storage();
+                mvkTokenStorage     = await mvkTokenInstance.storage();
+                mTokenUsdtStorage   = await mTokenUsdtInstance.storage();
+                doormanStorage      = await doormanInstance.storage();
                 await signerFactory(tezos, userOneSk);
             });
 
             it('user (mallory) should not be able to claim in a farm if it never deposited into it', async () => {
                 try{
+
                     // Initial values
                     await signerFactory(tezos, userThreeSk);
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-
+                    
                     // Operation
                     await chai.expect(farmInstance.methods.claim([userThree]).send()).to.be.rejected;
+
                 } catch(e) {
                     console.dir(e, {depth: 5})
                 }
@@ -1150,8 +1157,6 @@ describe("Farm mToken", async () => {
             it('user (eve) should be able to claim rewards from a farm', async () => {
                 try{
                     // Initial values
-                    farmStorage                 = await farmInstance.storage();
-                    doormanStorage              = await doormanInstance.storage();
                     const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(userOne);
                     const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber()
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
@@ -1182,9 +1187,6 @@ describe("Farm mToken", async () => {
                 try{
                     // Initial values
                     await signerFactory(tezos, userTwoSk);
-                    farmStorage                 = await farmInstance.storage();
-                    doormanStorage              = await doormanInstance.storage();
-                    mTokenUsdtStorage              = await mTokenUsdtInstance.storage();
                     const userLpLedgerStart     = await mTokenUsdtStorage.ledger.get(userTwo);
                     const userLpBalance         = userLpLedgerStart;
                     
@@ -1235,9 +1237,6 @@ describe("Farm mToken", async () => {
             it('admin (bob) should be able to force the rewards to come from transfers instead of minting', async () => {
                 try{
                     // Initial values
-                    mTokenUsdtStorage       = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    mvkTokenStorage         = await mvkTokenInstance.storage();
                     const mvkTotalSupply    = mvkTokenStorage.totalSupply.toNumber();
                     const smvkTotalSupply   = await mvkTokenStorage.ledger.get(doormanAddress);
                     
@@ -1255,7 +1254,7 @@ describe("Farm mToken", async () => {
                     await depositOperation.confirmation();
 
                     // Wait at least one block before claiming rewards
-                    await wait(12 * blockTime * 1000);
+                    await wait(15 * blockTime * 1000);
 
                     farmStorage                    = await farmInstance.storage();
                     const userDepositRecordMid     = await farmStorage.depositorLedger.get(admin);
@@ -1343,6 +1342,14 @@ describe("Farm mToken", async () => {
 
         describe('%closeFarm', function() {
 
+            beforeEach("Set signer to userOne (eve)", async () => {
+                farmStorage         = await farmInstance.storage();
+                farmFactoryStorage  = await farmFactoryInstance.storage();
+                mvkTokenStorage     = await mvkTokenInstance.storage();
+                mTokenUsdtStorage   = await mTokenUsdtInstance.storage();
+                doormanStorage      = await doormanInstance.storage();
+            });
+
             it('non-admin (eve) should not be able to close a farm', async () => {
                 try{
                     // Toggle to transfer
@@ -1357,7 +1364,6 @@ describe("Farm mToken", async () => {
                 try{
                     // Initial values
                     await signerFactory(tezos, adminSk);
-                    farmStorage             = await farmInstance.storage();
                     const farmOpen          = farmStorage.open;
                     
                     // Operation
@@ -1380,8 +1386,6 @@ describe("Farm mToken", async () => {
             it('user (eve) should not be able to deposit in a closed farm', async () => {
                 try{
                     // Initial values
-                    mTokenUsdtStorage          = await mTokenUsdtInstance.storage();
-                    farmStorage             = await farmInstance.storage();
                     const farmOpen          = farmStorage.open;
                     const amountToDeposit   = 1;
 
@@ -1404,8 +1408,6 @@ describe("Farm mToken", async () => {
             it('user (eve) should be able to claim in a closed farm', async () => {
                 try{
                     // Initial values
-                    farmStorage                 = await farmInstance.storage();
-                    doormanStorage              = await doormanInstance.storage();
                     const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(userOne);
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
                     const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber()
@@ -1433,9 +1435,6 @@ describe("Farm mToken", async () => {
             it('user (eve) should not see any increase in rewards even if it still has LP Token deposited in the farm', async () => {
                 try{
 
-                    farmStorage                 = await farmInstance.storage();
-                    mTokenUsdtStorage              = await mTokenUsdtInstance.storage();
-                    
                     const lpLedgerStart         = await mTokenUsdtStorage.ledger.get(userOne);
                     const lpBalance             = lpLedgerStart.toNumber();
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
@@ -1497,8 +1496,6 @@ describe("Farm mToken", async () => {
                 try{
                     // Initial values
                     await signerFactory(tezos, userOneSk);
-                    farmStorage                 = await farmInstance.storage();
-                    mTokenUsdtStorage           = await mTokenUsdtInstance.storage();
                     const lpLedgerStart         = await mTokenUsdtStorage.ledger.get(userOne);
                     const lpBalance             = lpLedgerStart === undefined ? 0 : lpLedgerStart.toNumber();
                     const amountToWithdraw      = 1;
@@ -1536,7 +1533,6 @@ describe("Farm mToken", async () => {
             try{
                 
                 // Initial Values
-                farmStorage     = await farmInstance.storage();
                 const currentAdmin = farmStorage.admin;
                 assert.strictEqual(currentAdmin, admin);
 
@@ -1566,7 +1562,6 @@ describe("Farm mToken", async () => {
             try{
                 
                 // Initial Values
-                farmStorage       = await farmInstance.storage();
                 const currentGovernance = farmStorage.governanceAddress;
 
                 // Operation
@@ -1822,15 +1817,15 @@ describe("Farm mToken", async () => {
                 transferOperation = await fa2Transfer(mTokenUsdtInstance, userOne, farmAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mTokenUsdtStorage              = await mTokenUsdtInstance.storage();
-                const initialUserBalance    = (await mTokenUsdtStorage.ledger.get(userOne)).balance.toNumber()
+                mTokenUsdtStorage           = await mTokenUsdtInstance.storage();
+                const initialUserBalance    = (await mTokenUsdtStorage.ledger.get(userOne)).toNumber()
 
                 await signerFactory(tezos, adminSk);
                 mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, userOne, mTokenUsdtAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
                 
-                mTokenUsdtStorage              = await mTokenUsdtInstance.storage();
-                const updatedUserBalance    = (await mTokenUsdtStorage.ledger.get(userOne)).balance.toNumber()
+                mTokenUsdtStorage           = await mTokenUsdtInstance.storage();
+                const updatedUserBalance    = (await mTokenUsdtStorage.ledger.get(userOne)).toNumber()
 
                 // no change in balance
                 assert.equal(updatedUserBalance, initialUserBalance);
@@ -1915,13 +1910,14 @@ describe("Farm mToken", async () => {
     describe('Access Control Checks', function () {
 
         beforeEach("Set signer to non-admin (mallory)", async () => {
+            farmStorage = await farmInstance.storage();
             await signerFactory(tezos, userThreeSk);
         });
 
         it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try{
+
                 // Initial Values
-                farmStorage        = await farmInstance.storage();
                 const currentAdmin  = farmStorage.admin;
 
                 // Operation
@@ -1942,8 +1938,8 @@ describe("Farm mToken", async () => {
 
         it('%setGovernance            - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try{
+                
                 // Initial Values
-                farmStorage        = await farmInstance.storage();
                 const currentGovernance  = farmStorage.governanceAddress;
 
                 // Operation
@@ -1967,8 +1963,7 @@ describe("Farm mToken", async () => {
                 // Initial values
                 const key   = ''
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
-
-                farmStorage          = await farmInstance.storage();   
+                
                 const initialMetadata   = await farmStorage.metadata.get(key);
 
                 // Operation
@@ -1992,7 +1987,6 @@ describe("Farm mToken", async () => {
             try{
                 
                 // Initial Values
-                farmStorage           = await farmInstance.storage();
                 const initialConfigValue = farmStorage.config.forceRewardFromTransfer;
                 const newConfigValue     = initialConfigValue == 1 ? 0 : 1;
 
