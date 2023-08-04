@@ -2011,11 +2011,15 @@ describe("Lending Controller (mToken) tests", async () => {
                     // init variables
                     const tokenName             = "usdt";
                     const user                  = eve.pkh;
-                    const usdtLoanToken         = await lendingControllerStorage.loanTokenLedger.get(tokenName);
+                    const usdtRewardIndex       = await lendingControllerStorage.loanTokenRewardIndexes.get(tokenName);
                     const initTokenRewardIndex  = mTokenUsdtStorage.tokenRewardIndex;
                     const initUserRewardIndex   = await mTokenUsdtStorage.rewardIndexLedger.get(user);
                     const initUserBalance       = await mTokenUsdtStorage.ledger.get(user);
                     
+                    const compoundOpParam       = await mUsdtTokenInstance.methods.compound([user]).toTransferParams();
+                    const estimate              = await utils.tezos.estimate.transfer(compoundOpParam);
+                    console.log("Compound OP ESTIMATION: ", estimate);
+
                     // compound operation
                     compoundOperation           = await mUsdtTokenInstance.methods.compound([user]).send();
                     await compoundOperation.confirmation();
@@ -2030,8 +2034,8 @@ describe("Lending Controller (mToken) tests", async () => {
                     const finalUserBalance      = await mTokenUsdtStorage.ledger.get(user);
 
                     // assertions
-                    assert.notDeepEqual(initTokenRewardIndex, usdtLoanToken.tokenRewardIndex);
-                    assert.deepEqual(finalTokenRewardIndex, usdtLoanToken.tokenRewardIndex);
+                    assert.notDeepEqual(initTokenRewardIndex, usdtRewardIndex);
+                    assert.deepEqual(finalTokenRewardIndex, usdtRewardIndex);
                     assert.notDeepEqual(finalUserRewardIndex, initUserRewardIndex);
                     assert.notDeepEqual(finalUserBalance, initUserBalance);
                     assert.deepEqual(finalUserRewardIndex, finalTokenRewardIndex);

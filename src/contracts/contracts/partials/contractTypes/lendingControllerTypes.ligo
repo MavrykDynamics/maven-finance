@@ -118,13 +118,14 @@ type loanTokenRecordType is [@layout:comb] record [
 
     currentInterestRate                     : nat;
     lastUpdatedBlockLevel                   : nat; 
-    tokenRewardIndex                        : nat;
     borrowIndex                             : nat;
 
     isPaused                                : bool;
 ]
 
 type loanTokenLedgerType is big_map(string, loanTokenRecordType)
+
+type loanTokenRewardIndexesType is big_map(string, nat); // loan token name * token reward index
 
 
 type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
@@ -433,6 +434,7 @@ type lendingControllerStorageType is [@layout:comb] record [
     // collateral tokens
     collateralTokenLedger       : collateralTokenLedgerType;
     loanTokenLedger             : loanTokenLedgerType;
+    loanTokenRewardIndexes      : loanTokenRewardIndexesType;
 
     // lambdas
     lambdaLedger                : lambdaLedgerType;

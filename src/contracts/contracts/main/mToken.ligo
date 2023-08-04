@@ -229,24 +229,24 @@ block {
 // On-chain views to Lending Controller Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-(* Get loan token record from lending controller contract *)
-function getLoanTokenRecordFromLendingController(const loanTokenName : string; const s : mTokenStorageType) : loanTokenRecordType is 
+(* Get loan token reward index from lending controller contract *)
+function getLoanTokenRewardIndex(const loanTokenName : string; const s : mTokenStorageType) : nat is 
 block {
 
     // Get Lending Controller Address from the General Contracts map on the Governance Contract
     const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
         
-    // get loan token record of user from Lending Controller through on-chain views
-    const getLoanTokenRecordOptView : option (option (loanTokenRecordType)) = Tezos.call_view ("getLoanTokenRecordOpt", loanTokenName, lendingControllerAddress);
-    const loanTokenRecord : loanTokenRecordType = case getLoanTokenRecordOptView of [
+    // get loan token reward index from Lending Controller through on-chain views
+    const getLoanTokenRewardIndexOptView : option (option (nat)) = Tezos.call_view ("getLoanTokenRewardIndexOpt", loanTokenName, lendingControllerAddress);
+    const loanTokenRewardIndex : nat = case getLoanTokenRewardIndexOptView of [
             Some (_viewResult)  -> case _viewResult of [
-                    Some (_record)  -> _record
-                |   None            -> failwith (error_LOAN_TOKEN_RECORD_NOT_FOUND)
+                    Some (_rewardIndex)  -> _rewardIndex
+                |   None                 -> failwith (error_LOAN_TOKEN_REWARD_INDEX_NOT_FOUND)
             ]
-        |   None -> failwith (error_GET_LOAN_TOKEN_RECORD_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND)
+        |   None -> failwith (error_GET_LOAN_TOKEN_REWARD_INDEX_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND)
     ];
 
-} with loanTokenRecord
+} with loanTokenRewardIndex
 
 // ------------------------------------------------------------------------------
 // On-chain views to Lending Controller Helper Functions Begin
@@ -474,9 +474,8 @@ block{
             const owner : ownerType = transferParam.from_;
             const txs : list(transferDestination) = transferParam.txs;
 
-            // get loan token record from Lending Controller through on-chain views
-            const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-            const tokenRewardIndex   : nat                 = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
+            // get loan token reward index from Lending Controller through on-chain views
+            const tokenRewardIndex : nat = getLoanTokenRewardIndex(s.loanToken, s);
              
             function transferTokens(var accumulator : mTokenStorageType; const destination : transferDestination) : mTokenStorageType is
             block {
@@ -558,9 +557,8 @@ block{
 function balanceOf(const balanceOfParams : balanceOfType; const s : mTokenStorageType) : return is
 block{
 
-    // get loan token record from Lending Controller through on-chain views
-    const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-    const tokenRewardIndex   : nat                 = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
+    // get loan token reward index from Lending Controller through on-chain views
+    const tokenRewardIndex : nat = getLoanTokenRewardIndex(s.loanToken, s);
 
     function retrieveBalance(const request : balanceOfRequestType) : balanceOfResponse is
     block{
@@ -638,9 +636,8 @@ block {
 
     var newTotalSupply    : nat := s.totalSupply;
 
-    // get loan token record from Lending Controller through on-chain views
-    const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-    const tokenRewardIndex   : nat                 = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
+    // get loan token reward index from Lending Controller through on-chain views
+    const tokenRewardIndex : nat = getLoanTokenRewardIndex(s.loanToken, s);
 
     // check token id
     checkTokenId(tokenId);
@@ -700,9 +697,8 @@ block {
 function compound(const compoundParams : compoundType; var s : mTokenStorageType) : return is
 block {
 
-    // get loan token record from Lending Controller through on-chain views
-    const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-    const tokenRewardIndex   : nat                 = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
+    // get loan token reward index from Lending Controller through on-chain views
+    const tokenRewardIndex : nat = getLoanTokenRewardIndex(s.loanToken, s);
 
     var newTotalSupply    : nat := s.totalSupply;
 

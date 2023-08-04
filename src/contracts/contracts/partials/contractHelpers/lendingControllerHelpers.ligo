@@ -197,6 +197,19 @@ block {
 
 
 
+// helper function to get loan token reward index
+function getLoanTokenRewardIndex(const loanTokenName : string; const s : lendingControllerStorageType) : nat is 
+block {
+
+    const loanTokenRewardIndex : nat = case s.loanTokenRewardIndexes[loanTokenName] of [
+            Some(_rewardIndex) -> _rewardIndex
+        |   None               -> failwith(error_LOAN_TOKEN_REWARD_INDEX_NOT_FOUND)
+    ];
+
+} with loanTokenRewardIndex
+
+
+
 // helper function to create new loan token record
 function createLoanTokenRecord(const createLoanTokenParams : createLoanTokenActionType) : loanTokenRecordType is 
 block {
@@ -245,7 +258,6 @@ block {
 
         currentInterestRate                 = baseInterestRate;
         lastUpdatedBlockLevel               = Tezos.get_level();
-        tokenRewardIndex                    = fixedPointAccuracy;
         borrowIndex                         = fixedPointAccuracy;
 
         isPaused                            = False;

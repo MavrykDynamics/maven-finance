@@ -423,8 +423,8 @@ block{
                 
                 // --- Get required inputs from mToken contract and loan token record from Lending Controller
                 const farmMTokenBalance : nat = getMTokenBalance(s);
-                const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
-                const latestTokenRewardIndex   : nat           = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
+                // get loan token reward index from Lending Controller through on-chain views
+                const latestTokenRewardIndex : nat = getLoanTokenRewardIndex(s.config.loanToken, s);
                 // --- --- ---
 
                 // Update pool farmMTokenStorageType
@@ -508,8 +508,8 @@ block{
 
                 // --- Get required inputs from mToken contract and loan token record from Lending Controller
                 const farmMTokenBalance : nat = getMTokenBalance(s);
-                const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
-                const latestTokenRewardIndex   : nat           = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
+                // get loan token reward index from Lending Controller through on-chain views
+                const latestTokenRewardIndex : nat = getLoanTokenRewardIndex(s.config.loanToken, s);
                 // --- --- ---
                 
                 // Update pool farmMTokenStorageType
@@ -593,8 +593,8 @@ block{
 
                 // --- Get required inputs from mToken contract and loan token record from Lending Controller
                 const farmMTokenBalance : nat = getMTokenBalance(s);
-                const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.config.loanToken, s);
-                const latestTokenRewardIndex   : nat           = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
+                // get loan token reward index from Lending Controller through on-chain views
+                const latestTokenRewardIndex : nat = getLoanTokenRewardIndex(s.config.loanToken, s);
                 // --- --- ---
                 
                 // Update farm

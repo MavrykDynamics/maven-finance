@@ -348,6 +348,9 @@ block {
                             // update loan token ledger
                             s.loanTokenLedger[loanTokenName] := createLoanTokenRecord(createLoanTokenParams);
 
+                            // set loan token reward index
+                            s.loanTokenRewardIndexes[loanTokenName] := fixedPointAccuracy;
+
                         }
                     |   UpdateLoanToken(updateLoanTokenParams) -> block{
 
@@ -919,7 +922,7 @@ block {
                 const totalRemaining      : nat         = loanTokenRecord.totalRemaining;
                 const loanTokenDecimals   : nat         = loanTokenRecord.tokenDecimals;
                 const loanTokenType       : tokenType   = loanTokenRecord.tokenType;
-                const accRewardsPerShare  : nat         = loanTokenRecord.tokenRewardIndex;
+                const accRewardsPerShare  : nat         = getLoanTokenRewardIndex(loanTokenRecord.tokenName, s);
 
                 // Get loan token price
                 const loanTokenLastCompletedData  : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(loanTokenRecord.oracleAddress);
@@ -1130,11 +1133,13 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update token storage
-                loanTokenRecord.rawMTokensTotalSupply                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply       := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;
+                
+                // Update loan token reward index
+                s.loanTokenRewardIndexes[loanTokenRecord.tokenName] := newAccRewardsPerShare;
 
                 // Update Loan Token State again: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
@@ -1172,7 +1177,6 @@ block {
                 const vaultHandle     : vaultHandleType   = registerDepositParams.handle;
                 const depositAmount   : nat               = registerDepositParams.amount;
                 const tokenName       : string            = registerDepositParams.tokenName;
-                // const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
 
                 // get collateral token record reference
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(tokenName, s);
@@ -1352,7 +1356,7 @@ block {
                 const totalBorrowed         : nat         = loanTokenRecord.totalBorrowed;
                 const totalRemaining        : nat         = loanTokenRecord.totalRemaining;
                 const loanTokenType         : tokenType   = loanTokenRecord.tokenType;
-                const accRewardsPerShare    : nat         = loanTokenRecord.tokenRewardIndex;
+                const accRewardsPerShare    : nat         = getLoanTokenRewardIndex(loanTokenRecord.tokenName, s);
 
                 // ------------------------------------------------------------------
                 // Calculate Service Loan Fees
@@ -1447,11 +1451,13 @@ block {
                 // ------------------------------------------------------------------
                 
                 // Update loan token storage
-                loanTokenRecord.rawMTokensTotalSupply                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply       := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;   
+
+                // Update loan token reward index
+                s.loanTokenRewardIndexes[loanTokenRecord.tokenName] := newAccRewardsPerShare;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
@@ -1520,7 +1526,7 @@ block {
                 const totalRemaining      : nat         = loanTokenRecord.totalRemaining;
                 const minRepaymentAmount  : nat         = loanTokenRecord.minRepaymentAmount;
                 const loanTokenType       : tokenType   = loanTokenRecord.tokenType;
-                const accRewardsPerShare  : nat         = loanTokenRecord.tokenRewardIndex;
+                const accRewardsPerShare  : nat         = getLoanTokenRewardIndex(loanTokenRecord.tokenName, s);
 
                 // Check that minimum repayment amount is reached - verify that initialRepaymentAmount is greater than minRepaymentAmount
                 verifyGreaterThanOrEqual(initialRepaymentAmount, minRepaymentAmount, error_MIN_REPAYMENT_AMOUNT_NOT_REACHED);
@@ -1676,7 +1682,9 @@ block {
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;
+
+                // Update loan token reward index
+                s.loanTokenRewardIndexes[loanTokenRecord.tokenName] := newAccRewardsPerShare;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);

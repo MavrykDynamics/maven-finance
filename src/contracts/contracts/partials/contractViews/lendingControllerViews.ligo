@@ -40,6 +40,12 @@
 
 
 
+(* View: get loan token reward index *)
+[@view] function getLoanTokenRewardIndexOpt(const tokenName : string; const s : lendingControllerStorageType) : option(nat) is
+    Big_map.find_opt(tokenName, s.loanTokenRewardIndexes)
+
+
+
 (* View: get owned vaults by user *)
 [@view] function getOwnedVaultsByUserOpt(const ownerAddress : address; const s : lendingControllerStorageType) : option(ownerVaultSetType) is
     Big_map.find_opt(ownerAddress, s.ownerLedger)

@@ -8,24 +8,24 @@
 // On-chain views to Lending Controller Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-(* Get loan token record from lending controller contract *)
-function getLoanTokenRecordFromLendingController(const loanTokenName : string; const s : farmMTokenStorageType) : loanTokenRecordType is 
+(* Get loan token reward index from lending controller contract *)
+function getLoanTokenRewardIndex(const loanTokenName : string; const s : farmMTokenStorageType) : nat is 
 block {
 
     // Get Lending Controller Address from the General Contracts map on the Governance Contract
     const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
         
-    // get loan token record of user from Lending Controller through on-chain views
-    const getLoanTokenRecordOptView : option (option (loanTokenRecordType)) = Tezos.call_view ("getLoanTokenRecordOpt", loanTokenName, lendingControllerAddress);
-    const loanTokenRecord : loanTokenRecordType = case getLoanTokenRecordOptView of [
+    // get loan token reward index from Lending Controller through on-chain views
+    const getLoanTokenRewardIndexOptView : option (option (nat)) = Tezos.call_view ("getLoanTokenRewardIndexOpt", loanTokenName, lendingControllerAddress);
+    const loanTokenRewardIndex : nat = case getLoanTokenRewardIndexOptView of [
             Some (_viewResult)  -> case _viewResult of [
-                    Some (_record)  -> _record
-                |   None            -> failwith (error_LOAN_TOKEN_RECORD_NOT_FOUND)
+                    Some (_rewardIndex)  -> _rewardIndex
+                |   None                 -> failwith (error_LOAN_TOKEN_REWARD_INDEX_NOT_FOUND)
             ]
-        |   None -> failwith (error_GET_LOAN_TOKEN_RECORD_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND)
+        |   None -> failwith (error_GET_LOAN_TOKEN_REWARD_INDEX_OPT_VIEW_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND)
     ];
 
-} with loanTokenRecord
+} with loanTokenRewardIndex
 
 // ------------------------------------------------------------------------------
 // On-chain views to Lending Controller Helper Functions Begin

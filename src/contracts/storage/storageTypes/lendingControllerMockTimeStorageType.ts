@@ -24,6 +24,7 @@ export type lendingControllerMockTimeStorageType = {
     // collateral tokens
     collateralTokenLedger       : MichelsonMap<MichelsonMapKey, unknown>;
     loanTokenLedger             : MichelsonMap<MichelsonMapKey, unknown>;
+    loanTokenRewardIndexes      : MichelsonMap<MichelsonMapKey, unknown>;
 
     lambdaLedger                : MichelsonMap<MichelsonMapKey, unknown>;
     vaultLambdaLedger           : MichelsonMap<MichelsonMapKey, unknown>;

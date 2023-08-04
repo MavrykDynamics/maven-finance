@@ -805,6 +805,10 @@ describe("Farm mToken", async () => {
             it('multiple users (eve/alice) should be able to deposit LP Tokens into a farm', async () => {
                 try{
 
+                    const compoundOpParam       = await mTokenUsdtInstance.methods.compound([farmAddress, userOne, userTwo]).toTransferParams();
+                    const estimate              = await utils.tezos.estimate.transfer(compoundOpParam);
+                    console.log("Compound OP ESTIMATION: ", estimate);
+
                     compoundOperation = await mTokenUsdtInstance.methods.compound([farmAddress, userOne, userTwo]).send();
                     await compoundOperation.confirmation();
 
@@ -821,6 +825,11 @@ describe("Farm mToken", async () => {
 
                     // Operation
                     const amountToDeposit   = 10000;
+                    
+                    const depositOpParam        = await farmInstance.methods.deposit(amountToDeposit).toTransferParams();
+                    const estimateTwo           = await utils.tezos.estimate.transfer(depositOpParam);
+                    console.log("Deposit OP ESTIMATION: ", estimateTwo);
+
                     depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
                     await depositOperation.confirmation();
 

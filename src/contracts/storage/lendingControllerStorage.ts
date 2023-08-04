@@ -85,6 +85,7 @@ export const lendingControllerStorage : lendingControllerStorageType = {
 
     collateralTokenLedger           : MichelsonMap.fromLiteral({}),
     loanTokenLedger                 : MichelsonMap.fromLiteral({}),
+    loanTokenRewardIndexes          : MichelsonMap.fromLiteral({}),
 
     lambdaLedger                    : MichelsonMap.fromLiteral({}),
     vaultLambdaLedger               : MichelsonMap.fromLiteral({}),
