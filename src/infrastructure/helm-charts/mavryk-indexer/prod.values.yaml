@@ -85,6 +85,9 @@ instances:
         enabled: true
         host: api-dev.mavryk.finance
         secretName: api-dev-mavryk-tls
+      unauthorizedRole: unauthorized
+      jwt:
+        enabled: true
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_DEV
   prod:
     dipdup:
@@ -199,6 +202,9 @@ instances:
         enabled: true
         host: api.mavryk.finance
         secretName: api-mavryk-tls
+      unauthorizedRole: user
+      jwt:
+        enabled: false
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD
   prod2:
     dipdup:
@@ -313,6 +319,9 @@ instances:
           name:
         host:
         secretName:
+      unauthorizedRole: user
+      jwt:
+        enabled: false
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD_2
   staging:
     dipdup:
@@ -400,4 +409,7 @@ instances:
         enabled: true
         host: api-staging.mavryk.finance
         secretName: api-staging-mavryk-tls
+      unauthorizedRole: user
+      jwt:
+        enabled: false
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_STAGING
