@@ -610,25 +610,6 @@ block {
 
 
 
-// helper function withdraw from vault - call %withdraw in a specified Vault Contract
-// function withdrawFromVaultOperation(const tokenName : string; const amount : nat; const vaultAddress : address) : operation is
-// block {
-
-//     const withdrawOperationParams : initVaultActionType = Withdraw(
-//         amount     = amount;
-//         tokenName  = tokenName;
-//     );
-
-//     const withdrawFromVaultOperation : operation = Tezos.transaction(
-//         withdrawOperationParams,
-//         0mutez,
-//         getInitVaultActionEntrypoint(vaultAddress)
-//     );
-
-// } with withdrawFromVaultOperation
-
-
-
 // helper function withdraw staked token (e.g. sMVK) from vault through the staking contract (e.g. Doorman Contract) - call %onVaultWithdrawStake in Doorman Contract
 function onWithdrawStakedTokenFromVaultOperation(const vaultOwner : address; const vaultAddress : address; const withdrawAmount : nat; const stakingContractAddress : address) : operation is
 block {
@@ -795,6 +776,17 @@ block {
 
 
 
+function verifyLastCompletedDataFreshness(const lastUpdatedAt : timestamp; const lastCompletedDataMaxDelay : nat) : unit is
+block {
+
+    if abs(Tezos.get_now() - lastUpdatedAt) <= lastCompletedDataMaxDelay 
+    then failwith(error_LAST_COMPLETED_DATA_NOT_FRESH)
+    else skip;
+
+} with unit
+
+
+
 // helper function to calculate collateral token value rebased (to max decimals 1e32)
 function calculateCollateralTokenValueRebased(const collateralTokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
 block {
@@ -807,6 +799,9 @@ block {
     // get last completed round price of token from Aggregator view
     // todo: for mToken, aggregator could be set to pegged token to reduce the need to have another aggregator
     const collateralTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(collateralTokenRecord.oracleAddress);
+    
+    // check for freshness of last completed data
+    verifyLastCompletedDataFreshness(collateralTokenLastCompletedData.lastUpdatedAt, s.config.lastCompletedDataMaxDelay);
     
     const tokenDecimals    : nat  = collateralTokenRecord.tokenDecimals; 
     const priceDecimals    : nat  = collateralTokenLastCompletedData.decimals;
