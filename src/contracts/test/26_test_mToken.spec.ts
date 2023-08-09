@@ -1981,13 +1981,13 @@ describe("Lending Controller (mToken) tests", async () => {
             assert.equal(updatedLendingControllerMockFa12TokenBalance, initialLendingControllerMockFa12TokenBalance + (totalLiquidationAmount - interestSentToTreasury));
 
             // check that final vault calculations are correct - use of almostEqual as there may be a slight difference of 1 from rounding errors 
-            assert.equal(vaultLoanOutstandingTotal, finalLoanOutstandingTotal);
-            assert.equal(vaultLoanPrincipalTotal, finalLoanPrincipalTotal);
-            assert.equal(vaultLoanInterestTotal, finalLoanInterestTotal);
+            assert.equal(almostEqual(vaultLoanOutstandingTotal, finalLoanOutstandingTotal, 0.0001), true);
+            assert.equal(almostEqual(vaultLoanPrincipalTotal, finalLoanPrincipalTotal, 0.0001), true);
+            assert.equal(almostEqual(vaultLoanInterestTotal, finalLoanInterestTotal, 0.0001), true);
 
             // check that remaining loan outstanding total is correct 
             // i.e. if maxVaultLiquidationPercent is 50%, then not more than 50% of the loan outstanding can be liquidated, and there should be 50% remaining
-            assert.equal(vaultLoanOutstandingTotal, initialVaultLoanOutstandingTotal - vaultMaxLiquidationAmount);
+            assert.equal(almostEqual(vaultLoanOutstandingTotal, initialVaultLoanOutstandingTotal - vaultMaxLiquidationAmount, 0.0001), true);
 
             // test vault cannot be liquidated again 
             failLiquidateVaultOperation = await lendingControllerInstance.methods.liquidateVault(vaultId, vaultOwner, failTestLiquidationAmount);
