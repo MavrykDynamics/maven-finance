@@ -31,6 +31,7 @@ type lendingControllerConfigType is [@layout:comb] record [
     decimals                     : nat;         // decimals used for percentage calculation
     interestRateDecimals         : nat;         // decimals used for interest rate (ray : 10^27)
     maxDecimalsForCalculation    : nat;         // max decimals to be used in calculations
+    lastCompletedDataMaxDelay    : nat;         // max delay in last updated at for last completed data in fetching prices
 
     maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% for AAVE)
     liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
