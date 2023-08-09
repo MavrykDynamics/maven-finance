@@ -20,6 +20,7 @@ const config = {
     decimals                    : 4,       // decimals 
     interestRateDecimals        : 27,      // interest rate decimals
     maxDecimalsForCalculation   : 32,
+    lastCompletedDataMaxDelay   : 300,
 
     maxVaultLiquidationPercent  : 5000,    // 50%      
     liquidationDelayInMins      : 120,
