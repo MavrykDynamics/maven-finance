@@ -48,6 +48,8 @@ describe("Setup: Mock Aggregators", async () => {
     let admin
     let adminSk
 
+    let oracleMap
+
     // basic inputs for updating operators
     let aggregatorFactoryAddress
     let governanceSatelliteAddress
@@ -81,7 +83,21 @@ describe("Setup: Mock Aggregators", async () => {
 
         await signerFactory(tezos, bob.sk);
 
-        console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        // console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        oracleMap = MichelsonMap.fromLiteral({
+            [alice.pkh]              : {
+                oraclePublicKey : alice.pk,
+                oraclePeerId : alice.peerId
+            },
+            [eve.pkh]              : {
+                oraclePublicKey : eve.pk,
+                oraclePeerId : eve.peerId
+            },
+            [susie.pkh]          : {
+                oraclePublicKey : susie.pk,
+                oraclePeerId : susie.peerId
+            }
+        });
 
     });
 
@@ -118,7 +134,7 @@ describe("Setup: Mock Aggregators", async () => {
                 const aggregatorRecord = await governanceSatelliteStorage.aggregatorLedger.get(aggregatorName);
                 if(aggregatorRecord == undefined){
 
-                    const oracleMap              = MichelsonMap.fromLiteral({});
+                    // const oracleMap              = MichelsonMap.fromLiteral({});
                     const aggregatorMetadataBase = aggregatorMockData.mockAggregator.metadata;
 
                     const setupAggregatorOperation = await aggregatorFactoryInstance.methods.createAggregator(
@@ -127,7 +143,7 @@ describe("Setup: Mock Aggregators", async () => {
 
                         oracleMap,
 
-                        new BigNumber(8),             // decimals
+                        new BigNumber(6),             // decimals
                         new BigNumber(2),             // alphaPercentPerThousand
 
                         new BigNumber(60),            // percentOracleThreshold
@@ -154,7 +170,7 @@ describe("Setup: Mock Aggregators", async () => {
                 const aggregatorRecord = await governanceSatelliteStorage.aggregatorLedger.get(aggregatorName);
                 if(aggregatorRecord == undefined){
 
-                    const oracleMap              = MichelsonMap.fromLiteral({});
+                    // const oracleMap              = MichelsonMap.fromLiteral({});
                     const aggregatorMetadataBase = aggregatorMockData.mockAggregator.metadata;
 
                     const setupAggregatorOperation = await aggregatorFactoryInstance.methods.createAggregator(
@@ -163,7 +179,7 @@ describe("Setup: Mock Aggregators", async () => {
 
                         oracleMap,
 
-                        new BigNumber(8),             // decimals
+                        new BigNumber(6),             // decimals
                         new BigNumber(2),             // alphaPercentPerThousand
 
                         new BigNumber(60),            // percentOracleThreshold
@@ -190,7 +206,7 @@ describe("Setup: Mock Aggregators", async () => {
                 const aggregatorRecord = await governanceSatelliteStorage.aggregatorLedger.get(aggregatorName);
                 if(aggregatorRecord == undefined){
 
-                    const oracleMap              = MichelsonMap.fromLiteral({});
+                    // const oracleMap              = MichelsonMap.fromLiteral({});
                     const aggregatorMetadataBase = aggregatorMockData.mockAggregator.metadata;
 
                     const setupAggregatorOperation = await aggregatorFactoryInstance.methods.createAggregator(
@@ -199,7 +215,7 @@ describe("Setup: Mock Aggregators", async () => {
 
                         oracleMap,
 
-                        new BigNumber(8),             // decimals
+                        new BigNumber(6),             // decimals
                         new BigNumber(2),             // alphaPercentPerThousand
 
                         new BigNumber(60),            // percentOracleThreshold
@@ -226,7 +242,7 @@ describe("Setup: Mock Aggregators", async () => {
                 const aggregatorRecord = await governanceSatelliteStorage.aggregatorLedger.get(aggregatorName);
                 if(aggregatorRecord == undefined){
 
-                    const oracleMap              = MichelsonMap.fromLiteral({});
+                    // const oracleMap              = MichelsonMap.fromLiteral({});
                     const aggregatorMetadataBase = aggregatorMockData.mockAggregator.metadata;
 
                     const setupAggregatorOperation = await aggregatorFactoryInstance.methods.createAggregator(
@@ -235,7 +251,7 @@ describe("Setup: Mock Aggregators", async () => {
 
                         oracleMap,
 
-                        new BigNumber(8),             // decimals
+                        new BigNumber(9),             // decimals
                         new BigNumber(2),             // alphaPercentPerThousand
 
                         new BigNumber(60),            // percentOracleThreshold

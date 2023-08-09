@@ -2344,7 +2344,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             lastEpoch   = mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.epoch
             lastRound   = mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.round
             epoch       = lastEpoch.toNumber() + 1;
-            round       = lastRound.toNumber() + 1;
+            round       = 0;
 
             lendingControllerStorage     = await lendingControllerInstance.storage();
             vaultRecord                  = await lendingControllerStorage.vaults.get(vaultHandle);
