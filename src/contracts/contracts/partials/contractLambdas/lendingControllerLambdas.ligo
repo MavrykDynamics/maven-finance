@@ -68,6 +68,10 @@ block {
                     |   ConfigMinimumLoanFeePercent (_v)    -> s.config.minimumLoanFeePercent           := updateConfigNewValue
                     |   ConfigMinLoanFeeTreasuryShare (_v)  -> s.config.minimumLoanFeeTreasuryShare     := updateConfigNewValue
                     |   ConfigInterestTreasuryShare (_v)    -> s.config.interestTreasuryShare           := updateConfigNewValue
+                    |   ConfigLastCompletedDataMaxDelay (_v)-> s.config.lastCompletedDataMaxDelay       := updateConfigNewValue
+                    |   ConfigMaxVaultLiqPercent (_v)       -> s.config.maxVaultLiquidationPercent      := updateConfigNewValue
+                    |   ConfigLiquidationDelayInMins (_v)   -> s.config.liquidationDelayInMins          := updateConfigNewValue
+                    |   ConfigLiquidationMaxDuration (_v)   -> s.config.liquidationMaxDuration          := updateConfigNewValue
                 ];
             }
         |   _ -> skip
