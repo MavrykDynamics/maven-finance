@@ -134,8 +134,6 @@ spec:
                 secretKeyRef:
                   name: indexer
                   key: HASURA_GRAPHQL_ADMIN_SECRET
-            - name: HASURA_GRAPHQL_CORS_DOMAIN
-              value: '{{ include "listToCSV" $value.hasura.corsDomains }}'
             {{- if $value.hasura.jwt.enabled }}
             - name: HASURA_GRAPHQL_JWT_SECRET
               valueFrom:
