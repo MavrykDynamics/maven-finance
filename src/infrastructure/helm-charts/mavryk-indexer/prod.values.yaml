@@ -88,6 +88,8 @@ instances:
       unauthorizedRole: unauthorized
       jwt:
         enabled: true
+      corsDomains:
+      - "https://*.mavryk.finance"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_DEV
   prod:
     dipdup:
@@ -205,6 +207,8 @@ instances:
       unauthorizedRole: user
       jwt:
         enabled: false
+      corsDomains:
+      - "*"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD
   prod2:
     dipdup:
@@ -322,6 +326,8 @@ instances:
       unauthorizedRole: user
       jwt:
         enabled: false
+      corsDomains:
+      - "*"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD_2
   staging:
     dipdup:
@@ -412,4 +418,6 @@ instances:
       unauthorizedRole: user
       jwt:
         enabled: false
+      corsDomains:
+      - "*"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_STAGING
