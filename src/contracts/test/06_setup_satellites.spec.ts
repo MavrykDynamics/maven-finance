@@ -1,5 +1,6 @@
 import assert from "assert";
-import { Utils, MVK } from "./helpers/Utils";
+
+import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -446,9 +447,9 @@ describe("Setup: Mock Satellites", async () => {
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
-                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement + lowStakeBonusAmount){
+                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement + highStakeBonusAmount){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - (initialMinimumStakedMvkRequirement + lowStakeBonusAmount));
+                    stakeAmount = Math.abs(initialUserStakedBalance - (initialMinimumStakedMvkRequirement + highStakeBonusAmount));
 
                     // update operators operation for user
                     updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
