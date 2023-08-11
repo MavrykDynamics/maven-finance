@@ -433,7 +433,7 @@ instances:
       jwt:
         enabled: false
       rateLimit:
-        enabled: true
+        enabled: false
       corsDomains:
       - "*"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_STAGING
