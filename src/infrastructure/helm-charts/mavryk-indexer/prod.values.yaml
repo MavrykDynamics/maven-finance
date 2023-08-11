@@ -90,6 +90,8 @@ instances:
       unauthorizedRole: unauthorized
       jwt:
         enabled: true
+      rateLimit:
+        enabled: true
       corsDomains:
       - "https://*.mavryk.finance"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_DEV
@@ -210,6 +212,8 @@ instances:
         secretName: api-mavryk-tls
       unauthorizedRole: user
       jwt:
+        enabled: false
+      rateLimit:
         enabled: false
       corsDomains:
       - "*"
@@ -332,6 +336,8 @@ instances:
       unauthorizedRole: user
       jwt:
         enabled: false
+      rateLimit:
+        enabled: false
       corsDomains:
       - "*"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD_2
@@ -426,6 +432,8 @@ instances:
       unauthorizedRole: user
       jwt:
         enabled: false
+      rateLimit:
+        enabled: true
       corsDomains:
       - "*"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_STAGING
