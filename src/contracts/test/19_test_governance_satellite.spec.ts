@@ -2211,6 +2211,14 @@ describe("Governance Satellite tests", async () => {
 
         })
 
+        after("Rest satellite status", async() => {
+        
+            await signerFactory(tezos, adminSk)
+            const updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(suspendedSatellite, "ACTIVE").send()
+            await updateStatusOperation.confirmation()
+
+        })
+
         beforeEach("update storage", async() => {
         
             // init storage
@@ -3177,6 +3185,14 @@ describe("Governance Satellite tests", async () => {
         
             await signerFactory(tezos, adminSk)
             const updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "BANNED").send()
+            await updateStatusOperation.confirmation()
+
+        })
+
+        after("Rest satellite status", async() => {
+        
+            await signerFactory(tezos, adminSk)
+            const updateStatusOperation  = await delegationInstance.methods.updateSatelliteStatus(bannedSatellite, "ACTIVE").send()
             await updateStatusOperation.confirmation()
 
         })
