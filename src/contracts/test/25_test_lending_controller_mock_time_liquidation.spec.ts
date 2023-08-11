@@ -1,8 +1,9 @@
 import { MichelsonMap } from "@taquito/taquito";
 import assert from "assert";
-import { Utils, zeroAddress, MVK } from "./helpers/Utils";
-import * as lendingHelper from "./helpers/lendingHelpers"
 import BigNumber from 'bignumber.js';
+
+import * as lendingHelper from "./helpers/lendingHelpers"
+import { MVK, Utils, zeroAddress } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -2903,16 +2904,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             lendingControllerStorage   = await lendingControllerInstance.storage();
             currentMockLevel           = lendingControllerStorage.config.mockLevel.toNumber();            
     
-            // console.log('   - borrowed: ' + borrowAmount + " | type: " + loanTokenName + " | current block level: " + currentMockLevel);
-    
+            // console.log('   - borrowed: ' + borrowAmount + " | type: " + loanTokenName + " | current block level: " + currentMockLevel);            
+            const compoundOperation = await doormanInstance.methods.compound([vaultOwner, vaultAddress, liquidator, contractDeployments.treasury.address]).send();
+            await compoundOperation.confirmation();
+
             // get initial Mock FA-12 Token and Mock FA-2 balance for Eve (vault owner), liquidator, vault, Treasury and Token Pool Reward Contract
             usdtTokenStorage            = await usdtTokenInstance.storage();
             eurlTokenStorage            = await eurlTokenInstance.storage();
             lendingControllerStorage    = await lendingControllerInstance.storage();
             doormanStorage              = await doormanInstance.storage();
-            
-            const compoundOperation = await doormanInstance.methods.compound([vaultOwner, vaultAddress, liquidator]).send();
-            await compoundOperation.confirmation();
 
             // Vault Owner
             vaultOwnerMockFa12TokenAccount          = await usdtTokenStorage.ledger.get(vaultOwner);            
