@@ -780,8 +780,8 @@ function verifyLastCompletedDataFreshness(const lastUpdatedAt : timestamp; const
 block {
 
     if abs(Tezos.get_now() - lastUpdatedAt) <= lastCompletedDataMaxDelay 
-    then failwith(error_LAST_COMPLETED_DATA_NOT_FRESH)
-    else skip;
+    then skip
+    else failwith(error_LAST_COMPLETED_DATA_NOT_FRESH);
 
 } with unit
 
@@ -802,7 +802,7 @@ block {
     
     // check for freshness of last completed data
     verifyLastCompletedDataFreshness(collateralTokenLastCompletedData.lastUpdatedAt, s.config.lastCompletedDataMaxDelay);
-    
+
     const tokenDecimals    : nat  = collateralTokenRecord.tokenDecimals; 
     const priceDecimals    : nat  = collateralTokenLastCompletedData.decimals;
     const tokenPrice       : nat  = collateralTokenLastCompletedData.data;            
