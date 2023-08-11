@@ -1311,16 +1311,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                     ).send();
                     await adminSetMockFa12CollateralTokenOperation.confirmation();
 
-                }
-
-                lendingControllerStorage                = await lendingControllerInstance.storage();
-                const stakedMvkCollateralTokenRecord    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
-            
-                assert.equal(stakedMvkCollateralTokenRecord.tokenName              , tokenName);
-                assert.equal(stakedMvkCollateralTokenRecord.tokenDecimals          , tokenDecimals);
-                assert.equal(stakedMvkCollateralTokenRecord.oracleAddress          , oracleAddress);
-                assert.equal(stakedMvkCollateralTokenRecord.protected              , tokenProtected);
+                    lendingControllerStorage                = await lendingControllerInstance.storage();
+                    const stakedMvkCollateralTokenRecord    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
                 
+                    assert.equal(stakedMvkCollateralTokenRecord.tokenName              , tokenName);
+                    assert.equal(stakedMvkCollateralTokenRecord.tokenDecimals          , tokenDecimals);
+                    assert.equal(stakedMvkCollateralTokenRecord.oracleAddress          , oracleAddress);
+                    assert.equal(stakedMvkCollateralTokenRecord.protected              , tokenProtected);
+                    
+                }
 
             } catch(e){
                 console.log(e);
@@ -2231,7 +2230,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // ----------------------------------------------------------------------------------------------
             // Deposit Collateral into Vault
             // ----------------------------------------------------------------------------------------------
-
 
             const usdtDepositAmount  = 20000000;   // 20 Mock FA12 Tokens - USD $30.00
 
