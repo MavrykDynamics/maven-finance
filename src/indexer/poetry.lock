@@ -744,8 +744,10 @@ version = "7.0.0rc3"
 description = "Modular framework for creating selective indexers and featureful backends for dapps"
 optional = false
 python-versions = "<3.12,>=3.11"
-files = []
-develop = true
+files = [
+    {file = "dipdup-7.0.0rc3-py3-none-any.whl", hash = "sha256:a7524e371b95a236327e5d92cd14b374d57a9b10e310496573523eb01543d932"},
+    {file = "dipdup-7.0.0rc3.tar.gz", hash = "sha256:521c5ab5e4355c24bd6e974cc9c4eb7e9a06e04b870482ceb5a7eb2e45541379"},
+]
 
 [package.dependencies]
 aiohttp = ">=3.8,<4.0"
@@ -2865,4 +2867,8 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11.4"
+<<<<<<< HEAD
 content-hash = "0bfae1e6584bb84ff72cb70563a421e0133c504a0f97a2d09816245a7c147eec"
+=======
+content-hash = "9471d728289d4cbf8648281093d5d5693777b5f94b5ad0aa871d3d9bbd52a349"
+>>>>>>> b92814fba (Indexer uses a local version of dipdup)
