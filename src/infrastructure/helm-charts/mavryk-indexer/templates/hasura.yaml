@@ -50,9 +50,9 @@ spec:
             - name: HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_BATCH_SIZE
               value: '1000'
             - name: HASURA_GRAPHQL_ENABLE_CONSOLE
-              value: 'true'
+              value: '{{ $value.hasura.enableConsole }}'
             - name: HASURA_GRAPHQL_DEV_MODE
-              value: 'true'
+              value: '{{ $value.hasura.devMode }}'
             - name: HASURA_GRAPHQL_ENABLED_LOG_TYPES
               value: startup, http-log, webhook-log, websocket-log, query-log
             - name: HASURA_GRAPHQL_UNAUTHORIZED_ROLE

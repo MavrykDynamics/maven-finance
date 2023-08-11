@@ -64,6 +64,8 @@ instances:
               key: TELEGRAM_CHANNEL_ID
     hasura:
       enabled: true
+      devMode: true
+      enableConsole: true
       pgConnections: 25
       image:
         registry: docker.io
@@ -183,6 +185,8 @@ instances:
               key: TELEGRAM_CHANNEL_ID
     hasura:
       enabled: true
+      devMode: true
+      enableConsole: true
       pgConnections: 25
       image:
         registry: docker.io
@@ -302,6 +306,8 @@ instances:
               key: TELEGRAM_CHANNEL_ID
     hasura:
       enabled: true
+      devMode: true
+      enableConsole: true
       pgConnections: 25
       image:
         registry: docker.io
@@ -394,6 +400,8 @@ instances:
               key: TELEGRAM_CHANNEL_ID
     hasura:
       enabled: true
+      devMode: true
+      enableConsole: true
       pgConnections: 25
       image:
         registry: docker.io
