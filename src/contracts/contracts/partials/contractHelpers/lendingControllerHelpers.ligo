@@ -759,8 +759,8 @@ function verifyLastCompletedDataFreshness(const lastUpdatedAt : timestamp; const
 block {
 
     if abs(Tezos.get_now() - lastUpdatedAt) <= lastCompletedDataMaxDelay 
-    then failwith(error_LAST_COMPLETED_DATA_NOT_FRESH)
-    else skip;
+    then skip
+    else failwith(error_LAST_COMPLETED_DATA_NOT_FRESH);
 
 } with unit
 
