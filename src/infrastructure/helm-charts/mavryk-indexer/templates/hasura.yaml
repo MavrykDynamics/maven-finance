@@ -107,9 +107,8 @@ metadata:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/enable-cors: 'true'
-    nginx.ingress.kubernetes.io/cors-expose-headers: '*'
-    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
-    nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+    nginx.ingress.kubernetes.io/cors-allow-origin: '{{ include "listToCSV" $value.hasura.corsDomains }}'
+    nginx.ingress.kubernetes.io/cors-allow-methods: GET, POST
 spec:
   tls:
     - hosts:
