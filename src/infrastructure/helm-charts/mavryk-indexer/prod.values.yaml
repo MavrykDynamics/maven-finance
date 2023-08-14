@@ -94,6 +94,7 @@ instances:
         enabled: true
       corsDomains:
       - "https://*.mavryk.finance"
+      - "http://localhost:3000"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_DEV
   prod:
     dipdup:
