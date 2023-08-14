@@ -57,7 +57,7 @@ describe('Setup and deploy funds for relevant contracts', async () => {
             if (utils.production !== "true"){
 
                 const sender         = bob.pkh;
-                const mvkTokenAmount = MVK(200);
+                const mvkTokenAmount = MVK(1000);
                 const tezAmount      = 100;
                 const tokenAmount    = 30000000; 
 
@@ -124,16 +124,18 @@ describe('Setup and deploy funds for relevant contracts', async () => {
             }
 
             // Update operators for treasury
-            const updateOperatorsTreasury = await treasuryInstance.methods.updateMvkOperators(
-            [
-                {
-                    add_operator: {
-                        owner: treasuryAddress,
-                        operator: contractDeployments.doorman.address,
-                        token_id: 0,
-                    },
-                }
-            ]).send()
+            const updateOperatorsTreasury = await treasuryInstance.methods.updateTokenOperators(
+                contractDeployments.mvkToken.address,
+                [
+                    {
+                        add_operator: {
+                            owner: treasuryAddress,
+                            operator: contractDeployments.doorman.address,
+                            token_id: 0,
+                        },
+                    }
+                ]
+            ).send()
         
             await updateOperatorsTreasury.confirmation();
 

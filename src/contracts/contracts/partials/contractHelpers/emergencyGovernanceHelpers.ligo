@@ -78,11 +78,31 @@ block {
 
 
 
+// helper function to get emergency governance
+function getCurrentEmergencyGovernance(const s : emergencyGovernanceStorageType) : emergencyGovernanceRecordType is
+block {
+
+    const emergencyGovernanceRecord : emergencyGovernanceRecordType = case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of [ 
+            None          -> failwith(error_EMERGENCY_GOVERNANCE_NOT_FOUND)
+        |   Some(_record) -> _record
+    ];
+
+} with emergencyGovernanceRecord
+
+
+
 // helper function to verify there is no active emergency governance ongoing
 function verifyNoActiveEmergencyGovernance(const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    verifyIsZero(s.currentEmergencyGovernanceId, error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS);
+    if s.currentEmergencyGovernanceId = 0n then skip 
+    else {
+        const emergencyGovernance : emergencyGovernanceRecordType = getCurrentEmergencyGovernance(s);        
+        
+        if Tezos.get_now() < emergencyGovernance.expirationDateTime 
+        then failwith(error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS) 
+        else skip;
+    };
 
 } with unit
 
@@ -91,8 +111,15 @@ block {
 // helper function to verify there is an active emergency governance ongoing
 function verifyOngoingActiveEmergencyGovernance(const s : emergencyGovernanceStorageType) : unit is 
 block {
+
+    if s.currentEmergencyGovernanceId =/= 0n then  {
+        const emergencyGovernance : emergencyGovernanceRecordType = getCurrentEmergencyGovernance(s);        
+        
+        if Tezos.get_now() > emergencyGovernance.expirationDateTime 
+        then failwith(error_EMERGENCY_GOVERNANCE_EXPIRED) 
+        else skip;
     
-    verifyIsNotZero(s.currentEmergencyGovernanceId, error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS);
+    } else failwith(error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS)
 
 } with unit
 
@@ -103,17 +130,6 @@ function verifyEmergencyGovernanceNotExecuted(const emergencyGovernanceRecord : 
 block {
 
     if emergencyGovernanceRecord.executed = True then failwith(error_EMERGENCY_GOVERNANCE_EXECUTED)
-    else skip; 
-
-} with unit
-
-
-
-// helper function to verify emergency governance has not been dropped
-function verifyEmergencyGovernanceNotDropped(const emergencyGovernanceRecord : emergencyGovernanceRecordType) : unit is
-block {
-
-    if emergencyGovernanceRecord.dropped = True then failwith(error_EMERGENCY_GOVERNANCE_DROPPED)
     else skip; 
 
 } with unit
@@ -173,19 +189,6 @@ block {
 
 
 
-// helper function to get emergency governance
-function getCurrentEmergencyGovernance(const s : emergencyGovernanceStorageType) : emergencyGovernanceRecordType is
-block {
-
-    const emergencyGovernanceRecord : emergencyGovernanceRecordType = case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of [ 
-            None          -> failwith(error_EMERGENCY_GOVERNANCE_NOT_FOUND)
-        |   Some(_record) -> _record
-    ];
-
-} with emergencyGovernanceRecord
-
-
-
 // helper function to create new emergency governance
 function createEmergencyGovernance(const userAddress : address; const title : string; const description : string; const stakedMvkRequiredForBreakGlass : nat; const s : emergencyGovernanceStorageType) : emergencyGovernanceRecordType is
 block {
@@ -194,7 +197,6 @@ block {
     const newEmergencyGovernanceRecord : emergencyGovernanceRecordType = record [
         proposerAddress                  = userAddress;
         executed                         = False;
-        dropped                          = False;
 
         title                            = title;
         description                      = description; 
@@ -206,7 +208,7 @@ block {
         startLevel                       = Tezos.get_level();             
         executedDateTime                 = None;
         executedLevel                    = None;
-        expirationDateTime               = Tezos.get_now() + (86_400 * s.config.voteExpiryDays);
+        expirationDateTime               = Tezos.get_now() + (60 * s.config.durationInMinutes);
     ];
 
 } with newEmergencyGovernanceRecord

@@ -10,9 +10,9 @@
 
 
 
-(* View: checkFarmExists *)
-[@view] function checkFarmExists (const farmContract : address; const s: farmFactoryStorageType) : bool is 
-    Set.mem(farmContract, s.trackedFarms)
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : farmFactoryStorageType) : address is
+    s.governanceAddress
 
 
 
@@ -37,6 +37,12 @@
 (* get: general contracts opt *)
 [@view] function getGeneralContractOpt(const contractName : string; const s : farmFactoryStorageType) : option(address) is
     Big_map.find_opt(contractName, s.generalContracts)
+
+
+
+(* View: checkFarmExists *)
+[@view] function checkFarmExists (const farmContract : address; const s: farmFactoryStorageType) : bool is 
+    Set.mem(farmContract, s.trackedFarms)
 
 
 

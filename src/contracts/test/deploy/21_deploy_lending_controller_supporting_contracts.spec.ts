@@ -1,6 +1,8 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from "bignumber.js"
+
 import { Utils } from "../helpers/Utils"
+
 const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')
@@ -19,7 +21,7 @@ import contractDeployments from '../contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
-import { bob, eve, mallory } from '../../scripts/sandbox/accounts'
+import { alice, bob, eve, susie } from '../../scripts/sandbox/accounts'
 import { mTokenMockData } from "../helpers/mockSampleData"
 
 // ------------------------------------------------------------------------------
@@ -104,17 +106,17 @@ describe('Lending Controller Supporting Contracts', async () => {
             // Mock Oracles
             //----------------------------
             const oracleMap = MichelsonMap.fromLiteral({
-                [bob.pkh]              : {
-                    oraclePublicKey : bob.pk,
-                    oraclePeerId : bob.peerId
+                [alice.pkh]              : {
+                    oraclePublicKey : alice.pk,
+                    oraclePeerId : alice.peerId
                 },
                 [eve.pkh]              : {
                     oraclePublicKey : eve.pk,
                     oraclePeerId : eve.peerId
                 },
-                [mallory.pkh]          : {
-                    oraclePublicKey : mallory.pk,
-                    oraclePeerId : mallory.peerId
+                [susie.pkh]          : {
+                    oraclePublicKey : susie.pk,
+                    oraclePeerId : susie.peerId
                 }
             });
 
@@ -125,7 +127,7 @@ describe('Lending Controller Supporting Contracts', async () => {
                 alphaPercentPerThousand             : new BigNumber(2),
                 
                 percentOracleThreshold              : new BigNumber(60),
-                heartBeatSeconds                    : new BigNumber(30),
+                heartbeatSeconds                    : new BigNumber(30),
                 
                 rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
                 rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
@@ -145,7 +147,6 @@ describe('Lending Controller Supporting Contracts', async () => {
             
             mockUsdMockFa12TokenAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
             await saveContractAddress('mockUsdMockFa12TokenAggregatorAddress', mockUsdMockFa12TokenAggregator.contract.address)
-            // console.log('Mock USD/MockFA12Token Aggregator Contract deployed at:', mockUsdMockFa12TokenAggregator.contract.address)
 
 
 
@@ -160,7 +161,6 @@ describe('Lending Controller Supporting Contracts', async () => {
             
             mockUsdMockFa2TokenAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
             await saveContractAddress('mockUsdMockFa2TokenAggregatorAddress', mockUsdMockFa2TokenAggregator.contract.address)
-            // console.log('Mock USD/MockFA2Token Aggregator Contract deployed at:', mockUsdMockFa2TokenAggregator.contract.address)
 
 
             // Mock USD/Xtz Aggregator
@@ -174,7 +174,6 @@ describe('Lending Controller Supporting Contracts', async () => {
 
             mockUsdXtzAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
             await saveContractAddress('mockUsdXtzAggregatorAddress', mockUsdXtzAggregator.contract.address)
-            // console.log('Mock USD/XTZ Aggregator Contract deployed at:', mockUsdXtzAggregator.contract.address)
 
 
             //----------------------------
@@ -193,7 +192,6 @@ describe('Lending Controller Supporting Contracts', async () => {
 
             mockUsdMvkAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
             await saveContractAddress('mockUsdMvkAggregatorAddress', mockUsdMvkAggregator.contract.address)
-            // console.log('Mock USD/MVK Aggregator Contract deployed at:', mockUsdMvkAggregator.contract.address)
 
             //----------------------------
             // Set Lambdas

@@ -239,6 +239,7 @@ block {
                     |   UnregisterAsSatellite (_v)        -> s.breakGlassConfig.unregisterAsSatelliteIsPaused := _v
                     |   UpdateSatelliteRecord (_v)        -> s.breakGlassConfig.updateSatelliteRecordIsPaused := _v
                     |   DistributeReward (_v)             -> s.breakGlassConfig.distributeRewardIsPaused := _v
+                    |   TakeSatellitesSnapshot (_v)       -> s.breakGlassConfig.takeSatellitesSnapshotPaused := _v
                 ]
                 
             }
@@ -298,7 +299,7 @@ block {
                 checkUserIsNotSatellite(userAddress, s);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations := updateGovernanceSnapshot(list[satelliteAddress], True, operations, s);
+                operations := updateGovernanceSnapshot(set[satelliteAddress], True, operations, s);
 
                 // Update user's unclaimed satellite rewards (in the event user is already delegated to another satellite)
                 s := updateRewards(userAddress, s);
@@ -413,7 +414,7 @@ block {
                 const satelliteAddress : address = delegateRecord.satelliteAddress;
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations := updateGovernanceSnapshot(list[satelliteAddress], True, operations, s);
+                operations := updateGovernanceSnapshot(set[satelliteAddress], True, operations, s);
 
                 // Update unclaimed rewards for user
                 s := updateRewards(userAddress, s);
@@ -503,7 +504,7 @@ block {
                 s.satelliteCounter              := s.satelliteCounter + 1n;
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations := updateGovernanceSnapshot(list[userAddress], False, operations, s);
+                operations := updateGovernanceSnapshot(set[userAddress], False, operations, s);
 
                 // Get or create satellite rewards record
                 var satelliteRewardsRecord : satelliteRewardsType := getOrCreateSatelliteRewardsRecord(userAddress, s);
@@ -550,7 +551,7 @@ block {
                 checkSatelliteStatus(userAddress, delegationAddress, True, True);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations := updateGovernanceSnapshot(list[userAddress], True, operations, s);
+                operations := updateGovernanceSnapshot(set[userAddress], True, operations, s);
 
                 // Update user's unclaimed rewards
                 s := updateRewards(userAddress, s);
@@ -595,7 +596,7 @@ block {
                 checkSatelliteStatus(satelliteAddress, delegationAddress, False, True);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations := updateGovernanceSnapshot(list[satelliteAddress], True, operations, s);
+                operations := updateGovernanceSnapshot(set[satelliteAddress], True, operations, s);
                 
                 // Update user's unclaimed rewards
                 s := updateRewards(satelliteAddress, s);
@@ -697,6 +698,33 @@ block {
 
 } with (operations, s)
 
+
+
+(* takeSatellitesSnapshot lambda *)
+function lambdaTakeSatellitesSnapshot(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
+block {
+
+    // Steps Overview: 
+    // 1. Check that %takeSatellitesSnapshot entrypoint is not paused (e.g. glass broken)
+    // 2. Update the satellites snapshots based on the parameters
+
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.takeSatellitesSnapshotPaused, error_TAKE_SATELLITES_SNAPSHOT_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED);
+
+    // Operation list
+    var operations: list(operation) := nil;
+
+    case delegationLambdaAction of [
+        |   LambdaTakeSatelliteSnapshot(takeSatellitesSnapshotParams) -> {
+
+                // Update the governance snapshot for the given satellites
+                operations  := updateGovernanceSnapshot(takeSatellitesSnapshotParams, True, operations, s);
+
+        }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
 // ------------------------------------------------------------------------------
 // Satellite Lambdas End
 // ------------------------------------------------------------------------------
@@ -743,18 +771,22 @@ block {
     var operations: list(operation) := nil;
 
     case delegationLambdaAction of [
-        |   LambdaOnStakeChange(userAddresses) -> {
+        |   LambdaOnStakeChange(userAddressAndBalances) -> {
 
                 // Verify that sender is the Doorman Contract
                 verifySenderIsDoormanContract(s);
 
                 // Update the satellite snapshot
-                var satellitesToUpdate : list(address)  := list[];
+                var satellitesToUpdate : set(address)  := set[];
 
-                for userAddress in set userAddresses block {
+                for userAddressAndBalance in set userAddressAndBalances block {
+
+                    // Parse parameters
+                    const userAddress : address = userAddressAndBalance.0;
+                    const userBalance : nat     = userAddressAndBalance.1;
 
                     // Add the user to update
-                    satellitesToUpdate  := userAddress # satellitesToUpdate;
+                    satellitesToUpdate  := Set.add(userAddress, satellitesToUpdate);
 
                     // Check if user has a satellite rewards record
                     if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
@@ -765,6 +797,11 @@ block {
                         // Get satellite's rewards record (that user is delegated to)
                         const satelliteReferenceAddress : address = satelliteRewardsRecord.satelliteReferenceAddress;
                         var _satelliteReferenceRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteReferenceAddress, s, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND);
+
+                        // Calculate increment rewards based on difference between satellite's accumulated rewards per share and user's participations rewards per share
+                        const rewardsRatio      : nat   = abs(_satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - satelliteRewardsRecord.participationRewardsPerShare);
+                        const incrementRewards  : nat   = userBalance * rewardsRatio;
+                        satelliteRewardsRecord.unpaid   := satelliteRewardsRecord.unpaid + (incrementRewards / fixedPointAccuracy);
 
                         // Update user's satellite rewards record - empty pending rewards
                         // - Set user's participationRewardsPerShare to satellite's satelliteAccumulatedRewardsPerShare
@@ -842,8 +879,8 @@ block {
                                 else if stakeAmount > userSatellite.totalDelegatedAmount then failwith(error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT)
                                 else userSatellite.totalDelegatedAmount := abs(userSatellite.totalDelegatedAmount - stakeAmount);
 
-                                // Add the satellite address to the list of snapshots to update
-                                satellitesToUpdate  := satelliteAddress # satellitesToUpdate;
+                                // Add the satellite address to the set of snapshots to update
+                                satellitesToUpdate  := Set.add(satelliteAddress, satellitesToUpdate);
 
                                 // Update storage (user's delegate record and his delegated satellite record)
                                 delegatorRecord.delegatedStakedMvkBalance  := stakedMvkBalance;
@@ -896,7 +933,7 @@ block {
                 verifyValidSatelliteStatus(newStatus);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations := updateGovernanceSnapshot(list[satelliteAddress], True, operations, s);
+                operations := updateGovernanceSnapshot(set[satelliteAddress], True, operations, s);
 
                 // Get satellite record 
                 var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);

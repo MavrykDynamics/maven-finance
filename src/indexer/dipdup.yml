@@ -888,10 +888,6 @@ templates:
       pattern:
       - destination: <emergency_governance_contract>
         entrypoint: voteForEmergencyControl
-    - callback: on_emergency_governance_drop_emergency_governance
-      pattern:
-      - destination: <emergency_governance_contract>
-        entrypoint: dropEmergencyGovernance
     - callback: on_emergency_governance_set_lambda
       pattern:
       - destination: <emergency_governance_contract>
@@ -1370,10 +1366,6 @@ templates:
       pattern:
       - destination: <lending_controller_contract>
         entrypoint: updateConfig
-    - callback: on_lending_controller_update_whitelist_token_contracts
-      pattern:
-      - destination: <lending_controller_contract>
-        entrypoint: updateWhitelistTokenContracts
     - callback: on_lending_controller_pause_all
       pattern:
       - destination: <lending_controller_contract>
@@ -1456,10 +1448,6 @@ templates:
       pattern:
       - destination: <lending_controller_mock_time_contract>
         entrypoint: updateConfig
-    - callback: on_lending_controller_mock_time_update_whitelist_token_contracts
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: updateWhitelistTokenContracts
     - callback: on_lending_controller_mock_time_pause_all
       pattern:
       - destination: <lending_controller_mock_time_contract>

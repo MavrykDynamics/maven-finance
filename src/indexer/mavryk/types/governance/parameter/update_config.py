@@ -40,21 +40,21 @@ class UpdateConfigActionItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMaxProposalsPerSatellite: Dict[str, Any]
+    configDataTitleMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem5(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMinProposalRoundVotePct: Dict[str, Any]
+    configMaxProposalsPerSatellite: Dict[str, Any]
 
 
 class UpdateConfigActionItem6(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMinProposalRoundVotesReq: Dict[str, Any]
+    configMinProposalRoundVotePct: Dict[str, Any]
 
 
 class UpdateConfigActionItem7(BaseModel):
@@ -82,38 +82,31 @@ class UpdateConfigActionItem10(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposalDatTitleMaxLength: Dict[str, Any]
+    configProposalDescMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem11(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposalDescMaxLength: Dict[str, Any]
+    configProposalInvoiceMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem12(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposalInvoiceMaxLength: Dict[str, Any]
+    configProposalTitleMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem13(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposalTitleMaxLength: Dict[str, Any]
-
-
-class UpdateConfigActionItem14(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     configProposeFeeMutez: Dict[str, Any]
 
 
-class UpdateConfigActionItem15(BaseModel):
+class UpdateConfigActionItem14(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -141,5 +134,4 @@ class UpdateConfigParameter(BaseModel):
         UpdateConfigActionItem12,
         UpdateConfigActionItem13,
         UpdateConfigActionItem14,
-        UpdateConfigActionItem15,
     ]

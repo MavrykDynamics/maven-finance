@@ -86,7 +86,7 @@ type proposalRecordType is [@layout:comb] record [
     proposalVoteCount                 : nat;                     // proposal round: pass votes count - number of satellites
     proposalVoteStakedMvkTotal        : nat;                     // proposal round pass vote total mvk from satellites who voted pass
   
-    minProposalRoundVotePercentage    : nat;                     // min vote percentage of total MVK supply required to pass proposal round
+    minProposalRoundVotePercentage    : nat;                     // min vote percentage of total staked MVK supply required to pass proposal round
     minProposalRoundVotesRequired     : nat;                     // min staked MVK votes required for proposal round to pass
   
     yayVoteCount                      : nat;                     // voting round: yay count - number of satellites
@@ -116,10 +116,12 @@ type governanceSatelliteSnapshotRecordType is [@layout:comb] record [
     totalDelegatedAmount        : nat;      // log of satellite's total delegated amount 
     totalVotingPower            : nat;      // log calculated total voting power
     accumulatedRewardsPerShare  : nat;      // log satellite's accumulated rewards per share
-    ready                       : bool;     // log to tell if the satellite can partipate in the governance with its snapshot (cf. if it just registered) 
+    ready                       : bool;     // log to tell if the satellite can participate in the governance with its snapshot (e.g. set to False if the satellite just registered in the current cycle) 
+    nextSnapshotCycleId         : option(nat);
 ]
 type snapshotLedgerType is big_map ((nat * address), governanceSatelliteSnapshotRecordType); // (cycleId * satelliteAddress -> snapshot)
 
+type satelliteLastSnapshotLedgerType is big_map(address, nat); // satelliteAddress -> governance cycle id
 
 type stakedMvkSnapshotLedgerType is big_map(nat, nat); // cycleId -> staked MVK total supply
 
@@ -134,7 +136,6 @@ type governanceConfigType is [@layout:comb] record [
     cycleVotersReward                   : nat;  // Reward sent then split to all voters at the end of a voting round
 
     minProposalRoundVotePercentage      : nat;  // percentage of staked MVK votes required to pass proposal round
-    minProposalRoundVotesRequired       : nat;  // amount of staked MVK votes required to pass proposal round
 
     minQuorumPercentage                 : nat;  // minimum quorum percentage to be achieved (in SMVK)
     minYayVotePercentage                : nat;  // minimum yay percentage to be achieved from the quorum SMVK
@@ -166,7 +167,6 @@ type governanceUpdateConfigActionType is
         ConfigSuccessReward               of unit
     |   ConfigCycleVotersReward           of unit
     |   ConfigMinProposalRoundVotePct     of unit
-    |   ConfigMinProposalRoundVotesReq    of unit
     |   ConfigMinQuorumPercentage         of unit
     |   ConfigMinYayVotePercentage        of unit
     |   ConfigProposeFeeMutez             of unit
@@ -174,7 +174,7 @@ type governanceUpdateConfigActionType is
     |   ConfigBlocksPerProposalRound      of unit
     |   ConfigBlocksPerVotingRound        of unit
     |   ConfigBlocksPerTimelockRound      of unit
-    |   ConfigProposalDatTitleMaxLength   of unit
+    |   ConfigDataTitleMaxLength          of unit
     |   ConfigProposalTitleMaxLength      of unit
     |   ConfigProposalDescMaxLength       of unit
     |   ConfigProposalInvoiceMaxLength    of unit
@@ -245,7 +245,7 @@ type updateSatelliteSingleSnapshotType is [@layout:comb] record [
     delegationRatio             : nat;
     accumulatedRewardsPerShare  : nat;
 ]
-type updateSatellitesSnapshotType is list(updateSatelliteSingleSnapshotType)
+type updateSatellitesSnapshotType is set(updateSatelliteSingleSnapshotType)
 
 type distributeProposalRewardsType is [@layout:comb] record [
     satelliteAddress        : address;
@@ -312,8 +312,9 @@ type governanceStorageType is [@layout:comb] record [
     proposalVoters                    : votersType;
     proposalRewards                   : big_map((actionIdType*address), unit);  // proposalId*Satellite address
 
-    snapshotLedger                    : snapshotLedgerType;             // satellite snapshot ledger
-    stakedMvkSnapshotLedger           : stakedMvkSnapshotLedgerType;    // staked MVK snapshot ledger
+    snapshotLedger                    : snapshotLedgerType;              // satellite snapshot ledger
+    satelliteLastSnapshotLedger       : satelliteLastSnapshotLedgerType; // satellite last snapshot ledger
+    stakedMvkSnapshotLedger           : stakedMvkSnapshotLedgerType;     // staked MVK snapshot ledger
     
     currentCycleInfo                  : currentCycleInfoType;      // current round state variables - will be flushed periodically
 

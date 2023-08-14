@@ -23,6 +23,7 @@ import contractDeployments from '../contractDeployments.json'
 
 import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
 import * as helperFunctions from '../helpers/helperFunctions'
+import { mockSatelliteData } from "../helpers/mockSampleData"
 
 // ------------------------------------------------------------------------------
 // Testnet Setup
@@ -799,13 +800,13 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 const operation = await delegationInstance.methods
                 .registerAsSatellite(
-                    "Astronaut Satellite", 
-                    "This is the description", 
-                    "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
-                    "https://mavryk.finance/", 
-                    1000,
-                    bob.pk,
-                    bob.peerId
+                    mockSatelliteData.bob.name, 
+                    mockSatelliteData.bob.desc, 
+                    mockSatelliteData.bob.image,
+                    mockSatelliteData.bob.website, 
+                    mockSatelliteData.bob.satelliteFee,
+                    mockSatelliteData.bob.oraclePublicKey, 
+                    mockSatelliteData.bob.oraclePeerId
                 ).send();
                 await operation.confirmation();
 
@@ -857,13 +858,13 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 const operation = await delegationInstance.methods
                 .registerAsSatellite(
-                    "Astronaut Satellite", 
-                    "This is the description", 
-                    "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
-                    "https://mavryk.finance/", 
-                    1000,
-                    bob.pk,
-                    bob.peerId
+                    mockSatelliteData.bob.name, 
+                    mockSatelliteData.bob.desc, 
+                    mockSatelliteData.bob.image,
+                    mockSatelliteData.bob.website, 
+                    mockSatelliteData.bob.satelliteFee,
+                    mockSatelliteData.bob.oraclePublicKey, 
+                    mockSatelliteData.bob.oraclePeerId
                 ).send();
                 await operation.confirmation();
 
@@ -1166,6 +1167,7 @@ describe("Testnet interactions helper", async () => {
                 await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.councilActionRequestTokens(
                     contractDeployments.treasury.address,
+                    bob.pkh,
                     contractDeployments.mvkToken.address,
                     "MVK",
                     MVK(20),
@@ -1185,6 +1187,7 @@ describe("Testnet interactions helper", async () => {
                 await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.councilActionRequestMint(
                     contractDeployments.treasury.address,
+                    bob.pkh,
                     MVK(20),
                     "For testing purposes"
                 ).send()
@@ -1224,6 +1227,7 @@ describe("Testnet interactions helper", async () => {
                 const actionId  = councilStorage.actionCounter;
                 var operation = await councilInstance.methods.councilActionRequestTokens(
                     contractDeployments.treasury.address,
+                    bob.pkh,
                     contractDeployments.mvkToken.address,
                     "MVK",
                     MVK(20),
@@ -1425,6 +1429,7 @@ describe("Testnet interactions helper", async () => {
                 const actionCounter     = councilStorage.actionCounter
                 var operation           = await councilInstance.methods.councilActionRequestTokens(
                     contractDeployments.treasury.address,
+                    bob.pkh,
                     contractDeployments.mvkToken.address,
                     "MVK",
                     MVK(20),
@@ -1449,6 +1454,7 @@ describe("Testnet interactions helper", async () => {
                 const actionCounter     = councilStorage.actionCounter
                 var operation = await councilInstance.methods.councilActionRequestMint(
                     contractDeployments.treasury.address,
+                    bob.pkh,
                     MVK(20),
                     "For testing purposes"
                 ).send()
@@ -1733,20 +1739,20 @@ describe("Testnet interactions helper", async () => {
             }
         });
         
-        it('Admin pauses stake MVK entrypoint', async () => {
+        it('Admin pauses stake tokens entrypoint', async () => {
             try{
                 // Operation
-                const operation = await treasuryInstance.methods.togglePauseEntrypoint("stakeMvk", true).send();
+                const operation = await treasuryInstance.methods.togglePauseEntrypoint("stakeTokens", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
         
-        it('Admin pauses unstake MVK entrypoint', async () => {
+        it('Admin pauses unstake tokens entrypoint', async () => {
             try{
                 // Operation
-                const operation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeMvk", true).send();
+                const operation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeTokens", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2290,7 +2296,7 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(2),             // alphaPercentPerThousand
                     
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
 
                     new BigNumber(10000000),      // rewardAmountStakedMvk
                     new BigNumber(1300),          // rewardAmountXtz
@@ -2321,7 +2327,7 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(2),             // alphaPercentPerThousand
                     
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
 
                     new BigNumber(10000000),      // rewardAmountStakedMvk
                     new BigNumber(1300),          // rewardAmountXtz
@@ -2352,7 +2358,7 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(2),             // alphaPercentPerThousand
                     
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
 
                     new BigNumber(10000000),      // rewardAmountStakedMvk
                     new BigNumber(1300),          // rewardAmountXtz
@@ -2606,7 +2612,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates heart beat seconds', async () => {
             try{
                 // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(15, "configHeartBeatSeconds").send();
+                var operation = await aggregatorInstance.methods.updateConfig(15, "configHeartbeatSeconds").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2716,16 +2722,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates min proposal round vote req', async () => {
-            try{
-                // Operation
-                const operation = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin updates min quorum pct', async () => {
             try{
                 // Operation
@@ -2799,7 +2795,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates proposal data title max length', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.updateConfig(500, "configProposalDatTitleMaxLength").send();
+                const operation = await governanceInstance.methods.updateConfig(500, "configDataTitleMaxLength").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3173,13 +3169,13 @@ describe("Testnet interactions helper", async () => {
             await helperFunctions.signerFactory(tezos, alice.sk);
             const operation = await delegationInstance.methods
             .registerAsSatellite(
-                "Alice Satellite", 
-                "This is the description", 
-                "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
-                "https://mavryk.finance/", 
-                1000,
-                alice.pk,
-                alice.peerId
+                mockSatelliteData.alice.name, 
+                mockSatelliteData.alice.desc, 
+                mockSatelliteData.alice.image,
+                mockSatelliteData.alice.website, 
+                mockSatelliteData.alice.satelliteFee,
+                mockSatelliteData.alice.oraclePublicKey, 
+                mockSatelliteData.alice.oraclePeerId
             ).send();
             await operation.confirmation();
             await helperFunctions.signerFactory(tezos, bob.sk);
@@ -3467,7 +3463,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates vote expiry days', async () => {
             try{
                 // Operation
-                const operation = await emergencyGovernanceInstance.methods.updateConfig(1, "configVoteExpiryDays").send();
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(1, "configDurationInMinutes").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3554,24 +3550,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin drops emergency governance', async () => {
-            try{
-                // Operation
-                const operation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance().send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin votes for emergency governance', async () => {
             try{
                 // Operation
-                var operation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Emergency title", "Emergency description").send({amount: 1});
-                await operation.confirmation();
-
-                // Operation
-                operation = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+                const operation = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3826,16 +3808,6 @@ describe("Testnet interactions helper", async () => {
                 console.dir(e, {depth: 5})
             }
         });
-        
-        it('Admin updates whitelist token contracts', async () => {
-            try{
-                // Operation
-                const operation = await lendingControllerInstance.methods.updateWhitelistTokenContracts(bob.pkh, "update").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
 
         it('Admin updates collateral ratio', async () => {
             try{
@@ -3901,6 +3873,46 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await lendingControllerInstance.methods.updateConfig(100, "configInterestTreasuryShare").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates last completed data max delay', async () => {
+            try{
+                // Operation
+                const operation = await lendingControllerInstance.methods.updateConfig(300, "configLastCompletedDataMaxDelay").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates max vault liquidation percentage', async () => {
+            try{
+                // Operation
+                const operation = await lendingControllerInstance.methods.updateConfig(5000, "configMaxVaultLiqPercent").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates liquidation delay in minutes', async () => {
+            try{
+                // Operation
+                const operation = await lendingControllerInstance.methods.updateConfig(120, "configLiquidationDelayInMins").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates liquidation max duration', async () => {
+            try{
+                // Operation
+                const operation = await lendingControllerInstance.methods.updateConfig(1440, "configLiquidationMaxDuration").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
