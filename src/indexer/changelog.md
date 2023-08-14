@@ -51,6 +51,9 @@
 - Treasury
   - Column UpdateTokenOperatorsPaused added
 
+- LendingController
+  - Column LastCompletedMaxDataDelay added
+
 ### Breaking changes
 
 - AggregatorFactoryWhitelistContract
