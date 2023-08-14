@@ -16,6 +16,7 @@ class LendingController(MavrykContract, Model):
     minimum_loan_fee_pct                    = fields.SmallIntField(default=0)
     minimum_loan_treasury_share             = fields.SmallIntField(default=0)
     interest_treasury_share                 = fields.SmallIntField(default=0)
+    last_completed_data_max_delay           = fields.BigIntField(default=0)
     decimals                                = fields.SmallIntField(default=0)
     interest_rate_decimals                  = fields.SmallIntField(default=0)
     max_decimals_for_calculation            = fields.SmallIntField(default=0)

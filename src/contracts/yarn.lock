@@ -110,10 +110,10 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@mavrykdynamics/create-lambda-bytes@^0.2.3":
-  "integrity" "sha512-dLaiZLztxzHnpxDsyizVaPOp11LS5mAFK4p5F4C9tURwk5MncduDF6ZlwURnuT8FjqCbQ6lRDTxSDWjN3e/i2w=="
-  "resolved" "https://registry.npmjs.org/@mavrykdynamics/create-lambda-bytes/-/create-lambda-bytes-0.2.3.tgz"
-  "version" "0.2.3"
+"@mavrykdynamics/create-lambda-bytes@^0.2.4":
+  "integrity" "sha512-N/MAlj9Pg/DKNEV8ZUQ5zuTOGewBpPXzXSAjNk5a3J4nXO9DIvw8gSLFz9GHfwNUew4NgfX9zz3YJb44qSkkJA=="
+  "resolved" "https://registry.npmjs.org/@mavrykdynamics/create-lambda-bytes/-/create-lambda-bytes-0.2.4.tgz"
+  "version" "0.2.4"
   dependencies:
     "@taquito/taquito" "^16.1.2"
     "child_process" "^1.0.2"
