@@ -3879,6 +3879,46 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
+        it('Admin updates last completed data max delay', async () => {
+            try{
+                // Operation
+                const operation = await lendingControllerInstance.methods.updateConfig(300, "configLastCompletedDataMaxDelay").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates max vault liquidation percentage', async () => {
+            try{
+                // Operation
+                const operation = await lendingControllerInstance.methods.updateConfig(5000, "configMaxVaultLiqPercent").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates liquidation delay in minutes', async () => {
+            try{
+                // Operation
+                const operation = await lendingControllerInstance.methods.updateConfig(120, "configLiquidationDelayInMins").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates liquidation max duration', async () => {
+            try{
+                // Operation
+                const operation = await lendingControllerInstance.methods.updateConfig(1440, "configLiquidationMaxDuration").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
         it('Admin pauses setLoanToken', async () => {
             try{
                 // Operation

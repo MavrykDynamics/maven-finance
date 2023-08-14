@@ -29,6 +29,7 @@ async def on_lending_controller_update_config(
             minimum_loan_fee_pct            = update_config.storage.config.minimumLoanFeePercent,
             minimum_loan_treasury_share     = update_config.storage.config.minimumLoanFeeTreasuryShare,
             interest_treasury_share         = update_config.storage.config.interestTreasuryShare,
+            last_completed_data_max_delay   = update_config.storage.config.lastCompletedDataMaxDelay,
             decimals                        = update_config.storage.config.decimals,
             interest_rate_decimals          = update_config.storage.config.interestRateDecimals,
             max_decimals_for_calculation    = update_config.storage.config.maxDecimalsForCalculation,

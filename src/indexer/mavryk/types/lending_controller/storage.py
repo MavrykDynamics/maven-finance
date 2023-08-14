@@ -22,6 +22,7 @@ class Config(BaseModel):
     decimals: str
     interestRateDecimals: str
     maxDecimalsForCalculation: str
+    lastCompletedDataMaxDelay: str
     maxVaultLiquidationPercent: str
     liquidationDelayInMins: str
     liquidationMaxDuration: str
