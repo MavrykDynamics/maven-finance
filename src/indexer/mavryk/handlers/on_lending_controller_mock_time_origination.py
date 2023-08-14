@@ -22,6 +22,7 @@ async def on_lending_controller_mock_time_origination(
         minimum_loan_fee_pct                    = int(lending_controller_mock_time_origination.storage.config.minimumLoanFeePercent)
         minimum_loan_treasury_share             = int(lending_controller_mock_time_origination.storage.config.minimumLoanFeeTreasuryShare)
         interest_treasury_share                 = int(lending_controller_mock_time_origination.storage.config.interestTreasuryShare)
+        last_completed_data_max_delay           = int(lending_controller_mock_time_origination.storage.config.lastCompletedDataMaxDelay)
         decimals                                = int(lending_controller_mock_time_origination.storage.config.decimals)
         interest_rate_decimals                  = int(lending_controller_mock_time_origination.storage.config.interestRateDecimals)
         max_decimals_for_calculation            = int(lending_controller_mock_time_origination.storage.config.maxDecimalsForCalculation)
@@ -67,6 +68,7 @@ async def on_lending_controller_mock_time_origination(
             admin_liquidation_fee_pct               = admin_liquidation_fee_pct,
             minimum_loan_fee_pct                    = minimum_loan_fee_pct,
             minimum_loan_treasury_share             = minimum_loan_treasury_share,
+            last_completed_data_max_delay           = last_completed_data_max_delay,
             interest_treasury_share                 = interest_treasury_share,
             decimals                                = decimals,
             interest_rate_decimals                  = interest_rate_decimals,

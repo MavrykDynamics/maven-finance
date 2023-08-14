@@ -76,23 +76,6 @@ block {
   
 } with (noOperations, s)
 
-
-
-(* updateWhitelistTokenContracts lambda *)
-function lambdaUpdateWhitelistTokenContracts(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
-block {
-
-    verifySenderIsAdminOrTester(s); // verify that sender is admin 
-
-    case lendingControllerLambdaAction of [
-        |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
-                s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------
@@ -712,10 +695,12 @@ block {
 
                     if collateralTokenName = "tez" then block {
 
-                        const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mutez );
-                        operations := transferTezOperation # operations;
+                        if finalTokenBalance > 0n then {
+                            const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mutez );
+                            operations := transferTezOperation # operations;
 
-                        vault.collateralBalanceLedger[collateralTokenName]  := 0n;
+                            vault.collateralBalanceLedger[collateralTokenName]  := 0n;
+                        } else skip;
                         
                     } else block {
 
@@ -729,14 +714,15 @@ block {
                             finalTokenBalance := getBalanceFromStakingContract(vaultAddress, stakingContractAddress);
 
                             // for special case of sMVK
-                            const withdrawAllStakedMvkOperation : operation = onWithdrawStakedTokenFromVaultOperation(
-                                vaultOwner,                         // vault owner
-                                vaultAddress,                       // vault address
-                                finalTokenBalance,                  // withdraw amount
-                                stakingContractAddress              // staking contract address
-                            );
-
-                            operations := withdrawAllStakedMvkOperation # operations;
+                            if finalTokenBalance > 0n then {
+                                const withdrawAllStakedMvkOperation : operation = onWithdrawStakedTokenFromVaultOperation(
+                                    vaultOwner,                         // vault owner
+                                    vaultAddress,                       // vault address
+                                    finalTokenBalance,                  // withdraw amount
+                                    stakingContractAddress              // staking contract address
+                                );
+                                operations := withdrawAllStakedMvkOperation # operations;
+                            } else skip;
 
                         } else if collateralTokenRecord.isScaledToken then {
 
@@ -746,24 +732,28 @@ block {
                             finalTokenBalance := getBalanceFromScaledTokenContract(vaultAddress, collateralTokenRecord.tokenContractAddress);
 
                             // for other collateral token types besides sMVK and scaled tokens
-                            const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                vaultOwner,                         // to_
-                                collateralTokenName,                // token name
-                                finalTokenBalance,                  // token amount to be withdrawn
-                                vaultAddress                        // vault address
-                            );
-                            operations := withdrawTokenOperation # operations;
+                            if finalTokenBalance > 0n then {
+                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                    vaultOwner,                         // to_
+                                    collateralTokenName,                // token name
+                                    finalTokenBalance,                  // token amount to be withdrawn
+                                    vaultAddress                        // vault address
+                                );
+                                operations := withdrawTokenOperation # operations;
+                            } else skip;
 
                         } else {
 
                             // for other collateral token types besides sMVK and scaled tokens
-                            const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                vaultOwner,                         // to_
-                                collateralTokenName,                // token name
-                                finalTokenBalance,                  // token amount to be withdrawn
-                                vaultAddress                        // vault address
-                            );
-                            operations := withdrawTokenOperation # operations;
+                            if finalTokenBalance > 0n then {
+                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                    vaultOwner,                         // to_
+                                    collateralTokenName,                // token name
+                                    finalTokenBalance,                  // token amount to be withdrawn
+                                    vaultAddress                        // vault address
+                                );
+                                operations := withdrawTokenOperation # operations;
+                            } else skip;
 
                         };
 
@@ -811,10 +801,6 @@ block {
                 const configLiquidationMaxDuration  : nat = s.config.liquidationMaxDuration;
                 const blocksPerMinute               : nat = 60n / Tezos.get_min_block_time();
 
-                s.tempMap["blocksPerMinute"]    := blocksPerMinute;
-                s.tempMap["blocksPerMinuteTwo"] := 60n / Tezos.get_min_block_time();
-                s.tempMap["getMinBlockTime"]    := Tezos.get_min_block_time();
-
                 const liquidationDelayInBlockLevel  : nat = configLiquidationDelayInMins * blocksPerMinute;                 
                 const liquidationEndLevel           : nat = mockLevel + (configLiquidationMaxDuration * blocksPerMinute);                 
 
@@ -832,9 +818,6 @@ block {
                 // ------------------------------------------------------------------
                 // Check if vault is liquidatable
                 // ------------------------------------------------------------------
-
-                // s.tempMap["markForLiquidation - initialLoanPrincipalTotal"] := initialLoanPrincipalTotal;
-                // s.tempMap["markForLiquidation - newLoanInterestTotal"] := newLoanInterestTotal;
 
                 const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
                 
@@ -863,9 +846,6 @@ block {
 
                 // Update vault
                 s.vaults[vaultHandle] := vault;
-
-                s.tempMap["vaultIsLiquidatableBool"] := if vaultIsLiquidatable = True then 1n else 0n;
-                s.tempMap["markForLiquidation"] := 123n;            
 
             }
         |   _ -> skip
@@ -1571,9 +1551,6 @@ block {
 
                     // Calculate refund total if exists - i.e. difference between initial loan principal and principal reduction amount
                     if principalReductionAmount > initialLoanPrincipalTotal then refundTotal := abs(principalReductionAmount - initialLoanPrincipalTotal) else skip;
-
-                    s.tempMap["principalReductionAmount"] := principalReductionAmount;
-                    s.tempMap["refundTotal"] := refundTotal;
                     
                     // if refund exists, reduce final repay amount by refund amount
                     if refundTotal > 0n then {
@@ -1607,9 +1584,7 @@ block {
                     verifyLessThanOrEqual(finalRepaymentAmount, newLoanInterestTotal, error_LOAN_INTEREST_MISCALCULATION);
                     newLoanInterestTotal := abs(newLoanInterestTotal - finalRepaymentAmount);
 
-                };
-
-                s.tempMap["finalRepaymentAmount"] := finalRepaymentAmount;    
+                };   
 
                 // Calculate final loan outstanding total - verify that finalRepaymentAmount is less than newLoanOutstandingTotal
                 verifyLessThanOrEqual(finalRepaymentAmount, newLoanOutstandingTotal, error_LOAN_OUTSTANDING_MISCALCULATION);

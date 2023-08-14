@@ -10,7 +10,6 @@ const config = {
     cycleVotersReward                   : MVK(100),
 
     minProposalRoundVotePercentage      : 1000,
-    minProposalRoundVotesRequired       : 10000,
 
     minQuorumPercentage                 : 1000,
     minYayVotePercentage                : 5100,
@@ -55,20 +54,21 @@ export const governanceStorage: governanceStorageType = {
     whitelistContracts      : MichelsonMap.fromLiteral({}),
     generalContracts        : MichelsonMap.fromLiteral({}),
 
-    proposalLedger          : MichelsonMap.fromLiteral({}),
-    proposalVoters          : MichelsonMap.fromLiteral({}),
-    proposalRewards         : MichelsonMap.fromLiteral({}),
-    stakedMvkSnapshotLedger : MichelsonMap.fromLiteral({}),
-    snapshotLedger          : MichelsonMap.fromLiteral({}),
+    proposalLedger                      : MichelsonMap.fromLiteral({}),
+    proposalVoters                      : MichelsonMap.fromLiteral({}),
+    proposalRewards                     : MichelsonMap.fromLiteral({}),
+    stakedMvkSnapshotLedger             : MichelsonMap.fromLiteral({}),
+    snapshotLedger                      : MichelsonMap.fromLiteral({}),
+    satelliteLastSnapshotLedger         : MichelsonMap.fromLiteral({}),
 
     nextProposalId          : new BigNumber(1),
     cycleId                 : new BigNumber(0),
 
     currentCycleInfo        : {
         round                     : { proposal: null },
-        blocksPerProposalRound    :  new BigNumber(0),
-        blocksPerVotingRound      :  new BigNumber(0),
-        blocksPerTimelockRound    :  new BigNumber(0),
+        blocksPerProposalRound    : new BigNumber(0),
+        blocksPerVotingRound      : new BigNumber(0),
+        blocksPerTimelockRound    : new BigNumber(0),
         roundStartLevel           : new BigNumber(0),
         roundEndLevel             : new BigNumber(0),
         cycleEndLevel             : new BigNumber(0),

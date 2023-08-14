@@ -11,5 +11,6 @@ class CouncilActionRequestMintParameter(BaseModel):
         extra = Extra.forbid
 
     treasuryAddress: str
+    receiverAddress: str
     tokenAmount: str
     purpose: str

@@ -1,6 +1,9 @@
-import assert from "assert";
-import { Utils, MVK } from "./helpers/Utils";
 import { MichelsonMap } from '@taquito/michelson-encoder'
+import assert from "assert";
+import { BigNumber } from 'bignumber.js'
+
+import { MVK, Utils } from "./helpers/Utils";
+
 const saveContractAddress = require("./helpers/saveContractAddress")
 
 const chai = require("chai");
@@ -19,10 +22,18 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { GeneralContract, setGeneralContractLambdas } from './helpers/deploymentTestHelper'
-import { bob, alice, eve, mallory, oscar, trudy, susie } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
-
 import { breakGlassStorage as resetBreakGlassStorage } from '../storage/breakGlassStorage'
+import { bob, alice, eve, mallory, oscar, trudy, susie } from "../scripts/sandbox/accounts";
+import { 
+    signerFactory, 
+    wait,
+    getStorageMapValue,
+    fa2Transfer,
+    updateOperators,
+    mistakenTransferFa2Token,
+    updateWhitelistContracts,
+    updateGeneralContracts
+} from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Notes
@@ -110,7 +121,6 @@ describe("Emergency Governance tests", async () => {
     let transferOperation
     let emergencyGovernanceOperation
     let voteOperation
-    let dropOperation
     let signActionOperation
 
     // housekeeping operations
@@ -172,7 +182,7 @@ describe("Emergency Governance tests", async () => {
     describe("%triggerEmergencyControl", async () => {
 
         beforeEach("Set default signer to user (eve)", async () => {
-            await helperFunctions.signerFactory(tezos, eve.sk)
+            await signerFactory(tezos, eve.sk)
         });
 
         it('user (eve) should not be able to trigger emergency control if she did not send the required tez fees', async () => {
@@ -194,7 +204,7 @@ describe("Emergency Governance tests", async () => {
                 // ensure that user has enough staked MVK to trigger emergency governance
                 if(initialUserStakedBalance < sMvkRequiredToTrigger){
                     
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // set stake amount so that user's final staked balance will be above sMvkRequiredToTrigger
@@ -235,7 +245,7 @@ describe("Emergency Governance tests", async () => {
                 // ensure that user has enough staked MVK to trigger emergency governance
                 if(initialUserStakedBalance < sMvkRequiredToTrigger){
 
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // set stake amount so that user's final staked balance will be above sMvkRequiredToTrigger
@@ -257,13 +267,13 @@ describe("Emergency Governance tests", async () => {
             }
         });
 
-        it('user (oscar) should not be able to trigger emergency control if he does not have enough staked MVK', async () => {
+        it('user (bob) should not be able to trigger emergency control if he does not have enough staked MVK', async () => {
             try{
                 
                 // set signer
-                user   = oscar.pkh;
-                userSk = oscar.sk;
-                await helperFunctions.signerFactory(tezos, userSk);
+                user   = bob.pkh;
+                userSk = bob.sk;
+                await signerFactory(tezos, userSk);
 
                 // Operation
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
@@ -297,7 +307,7 @@ describe("Emergency Governance tests", async () => {
                 // set signer to user (eve)
                 user   = eve.pkh;
                 userSk = eve.sk;
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // initial values
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
@@ -312,7 +322,7 @@ describe("Emergency Governance tests", async () => {
                 // ensure that user has enough staked MVK to trigger emergency governance
                 if(initialUserStakedBalance < sMvkRequiredToTrigger){
 
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // set stake amount so that user's final staked balance will be above sMvkRequiredToTrigger
@@ -322,7 +332,7 @@ describe("Emergency Governance tests", async () => {
                 }
 
                 // Remove taxTreasury and doorman contract in Governance General Contracts map
-                await helperFunctions.signerFactory(tezos, adminSk);
+                await signerFactory(tezos, adminSk);
                 updateGeneralContractsOperation = await governanceInstance.methods.updateGeneralContracts("taxTreasury", contractDeployments.treasury.address, "remove").send();
                 await updateGeneralContractsOperation.confirmation()
 
@@ -330,12 +340,12 @@ describe("Emergency Governance tests", async () => {
                 await updateGeneralContractsOperation.confirmation()
 
                 // fail: trigger emergency control operation
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
                 emergencyGovernanceOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc);
                 await chai.expect(emergencyGovernanceOperation.send({amount : requiredFeeMutez, mutez: true})).to.be.rejected;
 
                 // reset contracts in Governance General Contracts map
-                await helperFunctions.signerFactory(tezos, adminSk);
+                await signerFactory(tezos, adminSk);
                 updateGeneralContractsOperation = await governanceInstance.methods.updateGeneralContracts("taxTreasury", contractDeployments.treasury.address, "update").send();
                 await updateGeneralContractsOperation.confirmation()
 
@@ -353,6 +363,15 @@ describe("Emergency Governance tests", async () => {
                 
                 user   = eve.pkh;
                 userSk = eve.sk;
+
+                // set signer to bob
+                await signerFactory(tezos, bob.sk);
+                const emergencyGovernanceDurationInMinutes = 1;
+                var updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(emergencyGovernanceDurationInMinutes, "configDurationInMinutes").send();
+                await updateConfigOperation.confirmation();
+
+                // set signer to user
+                await signerFactory(tezos, userSk);
 
                 // initial values
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
@@ -374,7 +393,7 @@ describe("Emergency Governance tests", async () => {
                 // ensure that user has enough staked MVK to trigger emergency governance
                 if(initialUserStakedBalance < sMvkRequiredToTrigger){
 
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
                     
                     // set stake amount so that user's final staked balance will be above sMvkRequiredToTrigger
@@ -399,7 +418,6 @@ describe("Emergency Governance tests", async () => {
                 // check new emergency proposal record
                 assert.equal(emergencyProposal.proposerAddress      , user);
                 assert.equal(emergencyProposal.executed             , false);
-                assert.equal(emergencyProposal.dropped              , false);
 
                 assert.equal(emergencyProposal.title                , emergencyTitle);
                 assert.equal(emergencyProposal.description          , emergencyDesc);
@@ -436,12 +454,79 @@ describe("Emergency Governance tests", async () => {
                 console.dir(e, {depth: 5});
             }
         });
+
+        it('user (eve) should be able to trigger an emergency control after the previous one has expired', async () => {
+            try{
+                
+                user   = eve.pkh;
+                userSk = eve.sk;
+
+                // wait for current emergency governance to expire
+                await wait(60 * 1000);
+
+                // initial values
+                emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
+                doormanStorage                  = await doormanInstance.storage();
+
+                const requiredFeeMutez           = emergencyGovernanceStorage.config.requiredFeeMutez;
+                const sMvkRequiredToTrigger      = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
+                const stakeMvkPercentageRequired = emergencyGovernanceStorage.config.stakedMvkPercentageRequired;
+
+                initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
+
+                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
+                const totalStakedMvkSupply           = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : user});
+
+                // calculate staked MVK required for break glass
+                const stakedMvkRequiredForBreakGlass = Math.floor((stakeMvkPercentageRequired * totalStakedMvkSupply / 10000))
+                
+                // ensure that user has enough staked MVK to trigger emergency governance
+                if(initialUserStakedBalance < sMvkRequiredToTrigger){
+
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    await updateOperatorsOperation.confirmation();
+                    
+                    // set stake amount so that user's final staked balance will be above sMvkRequiredToTrigger
+                    stakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequiredToTrigger) + 1;
+                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    await stakeOperation.confirmation();
+                }
+
+                // Operation
+                emergencyGovernanceOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc).send({amount: requiredFeeMutez, mutez: true});
+                await emergencyGovernanceOperation.confirmation();
+
+                // Final values
+                emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+                const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
+                const emergencyProposal     = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+
+                // check that emergency id is not zero, and emergency proposal is not undefined
+                assert.notEqual(emergencyID         , 0);
+                assert.notEqual(emergencyProposal   , undefined);
+
+                // check new emergency proposal record
+                assert.equal(emergencyProposal.proposerAddress      , user);
+                assert.equal(emergencyProposal.executed             , false);
+
+                assert.equal(emergencyProposal.title                , emergencyTitle);
+                assert.equal(emergencyProposal.description          , emergencyDesc);
+                assert.equal(emergencyProposal.totalStakedMvkVotes  , 0);
+
+                assert.equal(emergencyProposal.stakedMvkPercentageRequired.toNumber()   , emergencyGovernanceStorage.config.stakedMvkPercentageRequired.toNumber());
+                assert.equal(emergencyProposal.stakedMvkRequiredForBreakGlass.toNumber(), stakedMvkRequiredForBreakGlass);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
     })
 
     describe("%voteForEmergencyControl", async () => {
 
         beforeEach("Set signer to user (eve)", async () => {
-            await helperFunctions.signerFactory(tezos, eve.sk)
+            await signerFactory(tezos, eve.sk)
         });
 
         it('user (oscar) should not be able to call this entrypoint if he does not have enough staked MVK to vote', async () => {
@@ -450,7 +535,10 @@ describe("Emergency Governance tests", async () => {
                 // set signer
                 user   = oscar.pkh;
                 userSk = oscar.sk;
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
+
+                const compoundOperation   = await doormanInstance.methods.compound([user]).send();
+                await compoundOperation.confirmation();
 
                 // Initial Values
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage()
@@ -461,9 +549,9 @@ describe("Emergency Governance tests", async () => {
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 // ensure that user staked balance does not exceed staked MVK required to vote
-                if(initialUserStakedBalance > sMvkRequiredToVote){
+                if(initialUserStakedBalance >= sMvkRequiredToVote){
                     // set unstake amount so that user's final staked balance will be below sMvkRequiredToVote
-                    unstakeAmount    = Math.abs(sMvkRequiredToVote - initialUserStakedBalance) + 1;
+                    unstakeAmount    = Math.abs(sMvkRequiredToVote - initialUserStakedBalance) + 500000000;
                     unstakeOperation = await doormanInstance.methods.unstake(unstakeAmount).send();
                     await unstakeOperation.confirmation();
                 } 
@@ -489,7 +577,7 @@ describe("Emergency Governance tests", async () => {
                 // set signer to user (alice)
                 user   = alice.pkh;
                 userSk = alice.sk;
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // initial values
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
@@ -505,7 +593,7 @@ describe("Emergency Governance tests", async () => {
                 // ensure that user has enough staked MVK to vote for emergency governance
                 if(initialUserStakedBalance < sMvkRequiredToVote){
                     
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // set stake amount so that user's final staked balance will be above sMvkRequiredToVote
@@ -515,17 +603,17 @@ describe("Emergency Governance tests", async () => {
                 }
 
                 // Remove doorman contract in Governance General Contracts map
-                await helperFunctions.signerFactory(tezos, adminSk);
+                await signerFactory(tezos, adminSk);
                 updateGeneralContractsOperation = await governanceInstance.methods.updateGeneralContracts("doorman", contractDeployments.doorman.address, "remove").send();
                 await updateGeneralContractsOperation.confirmation()
 
                 // fail: trigger emergency control operation
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
                 voteOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl();
                 await chai.expect(emergencyGovernanceOperation.send()).to.be.rejected;
 
                 // reset contracts in Governance General Contracts map
-                await helperFunctions.signerFactory(tezos, adminSk);
+                await signerFactory(tezos, adminSk);
                 updateGeneralContractsOperation = await governanceInstance.methods.updateGeneralContracts("doorman", contractDeployments.doorman.address, "update").send();
                 await updateGeneralContractsOperation.confirmation()
 
@@ -541,7 +629,7 @@ describe("Emergency Governance tests", async () => {
                 // set signer
                 user   = alice.pkh;
                 userSk = alice.sk;
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
                 
                 // initial Values
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
@@ -558,7 +646,7 @@ describe("Emergency Governance tests", async () => {
                 // ensure that user has enough staked MVK to vote for emergency governance
                 if(initialUserStakedBalance < sMvkRequiredToVote){
                     
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // set stake amount so that user's final staked balance will be above sMvkRequiredToVote
@@ -607,7 +695,7 @@ describe("Emergency Governance tests", async () => {
                 // set signer
                 user   = mallory.pkh;
                 userSk = mallory.sk;
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
                 
                 // Initial Values
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
@@ -624,7 +712,7 @@ describe("Emergency Governance tests", async () => {
                 // ensure that user has enough staked MVK to vote for emergency governance
                 if(initialUserStakedBalance < sMvkRequiredToVote){
                     
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // set stake amount so that user's final staked balance will be above sMvkRequiredToVote
@@ -672,7 +760,7 @@ describe("Emergency Governance tests", async () => {
                 // set signer
                 user   = alice.pkh;
                 userSk = alice.sk;
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
         
                 // initial stoage
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
@@ -689,36 +777,38 @@ describe("Emergency Governance tests", async () => {
         it('proposer (eve) should not be able to vote emergency control and trigger break glass if relevant contracts (breakGlass) is missing in Governance General Contracts Map', async () => {
             try{
 
+                let tempStakeAmount = 0 
+
                 // Remove breakGlass contract in Governance General Contracts map
-                await helperFunctions.signerFactory(tezos, adminSk);
+                await signerFactory(tezos, adminSk);
                 updateGeneralContractsOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", contractDeployments.breakGlass.address, "remove").send();
                 await updateGeneralContractsOperation.confirmation()
 
                 // set signer to user (eve)
                 user   = eve.pkh;
                 userSk = eve.sk;
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // initial values
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
 
-                const requiredFeeMutez          = emergencyGovernanceStorage.config.requiredFeeMutez;
-                const sMvkRequiredToVote        = emergencyGovernanceStorage.config.minStakedMvkRequiredToVote;
+                const emergencyGovernanceRecord = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyGovernanceStorage.currentEmergencyGovernanceId);
+                const sMvkRequired              = emergencyGovernanceRecord.stakedMvkRequiredForBreakGlass.toNumber();
 
                 // get user staked balance
                 initialUserStakeRecord      = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance    = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
-                // ensure that user has enough staked MVK to vote for emergency governance
-                if(initialUserStakedBalance < sMvkRequiredToVote){
+                // ensure that user has enough staked MVK to trigger the emergency governance
+                if(initialUserStakedBalance < sMvkRequired){
                     
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    // set stake amount so that user's final staked balance will be above sMvkRequiredToVote
-                    stakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequiredToVote) + 1;
-                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    // set stake amount so that user's final staked balance will be above sMvkRequired
+                    tempStakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequired) + 1;
+                    stakeOperation     = await doormanInstance.methods.stake(tempStakeAmount).send();
                     await stakeOperation.confirmation();
                 }
 
@@ -727,22 +817,30 @@ describe("Emergency Governance tests", async () => {
                 await chai.expect(emergencyGovernanceOperation.send()).to.be.rejected;
 
                 // reset contracts in Governance General Contracts map
-                await helperFunctions.signerFactory(tezos, adminSk);
+                await signerFactory(tezos, adminSk);
 
                 updateGeneralContractsOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", contractDeployments.breakGlass.address, "update").send();
                 await updateGeneralContractsOperation.confirmation()
+
+                // reset stake balance (so that it will not affect subsequent tests)
+                await signerFactory(tezos, userSk);
+                if(tempStakeAmount > 0){
+                    // reset stake balance to initial
+                    unstakeOperation = await doormanInstance.methods.unstake(tempStakeAmount).send();
+                    await unstakeOperation.confirmation();
+                }
 
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it('proposer (eve) should be able to vote for the current proposal and trigger break glass automatically with sufficient votes', async () => {
+        it('proposer (oscar) should be able to vote for the current proposal and trigger break glass automatically with sufficient votes', async () => {
             try{
                 
                 // set signer
-                user   = eve.pkh;
-                userSk = eve.sk;
+                user   = oscar.pkh;
+                userSk = oscar.sk;
 
                 // Initial Values
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
@@ -760,7 +858,7 @@ describe("Emergency Governance tests", async () => {
                 // updated storage
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
                 breakGlassStorage           = await breakGlassInstance.storage();
-                const actionID            = breakGlassStorage.actionCounter;
+                const actionID              = breakGlassStorage.actionCounter;
                 governanceStorage           = await governanceInstance.storage();
 
                 // updated emergency proposal
@@ -779,15 +877,15 @@ describe("Emergency Governance tests", async () => {
                 const nextActionID      = breakGlassStorage.actionCounter;
                 const targetAddress     = contractDeployments.governance.address;
 
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 const resetAdminOperation = await breakGlassInstance.methods.setContractsAdmin([targetAddress], admin).send();
                 await resetAdminOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, trudy.sk);
+                await signerFactory(tezos, trudy.sk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
@@ -798,12 +896,7 @@ describe("Emergency Governance tests", async () => {
                 // reset break glass storage
                 resetBreakGlassStorage.governanceAddress = contractDeployments.governance.address
                 resetBreakGlassStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
-            
-                resetBreakGlassStorage.councilMembers.set(trudy.pkh, {
-                    name: "Trudy",
-                    image: "Trudy image",
-                    website: "Trudy website"
-                })
+                            
                 resetBreakGlassStorage.councilMembers.set(alice.pkh, {
                     name: "Alice",
                     image: "Alice image",
@@ -814,23 +907,31 @@ describe("Emergency Governance tests", async () => {
                     image: "Eve image",
                     website: "Eve website"
                 })
+                resetBreakGlassStorage.councilMembers.set(susie.pkh, {
+                    name: "Susie",
+                    image: "Susie image",
+                    website: "Susie website"
+                })
+                resetBreakGlassStorage.councilMembers.set(trudy.pkh, {
+                    name: "Trudy",
+                    image: "Trudy image",
+                    website: "Trudy website"
+                })
+                resetBreakGlassStorage.councilSize = new BigNumber(4)
 
                 resetBreakGlassStorage.whitelistContracts = MichelsonMap.fromLiteral({
                     [contractDeployments.emergencyGovernance.address]: null
                 })
 
-                await helperFunctions.signerFactory(tezos, adminSk);
+                await signerFactory(tezos, adminSk);
                 const resetBreakGlassContract = await GeneralContract.originate(tezos, "breakGlass", resetBreakGlassStorage);
                 await saveContractAddress('breakGlassAddress', resetBreakGlassContract.contract.address, false)
                 await setGeneralContractLambdas(tezos, "breakGlass", resetBreakGlassContract.contract, false);
-
-                // console.log(governanceStorage.generalContracts);
 
                 updateGeneralContractsOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", resetBreakGlassContract.contract.address, 'update').send();
                 await updateGeneralContractsOperation.confirmation();
 
                 governanceStorage = await governanceInstance.storage();
-                // console.log(governanceStorage.generalContracts);
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -839,175 +940,12 @@ describe("Emergency Governance tests", async () => {
 
     });
 
-    describe("%dropEmergencyControl", async () => {
-
-        beforeEach("Set default signer to user (eve)", async () => {
-            await helperFunctions.signerFactory(tezos, eve.sk)
-        });
-
-        it('user (alice) should not be able to drop the emergency governance after it has been executed', async () => {
-            try{
-
-                // set signer
-                user   = alice.pkh;
-                userSk = alice.sk;
-                await helperFunctions.signerFactory(tezos, userSk);
-
-                // Initial values
-                emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
-                doormanStorage              = await doormanInstance.storage();
-
-                // fail: drop emergency control
-                dropOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance();
-                await chai.expect(dropOperation.send()).to.be.rejected;
-
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-
-        it('non-proposer (alice) should not be able to drop emergency control if she did not trigger it', async () => {
-            try{
-                
-                // ---------------------------------
-                // Trigger Emergency Control again by eve
-                // ---------------------------------
-
-                // set signer
-                user   = eve.pkh;
-                userSk = eve.sk;
-                await helperFunctions.signerFactory(tezos, userSk);
-
-                // Final values
-                emergencyGovernanceStorage       = await emergencyGovernanceInstance.storage();
-                doormanStorage                   = await doormanInstance.storage();
-                const requiredFeeMutez           = emergencyGovernanceStorage.config.requiredFeeMutez;
-                const sMvkRequiredToTrigger      = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
-                const stakeMvkPercentageRequired = emergencyGovernanceStorage.config.stakedMvkPercentageRequired;
-
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                const totalStakedMvkSupply       = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : user});
-
-                // calculate staked MVK required for break glass
-                const stakedMvkRequiredForBreakGlass = Math.floor((stakeMvkPercentageRequired * totalStakedMvkSupply / 10000));
-
-                // trigger emergency control operation
-                emergencyGovernanceOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc).send({amount: requiredFeeMutez, mutez: true});
-                await emergencyGovernanceOperation.confirmation();
-
-                // update storage
-                emergencyGovernanceStorage       = await emergencyGovernanceInstance.storage();
-                doormanStorage                   = await doormanInstance.storage();
-
-                const emergencyID                = emergencyGovernanceStorage.currentEmergencyGovernanceId;
-                const emergencyProposal          = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
-
-                // check that emergency id is not zero, and emergency proposal is not undefined
-                assert.notEqual(emergencyID.toNumber()  , 0);
-                assert.notEqual(emergencyProposal       , undefined);
-
-                // check new emergency proposal record
-                assert.equal(emergencyProposal.proposerAddress      , user);
-                assert.equal(emergencyProposal.executed             , false);
-                assert.equal(emergencyProposal.dropped              , false);
-
-                assert.equal(emergencyProposal.title                , emergencyTitle);
-                assert.equal(emergencyProposal.description          , emergencyDesc);
-                assert.equal(emergencyProposal.totalStakedMvkVotes  , 0);
-
-                assert.equal(emergencyProposal.stakedMvkPercentageRequired.toNumber()   , emergencyGovernanceStorage.config.stakedMvkPercentageRequired.toNumber());
-                assert.equal(emergencyProposal.stakedMvkRequiredForBreakGlass.toNumber(), stakedMvkRequiredForBreakGlass);
-
-                // ---------------------------------
-
-                // set user to alice
-                user   = alice.pkh;
-                userSk = alice.sk;
-                await helperFunctions.signerFactory(tezos, userSk);
-
-                // Initial values
-                emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
-                doormanStorage              = await doormanInstance.storage();
-
-                // fail: drop emergency control
-                emergencyGovernanceOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance();
-                await chai.expect(emergencyGovernanceOperation.send()).to.be.rejected;
-
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-
-        it('proposer (eve) should be able to drop the current emergency governance proposal she proposed', async () => {
-            try{
-                
-                // Initial values
-                emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
-                doormanStorage              = await doormanInstance.storage();
-                const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId
-
-                // Operation
-                emergencyGovernanceOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance().send();
-                await emergencyGovernanceOperation.confirmation();
-
-                // update storage
-                emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
-                const emergencyProposal     = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
-                
-                // check assertions
-                assert.equal(emergencyGovernanceStorage.currentEmergencyGovernanceId, 0)
-                assert.equal(emergencyProposal.dropped, true)
-
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-
-        it('user (eve) should not be able to call this entrypoint if there is no current emergency governance ongoing', async () => {
-            try{
-                
-                // set user
-                user   = eve.pkh;
-                userSk = eve.sk;
-                await helperFunctions.signerFactory(tezos, userSk);
-
-                // Initial values
-                emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
-                assert.equal(emergencyGovernanceStorage.currentEmergencyGovernanceId, 0)
-
-                // fail: drop emergency control
-                emergencyGovernanceOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance();
-                await chai.expect(emergencyGovernanceOperation.send()).to.be.rejected;
-            
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-
-        it('user (eve) should not be able to call %voteForEmergencyControl if the emergency governnance was dropped', async () => {
-            try{
-                
-                // Initial values
-                emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
-                assert.equal(emergencyGovernanceStorage.currentEmergencyGovernanceId, 0);
-
-                // fail: vote for emergency control
-                emergencyGovernanceOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl();
-                await chai.expect(emergencyGovernanceOperation.send()).to.be.rejected;
-
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        });
-        
-    })
-
 
     describe("Housekeeping Entrypoints", async () => {
 
         beforeEach("Set signer to admin (bob)", async () => {
             emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
-            await helperFunctions.signerFactory(tezos, adminSk);
+            await signerFactory(tezos, adminSk);
         });
 
         it('%setAdmin                 - admin (bob) should be able to update the contract admin address', async () => {
@@ -1031,7 +969,7 @@ describe("Emergency Governance tests", async () => {
                 assert.strictEqual(newAdmin, alice.pkh);
                 
                 // reset admin
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 resetAdminOperation = await emergencyGovernanceInstance.methods.setAdmin(admin).send();
                 await resetAdminOperation.confirmation();
 
@@ -1101,7 +1039,7 @@ describe("Emergency Governance tests", async () => {
                 const highTestValue = 11000000; // for minStakedMvkForVoting and minStakedMvkForTrigger
 
                 // update config operations
-                var updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configVoteExpiryDays").send();
+                var updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configDurationInMinutes").send();
                 await updateConfigOperation.confirmation();
 
                 updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configRequiredFeeMutez").send();
@@ -1127,7 +1065,7 @@ describe("Emergency Governance tests", async () => {
                 const updatedConfig      = councilStorage.config;
 
                 // Assertions
-                assert.equal(updatedConfig.voteExpiryDays                   , lowTestValue);
+                assert.equal(updatedConfig.durationInMinutes                , lowTestValue);
                 assert.equal(updatedConfig.requiredFeeMutez                 , lowTestValue);
                 assert.equal(updatedConfig.stakedMvkPercentageRequired      , lowTestValue);
                 assert.equal(updatedConfig.minStakedMvkRequiredToVote       , highTestValue);
@@ -1136,7 +1074,7 @@ describe("Emergency Governance tests", async () => {
                 assert.equal(updatedConfig.proposalDescMaxLength            , lowTestValue);
 
                 // reset config operation
-                var resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.voteExpiryDays, "configVoteExpiryDays").send();
+                var resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.durationInMinutes, "configDurationInMinutes").send();
                 await resetConfigOperation.confirmation();
 
                 resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.requiredFeeMutez, "configRequiredFeeMutez").send();
@@ -1161,7 +1099,7 @@ describe("Emergency Governance tests", async () => {
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
                 const resetConfig           = emergencyGovernanceStorage.config;
 
-                assert.equal(resetConfig.voteExpiryDays.toNumber(),                 initialConfig.voteExpiryDays.toNumber());
+                assert.equal(resetConfig.durationInMinutes.toNumber(),              initialConfig.durationInMinutes.toNumber());
                 assert.equal(resetConfig.requiredFeeMutez.toNumber(),               initialConfig.requiredFeeMutez.toNumber());
                 assert.equal(resetConfig.stakedMvkPercentageRequired.toNumber(),    initialConfig.stakedMvkPercentageRequired.toNumber());
                 assert.equal(resetConfig.minStakedMvkRequiredToVote.toNumber(),     initialConfig.minStakedMvkRequiredToVote.toNumber());
@@ -1182,13 +1120,13 @@ describe("Emergency Governance tests", async () => {
                 contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue           = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue           = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(doormanInstance, contractMapKey, 'update');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(doormanInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 doormanStorage = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
                 assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
@@ -1205,13 +1143,13 @@ describe("Emergency Governance tests", async () => {
                 contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(doormanInstance, contractMapKey, 'remove');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(doormanInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 doormanStorage = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
@@ -1228,13 +1166,13 @@ describe("Emergency Governance tests", async () => {
                 contractMapKey  = "eve";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(doormanInstance, contractMapKey, eve.pkh, 'update');
+                updateGeneralContractsOperation = await updateGeneralContracts(doormanInstance, contractMapKey, eve.pkh, 'update');
                 await updateGeneralContractsOperation.confirmation()
 
                 doormanStorage = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'eve (key) should not be in the General Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map after adding her to it');
@@ -1251,13 +1189,13 @@ describe("Emergency Governance tests", async () => {
                 contractMapKey  = "eve";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(doormanInstance, contractMapKey, eve.pkh, 'remove');
+                updateGeneralContractsOperation = await updateGeneralContracts(doormanInstance, contractMapKey, eve.pkh, 'remove');
                 await updateGeneralContractsOperation.confirmation()
 
                 doormanStorage = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'eve (key) should not be in the General Contracts map after adding her to it');
@@ -1276,15 +1214,15 @@ describe("Emergency Governance tests", async () => {
                 userSk            = mallory.sk;
 
                 // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
-                await helperFunctions.signerFactory(tezos, userSk);
-                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
+                await signerFactory(tezos, userSk);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
                 const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
 
-                await helperFunctions.signerFactory(tezos, adminSk);
-                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                await signerFactory(tezos, adminSk);
+                mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
@@ -1306,7 +1244,7 @@ describe("Emergency Governance tests", async () => {
         beforeEach("Set signer to non-admin (mallory)", async () => {
             
             emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
-            await helperFunctions.signerFactory(tezos, mallory.sk);
+            await signerFactory(tezos, mallory.sk);
         });
 
         it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
@@ -1390,7 +1328,7 @@ describe("Emergency Governance tests", async () => {
                 const highTestValue = 11000000; // for minStakedMvkForVoting and minStakedMvkForTrigger
 
                 // fail: update config operations
-                var updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configVoteExpiryDays");
+                var updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configDurationInMinutes");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configRequiredFeeMutez");
@@ -1416,7 +1354,7 @@ describe("Emergency Governance tests", async () => {
                 const updatedConfig         = emergencyGovernanceStorage.config;
 
                 // check that there is no change to config
-                assert.equal(updatedConfig.voteExpiryDays.toNumber(),                 initialConfig.voteExpiryDays.toNumber());
+                assert.equal(updatedConfig.durationInMinutes.toNumber(),              initialConfig.durationInMinutes.toNumber());
                 assert.equal(updatedConfig.requiredFeeMutez.toNumber(),               initialConfig.requiredFeeMutez.toNumber());
                 assert.equal(updatedConfig.stakedMvkPercentageRequired.toNumber(),    initialConfig.stakedMvkPercentageRequired.toNumber());
                 assert.equal(updatedConfig.minStakedMvkRequiredToVote.toNumber(),     initialConfig.minStakedMvkRequiredToVote.toNumber());
@@ -1436,14 +1374,14 @@ describe("Emergency Governance tests", async () => {
                 contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(emergencyGovernanceStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(emergencyGovernanceStorage, storageMap, contractMapKey);
 
                 // fail: update whitelist contracts operation
                 updateWhitelistContractsOperation = await emergencyGovernanceInstance.methods.updateWhitelistContracts(contractMapKey, "update")
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage()
-                updatedContractMapValue     = await helperFunctions.getStorageMapValue(emergencyGovernanceStorage, storageMap, contractMapKey);
+                updatedContractMapValue     = await getStorageMapValue(emergencyGovernanceStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the Whitelist Contracts map');
 
@@ -1459,14 +1397,14 @@ describe("Emergency Governance tests", async () => {
                 contractMapKey  = "mallory";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(emergencyGovernanceStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(emergencyGovernanceStorage, storageMap, contractMapKey);
 
                 // fail: update general contracts operation
                 updateGeneralContractsOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts(contractMapKey, alice.pkh, "update")
                 await chai.expect(updateGeneralContractsOperation.send()).to.be.rejected;
 
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage()
-                updatedContractMapValue     = await helperFunctions.getStorageMapValue(emergencyGovernanceStorage, storageMap, contractMapKey);
+                updatedContractMapValue     = await getStorageMapValue(emergencyGovernanceStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the General Contracts map');
 
@@ -1483,11 +1421,11 @@ describe("Emergency Governance tests", async () => {
                 const tokenAmount = 10;
 
                 // Mistaken Operation - send 10 MavrykFa2Tokens to MVK Token Contract
-                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // fail: mistaken transfer operation
-                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(emergencyGovernanceInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(emergencyGovernanceInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {

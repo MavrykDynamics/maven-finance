@@ -240,10 +240,11 @@ block {
         |   LambdaTogglePauseEntrypoint(params) -> {
 
                 case params.targetEntrypoint of [
-                        Transfer (_v)             -> s.breakGlassConfig.transferIsPaused            := _v
-                    |   MintMvkAndTransfer (_v)   -> s.breakGlassConfig.mintMvkAndTransferIsPaused  := _v
-                    |   StakeMvk (_v)             -> s.breakGlassConfig.stakeMvkIsPaused            := _v
-                    |   UnstakeMvk (_v)           -> s.breakGlassConfig.unstakeMvkIsPaused          := _v
+                        Transfer (_v)             -> s.breakGlassConfig.transferIsPaused              := _v
+                    |   MintMvkAndTransfer (_v)   -> s.breakGlassConfig.mintMvkAndTransferIsPaused    := _v
+                    |   UpdateTokenOperators (_v) -> s.breakGlassConfig.updateTokenOperatorsIsPaused  := _v
+                    |   StakeTokens (_v)          -> s.breakGlassConfig.stakeTokensIsPaused            := _v
+                    |   UnstakeTokens (_v)        -> s.breakGlassConfig.unstakeTokensIsPaused          := _v
                 ]
                 
             }
@@ -359,8 +360,8 @@ block {
 
 
 
-(* updateMvkOperators lambda *)
-function lambdaUpdateMvkOperators(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
+(* updateTokenOperators lambda *)
+function lambdaUpdateTokenOperators(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -373,11 +374,11 @@ block {
     var operations : list(operation) := nil;
 
     case treasuryLambdaAction of [
-        |   LambdaUpdateMvkOperators(updateOperatorsParams) -> {
+        |   LambdaUpdateTokenOperators(updateTokenOperatorsParams) -> {
                 
                 // Create and send update operators operation
-                const updateMvkOperatorsOperation : operation = updateMvkOperatorsOperation(updateOperatorsParams, s);
-                operations := updateMvkOperatorsOperation # operations;
+                const updateTokenOperatorsOperation : operation = updateTokenOperatorsOperation(updateTokenOperatorsParams);
+                operations := updateTokenOperatorsOperation # operations;
 
             }
         |   _ -> skip
@@ -387,31 +388,30 @@ block {
 
 
 
-(* stakeMvk lambda *)
-function lambdaStakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
+(* stakeTokens lambda *)
+function lambdaStakeTokens(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
 
     // Steps Overview:
     // 1. Check if sender is admin
-    // 2. Check that %stakeMvk entrypoint is not paused (e.g. if glass broken)
+    // 2. Check that %stakeTokens entrypoint is not paused (e.g. if glass broken)
     // 3. Get Doorman Contract address from the General Contracts Map on the Governance Contract
     // 4. Get stake entrypoint in the Doorman Contract
     // 5. Create and send stake operation to the Doorman Contract
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
-    // verify that %stakeMvk entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.stakeMvkIsPaused, error_STAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED);
+    // verify that %stakeTokens entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.stakeTokensIsPaused, error_STAKE_TOKENS_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
-
     case treasuryLambdaAction of [
-        |   LambdaStakeMvk(stakeAmount) -> {
+        |   LambdaStakeTokens(stakeTokensParams) -> {
                 
                 // Create and send stake operation
-                const stakeMvkOperation : operation = stakeMvkOperation(stakeAmount, s);
-                operations := stakeMvkOperation # operations;
+                const stakeTokensOperation : operation = stakeTokensOperation(stakeTokensParams);
+                operations := stakeTokensOperation # operations;
 
             }
         |   _ -> skip
@@ -421,30 +421,30 @@ block {
 
 
 
-(* unstakeMvk lambda *)
-function lambdaUnstakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
+(* unstakeTokens lambda *)
+function lambdaUnstakeTokens(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
 
     // Steps Overview:
     // 1. Check if sender is admin
-    // 2. Check that %unstakeMvk entrypoint is not paused (e.g. if glass broken)
+    // 2. Check that %unstakeTokens entrypoint is not paused (e.g. if glass broken)
     // 3. Get Doorman Contract address from the General Contracts Map on the Governance Contract
     // 4. Get unstake entrypoint in the Doorman Contract
     // 5. Create and send unstake operation to the Doorman Contract
     
     verifySenderIsAdmin(s.admin);  // verify that sender is admin 
     
-    // verify that %unstakeMvk entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.unstakeMvkIsPaused, error_UNSTAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED);
+    // verify that %unstakeToken entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.unstakeTokensIsPaused, error_UNSTAKE_TOKENS_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
     case treasuryLambdaAction of [
-        |   LambdaUnstakeMvk(unstakeAmount) -> {
+        |   LambdaUnstakeTokens(unstakeTokensParams) -> {
                 
                 // Create and send unstake operation
-                const unstakeMvkOperation : operation = unstakeMvkOperation(unstakeAmount, s);
-                operations := unstakeMvkOperation # operations;
+                const unstakeTokensOperation : operation = unstakeTokensOperation(unstakeTokensParams);
+                operations := unstakeTokensOperation # operations;
 
             }
         |   _ -> skip

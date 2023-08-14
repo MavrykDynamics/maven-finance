@@ -191,7 +191,6 @@ block {
                         ConfigSuccessReward (_v)                          -> s.config.successReward                           := updateConfigNewValue
                     |   ConfigCycleVotersReward (_v)                      -> s.config.cycleVotersReward                       := updateConfigNewValue
                     |   ConfigMinProposalRoundVotePct (_v)                -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minProposalRoundVotePercentage := updateConfigNewValue
-                    |   ConfigMinProposalRoundVotesReq (_v)               -> s.config.minProposalRoundVotesRequired           := updateConfigNewValue
                     |   ConfigMinQuorumPercentage (_v)                    -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minQuorumPercentage            := updateConfigNewValue
                     |   ConfigMinYayVotePercentage (_v)                   -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minYayVotePercentage           := updateConfigNewValue
                     |   ConfigProposeFeeMutez (_v)                        -> s.config.proposalSubmissionFeeMutez              := updateConfigNewValue * 1mutez                    
@@ -199,7 +198,7 @@ block {
                     |   ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerProposalRound     := updateConfigNewValue
                     |   ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerVotingRound       := updateConfigNewValue
                     |   ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerTimelockRound     := updateConfigNewValue
-                    |   ConfigProposalDatTitleMaxLength (_v)              -> s.config.proposalDataTitleMaxLength              := updateConfigNewValue
+                    |   ConfigDataTitleMaxLength (_v)                     -> s.config.proposalDataTitleMaxLength              := updateConfigNewValue
                     |   ConfigProposalTitleMaxLength (_v)                 -> s.config.proposalTitleMaxLength                  := updateConfigNewValue
                     |   ConfigProposalDescMaxLength (_v)                  -> s.config.proposalDescriptionMaxLength            := updateConfigNewValue
                     |   ConfigProposalInvoiceMaxLength (_v)               -> s.config.proposalInvoiceMaxLength                := updateConfigNewValue
@@ -402,7 +401,7 @@ block {
                 verifySenderIsWhitelistedOrAdmin(s);
                 
                 // Update the storage with the new snapshots
-                for satelliteSnapshot in list updateSatellitesSnapshotParams block{
+                for satelliteSnapshot in set updateSatellitesSnapshotParams block{
                     s := updateSatellitesSnapshotRecord(satelliteSnapshot, s);
                 }
 

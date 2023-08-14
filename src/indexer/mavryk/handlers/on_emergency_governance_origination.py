@@ -22,7 +22,7 @@ async def on_emergency_governance_origination(
         proposal_desc_max_length        = int(emergency_governance_origination.storage.config.proposalDescMaxLength)
         proposal_title_max_length       = int(emergency_governance_origination.storage.config.proposalTitleMaxLength)
         smvk_percentage_required        = int(emergency_governance_origination.storage.config.stakedMvkPercentageRequired)
-        vote_expiry_days                = int(emergency_governance_origination.storage.config.voteExpiryDays)
+        duration_in_minutes             = int(emergency_governance_origination.storage.config.durationInMinutes)
         current_emergency_record_id     = int(emergency_governance_origination.storage.currentEmergencyGovernanceId)
         next_emergency_record_id        = int(emergency_governance_origination.storage.nextEmergencyGovernanceId)
         timestamp                       = emergency_governance_origination.data.timestamp
@@ -51,7 +51,7 @@ async def on_emergency_governance_origination(
             proposal_title_max_length       = proposal_title_max_length,
             required_fee_mutez              = required_fee,
             smvk_percentage_required        = smvk_percentage_required,
-            vote_expiry_days                = vote_expiry_days,
+            duration_in_minutes             = duration_in_minutes,
             current_emergency_record_id     = current_emergency_record_id,
             next_emergency_record_id        = next_emergency_record_id
         )

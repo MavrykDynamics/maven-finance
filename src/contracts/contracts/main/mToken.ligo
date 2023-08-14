@@ -271,15 +271,15 @@ block {
 
 
 
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : mTokenStorageType) : address is
+    s.governanceAddress
+
+
+
 (* get: whitelist contracts opt *)
-[@view] function getWhitelistContractOpt(const contractAddress : address; const store : mTokenStorageType) : option(unit) is
-    Big_map.find_opt(contractAddress, store.whitelistContracts)
-
-
-
-(* get: operator *)
-[@view] function getOperatorOpt(const operator : (ownerType * operatorType * nat); const s : mTokenStorageType) : option(unit) is
-    Big_map.find_opt(operator, s.operators)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : mTokenStorageType) : option(unit) is
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
 
 
 
@@ -311,6 +311,27 @@ block {
 
 
 
+(* all_tokens View *)
+[@view] function all_tokens(const _ : unit; const _s : mTokenStorageType) : list(nat) is
+    list[0n]
+
+
+
+(* check if operator *)
+[@view] function is_operator(const operator : (ownerType * operatorType * nat); const s : mTokenStorageType) : bool is
+    Big_map.mem(operator, s.operators)
+
+
+
+(* get: metadata *)
+[@view] function token_metadata(const tokenId : nat; const s : mTokenStorageType) : option(tokenMetadataInfoType) is
+    case Big_map.find_opt(tokenId, s.token_metadata) of [
+            Some (_metadata)  -> Some(_metadata)
+        |   None              -> (None : option(tokenMetadataInfoType))
+    ]
+
+    
+
 (* get: reward index View *)
 [@view] function get_reward_index(const userAddress : ownerType; const s : mTokenStorageType) : nat is
 block {
@@ -340,29 +361,6 @@ block {
 [@view] function get_raw_supply_and_reward_index(const _tokenId : nat; const s : mTokenStorageType) : (tokenBalanceType * nat) is
     (s.totalSupply, s.tokenRewardIndex)
 
-
-
-(* all_tokens View *)
-[@view] function all_tokens(const _ : unit; const _s : mTokenStorageType) : list(nat) is
-    list[0n]
-
-
-
-(* check if operator *)
-[@view] function is_operator(const operator : (ownerType * operatorType * nat); const s : mTokenStorageType) : bool is
-    Big_map.mem(operator, s.operators)
-
-
-
-(* get: metadata *)
-[@view] function token_metadata(const tokenId : nat; const s : mTokenStorageType) : tokenMetadataInfoType is
-    case Big_map.find_opt(tokenId, s.token_metadata) of [
-            Some (_metadata)  -> _metadata
-        |   None -> record[
-                token_id    = tokenId;
-                token_info  = map[]
-            ]
-    ]
 
 // ------------------------------------------------------------------------------
 //

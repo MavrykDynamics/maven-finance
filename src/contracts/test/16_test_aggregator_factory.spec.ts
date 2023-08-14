@@ -23,7 +23,6 @@ import { mockMetadata, mockSatelliteData } from "./helpers/mockSampleData"
 import { 
     signerFactory, 
     getStorageMapValue,
-    fa12Transfer,
     fa2Transfer,
     mistakenTransferFa2Token,
     updateWhitelistContracts,
@@ -158,6 +157,12 @@ describe('AggregatorFactory', () => {
                                         oraclePeerId: mockSatelliteData.trudy.oraclePeerId
                                     }
         });
+
+        // Untrack aggregator if it's already tracked
+        if(aggregatorFactoryStorage.trackedAggregators.includes(aggregatorInstance.address)){
+            const untrackOperation  = await aggregatorFactoryInstance.methods.untrackAggregator(aggregatorInstance.address).send();
+            await untrackOperation.confirmation();
+        }
     
     });
 
@@ -425,7 +430,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(2),             // alphaPercentPerThousand
         
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
         
                     new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
@@ -473,14 +478,18 @@ describe('AggregatorFactory', () => {
             try {
 
                 // Operation
-                const operation             = await aggregatorFactoryInstance.methods.untrackAggregator(aggregatorInstance.address).send();
-                await operation.confirmation();
+                const untrackOperation      = await aggregatorFactoryInstance.methods.untrackAggregator(aggregatorInstance.address).send();
+                await untrackOperation.confirmation();
     
                 // Final values
                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
     
                 // Assertion
                 assert.equal(aggregatorFactoryStorage.trackedAggregators.includes(aggregatorFactoryInstance.address), false);
+
+                // Reset tracking
+                const trackOperation        = await aggregatorFactoryInstance.methods.trackAggregator(aggregatorInstance.address).send();
+                await trackOperation.confirmation();
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -521,7 +530,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(2),             // numberBlocksDelay
             
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
 
                     
                     new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
@@ -615,7 +624,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(2),             // alphaPercentPerThousand
             
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
             
                     new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
@@ -945,7 +954,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(2),             // alphaPercentPerThousand
         
                     new BigNumber(60),            // percentOracleThreshold
-                    new BigNumber(30),            // heartBeatSeconds
+                    new BigNumber(30),            // heartbeatSeconds
         
                     new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez

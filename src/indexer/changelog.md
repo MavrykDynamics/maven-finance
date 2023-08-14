@@ -23,6 +23,9 @@
 - Council
   - Column CouncilSize added
 
+- Delegation
+  - Column TakeSatellitesSnapshotPaused added
+
 - SatelliteRewards
   - Column ReferenceGovernanceCycleId added
   - Column Tracked added
@@ -32,15 +35,24 @@
 
 - GovernanceSatelliteSnapshot
   - Column AccumulatedRewardsPerShare added
+  - Column NextSnapshotCycleId added
+  - Column Latest added
 
 - GovernanceSMVKSnapshot
   - Table added
 
 - GovernanceFinancialRequest
   - Column GovernanceCycleId added
+  - Column Receiver added
 
 - GovernanceSatelliteAction
   - Column GovernanceCycleId added
+
+- Treasury
+  - Column UpdateTokenOperatorsPaused added
+
+- LendingController
+  - Column LastCompletedMaxDataDelay added
 
 ### Breaking changes
 
@@ -62,6 +74,12 @@
 - DoormanWhitelistContract
   - Column ContractName removed
 
+- EmergencyGovernance
+  - Column VoteExpiryDays renamed to DurationInMinutes
+
+- EmergencyGovernanceRecord
+  - Column Dropped removed
+
 - EmergencyGovernanceWhitelistContract
   - Column ContractName removed
 
@@ -70,6 +88,9 @@
 
 - FarmWhitelistContract
   - Column ContractName removed
+
+- Governance
+  - Column ProposalRoundVoteRequired removed
 
 - GovernanceFinancialWhitelistContract
   - Column ContractName removed
@@ -83,11 +104,14 @@
 - GovernanceWhitelistContract
   - Column ContractName removed
 
+- LendingControllerGeneralContract
+  - Table removed
+
 - LendingControllerWhitelistContract
-  - Column ContractName removed
+  - Table removed
 
 - LendingControllerWhitelistTokenContract
-  - Column ContractName removed
+  - Table removed
 
 - MTokenWhitelistContract
   - Column ContractName removed
@@ -152,6 +176,10 @@
   - Table renamed to MVKTokenMintOrBurnHistoryData
   - Column MintedAmount renamed to Amount
   - Column Type added
+
+- Treasury
+  - Column StakeMvkPaused renamed to StakeTokensPaused
+  - Column UnstakeMvkPaused renamed to UnstakeTokensPaused
 
 <details><summary>Previous versions</summary>
 

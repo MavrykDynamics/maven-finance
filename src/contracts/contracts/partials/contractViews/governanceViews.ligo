@@ -10,27 +10,27 @@
 
 
 
-(* View: get config *)
-[@view] function getConfig(const _ : unit; const s : governanceStorageType) : governanceConfigType is
-    s.config
-
-
-
 (* View: get Governance Proxy address *)
 [@view] function getGovernanceProxyAddress(const _ : unit; const s : governanceStorageType) : address is
     s.governanceProxyAddress
 
 
 
-(* get: general contracts opt *)
-[@view] function getGeneralContractOpt(const contractName : string; const s : governanceStorageType) : option(address) is
-    Big_map.find_opt(contractName, s.generalContracts)
+(* View: get config *)
+[@view] function getConfig(const _ : unit; const s : governanceStorageType) : governanceConfigType is
+    s.config
 
 
 
 (* View: get whitelist contracts opt *)
 [@view] function getWhitelistContractOpt(const contractAddress : address; const s : governanceStorageType) : option(unit) is 
     Big_map.find_opt(contractAddress, s.whitelistContracts)
+
+
+
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const s : governanceStorageType) : option(address) is
+    Big_map.find_opt(contractName, s.generalContracts)
 
 
 
@@ -64,6 +64,12 @@
 
 
 
+(* View: get satellite last snapshot *)
+[@view] function getSatelliteLastSnapshotOpt(const satelliteAddress : address; const s : governanceStorageType) : option(nat) is
+    Big_map.find_opt(satelliteAddress, s.satelliteLastSnapshotLedger)
+
+
+
 (* View: get a staked MVK total supply snapshot *)
 [@view] function getStakedMvkSnapshotOpt(const cycleId : nat; const s : governanceStorageType) : option(nat) is
     Big_map.find_opt(cycleId, s.stakedMvkSnapshotLedger)
@@ -88,7 +94,7 @@
 
 
 
-(* View: get the latest vote of the voter on a given cycle *)
+(* View: get the last vote of the voter on a given cycle *)
 [@view] function getRoundVoteOpt(const cycleAndProposer : (nat*address); const s : governanceStorageType) : option(roundVoteType) is
     Big_map.find_opt(cycleAndProposer, s.roundVotes)
 

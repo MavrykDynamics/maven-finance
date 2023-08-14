@@ -16,6 +16,7 @@ class LendingController(MavrykContract, Model):
     minimum_loan_fee_pct                    = fields.SmallIntField(default=0)
     minimum_loan_treasury_share             = fields.SmallIntField(default=0)
     interest_treasury_share                 = fields.SmallIntField(default=0)
+    last_completed_data_max_delay           = fields.BigIntField(default=0)
     decimals                                = fields.SmallIntField(default=0)
     interest_rate_decimals                  = fields.SmallIntField(default=0)
     max_decimals_for_calculation            = fields.SmallIntField(default=0)
@@ -48,26 +49,6 @@ class LendingControllerLambda(ContractLambda, Model):
 
     class Meta:
         table = 'lending_controller_lambda'
-
-class LendingControllerGeneralContract(LinkedContract, Model):
-    contract                                = fields.ForeignKeyField('models.LendingController', related_name='general_contracts')
-    contract_name                           = fields.CharField(max_length=36, default="")
-
-    class Meta:
-        table = 'lending_controller_general_contract'
-
-class LendingControllerWhitelistContract(LinkedContract, Model):
-    contract                                = fields.ForeignKeyField('models.LendingController', related_name='whitelist_contracts')
-
-    class Meta:
-        table = 'lending_controller_whitelist_contract'
-
-class LendingControllerWhitelistTokenContract(LinkedContract, Model):
-    contract                                = fields.ForeignKeyField('models.LendingController', related_name='whitelist_token_contracts')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_whitelist_token_contracts', index=True)
-
-    class Meta:
-        table = 'lending_controller_whitelist_token_contract'
 
 class LendingControllerVault(Model):
     id                                      = fields.BigIntField(pk=True, default=0)

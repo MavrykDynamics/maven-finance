@@ -33,17 +33,24 @@ class TargetEntrypointItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    undelegateFromSatellite: bool
+    takeSatellitesSnapshot: bool
 
 
 class TargetEntrypointItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    unregisterAsSatellite: bool
+    undelegateFromSatellite: bool
 
 
 class TargetEntrypointItem5(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    unregisterAsSatellite: bool
+
+
+class TargetEntrypointItem6(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -61,5 +68,6 @@ class TogglePauseEntrypointParameter(BaseModel):
         TargetEntrypointItem3,
         TargetEntrypointItem4,
         TargetEntrypointItem5,
+        TargetEntrypointItem6,
     ]
     empty: Dict[str, Any]

@@ -930,10 +930,6 @@ indexes:
       pattern:
       - destination: emergency_governance
         entrypoint: voteForEmergencyControl
-    - callback: on_emergency_governance_drop_emergency_governance
-      pattern:
-      - destination: emergency_governance
-        entrypoint: dropEmergencyGovernance
     - callback: on_emergency_governance_set_lambda
       pattern:
       - destination: emergency_governance
@@ -1412,10 +1408,6 @@ indexes:
       pattern:
       - destination: lending_controller
         entrypoint: updateConfig
-    - callback: on_lending_controller_update_whitelist_token_contracts
-      pattern:
-      - destination: lending_controller
-        entrypoint: updateWhitelistTokenContracts
     - callback: on_lending_controller_pause_all
       pattern:
       - destination: lending_controller
@@ -1498,10 +1490,6 @@ indexes:
       pattern:
       - destination: lending_controller_mock_time
         entrypoint: updateConfig
-    - callback: on_lending_controller_mock_time_update_whitelist_token_contracts
-      pattern:
-      - destination: lending_controller_mock_time
-        entrypoint: updateWhitelistTokenContracts
     - callback: on_lending_controller_mock_time_pause_all
       pattern:
       - destination: lending_controller_mock_time
