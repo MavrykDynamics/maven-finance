@@ -4697,6 +4697,18 @@ describe("Lending Controller tests", async () => {
                 updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configInterestTreasuryShare").send();
                 await updateConfigOperation.confirmation();
 
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configLastCompletedDataMaxDelay").send();
+                await updateConfigOperation.confirmation();
+
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configMaxVaultLiqPercent").send();
+                await updateConfigOperation.confirmation();
+
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configLiquidationDelayInMins").send();
+                await updateConfigOperation.confirmation();
+
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configLiquidationMaxDuration").send();
+                await updateConfigOperation.confirmation();
+
                 // Final values
                 lendingControllerStorage           = await lendingControllerInstance.storage();
                 const collateralRatio = lendingControllerStorage.config.collateralRatio;
@@ -4709,6 +4721,10 @@ describe("Lending Controller tests", async () => {
                 assert.equal(newTestValue, lendingControllerStorage.config.minimumLoanFeePercent);
                 assert.equal(newTestValue, lendingControllerStorage.config.minimumLoanFeeTreasuryShare);
                 assert.equal(newTestValue, lendingControllerStorage.config.interestTreasuryShare);
+                assert.equal(newTestValue, lendingControllerStorage.config.lastCompletedDataMaxDelay);
+                assert.equal(newTestValue, lendingControllerStorage.config.maxVaultLiquidationPercent);
+                assert.equal(newTestValue, lendingControllerStorage.config.liquidationDelayInMins);
+                assert.equal(newTestValue, lendingControllerStorage.config.liquidationMaxDuration);
 
                 // reset config operation
                 updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.collateralRatio, "configCollateralRatio").send();
@@ -4732,6 +4748,18 @@ describe("Lending Controller tests", async () => {
                 updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.interestTreasuryShare, "configInterestTreasuryShare").send();
                 await updateConfigOperation.confirmation();
 
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.lastCompletedDataMaxDelay, "configLastCompletedDataMaxDelay").send();
+                await updateConfigOperation.confirmation();
+
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.maxVaultLiquidationPercent, "configMaxVaultLiqPercent").send();
+                await updateConfigOperation.confirmation();
+
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.liquidationDelayInMins, "configLiquidationDelayInMins").send();
+                await updateConfigOperation.confirmation();
+
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.liquidationMaxDuration, "configLiquidationMaxDuration").send();
+                await updateConfigOperation.confirmation();
+
                 // Final values
                 lendingControllerStorage = await lendingControllerInstance.storage();
 
@@ -4742,6 +4770,10 @@ describe("Lending Controller tests", async () => {
                 assert.equal(initialLendingControllerStorage.config.minimumLoanFeePercent.toNumber(), lendingControllerStorage.config.minimumLoanFeePercent.toNumber());
                 assert.equal(initialLendingControllerStorage.config.minimumLoanFeeTreasuryShare.toNumber(), lendingControllerStorage.config.minimumLoanFeeTreasuryShare.toNumber());
                 assert.equal(initialLendingControllerStorage.config.interestTreasuryShare.toNumber(), lendingControllerStorage.config.interestTreasuryShare.toNumber());
+                assert.equal(initialLendingControllerStorage.config.lastCompletedDataMaxDelay.toNumber(), lendingControllerStorage.config.lastCompletedDataMaxDelay.toNumber());
+                assert.equal(initialLendingControllerStorage.config.maxVaultLiquidationPercent.toNumber(), lendingControllerStorage.config.maxVaultLiquidationPercent.toNumber());
+                assert.equal(initialLendingControllerStorage.config.liquidationDelayInMins.toNumber(), lendingControllerStorage.config.liquidationDelayInMins.toNumber());
+                assert.equal(initialLendingControllerStorage.config.liquidationMaxDuration.toNumber(), lendingControllerStorage.config.liquidationMaxDuration.toNumber());
 
             } catch(e){
                 console.dir(e, {depth: 5});
