@@ -27,6 +27,4 @@ export type lendingControllerStorageType = {
     lambdaLedger                : MichelsonMap<MichelsonMapKey, unknown>;
     vaultLambdaLedger           : MichelsonMap<MichelsonMapKey, unknown>;
 
-    tempMap                     : MichelsonMap<MichelsonMapKey, unknown>;
-
 }

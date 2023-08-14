@@ -8,8 +8,9 @@ const config = {
 }
 
 const breakGlassConfig = {
-    transferIsPaused         : false,
-    mintAndTransferIsPaused  : false
+    transferIsPaused                : false,
+    mintAndTransferIsPaused         : false,
+    updateTokenOperatorsIsPaused    : false
 }
 
 const metadata = MichelsonMap.fromLiteral({

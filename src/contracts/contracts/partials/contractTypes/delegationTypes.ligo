@@ -70,6 +70,7 @@ type delegationBreakGlassConfigType is record [
 
     updateSatelliteRecordIsPaused       : bool;
     distributeRewardIsPaused            : bool;
+    takeSatellitesSnapshotPaused        : bool;
 ]
 
 
@@ -102,6 +103,8 @@ type distributeRewardStakedMvkType is [@layout:comb] record [
     eligibleSatellites      : set(address);
     totalStakedMvkReward    : nat;
 ]
+
+type takeSatellitesSnapshotType is set(address)
 
 type updateSatelliteStatusParamsType is [@layout:comb] record [
     satelliteAddress        : address;
@@ -138,13 +141,14 @@ type delegationPausableEntrypointType is
     |   UnregisterAsSatellite           of bool
     |   UpdateSatelliteRecord           of bool
     |   DistributeReward                of bool
+    |   TakeSatellitesSnapshot          of bool
 
 type delegationTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : delegationPausableEntrypointType;
     empty             : unit
 ];
 
-type onStakeChangeType is set(address)
+type onStakeChangeType is set((address * nat)) // 0: user address, 1: reference smvk balance
 
 
 // ------------------------------------------------------------------------------
@@ -177,6 +181,7 @@ type delegationLambdaActionType is
     |   LambdaUnregisterAsSatellite                 of (address)
     |   LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
     |   LambdaDistributeReward                      of distributeRewardStakedMvkType
+    |   LambdaTakeSatelliteSnapshot                 of takeSatellitesSnapshotType
 
         // General Lambdas
     |   LambdaOnStakeChange                         of onStakeChangeType

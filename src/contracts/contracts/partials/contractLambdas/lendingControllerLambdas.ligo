@@ -68,28 +68,15 @@ block {
                     |   ConfigMinimumLoanFeePercent (_v)    -> s.config.minimumLoanFeePercent           := updateConfigNewValue
                     |   ConfigMinLoanFeeTreasuryShare (_v)  -> s.config.minimumLoanFeeTreasuryShare     := updateConfigNewValue
                     |   ConfigInterestTreasuryShare (_v)    -> s.config.interestTreasuryShare           := updateConfigNewValue
+                    |   ConfigLastCompletedDataMaxDelay (_v)-> s.config.lastCompletedDataMaxDelay       := updateConfigNewValue
+                    |   ConfigMaxVaultLiqPercent (_v)       -> s.config.maxVaultLiquidationPercent      := updateConfigNewValue
+                    |   ConfigLiquidationDelayInMins (_v)   -> s.config.liquidationDelayInMins          := updateConfigNewValue
+                    |   ConfigLiquidationMaxDuration (_v)   -> s.config.liquidationMaxDuration          := updateConfigNewValue
                 ];
             }
         |   _ -> skip
     ];
   
-} with (noOperations, s)
-
-
-
-(* updateWhitelistTokenContracts lambda *)
-function lambdaUpdateWhitelistTokenContracts(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
-block {
-
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
-
-    case lendingControllerLambdaAction of [
-        |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
-                s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
-            }
-        |   _ -> skip
-    ];
-
 } with (noOperations, s)
 
 // ------------------------------------------------------------------------------
@@ -711,8 +698,10 @@ block {
                     
                     if collateralTokenName = "tez" then block {
 
-                        const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mutez );
-                        operations := transferTezOperation # operations;
+                        if finalTokenBalance > 0n then {
+                            const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mutez );
+                            operations := transferTezOperation # operations;
+                        } else skip;
 
                         vault.collateralBalanceLedger[collateralTokenName]  := 0n;
                         
@@ -730,14 +719,16 @@ block {
                             finalTokenBalance := getBalanceFromStakingContract(vaultAddress, stakingContractAddress);
 
                             // for special case of sMVK
-                            const withdrawAllStakedMvkOperation : operation = onWithdrawStakedTokenFromVaultOperation(
-                                vaultOwner,                         // vault owner
-                                vaultAddress,                       // vault address
-                                finalTokenBalance,                  // withdraw amount
-                                stakingContractAddress              // staking contract address
-                            );
+                            if finalTokenBalance > 0n then {
+                                const withdrawAllStakedMvkOperation : operation = onWithdrawStakedTokenFromVaultOperation(
+                                    vaultOwner,                         // vault owner
+                                    vaultAddress,                       // vault address
+                                    finalTokenBalance,                  // withdraw amount
+                                    stakingContractAddress              // staking contract address
+                                );
 
-                            operations := withdrawAllStakedMvkOperation # operations;
+                                operations := withdrawAllStakedMvkOperation # operations;
+                            } else skip;
 
                         } else if collateralTokenRecord.isScaledToken then {
 
@@ -747,24 +738,28 @@ block {
                             finalTokenBalance := getBalanceFromScaledTokenContract(vaultAddress, collateralTokenRecord.tokenContractAddress);
 
                             // for other collateral token types besides sMVK and scaled tokens
-                            const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                vaultOwner,                         // to_
-                                collateralTokenName,                // token name
-                                finalTokenBalance,                  // token amount to be withdrawn
-                                vaultAddress                        // vault address
-                            );
-                            operations := withdrawTokenOperation # operations;
+                            if finalTokenBalance > 0n then {
+                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                    vaultOwner,                         // to_
+                                    collateralTokenName,                // token name
+                                    finalTokenBalance,                  // token amount to be withdrawn
+                                    vaultAddress                        // vault address
+                                );
+                                operations := withdrawTokenOperation # operations;
+                            } else skip;
 
                         } else {
 
                             // for other collateral token types besides sMVK and scaled tokens
-                            const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                vaultOwner,                         // to_
-                                collateralTokenName,                // token name
-                                finalTokenBalance,                  // token amount to be withdrawn
-                                vaultAddress                        // vault address
-                            );
-                            operations := withdrawTokenOperation # operations;
+                            if finalTokenBalance > 0n then {
+                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                    vaultOwner,                         // to_
+                                    collateralTokenName,                // token name
+                                    finalTokenBalance,                  // token amount to be withdrawn
+                                    vaultAddress                        // vault address
+                                );
+                                operations := withdrawTokenOperation # operations;
+                            } else skip;
 
                         };
 
@@ -776,7 +771,7 @@ block {
                 }; // end loop for withdraw operations of tez/tokens in vault collateral 
 
 
-                // remove vault from stroage
+                // remove vault from storage
                 var ownerVaultSet : ownerVaultSetType := getOwnerVaultSet(vaultOwner, s);
                 s.ownerLedger[vaultOwner] := Set.remove(vaultId, ownerVaultSet);
                 remove vaultHandle from map s.vaults;
@@ -1681,7 +1676,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update token storage
-                loanTokenRecord.rawMTokensTotalSupply                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply       := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;

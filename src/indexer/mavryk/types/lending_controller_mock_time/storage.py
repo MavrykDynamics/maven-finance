@@ -22,6 +22,7 @@ class Config(BaseModel):
     decimals: str
     interestRateDecimals: str
     maxDecimalsForCalculation: str
+    lastCompletedDataMaxDelay: str
     maxVaultLiquidationPercent: str
     liquidationDelayInMins: str
     liquidationMaxDuration: str
@@ -161,7 +162,7 @@ class LoanTokenLedger(BaseModel):
     tokenType: Union[TokenTypeItem3, TokenTypeItem4, TokenTypeItem5]
     tokenDecimals: str
     oracleAddress: str
-    mTokensTotal: str
+    rawMTokensTotalSupply: str
     mTokenAddress: str
     tokenPoolTotal: str
     totalBorrowed: str
@@ -176,7 +177,7 @@ class LoanTokenLedger(BaseModel):
     minRepaymentAmount: str
     currentInterestRate: str
     lastUpdatedBlockLevel: str
-    accumulatedRewardsPerShare: str
+    tokenRewardIndex: str
     borrowIndex: str
     isPaused: bool
 
@@ -192,12 +193,8 @@ class LendingControllerMockTimeStorage(BaseModel):
     breakGlassConfig: BreakGlassConfig
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistContracts: Dict[str, str]
-    generalContracts: Dict[str, str]
-    whitelistTokenContracts: Dict[str, str]
     vaults: List[Vault]
     ownerLedger: Dict[str, List[str]]
     collateralTokenLedger: Dict[str, CollateralTokenLedger]
     loanTokenLedger: Dict[str, LoanTokenLedger]
     lambdaLedger: Dict[str, str]
-    tempMap: Dict[str, str]

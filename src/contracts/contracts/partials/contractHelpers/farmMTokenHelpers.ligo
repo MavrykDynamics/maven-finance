@@ -479,7 +479,6 @@ block{
     const currentMvkPerShare = abs(accumulatedRewardsPerShareEnd - accumulatedRewardsPerShareStart);
     const depositorReward = (currentMvkPerShare * depositorRecord.balance) / fixedPointAccuracy;
 
-
     // Update user's unclaimed rewards and participationRewardsPerShare
     const unclaimedRewards : nat = depositorRecord.unclaimedRewards;
     depositorRecord.unclaimedRewards                := unclaimedRewards + depositorReward;
@@ -492,9 +491,6 @@ block{
         unpaid = abs(s.claimedRewards.unpaid - depositorReward);
         paid   = s.claimedRewards.paid + depositorReward;
     ];
-
-    // Update depositor record
-    // s.depositorLedger[depositor] := depositorRecord;
 
 } with (s, depositorRecord)
 

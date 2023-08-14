@@ -20,6 +20,7 @@ const config = {
     decimals                    : 4,       // decimals 
     interestRateDecimals        : 27,      // interest rate decimals
     maxDecimalsForCalculation   : 32,
+    lastCompletedDataMaxDelay   : 9999999999, // for testing purposes - prod: 300 (i.e. 5 mins) 
 
     maxVaultLiquidationPercent  : 5000,    // 50%
     liquidationDelayInMins      : 120,
@@ -92,6 +93,4 @@ export const lendingControllerMockTimeStorage : lendingControllerMockTimeStorage
 
     lambdaLedger                    : MichelsonMap.fromLiteral({}),
     vaultLambdaLedger               : MichelsonMap.fromLiteral({}),
-
-    tempMap                         : MichelsonMap.fromLiteral({}),
 }

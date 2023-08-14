@@ -18,7 +18,18 @@ import contractDeployments from './contractDeployments.json'
 
 import { bob, alice, eve, mallory } from '../scripts/sandbox/accounts'
 import { mockTokenData } from './helpers/mockSampleData'
-import * as helperFunctions from './helpers/helperFunctions'
+import {
+    fa2Transfer,
+    getStorageMapValue,
+    mistakenTransferFa2Token,
+    signerFactory,
+    updateOperators,
+    updateGeneralContracts,
+    updateWhitelistContracts,
+    fa2MultiTransfer,
+    randomNumberFromInterval,
+    removeOperators
+} from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Notes
@@ -125,7 +136,7 @@ describe('Test: MVK Token Contract', async () => {
     describe('%transfer', function () {
         
         beforeEach("Set signer to user (eve)", async () => {
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
         });
 
         it('user (eve) should be able to send non-zero MVK amount to another user (mallory)', async () => {
@@ -142,7 +153,7 @@ describe('Test: MVK Token Contract', async () => {
                 initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
                 // transfer operation
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
                 // updated storage
@@ -173,7 +184,7 @@ describe('Test: MVK Token Contract', async () => {
                 initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
                 // transfer operation
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // updated storage
@@ -203,7 +214,7 @@ describe('Test: MVK Token Contract', async () => {
                 initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
 
                 // transfer operation
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // updated storage
@@ -231,7 +242,7 @@ describe('Test: MVK Token Contract', async () => {
                 initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
 
                 // transfer operation
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // updated storage
@@ -261,7 +272,7 @@ describe('Test: MVK Token Contract', async () => {
                 initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
 
                 // transfer operation
-                transferOperation = await helperFunctions.fa2MultiTransfer(
+                transferOperation = await fa2MultiTransfer(
                     tokenInstance, 
                     sender, 
                     [
@@ -301,7 +312,7 @@ describe('Test: MVK Token Contract', async () => {
                 initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
 
                 // transfer operation
-                transferOperation = await helperFunctions.fa2MultiTransfer(
+                transferOperation = await fa2MultiTransfer(
                     tokenInstance, 
                     sender, 
                     [
@@ -341,7 +352,7 @@ describe('Test: MVK Token Contract', async () => {
                 tokenAmount = initialSenderTokenBalance;
 
                 // transfer operation
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // updated storage
@@ -357,12 +368,12 @@ describe('Test: MVK Token Contract', async () => {
                 // --------------------------------
 
                 // set signer to mallory
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 sender   = mallory.pkh;
                 receiver = eve.pkh;
 
                 // transfer tokens back to eve
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // --------------------------------------------------------------------------
@@ -386,7 +397,7 @@ describe('Test: MVK Token Contract', async () => {
                 initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
 
                 // transfer operation
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
             } catch (e) {
@@ -415,7 +426,7 @@ describe('Test: MVK Token Contract', async () => {
                 initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
                 // transfer operation
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
             } catch (e) {
@@ -448,7 +459,7 @@ describe('Test: MVK Token Contract', async () => {
                 initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
                 // transfer operation
-                transferOperation = await helperFunctions.fa2MultiTransfer(
+                transferOperation = await fa2MultiTransfer(
                     tokenInstance, 
                     sender, 
                     [
@@ -490,7 +501,7 @@ describe('Test: MVK Token Contract', async () => {
                 initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
                 // transfer operation
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, wrongTokenId, tokenAmount);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, wrongTokenId, tokenAmount);
                 await transferOperation.confirmation();
 
             } catch (e) {
@@ -524,7 +535,7 @@ describe('Test: MVK Token Contract', async () => {
                 initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
                 // transfer operation
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
             } catch (e) {
@@ -546,14 +557,14 @@ describe('Test: MVK Token Contract', async () => {
     describe('%update_operators', function () {
 
         beforeEach("Set signer to user (eve)", async () => {
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
         });
         
         it("user (eve) should be able to add another user (alice) as an operator, and operator (alice) should be able to make transfers on eve's behalf", async () => {
             try {
 
                 // eve sets alice as operator
-                updateOperatorsOperation = await helperFunctions.updateOperators(tokenInstance, eve.pkh, alice.pkh, tokenId);
+                updateOperatorsOperation = await updateOperators(tokenInstance, eve.pkh, alice.pkh, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // check that operators are set 
@@ -563,7 +574,7 @@ describe('Test: MVK Token Contract', async () => {
                     1 : alice.pkh,
                     2 : 0,
                 }
-                operator = await helperFunctions.getStorageMapValue(tokenStorage, 'operators', operatorKey);
+                operator = await getStorageMapValue(tokenStorage, 'operators', operatorKey);
                 assert.notStrictEqual(operator, undefined, 'The operator should appear in the operators bigmap in the storage')
 
                 // init variables 
@@ -576,8 +587,8 @@ describe('Test: MVK Token Contract', async () => {
                 initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
                 initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
-                await helperFunctions.signerFactory(tezos, alice.sk);
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                await signerFactory(tezos, alice.sk);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // updated storage
@@ -598,7 +609,7 @@ describe('Test: MVK Token Contract', async () => {
             try {
         
                 // eve removes alice as operator
-                removeOperatorsOperation = await helperFunctions.removeOperators(tokenInstance, eve.pkh, alice.pkh, tokenId);
+                removeOperatorsOperation = await removeOperators(tokenInstance, eve.pkh, alice.pkh, tokenId);
                 await removeOperatorsOperation.confirmation();
 
                 // check that operators is now undefined
@@ -608,7 +619,7 @@ describe('Test: MVK Token Contract', async () => {
                     1 : alice.pkh,
                     2 : 0,
                 }
-                operator = await helperFunctions.getStorageMapValue(tokenStorage, 'operators', operatorKey);
+                operator = await getStorageMapValue(tokenStorage, 'operators', operatorKey);
                 assert.strictEqual(operator, undefined, 'The operator should not appear in the operators bigmap in the storage')
 
                 // init variables 
@@ -621,8 +632,8 @@ describe('Test: MVK Token Contract', async () => {
                 initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
                 initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
-                await helperFunctions.signerFactory(tezos, alice.sk);
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                await signerFactory(tezos, alice.sk);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
             } catch (e) {
@@ -671,7 +682,7 @@ describe('Test: MVK Token Contract', async () => {
                     1 : alice.pkh,
                     2 : 0,
                 }
-                operator = await helperFunctions.getStorageMapValue(tokenStorage, 'operators', operatorKey);
+                operator = await getStorageMapValue(tokenStorage, 'operators', operatorKey);
                 assert.strictEqual(operator, undefined, 'The operator should not appear in the operator list in the storage')
 
                 // init variables 
@@ -684,8 +695,8 @@ describe('Test: MVK Token Contract', async () => {
                 initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
                 initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
-                await helperFunctions.signerFactory(tezos, alice.sk);
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                await signerFactory(tezos, alice.sk);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
             } catch (e) {
@@ -740,7 +751,7 @@ describe('Test: MVK Token Contract', async () => {
                     1 : alice.pkh,
                     2 : 0,
                 }
-                operator = await helperFunctions.getStorageMapValue(tokenStorage, 'operators', operatorKey);
+                operator = await getStorageMapValue(tokenStorage, 'operators', operatorKey);
                 assert.notStrictEqual(operator, undefined, 'The operator should appear in the operator bigmap in the storage')
 
                 // init variables 
@@ -753,8 +764,8 @@ describe('Test: MVK Token Contract', async () => {
                 initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
                 initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
 
-                await helperFunctions.signerFactory(tezos, alice.sk);
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
+                await signerFactory(tezos, alice.sk);
+                transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // updated storage
@@ -774,7 +785,7 @@ describe('Test: MVK Token Contract', async () => {
         it('user (eve) should not be able to set herself as an operator for another user (mallory)', async () => {
             try {
                 
-                updateOperatorsOperation = await helperFunctions.updateOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
+                updateOperatorsOperation = await updateOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
                 await updateOperatorsOperation.confirmation();
 
             } catch (e) {
@@ -787,20 +798,20 @@ describe('Test: MVK Token Contract', async () => {
     describe('%transfer and %update_operators', function () {
 
         beforeEach("Set signer to user (eve)", async () => {
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
         });
 
         it("user (eve) should be able to make multiple transfers on multiple users' (alice, mallory) behalf if she is set as an operator", async () => {
             try {
 
                 // alice sets eve as operator
-                await helperFunctions.signerFactory(tezos, alice.sk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(tokenInstance, alice.pkh, eve.pkh, tokenId);
+                await signerFactory(tezos, alice.sk);
+                updateOperatorsOperation = await updateOperators(tokenInstance, alice.pkh, eve.pkh, tokenId);
                 await updateOperatorsOperation.confirmation();
                 
                 // mallory sets eve as operator
-                await helperFunctions.signerFactory(tezos, mallory.sk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
+                await signerFactory(tezos, mallory.sk);
+                updateOperatorsOperation = await updateOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
                 await updateOperatorsOperation.confirmation();
                 
                 // init variables 
@@ -813,7 +824,7 @@ describe('Test: MVK Token Contract', async () => {
                 initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
 
                 // transfer operation
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 transferOperation = await tokenInstance.methods.transfer([
                     {
                     from_: alice.pkh,
@@ -850,13 +861,13 @@ describe('Test: MVK Token Contract', async () => {
                 assert.equal(updatedAliceTokenBalance.toNumber()    , +initialAliceTokenBalance.toNumber()    -  +tokenAmount);
 
                 // alice removes eve as operator
-                await helperFunctions.signerFactory(tezos, alice.sk);
-                removeOperatorsOperation = await helperFunctions.removeOperators(tokenInstance, alice.pkh, eve.pkh, tokenId);
+                await signerFactory(tezos, alice.sk);
+                removeOperatorsOperation = await removeOperators(tokenInstance, alice.pkh, eve.pkh, tokenId);
                 await removeOperatorsOperation.confirmation();
                 
                 // mallory removes eve as operator
-                await helperFunctions.signerFactory(tezos, mallory.sk);
-                removeOperatorsOperation = await helperFunctions.removeOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
+                await signerFactory(tezos, mallory.sk);
+                removeOperatorsOperation = await removeOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
                 await removeOperatorsOperation.confirmation();
                 
             } catch (e) {
@@ -868,8 +879,8 @@ describe('Test: MVK Token Contract', async () => {
             try {
 
                 // mallory sets eve as operator
-                await helperFunctions.signerFactory(tezos, mallory.sk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
+                await signerFactory(tezos, mallory.sk);
+                updateOperatorsOperation = await updateOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // init variables 
@@ -884,8 +895,8 @@ describe('Test: MVK Token Contract', async () => {
                 initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
 
                 // transfer operation - eve transfer on mallory's behalf
-                await helperFunctions.signerFactory(tezos, eve.sk);
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, from, to, tokenId, tokenAmount);
+                await signerFactory(tezos, eve.sk);
+                transferOperation = await fa2Transfer(tokenInstance, from, to, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // updated storage
@@ -908,8 +919,8 @@ describe('Test: MVK Token Contract', async () => {
             try {
 
                 // mallory removes eve as operator
-                await helperFunctions.signerFactory(tezos, mallory.sk);
-                removeOperatorsOperation = await helperFunctions.removeOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
+                await signerFactory(tezos, mallory.sk);
+                removeOperatorsOperation = await removeOperators(tokenInstance, mallory.pkh, eve.pkh, tokenId);
                 await removeOperatorsOperation.confirmation();
                 
                 // init variables 
@@ -924,8 +935,8 @@ describe('Test: MVK Token Contract', async () => {
                 initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
 
                 // transfer operation - eve transfer on mallory's behalf
-                await helperFunctions.signerFactory(tezos, eve.sk);
-                transferOperation = await helperFunctions.fa2Transfer(tokenInstance, from, to, tokenId, tokenAmount);
+                await signerFactory(tezos, eve.sk);
+                transferOperation = await fa2Transfer(tokenInstance, from, to, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
             } catch (e) {
@@ -1007,7 +1018,7 @@ describe('Test: MVK Token Contract', async () => {
     describe('%mint', function () {
 
         beforeEach("Set signer to user (eve)", async () => {
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
         });
 
         it("user (eve) should be able to mint to another user (alice) if she is whitelisted", async () => {
@@ -1017,12 +1028,12 @@ describe('Test: MVK Token Contract', async () => {
                 contractMapKey = eve.pkh;
 
                 // set admin (bob) as signer and add eve to whitelist contracts
-                await helperFunctions.signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, 'update');
+                await signerFactory(tezos, bob.sk);
+                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 // init variables and set signer back to user (eve)
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 const mintAmount = 20000;
 
                 // initial storage
@@ -1035,8 +1046,8 @@ describe('Test: MVK Token Contract', async () => {
                 await mintOperation.confirmation()
 
                 // set admin (bob) as signer and remove eve from whitelist contracts
-                await helperFunctions.signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, 'remove');
+                await signerFactory(tezos, bob.sk);
+                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage                = await tokenInstance.storage()
@@ -1090,17 +1101,17 @@ describe('Test: MVK Token Contract', async () => {
                 contractMapKey = eve.pkh;
 
                 // set admin (bob) as signer and add eve to whitelist contracts
-                await helperFunctions.signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, 'update');
+                await signerFactory(tezos, bob.sk);
+                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
                 
                 // set signer back to user (eve)
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 await chai.expect(tokenInstance.methods.mint(alice.pkh, 20000).send({ amount: 5 })).to.be.rejected;
 
                 // set admin (bob) as signer and remove eve from whitelist contracts
-                await helperFunctions.signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, 'remove');
+                await signerFactory(tezos, bob.sk);
+                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
             } catch (e) {
@@ -1121,18 +1132,18 @@ describe('Test: MVK Token Contract', async () => {
                 const amountToMint       = maximumSupply.minus(initialTotalSupply).plus(1);
 
                 // set admin (bob) as signer and add eve to whitelist contracts
-                await helperFunctions.signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, 'update');
+                await signerFactory(tezos, bob.sk);
+                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 // Mint token
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 mintOperation = await tokenInstance.methods.mint(eve.pkh, amountToMint);
                 await chai.expect(mintOperation.send()).to.be.rejected;
 
                 // set admin (bob) as signer and remove eve from whitelist contracts
-                await helperFunctions.signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, 'remove');
+                await signerFactory(tezos, bob.sk);
+                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
                 
                 // Update storage
@@ -1150,7 +1161,7 @@ describe('Test: MVK Token Contract', async () => {
             try {
 
                 // set signer to admin (bob)
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
                 
                 receiver    = alice.pkh;
                 tokenAmount = 20000;
@@ -1184,7 +1195,7 @@ describe('Test: MVK Token Contract', async () => {
     describe('%burn', function () {
 
         beforeEach("Set signer to user (eve)", async () => {
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
         });
 
         it("user (eve) should be able to burn a non-zero amount of her MVK balance but not exceeding what she has", async () => {
@@ -1270,10 +1281,10 @@ describe('Test: MVK Token Contract', async () => {
                 // set signer to admin (bob)
                 contractMapKey  = bob.pkh;
                 storageMap      = "whitelistContracts";
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, bob.sk);
 
                 // set admin (bob) as a whitelisted contract
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, 'update');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 // mint burned tokens back to user (eve)
@@ -1281,7 +1292,7 @@ describe('Test: MVK Token Contract', async () => {
                 await mintOperation.confirmation()
 
                 // remove admin (bob) as a whitelisted contract
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, 'remove');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 // --------------------------------------------------------------------------
@@ -1351,7 +1362,7 @@ describe('Test: MVK Token Contract', async () => {
     describe('%assertMetadata', function () {
 
         beforeEach("Set signer to user (eve)", async () => {
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
         });
 
         it('user (eve) should be able to call assertMetadata with the correct key and correct hash', async () => {
@@ -1399,7 +1410,7 @@ describe('Test: MVK Token Contract', async () => {
 
         beforeEach("Set signer to admin (bob)", async () => {
             tokenStorage = await tokenInstance.storage();
-            await helperFunctions.signerFactory(tezos, bob.sk);
+            await signerFactory(tezos, bob.sk);
         });
 
         it('%setAdmin                 - admin (bob) should be able to update the contract admin address', async () => {
@@ -1423,7 +1434,7 @@ describe('Test: MVK Token Contract', async () => {
                 assert.strictEqual(currentAdmin, bob.pkh);
 
                 // reset admin
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 resetAdminOperation = await tokenInstance.methods.setAdmin(bob.pkh).send();
                 await resetAdminOperation.confirmation();
 
@@ -1468,13 +1479,13 @@ describe('Test: MVK Token Contract', async () => {
                 contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue           = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+                initialContractMapValue           = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, 'update');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
                 assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
@@ -1491,13 +1502,13 @@ describe('Test: MVK Token Contract', async () => {
                 contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(tokenInstance, contractMapKey, 'remove');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
                 assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
@@ -1514,13 +1525,13 @@ describe('Test: MVK Token Contract', async () => {
                 contractMapKey  = "eve";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(tokenInstance, contractMapKey, eve.pkh, 'update');
+                updateGeneralContractsOperation = await updateGeneralContracts(tokenInstance, contractMapKey, eve.pkh, 'update');
                 await updateGeneralContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'eve (key) should not be in the General Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map after adding her to it');
@@ -1537,13 +1548,13 @@ describe('Test: MVK Token Contract', async () => {
                 contractMapKey  = "eve";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(tokenInstance, contractMapKey, eve.pkh, 'remove');
+                updateGeneralContractsOperation = await updateGeneralContracts(tokenInstance, contractMapKey, eve.pkh, 'remove');
                 await updateGeneralContractsOperation.confirmation()
 
                 tokenStorage = await tokenInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'eve (key) should not be in the General Contracts map after adding her to it');
@@ -1562,15 +1573,15 @@ describe('Test: MVK Token Contract', async () => {
                 userSk            = mallory.sk;
 
                 // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
-                await helperFunctions.signerFactory(tezos, userSk);
-                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, user, tokenAddress, tokenId, tokenAmount);
+                await signerFactory(tezos, userSk);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, tokenAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
                 const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
 
-                await helperFunctions.signerFactory(tezos, bob.sk);
-                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(tokenInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                await signerFactory(tezos, bob.sk);
+                mistakenTransferOperation = await mistakenTransferFa2Token(tokenInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
@@ -1587,7 +1598,7 @@ describe('Test: MVK Token Contract', async () => {
         it('%updateInflationRate      - admin (bob) should be able to call this entrypoint', async () => {
             try {
 
-                const randomNumber = helperFunctions.randomNumberFromInterval(10, 1000);
+                const randomNumber = randomNumberFromInterval(10, 1000);
                 const updateInflationRateOperation = await tokenInstance.methods.updateInflationRate(randomNumber).send();
                 await updateInflationRateOperation.confirmation();
 
@@ -1606,7 +1617,7 @@ describe('Test: MVK Token Contract', async () => {
     describe('Access Control Checks', function () {
 
         beforeEach("Set signer to non-admin (mallory)", async () => {
-            await helperFunctions.signerFactory(tezos, mallory.sk);
+            await signerFactory(tezos, mallory.sk);
         });
 
         it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
@@ -1660,13 +1671,13 @@ describe('Test: MVK Token Contract', async () => {
                 contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
                 updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts(contractMapKey, 'update')
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 tokenStorage = await tokenInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the Whitelist Contracts map');
 
@@ -1682,13 +1693,13 @@ describe('Test: MVK Token Contract', async () => {
                 contractMapKey  = "mallory";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
                 updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts(contractMapKey, alice.pkh, 'update')
                 await chai.expect(updateGeneralContractsOperation.send()).to.be.rejected;
 
                 tokenStorage = await tokenInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the General Contracts map');
 
@@ -1705,10 +1716,10 @@ describe('Test: MVK Token Contract', async () => {
                 const tokenAmount = 10;
 
                 // Mistaken Operation - send 10 MVK to MVK Token Contract
-                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, user, tokenAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, tokenAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
-                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(tokenInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(tokenInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {

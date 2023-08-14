@@ -19,8 +19,13 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, trudy, oscar } from "../scripts/sandbox/accounts";
+import accounts from "../scripts/sandbox/accounts";
 import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
-import * as helperFunctions from './helpers/helperFunctions'
+import { ledger } from "../storage/mvkTokenStorage";
+
+import { 
+    signerFactory
+} from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -30,6 +35,9 @@ describe("Stress tests", async () => {
     
     var utils: Utils
     let tezos
+
+    let admin
+    let adminSk
 
     let doormanInstance;
     let delegationInstance;
@@ -65,6 +73,9 @@ describe("Stress tests", async () => {
             utils = new Utils();
             await utils.init(bob.sk);
             tezos = utils.tezos
+
+            admin   = bob.pkh;
+            adminSk = bob.sk;
             
             doormanInstance                 = await utils.tezos.contract.at(contractDeployments.doorman.address);
             delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
@@ -93,116 +104,51 @@ describe("Stress tests", async () => {
             farmFactoryStorage              = await farmFactoryInstance.storage();
             farmStorage                     = await farmInstance.storage();
             lpTokenStorage                  = await lpTokenInstance.storage();
-            
-            console.log('-- -- -- -- -- Stress Tests -- -- -- --')
-            console.log('Doorman Contract deployed at:'                 , doormanInstance.address);
-            console.log('Delegation Contract deployed at:'              , delegationInstance.address);
-            console.log('MVK Token Contract deployed at:'               , mvkTokenInstance.address);
-            console.log('Governance Contract deployed at:'              , governanceInstance.address);
-            console.log('Governance Satellite Contract deployed at:'    , governanceSatelliteInstance.address);
-            console.log('Governance Financial Contract deployed at:'    , governanceFinancialInstance.address);
-            console.log('Aggregator Contract deployed at:'              , aggregatorInstance.address);
-            console.log('Council Contract deployed at:'                 , councilInstance.address);
-            console.log('Aggregator Factory Contract deployed at:'      , aggregatorFactoryInstance.address);
-            console.log('Governance Proxy Contract deployed at:'        , governanceProxyInstance.address);
-            console.log('Farm Factory Contract deployed at:'            , farmFactoryInstance.address);
-            console.log('Farm Contract deployed at:'                    , farmInstance.address);
-            console.log('LP Token Contract deployed at:'                , lpTokenInstance.address);
-            
-            console.log('Bob address: '     + bob.pkh);
-            console.log('Alice address: '   + alice.pkh);
-            console.log('Eve address: '     + eve.pkh);
-            console.log('Mallory address: ' + mallory.pkh);
 
-            // Send all MVK to a single address
+            // Send all MVK to a single address (bob)
             mvkTokenStorage             = await mvkTokenInstance.storage();
-            const firstUserMVKBalance   = await mvkTokenStorage.ledger.get(alice.pkh);
-            const secondUserMVKBalance  = await mvkTokenStorage.ledger.get(eve.pkh);
-            const thirdUserMVKBalance   = await mvkTokenStorage.ledger.get(mallory.pkh);
-            const fourthUserMVKBalance  = await mvkTokenStorage.ledger.get(oscar.pkh);
-            const fifthUserMVKBalance   = await mvkTokenStorage.ledger.get(trudy.pkh);
-
-            await helperFunctions.signerFactory(tezos, alice.sk);
-            var transferOperation = await mvkTokenInstance.methods.transfer([
-                {
-                    from_: alice.pkh,
-                    txs: [{
-                        to_: bob.pkh,
-                        token_id: 0,
-                        amount: firstUserMVKBalance
-                    }]
+            for(let accountName in accounts){
+                let account = accounts[accountName];
+                if(ledger.has(account.pkh)){
+                    let balance = await mvkTokenStorage.ledger.get(account.pkh);
+                    if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== admin){
+                        // Transfer all funds to bob
+                        await signerFactory(tezos, account.sk);
+                        console.log("account:", account)
+                        console.log("balance:", balance)
+                        let operation = await mvkTokenInstance.methods.transfer([
+                            {
+                                from_: account.pkh,
+                                txs: [
+                                {
+                                    to_: admin,
+                                    token_id: 0,
+                                    amount: balance.toNumber(),
+                                }
+                                ],
+                            },
+                            ])
+                            .send()
+                        await operation.confirmation();
+                    }
                 }
-            ]).send()
-            await transferOperation.confirmation()
-
-            await helperFunctions.signerFactory(tezos, eve.sk);
-            transferOperation = await mvkTokenInstance.methods.transfer([
-                {
-                    from_: eve.pkh,
-                    txs: [{
-                        to_: bob.pkh,
-                        token_id: 0,
-                        amount: secondUserMVKBalance
-                    }]
-                }
-            ]).send()
-            await transferOperation.confirmation()
-
-            await helperFunctions.signerFactory(tezos, mallory.sk);
-            transferOperation = await mvkTokenInstance.methods.transfer([
-                {
-                    from_: mallory.pkh,
-                    txs: [{
-                        to_: bob.pkh,
-                        token_id: 0,
-                        amount: thirdUserMVKBalance
-                    }]
-                }
-            ]).send()
-            await transferOperation.confirmation()
-
-            await helperFunctions.signerFactory(tezos, oscar.sk);
-            transferOperation = await mvkTokenInstance.methods.transfer([
-                {
-                    from_: oscar.pkh,
-                    txs: [{
-                        to_: bob.pkh,
-                        token_id: 0,
-                        amount: fourthUserMVKBalance
-                    }]
-                }
-            ]).send()
-            await transferOperation.confirmation()
-
-
-            await helperFunctions.signerFactory(tezos, trudy.sk);
-            transferOperation = await mvkTokenInstance.methods.transfer([
-                {
-                    from_: trudy.pkh,
-                    txs: [{
-                        to_: bob.pkh,
-                        token_id: 0,
-                        amount: fifthUserMVKBalance
-                    }]
-                }
-            ]).send()
-            await transferOperation.confirmation()
+            }
 
             // Transfer TEZ and MVK for each user
-            await helperFunctions.signerFactory(tezos, bob.sk);
+            await signerFactory(tezos, adminSk);
             mvkTokenStorage             = await mvkTokenInstance.storage();
-            const mainUserMVKBalance    = await mvkTokenStorage.ledger.get(bob.pkh);
+            const mainUserMVKBalance    = await mvkTokenStorage.ledger.get(admin);
             const batchSize             = 50
-            const tezAmount             = 5
+            const tezAmount             = 50
             const userAmount            = randomUserAccounts.length;
             const mvkAmount             = Math.trunc((mainUserMVKBalance.div(userAmount + 1)).div(MVK()).toNumber());
             const batchesCount          = Math.ceil(userAmount / batchSize);
             var txsTransferList         = []
 
-            console.log("There will be", userAmount, "users in this stress test")
+            console.log("Users in stress test:", userAmount)
 
             for(let i = 0; i < batchesCount; i++) {
-                const batch = utils.tezos.wallet.batch();
+                const batch: any = utils.tezos.wallet.batch();
                 for (const indexStr in randomUserAccounts){
 
                     const index: number = parseInt(indexStr);
@@ -215,22 +161,24 @@ describe("Stress tests", async () => {
                             token_id: 0,
                             amount: MVK(mvkAmount),
                         })
-                        // Transfer only if receiver as less than 1XTZ
+                        // Transfer only if receiver has less than 1XTZ
                         const userBalance   = await utils.tezos.tz.getBalance(account.pkh);
-                        if(userBalance.toNumber() < 1){
+                        if(userBalance.toNumber() < tezAmount){
                             batch.withTransfer({ to: account.pkh, amount: tezAmount })
                             const transferEstimation    = await utils.tezos.estimate.transfer({ to: account.pkh, amount: tezAmount })
-                            // console.log("Transfer estimation for",account.pkh,":",transferEstimation)
+                            console.log("Transfer estimation for",account.pkh,":",transferEstimation)
                         }
                     }
                 }
-                const batchOperation    = await batch.send()
-                await batchOperation.confirmation()
+                if(batch.operations.length > 0){
+                    const batchOperation    = await batch.send()
+                    await batchOperation.confirmation()
+                }
             }
             
-            transferOperation = await mvkTokenInstance.methods.transfer([
+            const transferOperation = await mvkTokenInstance.methods.transfer([
                 {
-                    from_: bob.pkh,
+                    from_: admin,
                     txs: txsTransferList
                 }
             ]).send()
@@ -245,7 +193,7 @@ describe("Stress tests", async () => {
         }
     });
 
-    describe("Registering as satellite", async () => {
+    describe("registering as satellite", async () => {
 
         it('%update_operators / %stake / %registerAsSatellite', async () => {
             try{
@@ -276,8 +224,10 @@ describe("Stress tests", async () => {
                     const satelliteImage        = "https://placeholder.com/300";
                     const satelliteWebsite      = "https://placeholder.com/300";
                     const satelliteFee          = Math.trunc(Math.random() * 1000);
+                    const satellitePublicKey    = account.pk
+                    const satellitePeerId       = account.peerId
                     const stakeAmount           = MVK(Math.trunc(15 * Math.random())) + accessAmount + 1;
-                    await helperFunctions.signerFactory(tezos, account.sk);
+                    await signerFactory(tezos, account.sk);
 
                     if(satelliteRecord===undefined){
 
@@ -296,7 +246,9 @@ describe("Stress tests", async () => {
                             satelliteDescription, 
                             satelliteImage, 
                             satelliteWebsite,
-                            satelliteFee
+                            satelliteFee,
+                            satellitePublicKey,
+                            satellitePeerId
                         ).toTransferParams({})
                         const batchOpEstimate = await utils.tezos.estimate
                         .batch([
@@ -321,7 +273,9 @@ describe("Stress tests", async () => {
                             satelliteDescription, 
                             satelliteImage, 
                             satelliteWebsite,
-                            satelliteFee
+                            satelliteFee,
+                            satellitePublicKey,
+                            satellitePeerId
                         ));
 
                         // Send the batch
@@ -356,14 +310,14 @@ describe("Stress tests", async () => {
                         // Print the result and the estimations
                         delegationStorage       = await delegationInstance.storage();
                         satelliteRecord         = await delegationStorage.satelliteLedger.get(account.pkh);
-                        // console.log("Satellite record for", account.pkh, ":", satelliteRecord);
-                        // console.log("   - Batch estimation :", batchTotalCost);
+                        console.log("Satellite record for", account.pkh, ":", satelliteRecord);
+                        console.log("   - Batch estimation :", batchTotalCost);
                     }
                 }
 
-                // console.log("Registering complete")
-                // console.dir(minimalCost, {depth: 5});
-                // console.dir(maximalCost, {depth: 5});
+                console.log("Registering complete")
+                console.dir(minimalCost, {depth: 5});
+                console.dir(maximalCost, {depth: 5});
                 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -372,12 +326,12 @@ describe("Stress tests", async () => {
 
     })
 
-    describe("Starting a proposal round", async () => {
+    describe("starting a proposal round", async () => {
 
         before("setup", async() => {
             try{
                 // Update config for shorter rounds
-                await helperFunctions.signerFactory(tezos, bob.sk)
+                await signerFactory(tezos, adminSk)
                 var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
                 await updateGovernanceConfig.confirmation();
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
@@ -385,8 +339,6 @@ describe("Stress tests", async () => {
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
                 await updateGovernanceConfig.confirmation();
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinProposalRoundVotePct").send();
-                await updateGovernanceConfig.confirmation();
-                updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
                 await updateGovernanceConfig.confirmation();
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
                 await updateGovernanceConfig.confirmation();
@@ -400,7 +352,7 @@ describe("Stress tests", async () => {
         it('%startNextRound', async () => {
             try{
                 // Initial values
-                await helperFunctions.signerFactory(tezos, randomUserAccounts[0].sk);
+                await signerFactory(tezos, randomUserAccounts[0].sk);
                 governanceStorage           = await governanceInstance.storage();
 
                 // Operation
@@ -418,20 +370,20 @@ describe("Stress tests", async () => {
                     estimate: operationEstimation,
                     totalCostMutez: operationEstimation.totalCost
                 }
-                // console.log("Round: ", currentRound)
-                // console.log("Operation total cost: ", operationTotalCost)
+                console.log("Round: ", currentRound)
+                console.log("Operation total cost: ", operationTotalCost)
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         })
     })
 
-    describe("Creating a governance satellite action", async () => {
+    describe("creating a governance satellite action", async () => {
 
         it('%suspendSatellite', async () => {
             try{
                 // Initial values
-                await helperFunctions.signerFactory(tezos, randomUserAccounts[0].sk);
+                await signerFactory(tezos, randomUserAccounts[0].sk);
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage();
                 const satelliteToSuspend    = randomUserAccounts[1].pkh;
                 const purpose               = "Stress test"
@@ -446,7 +398,7 @@ describe("Stress tests", async () => {
                     estimate: operationEstimation,
                     totalCostMutez: operationEstimation.totalCost
                 }
-                // console.log("Operation total cost: ", operationTotalCost)
+                console.log("Operation total cost: ", operationTotalCost)
 
                 // Operation
                 const operation             = await governanceSatelliteInstance.methods.suspendSatellite(satelliteToSuspend, purpose).send();
@@ -455,7 +407,7 @@ describe("Stress tests", async () => {
                 // Final values
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage();
                 const satelliteAction       = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-                // console.log("Governance satellite action:", satelliteAction)
+                console.log("Governance satellite action:", satelliteAction)
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -463,22 +415,9 @@ describe("Stress tests", async () => {
         })
     })
 
-    describe("Creating a governance financial action", async () => {
+    describe("creating a governance financial action", async () => {
 
-        describe("setup", async() => {
-            try{
-                // Update config to simplify council votes
-                await helperFunctions.signerFactory(tezos, bob.sk)
-                var updateConfigOperation   = await delegationInstance.methods.updateConfig(10,"configDelegationRatio").send();
-                await updateConfigOperation.confirmation();
-                updateConfigOperation       = await governanceFinancialInstance.methods.updateConfig(10,"configFinancialReqApprovalPct").send();
-                await updateConfigOperation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5});
-            }
-        })
-
-        it('Council contract should be able to call this entrypoint and mint MVK', async () => {
+        it('council contract should be able to call this entrypoint and mint MVK', async () => {
             try{
 
                 // some init constants
@@ -494,16 +433,17 @@ describe("Stress tests", async () => {
                 const purpose                   = "Test Council Request Mint 1000 MVK";            
 
                 // Council member (bob) requests for MVK to be minted and transferred from the Treasury
-                await helperFunctions.signerFactory(tezos, bob.sk);
+                await signerFactory(tezos, trudy.sk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
+                        contractDeployments.council.address,
                         tokenAmount,
                         purpose
                     ).send();
                 await councilRequestsMintOperation.confirmation();
 
                 // council members sign action, and action is executed once threshold of 3 signers is reached
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 const firstVoteParams                       = await councilInstance.methods.signAction(councilActionId).toTransferParams({})
                 const firstVoteEstimation                   = await utils.tezos.estimate.transfer(firstVoteParams);
 
@@ -512,13 +452,13 @@ describe("Stress tests", async () => {
                     estimate: firstVoteEstimation,
                     totalCostMutez: firstVoteEstimation.totalCost
                 }
-                // console.log("First council vote operation total cost: ", firstVoteTotalCost)
+                console.log("First council vote operation total cost: ", firstVoteTotalCost)
 
                 // First sign operation
                 const aliceSignsRequestMintActionOperation  = await councilInstance.methods.signAction(councilActionId).send();
                 await aliceSignsRequestMintActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 const secondVoteParams                       = await councilInstance.methods.signAction(councilActionId).toTransferParams({})
                 const secondVoteEstimation                   = await utils.tezos.estimate.transfer(secondVoteParams);
 
@@ -527,7 +467,7 @@ describe("Stress tests", async () => {
                     estimate: secondVoteEstimation,
                     totalCostMutez: secondVoteEstimation.totalCost
                 }
-                // console.log("Second council vote operation total cost: ", secondVoteTotalCost)
+                console.log("Second council vote operation total cost: ", secondVoteTotalCost)
 
                 const eveSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
                 await eveSignsRequestMintActionOperation.confirmation();
@@ -536,19 +476,19 @@ describe("Stress tests", async () => {
                 governanceFinancialStorage      = await governanceFinancialInstance.storage();
                 const financialAction           = await governanceFinancialStorage.financialRequestLedger.get(financialActionId);
 
-                // console.log("Governance financial action:", financialAction)
+                console.log("Governance financial action:", financialAction)
             } catch(e){
                 console.dir(e, {depth: 5})
             } 
         });
     });
 
-    describe("Distribute SMVK rewards to all satellite", async () => {
+    describe("distribute SMVK rewards to all satellite", async () => {
 
-        before("Add Admin to delegation whitelist contracts", async () => {
+        before("add admin to delegation whitelist contracts", async () => {
             try{
-                await helperFunctions.signerFactory(tezos, bob.sk)
-                const updateWhitelistContractsOperation = await delegationInstance.methods.updateWhitelistContracts(bob.pkh, 'update').send()
+                await signerFactory(tezos, adminSk)
+                const updateWhitelistContractsOperation = await delegationInstance.methods.updateWhitelistContracts(admin, 'update').send()
                 await updateWhitelistContractsOperation.confirmation();
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -572,7 +512,7 @@ describe("Stress tests", async () => {
                     estimate: distributeRewardEstimation,
                     totalCostMutez: distributeRewardEstimation.totalCost
                 }
-                // console.log("Estimate: ", distributeRewardTotalCost)
+                console.log("Estimate: ", distributeRewardTotalCost)
 
                 // Operation
                 const distributeRewardOperation     = await delegationInstance.methods.distributeReward(satellitesSet,MVK(50)).send();
@@ -583,11 +523,250 @@ describe("Stress tests", async () => {
         })
     })
 
-    describe("Run though a governance cycle", async () => {
+    describe("participate in a farm", async () => {
 
-        before("Set farm factory admin to proxy contract", async () => {
+        before("admin transfers farm LP Token to each user and initialize the farm", async () => {
             try{
-                await helperFunctions.signerFactory(tezos, bob.sk)
+                await signerFactory(tezos, adminSk)
+
+                // Transfer Farm LP to each users
+                lpTokenStorage          = await lpTokenInstance.storage();
+                const adminLPRecord     = await lpTokenStorage.ledger.get(admin);
+                const adminLPBalance    = adminLPRecord.balance.toNumber();
+                const batchSize         = 50
+                const userAmount        = randomUserAccounts.length;
+                const batchesCount      = Math.ceil(userAmount / batchSize);
+                const userLPGiveaway    = Math.floor(adminLPBalance / userAmount);
+                console.log("LP TOKEN PER USER:", userLPGiveaway)
+                console.log("MAX LP:", adminLPBalance)
+                console.log("USER AMOUNT:", userAmount)
+
+                for(let i = 0; i < batchesCount; i++) {
+                    const batch = utils.tezos.wallet.batch();
+                    for (const indexStr in randomUserAccounts){
+                        const index: number = parseInt(indexStr);
+                        const account: any  = randomUserAccounts[index];
+
+                        if ((index) < (batchSize * (i + 1)) && ((index) >= batchSize * i)){
+                            // Transfer only if receiver as less than 1XTZ
+                            const userLPRecord  = await lpTokenStorage.ledger.get(account.pkh);
+                            const userLPBalance = userLPRecord !== undefined ? userLPRecord.balance.toNumber() : 0;
+                            if(userLPBalance < 1){
+                                batch.withContractCall(lpTokenInstance.methods.transfer(admin, account.pkh, userLPGiveaway))
+                                const transferParams        = await lpTokenInstance.methods.transfer(admin, account.pkh, userLPGiveaway).toTransferParams({})
+                                const transferEstimation    = await utils.tezos.estimate.transfer(transferParams);
+                                console.log("LP transfer estimation for",account.pkh,":",transferEstimation)
+                            }
+                        }
+                    }
+                    const batchOperation    = await batch.send()
+                    await batchOperation.confirmation()
+                }
+
+                // Initialize the farm
+                farmStorage             = await farmInstance.storage();
+                if(!farmStorage.init){
+                    const initOperation = await farmInstance.methods.initFarm(
+                        12000,
+                        500,
+                        false,
+                        false
+                    ).send();
+                    await initOperation.confirmation();
+                }
+
+                // Farm factory tracks farm
+                farmFactoryStorage      = await farmFactoryInstance.storage();
+                const trackOperation    = await farmFactoryInstance.methods.trackFarm(contractDeployments.farm.address).send();
+                await trackOperation.confirmation();
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it("all users deposit in the farm", async() => {
+            try {
+                for (const index in randomUserAccounts){
+                    
+                    // Initial values
+                    lpTokenStorage              = await lpTokenInstance.storage();
+                    farmStorage                 = await farmInstance.storage();
+                    const account: any          = randomUserAccounts[index];
+                    const accountLPRecord       = await lpTokenStorage.ledger.get(account.pkh);
+                    const accountLPBalance      = accountLPRecord !== undefined ? accountLPRecord.balance.toNumber() : 0;
+                    const acccountLPAllowances  = await accountLPRecord.allowances.get(contractDeployments.farm.address);
+                    const amountToDeposit       = Math.floor(Math.random() * accountLPBalance);
+                    const depositBatch: any     = utils.tezos.wallet.batch();
+                    var approvals               = 0;
+
+                    // Approval operation
+                    await signerFactory(tezos, account.sk)
+                    if(acccountLPAllowances===undefined || acccountLPAllowances.toNumber()<=0){
+                        approvals               = acccountLPAllowances===undefined ? amountToDeposit : Math.abs(acccountLPAllowances.toNumber() - amountToDeposit);
+                        depositBatch.withContractCall(lpTokenInstance.methods.approve(contractDeployments.farm.address, approvals))
+                    }
+
+                    // Deposit operation
+                    depositBatch.withContractCall(farmInstance.methods.deposit(amountToDeposit))
+
+                    // Estimate
+                    const approveParams     = await lpTokenInstance.methods.approve(contractDeployments.farm.address, approvals).toTransferParams({})
+                    const depositParams     = await farmInstance.methods.deposit(amountToDeposit).toTransferParams({})
+                    const batchOpEstimate   = await utils.tezos.estimate.batch([
+                        { kind: OpKind.TRANSACTION, to: contractDeployments.mavrykFa12Token.address, parameter: approveParams.parameter, amount: 0},
+                        { kind: OpKind.TRANSACTION, to: contractDeployments.farm.address, parameter: depositParams.parameter, amount: 0},
+                    ])
+
+                    // Send batch
+                    if(depositBatch.operations.length > 0){
+                        const depositBatchOperation = await depositBatch.send()
+                        await depositBatchOperation.confirmation()
+                    }
+
+                    // Print Estimation
+                    farmStorage             = await farmInstance.storage();
+                    const depositRecord     = await farmStorage.depositorLedger.get(account.pkh)
+                    
+                    var batchTotalCost      = []
+                    batchOpEstimate.forEach((estimate: Estimate) => {
+                        batchTotalCost.push({
+                            estimate: estimate,
+                            totalCostMutez: estimate.totalCost
+                        })
+                    })
+
+                    console.log("USER", account.pkh, "DEPOSITED", amountToDeposit, "LP TOKEN IN THE FARM");
+                    for(const i in batchTotalCost){
+                        console.log(batchTotalCost[i])
+                    }
+                    console.log("FARM STATE:",
+                    "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
+                    "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
+                    "\n     - ClaimedRewards:", farmStorage.claimedRewards,
+                    "\n     - DepositorRecord:", depositRecord)
+                }
+
+            } catch(e) {
+                console.dir(e, {depth: 5});
+            }
+        })
+
+        it("all users withdraw from the farm", async() => {
+            try {
+                for (const index in randomUserAccounts){
+                    
+                    // Initial values
+                    lpTokenStorage              = await lpTokenInstance.storage();
+                    farmStorage                 = await farmInstance.storage();
+                    const account: any          = randomUserAccounts[index];
+                    var depositRecord           = await farmStorage.depositorLedger.get(account.pkh);
+                    const depositorBalance      = depositRecord !== undefined ? depositRecord.balance.toNumber() : 0;
+                    const amountToWithdraw      = Math.floor(Math.random() * depositorBalance);
+    
+                    if(depositorBalance > 0){
+
+                        // Estimate
+                        await signerFactory(tezos, account.sk)
+                        const withdrawParams    = await farmInstance.methods.withdraw(amountToWithdraw).toTransferParams({})
+                        const withdrawEstimate  = await utils.tezos.estimate.transfer(withdrawParams);
+        
+                        // Send operation
+                        const withdrawOperation = await farmInstance.methods.withdraw(amountToWithdraw).send();
+                        await withdrawOperation.confirmation(),
+        
+                        // Print Estimation
+                        farmStorage             = await farmInstance.storage();
+                        depositRecord           = await farmStorage.depositorLedger.get(account.pkh)
+        
+                        console.log("USER", account.pkh, "WITHDREW", amountToWithdraw, "LP TOKEN FROM THE FARM");
+                        console.log("ESTIMATE:", withdrawEstimate, 
+                        "\nTotal cost mutez:", withdrawEstimate.totalCost)
+                        console.log("FARM STATE:",
+                        "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
+                        "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
+                        "\n     - ClaimedRewards:", farmStorage.claimedRewards,
+                        "\n     - DepositorRecord:", depositRecord)
+
+                    }
+                }
+    
+            } catch(e) {
+                console.dir(e, {depth: 5});
+            }
+        })
+    
+        it("all users claim from the farm", async() => {
+            try {
+                // Track farm if it isn't tracked
+                farmFactoryStorage      = await farmFactoryInstance.storage();
+                if(!farmFactoryStorage.trackedFarms.includes(contractDeployments.farm.address)){
+                    await signerFactory(tezos, adminSk)
+                    const trackFarmOperation    = await farmFactoryInstance.methods.trackFarm(contractDeployments.farm.address).send();
+                    await trackFarmOperation.confirmation();
+                }
+
+                // Process test
+                for (const index in randomUserAccounts){
+                    
+                    // Initial values
+                    lpTokenStorage          = await lpTokenInstance.storage();
+                    farmStorage             = await farmInstance.storage();
+                    doormanStorage          = await doormanInstance.storage();
+                    farmFactoryStorage      = await farmFactoryInstance.storage();
+                    const account: any      = randomUserAccounts[index];
+                    const initSMVKRecord    = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                    const initSMVKBalance   = initSMVKRecord !== undefined ? initSMVKRecord.balance.toNumber() : 0;
+                    var depositRecord       = await farmStorage.depositorLedger.get(account.pkh);
+                    const depositorBalance  = depositRecord !== undefined ? depositRecord.balance.toNumber() : 0;
+
+                    if(depositorBalance > 0){
+
+                        // Estimate
+                        await signerFactory(tezos, account.sk)
+                        const claimParams       = await farmInstance.methods.claim([account.pkh]).toTransferParams({})
+                        const claimEstimate     = await utils.tezos.estimate.transfer(claimParams);
+        
+                        // Send operation
+                        const claimOperation    = await farmInstance.methods.claim([account.pkh]).send();
+                        await claimOperation.confirmation(),
+        
+                        // Print Estimation
+                        farmStorage             = await farmInstance.storage();
+                        doormanStorage          = await doormanInstance.storage();
+                        const finalSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                        const finalSMVKBalance  = finalSMVKRecord !== undefined ? finalSMVKRecord.balance.toNumber() : 0;
+                        depositRecord           = await farmStorage.depositorLedger.get(account.pkh)
+        
+                        console.log("USER", account.pkh, "CLAIM REWARDS FROM THE FARM");
+                        console.log("ESTIMATE:", claimEstimate, 
+                        "\nTotal cost mutez:", claimEstimate.totalCost);
+                        console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n End:", finalSMVKBalance);
+                        console.log("FARM STATE:",
+                        "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
+                        "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
+                        "\n     - ClaimedRewards:", farmStorage.claimedRewards,
+                        "\n     - DepositorRecord:", depositRecord);
+
+                    }
+                }
+                // Urack farm if it isn't tracked
+                farmFactoryStorage      = await farmFactoryInstance.storage();
+                if(farmFactoryStorage.trackedFarms.includes(contractDeployments.farm.address)){
+                    await signerFactory(tezos, adminSk)
+                    const untrackFarmOperation  = await farmFactoryInstance.methods.untrackFarm(contractDeployments.farm.address).send();
+                    await untrackFarmOperation.confirmation();
+                }
+            } catch(e) {
+                console.dir(e, {depth: 5});
+            }
+        })
+    })
+
+    describe("run though a governance cycle", async () => {
+
+        before("set farm factory admin to proxy contract", async () => {
+            try{
+                await signerFactory(tezos, adminSk)
                 const setAdminOperation = await farmFactoryInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                 await setAdminOperation.confirmation();
             } catch(e) {
@@ -595,10 +774,10 @@ describe("Stress tests", async () => {
             }
         })
 
-        it('Council contract should be able to call this entrypoint and mint MVK', async () => {
+        it('council contract should be able to call this entrypoint and mint MVK', async () => {
             try{
                 // Initial values
-                await helperFunctions.signerFactory(tezos, randomUserAccounts[0].sk);
+                await signerFactory(tezos, randomUserAccounts[0].sk);
                 governanceStorage           = await governanceInstance.storage();
                 farmFactoryStorage          = await farmFactoryInstance.storage();
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
@@ -663,7 +842,6 @@ describe("Stress tests", async () => {
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
-
                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: 1});
                 await proposeOperation.confirmation();
                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -671,28 +849,24 @@ describe("Stress tests", async () => {
 
                 for (const index in randomUserAccounts){
                     const account: any  = randomUserAccounts[index];
-                    await helperFunctions.signerFactory(tezos, account.sk);
-
+                    await signerFactory(tezos, account.sk);
                     const proposalVoteParams        = await governanceInstance.methods.proposalRoundVote(proposalId).toTransferParams({})
                     const proposalVoteEstimation    = await utils.tezos.estimate.transfer(proposalVoteParams);
                     const proposalVoteTotalCost     = {
                         estimate: proposalVoteEstimation,
                         totalCostMutez: proposalVoteEstimation.totalCost
                     }
-
                     var voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                     await voteOperation.confirmation();
-                    // console.log(account.pkh, "voted for proposal #", proposalId, "during the proposal round")
-                    // console.log("Estimation: ", proposalVoteTotalCost)
+                    console.log(account.pkh, "voted for proposal #", proposalId, "during the proposal round")
+                    console.log("Estimation: ", proposalVoteTotalCost)
                 }
-
                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
-
                 // Votes operation -> all satellites vote
                 for (const index in randomUserAccounts){
                     const account: any  = randomUserAccounts[index];
-                    await helperFunctions.signerFactory(tezos, account.sk);
+                    await signerFactory(tezos, account.sk);
 
                     const votingVoteParams          = await governanceInstance.methods.votingRoundVote("yay").toTransferParams({})
                     const votingVoteEstimation      = await utils.tezos.estimate.transfer(votingVoteParams);
@@ -703,8 +877,8 @@ describe("Stress tests", async () => {
 
                     var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
-                    // console.log(account.pkh, "voted for proposal #", proposalId, "during the voting round")
-                    // console.log("Estimation: ", votingVoteTotalCost)
+                    console.log(account.pkh, "voted for proposal #", proposalId, "during the voting round")
+                    console.log("Estimation: ", votingVoteTotalCost)
                 }
 
                 // Execute proposal
@@ -714,7 +888,7 @@ describe("Stress tests", async () => {
                     estimate: startNextRoundEstimation,
                     totalCostMutez: startNextRoundEstimation.totalCost
                 }
-                // console.log("startNextRound #1 estimation: ", startNextRoundTotalCost)
+                console.log("startNextRound #1 estimation: ", startNextRoundTotalCost)
 
                 nextRoundOperation              = await governanceInstance.methods.startNextRound(true).send();
                 await nextRoundOperation.confirmation();
@@ -726,243 +900,22 @@ describe("Stress tests", async () => {
                     totalCostMutez: startNextRoundEstimation.totalCost
                 }
 
-                // console.log("startNextRound #2 estimation: ", startNextRoundTotalCost)
+                console.log("startNextRound #2 estimation: ", startNextRoundTotalCost)
                 nextRoundOperation              = await governanceInstance.methods.startNextRound(false).send();
                 await nextRoundOperation.confirmation();
 
                 // Final values
                 governanceStorage               = await governanceInstance.storage();
                 const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
-                // console.log("Final proposal: ", proposal)
+                console.log("Final proposal: ", proposal)
             } catch(e){
                 console.dir(e, {depth: 5})
             } 
         });
     });
 
-    describe("Participate in a farm", async () => {
-
-        before("Admin transfers farm LP Token to each user and initialize the farm", async () => {
-            try{
-                await helperFunctions.signerFactory(tezos, bob.sk)
-
-                // Transfer Farm LP to each users
-                lpTokenStorage          = await lpTokenInstance.storage();
-                const adminLPRecord     = await lpTokenStorage.ledger.get(bob.pkh);
-                const adminLPBalance    = adminLPRecord.balance.toNumber();
-                const batchSize         = 50
-                const userAmount        = randomUserAccounts.length;
-                const batchesCount      = Math.ceil(userAmount / batchSize);
-                const userLPGiveaway    = Math.floor(adminLPBalance / userAmount);
-                // console.log("LP TOKEN PER USER:", userLPGiveaway)
-                // console.log("MAX LP:", adminLPBalance)
-                // console.log("USER AMOUNT:", userAmount)
-
-                for(let i = 0; i < batchesCount; i++) {
-                    const batch = utils.tezos.wallet.batch();
-                    for (const indexStr in randomUserAccounts){
-                        const index: number = parseInt(indexStr);
-                        const account: any  = randomUserAccounts[index];
-
-                        if ((index) < (batchSize * (i + 1)) && ((index) >= batchSize * i)){
-                            // Transfer only if receiver as less than 1XTZ
-                            const userLPRecord  = await lpTokenStorage.ledger.get(account.pkh);
-                            const userLPBalance = userLPRecord !== undefined ? userLPRecord.balance.toNumber() : 0;
-                            if(userLPBalance < 1){
-                                batch.withContractCall(lpTokenInstance.methods.transfer(bob.pkh, account.pkh, userLPGiveaway))
-                                const transferParams        = await lpTokenInstance.methods.transfer(bob.pkh, account.pkh, userLPGiveaway).toTransferParams({})
-                                const transferEstimation    = await utils.tezos.estimate.transfer(transferParams);
-                                // console.log("LP transfer estimation for",account.pkh,":",transferEstimation)
-                            }
-                        }
-                    }
-                    const batchOperation    = await batch.send()
-                    await batchOperation.confirmation()
-                }
-
-                // Initialize the farm
-                farmStorage             = await farmInstance.storage();
-                if(!farmStorage.init){
-                    const initOperation = await farmInstance.methods.initFarm(
-                        12000,
-                        500,
-                        false,
-                        false
-                    ).send();
-                    await initOperation.confirmation();
-                }
-
-                // Farm factory tracks farm
-                farmFactoryStorage      = await farmFactoryInstance.storage();
-                const trackOperation    = await farmFactoryInstance.methods.trackFarm(contractDeployments.farm.address).send();
-                await trackOperation.confirmation();
-            } catch(e) {
-                console.dir(e, {depth: 5})
-            }
-        })
-
-        it("All users deposit in the farm", async() => {
-            try {
-                for (const index in randomUserAccounts){
-                    
-                    // Initial values
-                    lpTokenStorage              = await lpTokenInstance.storage();
-                    farmStorage                 = await farmInstance.storage();
-                    const account: any          = randomUserAccounts[index];
-                    const accountLPRecord       = await lpTokenStorage.ledger.get(account.pkh);
-                    const accountLPBalance      = accountLPRecord !== undefined ? accountLPRecord.balance.toNumber() : 0;
-                    const acccountLPAllowances  = await accountLPRecord.allowances.get(contractDeployments.farm.address);
-                    const amountToDeposit       = Math.floor(Math.random() * accountLPBalance);
-                    const depositBatch          = utils.tezos.wallet.batch();
-                    var approvals               = 0;
-
-                    // Approval operation
-                    await helperFunctions.signerFactory(tezos, account.sk)
-                    if(acccountLPAllowances===undefined || acccountLPAllowances.toNumber()<=0){
-                        approvals               = acccountLPAllowances===undefined ? amountToDeposit : Math.abs(acccountLPAllowances.toNumber() - amountToDeposit);
-                        depositBatch.withContractCall(lpTokenInstance.methods.approve(contractDeployments.farm.address, approvals))
-                    }
-
-                    // Deposit operation
-                    depositBatch.withContractCall(farmInstance.methods.deposit(amountToDeposit))
-
-                    // Estimate
-                    const approveParams     = await lpTokenInstance.methods.approve(contractDeployments.farm.address, approvals).toTransferParams({})
-                    const depositParams     = await farmInstance.methods.deposit(amountToDeposit).toTransferParams({})
-                    const batchOpEstimate   = await utils.tezos.estimate.batch([
-                        { kind: OpKind.TRANSACTION, to: contractDeployments.mavrykFa12Token.address, parameter: approveParams.parameter, amount: 0},
-                        { kind: OpKind.TRANSACTION, to: contractDeployments.farm.address, parameter: depositParams.parameter, amount: 0},
-                    ])
-
-                    // Send batch
-                    const depositBatchOperation = await depositBatch.send()
-                    await depositBatchOperation.confirmation()
-
-                    // Print Estimation
-                    farmStorage             = await farmInstance.storage();
-                    const depositRecord     = await farmStorage.depositorLedger.get(account.pkh)
-                    
-                    var batchTotalCost      = []
-                    batchOpEstimate.forEach((estimate: Estimate) => {
-                        batchTotalCost.push({
-                            estimate: estimate,
-                            totalCostMutez: estimate.totalCost
-                        })
-                    })
-
-                    // console.log("USER", account.pkh, "DEPOSITED", amountToDeposit, "LP TOKEN IN THE FARM");
-                    // for(const i in batchTotalCost){
-                    //     console.log(batchTotalCost[i])
-                    // }
-                    // console.log("FARM STATE:",
-                    // "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
-                    // "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
-                    // "\n     - ClaimedRewards:", farmStorage.claimedRewards,
-                    // "\n     - DepositorRecord:", depositRecord)
-                }
-
-            } catch(e) {
-                console.dir(e, {depth: 5});
-            }
-        })
-
-        it("All users withdraw from the farm", async() => {
-            try {
-                for (const index in randomUserAccounts){
-                    
-                    // Initial values
-                    lpTokenStorage              = await lpTokenInstance.storage();
-                    farmStorage                 = await farmInstance.storage();
-                    const account: any          = randomUserAccounts[index];
-                    var depositRecord           = await farmStorage.depositorLedger.get(account.pkh);
-                    const depositorBalance      = depositRecord !== undefined ? depositRecord.balance.toNumber() : 0;
-                    const amountToWithdraw      = Math.floor(Math.random() * depositorBalance);
-    
-                    if(depositorBalance > 0){
-
-                        // Estimate
-                        await helperFunctions.signerFactory(tezos, account.sk)
-                        const withdrawParams    = await farmInstance.methods.withdraw(amountToWithdraw).toTransferParams({})
-                        const withdrawEstimate  = await utils.tezos.estimate.transfer(withdrawParams);
-        
-                        // Send operation
-                        const withdrawOperation = await farmInstance.methods.withdraw(amountToWithdraw).send();
-                        await withdrawOperation.confirmation(),
-        
-                        // Print Estimation
-                        farmStorage             = await farmInstance.storage();
-                        depositRecord           = await farmStorage.depositorLedger.get(account.pkh)
-        
-                        // console.log("USER", account.pkh, "WITHDREW", amountToWithdraw, "LP TOKEN FROM THE FARM");
-                        // console.log("ESTIMATE:", withdrawEstimate, 
-                        // "\nTotal cost mutez:", withdrawEstimate.totalCost)
-                        // console.log("FARM STATE:",
-                        // "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
-                        // "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
-                        // "\n     - ClaimedRewards:", farmStorage.claimedRewards,
-                        // "\n     - DepositorRecord:", depositRecord)
-
-                    }
-                }
-    
-            } catch(e) {
-                console.dir(e, {depth: 5});
-            }
-        })
-    
-        it("All users claim from the farm", async() => {
-            try {
-                for (const index in randomUserAccounts){
-                    
-                    // Initial values
-                    lpTokenStorage          = await lpTokenInstance.storage();
-                    farmStorage             = await farmInstance.storage();
-                    doormanStorage          = await doormanInstance.storage();
-                    const account: any      = randomUserAccounts[index];
-                    const initSMVKRecord    = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
-                    const initSMVKBalance   = initSMVKRecord !== undefined ? initSMVKRecord.balance.toNumber() : 0;
-                    var depositRecord       = await farmStorage.depositorLedger.get(account.pkh);
-                    const depositorBalance  = depositRecord !== undefined ? depositRecord.balance.toNumber() : 0;
-    
-                    if(depositorBalance > 0){
-
-                        // Estimate
-                        await helperFunctions.signerFactory(tezos, account.sk)
-                        const claimParams       = await farmInstance.methods.claim([account.pkh]).toTransferParams({})
-                        const claimEstimate     = await utils.tezos.estimate.transfer(claimParams);
-        
-                        // Send operation
-                        const claimOperation    = await farmInstance.methods.claim([account.pkh]).send();
-                        await claimOperation.confirmation(),
-        
-                        // Print Estimation
-                        farmStorage             = await farmInstance.storage();
-                        doormanStorage          = await doormanInstance.storage();
-                        const finalSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
-                        const finalSMVKBalance  = finalSMVKRecord !== undefined ? finalSMVKRecord.balance.toNumber() : 0;
-                        depositRecord           = await farmStorage.depositorLedger.get(account.pkh)
-        
-                        // console.log("USER", account.pkh, "CLAIM REWARDS FROM THE FARM");
-                        // console.log("ESTIMATE:", claimEstimate, 
-                        // "\nTotal cost mutez:", claimEstimate.totalCost);
-                        // console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n End:", finalSMVKBalance);
-                        // console.log("FARM STATE:",
-                        // "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
-                        // "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
-                        // "\n     - ClaimedRewards:", farmStorage.claimedRewards,
-                        // "\n     - DepositorRecord:", depositRecord);
-
-                    }
-                }
-            } catch(e) {
-                console.dir(e, {depth: 5});
-            }
-        })
-
-    })
-
-    describe("Staking on the Doorman contract", async () => {
-        it("All users stake SMVK", async() => {
+    describe("staking on the Doorman contract", async () => {
+        it("all users stake SMVK", async() => {
             try{
                 for (const index in randomUserAccounts){
                     
@@ -979,7 +932,7 @@ describe("Stress tests", async () => {
                     if(amountToStake > 0){
 
                         // Estimate
-                        await helperFunctions.signerFactory(tezos, account.sk)
+                        await signerFactory(tezos, account.sk)
                         const updateOperatorsParams = await mvkTokenInstance.methods.update_operators([{
                             add_operator: {
                                 owner: account.pkh,
@@ -1019,11 +972,11 @@ describe("Stress tests", async () => {
                         const finalSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
                         const finalSMVKBalance  = finalSMVKRecord !== undefined ? finalSMVKRecord.balance.toNumber() : 0;
         
-                        // console.log("USER", account.pkh, "STAKE", amountToStake, "MVK IN THE DOORMAN CONTRACT");
+                        console.log("USER", account.pkh, "STAKE", amountToStake, "MVK IN THE DOORMAN CONTRACT");
                         for(const i in batchTotalCost){
-                            // console.log(batchTotalCost[i])
+                            console.log(batchTotalCost[i])
                         }
-                        // console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n   End:", finalSMVKBalance);
+                        console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n   End:", finalSMVKBalance);
 
                     }
                 }
@@ -1031,7 +984,7 @@ describe("Stress tests", async () => {
                 console.dir(e, {depth: 5})
             }
         })
-        it("All users unstake SMVK", async() => {
+        it("all users unstake SMVK", async() => {
             try{
                 for (const index in randomUserAccounts){
                     
@@ -1053,7 +1006,7 @@ describe("Stress tests", async () => {
                     if(amountToUnstake > 0){
 
                         // Estimate
-                        await helperFunctions.signerFactory(tezos, account.sk)
+                        await signerFactory(tezos, account.sk)
                         const unstakeParams     = await doormanInstance.methods.unstake(amountToUnstake).toTransferParams({})
                         const unstakeEstimate   = await utils.tezos.estimate.transfer(unstakeParams);
         
@@ -1069,17 +1022,17 @@ describe("Stress tests", async () => {
                         const finalSMVKBalance  = finalSMVKRecord !== undefined ? finalSMVKRecord.balance.toNumber() : 0;
                         const finalAmount       = finalMVKBalance - initMVKBalance;
         
-                        // console.log("USER", account.pkh, "UNSTAKES", amountToUnstake, "MVK FROM THE DOORMAN CONTRACT, PAYS:", paidFee,"AND GETS:", finalAmount);
-                        // console.log("ESTIMATE:", unstakeEstimate, 
-                        // "\nTotal cost mutez:", unstakeEstimate.totalCost);
-                        // console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n   End:", finalSMVKBalance);
-                        // console.log("MVK TOTAL SUPPLY:", mvkTotalSupply, ", SMVK TOTAL SUPPLY:", smvkTotalSupply)
-                        // console.log("MLI:", mli, ", EXIT FEE:", exitFee);
-                        // console.log("DOORMAN STATE:",
-                        // "\n     - Unclaimed rewards:", doormanStorage.unclaimedRewards.toNumber(),
-                        // "\n     - AccumulatedFeesPerShare:", doormanStorage.accumulatedFeesPerShare.toNumber(),
-                        // "\n     - Init record:", initSMVKRecord,
-                        // "\n     - Final record:", finalSMVKRecord);
+                        console.log("USER", account.pkh, "UNSTAKES", amountToUnstake, "MVK FROM THE DOORMAN CONTRACT, PAYS:", paidFee,"AND GETS:", finalAmount);
+                        console.log("ESTIMATE:", unstakeEstimate, 
+                        "\nTotal cost mutez:", unstakeEstimate.totalCost);
+                        console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n   End:", finalSMVKBalance);
+                        console.log("MVK TOTAL SUPPLY:", mvkTotalSupply, ", SMVK TOTAL SUPPLY:", smvkTotalSupply)
+                        console.log("MLI:", mli, ", EXIT FEE:", exitFee);
+                        console.log("DOORMAN STATE:",
+                        "\n     - Unclaimed rewards:", doormanStorage.unclaimedRewards.toNumber(),
+                        "\n     - AccumulatedFeesPerShare:", doormanStorage.accumulatedFeesPerShare.toNumber(),
+                        "\n     - Init record:", initSMVKRecord,
+                        "\n     - Final record:", finalSMVKRecord);
 
                     }
                 }

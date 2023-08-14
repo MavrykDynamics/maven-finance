@@ -18,8 +18,17 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, oscar, trudy, isaac, david, susie, ivan, baker } from "../scripts/sandbox/accounts";
-import * as helperFunctions from './helpers/helperFunctions'
 import { createLambdaBytes } from '@mavrykdynamics/create-lambda-bytes'
+import { 
+    signerFactory, 
+    getStorageMapValue,
+    fa2Transfer,
+    updateOperators,
+    mistakenTransferFa2Token,
+    updateWhitelistContracts,
+    updateGeneralContracts,
+    randomNumberFromInterval
+} from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Notes
@@ -198,7 +207,7 @@ describe("Test: Break Glass Contract", async () => {
 
         beforeEach("Set signer to council member (eve)", async () => {
             councilMember   = councilMemberOne;
-            await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+            await signerFactory(tezos, councilMemberOneSk)
         });
 
         it('%updateCouncilMemberInfo        - council member (eve) should be able to update her information', async () => {
@@ -212,7 +221,7 @@ describe("Test: Break Glass Contract", async () => {
                 const oldMemberImage    = initialCouncilMemberInfo.image
                 const oldMemberWebsite  = initialCouncilMemberInfo.website
                 
-                const randomNumber      = await helperFunctions.randomNumberFromInterval(1, 10);
+                const randomNumber      = await randomNumberFromInterval(1, 10);
                 const newMemberName     = "Eve " + randomNumber;
                 const newMemberImage    = "Eve Image " + randomNumber;
                 const newMemberWebsite  = "Eve Website " + randomNumber;
@@ -288,7 +297,7 @@ describe("Test: Break Glass Contract", async () => {
                 
                 // Initial Values
                 breakGlassStorage       = await breakGlassInstance.storage();
-                const newMember         = alice.pkh;
+                const newMember         = councilMemberTwo;
                 const newMemberName     = "Alice";
                 const newMemberImage    = "Alice Image";
                 const newMemberWebsite  = "Alice Website";
@@ -302,7 +311,7 @@ describe("Test: Break Glass Contract", async () => {
             }
         });
 
-        it('%councilActionRemoveMember      - council member (eve) should be able to create a new action to remove a council member (alice)', async () => {
+        it('%councilActionRemoveMember      - council member (eve) should be able to create a new action to remove a council member (susie)', async () => {
             try{
 
                 breakGlassStorage       = await breakGlassInstance.storage();
@@ -343,9 +352,9 @@ describe("Test: Break Glass Contract", async () => {
                 breakGlassStorage       = await breakGlassInstance.storage();
                 const oldThreshold      = breakGlassStorage.config.threshold;
                 const newThreshold      = breakGlassStorage.councilSize;
-                
+
                 // set signer as admin and update config
-                await helperFunctions.signerFactory(tezos, adminSk);
+                await signerFactory(tezos, adminSk);
                 updateConfigOperation   = await breakGlassInstance.methods.updateConfig(newThreshold, "configThreshold").send();
                 await updateConfigOperation.confirmation();
 
@@ -354,12 +363,12 @@ describe("Test: Break Glass Contract", async () => {
                 const memberToBeRemoved = councilMemberTwo;
 
                 // Operation
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
+                await signerFactory(tezos, councilMemberOneSk);
                 councilActionOperation = breakGlassInstance.methods.councilActionRemoveMember(memberToBeRemoved);
                 await chai.expect(councilActionOperation.send()).to.be.rejected;
 
                 // set signer as admin and reset config
-                await helperFunctions.signerFactory(tezos, adminSk);
+                await signerFactory(tezos, adminSk);
 
                 updateConfigOperation   = await breakGlassInstance.methods.updateConfig(oldThreshold, "configThreshold").send();
                 await updateConfigOperation.confirmation();
@@ -385,7 +394,7 @@ describe("Test: Break Glass Contract", async () => {
         });
 
 
-        it('%councilActionChangeMember      - council member (eve) should be able to create a new council action to replace a council member (alice) by another (mallory)', async () => {
+        it('%councilActionChangeMember      - council member (eve) should be able to create a new council action to replace a council member (susie) by another (mallory)', async () => {
             try{
                 // Initial Values
                 breakGlassStorage       = await breakGlassInstance.storage();
@@ -472,7 +481,7 @@ describe("Test: Break Glass Contract", async () => {
 
         beforeEach("Set signer to council member", async () => {
             breakGlassStorage       = await breakGlassInstance.storage();
-            await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+            await signerFactory(tezos, councilMemberOneSk)
         });
 
         it('%setContractsAdmin              - council member (eve) should not be able to access this entrypoint if glass is not broken', async () => {
@@ -581,7 +590,7 @@ describe("Test: Break Glass Contract", async () => {
             try{
                 
                 // Operation
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+                await signerFactory(tezos, councilMemberOneSk)
                 await chai.expect(breakGlassInstance.methods.breakGlass().send()).to.be.rejected;
 
             } catch(e){
@@ -593,7 +602,7 @@ describe("Test: Break Glass Contract", async () => {
             try{
                 
                 // Operation
-                await helperFunctions.signerFactory(tezos, mallory.sk)
+                await signerFactory(tezos, mallory.sk)
                 await chai.expect(breakGlassInstance.methods.breakGlass().send()).to.be.rejected;
 
             } catch(e){
@@ -604,38 +613,27 @@ describe("Test: Break Glass Contract", async () => {
         it('%breakGlass                     - emergency governance contract should be able to trigger breakGlass with enough votes', async () => {
             try{
 
+                let tempStakeAmount = 0 
+
                 // set signer to proposer (eve)
                 user    = eve.pkh;
                 userSk  = eve.sk;
-                await helperFunctions.signerFactory(tezos, userSk)
+                await signerFactory(tezos, userSk)
                 
                 // initial values
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
 
                 const requiredFeeMutez           = emergencyGovernanceStorage.config.requiredFeeMutez;
-                const sMvkRequiredToTrigger      = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
 
                 initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
-
-                // ensure that user has enough staked MVK to trigger emergency governance
-                if(initialUserStakedBalance < sMvkRequiredToTrigger){
-                    
-                    updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
-                    await updateOperatorsOperation.confirmation();
-
-                    // set stake amount so that user's final staked balance will be above sMvkRequiredToTrigger
-                    stakeAmount    = Math.abs(initialUserStakedBalance - sMvkRequiredToTrigger) + 1;
-                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
-                    await stakeOperation.confirmation();
-                }
 
                 // ---------------------------------------------------------------
                 // Set all contracts admin to governance address if it is not
                 // ---------------------------------------------------------------
 
-                await helperFunctions.signerFactory(tezos, adminSk);
+                await signerFactory(tezos, adminSk);
                 governanceStorage             = await governanceInstance.storage();
 
                 var setAdminOperation         = await governanceInstance.methods.setAdmin(governanceProxyAddress).send();
@@ -656,36 +654,46 @@ describe("Test: Break Glass Contract", async () => {
                 const emergencyTitle  = "Test emergency control";
                 const emergencyDesc   = "Test description";
 
-                await helperFunctions.signerFactory(tezos, userSk)
+                await signerFactory(tezos, userSk)
                 const emergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                     emergencyTitle, emergencyDesc
                 ).send({amount: requiredFeeMutez, mutez: true});
                 await emergencyControlOperation.confirmation();
 
-                // user (eve) vote for emergency control
-                await helperFunctions.signerFactory(tezos, userSk)
-                voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                await voteOperation.confirmation();
+                // update storage
+                emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
+                doormanStorage                  = await doormanInstance.storage();
 
-                // user (alice) vote for emergency control
-                await helperFunctions.signerFactory(tezos, alice.sk)
-                voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                await voteOperation.confirmation();
+                // ensure that user has enough staked MVK to trigger break glass
+                const emergencyGovernanceRecord = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyGovernanceStorage.currentEmergencyGovernanceId);
+                const sMvkRequired              = emergencyGovernanceRecord.stakedMvkRequiredForBreakGlass.toNumber();
+                if(initialUserStakedBalance < sMvkRequired){
+                    
+                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    await updateOperatorsOperation.confirmation();
 
-                // user (mallory) vote for emergency control
-                await helperFunctions.signerFactory(tezos, mallory.sk)
-                voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                await voteOperation.confirmation();
+                    // set stake amount so that user's final staked balance will be above sMvkRequired
+                    tempStakeAmount  = Math.abs(initialUserStakedBalance - sMvkRequired) + 1;
+                    stakeOperation   = await doormanInstance.methods.stake(tempStakeAmount).send();
+                    await stakeOperation.confirmation();
+                }
 
-                // user (trudy) vote for emergency control
-                await helperFunctions.signerFactory(tezos, trudy.sk)
+                // user (eve) vote for emergency control and trigger break glass
+                await signerFactory(tezos, userSk)
                 voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-                await voteOperation.confirmation();
+                await voteOperation.confirmation();                
 
                 // Check if glass was broken
-                breakGlassStorage       = await breakGlassInstance.storage();
-                const glassBroken       = breakGlassStorage.glassBroken;
+                breakGlassStorage   = await breakGlassInstance.storage();
+                const glassBroken   = breakGlassStorage.glassBroken;
                 assert.equal(glassBroken, true);
+
+                // reset stake balance (so that it will not affect subsequent tests)
+                if(tempStakeAmount > 0){
+                    // reset stake balance to initial
+                    unstakeOperation     = await doormanInstance.methods.unstake(tempStakeAmount).send();
+                    await unstakeOperation.confirmation();
+                }
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -714,16 +722,16 @@ describe("Test: Break Glass Contract", async () => {
                 ]
                 
                 // propagate break glass operation
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+                await signerFactory(tezos, councilMemberOneSk)
                 const propagateActionOperation    = await breakGlassInstance.methods.propagateBreakGlass(propagateContractsSet).send();
                 await propagateActionOperation.confirmation();
                 
                 // Sign council action to propagate action
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 var signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
                 await signActionOperation.confirmation();
 
@@ -740,7 +748,7 @@ describe("Test: Break Glass Contract", async () => {
 
         beforeEach("Set signer to council member (eve)", async () => {
             councilMember = councilMemberOne;
-            await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+            await signerFactory(tezos, councilMemberOneSk)
         });
 
 
@@ -811,11 +819,11 @@ describe("Test: Break Glass Contract", async () => {
                 await flushActionOperation.confirmation();
 
                 // Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 let signOperation = await breakGlassInstance.methods.signAction(flushActionId).send();
                 await signOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signOperation = await breakGlassInstance.methods.signAction(flushActionId).send();
                 await signOperation.confirmation();
 
@@ -879,11 +887,11 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(dataMap.get("councilMemberWebsite"), packedCouncilMemberWebsite);
 
                 // Sign Operations
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 let signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signOperation.confirmation();
 
@@ -901,7 +909,7 @@ describe("Test: Break Glass Contract", async () => {
                 assert.deepEqual(newCouncilSize, councilSize.plus(1))
 
                 // Operation
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
+                await signerFactory(tezos, councilMemberOneSk);
                 await chai.expect(breakGlassInstance.methods.flushAction(nextActionID).send()).to.be.rejected;
 
                 breakGlassStorage       = await breakGlassInstance.storage();
@@ -912,11 +920,11 @@ describe("Test: Break Glass Contract", async () => {
                 await resetActionOperation.confirmation();
 
                 // Sign Operations
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signOperation = await breakGlassInstance.methods.signAction(resetActionID).send();
                 await signOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signOperation = await breakGlassInstance.methods.signAction(resetActionID).send();
                 await signOperation.confirmation();
 
@@ -934,7 +942,7 @@ describe("Test: Break Glass Contract", async () => {
             councilMember       = councilMemberOne;
             breakGlassStorage   = await breakGlassInstance.storage();
 
-            await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+            await signerFactory(tezos, councilMemberOneSk)
         });
 
         it('%setContractsAdmin              - council member (eve) should not be able to create a new action to set a non-whitelisted developer address (oscar) as a new contract admin', async () => {
@@ -1310,7 +1318,7 @@ describe("Test: Break Glass Contract", async () => {
         it('%setContractsAdmin              - non-council member (mallory) should not be able to access this entrypoint', async () => {
             try{
                 // Initial Values
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 const newAdmin          = oscar.pkh;
                 const targetContract    = contractDeployments.doorman.address;
 
@@ -1325,7 +1333,7 @@ describe("Test: Break Glass Contract", async () => {
             try{
 
                 // Initial Values
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 const newAdmin          = oscar.pkh;
                 await chai.expect(breakGlassInstance.methods.setContractsAdmin(generalContractsSet, newAdmin).send()).to.be.rejected;
 
@@ -1338,7 +1346,7 @@ describe("Test: Break Glass Contract", async () => {
             try{
                 
                 // Initial Values
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 await chai.expect(breakGlassInstance.methods.pauseAllEntrypoints(generalContractsSet).send()).to.be.rejected;
 
             } catch(e){
@@ -1348,7 +1356,7 @@ describe("Test: Break Glass Contract", async () => {
         it('%unpauseAllEntrypoints          - non-council member (mallory) should not be able to access this entrypoint', async () => {
             try{
                 // Initial Values
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 await chai.expect(breakGlassInstance.methods.unpauseAllEntrypoints(generalContractsSet).send()).to.be.rejected;
 
             } catch(e){
@@ -1360,7 +1368,7 @@ describe("Test: Break Glass Contract", async () => {
             try{
                 
                 // Initial Values
-                await helperFunctions.signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, mallory.sk);
                 await chai.expect(breakGlassInstance.methods.removeBreakGlassControl(generalContractsSet).send()).to.be.rejected;
 
             } catch(e){
@@ -1378,25 +1386,25 @@ describe("Test: Break Glass Contract", async () => {
                 const nextActionID              = breakGlassStorage.actionCounter;
 
                 // council action set break glass contract admin to bob
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
+                await signerFactory(tezos, councilMemberOneSk);
                 const setContractAdminOperation   = await breakGlassInstance.methods.setContractsAdmin([contractDeployments.breakGlass.address], admin).send();
                 await setContractAdminOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation   = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signActionOperation   = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
                 // // set signer to admin and update config action expiry days
-                // await helperFunctions.signerFactory(tezos, adminSk);
+                // await signerFactory(tezos, adminSk);
                 // var updateConfigOperation = await breakGlassInstance.methods.updateConfig(1,"configActionExpiryDays").send();
                 // await updateConfigOperation.confirmation();
 
                 // reset signer back to council member one
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+                await signerFactory(tezos, councilMemberOneSk)
 
             } catch (e) {
                 console.dir(e, {depth: 5});
@@ -1405,7 +1413,7 @@ describe("Test: Break Glass Contract", async () => {
 
         beforeEach("Set signer to council member (eve)", async () => {
             councilMember = councilMemberOne 
-            await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+            await signerFactory(tezos, councilMemberOneSk)
         });
 
         it('addCouncilMember               --> should add an ordinary user (david) as a council member ', async () => {
@@ -1451,11 +1459,11 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(dataMap.get("councilMemberWebsite"), packedCouncilMemberWebsite);
 
                 // Sign Action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
@@ -1507,11 +1515,11 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
                 // Sign Action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
@@ -1566,24 +1574,24 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(dataMap.get("councilMemberAddress"), packedCouncilMemberAddress);
 
                 // Update config
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 var updateConfigOperation = await breakGlassInstance.methods.updateConfig(newThreshold, "configThreshold").send();
                 await updateConfigOperation.confirmation();
 
                 // Sign action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 var signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signOperation.confirmation();
                 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberFourSk);
+                await signerFactory(tezos, councilMemberFourSk);
                 await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 
                 // Reset config
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 updateConfigOperation = await breakGlassInstance.methods.updateConfig(oldThreshold, "configThreshold").send();
                 await updateConfigOperation.confirmation();
 
@@ -1629,12 +1637,12 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(dataMap.get("newCouncilMemberAddress"), packedNewCouncilMemberAddress);
 
                 // set signer as council member two
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                await signerFactory(tezos, councilMemberTwoSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
                 // set signer as council member three
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                await signerFactory(tezos, councilMemberThreeSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
@@ -1666,17 +1674,17 @@ describe("Test: Break Glass Contract", async () => {
                 nextActionID        = breakGlassStorage.actionCounter;
 
                 // Operation
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+                await signerFactory(tezos, councilMemberOneSk)
                 councilActionOperation = await breakGlassInstance.methods.councilActionChangeMember(newMemberAddress, oldMemberAddress, "Alice", "Alice Website", "Alice Image").send();
                 await councilActionOperation.confirmation();
 
                 // set signer as council member two
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk)
+                await signerFactory(tezos, councilMemberTwoSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
                 // set signer as signer
-                await helperFunctions.signerFactory(tezos, isaac.sk)
+                await signerFactory(tezos, isaac.sk)
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
             
@@ -1725,17 +1733,17 @@ describe("Test: Break Glass Contract", async () => {
                 breakGlassStorage          = await breakGlassInstance.storage();
                 const nextActionID      = breakGlassStorage.actionCounter;
 
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+                await signerFactory(tezos, councilMemberOneSk)
                 councilActionOperation = await breakGlassInstance.methods.councilActionRemoveMember(councilMemberTwo).send();
                 await councilActionOperation.confirmation();
 
                 // set signer as council member three
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                await signerFactory(tezos, councilMemberThreeSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
                 // set signer as council member four
-                await helperFunctions.signerFactory(tezos, councilMemberFourSk)
+                await signerFactory(tezos, councilMemberFourSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
@@ -1744,11 +1752,11 @@ describe("Test: Break Glass Contract", async () => {
 
                 // sign previous action to change council members should now fail
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                await signerFactory(tezos, councilMemberThreeSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(actionId).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberFourSk)
+                await signerFactory(tezos, councilMemberFourSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(actionId);
                 await chai.expect(signActionOperation.send()).to.be.rejected;
 
@@ -1760,17 +1768,17 @@ describe("Test: Break Glass Contract", async () => {
                 const memberImage        = "Trudy Image";
                 const memberWebsite      = "Trudy Website";
 
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+                await signerFactory(tezos, councilMemberOneSk)
                 councilActionOperation = await breakGlassInstance.methods.councilActionAddMember(councilMemberTwo, memberName, memberImage, memberWebsite).send();
                 await councilActionOperation.confirmation();
 
                 // set signer as council member three
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                await signerFactory(tezos, councilMemberThreeSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(resetActionId).send();
                 await signActionOperation.confirmation();
 
                 // set signer as council member four
-                await helperFunctions.signerFactory(tezos, councilMemberFourSk)
+                await signerFactory(tezos, councilMemberFourSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(resetActionId).send();
                 await signActionOperation.confirmation();
 
@@ -1818,17 +1826,17 @@ describe("Test: Break Glass Contract", async () => {
                 breakGlassStorage          = await breakGlassInstance.storage();
                 const nextActionID      = breakGlassStorage.actionCounter;
 
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+                await signerFactory(tezos, councilMemberOneSk)
                 councilActionOperation = await breakGlassInstance.methods.councilActionAddMember(newMemberAddress, newMemberName, newMemberImage, newMemberWebsite).send();
                 await councilActionOperation.confirmation();
 
                 // set signer as council member three
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                await signerFactory(tezos, councilMemberThreeSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
                 // set signer as council member four
-                await helperFunctions.signerFactory(tezos, councilMemberFourSk)
+                await signerFactory(tezos, councilMemberFourSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
@@ -1837,11 +1845,11 @@ describe("Test: Break Glass Contract", async () => {
 
                 // sign previous action to change council members should now fail
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                await signerFactory(tezos, councilMemberThreeSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(actionId).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberFourSk)
+                await signerFactory(tezos, councilMemberFourSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(actionId);
                 await chai.expect(signActionOperation.send()).to.be.rejected;
 
@@ -1850,17 +1858,17 @@ describe("Test: Break Glass Contract", async () => {
                 breakGlassStorage          = await breakGlassInstance.storage();
                 const resetActionId     = breakGlassStorage.actionCounter;
 
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+                await signerFactory(tezos, councilMemberOneSk)
                 councilActionOperation = await breakGlassInstance.methods.councilActionRemoveMember(newMemberAddress).send();
                 await councilActionOperation.confirmation();
 
                 // set signer as council member three
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk)
+                await signerFactory(tezos, councilMemberThreeSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(resetActionId).send();
                 await signActionOperation.confirmation();
 
                 // set signer as council member four
-                await helperFunctions.signerFactory(tezos, councilMemberFourSk)
+                await signerFactory(tezos, councilMemberFourSk)
                 signActionOperation = await breakGlassInstance.methods.signAction(resetActionId).send();
                 await signActionOperation.confirmation();
 
@@ -1894,11 +1902,11 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(breakGlassStorage.glassBroken, true);
 
                 // Sign Action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
@@ -1961,11 +1969,11 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(breakGlassStorage.glassBroken, true);
 
                 // Sign Action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
@@ -2032,11 +2040,11 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(breakGlassStorage.glassBroken, true);
 
                 // Sign Action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
@@ -2054,7 +2062,7 @@ describe("Test: Break Glass Contract", async () => {
                 }
 
                 // Reset contract admin
-                await helperFunctions.signerFactory(tezos, adminSk);
+                await signerFactory(tezos, adminSk);
                 const resetOperation    = await doormanInstance.methods.setAdmin(contractDeployments.breakGlass.address).send();
                 await resetOperation.confirmation();
 
@@ -2093,11 +2101,11 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(breakGlassStorage.glassBroken, true);
 
                 // Sign Action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
@@ -2129,7 +2137,7 @@ describe("Test: Break Glass Contract", async () => {
                 }
 
                 // reset all contracts admin to breakGlass for future tests
-                // await helperFunctions.signerFactory(tezos, adminSk)
+                // await signerFactory(tezos, adminSk)
                 // governanceStorage       = await governanceInstance.storage();
                 // generalContracts        = await governanceStorage.generalContracts.entries();
                 // var setAdminOperation   = await breakGlassInstance.methods.setAdmin(contractDeployments.breakGlass.address).send();
@@ -2166,11 +2174,11 @@ describe("Test: Break Glass Contract", async () => {
                 await flushActionOperation.confirmation();
 
                 // Sign Flush Action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(flushActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(flushActionID).send();
                 await signActionOperation.confirmation();
 
@@ -2214,11 +2222,11 @@ describe("Test: Break Glass Contract", async () => {
                 await flushActionOperation.confirmation();
 
                 // Sign Sample Action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
@@ -2231,28 +2239,28 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(originalAction.status, "EXECUTED");
 
                 // Sign Flush Action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(flushActionID).send();
                 await signActionOperation.confirmation();
 
                 // Flush action should fail as sample action has already been executed
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 await chai.expect(breakGlassInstance.methods.signAction(flushActionID).send()).to.be.rejected;
                 
                 // Reset test
                 breakGlassStorage       = await breakGlassInstance.storage();
                 const resetActionID     = breakGlassStorage.actionCounter;
 
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
+                await signerFactory(tezos, councilMemberOneSk);
                 const resetActionOperation = await breakGlassInstance.methods.councilActionRemoveMember(newCouncilMember).send();
                 await resetActionOperation.confirmation();
 
                 // Sign Reset Action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(resetActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(resetActionID).send();
                 await signActionOperation.confirmation();
 
@@ -2290,12 +2298,12 @@ describe("Test: Break Glass Contract", async () => {
                 await secondFlushActionOperation.confirmation();
 
                 // Sign Flush Action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(flushActionID).send();
                 await signActionOperation.confirmation();
 
                 // Flush action should fail as sample action has already been executed
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(flushActionID).send();
                 await signActionOperation.confirmation();
 
@@ -2308,12 +2316,12 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(originalAction.status, "FLUSHED");
                 
                 // Sign second flush Action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(secondFlushActionID).send();
                 await signActionOperation.confirmation();
 
                 // Second Flush action should fail as sample action has already been flushed
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 await chai.expect(breakGlassInstance.methods.signAction(secondFlushActionID).send()).to.be.rejected;
 
 
@@ -2348,7 +2356,7 @@ describe("Test: Break Glass Contract", async () => {
             try{
 
                 // set signer to admin and set action expiry days to zero
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 var updateConfigOperation = await breakGlassInstance.methods.updateConfig(0, "configActionExpiryDays").send();
                 await updateConfigOperation.confirmation();
 
@@ -2361,7 +2369,7 @@ describe("Test: Break Glass Contract", async () => {
                 const newMemberWebsite  = "Member Website";
 
                 // Operation
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk);
+                await signerFactory(tezos, councilMemberOneSk);
                 const newActionOperation = await breakGlassInstance.methods.councilActionAddMember(newCouncilMember, newMemberName, newMemberWebsite, newMemberImage).send();
                 await newActionOperation.confirmation();
 
@@ -2379,12 +2387,12 @@ describe("Test: Break Glass Contract", async () => {
                 breakGlassStorage       = await breakGlassInstance.storage();
 
                 // Fail to sign action as action has expired
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation   = await breakGlassInstance.methods.signAction(nextActionID);
                 await chai.expect(signActionOperation.send()).to.be.rejected;
 
                 // Reset action expiry days
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 var updateConfigOperation = await breakGlassInstance.methods.updateConfig(1, "configActionExpiryDays").send();
                 await updateConfigOperation.confirmation();
 
@@ -2405,7 +2413,7 @@ describe("Test: Break Glass Contract", async () => {
                 assert.strictEqual(action, undefined);
 
                 // Operation
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
                 await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
                 
             } catch(e){
@@ -2417,7 +2425,7 @@ describe("Test: Break Glass Contract", async () => {
             try{
                 
                 // Bob (whitelisted developer) has to reset the admin of the governance contract back to the break glass contract
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 const resetGovernanceAdminOperation = await governanceInstance.methods.setAdmin(contractDeployments.breakGlass.address).send();
                 await resetGovernanceAdminOperation.confirmation();
 
@@ -2426,7 +2434,7 @@ describe("Test: Break Glass Contract", async () => {
                 governanceStorage       = await governanceInstance.storage();
                 var nextActionID        = breakGlassStorage.actionCounter;
 
-                await helperFunctions.signerFactory(tezos, adminSk)
+                await signerFactory(tezos, adminSk)
                 for (let entry of generalContractsSet){
                     // Get contract storage
                     var contract        = await utils.tezos.contract.at(entry);
@@ -2441,7 +2449,7 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Operation
                 nextActionID        = breakGlassStorage.actionCounter;
-                await helperFunctions.signerFactory(tezos, councilMemberOneSk)
+                await signerFactory(tezos, councilMemberOneSk)
 
                 const newActionOperation = await breakGlassInstance.methods.removeBreakGlassControl(generalContractsSet).send();
                 await newActionOperation.confirmation();
@@ -2462,11 +2470,11 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(breakGlassStorage.glassBroken, true);
 
                 // Sign Action Operation
-                await helperFunctions.signerFactory(tezos, councilMemberTwoSk);
+                await signerFactory(tezos, councilMemberTwoSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, councilMemberThreeSk);
+                await signerFactory(tezos, councilMemberThreeSk);
                 signActionOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
                 await signActionOperation.confirmation();
 
@@ -2480,6 +2488,11 @@ describe("Test: Break Glass Contract", async () => {
                 assert.equal(action.status, "EXECUTED");
                 assert.equal(breakGlassStorage.glassBroken, false);
 
+
+                // ---------------------------------------
+                // Reset test - reset contracts' admin back to bob 
+                // ---------------------------------------
+
                 // Check the contracts admin
                 for (let entry of generalContractsSet){
                     
@@ -2491,7 +2504,7 @@ describe("Test: Break Glass Contract", async () => {
                         
                         // console.log(`contract: ${entry} | admin: ${storage.admin}`);
 
-                        // if admin is the governance proxy contract
+                        // check if admin is the governance proxy contract
                         // - prevents duplicates (e.g. farmTreasury, aggregatorTreasury)
                         if(storage.admin == governanceProxyAddress){
 
@@ -2510,7 +2523,7 @@ describe("Test: Break Glass Contract", async () => {
                                 ]
                             );
                             
-                            await helperFunctions.signerFactory(tezos, adminSk);
+                            await signerFactory(tezos, adminSk);
 
                             setAdminOperation     = await governanceProxyInstance.methods.executeGovernanceAction(setAdminLambdaFunction).send();
                             await setAdminOperation.confirmation();
@@ -2519,28 +2532,6 @@ describe("Test: Break Glass Contract", async () => {
                             
                         }
                     }
-                }
-
-                // check admin for governance contract
-                if(governanceStorage.hasOwnProperty('admin')){
-                    assert.equal(governanceStorage.admin, governanceProxyAddress);
-
-                    // Set Admin Lambda
-                    const setAdminLambdaFunction = await createLambdaBytes(
-                        tezos.rpc.url,             // network
-                        governanceProxyAddress,    // governance proxy address
-                        
-                        'setAdmin',                // entrypoint name
-                        [
-                            contractDeployments.governance.address,      // contract address
-                            admin                  // bob
-                        ]
-                    );
-
-                    await helperFunctions.signerFactory(tezos, adminSk)
-                    setAdminOperation     = await governanceProxyInstance.methods.executeGovernanceAction(setAdminLambdaFunction).send();
-                    await setAdminOperation.confirmation();
-                    governanceStorage = await governanceInstance.storage();
                 }
 
             } catch(e){
@@ -2556,7 +2547,7 @@ describe("Test: Break Glass Contract", async () => {
 
         beforeEach("Set signer to admin (bob)", async () => {
             breakGlassStorage = await breakGlassInstance.storage();
-            await helperFunctions.signerFactory(tezos, adminSk);
+            await signerFactory(tezos, adminSk);
         });
 
         it('%setAdmin                 - admin (bob) should be able to update the contract admin address', async () => {
@@ -2580,7 +2571,7 @@ describe("Test: Break Glass Contract", async () => {
                 assert.strictEqual(newAdmin, alice.pkh);
                 
                 // reset admin
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 resetAdminOperation = await breakGlassInstance.methods.setAdmin(admin).send();
                 await resetAdminOperation.confirmation();
 
@@ -2731,13 +2722,13 @@ describe("Test: Break Glass Contract", async () => {
                 contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue           = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue           = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(doormanInstance, contractMapKey, 'update');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(doormanInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 doormanStorage = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
                 assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
@@ -2754,13 +2745,13 @@ describe("Test: Break Glass Contract", async () => {
                 contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(doormanInstance, contractMapKey, 'remove');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(doormanInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 doormanStorage = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
@@ -2777,13 +2768,13 @@ describe("Test: Break Glass Contract", async () => {
                 contractMapKey  = "eve";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(doormanInstance, contractMapKey, eve.pkh, 'update');
+                updateGeneralContractsOperation = await updateGeneralContracts(doormanInstance, contractMapKey, eve.pkh, 'update');
                 await updateGeneralContractsOperation.confirmation()
 
                 doormanStorage = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'eve (key) should not be in the General Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map after adding her to it');
@@ -2800,13 +2791,13 @@ describe("Test: Break Glass Contract", async () => {
                 contractMapKey  = "eve";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(doormanInstance, contractMapKey, eve.pkh, 'remove');
+                updateGeneralContractsOperation = await updateGeneralContracts(doormanInstance, contractMapKey, eve.pkh, 'remove');
                 await updateGeneralContractsOperation.confirmation()
 
                 doormanStorage = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'eve (key) should not be in the General Contracts map after adding her to it');
@@ -2825,15 +2816,15 @@ describe("Test: Break Glass Contract", async () => {
                 userSk            = mallory.sk;
 
                 // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
-                await helperFunctions.signerFactory(tezos, userSk);
-                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
+                await signerFactory(tezos, userSk);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
                 const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
 
-                await helperFunctions.signerFactory(tezos, adminSk);
-                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                await signerFactory(tezos, adminSk);
+                mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
@@ -2856,7 +2847,7 @@ describe("Test: Break Glass Contract", async () => {
         beforeEach("Set signer to non-admin (mallory)", async () => {
             
             breakGlassStorage = await breakGlassInstance.storage();
-            await helperFunctions.signerFactory(tezos, mallory.sk);
+            await signerFactory(tezos, mallory.sk);
         });
 
         it('%setAdmin                       - non-admin (mallory) should not be able to call this entrypoint', async () => {
@@ -2977,7 +2968,7 @@ describe("Test: Break Glass Contract", async () => {
                 contractMapKey  = governanceInstance.address;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(breakGlassStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(breakGlassStorage, storageMap, contractMapKey);
 
                 // fail: update whitelist contracts operation
                 updateWhitelistContractsOperation = await breakGlassInstance.methods.updateWhitelistContracts(contractMapKey, "update")
@@ -2987,7 +2978,7 @@ describe("Test: Break Glass Contract", async () => {
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 breakGlassStorage  = await breakGlassInstance.storage()
-                updatedContractMapValue     = await helperFunctions.getStorageMapValue(breakGlassStorage, storageMap, contractMapKey);
+                updatedContractMapValue     = await getStorageMapValue(breakGlassStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the Whitelist Contracts map');
 
@@ -3003,7 +2994,7 @@ describe("Test: Break Glass Contract", async () => {
                 contractMapKey  = "governance";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(breakGlassStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(breakGlassStorage, storageMap, contractMapKey);
 
                 // fail: update general contracts operation
                 updateGeneralContractsOperation = await breakGlassInstance.methods.updateGeneralContracts(contractMapKey, alice.pkh, "update")
@@ -3013,7 +3004,7 @@ describe("Test: Break Glass Contract", async () => {
                 await chai.expect(updateGeneralContractsOperation.send()).to.be.rejected;
 
                 breakGlassStorage  = await breakGlassInstance.storage()
-                updatedContractMapValue     = await helperFunctions.getStorageMapValue(breakGlassStorage, storageMap, contractMapKey);
+                updatedContractMapValue     = await getStorageMapValue(breakGlassStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the General Contracts map');
 
@@ -3030,11 +3021,11 @@ describe("Test: Break Glass Contract", async () => {
                 const tokenAmount = 10;
 
                 // Mistaken Operation - send 10 MavrykFa2Tokens to MVK Token Contract
-                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // fail: mistaken transfer operation
-                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(breakGlassInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(breakGlassInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {

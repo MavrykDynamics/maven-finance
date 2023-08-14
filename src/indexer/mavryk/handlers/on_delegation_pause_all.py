@@ -20,15 +20,17 @@ async def on_delegation_pause_all(
         unregister_as_satellite_paused      = pause_all.storage.breakGlassConfig.unregisterAsSatelliteIsPaused
         update_satellite_record_paused      = pause_all.storage.breakGlassConfig.updateSatelliteRecordIsPaused
         distribute_reward_paused            = pause_all.storage.breakGlassConfig.distributeRewardIsPaused
-    
+        take_satellites_snapshot_paused     = pause_all.storage.breakGlassConfig.takeSatellitesSnapshotPaused
+
         # Update contract
         await models.Delegation.filter(network=ctx.datasource.network, address=delegation_address).update(
-            delegate_to_satellite_paused         = delegate_to_satellite_paused,
-            undelegate_from_satellite_paused     = undelegate_from_satellite_paused,
-            register_as_satellite_paused         = register_as_satellite_paused,
-            unregister_as_satellite_paused       = unregister_as_satellite_paused,
-            update_satellite_record_paused       = update_satellite_record_paused,
-            distribute_reward_paused             = distribute_reward_paused
+            delegate_to_satellite_paused        = delegate_to_satellite_paused,
+            undelegate_from_satellite_paused    = undelegate_from_satellite_paused,
+            register_as_satellite_paused        = register_as_satellite_paused,
+            unregister_as_satellite_paused      = unregister_as_satellite_paused,
+            update_satellite_record_paused      = update_satellite_record_paused,
+            distribute_reward_paused            = distribute_reward_paused,
+            take_satellites_snapshot_paused     = take_satellites_snapshot_paused
         )
 
     except BaseException as e:

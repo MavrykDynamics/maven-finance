@@ -777,6 +777,20 @@ block {
     const proposalData    : map(nat, option(proposalDataType))   = map [];
     const paymentData     : map(nat, option(paymentDataType))    = map [];
 
+    // ------------------------------------------------------------------
+    // Calculate minProposalRoundVotesRequired
+    // ------------------------------------------------------------------
+
+    const stakedMvkTotalSupply : nat = case s.stakedMvkSnapshotLedger[s.cycleId] of [
+            Some(_v) -> _v
+        |   None     -> failwith(error_STAKED_MVK_SNAPSHOT_FOR_CYCLE_NOT_FOUND)
+    ];
+
+    // Calculate minimum required staked MVK for proposal round votes
+    const minProposalRoundVotesRequired : nat  = (stakedMvkTotalSupply * s.config.minProposalRoundVotePercentage) / 10000n ;
+
+    // ------------------------------------------------------------------
+
     // create new proposal record
     const newProposalRecord : proposalRecordType = record [
 
@@ -803,7 +817,7 @@ block {
         proposalVoteStakedMvkTotal          = 0n;                                           // proposal round pass vote total mvk from satellites who voted pass
 
         minProposalRoundVotePercentage      = s.config.minProposalRoundVotePercentage;      // min vote percentage of total MVK supply required to pass proposal round
-        minProposalRoundVotesRequired       = s.config.minProposalRoundVotesRequired;       // min staked MVK votes required for proposal round to pass
+        minProposalRoundVotesRequired       = minProposalRoundVotesRequired;                // min staked MVK votes required for proposal round to pass
 
         yayVoteCount                        = 0n;                                           // voting round: yay count
         yayVoteStakedMvkTotal               = 0n;                                           // voting round: yay MVK total 
@@ -976,9 +990,31 @@ block {
         totalVotingPower            = totalVotingPower;
         accumulatedRewardsPerShare  = accumulatedRewardsPerShare;
         ready                       = ready;
+        nextSnapshotCycleId         = (None : option(nat));
     ];
 
     s.snapshotLedger[(s.cycleId,satelliteAddress)]  := satelliteSnapshotRecord;
+
+    // link the previous snapshot to the current one if it exists
+    case s.satelliteLastSnapshotLedger[satelliteAddress] of [
+            Some(_cycleId) -> block {
+                // get previous satellite snapshot record 
+                var previousSatelliteSnapshotRecord : governanceSatelliteSnapshotRecordType := case s.snapshotLedger[(_cycleId, satelliteAddress)] of [
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_SNAPSHOT_NOT_FOUND)
+                ];
+
+                // link previous snapshot to current snapshot
+                previousSatelliteSnapshotRecord.nextSnapshotCycleId := Some(s.cycleId);
+
+                // save previous snapshot
+                s.snapshotLedger[(_cycleId, satelliteAddress)] := previousSatelliteSnapshotRecord;
+            }
+        |   None           -> skip
+    ];
+
+    // update satellite last snapshot to current id
+    s.satelliteLastSnapshotLedger[satelliteAddress] := s.cycleId;
 
 } with s
 

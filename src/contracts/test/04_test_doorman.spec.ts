@@ -19,7 +19,22 @@ import contractDeployments from './contractDeployments.json'
 // ------------------------------------------------------------------------------
 
 import { bob, alice, eve, mallory, oscar } from '../scripts/sandbox/accounts'
-import * as helperFunctions from './helpers/helperFunctions'
+import {
+    almostEqual,
+    fa2Transfer,
+    getStorageMapValue,
+    mistakenTransferFa2Token,
+    signerFactory,
+    updateOperators,
+    updateGeneralContracts,
+    updateWhitelistContracts,
+    calculateMavrykLoyaltyIndex,
+    calculateExitFeePercent,
+    fixedPointAccuracy,
+    calcIncrementAccumulatedFeesPerShare,
+    calcUpdatedAccumulatedFeesPerShare,
+    calculateExitFeeRewards
+} from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Notes
@@ -186,7 +201,7 @@ describe("Test: Doorman Contract", async () => {
     describe("%stake", async () => {
 
         beforeEach("Set signer to user (eve)", async () => {
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
         });
 
         it("user (eve) should be able to stake less than his maximum amount of MVK but at least 1MVK", async() => {
@@ -206,7 +221,7 @@ describe("Test: Doorman Contract", async () => {
                 initialStakedMvkTotal     = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
 
                 // update operators operation
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // Operation
@@ -241,7 +256,7 @@ describe("Test: Doorman Contract", async () => {
                 stakeAmount = MVK(0.1);
 
                 // update operators operation
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // Operation
@@ -266,7 +281,7 @@ describe("Test: Doorman Contract", async () => {
                 initialUserStakedBalance   = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // update operators operation
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // Operation
@@ -294,7 +309,7 @@ describe("Test: Doorman Contract", async () => {
                 stakeAmount             = initialUserTokenBalance + MVK(1);
 
                 // update operators operation
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // Operation
@@ -313,14 +328,14 @@ describe("Test: Doorman Contract", async () => {
         beforeEach("Set signer to user (eve)", async () => {
             doormanStorage  = await doormanInstance.storage();
             mvkTokenStorage = await mvkTokenInstance.storage();
-            await helperFunctions.signerFactory(tezos, eve.sk);
+            await signerFactory(tezos, eve.sk);
         });
 
         it("user (eve) should be able to unstake some MVK and see an increase in rewards from her exit fee distribution to staked MVK holders (including herself)", async() => {
             try{
                 
                 user = eve.pkh;
-                await helperFunctions.signerFactory(tezos, eve.sk);
+                await signerFactory(tezos, eve.sk);
 
                 // Compound first so values are updated below (for retesting if required)
                 compoundOperation   = await doormanInstance.methods.compound([user]).send();
@@ -348,15 +363,15 @@ describe("Test: Doorman Contract", async () => {
                 await unstakeOperation.confirmation();
 
                 // Calculate exit fees and final unstake amount
-                const mli                   = helperFunctions.calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
-                const exitFeePercent        = helperFunctions.calculateExitFeePercent(mli);
+                const mli                   = calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
+                const exitFeePercent        = calculateExitFeePercent(mli);
                 const paidFeeWithFpa        = Math.trunc( unstakeAmount * (exitFeePercent / 100)); // with fixed point accuracy
-                const paidFee               = Math.trunc( paidFeeWithFpa / helperFunctions.fixedPointAccuracy);
+                const paidFee               = Math.trunc( paidFeeWithFpa / fixedPointAccuracy);
                 finalUnstakeAmount          = unstakeAmount - paidFee;
                 
                 // calculate increment in accumulated fees per share from exit fee, and the corresponding updated accumulated fees per share
-                const calcIncrementAccumulatedFeesPerShareFromExitFee = helperFunctions.calcIncrementAccumulatedFeesPerShare(paidFeeWithFpa, unstakeAmount, initialStakedMvkTotal);
-                const calcUpdatedAccumulatedFeesPerShareFromExitFee   = helperFunctions.calcUpdatedAccumulatedFeesPerShare(paidFeeWithFpa, unstakeAmount, initialStakedMvkTotal, accumulatedFeesPerShare);
+                const calcIncrementAccumulatedFeesPerShareFromExitFee = calcIncrementAccumulatedFeesPerShare(paidFeeWithFpa, unstakeAmount, initialStakedMvkTotal);
+                const calcUpdatedAccumulatedFeesPerShareFromExitFee   = calcUpdatedAccumulatedFeesPerShare(paidFeeWithFpa, unstakeAmount, initialStakedMvkTotal, accumulatedFeesPerShare);
 
                 // Update storage
                 doormanStorage                      = await doormanInstance.storage();
@@ -372,24 +387,24 @@ describe("Test: Doorman Contract", async () => {
                 
                 // reward from user's exit fee distributed over user's remaining staked MVK
                 const balanceAfterUnstake           = initialUserStakedBalance - unstakeAmount;
-                const calcUserReward                = helperFunctions.calculateExitFeeRewards(balanceAfterUnstake, initialParticipationFeesPerShare, updatedParticipationFeesPerShare)
+                const calcUserReward                = calculateExitFeeRewards(balanceAfterUnstake, initialParticipationFeesPerShare, updatedParticipationFeesPerShare)
 
                 // --------------------------------
                 // Test Assertions
                 // --------------------------------
 
                 // staked MVK should decrease by final unstake amount
-                assert.equal(helperFunctions.almostEqual(updatedStakedMvkTotal, Math.floor(initialStakedMvkTotal - finalUnstakeAmount), 0.01), true)
+                assert.equal(almostEqual(updatedStakedMvkTotal, Math.floor(initialStakedMvkTotal - finalUnstakeAmount), 0.01), true)
 
                 // MVK Total supply should increase by final unstake amount (sMVK converted to MVK)
-                assert.equal(helperFunctions.almostEqual(updatedUserTokenBalance, Math.round(initialUserTokenBalance + finalUnstakeAmount), 0.01), true)
+                assert.equal(almostEqual(updatedUserTokenBalance, Math.round(initialUserTokenBalance + finalUnstakeAmount), 0.01), true)
 
                 // User staked balance should reflect decrease in final unstake amount and paid fee, and increase from user rewards
                 assert.equal(updatedUserStakedBalance, Math.floor(initialUserStakedBalance - finalUnstakeAmount - paidFee + calcUserReward))
 
                 // check increase in accumulated fees per share from exit fee - may have very very slight differences from large number operations
-                assert.equal(helperFunctions.almostEqual(updatedAccumulatedFeesPerShare.toNumber(), accumulatedFeesPerShare.toNumber() + calcIncrementAccumulatedFeesPerShareFromExitFee, 0.001), true)
-                assert.equal(helperFunctions.almostEqual(updatedAccumulatedFeesPerShare.toNumber(), calcUpdatedAccumulatedFeesPerShareFromExitFee, 0.001), true)
+                assert.equal(almostEqual(updatedAccumulatedFeesPerShare.toNumber(), accumulatedFeesPerShare.toNumber() + calcIncrementAccumulatedFeesPerShareFromExitFee, 0.001), true)
+                assert.equal(almostEqual(updatedAccumulatedFeesPerShare.toNumber(), calcUpdatedAccumulatedFeesPerShareFromExitFee, 0.001), true)
 
                 // check user's participation fees per share to be equal to accumulated fees per share
                 assert.equal(updatedUserStakedRecord.participationFeesPerShare.toNumber(), updatedAccumulatedFeesPerShare.toNumber())
@@ -424,23 +439,23 @@ describe("Test: Doorman Contract", async () => {
                 // Update Operators Operation
                 // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, firstUserSk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
+                await signerFactory(tezos, firstUserSk);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, secondUserSk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
+                await signerFactory(tezos, secondUserSk);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // --------------------------------
                 // Stake Operation
                 // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, firstUserSk);
+                await signerFactory(tezos, firstUserSk);
                 stakeOperation = await doormanInstance.methods.stake(firstUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, secondUserSk);
+                await signerFactory(tezos, secondUserSk);
                 stakeOperation = await doormanInstance.methods.stake(secondUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
@@ -470,7 +485,7 @@ describe("Test: Doorman Contract", async () => {
                 // --------------------------------
 
                 // First user unstake
-                await helperFunctions.signerFactory(tezos, firstUserSk);
+                await signerFactory(tezos, firstUserSk);
                 unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstakeAmount).send();
                 await unstakeOperation.confirmation()
 
@@ -499,32 +514,32 @@ describe("Test: Doorman Contract", async () => {
                 secondUserUpdatedParticipationFeesPerShare  = secondUserUpdatedStakedRecord.participationFeesPerShare;
 
                 // Calculate exit fees and final unstake amount
-                const mli                   = helperFunctions.calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
-                const exitFeePercent        = helperFunctions.calculateExitFeePercent(mli);
+                const mli                   = calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
+                const exitFeePercent        = calculateExitFeePercent(mli);
                 const paidFeeWithFpa        = Math.trunc( firstUserUnstakeAmount * (exitFeePercent / 100)); // with fixed point accuracy
-                const paidFee               = Math.trunc( paidFeeWithFpa / helperFunctions.fixedPointAccuracy);
+                const paidFee               = Math.trunc( paidFeeWithFpa / fixedPointAccuracy);
                 finalUnstakeAmount          = firstUserUnstakeAmount - paidFee;
                 
                 // calculate increment in accumulated fees per share from exit fee, and the corresponding updated accumulated fees per share
-                const calcIncrementAccumulatedFeesPerShareFromExitFee = helperFunctions.calcIncrementAccumulatedFeesPerShare(paidFeeWithFpa, firstUserUnstakeAmount, initialStakedMvkTotal);
-                const calcUpdatedAccumulatedFeesPerShareFromExitFee   = helperFunctions.calcUpdatedAccumulatedFeesPerShare(paidFeeWithFpa, firstUserUnstakeAmount, initialStakedMvkTotal, accumulatedFeesPerShare);
+                const calcIncrementAccumulatedFeesPerShareFromExitFee = calcIncrementAccumulatedFeesPerShare(paidFeeWithFpa, firstUserUnstakeAmount, initialStakedMvkTotal);
+                const calcUpdatedAccumulatedFeesPerShareFromExitFee   = calcUpdatedAccumulatedFeesPerShare(paidFeeWithFpa, firstUserUnstakeAmount, initialStakedMvkTotal, accumulatedFeesPerShare);
 
                 // reward from user's exit fee distributed over user's remaining staked MVK
                 const firstUserBalanceAfterUnstake  = firstUserStakedBalance - firstUserUnstakeAmount;
-                const calcFirstUserReward           = helperFunctions.calculateExitFeeRewards(firstUserBalanceAfterUnstake, firstUserParticipationFeesPerShare, firstUserUpdatedParticipationFeesPerShare)
+                const calcFirstUserReward           = calculateExitFeeRewards(firstUserBalanceAfterUnstake, firstUserParticipationFeesPerShare, firstUserUpdatedParticipationFeesPerShare)
                 
                 // calc rewards for second user 
-                const calcSecondUserReward          = helperFunctions.calculateExitFeeRewards(secondUserStakedBalance, secondUserParticipationFeesPerShare, secondUserUpdatedParticipationFeesPerShare)
+                const calcSecondUserReward          = calculateExitFeeRewards(secondUserStakedBalance, secondUserParticipationFeesPerShare, secondUserUpdatedParticipationFeesPerShare)
 
                 // --------------------------------
                 // Test Assertions
                 // --------------------------------
 
                 // staked MVK should decrease by final unstake amount
-                assert.equal(helperFunctions.almostEqual(updatedStakedMvkTotal, Math.floor(initialStakedMvkTotal - finalUnstakeAmount), 0.01), true)
+                assert.equal(almostEqual(updatedStakedMvkTotal, Math.floor(initialStakedMvkTotal - finalUnstakeAmount), 0.01), true)
 
                 // MVK Total supply should increase by final unstake amount (sMVK converted to MVK)
-                assert.equal(helperFunctions.almostEqual(updatedUserTokenBalance, Math.round(initialUserTokenBalance + finalUnstakeAmount), 0.01), true)
+                assert.equal(almostEqual(updatedUserTokenBalance, Math.round(initialUserTokenBalance + finalUnstakeAmount), 0.01), true)
 
                 // First User staked balance should reflect decrease in final unstake amount and paid fee, and increase from user rewards
                 assert.equal(firstUserUpdatedStakedBalance, Math.floor(firstUserStakedBalance - finalUnstakeAmount - paidFee + calcFirstUserReward))
@@ -533,8 +548,8 @@ describe("Test: Doorman Contract", async () => {
                 assert.equal(secondUserUpdatedStakedBalance, Math.floor(secondUserStakedBalance + calcSecondUserReward))
 
                 // check increase in accumulated fees per share from exit fee - may have very very slight differences from large number operations
-                assert.equal(helperFunctions.almostEqual(updatedAccumulatedFeesPerShare.toNumber(), accumulatedFeesPerShare.toNumber() + calcIncrementAccumulatedFeesPerShareFromExitFee, 0.001), true)
-                assert.equal(helperFunctions.almostEqual(updatedAccumulatedFeesPerShare.toNumber(), calcUpdatedAccumulatedFeesPerShareFromExitFee, 0.001), true)
+                assert.equal(almostEqual(updatedAccumulatedFeesPerShare.toNumber(), accumulatedFeesPerShare.toNumber() + calcIncrementAccumulatedFeesPerShareFromExitFee, 0.001), true)
+                assert.equal(almostEqual(updatedAccumulatedFeesPerShare.toNumber(), calcUpdatedAccumulatedFeesPerShareFromExitFee, 0.001), true)
 
                 // check both users' participation fees per share to be equal to accumulated fees per share
                 assert.equal(firstUserUpdatedParticipationFeesPerShare.toNumber(), updatedAccumulatedFeesPerShare.toNumber())
@@ -591,7 +606,7 @@ describe("Test: Doorman Contract", async () => {
 
                 // set signer to user (alice)
                 user = alice.pkh;
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
 
                 // Initial values
                 initialUserStakedRecord = await doormanStorage.userStakeBalanceLedger.get(user);
@@ -623,14 +638,14 @@ describe("Test: Doorman Contract", async () => {
                 unstakeAmount   = MVK(2) 
 
                 // set user as signer
-                await helperFunctions.signerFactory(tezos, userSk);
+                await signerFactory(tezos, userSk);
 
                 // Initial storage
                 initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance    = initialUserStakedRecord.balance.toNumber()
                 
                 // update operators operation 
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // stake operation
@@ -674,24 +689,24 @@ describe("Test: Doorman Contract", async () => {
                 // Update Operators Operation
                 // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, firstUserSk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
+                await signerFactory(tezos, firstUserSk);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
                 
 
-                await helperFunctions.signerFactory(tezos, secondUserSk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
+                await signerFactory(tezos, secondUserSk);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // --------------------------------
                 // Stake Operation
                 // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, firstUserSk);
+                await signerFactory(tezos, firstUserSk);
                 stakeOperation = await doormanInstance.methods.stake(firstUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, secondUserSk);
+                await signerFactory(tezos, secondUserSk);
                 stakeOperation = await doormanInstance.methods.stake(secondUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
@@ -700,7 +715,7 @@ describe("Test: Doorman Contract", async () => {
                 // --------------------------------
                 
                 // first user unstakes some amount - this will add exit fee rewards to second user
-                await helperFunctions.signerFactory(tezos, firstUserSk);
+                await signerFactory(tezos, firstUserSk);
                 unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstakeAmount).send();
                 await unstakeOperation.confirmation();
 
@@ -750,23 +765,23 @@ describe("Test: Doorman Contract", async () => {
                 // Update Operators Operation
                 // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, firstUserSk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
+                await signerFactory(tezos, firstUserSk);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, secondUserSk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
+                await signerFactory(tezos, secondUserSk);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // --------------------------------
                 // Stake Operation
                 // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, firstUserSk);
+                await signerFactory(tezos, firstUserSk);
                 stakeOperation = await doormanInstance.methods.stake(firstUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, secondUserSk);
+                await signerFactory(tezos, secondUserSk);
                 stakeOperation = await doormanInstance.methods.stake(secondUserStakeAmount).send();
                 await stakeOperation.confirmation();
                 
@@ -775,12 +790,12 @@ describe("Test: Doorman Contract", async () => {
                 // --------------------------------
 
                 // unstake operation
-                await helperFunctions.signerFactory(tezos, firstUserSk);
+                await signerFactory(tezos, firstUserSk);
                 unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstakeAmount).send();
                 await unstakeOperation.confirmation();
 
                 // compound operation for third user - should have no rewards
-                await helperFunctions.signerFactory(tezos, thirdUserSk);
+                await signerFactory(tezos, thirdUserSk);
                 compoundOperation = await doormanInstance.methods.compound([thirdUser]).send();
                 await compoundOperation.confirmation();
 
@@ -826,23 +841,23 @@ describe("Test: Doorman Contract", async () => {
                 // Update Operators Operation
                 // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, firstUserSk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
+                await signerFactory(tezos, firstUserSk);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
                 
-                await helperFunctions.signerFactory(tezos, secondUserSk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
+                await signerFactory(tezos, secondUserSk);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // --------------------------------
                 // Stake Operation
                 // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, firstUserSk);
+                await signerFactory(tezos, firstUserSk);
                 stakeOperation = await doormanInstance.methods.stake(firstUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, secondUserSk);
+                await signerFactory(tezos, secondUserSk);
                 stakeOperation = await doormanInstance.methods.stake(secondUserStakeAmount).send();
                 await stakeOperation.confirmation();
                 
@@ -852,7 +867,7 @@ describe("Test: Doorman Contract", async () => {
                 firstUserUnstakeAmount      = firstUserStakedBalance.balance.toNumber()
 
                 // unstake and compound operations
-                await helperFunctions.signerFactory(tezos, firstUserSk);
+                await signerFactory(tezos, firstUserSk);
                 unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstakeAmount).send();
                 await unstakeOperation.confirmation();
 
@@ -889,23 +904,23 @@ describe("Test: Doorman Contract", async () => {
                 // Update Operators Operation
                 // --------------------------------
                 
-                await helperFunctions.signerFactory(tezos, firstUserSk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
+                await signerFactory(tezos, firstUserSk);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, secondUserSk);
-                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
+                await signerFactory(tezos, secondUserSk);
+                updateOperatorsOperation = await updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // --------------------------------
                 // Stake Operation
                 // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, firstUserSk);
+                await signerFactory(tezos, firstUserSk);
                 stakeOperation = await doormanInstance.methods.stake(firstUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, secondUserSk);
+                await signerFactory(tezos, secondUserSk);
                 stakeOperation = await doormanInstance.methods.stake(secondUserStakeAmount).send();
                 await stakeOperation.confirmation();
                 
@@ -913,11 +928,11 @@ describe("Test: Doorman Contract", async () => {
                 // Unstake and Compound Operation
                 // --------------------------------
 
-                await helperFunctions.signerFactory(tezos, firstUserSk);
+                await signerFactory(tezos, firstUserSk);
                 unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstakeAmount).send();
                 await unstakeOperation.confirmation();
 
-                await helperFunctions.signerFactory(tezos, secondUserSk);
+                await signerFactory(tezos, secondUserSk);
                 compoundOperation = await doormanInstance.methods.compound([secondUser]).send();
                 await compoundOperation.confirmation();
 
@@ -956,7 +971,7 @@ describe("Test: Doorman Contract", async () => {
             // Initial values
             user               = mallory.pkh
             userSk             = mallory.sk
-            await helperFunctions.signerFactory(tezos, userSk);
+            await signerFactory(tezos, userSk);
 
             // Compound first so values are updated below (for retesting if required)
             compoundOperation   = await doormanInstance.methods.compound([user]).send();
@@ -998,10 +1013,10 @@ describe("Test: Doorman Contract", async () => {
             updatedUserTokenBalance                = await mvkTokenStorage.ledger.get(user)
 
             // Calculate exit fees and final unstake amount
-            const mli                   = helperFunctions.calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
-            const exitFeePercent        = helperFunctions.calculateExitFeePercent(mli);
+            const mli                   = calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
+            const exitFeePercent        = calculateExitFeePercent(mli);
             const paidFeeWithFpa        = Math.trunc( unstakeAmount * (exitFeePercent / 100)); // with fixed point accuracy
-            const paidFee               = Math.trunc( paidFeeWithFpa / helperFunctions.fixedPointAccuracy);
+            const paidFee               = Math.trunc( paidFeeWithFpa / fixedPointAccuracy);
             finalUnstakeAmount          = unstakeAmount - paidFee;
             
             // check user balances are updated
@@ -1018,7 +1033,7 @@ describe("Test: Doorman Contract", async () => {
             // Initial values
             user               = mallory.pkh
             userSk             = mallory.sk
-            await helperFunctions.signerFactory(tezos, userSk);
+            await signerFactory(tezos, userSk);
 
             // Compound first so values are updated below (for retesting if required)
             compoundOperation   = await doormanInstance.methods.compound([user]).send();
@@ -1060,10 +1075,10 @@ describe("Test: Doorman Contract", async () => {
             updatedUserTokenBalance                = await mvkTokenStorage.ledger.get(user)
 
             // Calculate exit fees and final unstake amount
-            const mli                   = helperFunctions.calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
-            const exitFeePercent        = helperFunctions.calculateExitFeePercent(mli);
+            const mli                   = calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
+            const exitFeePercent        = calculateExitFeePercent(mli);
             const paidFeeWithFpa        = Math.trunc( unstakeAmount * (exitFeePercent / 100)); // with fixed point accuracy
-            const paidFee               = Math.trunc( paidFeeWithFpa / helperFunctions.fixedPointAccuracy);
+            const paidFee               = Math.trunc( paidFeeWithFpa / fixedPointAccuracy);
             finalUnstakeAmount          = unstakeAmount - paidFee;
             
             // check user balances are updated
@@ -1082,7 +1097,7 @@ describe("Test: Doorman Contract", async () => {
 
         beforeEach("Set signer to admin (bob)", async () => {
             doormanStorage        = await doormanInstance.storage();
-            await helperFunctions.signerFactory(tezos, adminSk);
+            await signerFactory(tezos, adminSk);
         });
 
         it('%setAdmin                 - admin (bob) should be able to update the contract admin address', async () => {
@@ -1106,7 +1121,7 @@ describe("Test: Doorman Contract", async () => {
                 assert.strictEqual(newAdmin, alice.pkh);
                 
                 // reset admin
-                await helperFunctions.signerFactory(tezos, alice.sk);
+                await signerFactory(tezos, alice.sk);
                 resetAdminOperation = await doormanInstance.methods.setAdmin(admin).send();
                 await resetAdminOperation.confirmation();
 
@@ -1207,13 +1222,13 @@ describe("Test: Doorman Contract", async () => {
                 contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue           = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue           = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(doormanInstance, contractMapKey, 'update');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(doormanInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
                 doormanStorage = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
                 assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
@@ -1230,13 +1245,13 @@ describe("Test: Doorman Contract", async () => {
                 contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateWhitelistContractsOperation = await helperFunctions.updateWhitelistContracts(doormanInstance, contractMapKey, 'remove');
+                updateWhitelistContractsOperation = await updateWhitelistContracts(doormanInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
                 doormanStorage = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
@@ -1253,13 +1268,13 @@ describe("Test: Doorman Contract", async () => {
                 contractMapKey  = "eve";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(doormanInstance, contractMapKey, eve.pkh, 'update');
+                updateGeneralContractsOperation = await updateGeneralContracts(doormanInstance, contractMapKey, eve.pkh, 'update');
                 await updateGeneralContractsOperation.confirmation()
 
                 doormanStorage = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'eve (key) should not be in the General Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map after adding her to it');
@@ -1276,13 +1291,13 @@ describe("Test: Doorman Contract", async () => {
                 contractMapKey  = "eve";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
-                updateGeneralContractsOperation = await helperFunctions.updateGeneralContracts(doormanInstance, contractMapKey, eve.pkh, 'remove');
+                updateGeneralContractsOperation = await updateGeneralContracts(doormanInstance, contractMapKey, eve.pkh, 'remove');
                 await updateGeneralContractsOperation.confirmation()
 
                 doormanStorage = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map before adding her to it');
                 assert.strictEqual(updatedContractMapValue, undefined, 'eve (key) should not be in the General Contracts map after adding her to it');
@@ -1301,15 +1316,15 @@ describe("Test: Doorman Contract", async () => {
                 userSk            = mallory.sk;
 
                 // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
-                await helperFunctions.signerFactory(tezos, userSk);
-                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
+                await signerFactory(tezos, userSk);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
                 const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
 
-                await helperFunctions.signerFactory(tezos, adminSk);
-                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                await signerFactory(tezos, adminSk);
+                mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
@@ -1332,15 +1347,15 @@ describe("Test: Doorman Contract", async () => {
                 userSk            = mallory.sk;
 
                 // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
-                await helperFunctions.signerFactory(tezos, userSk);
-                transferOperation = await helperFunctions.fa2Transfer(mvkTokenInstance, user, doormanAddress, tokenId, tokenAmount);
+                await signerFactory(tezos, userSk);
+                transferOperation = await fa2Transfer(mvkTokenInstance, user, doormanAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
                 mvkTokenStorage             = await mvkTokenInstance.storage();
                 const initialUserBalance    = (await mvkTokenStorage.ledger.get(user)).toNumber()
 
-                await helperFunctions.signerFactory(tezos, adminSk);
-                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(doormanInstance, user, mvkTokenAddress, tokenId, tokenAmount);
+                await signerFactory(tezos, adminSk);
+                mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mvkTokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
                 mvkTokenStorage             = await mvkTokenInstance.storage();
@@ -1394,8 +1409,8 @@ describe("Test: Doorman Contract", async () => {
                 await unpauseOperation.confirmation();
 
                 // reset migration - transfer funds back to old doorman contract  
-                await helperFunctions.signerFactory(tezos, alice.sk)
-                transferOperation = await helperFunctions.fa2Transfer(mvkTokenInstance, alice.pkh, doormanAddress, tokenId, initDoormanBalance.toNumber());
+                await signerFactory(tezos, alice.sk)
+                transferOperation = await fa2Transfer(mvkTokenInstance, alice.pkh, doormanAddress, tokenId, initDoormanBalance.toNumber());
                 await transferOperation.confirmation();
 
             } catch(e) {
@@ -1560,7 +1575,7 @@ describe("Test: Doorman Contract", async () => {
     describe('Access Control Checks', function () {
 
         beforeEach("Set signer to non-admin (mallory)", async () => {
-            await helperFunctions.signerFactory(tezos, mallory.sk);
+            await signerFactory(tezos, mallory.sk);
         });
 
         it('%setAdmin                 - non-admin (mallory) should not be able to call this entrypoint', async () => {
@@ -1665,13 +1680,13 @@ describe("Test: Doorman Contract", async () => {
                 contractMapKey  = mallory.pkh;
                 storageMap      = "whitelistContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 updateWhitelistContractsOperation = await doormanInstance.methods.updateWhitelistContracts(contractMapKey, "update")
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
                 doormanStorage = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the Whitelist Contracts map');
 
@@ -1687,13 +1702,13 @@ describe("Test: Doorman Contract", async () => {
                 contractMapKey  = "mallory";
                 storageMap      = "generalContracts";
 
-                initialContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                initialContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 updateGeneralContractsOperation = await doormanInstance.methods.updateGeneralContracts(contractMapKey, alice.pkh, "update")
                 await chai.expect(updateGeneralContractsOperation.send()).to.be.rejected;
 
                 doormanStorage          = await doormanInstance.storage()
-                updatedContractMapValue = await helperFunctions.getStorageMapValue(doormanStorage, storageMap, contractMapKey);
+                updatedContractMapValue = await getStorageMapValue(doormanStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the General Contracts map');
 
@@ -1710,11 +1725,11 @@ describe("Test: Doorman Contract", async () => {
                 const tokenAmount = 10;
 
                 // Mistaken Operation - send 10 MavrykFa2Tokens to MVK Token Contract
-                transferOperation = await helperFunctions.fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await helperFunctions.mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {
