@@ -13,6 +13,35 @@
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
+## 0.45
+
+### What's new
+
+- BreakGlassAction
+  - Column FlushedDatetime added
+
+- CouncilAction
+  - Column FlushedDatetime added
+
+- GovernanceFinancialRequest
+  - Column DroppedDatetime added
+
+- GovernanceSatelliteAction
+  - Column DroppedDatetime added
+
+- GovernanceProposal
+  - Column DefeatedDatetime added
+  - Column DroppedDatetime added
+
+### Breaking changes
+
+- GovernanceProposal
+  - Column ExecutionDatetime is now nullable
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.44</summary>
+
 ## 0.44
 
 ### What's new
@@ -301,7 +330,7 @@
   - Column NextRedemptionTimestamp now non-nullable
   - Column LastClaimedTimestamp now non-nullable
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.43</summary>
 

@@ -2,7 +2,7 @@ from mavryk.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from mavryk.types.governance.storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
-from dipdup.models import Transaction
+from dipdup.models import Transaction, Q
 from mavryk.types.governance.parameter.start_next_round import StartNextRoundParameter
 import mavryk.models as models
 
@@ -13,6 +13,7 @@ async def on_governance_start_next_round(
 
     try:
         # Get operation values
+        timestamp                           = start_next_round.data.timestamp
         governance_address                  = start_next_round.data.target_address
         current_round                       = start_next_round.storage.currentCycleInfo.round
         current_blocks_proposal_round       = int(start_next_round.storage.currentCycleInfo.blocksPerProposalRound)
@@ -86,6 +87,30 @@ async def on_governance_start_next_round(
             if not voter in current_round_votes:
                 vote_record.current_round_vote  = False
                 await vote_record.save()
+
+        # Defeat all other cycle proposals
+        if current_round_type == models.GovernanceRoundType.VOTING:
+            await models.GovernanceProposal.filter(
+                Q(governance = governance),
+                Q(current_round_proposal = True),
+                Q(defeated_datetime = None),
+                Q(execution_datetime = None),
+                Q(dropped_datetime = None),
+                Q(executed = False),
+                ~Q(internal_id = highest_voted_proposal)
+            ).update(
+                defeated_datetime       = timestamp
+            )
+        elif current_round_type == models.GovernanceRoundType.PROPOSAL:
+            await models.GovernanceProposal.filter(
+                Q(governance = governance),
+                Q(defeated_datetime = None),
+                Q(dropped_datetime = None),
+                Q(execution_ready = False),
+                Q(cycle__lt = cycle_id)
+            ).update(
+                defeated_datetime       = timestamp
+            )
 
     except BaseException as e:
          await save_error_report(e)

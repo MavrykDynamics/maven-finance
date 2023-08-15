@@ -61,6 +61,7 @@ class GovernanceFinancialRequest(Model):
     execution_datetime                      = fields.DatetimeField(index=True)
     expiration_datetime                     = fields.DatetimeField(index=True)
     requested_datetime                      = fields.DatetimeField(index=True)
+    dropped_datetime                        = fields.DatetimeField(index=True, null=True)
 
     class Meta:
         table = 'governance_financial_request'
@@ -70,7 +71,7 @@ class GovernanceFinancialRequestVote(Model):
     governance_financial_request            = fields.ForeignKeyField('models.GovernanceFinancialRequest', related_name='votes', index=True)
     voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_votes', index=True)
     satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshot', related_name='governance_financial_requests_votes', index=True)
-    timestamp                               = fields.DatetimeField(index=True)
+    timestamp                               = fields.DatetimeField(index=True, auto_now=True)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY, index=True)
 
     class Meta:
