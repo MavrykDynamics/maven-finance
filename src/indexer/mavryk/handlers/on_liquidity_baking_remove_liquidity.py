@@ -1,5 +1,4 @@
 from mavryk.utils.error_reporting import save_error_report
-
 from dipdup.context import HandlerContext
 from mavryk.types.liquidity_baking.parameter.remove_liquidity import RemoveLiquidityParameter
 from mavryk.types.liquidity_baking.storage import LiquidityBakingStorage
