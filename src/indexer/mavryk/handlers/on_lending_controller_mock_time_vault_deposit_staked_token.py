@@ -68,13 +68,13 @@ async def on_lending_controller_mock_time_vault_deposit_staked_token(
                 loan_token                              = await lending_controller_vault.loan_token
                 loan_token_name                         = loan_token.loan_token_name
                 loan_token_storage                      = vault_deposit_staked_token.storage.loanTokenLedger[loan_token_name]
-                loan_token_token_reward_index           = float(loan_token_storage.accumulatedRewardsPerShare) 
+                loan_token_token_reward_index           = float(loan_token_storage.tokenRewardIndex) 
                 m_token                                 = await loan_token.m_token
                 if loan_token_token_reward_index > m_token.token_reward_index:
                     m_token.token_reward_index          = loan_token_token_reward_index
                     await m_token.save()
                 loan_token.token_pool_total             = float(loan_token_storage.tokenPoolTotal)
-                loan_token.m_tokens_total               = float(loan_token_storage.mTokensTotal)
+                loan_token.raw_m_tokens_total_supply    = float(loan_token_storage.rawMTokensTotalSupply)
                 loan_token.total_borrowed               = float(loan_token_storage.totalBorrowed)
                 loan_token.total_remaining              = float(loan_token_storage.totalRemaining)
                 loan_token.last_updated_block_level     = int(loan_token_storage.lastUpdatedBlockLevel)

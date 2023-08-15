@@ -1,5 +1,6 @@
 from dipdup.models import Model, fields
 from mavryk.sql_model.parents import LinkedContract, MavrykContract
+from mavryk.sql_model.enums import MintOrBurnType
 
 ###
 # MVK Token Tables
@@ -18,6 +19,7 @@ class MVKToken(MavrykContract, Model):
 
 class MVKTokenGeneralContract(LinkedContract, Model):
     contract                                 = fields.ForeignKeyField('models.MVKToken', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'mvk_token_general_contract'
@@ -48,14 +50,15 @@ class MVKTokenTransferHistoryData(Model):
     class Meta:
         table = 'mvk_transfer_history_data'
 
-class MVKTokenMintHistoryData(Model):
+class MVKTokenMintOrBurnHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     mvk_token                               = fields.ForeignKeyField('models.MVKToken', related_name='mint_history_data')
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='mint_history_data', index=True)
     level                                   = fields.BigIntField(default=0)
     timestamp                               = fields.DatetimeField(index=True)
-    minted_amount                           = fields.FloatField(default=0.0)
+    type                                    = fields.IntEnumField(enum_type=MintOrBurnType, index=True)
+    amount                                  = fields.FloatField(default=0.0)
     mvk_total_supply                        = fields.FloatField(default=0.0)
 
     class Meta:
-        table = 'mvk_mint_history_data'
+        table = 'mvk_mint_or_burn_history_data'

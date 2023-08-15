@@ -56,7 +56,8 @@ type doormanAction is
         // Doorman Entrypoints
     |   Stake                       of (nat)
     |   Unstake                     of (nat)
-    |   Compound                    of (address)
+    |   Exit                        of (unit)
+    |   Compound                    of set(address)
     |   FarmClaim                   of farmClaimType
 
         // Vault Entrypoints - callable only by Lending Controller
@@ -134,6 +135,7 @@ block {
             // Doorman Entrypoints
         |   Stake(parameters)                     -> stake(parameters, s)  
         |   Unstake(parameters)                   -> unstake(parameters, s)
+        |   Exit(_parameters)                     -> exit(s)
         |   Compound(parameters)                  -> compound(parameters, s)
         |   FarmClaim(parameters)                 -> farmClaim(parameters, s)
 

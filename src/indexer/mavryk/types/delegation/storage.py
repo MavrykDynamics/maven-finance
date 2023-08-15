@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
@@ -28,6 +28,7 @@ class BreakGlassConfig(BaseModel):
     delegateToSatelliteIsPaused: bool
     distributeRewardIsPaused: bool
     registerAsSatelliteIsPaused: bool
+    takeSatellitesSnapshotPaused: bool
     undelegateFromSatelliteIsPaused: bool
     unregisterAsSatelliteIsPaused: bool
     updateSatelliteRecordIsPaused: bool
@@ -69,6 +70,8 @@ class SatelliteRewardsLedger(BaseModel):
     participationRewardsPerShare: str
     satelliteAccumulatedRewardsPerShare: str
     satelliteReferenceAddress: str
+    referenceGovernanceCycleId: str
+    tracked: bool
 
 
 class DelegationStorage(BaseModel):
@@ -80,7 +83,7 @@ class DelegationStorage(BaseModel):
     config: Config
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistContracts: Dict[str, str]
+    whitelistContracts: Dict[str, Dict[str, Any]]
     generalContracts: Dict[str, str]
     breakGlassConfig: BreakGlassConfig
     delegateLedger: Dict[str, DelegateLedger]

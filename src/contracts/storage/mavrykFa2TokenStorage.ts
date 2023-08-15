@@ -1,15 +1,12 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
+import { MichelsonMap } from "@taquito/michelson-encoder"
+import { BigNumber } from "bignumber.js"
+import { Buffer } from "buffer"
+import { zeroAddress } from "../test/helpers/Utils"
+import { bob, alice, eve, mallory } from '../scripts/sandbox/accounts'
+import { mavrykFa2TokenStorageType } from "./storageTypes/mavrykFa2TokenStorageType"
 
-import { BigNumber } from "bignumber.js";
-import { Buffer } from "buffer";
-import { zeroAddress } from "../test/helpers/Utils";
-
-const { bob, alice, eve, mallory } = require('../scripts/sandbox/accounts')
-
-import { mavrykFa2TokenStorageType } from "../test/types/mavrykFa2TokenStorageType";
-
-const totalSupply   = 20000000000;
-const initialSupply = new BigNumber(totalSupply); // 20,000 MOCK FA2 Tokens in mu (10^6)
+const totalSupply      = 20000000000;
+const initialSupply    = new BigNumber(totalSupply); // 20,000 MOCK FA2 Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4);
 
 const metadata = MichelsonMap.fromLiteral({

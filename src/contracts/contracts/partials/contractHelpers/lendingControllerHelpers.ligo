@@ -56,7 +56,7 @@ block {
 function verifyLoanTokenDoesNotExist(const loanTokenName : string; const s : lendingControllerStorageType) : unit is 
 block {
 
-    if Map.mem(loanTokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
+    if Big_map.mem(loanTokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
 
 } with unit
 
@@ -227,7 +227,7 @@ block {
 
         oracleAddress                       = oracleAddress;
 
-        mTokensTotal                        = 0n;
+        rawMTokensTotalSupply               = 0n;
         mTokenAddress                       = mTokenAddress;
 
         reserveRatio                        = reserveRatio;
@@ -245,7 +245,7 @@ block {
 
         currentInterestRate                 = baseInterestRate;
         lastUpdatedBlockLevel               = Tezos.get_level();
-        accumulatedRewardsPerShare          = fixedPointAccuracy;
+        tokenRewardIndex                    = fixedPointAccuracy;
         borrowIndex                         = fixedPointAccuracy;
 
         isPaused                            = False;
@@ -745,13 +745,24 @@ function getTokenLastCompletedDataFromAggregator(const aggregatorAddress : addre
 block {
 
     // get last completed round price of token from Oracle view
-    const getTokenLastCompletedDataView : option (lastCompletedDataReturnType) = Tezos.call_view ("getlastCompletedData", unit, aggregatorAddress);
+    const getTokenLastCompletedDataView : option (lastCompletedDataReturnType) = Tezos.call_view ("getLastCompletedData", unit, aggregatorAddress);
     const tokenLastCompletedData : lastCompletedDataReturnType = case getTokenLastCompletedDataView of [
             Some (_value) -> _value
         |   None          -> failwith (error_GET_LAST_COMPLETED_DATA_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
     ];
 
 } with tokenLastCompletedData
+
+
+
+function verifyLastCompletedDataFreshness(const lastUpdatedAt : timestamp; const lastCompletedDataMaxDelay : nat) : unit is
+block {
+
+    if abs(Tezos.get_now() - lastUpdatedAt) <= lastCompletedDataMaxDelay 
+    then skip
+    else failwith(error_LAST_COMPLETED_DATA_NOT_FRESH);
+
+} with unit
 
 
 
@@ -766,6 +777,9 @@ block {
 
     // get last completed round price of token from Aggregator view
     const collateralTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(collateralTokenRecord.oracleAddress);
+
+    // check for freshness of last completed data
+    verifyLastCompletedDataFreshness(collateralTokenLastCompletedData.lastUpdatedAt, s.config.lastCompletedDataMaxDelay);
     
     const tokenDecimals    : nat  = collateralTokenRecord.tokenDecimals; 
     const priceDecimals    : nat  = collateralTokenLastCompletedData.decimals;
@@ -985,6 +999,7 @@ block{
     const totalBorrowed             : nat    = loanTokenRecord.totalBorrowed;              // 1e6
     const optimalUtilisationRate    : nat    = loanTokenRecord.optimalUtilisationRate;     // 1e27
     const lastUpdatedBlockLevel     : nat    = loanTokenRecord.lastUpdatedBlockLevel;
+    const maxInterestRate           : nat    = loanTokenRecord.maxInterestRate;
 
     const baseInterestRate                      : nat = loanTokenRecord.baseInterestRate;                    // r0 - 1e27
     const interestRateBelowOptimalUtilisation   : nat = loanTokenRecord.interestRateBelowOptimalUtilisation; // r1 - 1e27
@@ -1029,7 +1044,9 @@ block{
             };
 
         } else skip;
-        
+
+        // check if max interest rate is exceeded
+        if currentInterestRate > maxInterestRate then currentInterestRate := maxInterestRate else skip;        
 
         if Tezos.get_level() > lastUpdatedBlockLevel then {
 
@@ -1042,6 +1059,7 @@ block{
         loanTokenRecord.borrowIndex             := borrowIndex;
         loanTokenRecord.utilisationRate         := utilisationRate;
         loanTokenRecord.currentInterestRate     := currentInterestRate;
+
     } else skip;
 
 } with loanTokenRecord

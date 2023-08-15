@@ -45,18 +45,17 @@ type breakGlassAction is
     |   MistakenTransfer              of transferActionType
     |   UpdateCouncilMemberInfo       of councilMemberInfoType
     
-        // Internal Control of Council Members
-    |   AddCouncilMember              of councilActionAddMemberType
-    |   RemoveCouncilMember           of address
-    |   ChangeCouncilMember           of councilActionChangeMemberType
+        // Council Actions for Internal Control
+    |   CouncilActionAddMember        of councilActionAddMemberType
+    |   CouncilActionRemoveMember     of address
+    |   CouncilActionChangeMember     of councilActionChangeMemberType
     
-        // Glass Broken Required
-    |   PropagateBreakGlass           of (unit)
-    |   SetSingleContractAdmin        of setContractAdminType
-    |   SetAllContractsAdmin          of (address)
-    |   PauseAllEntrypoints           of (unit)
-    |   UnpauseAllEntrypoints         of (unit)
-    |   RemoveBreakGlassControl       of (unit)
+        // Break Glass Actions: Glass Broken Required
+    |   PropagateBreakGlass           of set(address)
+    |   SetContractsAdmin             of setContractsAdminType
+    |   PauseAllEntrypoints           of set(address)
+    |   UnpauseAllEntrypoints         of set(address)
+    |   RemoveBreakGlassControl       of set(address)
 
         // Council Signing of Actions
     |   FlushAction                   of actionIdType
@@ -127,18 +126,17 @@ block {
         |   MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
         |   UpdateCouncilMemberInfo(parameters)   -> updateCouncilMemberInfo(parameters, s)
 
-            // Break Glass Council Actions - Internal Control of Council Members
-        |   AddCouncilMember(parameters)          -> addCouncilMember(parameters, s)
-        |   RemoveCouncilMember(parameters)       -> removeCouncilMember(parameters, s)
-        |   ChangeCouncilMember(parameters)       -> changeCouncilMember(parameters, s)
+            // Break Glass Council Actions for Internal Control
+        |   CouncilActionAddMember(parameters)    -> councilActionAddMember(parameters, s)
+        |   CouncilActionRemoveMember(parameters) -> councilActionRemoveMember(parameters, s)
+        |   CouncilActionChangeMember(parameters) -> councilActionChangeMember(parameters, s)
         
-            // Glass Broken Required
-        |   PropagateBreakGlass(_parameters)      -> propagateBreakGlass(s)
-        |   SetSingleContractAdmin(parameters)    -> setSingleContractAdmin(parameters, s)
-        |   SetAllContractsAdmin(parameters)      -> setAllContractsAdmin(parameters, s)
-        |   PauseAllEntrypoints(_parameters)      -> pauseAllEntrypoints(s)
-        |   UnpauseAllEntrypoints(_parameters)    -> unpauseAllEntrypoints(s)
-        |   RemoveBreakGlassControl(_parameters)  -> removeBreakGlassControl(s)
+            // Break Glass Actions: Glass Broken Required
+        |   PropagateBreakGlass(parameters)       -> propagateBreakGlass(parameters, s)
+        |   SetContractsAdmin(parameters)         -> setContractsAdmin(parameters, s)
+        |   PauseAllEntrypoints(parameters)       -> pauseAllEntrypoints(parameters, s)
+        |   UnpauseAllEntrypoints(parameters)     -> unpauseAllEntrypoints(parameters, s)
+        |   RemoveBreakGlassControl(parameters)   -> removeBreakGlassControl(parameters, s)
 
             // Council Signing of Actions
         |   FlushAction(parameters)               -> flushAction(parameters, s)

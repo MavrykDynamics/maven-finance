@@ -14,6 +14,7 @@ class Doorman(MavrykContract, Model):
     stake_paused                            = fields.BooleanField(default=False)
     unstake_paused                          = fields.BooleanField(default=False)
     compound_paused                         = fields.BooleanField(default=False)
+    exit_paused                             = fields.BooleanField(default=False)
     farm_claim_paused                       = fields.BooleanField(default=False)
     on_vault_deposit_stake_paused           = fields.BooleanField(default=False)
     on_vault_withdraw_stake_paused          = fields.BooleanField(default=False)
@@ -30,6 +31,7 @@ class DoormanLambda(ContractLambda, Model):
 
 class DoormanGeneralContract(LinkedContract, Model):
     contract                                 = fields.ForeignKeyField('models.Doorman', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'doorman_general_contract'

@@ -1,0 +1,55 @@
+import { alice, bob, eve, mallory, oscar } from "../../scripts/sandbox/accounts";
+
+export const mockSatelliteData = {
+
+    "bob" : {
+        name            : "Mavryk Dynamics",
+        desc            : "The Mavryk Dynamics belongs to one of the core teams contributing to Mavryk Finance. The team as Mavryk Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
+        image           : "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
+        website         : "https://mavryk.finance/", 
+        satelliteFee    : 500,
+        oraclePublicKey : bob.pk,
+        oraclePeerId    : bob.peerId
+    },
+
+    "eve" : {
+        name            : "Buzz Lightyear",
+        desc            : "Buzz is a fabled part of our childhood. He was created by Disney and Pixar mainly voiced by Tim Allen. He is a Superhero toy action figure based on the in-universe media franchise Toy Story, consisting of a blockbuster feature film and animated series, a Space Ranger. While Buzz Lightyear's sole mission used to be defeating the evil Emperor Zurg, what he now cares about most is keeping Andy's toy family together. After he feature-film Lightyear starring Chris Evans, Buzz has decided to operate a satellite of the Mavryk Finance network and sign oracle price feeds to further grow and secure the future of financial independence.", 
+        image           : "https://infura-ipfs.io/ipfs/QmcbigzB5PVfawr1jhctTWDgGTmLBZFbHPNfosDfq9zckQ",
+        website         : "https://toystory.disney.com/buzz-lightyear", 
+        satelliteFee    : 350,
+        oraclePublicKey : eve.pk,
+        oraclePeerId    : eve.peerId
+    },
+
+    "mallory" : {
+        name            : "Captain Kirk",
+        desc            : "James Tiberius \"Jim\" Kirk is a legendary Starfleet officer who lived during the 23rd century. His time in Starfleet, made Kirk arguably one of the most famous and sometimes infamous starship captains in Starfleet history. The highly decorated Kirk served as the commanding officer of the Constitution-class starships USS Enterprise and USS Enterprise-A, where he served Federation interests as an explorer, soldier, diplomat, and time traveler. He currently spends his time as a Mavryk Satellite and signs Oracle price feeds for the Mavryk Finance network.",
+        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        website         : "https://intl.startrek.com/",
+        satelliteFee    : 700,
+        oraclePublicKey : mallory.pk,
+        oraclePeerId    : mallory.peerId
+    },
+
+    "alice" : {
+        name            : "Bender Bending Rodriguez",
+        desc            : "Bender Bending Rodriguez, the rebellious robot with a heart of gold, has found a new passion in the decentralized finance (DeFi) ecosystem. With his sharp wit and cunning, Bender has become a maverick in the blockchain and crypto space, always on the lookout for the latest trends and opportunities.\n\nNow, Bender uses his unique skills to navigate the DeFi world, taking risks and reaping the rewards. With his sharp mind and quick reflexes, Bender is a force to be reckoned with in the crypto space.\n\nBender frequently shouts \"Bite my shiny metal node!\" but don't be startled, despite his rough exterior, Bender has a soft spot for his fellow robots and Mavryks, he is fiercely loyal to the Mavryk Ecosystem.\n\nIn DeFi, Bender is a true original, pushing the boundaries and exploring new frontiers. With his wit, charm, and unyielding determination, Bender is a force to be reckoned with in the crypto world.",
+        image           : "https://cloudflare-ipfs.com/ipfs/QmNyw2PJEovUs9WgWHbZcKzzjxJdWL2qqAfEnZv1WkfGst",
+        website         : "https://mavryk.finance/",
+        satelliteFee    : 810,
+        oraclePublicKey : alice.pk,
+        oraclePeerId    : alice.peerId
+    },
+
+    "oscar" : {
+        name            : "R2-D2",
+        desc            : "R2-D2 run's his Mavryk Satellite with unparalleled technical expertise and has a talent for solving complex problems. As an astromech droid, he's uniquely equipped to navigate the challenging terrain of DeFi and identify new opportunities for growth. R2-D2 is a natural leader with a deep sense of loyalty and compassion, always willing to lend a helping hand to his fellow maintainers and platform users. His adaptability and innovative spirit make him an invaluable asset to the DeFi ecosystem, and he's thrilled to be contributing to the future of finance through his work on the platform. In short, R2-D2 is a DeFi pioneer, leading the charge towards a more decentralized and equitable financial future.",
+        image           : "https://cloudflare-ipfs.com/ipfs/Qmf5UC3iLco9y3CUQpWXmzDdZwDCtZLFS8WL9oe85fKX9k",
+        website         : "https://mavryk.finance/",
+        satelliteFee    : 350,
+        oraclePublicKey : oscar.pk,
+        oraclePeerId    : oscar.peerId
+    }
+
+}

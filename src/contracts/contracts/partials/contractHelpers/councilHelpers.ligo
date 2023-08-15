@@ -12,7 +12,7 @@
 function verifySenderIsCouncilMember(var s : councilStorageType) : unit is
 block {
 
-    if Map.mem(Tezos.get_sender(), s.councilMembers) then skip
+    if Big_map.mem(Tezos.get_sender(), s.councilMembers) then skip
     else failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED);
 
 } with unit
@@ -179,7 +179,6 @@ block {
     const councilActionRecord : councilActionRecordType = record[
         initiator             = Tezos.get_sender();
         actionType            = actionType;
-        signers               = set[Tezos.get_sender()];
 
         status                = "PENDING";
         signersCount          = 1n;
@@ -189,11 +188,12 @@ block {
 
         startDateTime         = Tezos.get_now();
         startLevel            = Tezos.get_level();             
-        executedDateTime      = Tezos.get_now();
-        executedLevel         = Tezos.get_level();
+        executedDateTime      = None;
+        executedLevel         = None;
         expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
     ];
-    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord;
+    s.councilActionsSigners                 := Big_map.add((s.actionCounter, Tezos.get_sender()), unit, s.councilActionsSigners);
 
     // increment action counter
     s.actionCounter := s.actionCounter + 1n;
@@ -206,7 +206,7 @@ block {
 function verifyCouncilMemberExists(const councilMemberAddress : address; const  s : councilStorageType) : unit is 
 block {
 
-    if not Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
+    if not Big_map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
     else skip;
 
 } with unit
@@ -217,7 +217,7 @@ block {
 function verifyCouncilMemberDoesNotExist(const councilMemberAddress : address; const  s : councilStorageType) : unit is 
 block {
 
-    if Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
+    if Big_map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
     else skip;
 
 } with unit
@@ -228,7 +228,7 @@ block {
 function verifyValidCouncilThreshold(const  s : councilStorageType) : unit is 
 block {
 
-    if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
+    if (abs(s.councilSize - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
     else skip;
 
 } with unit
@@ -472,7 +472,7 @@ block {
 
 
 // helper function for requestTokens
-function requestTokensOperation(const treasuryAddress : address; const tokenContractAddress : address; const tokenName : string; const tokenAmount : nat; const tokenType : string; const tokenId : nat; const purpose : string; const s : councilStorageType) : operation is 
+function requestTokensOperation(const treasuryAddress : address; const receiverAddress : address; const tokenContractAddress : address; const tokenName : string; const tokenAmount : nat; const tokenType : string; const tokenId : nat; const purpose : string; const s : councilStorageType) : operation is 
 block {
 
     // Get Governance Financial Address from the General Contracts Map on the Governance Contract
@@ -484,6 +484,7 @@ block {
 
     const requestTokensParams : councilActionRequestTokensType = record[
         treasuryAddress       = treasuryAddress;
+        receiverAddress       = receiverAddress;
         tokenContractAddress  = tokenContractAddress;
         tokenName             = tokenName;
         tokenAmount           = tokenAmount;
@@ -503,7 +504,7 @@ block {
 
 
 // helper function for requestMint
-function requestMintOperation(const treasuryAddress : address; const tokenAmount : nat; const purpose : string; const s : councilStorageType) : operation is 
+function requestMintOperation(const treasuryAddress : address; const receiverAddress : address; const tokenAmount : nat; const purpose : string; const s : councilStorageType) : operation is 
 block {
 
     // Get Governance Financial Address from the General Contracts Map on the Governance Contract
@@ -513,8 +514,9 @@ block {
     validateStringLength(purpose, s.config.requestPurposeMaxLength, error_WRONG_INPUT_PROVIDED);
 
     const requestMintParams : councilActionRequestMintType = record[
-        tokenAmount      = tokenAmount;
         treasuryAddress  = treasuryAddress;
+        receiverAddress  = receiverAddress;
+        tokenAmount      = tokenAmount;
         purpose          = purpose;
     ];
 
@@ -670,8 +672,11 @@ block {
         website = councilMemberWebsite;
     ];
 
-    if Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
-    else s.councilMembers := Map.add(councilMemberAddress, councilMemberInfo, s.councilMembers);
+    if Big_map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
+    else {
+        s.councilMembers    := Big_map.add(councilMemberAddress, councilMemberInfo, s.councilMembers);
+        s.councilSize       := s.councilSize + 1n;
+    }
 
 } with (s)
 
@@ -686,14 +691,15 @@ block {
     // fetch params end ---
 
     // Check if council member is in the council
-    if not Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
+    if not Big_map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
     else skip;
 
     // Check if removing the council member won't impact the threshold
-    if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
+    if (abs(s.councilSize - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
     else skip;
 
-    s.councilMembers := Map.remove(councilMemberAddress, s.councilMembers);
+    s.councilMembers    := Big_map.remove(councilMemberAddress, s.councilMembers);
+    s.councilSize       := abs(s.councilSize - 1n);
 
 } with (s)
 
@@ -728,8 +734,8 @@ block {
         website = newCouncilMemberWebsite;
     ];
 
-    s.councilMembers := Map.add(newCouncilMemberAddress, councilMemberInfo, s.councilMembers);
-    s.councilMembers := Map.remove(oldCouncilMemberAddress, s.councilMembers);
+    s.councilMembers := Big_map.add(newCouncilMemberAddress, councilMemberInfo, s.councilMembers);
+    s.councilMembers := Big_map.remove(oldCouncilMemberAddress, s.councilMembers);
 
 } with (s)
 
@@ -892,6 +898,7 @@ block {
 
     // fetch params begin ---
     const treasuryAddress       : address   = unpackAddress(actionRecord, "treasuryAddress");
+    const receiverAddress       : address   = unpackAddress(actionRecord, "receiverAddress");
     const tokenContractAddress  : address   = unpackAddress(actionRecord, "tokenContractAddress");
 
     const tokenType             : string    = unpackString(actionRecord, "tokenType");
@@ -905,6 +912,7 @@ block {
     // create requestTokensOperation
     const requestTokensOperation : operation = requestTokensOperation(
         treasuryAddress,
+        receiverAddress,
         tokenContractAddress,
         tokenName,
         tokenAmount, 
@@ -926,6 +934,7 @@ block {
 
     // fetch params begin ---
     const treasuryAddress       : address   = unpackAddress(actionRecord, "treasuryAddress");
+    const receiverAddress       : address   = unpackAddress(actionRecord, "receiverAddress");
     const purpose               : string    = unpackString(actionRecord, "purpose");
     const tokenAmount           : nat       = unpackNat(actionRecord, "tokenAmount");
     // fetch params end ---
@@ -933,6 +942,7 @@ block {
     // create requestMintOperation
     const requestMintOperation : operation = requestMintOperation(
         treasuryAddress,
+        receiverAddress,
         tokenAmount,
         purpose,
         s 
@@ -1103,11 +1113,11 @@ block {
     // update council action record status
     actionRecord.status              := "EXECUTED";
     actionRecord.executed            := True;
-    actionRecord.executedDateTime    := Tezos.get_now();
-    actionRecord.executedLevel       := Tezos.get_level();
+    actionRecord.executedDateTime    := Some(Tezos.get_now());
+    actionRecord.executedLevel       := Some(Tezos.get_level());
     
     // save council action record
-    s.councilActionsLedger[actionId]         := actionRecord;
+    s.councilActionsLedger[actionId] := actionRecord;
 
 } with (operations, s)
 

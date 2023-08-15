@@ -1,26 +1,25 @@
-const { InMemorySigner, importKey } = require("@taquito/signer");
-import { Utils } from "../helpers/Utils";
-const saveContractAddress = require("../../helpers/saveContractAddress")
+import { Utils } from "../helpers/Utils"
+const saveContractAddress = require("../helpers/saveContractAddress")
+import { BigNumber } from "bignumber.js"
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob, alice, eve } from '../../scripts/sandbox/accounts'
-
 // ------------------------------------------------------------------------------
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { BreakGlass, setBreakGlassLambdas } from '../contractHelpers/breakGlassTestHelper'
+import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
+import { bob, alice, eve, susie, trudy } from '../../scripts/sandbox/accounts'
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -34,72 +33,68 @@ import { breakGlassStorage } from '../../storage/breakGlassStorage'
 
 describe('Break Glass', async () => {
   
-  var utils: Utils
-  var breakGlass: BreakGlass
-  var tezos
-  
+    var utils: Utils
+    var breakGlass
+    var tezos
 
-  const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-    return tezos
-  }
+    before('setup', async () => {
+        try{
+            
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+        
+            breakGlassStorage.governanceAddress = contractDeployments.governance.address
+            breakGlassStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
+        
+            breakGlassStorage.councilMembers.set(alice.pkh, {
+                name: "Alice",
+                image: "Alice image",
+                website: "Alice website"
+            })
+            breakGlassStorage.councilMembers.set(eve.pkh, {
+                name: "Eve",
+                image: "Eve image",
+                website: "Eve website"
+            })
+            breakGlassStorage.councilMembers.set(susie.pkh, {
+                name: "Susie",
+                image: "Susie image",
+                website: "Susie website"
+            })
+            breakGlassStorage.councilMembers.set(trudy.pkh, {
+                name: "Trudy",
+                image: "Trudy image",
+                website: "Trudy website"
+            })
+            breakGlassStorage.councilSize = new BigNumber(4)
+            
+            breakGlass = await GeneralContract.originate(utils.tezos, "breakGlass", breakGlassStorage);
+            await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
+        
+            /* ---- ---- ---- ---- ---- */
+        
+            tezos = breakGlass.tezos
+            await helperFunctions.signerFactory(tezos, bob.sk);
 
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-  
-      breakGlassStorage.governanceAddress = governanceAddress.address
-      breakGlassStorage.mvkTokenAddress  = mvkTokenAddress.address
-  
-      breakGlassStorage.councilMembers.set(bob.pkh, {
-        name: "Bob",
-        image: "Bob image",
-        website: "Bob website"
-      })
-      breakGlassStorage.councilMembers.set(alice.pkh, {
-        name: "Alice",
-        image: "Alice image",
-        website: "Alice website"
-      })
-      breakGlassStorage.councilMembers.set(eve.pkh, {
-        name: "Eve",
-        image: "Eve image",
-        website: "Eve website"
-      })
-      breakGlass = await BreakGlass.originate(utils.tezos, breakGlassStorage)
-  
-      await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
-      console.log('BreakGlass Contract deployed at:', breakGlass.contract.address)
-  
-      /* ---- ---- ---- ---- ---- */
-  
-      tezos = breakGlass.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "breakGlass", breakGlass.contract);
+    
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
 
-      // Council Setup Lambdas
-      await setBreakGlassLambdas(tezos, breakGlass.contract);
-      console.log("Break Glass Lambdas Setup")
-  
-    } catch(e){
-      console.dir(e, {depth: 5})
-    }
+    })
 
-  })
-
-  it(`break glass contract deployed`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+    it(`break glass contract deployed`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })

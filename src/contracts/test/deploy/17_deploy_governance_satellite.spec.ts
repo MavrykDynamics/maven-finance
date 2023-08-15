@@ -1,26 +1,24 @@
-const { InMemorySigner } = require("@taquito/signer");
-import { Utils } from "../helpers/Utils";
-const saveContractAddress = require("../../helpers/saveContractAddress")
+import { Utils } from "../helpers/Utils"
+const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob } from '../../scripts/sandbox/accounts'
-
 // ------------------------------------------------------------------------------
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { GovernanceSatellite, setGovernanceSatelliteLambdas } from '../contractHelpers/governanceSatelliteTestHelper'
+import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
+import { bob } from '../../scripts/sandbox/accounts'
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -34,56 +32,45 @@ import { governanceSatelliteStorage } from '../../storage/governanceSatelliteSto
 
 describe('Governance Satellite', async () => {
   
-  var utils: Utils
-  var governanceSatellite: GovernanceSatellite
-  var tezos
-  
+    var utils: Utils
+    var governanceSatellite
+    var tezos
 
-  const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-    return tezos
-  }
+    before('setup', async () => {
+        try{
+            
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+            
+            governanceSatelliteStorage.mvkTokenAddress     = contractDeployments.mvkToken.address
+            governanceSatelliteStorage.governanceAddress   = contractDeployments.governance.address
+            governanceSatellite = await GeneralContract.originate(utils.tezos, "governanceSatellite", governanceSatelliteStorage);
+            await saveContractAddress('governanceSatelliteAddress', governanceSatellite.contract.address)
 
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-      
-      governanceSatelliteStorage.mvkTokenAddress     = mvkTokenAddress.address
-      governanceSatelliteStorage.governanceAddress   = governanceAddress.address
-      governanceSatellite = await GovernanceSatellite.originate(utils.tezos,governanceSatelliteStorage);
-  
-      await saveContractAddress('governanceSatelliteAddress', governanceSatellite.contract.address)
-      console.log('Governance Satellite Contract deployed at:', governanceSatellite.contract.address)
+            /* ---- ---- ---- ---- ---- */
+        
+            tezos = governanceSatellite.tezos
+            await helperFunctions.signerFactory(tezos, bob.sk);
+        
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "governanceSatellite", governanceSatellite.contract)
 
-      /* ---- ---- ---- ---- ---- */
-  
-      tezos = governanceSatellite.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
 
-      // Governance Satellite Setup Lambdas      
-      await setGovernanceSatelliteLambdas(tezos, governanceSatellite.contract)
-      console.log("Governance Satellite Lambdas Setup")
+    })
 
-    } catch(e){
-      console.dir(e, {depth: 5})
-    }
-
-  })
-
-  it(`governance satellite contract deployed`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+    it(`governance satellite contract deployed`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })

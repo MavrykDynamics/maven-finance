@@ -16,6 +16,7 @@ type doormanBreakGlassConfigType is [@layout:comb] record [
     
     stakeIsPaused           : bool;
     unstakeIsPaused         : bool;
+    exitIsPaused            : bool;
     compoundIsPaused        : bool;
     farmClaimIsPaused       : bool;
 
@@ -36,10 +37,8 @@ type doormanConfigType is [@layout:comb] record [
 // Action Types
 // ------------------------------------------------------------------------------
 
-
-type delegationOnStakeChangeType is (address)
-
-type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
+type farmClaimDepositorType is (address * nat)
+type farmClaimType is (set(farmClaimDepositorType) * bool) // Recipient address + Amount claimed + forceTransfer instead of mintOrTransfer
 
 type doormanUpdateConfigNewValueType is nat
 type doormanUpdateConfigActionType is 
@@ -70,6 +69,7 @@ type onVaultLiquidateStakeType is [@layout:comb] record [
 type doormanPausableEntrypointType is
         Stake                         of bool
     |   Unstake                       of bool
+    |   Exit                          of bool
     |   Compound                      of bool
     |   FarmClaim                     of bool
     |   OnVaultDepositStake           of bool
@@ -107,7 +107,8 @@ type doormanLambdaActionType is
         // Doorman Lambdas
     |   LambdaStake                       of (nat)
     |   LambdaUnstake                     of (nat)
-    |   LambdaCompound                    of (address)
+    |   LambdaExit                        of (unit)
+    |   LambdaCompound                    of set(address)
     |   LambdaFarmClaim                   of farmClaimType
 
         // Vault Lambdas

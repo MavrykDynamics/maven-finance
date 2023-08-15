@@ -29,7 +29,7 @@ async def on_emergency_governance_update_config(
             proposal_title_max_length       = update_config.storage.config.proposalTitleMaxLength,
             required_fee_mutez              = update_config.storage.config.requiredFeeMutez,
             smvk_percentage_required        = update_config.storage.config.stakedMvkPercentageRequired,
-            vote_expiry_days                = update_config.storage.config.voteExpiryDays
+            duration_in_minutes             = update_config.storage.config.durationInMinutes
         )
 
     except BaseException as e:

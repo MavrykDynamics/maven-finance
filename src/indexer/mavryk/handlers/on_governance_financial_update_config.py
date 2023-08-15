@@ -22,7 +22,7 @@ async def on_governance_financial_update_config(
             address = financial_address
         ).update(
             last_updated_at             = timestamp,
-            fin_req_approval_percentage = update_config.storage.config.financialRequestApprovalPercentage,
+            approval_percentage         = update_config.storage.config.approvalPercentage,
             fin_req_duration_in_days    = update_config.storage.config.financialRequestDurationInDays
         )
 

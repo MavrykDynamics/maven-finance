@@ -8,17 +8,6 @@
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// Allowed Senders: Council Contract
-function checkSenderIsCouncil(const s : farmFactoryStorageType) : unit is
-block {
-
-    const councilAddress : address = getLocalWhitelistContract("council", s.whitelistContracts, error_COUNCIL_CONTRACT_NOT_FOUND);
-    verifySenderIsAllowed(set[councilAddress], error_ONLY_COUNCIL_CONTRACT_ALLOWED)
-
-} with (unit)
-
-
-
 // Allowed Senders: Admin, Governance Satellite Contract
 function verifySenderIsAdminOrGovernanceSatelliteContract(var s : farmFactoryStorageType) : unit is
 block{
@@ -56,13 +45,13 @@ block {
     const councilAddress : address = getContractAddressFromGovernanceContract("council", s.governanceAddress, error_COUNCIL_CONTRACT_NOT_FOUND);
     
     // Add FarmFactory Address and Council Address to whitelistContracts map of created Farm
-    const farmWhitelistContract : whitelistContractsType = map[
-        ("farmFactory")  -> (Tezos.get_self_address() : address);
-        ("council")      -> (councilAddress : address)
+    const farmWhitelistContract : whitelistContractsType = big_map[
+        (Tezos.get_self_address())  -> unit;
+        (councilAddress)            -> unit;
     ];
     
     // Init empty General Contracts map (local contract scope, to be used if necessary)
-    const farmGeneralContracts : generalContractsType = map[];
+    const farmGeneralContracts : generalContractsType = big_map[];
 
     // Create needed records for Farm contract
     const farmClaimedRewards : claimedRewardsType = record[
@@ -157,13 +146,13 @@ block {
     const councilAddress : address = getContractAddressFromGovernanceContract("council", s.governanceAddress, error_COUNCIL_CONTRACT_NOT_FOUND);
     
     // Add FarmFactory Address and Council Address to whitelistContracts map of created Farm
-    const farmWhitelistContract : whitelistContractsType = map[
-        ("farmFactory")  -> (Tezos.get_self_address() : address);
-        ("council")      -> (councilAddress : address)
+    const farmWhitelistContract : whitelistContractsType = big_map[
+        (Tezos.get_self_address())  -> unit;
+        (councilAddress)            -> unit
     ];
     
     // Init empty General Contracts map (local contract scope, to be used if necessary)
-    const farmGeneralContracts : generalContractsType = map[];
+    const farmGeneralContracts : generalContractsType = big_map[];
 
     // Create needed records for Farm contract
     const farmClaimedRewards : claimedRewardsType = record[
@@ -258,6 +247,7 @@ block {
     const updateGeneralMapRecord : updateGeneralContractsType = record [
         generalContractName    = contractName;
         generalContractAddress = contractAddress;
+        updateType             = Update(unit);
     ];
 
     // Create and send updateGeneralContractsMap operation to the Governance Contract

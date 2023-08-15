@@ -1,12 +1,9 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 
-const { bob } = require('../scripts/sandbox/accounts')
-
-import { aggregatorStorageType } from '../test/types/aggregatorStorageType'
-
-import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
-import governanceAddress from '../deployments/governanceAddress.json';
+import { bob } from '../scripts/sandbox/accounts'
+import { zeroAddress } from '../test/helpers/Utils'
+import { aggregatorStorageType } from './storageTypes/aggregatorStorageType'
 
 const breakGlassConfig = {
     updateDataIsPaused                 : false,
@@ -19,7 +16,7 @@ const config = {
     alphaPercentPerThousand             : new BigNumber(2),
     
     percentOracleThreshold              : new BigNumber(49),
-    heartBeatSeconds                    : new BigNumber(300),
+    heartbeatSeconds                    : new BigNumber(300),
     
     rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
     rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
@@ -37,14 +34,7 @@ const metadata = MichelsonMap.fromLiteral({
     ).toString('hex'),
 })
 
-// const oraclesMap = {};
-
-// for (const oracle of oracles) {
-//     oraclesMap[oracle.pkh] = true
-// }
-
 const oracleLedger = MichelsonMap.fromLiteral({});
-
 
 const lastCompletedData = {
     round                   : new BigNumber(0),
@@ -62,8 +52,8 @@ export const aggregatorStorage: aggregatorStorageType = {
     config                    : config,
     breakGlassConfig          : breakGlassConfig,
     
-    mvkTokenAddress           : mvkTokenAddress.address,
-    governanceAddress         : governanceAddress.address,
+    mvkTokenAddress           : zeroAddress,
+    governanceAddress         : zeroAddress,
 
     whitelistContracts        : MichelsonMap.fromLiteral({}),
     generalContracts          : MichelsonMap.fromLiteral({}),

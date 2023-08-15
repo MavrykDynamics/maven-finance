@@ -47,7 +47,6 @@ type lendingControllerAction is
     |   SetAdmin                        of (address)
     |   SetGovernance                   of (address)
     |   UpdateConfig                    of lendingControllerUpdateConfigParamsType
-    |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
 
         // Break Glass Entrypoints
     |   PauseAll                        of (unit)
@@ -128,7 +127,6 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   SetAdmin(parameters)                          -> setAdmin(parameters, s) 
         |   SetGovernance(parameters)                     -> setGovernance(parameters, s) 
         |   UpdateConfig(parameters)                      -> updateConfig(parameters, s)
-        |   UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
 
             // Pause / Break Glass Entrypoints
         |   PauseAll(_parameters)                         -> pauseAll(s)

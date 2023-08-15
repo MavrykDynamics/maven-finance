@@ -1,18 +1,14 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
-
 import { BigNumber } from 'bignumber.js'
-
-const { bob } = require('../scripts/sandbox/accounts')
-
+import { bob } from '../scripts/sandbox/accounts'
 import { zeroAddress } from '../test/helpers/Utils'
-
-import { governanceSatelliteStorageType } from '../test/types/governanceSatelliteStorageType'
+import { governanceSatelliteStorageType } from './storageTypes/governanceSatelliteStorageType'
 
 const config = {
-    governanceSatelliteApprovalPercentage  : 6700,
-    governanceSatelliteDurationInDays      : 3,
-    governancePurposeMaxLength             : 1000,
-    maxActionsPerSatellite                 : 10
+    approvalPercentage                  : 6700,
+    satelliteActionDurationInDays       : 3,
+    governancePurposeMaxLength          : 1000,
+    maxActionsPerSatellite              : 10
 }
 
 const metadata = MichelsonMap.fromLiteral({
@@ -43,7 +39,7 @@ export const governanceSatelliteStorage: governanceSatelliteStorageType = {
     governanceSatelliteVoters           : MichelsonMap.fromLiteral({}),
     governanceSatelliteCounter          : new BigNumber(1),
     
-    actionsInitiators                   : MichelsonMap.fromLiteral({}),
+    satelliteActions                    : MichelsonMap.fromLiteral({}),
     
     satelliteAggregatorLedger           : MichelsonMap.fromLiteral({}),
     aggregatorLedger                    : MichelsonMap.fromLiteral({}),

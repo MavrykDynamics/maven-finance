@@ -14,7 +14,7 @@ class EmergencyGovernance(MavrykContract, Model):
     proposal_title_max_length               = fields.SmallIntField(default=0)
     required_fee_mutez                      = fields.BigIntField(default=0)
     smvk_percentage_required                = fields.SmallIntField(default=0)
-    vote_expiry_days                        = fields.SmallIntField(default=0)
+    duration_in_minutes                     = fields.BigIntField(default=0)
     current_emergency_record_id             = fields.BigIntField(default=0)
     next_emergency_record_id                = fields.BigIntField(default=0)
 
@@ -29,6 +29,7 @@ class EmergencyGovernanceLambda(ContractLambda, Model):
 
 class EmergencyGovernanceGeneralContract(LinkedContract, Model):
     contract                                 = fields.ForeignKeyField('models.EmergencyGovernance', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'emergency_governance_general_contract'
@@ -45,17 +46,16 @@ class EmergencyGovernanceRecord(Model):
     emergency_governance                    = fields.ForeignKeyField('models.EmergencyGovernance', related_name='emergency_governance_records', index=True)
     proposer                                = fields.ForeignKeyField('models.MavrykUser', related_name='emergency_governance_proposer', index=True)
     executed                                = fields.BooleanField(default=False, index=True)
-    dropped                                 = fields.BooleanField(default=False, index=True)
     title                                   = fields.TextField(default="")
     description                             = fields.TextField(default="")
     total_smvk_votes                        = fields.FloatField(default=0)
     smvk_percentage_required                = fields.FloatField(default=0)
     smvk_required_for_trigger               = fields.FloatField(default=0)
     start_timestamp                         = fields.DatetimeField(index=True)
-    execution_datetime                      = fields.DatetimeField(index=True)
+    execution_datetime                      = fields.DatetimeField(index=True, null=True)
     expiration_timestamp                    = fields.DatetimeField(index=True)
     start_level                             = fields.BigIntField(default=0, index=True)
-    execution_level                         = fields.BigIntField(default=0, index=True)
+    execution_level                         = fields.BigIntField(default=0, index=True, null=True)
 
     class Meta:
         table = 'emergency_governance_record'

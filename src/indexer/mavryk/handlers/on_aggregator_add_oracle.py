@@ -13,18 +13,18 @@ async def on_aggregator_add_oracle(
 
     try:
         # Get operation info
-        aggregator_address      = add_oracle.data.target_address
-        oracle_address          = add_oracle.parameter.__root__
-        oracle_storage          = add_oracle.storage.oracleLedger[oracle_address]
-        oracle_pk               = oracle_storage.oraclePublicKey
-        oracle_peer_id          = oracle_storage.oraclePeerId
-        init_round              = int(add_oracle.storage.lastCompletedData.round)
-        init_epoch              = int(add_oracle.storage.lastCompletedData.epoch)
+        aggregator_address              = add_oracle.data.target_address
+        oracle_address                  = add_oracle.parameter.__root__
+        oracle_storage                  = add_oracle.storage.oracleLedger[oracle_address]
+        oracle_pk                       = oracle_storage.oraclePublicKey
+        oracle_peer_id                  = oracle_storage.oraclePeerId
+        init_round                      = int(add_oracle.storage.lastCompletedData.round)
+        init_epoch                      = int(add_oracle.storage.lastCompletedData.epoch)
     
         # Create record
-        oracle                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
-        aggregator              = await models.Aggregator.get(network=ctx.datasource.network,address=aggregator_address)
-        aggregator_oracle       = models.AggregatorOracle(
+        oracle                          = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
+        aggregator                      = await models.Aggregator.get(network=ctx.datasource.network,address=aggregator_address)
+        aggregator_oracle               = models.AggregatorOracle(
             aggregator  = aggregator,
             user        = oracle,
             public_key  = oracle_pk,

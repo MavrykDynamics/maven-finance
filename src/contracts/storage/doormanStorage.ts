@@ -1,11 +1,8 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
-import { BigNumber } from "bignumber.js";
-
-const { bob } = require('../scripts/sandbox/accounts')
-
-import { MVK } from "../test/helpers/Utils";
-
-import { doormanStorageType } from "../test/types/doormanStorageType";
+import { MichelsonMap } from "@taquito/michelson-encoder"
+import { BigNumber } from "bignumber.js"
+import { bob } from '../scripts/sandbox/accounts'
+import { MVK } from "../test/helpers/Utils"
+import { doormanStorageType } from "./storageTypes/doormanStorageType"
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
@@ -31,7 +28,7 @@ export const doormanStorage: doormanStorageType = {
     metadata                  : metadata,
 
     config                    : {
-        minMvkAmount  :new BigNumber(MVK(1))
+        minMvkAmount  : new BigNumber(MVK(1))
     },
 
     whitelistContracts        : MichelsonMap.fromLiteral({}),
@@ -40,7 +37,13 @@ export const doormanStorage: doormanStorageType = {
     breakGlassConfig: {
         stakeIsPaused           : false,
         unstakeIsPaused         : false,
-        compoundIsPaused        : false
+        exitIsPaused            : false,
+        compoundIsPaused        : false,
+        farmClaimIsPaused       : false,
+
+        onVaultDepositStakeIsPaused    : false,
+        onVaultWithdrawStakeIsPaused   : false,
+        onVaultLiquidateStakeIsPaused  : false
     },
     userStakeBalanceLedger    : MichelsonMap.fromLiteral({}),
     

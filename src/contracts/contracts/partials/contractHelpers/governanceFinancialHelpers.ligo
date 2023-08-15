@@ -102,13 +102,13 @@ function setTreasuryBaker(const contractAddress : address) : contract(setBakerTy
 
 
 
-// helper function to %updateSatelliteSnapshot entrypoint on the Governance contract
-function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatelliteSnapshotType) is
+// helper function to %updateSatellitesSnapshot entrypoint on the Governance contract
+function sendUpdateSatellitesSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatellitesSnapshotType) is
     case (Tezos.get_entrypoint_opt(
-        "%updateSatelliteSnapshot",
-        governanceAddress) : option(contract(updateSatelliteSnapshotType))) of [
+        "%updateSatellitesSnapshot",
+        governanceAddress) : option(contract(updateSatellitesSnapshotType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatelliteSnapshotType))
+            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatellitesSnapshotType))
         ];
 
 // ------------------------------------------------------------------------------
@@ -120,6 +120,21 @@ function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddres
 // ------------------------------------------------------------------------------
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+// helper function to get the current governance cycle counter
+function getCurrentCycleCounter(const s : governanceFinancialStorageType) : nat is 
+block {
+
+    // Get the current governance cycle counter from the governance contract
+    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
+    const currentCycle : nat = case cycleCounterView of [
+            Some (_cycleCounter)   -> _cycleCounter
+        |   None                   -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+} with currentCycle
+
+
 
 // helper function to get financial request
 function getFinancialRequest(const financialRequestId : nat; const s : governanceFinancialStorageType) : financialRequestRecordType is 
@@ -134,17 +149,20 @@ block {
 
 
 
-// helper function to get staked mvk total supply (equivalent to balance of the Doorman contract on the MVK Token contract)
-function getStakedMvkTotalSupply(const s : governanceFinancialStorageType) : nat is 
+// helper function to get staked mvk snapshot total supply based on the current governance cycle 
+function getStakedMvkSnapshotTotalSupply(const currentCycleId : nat; const s : governanceFinancialStorageType) : nat is 
 block {
 
-    // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-    const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+    const getStakedMvkSnapshotOptView : option(option(nat)) = Tezos.call_view ("getStakedMvkSnapshotOpt", currentCycleId, s.governanceAddress);
 
-    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-    const stakedMvkTotalSupply: nat = case getBalanceView of [
-            Some (value) -> value
-        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+    const stakedMvkSnapshotView : option(nat) = case getStakedMvkSnapshotOptView of [
+            Some (_view)  -> _view
+        |   None          -> failwith(error_GET_STAKED_MVK_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    const stakedMvkTotalSupply : nat = case stakedMvkSnapshotView of [
+            Some(_value) -> _value
+        |   None         -> failwith(error_STAKED_MVK_SNAPSHOT_FOR_CYCLE_NOT_FOUND)
     ];
 
 } with stakedMvkTotalSupply 
@@ -155,6 +173,7 @@ block {
 function createGovernanceFinancialRequest(
     const requestType           : string; 
     const treasuryAddress       : address; 
+    const receiverAddress       : address; 
     const tokenContractAddress  : address; 
     const tokenAmount           : tokenBalanceType; 
     const tokenName             : string; 
@@ -169,22 +188,29 @@ block{
     // ------------------------------------------------------------------
     // Snapshot Staked MVK Total Supply
     // ------------------------------------------------------------------
+    
+    // Get the current cycle from the governance contract
+    const currentCycleId : nat = getCurrentCycleCounter(s);
 
     // Take snapshot of current total staked MVK supply 
-    const snapshotStakedMvkTotalSupply : nat = getStakedMvkTotalSupply(s);
+    const snapshotStakedMvkTotalSupply : nat = getStakedMvkSnapshotTotalSupply(currentCycleId, s);
 
     // Calculate staked MVK votes required for approval based on config's financial request approval percentage
-    const stakedMvkRequiredForApproval : nat = abs((snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
+    const stakedMvkRequiredForApproval : nat = abs((snapshotStakedMvkTotalSupply * s.config.approvalPercentage) / 10000);
 
     // ------------------------------------------------------------------
     // Validation Checks 
     // ------------------------------------------------------------------
 
-    // Validate token type : has to match one standard (FA12, FA2, TEZ)
-    validateTokenType(tokenType);
+    if requestType = "TRANSFER" or requestType = "MINT" then  block {
 
-    // If token, validate that token is whitelisted (security measure to prevent interacting with potentially malicious contracts)
-    validateWhitelistedToken(tokenType, tokenContractAddress, s);
+        // Validate token type : has to match one standard (FA12, FA2, TEZ)
+        validateTokenType(tokenType);
+
+        // If token, validate that token is whitelisted (security measure to prevent interacting with potentially malicious contracts)
+        validateWhitelistedToken(tokenType, tokenContractAddress, s);
+
+    } else skip;
 
     // ------------------------------------------------------------------
     // Create new Financial Request Record
@@ -199,26 +225,28 @@ block{
         executed                            = False;
 
         treasuryAddress                     = treasuryAddress;
+        receiverAddress                     = receiverAddress;
         tokenContractAddress                = tokenContractAddress;
         tokenAmount                         = tokenAmount;
         tokenName                           = tokenName; 
         tokenType                           = tokenType;
         tokenId                             = tokenId;
         requestPurpose                      = purpose;
-        voters                              = set[];
         keyHash                             = keyHash;
 
         yayVoteStakedMvkTotal               = 0n;
         nayVoteStakedMvkTotal               = 0n;
         passVoteStakedMvkTotal              = 0n;
 
+        governanceCycleId                   = currentCycleId;
         snapshotStakedMvkTotalSupply        = snapshotStakedMvkTotalSupply;
-        stakedMvkPercentageForApproval      = s.config.financialRequestApprovalPercentage; 
+        stakedMvkPercentageForApproval      = s.config.approvalPercentage; 
         stakedMvkRequiredForApproval        = stakedMvkRequiredForApproval; 
 
-        requestedDateTime                   = Tezos.get_now();               
+        requestedDateTime                   = Tezos.get_now();
         expiryDateTime                      = Tezos.get_now() + (86_400 * s.config.financialRequestDurationInDays);
-    
+        executedDateTime                    = None;
+
     ];
 
     // ------------------------------------------------------------------
@@ -275,14 +303,12 @@ block {
 // ------------------------------------------------------------------------------
 
 // helper function to transfer from treasury to council
-function transferFromTreasuryToCouncilOperation(const financialRequestRecord : financialRequestRecordType; const s : governanceFinancialStorageType) : operation is 
+function transferFromTreasuryToCouncilOperation(const financialRequestRecord : financialRequestRecordType) : operation is 
 block {
 
-    // Get Treasury Contract from params
+    // Get Addresses from params
     const treasuryAddress : address = financialRequestRecord.treasuryAddress;
-
-    // Get Council Contract address from the General Contracts Map on the Governance Contract
-    const councilAddress : address = getContractAddressFromGovernanceContract("council", s.governanceAddress, error_COUNCIL_CONTRACT_NOT_FOUND);
+    const receiverAddress : address = financialRequestRecord.receiverAddress;
 
     // Format token type
     const tokenTransferType : tokenType = formatTokenTransferType(financialRequestRecord);
@@ -290,7 +316,7 @@ block {
     // Create transfer params and operation
     const transferParams : transferActionType = list [
         record [
-            to_        = councilAddress;
+            to_        = receiverAddress;
             token      = tokenTransferType;
             amount     = financialRequestRecord.tokenAmount;
         ]
@@ -307,18 +333,16 @@ block {
 
 
 // helper function to mint MVK from treasury and transfer operation
-function mintMvkAndTransferOperation(const financialRequestRecord : financialRequestRecordType; const s : governanceFinancialStorageType) : operation is
+function mintMvkAndTransferOperation(const financialRequestRecord : financialRequestRecordType) : operation is
 block {
 
-    // Get Treasury Contract from params
+    // Get Addresses from params
     const treasuryAddress : address = financialRequestRecord.treasuryAddress;
-
-    // Get Council Contract address from the General Contracts Map on the Governance Contract
-    const councilAddress : address = getContractAddressFromGovernanceContract("council", s.governanceAddress, error_COUNCIL_CONTRACT_NOT_FOUND);
+    const receiverAddress : address = financialRequestRecord.receiverAddress;
 
     // Create mint operation
     const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
-        to_  = councilAddress;
+        to_  = receiverAddress;
         amt  = financialRequestRecord.tokenAmount;
     ];
 
@@ -388,9 +412,6 @@ block {
 function computeNewVote(var financialRequestRecord : financialRequestRecordType; const voteType : voteType; const totalVotingPower : nat) : financialRequestRecordType is 
 block {
 
-    // Save voter in financial request record's set of voters
-    financialRequestRecord.voters := Set.add(Tezos.get_sender(), financialRequestRecord.voters);
-
     // compute new vote totals
     case voteType of [
 
@@ -434,9 +455,9 @@ block {
     // If token is specified, validate that token is whitelisted (security measure to prevent interacting with potentially malicious contracts)
     validateWhitelistedToken(financialRequestRecord.tokenType, financialRequestRecord.tokenContractAddress, s);
 
-    if financialRequestRecord.requestType = "TRANSFER"           then operations := transferFromTreasuryToCouncilOperation(financialRequestRecord, s) # operations; 
+    if financialRequestRecord.requestType = "TRANSFER"           then operations := transferFromTreasuryToCouncilOperation(financialRequestRecord) # operations; 
 
-    if financialRequestRecord.requestType = "MINT"               then operations := mintMvkAndTransferOperation(financialRequestRecord, s) # operations;
+    if financialRequestRecord.requestType = "MINT"               then operations := mintMvkAndTransferOperation(financialRequestRecord) # operations;
 
     if financialRequestRecord.requestType = "SET_CONTRACT_BAKER" then operations := setContractBakerOperation(financialRequestRecord) # operations;
 
@@ -472,6 +493,27 @@ block {
 
 
 
+// helper function to get satellite rewards record view from the delegation contract
+function getSatelliteRewardsRecord(const satelliteAddress : address; const s : governanceFinancialStorageType) : satelliteRewardsType is 
+block {
+
+    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
+    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
+    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", satelliteAddress, delegationAddress);
+    const satelliteRewards : satelliteRewardsType = case satelliteRewardsOptView of [
+            Some (optionView) -> case optionView of [
+                    Some(_satelliteRewards)     -> _satelliteRewards
+                |   None                        -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
+            ]
+        |   None -> failwith(error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    ];
+
+} with satelliteRewards
+
+
+
+
 // helper function to get delegation ratio from the delegation contract
 function getDelegationRatio(const s : governanceFinancialStorageType) : nat is 
 block {
@@ -487,21 +529,6 @@ block {
     ];
 
 } with delegationRatio
-
-
-
-// helper function to get the current governance cycle counter
-function getCurrentCycleCounter(const s : governanceFinancialStorageType) : nat is 
-block {
-
-    // Get the current governance cycle counter from the governance contract
-    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
-    const currentCycle : nat = case cycleCounterView of [
-            Some (_cycleCounter)   -> _cycleCounter
-        |   None                   -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
-
-} with currentCycle
 
 
 
@@ -544,29 +571,42 @@ block {
 
 
 // helper function to update satellite snapshot
-function updateSatelliteSnapshotOperation(const satelliteAddress : address; const ready : bool; const s : governanceFinancialStorageType) : operation is 
+function updateSatellitesSnapshotOperation(const satelliteAddresses : set(address); const ready : bool; const s : governanceFinancialStorageType) : operation is 
 block {
 
-    // Get the satellite record and delgation ratio
-    const satelliteRecord : satelliteRecordType = getSatelliteRecord(satelliteAddress, s);
-    const delegationRatio : nat                 = getDelegationRatio(s);
+    // Prepare the satellites to update
+    var satellitesSnapshots : updateSatellitesSnapshotType   := set[];
 
-    // Create a snapshot
-    const satelliteSnapshotParams : updateSatelliteSnapshotType  = record[
-        satelliteAddress    = satelliteAddress;
-        satelliteRecord     = satelliteRecord;
-        ready               = ready;
-        delegationRatio     = delegationRatio;
-    ];
+    for satelliteAddress in set satelliteAddresses block {
+
+        // Get the satellite record and delgation ratio
+        const satelliteRecord   : satelliteRecordType   = getSatelliteRecord(satelliteAddress, s);
+        const satelliteRewards  : satelliteRewardsType  = getSatelliteRewardsRecord(satelliteAddress, s);
+        const delegationRatio   : nat                   = getDelegationRatio(s);
+
+        // Create a snapshot
+        const satelliteSnapshot : updateSatelliteSingleSnapshotType  = record[
+            satelliteAddress            = satelliteAddress;
+            totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
+            totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
+            ready                       = ready;
+            delegationRatio             = delegationRatio;
+            accumulatedRewardsPerShare  = satelliteRewards.satelliteAccumulatedRewardsPerShare;
+        ];
+
+        // Add the snapshot to the list
+        satellitesSnapshots := Set.add(satelliteSnapshot, satellitesSnapshots);
+
+    };
 
     // Send the snapshot to the governance contract
-    const updateSatelliteSnapshotOperation : operation   = Tezos.transaction(
-        (satelliteSnapshotParams),
+    const updateSatellitesSnapshotOperation : operation   = Tezos.transaction(
+        (satellitesSnapshots),
         0tez, 
-        sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
+        sendUpdateSatellitesSnapshotOperationToGovernance(s.governanceAddress)
     );
 
-} with updateSatelliteSnapshotOperation
+} with updateSatellitesSnapshotOperation
 
 
 
@@ -613,34 +653,39 @@ block {
 
 
 // helper function to get a satellite total voting power from its snapshot on the governance contract
-function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress : address; var operations : list(operation); const s : governanceFinancialStorageType): (nat * list(operation)) is 
+function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress : address; const requestGovernanceCycleId : nat; var operations : list(operation); const s : governanceFinancialStorageType): (nat * list(operation)) is 
 block{
 
-    // Get the current cycle from the governance contract to check if the snapshot is up to date
+    // Get the current cycle from the governance contract at time of voting to check if the snapshot is up to date
     const currentCycle : nat = getCurrentCycleCounter(s);
 
-    // Check if a snapshot needs to be created
-    const createSatelliteSnapshotCheck : bool = createSatelliteSnapshotCheck(currentCycle, satelliteAddress, s);
+    // Check if a snapshot needs to be created (if satellite snapshot does not exist for given governance cycle)
+    const createSatelliteSnapshotCheck : bool = createSatelliteSnapshotCheck(requestGovernanceCycleId, satelliteAddress, s);
 
     // Get the total voting power from the snapshot (default 0 if snapshot has not been created)
-    var totalVotingPower : nat := getSatelliteTotalVotingPower(currentCycle, satelliteAddress, s);
+    var totalVotingPower : nat := getSatelliteTotalVotingPower(requestGovernanceCycleId, satelliteAddress, s);
 
     // Create snapshot if it does not exist, verify snapshot is ready if it exists
     if createSatelliteSnapshotCheck then{
 
-        // update satellite snapshot operation
-        const updateSatelliteSnapshotOperation : operation = updateSatelliteSnapshotOperation(satelliteAddress, True, s);
-        operations := updateSatelliteSnapshotOperation # operations;
+        // check if current governance cycle matches with governance cycle of financial request
+        if currentCycle = requestGovernanceCycleId then block {
+            
+            // update satellite snapshot operation
+            const updateSatellitesSnapshotOperation : operation = updateSatellitesSnapshotOperation(set[satelliteAddress], True, s);
+            operations := updateSatellitesSnapshotOperation # operations;
 
-        // Calculate and set the total voting power of the satellite
-        totalVotingPower := calculateVotingPower(satelliteAddress, s);
+            // Calculate and set the total voting power of the satellite
+            totalVotingPower := calculateVotingPower(satelliteAddress, s);
+        
+        } else skip;
 
     } 
     // Check if satellite is ready to vote
     else {
         
         // Verify that satellite snapshot is ready
-        verifySatelliteSnapshotIsReady(currentCycle, satelliteAddress, s);
+        verifySatelliteSnapshotIsReady(requestGovernanceCycleId, satelliteAddress, s);
 
     }
 

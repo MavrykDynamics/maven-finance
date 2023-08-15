@@ -42,6 +42,7 @@ type action is
 
         // Additional Entrypoints 
     |   MintOrBurn                of mintOrBurnType
+    |   Compound                  of compoundType
 
 
 type return is list (operation) * mTokenStorageType
@@ -270,15 +271,15 @@ block {
 
 
 
-(* get: whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const s : mTokenStorageType) : whitelistContractsType is
-    s.whitelistContracts
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : mTokenStorageType) : address is
+    s.governanceAddress
 
 
 
-(* get: operator *)
-[@view] function getOperatorOpt(const operator : (ownerType * operatorType * nat); const s : mTokenStorageType) : option(unit) is
-    Big_map.find_opt(operator, s.operators)
+(* get: whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : mTokenStorageType) : option(unit) is
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
 
 
 
@@ -310,6 +311,27 @@ block {
 
 
 
+(* all_tokens View *)
+[@view] function all_tokens(const _ : unit; const _s : mTokenStorageType) : list(nat) is
+    list[0n]
+
+
+
+(* check if operator *)
+[@view] function is_operator(const operator : (ownerType * operatorType * nat); const s : mTokenStorageType) : bool is
+    Big_map.mem(operator, s.operators)
+
+
+
+(* get: metadata *)
+[@view] function token_metadata(const tokenId : nat; const s : mTokenStorageType) : option(tokenMetadataInfoType) is
+    case Big_map.find_opt(tokenId, s.token_metadata) of [
+            Some (_metadata)  -> Some(_metadata)
+        |   None              -> (None : option(tokenMetadataInfoType))
+    ]
+
+    
+
 (* get: reward index View *)
 [@view] function get_reward_index(const userAddress : ownerType; const s : mTokenStorageType) : nat is
 block {
@@ -321,7 +343,6 @@ block {
     ];
 
 } with userRewardIndex
-
 
 
 (* total_supply View *)
@@ -340,29 +361,6 @@ block {
 [@view] function get_raw_supply_and_reward_index(const _tokenId : nat; const s : mTokenStorageType) : (tokenBalanceType * nat) is
     (s.totalSupply, s.tokenRewardIndex)
 
-
-
-(* all_tokens View *)
-[@view] function all_tokens(const _ : unit; const _s : mTokenStorageType) : list(nat) is
-    list[0n]
-
-
-
-(* check if operator *)
-[@view] function is_operator(const operator : (ownerType * operatorType * nat); const s : mTokenStorageType) : bool is
-    Big_map.mem(operator, s.operators)
-
-
-
-(* get: metadata *)
-[@view] function token_metadata(const tokenId : nat; const s : mTokenStorageType) : tokenMetadataInfoType is
-    case Big_map.find_opt(tokenId, s.token_metadata) of [
-            Some (_metadata)  -> _metadata
-        |   None -> record[
-                token_id    = tokenId;
-                token_info  = map[]
-            ]
-    ]
 
 // ------------------------------------------------------------------------------
 //
@@ -478,7 +476,7 @@ block{
 
             // get loan token record from Lending Controller through on-chain views
             const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-            const tokenRewardIndex   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+            const tokenRewardIndex   : nat                 = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
              
             function transferTokens(var accumulator : mTokenStorageType; const destination : transferDestination) : mTokenStorageType is
             block {
@@ -562,7 +560,7 @@ block{
 
     // get loan token record from Lending Controller through on-chain views
     const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-    const tokenRewardIndex   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+    const tokenRewardIndex   : nat                 = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
 
     function retrieveBalance(const request : balanceOfRequestType) : balanceOfResponse is
     block{
@@ -642,7 +640,7 @@ block {
 
     // get loan token record from Lending Controller through on-chain views
     const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
-    const tokenRewardIndex   : nat                 = loanTokenRecord.accumulatedRewardsPerShare; // decimals: 1e27
+    const tokenRewardIndex   : nat                 = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
 
     // check token id
     checkTokenId(tokenId);
@@ -696,6 +694,46 @@ block {
 
 } with (noOperations, s)
 
+
+
+(* Compound Entrypoint *)
+function compound(const compoundParams : compoundType; var s : mTokenStorageType) : return is
+block {
+
+    // get loan token record from Lending Controller through on-chain views
+    const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
+    const tokenRewardIndex   : nat                 = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
+
+    var newTotalSupply    : nat := s.totalSupply;
+
+    for userAddress in set compoundParams block {
+
+        // get token balance and reward index for user
+        var userTokenBalance      : tokenBalanceType := getRawBalance(userAddress, s);
+        const userRewardIndex     : nat               = getUserRewardIndex(userAddress, tokenRewardIndex, s);
+
+        // reflect token updated balance
+        if(userRewardIndex = tokenRewardIndex) then skip     // no change to token balance
+        else {
+
+            // increment token balance with calculated additional rewards 
+            const additionalRewards : nat = calculateAdditionalRewards(userRewardIndex, tokenRewardIndex, userTokenBalance);
+            userTokenBalance  := userTokenBalance + additionalRewards;
+            newTotalSupply    := newTotalSupply + additionalRewards;
+
+        };
+
+        // Update user balance
+        s := updateUserBalanceAndRewardIndex(userAddress, userTokenBalance, tokenRewardIndex, s);
+
+    };
+
+    // update token reward index
+    s.tokenRewardIndex  := tokenRewardIndex;
+    s.totalSupply       := newTotalSupply;
+
+} with (noOperations, s)
+
 // ------------------------------------------------------------------------------
 // Additional Entrypoints End 
 // ------------------------------------------------------------------------------
@@ -730,6 +768,7 @@ block{
 
             // Additional Entrypoints
         |   MintOrBurn (parameters)                 -> mintOrBurn(parameters, s)
+        |   Compound (parameters)                   -> compound(parameters, s)
 
     ]
 

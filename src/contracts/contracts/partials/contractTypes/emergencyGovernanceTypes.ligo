@@ -1,34 +1,40 @@
 // ------------------------------------------------------------------------------
+// Required Partial Types
+// ------------------------------------------------------------------------------
+
+
+// Vote Types
+#include "../shared/voteTypes.ligo"
+
+
+// ------------------------------------------------------------------------------
 // Storage Types
 // ------------------------------------------------------------------------------
 
 
-type voteType is (nat * timestamp)              // mvk amount, timestamp
-type voterMapType is map (address, voteType)
 type emergencyGovernanceRecordType is [@layout:comb] record [
     proposerAddress                  : address;
     executed                         : bool;
-    dropped                          : bool;
 
     title                            : string;
     description                      : string;   
-    voters                           : voterMapType; 
     totalStakedMvkVotes              : nat;              
     stakedMvkPercentageRequired      : nat;              // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
     stakedMvkRequiredForBreakGlass   : nat;              // capture state of min staked MVK vote required
     
     startDateTime                    : timestamp;
     startLevel                       : nat;              // block level of submission, used to order proposals
-    executedDateTime                 : timestamp;        // will follow startDateTime and be updated when executed
-    executedLevel                    : nat;              // will follow startLevel and be updated when executed
+    executedDateTime                 : option(timestamp);
+    executedLevel                    : option(nat);
     expirationDateTime               : timestamp;
 ]
 
+type emergencyGovernanceVotersType is big_map(voterIdentifierType, (nat * timestamp)) // mvk amount, timestamp
 type emergencyGovernanceLedgerType is big_map(nat, emergencyGovernanceRecordType)
 
 type emergencyConfigType is record [
     decimals                          : nat;        // decimals used for percentages
-    voteExpiryDays                    : nat;        // track time by tezos blocks - e.g. 2 days 
+    durationInMinutes                 : nat;        // duration of emergency governance before expiry
     requiredFeeMutez                  : tez;        // fee for triggering emergency control - e.g. 100 tez -> change to MVK 
     stakedMvkPercentageRequired       : nat;        // minimum staked MVK percentage amount required to activate break glass 
     minStakedMvkRequiredToVote        : nat;        // minimum staked MVK balance of user required to vote for emergency governance
@@ -46,11 +52,11 @@ type emergencyConfigType is record [
 
 type emergencyUpdateConfigNewValueType is nat
 type emergencyUpdateConfigActionType is 
-        ConfigVoteExpiryDays            of unit
+        ConfigDurationInMinutes         of unit
     |   ConfigRequiredFeeMutez          of unit
     |   ConfigStakedMvkPercentRequired  of unit
     |   ConfigMinStakedMvkForVoting     of unit
-    |   ConfigMinStakedMvkForTrigger    of unit
+    |   ConfigMinStakedMvkToTrigger     of unit
     |   ConfigProposalTitleMaxLength    of unit
     |   ConfigProposalDescMaxLength     of unit
 
@@ -84,7 +90,6 @@ type emergencyGovernanceLambdaActionType is
         // Emergency Governance Entrypoints
     |   LambdaTriggerEmergencyControl   of triggerEmergencyControlType
     |   LambdaVoteForEmergencyControl   of (unit)
-    |   LambdaDropEmergencyGovernance   of (unit)
 
 
 // ------------------------------------------------------------------------------
@@ -103,7 +108,8 @@ type emergencyGovernanceStorageType is [@layout:comb] record [
     whitelistContracts                  : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
     generalContracts                    : generalContractsType;
 
-    emergencyGovernanceLedger           : emergencyGovernanceLedgerType; 
+    emergencyGovernanceLedger           : emergencyGovernanceLedgerType;
+    emergencyGovernanceVoters           : emergencyGovernanceVotersType;
     
     currentEmergencyGovernanceId        : nat;
     nextEmergencyGovernanceId           : nat;

@@ -39,6 +39,7 @@ type action is
     |   Balance_of                of balanceOfType
     |   Update_operators          of updateOperatorsType
     |   Mint                      of mintType
+    |   Burn                      of nat
 
         // Additional Entrypoints (Token Supply Inflation)
     |   UpdateInflationRate       of nat
@@ -208,39 +209,21 @@ block{
 
 
 
-(* get: general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const store : mvkTokenStorageType) : generalContractsType is
-    store.generalContracts
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const store : mvkTokenStorageType) : address is
+    store.governanceAddress
 
 
 
-(* get: whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const store : mvkTokenStorageType) : whitelistContractsType is
-    store.whitelistContracts
+(* get: whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const store : mvkTokenStorageType) : option(unit) is
+    Big_map.find_opt(contractAddress, store.whitelistContracts)
 
 
 
-(* get: inflation rate *)
-[@view] function getInflationRate(const _ : unit; const store : mvkTokenStorageType) : nat is
-    store.inflationRate
-
-
-
-(* get: next inflation timestamp *)
-[@view] function getNextInflationTimestamp(const _ : unit; const store : mvkTokenStorageType) : timestamp is
-    store.nextInflationTimestamp
-
-
-
-(* get: operator *)
-[@view] function getOperatorOpt(const operator : (ownerType * operatorType * nat); const store : mvkTokenStorageType) : option(unit) is
-    Big_map.find_opt(operator, store.operators)
-
-
-
-(* maximumSupply View *)
-[@view] function getMaximumSupply(const _ : unit; const store : mvkTokenStorageType) : tokenBalanceType is
-    store.maximumSupply
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const store : mvkTokenStorageType) : option(address) is
+    Big_map.find_opt(contractName, store.generalContracts)
 
 
 
@@ -250,12 +233,6 @@ block{
             Some (_v) -> _v
         |   None      -> 0n
     ]
-
-
-
-(* total_supply View *)
-[@view] function total_supply(const _tokenId : nat; const _store : mvkTokenStorageType) : tokenBalanceType is
-    _store.totalSupply
 
 
 
@@ -272,14 +249,35 @@ block{
 
 
 (* get: metadata *)
-[@view] function token_metadata(const tokenId : nat; const store : mvkTokenStorageType) : tokenMetadataInfoType is
+[@view] function token_metadata(const tokenId : nat; const store : mvkTokenStorageType) : option(tokenMetadataInfoType) is
     case Big_map.find_opt(tokenId, store.token_metadata) of [
-            Some (_metadata)  -> _metadata
-        |   None -> record[
-                token_id    = tokenId;
-                token_info  = map[]
-            ]
+            Some (_metadata)  -> Some(_metadata)
+        |   None              -> (None : option(tokenMetadataInfoType))
     ]
+
+    
+
+(* total_supply View *)
+[@view] function total_supply(const _tokenId : nat; const store : mvkTokenStorageType) : tokenBalanceType is
+    store.totalSupply
+
+
+
+(* maximumSupply View *)
+[@view] function getMaximumSupply(const _ : unit; const store : mvkTokenStorageType) : tokenBalanceType is
+    store.maximumSupply
+
+
+
+(* get: inflation rate *)
+[@view] function getInflationRate(const _ : unit; const store : mvkTokenStorageType) : nat is
+    store.inflationRate
+
+
+
+(* get: next inflation timestamp *)
+[@view] function getNextInflationTimestamp(const _ : unit; const store : mvkTokenStorageType) : timestamp is
+    store.nextInflationTimestamp
 
 // ------------------------------------------------------------------------------
 //
@@ -439,7 +437,6 @@ block{
 
 
 
-
 (* balance_of entrypoint *)
 function balanceOf(const balanceOfParams : balanceOfType; const store : mvkTokenStorageType) : return is
 block{
@@ -509,6 +506,28 @@ block {
 
 } with (noOperations, store)
 
+
+
+(* burn entrypoint *)
+function burn(const burnTokenAmount : nat; var store : mvkTokenStorageType) : return is
+block {
+
+    const senderAddress : ownerType = Tezos.get_sender();
+
+    // Get sender's balance
+    const senderBalance : tokenBalanceType = get_balance((senderAddress, 0n), store);
+
+    // Validate that sender has enough tokens to burn
+    checkBalance(senderBalance, burnTokenAmount);
+
+    const senderNewBalance : tokenBalanceType = abs(senderBalance - burnTokenAmount);
+
+    // Update mvkTokenStorageType
+    store.totalSupply           := abs(store.totalSupply - burnTokenAmount);
+    store.ledger[senderAddress] := senderNewBalance;
+
+} with (noOperations, store)
+
 // ------------------------------------------------------------------------------
 // FA2 Entrypoints End
 // ------------------------------------------------------------------------------
@@ -549,11 +568,11 @@ block {
     // And at least 90% of the maximum supply has been minted
     if store.nextInflationTimestamp < Tezos.get_now() and mintedMvkPercentage > 90_00n then {
       
-      // Set the new maximumSupply
-      store.maximumSupply           := store.maximumSupply + inflation;
+        // Set the new maximumSupply
+        store.maximumSupply           := store.maximumSupply + inflation;
 
-      // Update the next change date
-      store.nextInflationTimestamp  := Tezos.get_now() + one_year;
+        // Update the next change date
+        store.nextInflationTimestamp  := Tezos.get_now() + one_year;
 
     }
     else failwith(error_CANNOT_TRIGGER_INFLATION_NOW);
@@ -595,6 +614,7 @@ block{
         |   Balance_of (params)                 -> balanceOf(params, store)
         |   Update_operators (params)           -> updateOperators(params, store)
         |   Mint (params)                       -> mint(params, store)
+        |   Burn (params)                       -> burn(params, store)
 
             // Additional Entrypoints (Token Supply Inflation)
         |   UpdateInflationRate (params)        -> updateInflationRate(params, store)

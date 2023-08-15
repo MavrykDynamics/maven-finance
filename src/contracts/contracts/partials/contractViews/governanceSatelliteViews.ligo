@@ -10,33 +10,27 @@
 
 
 
-(* View: get config *)
-[@view] function getConfig(const _ : unit; const s : governanceSatelliteStorageType) : governanceSatelliteConfigType is
-    s.config
-
-
-
 (* View: get Governance address *)
 [@view] function getGovernanceAddress(const _ : unit; const s : governanceSatelliteStorageType) : address is
     s.governanceAddress
 
 
 
-(* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const s : governanceSatelliteStorageType) : whitelistContractsType is
-    s.whitelistContracts
+(* View: get config *)
+[@view] function getConfig(const _ : unit; const s : governanceSatelliteStorageType) : governanceSatelliteConfigType is
+    s.config
 
 
 
-(* View: get general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const s : governanceSatelliteStorageType) : generalContractsType is
-    s.generalContracts
+(* View: get whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : governanceSatelliteStorageType) : option(unit) is 
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
 
 
 
-(* View: get a governance satellite action *)
-[@view] function getGovernanceSatelliteActionOpt(const actionId : nat; const s : governanceSatelliteStorageType) : option(governanceSatelliteActionRecordType) is
-    Big_map.find_opt(actionId, s.governanceSatelliteActionLedger)
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const s : governanceSatelliteStorageType) : option(address) is
+    Big_map.find_opt(contractName, s.generalContracts)
 
 
 
@@ -46,15 +40,21 @@
 
 
 
+(* View: get a governance satellite action *)
+[@view] function getGovernanceSatelliteActionOpt(const actionId : nat; const s : governanceSatelliteStorageType) : option(governanceSatelliteActionRecordType) is
+    Big_map.find_opt(actionId, s.governanceSatelliteActionLedger)
+
+
+
 (* View: get governance satellite voter *)
-[@view] function getGovernanceSatelliteVoterOpt(const requestIdAndVoter : (actionIdType*address); const s : governanceSatelliteStorageType) : option(voteType) is
-    Big_map.find_opt(requestIdAndVoter, s.governanceSatelliteVoters)
+[@view] function getGovernanceSatelliteVoterOpt(const voterId : voterIdentifierType; const s : governanceSatelliteStorageType) : option(voteType) is
+    Big_map.find_opt(voterId, s.governanceSatelliteVoters)
 
 
 
-(* View: get action action initiator *)
-[@view] function getActionsInitiatorOpt(const initiator : address; const s : governanceSatelliteStorageType) : option(set(actionIdType)) is
-    Big_map.find_opt(initiator, s.actionsInitiators)
+(* View: get satellite actions for specified governance cycle *)
+[@view] function getSatelliteActionsOpt(const satelliteActionKey : (nat * address); const s : governanceSatelliteStorageType) : option(set(actionIdType)) is
+    Big_map.find_opt(satelliteActionKey, s.satelliteActions)
 
 
 
@@ -72,13 +72,7 @@
 
 (* View: get a lambda *)
 [@view] function getLambdaOpt(const lambdaName : string; const s : governanceSatelliteStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.lambdaLedger)
-
-
-
-(* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; const s : governanceSatelliteStorageType) : lambdaLedgerType is
-    s.lambdaLedger
+    Big_map.find_opt(lambdaName, s.lambdaLedger)
 
 // ------------------------------------------------------------------------------
 //
