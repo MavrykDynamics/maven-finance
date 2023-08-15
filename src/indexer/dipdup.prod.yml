@@ -10,6 +10,7 @@ database:
   password: ${POSTGRES_PASSWORD:-changeme}
   database: ${POSTGRES_DB:-changeme}
   schema_name: public
+  connection_timeout: 60
 
 hasura:
   url: ${HASURA_URL:-changeme}
@@ -23,6 +24,12 @@ prometheus:
 
 advanced:
   metadata_interface: true
+  early_realtime: true
+  crash_reporting: false
+  merge_subscriptions: true
+  scheduler:
+    apscheduler.job_defaults.coalesce: true
+    apscheduler.job_defaults.max_instances: 1
   reindex:
     manual: wipe
     migration: exception
