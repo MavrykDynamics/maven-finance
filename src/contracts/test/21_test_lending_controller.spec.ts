@@ -3257,11 +3257,10 @@ describe("Lending Controller tests", async () => {
 
             const decimals           = 4;
             const reserveRatio       = 3000; // 30%
-
             const loanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-            const tokenPoolTotal      = loanTokenRecordView.tokenPoolTotal;
-            const totalBorrowed       = loanTokenRecordView.totalBorrowed;
-            const totalRemaining      = loanTokenRecordView.totalRemaining;
+            const tokenPoolTotal      = loanTokenRecordView.Some.tokenPoolTotal;
+            const totalBorrowed       = loanTokenRecordView.Some.totalBorrowed;
+            const totalRemaining      = loanTokenRecordView.Some.totalRemaining;
 
             const requiredReserves    = (tokenPoolTotal * reserveRatio) / (10 ** decimals);
             const borrowTooMuchAmount = (tokenPoolTotal - requiredReserves - totalBorrowed) + 10;
@@ -3629,9 +3628,9 @@ describe("Lending Controller tests", async () => {
             const mockFa2LoanTokenRecordView  = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("eurl").executeView({ viewCaller : bob.pkh});
             const tezLoanTokenRecordView      = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("tez").executeView({ viewCaller : bob.pkh});
 
-            const mockFa12LoanTokenMinRepaymentAmount = mockFa12LoanTokenRecordView.minRepaymentAmount;
-            const mockFa2LoanTokenMinRepaymentAmount  = mockFa2LoanTokenRecordView.minRepaymentAmount;
-            const tezLoanTokenMinRepaymentAmount      = tezLoanTokenRecordView.minRepaymentAmount;
+            const mockFa12LoanTokenMinRepaymentAmount = mockFa12LoanTokenRecordView.Some.minRepaymentAmount;
+            const mockFa2LoanTokenMinRepaymentAmount  = mockFa2LoanTokenRecordView.Some.minRepaymentAmount;
+            const tezLoanTokenMinRepaymentAmount      = tezLoanTokenRecordView.Some.minRepaymentAmount;
 
             const belowMinRepaymentAmountForMockFa12LoanToken = mockFa12LoanTokenMinRepaymentAmount / 2;
             const belowMinRepaymentAmountForMockFa2LoanToken  = mockFa2LoanTokenMinRepaymentAmount  / 2;
@@ -5241,8 +5240,8 @@ describe("Lending Controller tests", async () => {
                     const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
     
                     let vaultRecordView             = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-                    const loanToken                 = vaultRecordView.loanToken;
-                    let loanOutstandingTotal        = vaultRecordView.loanOutstandingTotal;
+                    const loanToken                 = vaultRecordView.Some.loanToken;
+                    let loanOutstandingTotal        = vaultRecordView.Some.loanOutstandingTotal;
                     loanOutstandingTotal            = loanOutstandingTotal * 3; // increase amount to cover interest accrued; excess amount will be refunded
 
                     // console.log(`vaultId: ${vaultId} | vaultAddress: ${vaultAddress} | loanOutstandingTotal: ${loanOutstandingTotal}`)
@@ -5290,11 +5289,11 @@ describe("Lending Controller tests", async () => {
 
                     lendingControllerStorage        = await lendingControllerInstance.storage();
                     vaultRecordView                 = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
-                    const finalLoanOutstandingTotal = vaultRecordView.loanOutstandingTotal;
+                    const finalLoanOutstandingTotal = vaultRecordView.Some.loanOutstandingTotal;
 
                     assert.equal(finalLoanOutstandingTotal, 0);
 
-                    const collateralBalanceLedger   = vaultRecordView.collateralBalanceLedger;
+                    const collateralBalanceLedger   = vaultRecordView.Some.collateralBalanceLedger;
                     for (const [collateralName, collateralBalance] of collateralBalanceLedger.entries()) {
 
                         try {

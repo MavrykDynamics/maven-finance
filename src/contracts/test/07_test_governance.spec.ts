@@ -911,9 +911,9 @@ describe("Governance tests", async () => {
                     // Assertions
                     assert.notStrictEqual(proposalDataStorage, undefined);
                     assert.notStrictEqual(paymentDataStorage, undefined);
-                    assert.strictEqual(proposalDataStorage.title, "Data#1");
-                    assert.strictEqual(proposalDataStorage.encodedCode, mockPackedLambdaData.updateCouncilConfig);
-                    assert.strictEqual(paymentDataStorage.title,  "Payment#0");
+                    assert.strictEqual(proposalDataStorage.Some.title, "Data#1");
+                    assert.strictEqual(proposalDataStorage.Some.encodedCode, mockPackedLambdaData.updateCouncilConfig);
+                    assert.strictEqual(paymentDataStorage.Some.title,  "Payment#0");
                     assert.equal(nextProposalId.toNumber() + 1, finalNextProposalId.toNumber());
                     assert.notEqual(cycleProposal, undefined);
                     assert.notStrictEqual(newProposal, undefined);
@@ -1101,8 +1101,8 @@ describe("Governance tests", async () => {
                     const proposalDataStorage   = await proposal.proposalData.get("1");
 
                     // Assertions
-                    assert.strictEqual(proposalDataStorage.title, "Data#1")
-                    assert.strictEqual(proposalDataStorage.encodedCode, mockPackedLambdaData.updateCouncilConfig,)
+                    assert.strictEqual(proposalDataStorage.Some.title, "Data#1")
+                    assert.strictEqual(proposalDataStorage.Some.encodedCode, mockPackedLambdaData.updateCouncilConfig,)
                 } catch(e){
                     console.dir(e, {depth: 5})
                 }
@@ -1133,8 +1133,8 @@ describe("Governance tests", async () => {
                     const proposalDataStorage = await proposal.proposalData.get("1");
 
                     // Assertions
-                    assert.strictEqual(proposalDataStorage.title, "Data#1.1")
-                    assert.strictEqual(proposalDataStorage.encodedCode, mockPackedLambdaData.updateDelegationConfig)
+                    assert.strictEqual(proposalDataStorage.Some.title, "Data#1.1")
+                    assert.strictEqual(proposalDataStorage.Some.encodedCode, mockPackedLambdaData.updateDelegationConfig)
 
                 } catch(e){
                     console.dir(e, {depth: 5})
@@ -1253,12 +1253,12 @@ describe("Governance tests", async () => {
                     const thirdProposalDataStorage  = await proposal.proposalData.get("3");
 
                     // Assertions
-                    assert.strictEqual(firstProposalDataStorage.title, "Data#1.2")
-                    assert.strictEqual(firstProposalDataStorage.encodedCode, mockPackedLambdaData.updateDelegationConfig)
-                    assert.strictEqual(secondProposalDataStorage.title, "Data#2.1")
-                    assert.strictEqual(secondProposalDataStorage.encodedCode, mockPackedLambdaData.updateDoormanConfig)
-                    assert.strictEqual(thirdProposalDataStorage.title,  "Data#3")
-                    assert.strictEqual(thirdProposalDataStorage.encodedCode, mockPackedLambdaData.updateDelegationConfig)
+                    assert.strictEqual(firstProposalDataStorage.Some.title, "Data#1.2")
+                    assert.strictEqual(firstProposalDataStorage.Some.encodedCode, mockPackedLambdaData.updateDelegationConfig)
+                    assert.strictEqual(secondProposalDataStorage.Some.title, "Data#2.1")
+                    assert.strictEqual(secondProposalDataStorage.Some.encodedCode, mockPackedLambdaData.updateDoormanConfig)
+                    assert.strictEqual(thirdProposalDataStorage.Some.title,  "Data#3")
+                    assert.strictEqual(thirdProposalDataStorage.Some.encodedCode, mockPackedLambdaData.updateDelegationConfig)
 
                 } catch(e){
                     console.dir(e, {depth: 5})
@@ -1301,8 +1301,8 @@ describe("Governance tests", async () => {
 
 
                     // Assertions
-                    assert.strictEqual(firstProposalDataStorage.title, "Payment#2")
-                    assert.notStrictEqual(firstProposalDataStorage.transaction, undefined)
+                    assert.strictEqual(firstProposalDataStorage.Some.title, "Payment#2")
+                    assert.notStrictEqual(firstProposalDataStorage.Some.transaction, undefined)
 
                 } catch(e){
                     console.dir(e, {depth: 5})
@@ -1346,8 +1346,8 @@ describe("Governance tests", async () => {
                     const firstProposalDataStorage  = await proposal.paymentData.get("1");
 
                     // Assertions
-                    assert.strictEqual(firstProposalDataStorage.title, "Payment#2.1")
-                    assert.notStrictEqual(firstProposalDataStorage.transaction, undefined)
+                    assert.strictEqual(firstProposalDataStorage.Some.title, "Payment#2.1")
+                    assert.notStrictEqual(firstProposalDataStorage.Some.transaction, undefined)
 
                 } catch(e){
                     console.dir(e, {depth: 5})
@@ -1445,10 +1445,10 @@ describe("Governance tests", async () => {
                     const secondProposalDataStorage = await proposal.paymentData.get("2");
 
                     // Assertions
-                    assert.strictEqual(firstProposalDataStorage.title, "Payment#2.2")
-                    assert.notStrictEqual(firstProposalDataStorage.transaction, undefined)
-                    assert.strictEqual(secondProposalDataStorage.title, "Payment#3")
-                    assert.notStrictEqual(secondProposalDataStorage.transaction, undefined)
+                    assert.strictEqual(firstProposalDataStorage.Some.title, "Payment#2.2")
+                    assert.notStrictEqual(firstProposalDataStorage.Some.transaction, undefined)
+                    assert.strictEqual(secondProposalDataStorage.Some.title, "Payment#3")
+                    assert.notStrictEqual(secondProposalDataStorage.Some.transaction, undefined)
 
                 } catch(e){
                     console.dir(e, {depth: 5})
