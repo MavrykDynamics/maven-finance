@@ -1,0 +1,22 @@
+{
+    "type": "pg_update_source",
+    "args": {
+      "name": "default",
+      "configuration": {
+        "connection_info": {
+          "database_url": {
+             "from_env": "HASURA_GRAPHQL_DATABASE_URL"
+           },
+          "pool_settings": {
+            "total_max_connections": 30,
+            "idle_timeout": 180,
+            "retries": 1,
+            "pool_timeout": 360,
+            "connection_lifetime": 600
+          },
+          "use_prepared_statements": true,
+          "isolation_level": "read-committed"
+        }
+      }
+    }
+}

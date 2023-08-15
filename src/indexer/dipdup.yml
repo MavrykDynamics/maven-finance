@@ -1517,58 +1517,66 @@ templates:
       pattern:
       - destination: <lending_controller_mock_time_contract>
         entrypoint: setLambda
-
-indexes:
-  liquidity_baking:
+  # Side Template - Liquidity Baking
+  # Ran after the liquidity baking origination and index the entire dApp
+  liquidity_baking_template:
     kind: operation
     datasource: tzkt_mainnet
     types:
     - origination
     - transaction
     contracts:
-    - liquidity_baking
-    - sirius
+    - <liquidity_baking_contract>
+    - <sirius_contract>
+    - <tzbtc_contract>
     handlers:
     # Liquidity baking handlers
     - callback: on_liquidity_baking_add_liquidity
       pattern:
-      - destination: liquidity_baking
+      - destination: <liquidity_baking_contract>
         entrypoint: addLiquidity
-      - destination: tzbtc
+      - destination: <tzbtc_contract>
         entrypoint: transfer
-      - destination: sirius
+      - destination: <sirius_contract>
         entrypoint: mintOrBurn
     - callback: on_liquidity_baking_remove_liquidity
       pattern:
-      - destination: liquidity_baking
+      - destination: <liquidity_baking_contract>
         entrypoint: removeLiquidity
-      - destination: sirius
+      - destination: <sirius_contract>
         entrypoint: mintOrBurn
-      - destination: tzbtc
+      - destination: <tzbtc_contract>
         entrypoint: transfer
-      - source: liquidity_baking
+      - source: <liquidity_baking_contract>
         type: transaction
     - callback: on_liquidity_baking_token_to_xtz
       pattern:
-      - destination: liquidity_baking
+      - destination: <liquidity_baking_contract>
         entrypoint: tokenToXtz
-      - destination: tzbtc
+      - destination: <tzbtc_contract>
         entrypoint: transfer
-      - source: liquidity_baking
+      - source: <liquidity_baking_contract>
         type: transaction
-      - source: liquidity_baking
+      - source: <liquidity_baking_contract>
         type: transaction
     - callback: on_liquidity_baking_xtz_to_token
       pattern:
-      - destination: liquidity_baking
+      - destination: <liquidity_baking_contract>
         entrypoint: xtzToToken
-      - destination: tzbtc
+      - destination: <tzbtc_contract>
         entrypoint: transfer
+    - callback: on_liquidity_baking_default
+      pattern:
+      - destination: <liquidity_baking_contract>
+        entrypoint: default
     # Sirius handlers
     - callback: on_sirius_transfer
       pattern:
-      - destination: sirius
+      - destination: <sirius_contract>
         entrypoint: transfer
+
+
+indexes:
   mavryk_finance_ghostnet_init:
     kind: operation
     datasource: tzkt_ghostnet
