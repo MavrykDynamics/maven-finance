@@ -17,15 +17,20 @@ async def on_governance_financial_drop_financial_request(
         request_id          = int(drop_financial_request.parameter.__root__)
         request_storage     = drop_financial_request.storage.financialRequestLedger[drop_financial_request.parameter.__root__]
         status              = models.GovernanceActionStatus.DROPPED
+        status_timestamp    = drop_financial_request.data.timestamp
         if request_storage.status:
-            status          = models.GovernanceActionStatus.ACTIVE
+            status              = models.GovernanceActionStatus.ACTIVE
+            status_timestamp    = None
     
         # Update record
         governance_financial    = await models.GovernanceFinancial.get(network=ctx.datasource.network, address= financial_address)
         await models.GovernanceFinancialRequest.filter(
             governance_financial    = governance_financial,
             internal_id             = request_id
-        ).update(status = status)
+        ).update(
+            status              = status,
+            dropped_datetime    = status_timestamp
+        )
 
     except BaseException as e:
          await save_error_report(e)

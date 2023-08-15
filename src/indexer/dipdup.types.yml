@@ -392,6 +392,10 @@ indexes:
         entrypoint: xtzToToken
       - destination: tzbtc
         entrypoint: transfer
+    - callback: on_liquidity_baking_default
+      pattern:
+      - destination: liquidity_baking
+        entrypoint: default
   sirius:
     kind: operation
     datasource: tzkt_mainnet

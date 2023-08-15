@@ -32,7 +32,7 @@ async def save_error_report(exception):
 
     # Send a message to telegram
     telegram_enable_reporting   = os.getenv("TELEGRAM_ENABLE_REPORTING")
-    if telegram_enable_reporting == "True" or telegram_enable_reporting == "true":
+    if str(telegram_enable_reporting).upper() == "TRUE":
         telegram_bot_token          = os.getenv("TELEGRAM_BOT_API_TOKEN")
         telegram_channel            = os.getenv("TELEGRAM_CHANNEL_ID")
 

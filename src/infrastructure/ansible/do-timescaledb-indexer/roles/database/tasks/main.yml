@@ -27,12 +27,12 @@
     line="listen_addresses = '*'"
     state=present
 
-- name: Postgresql should accept 30 connections
+- name: Postgresql should accept 60 connections
   become: true
   become_user: postgres
   lineinfile: dest="{{ pg_main_conf.stdout }}"
     regexp="^max_connections"
-    line="max_connections = 30"
+    line="max_connections = 60"
     state=present
 
 - name: Postgresql should allow access to host
@@ -91,20 +91,6 @@
     name: timescaledb
     db: dipdup-dev
 
-- name: Create the dipdup staging database
-  become: true
-  become_user: postgres
-  community.postgresql.postgresql_db:
-    name: dipdup-staging
-    state: present
-
-- name: Add the TimescaleDB extension to the dipdup staging database
-  become: true
-  become_user: postgres
-  community.postgresql.postgresql_ext:
-    name: timescaledb
-    db: dipdup-staging
-
 - name: Create the dipdup user
   become: true
   become_user: postgres
@@ -127,15 +113,6 @@
   become_user: postgres
   community.postgresql.postgresql_privs:
     db: dipdup-dev
-    privs: ALL
-    type: database
-    role: dipdup
-
-- name: Grant privs to dipdup user on dipdup staging database
-  become: true
-  become_user: postgres
-  community.postgresql.postgresql_privs:
-    db: dipdup-staging
     privs: ALL
     type: database
     role: dipdup

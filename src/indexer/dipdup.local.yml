@@ -10,6 +10,7 @@ database:
   password: dipdup12345
   database: dipdup
   schema_name: public
+  connection_timeout: 60
 
 hasura:
   url: http://127.0.0.1:42000

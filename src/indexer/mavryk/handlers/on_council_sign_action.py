@@ -16,6 +16,7 @@ async def on_council_sign_action(
         # Get operation values
         council_address         = sign_action.data.target_address
         signer_address          = sign_action.data.sender_address
+        timestamp               = sign_action.data.timestamp
         action_id               = int(sign_action.parameter.__root__)
         action_record_storage   = sign_action.storage.councilActionsLedger[sign_action.parameter.__root__]
         signer_count            = int(action_record_storage.signersCount)
@@ -45,6 +46,8 @@ async def on_council_sign_action(
         )
         action_record.council_size_snapshot = council.council_size
         action_record.status                = status_type
+        if action_record.status == models.ActionStatus.FLUSHED:
+            action_record.flushed_datetime  = timestamp
         action_record.signers_count         = signer_count
         action_record.executed              = executed
         action_record.execution_datetime    = execution_datetime

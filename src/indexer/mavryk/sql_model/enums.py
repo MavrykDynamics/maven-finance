@@ -14,6 +14,7 @@ class DexType(IntEnum):
     XTZ_TO_TOKEN                    = 2
     TOKEN_TO_XTZ                    = 3
     TOKEN_TO_TOKEN                  = 4
+    DEFAULT                         = 5
 
 class StakeType(IntEnum):
     STAKE                           = 0

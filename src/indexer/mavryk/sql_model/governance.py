@@ -100,6 +100,8 @@ class GovernanceProposal(Model):
     quorum_smvk_total                       = fields.FloatField(default=0)
     start_datetime                          = fields.DatetimeField(index=True)
     execution_datetime                      = fields.DatetimeField(index=True, null=True)
+    dropped_datetime                        = fields.DatetimeField(index=True, null=True)
+    defeated_datetime                       = fields.DatetimeField(index=True, null=True)
     cycle                                   = fields.BigIntField(default=0, index=True)
     current_cycle_start_level               = fields.BigIntField(default=0, index=True)
     current_cycle_end_level                 = fields.BigIntField(default=0, index=True)
