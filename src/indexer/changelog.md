@@ -13,6 +13,178 @@
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
+## Next
+
+### What's new
+
+- BreakGlass
+  - Column CouncilSize added
+
+- Council
+  - Column CouncilSize added
+
+- Delegation
+  - Column TakeSatellitesSnapshotPaused added
+
+- SatelliteRewards
+  - Column ReferenceGovernanceCycleId added
+  - Column Tracked added
+
+- Doorman
+  - Column ExitPaused added
+
+- GovernanceSatelliteSnapshot
+  - Column AccumulatedRewardsPerShare added
+  - Column NextSnapshotCycleId added
+  - Column Latest added
+
+- GovernanceSMVKSnapshot
+  - Table added
+
+- GovernanceFinancialRequest
+  - Column GovernanceCycleId added
+  - Column Receiver added
+
+- GovernanceSatelliteAction
+  - Column GovernanceCycleId added
+
+- Treasury
+  - Column UpdateTokenOperatorsPaused added
+
+- LendingController
+  - Column LastCompletedMaxDataDelay added
+
+### Breaking changes
+
+- AggregatorFactoryWhitelistContract
+  - Column ContractName removed
+
+- AggregatorWhitelistContract
+  - Column ContractName removed
+
+- BreakGlassWhitelistContract
+  - Column ContractName removed
+
+- CouncilWhitelistContract
+  - Column ContractName removed
+
+- DelegationWhitelistContract
+  - Column ContractName removed
+
+- DoormanWhitelistContract
+  - Column ContractName removed
+
+- EmergencyGovernance
+  - Column VoteExpiryDays renamed to DurationInMinutes
+
+- EmergencyGovernanceRecord
+  - Column Dropped removed
+
+- EmergencyGovernanceWhitelistContract
+  - Column ContractName removed
+
+- FarmFactoryWhitelistContract
+  - Column ContractName removed
+
+- FarmWhitelistContract
+  - Column ContractName removed
+
+- Governance
+  - Column ProposalRoundVoteRequired removed
+
+- GovernanceFinancialWhitelistContract
+  - Column ContractName removed
+
+- GovernanceFinancialWhitelistTokenContract
+  - Column ContractName removed
+
+- GovernanceSatelliteWhitelistContract
+  - Column ContractName removed
+
+- GovernanceWhitelistContract
+  - Column ContractName removed
+
+- LendingControllerGeneralContract
+  - Table removed
+
+- LendingControllerWhitelistContract
+  - Table removed
+
+- LendingControllerWhitelistTokenContract
+  - Table removed
+
+- MTokenWhitelistContract
+  - Column ContractName removed
+
+- MVKTokenWhitelistContract
+  - Column ContractName removed
+
+- TreasuryFactoryWhitelistContract
+  - Column ContractName removed
+
+- TreasuryFactoryWhitelistTokenContract
+  - Column ContractName removed
+
+- TreasuryWhitelistContract
+  - Column ContractName removed
+
+- TreasuryWhitelistTokenContract
+  - Column ContractName removed
+
+- TreasuryFactoryWhitelistTokenContract
+  - Column ContractName removed
+
+- VaultFactoryWhitelistContract
+  - Column ContractName removed
+
+- VestingWhitelistContract
+  - Column ContractName removed
+
+- BreakGlassAction
+  - Column ExecutionDatetime is now nullable
+  - Column ExecutionLevel is now nullable
+
+- CouncilAction
+  - Column ExecutionDatetime is now nullable
+  - Column ExecutionLevel is now nullable
+
+- EmergencyGovernanceRecord
+  - Column ExecutionDatetime is now nullable
+  - Column ExecutionLevel is now nullable
+
+- GovernanceProposal
+  - Column ExecutionDatetime is now nullable
+
+- GovernanceFinancial
+  - Column FinReqApprovalPercentage renamed to ApprovalPercentage
+
+- GovernanceFinancialRequest
+  - Column ExecutionDatetime is now nullable
+
+- GovernanceSatellite
+  - Column GovSatApprovalPercentage renamed to ApprovalPercentage
+  - Column GovSatDurationInDays renamed to SatActionDurationInDays
+
+- GovernanceSatelliteAction
+  - Column ExecutionDatetime is now nullable
+
+- LendingControllerLoanToken
+  - Column MTokensTotal renamed to RawMTokensTotalSupply
+  - Column AccumulatedRewardsPerShare renamed to TokenRewardIndex
+
+- MVKTokenMintHistoryData
+  - Table renamed to MVKTokenMintOrBurnHistoryData
+  - Column MintedAmount renamed to Amount
+  - Column Type added
+
+- Treasury
+  - Column StakeMvkPaused renamed to StakeTokensPaused
+  - Column UnstakeMvkPaused renamed to UnstakeTokensPaused
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.45</summary>
+
 ## 0.45
 
 ### What's new
@@ -38,7 +210,7 @@
 - GovernanceProposal
   - Column ExecutionDatetime is now nullable
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.44</summary>
 

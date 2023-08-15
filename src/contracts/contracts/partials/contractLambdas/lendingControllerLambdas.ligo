@@ -68,28 +68,15 @@ block {
                     |   ConfigMinimumLoanFeePercent (_v)    -> s.config.minimumLoanFeePercent           := updateConfigNewValue
                     |   ConfigMinLoanFeeTreasuryShare (_v)  -> s.config.minimumLoanFeeTreasuryShare     := updateConfigNewValue
                     |   ConfigInterestTreasuryShare (_v)    -> s.config.interestTreasuryShare           := updateConfigNewValue
+                    |   ConfigLastCompletedDataMaxDelay (_v)-> s.config.lastCompletedDataMaxDelay       := updateConfigNewValue
+                    |   ConfigMaxVaultLiqPercent (_v)       -> s.config.maxVaultLiquidationPercent      := updateConfigNewValue
+                    |   ConfigLiquidationDelayInMins (_v)   -> s.config.liquidationDelayInMins          := updateConfigNewValue
+                    |   ConfigLiquidationMaxDuration (_v)   -> s.config.liquidationMaxDuration          := updateConfigNewValue
                 ];
             }
         |   _ -> skip
     ];
   
-} with (noOperations, s)
-
-
-
-(* updateWhitelistTokenContracts lambda *)
-function lambdaUpdateWhitelistTokenContracts(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
-block {
-
-    verifySenderIsAdmin(s.admin); // verify that sender is admin
-
-    case lendingControllerLambdaAction of [
-        |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
-                s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
-            }
-        |   _ -> skip
-    ];
-
 } with (noOperations, s)
 
 // ------------------------------------------------------------------------------
@@ -413,7 +400,7 @@ block {
                     |   CreateCollateralToken(createCollateralTokenParams) -> block {
 
                             // Check if collateral token already exists
-                            if Map.mem(createCollateralTokenParams.tokenName, s.collateralTokenLedger) then failwith(error_COLLATERAL_TOKEN_ALREADY_EXISTS) else skip;
+                            if Big_map.mem(createCollateralTokenParams.tokenName, s.collateralTokenLedger) then failwith(error_COLLATERAL_TOKEN_ALREADY_EXISTS) else skip;
 
                             // update collateral token ledger
                             s.collateralTokenLedger[createCollateralTokenParams.tokenName] := createCollateralTokenRecord(createCollateralTokenParams);
@@ -544,7 +531,7 @@ block {
 
                 // update pool totals
                 loanTokenRecord.tokenPoolTotal   := loanTokenRecord.tokenPoolTotal + amount;
-                loanTokenRecord.mTokensTotal     := loanTokenRecord.mTokensTotal + amount;
+                loanTokenRecord.rawMTokensTotalSupply     := loanTokenRecord.rawMTokensTotalSupply + amount;
                 loanTokenRecord.totalRemaining   := loanTokenRecord.totalRemaining + amount;
 
                 // send tokens to token pool (self address) operation / skip if loan token name is tez
@@ -619,12 +606,12 @@ block {
                 const loanTotalRemaining        : nat         = loanTokenRecord.totalRemaining;
                 
                 const mTokenAddress             : address     = loanTokenRecord.mTokenAddress;
-                const mTokensTotal              : nat         = loanTokenRecord.mTokensTotal;
+                const rawMTokensTotalSupply              : nat         = loanTokenRecord.rawMTokensTotalSupply;
                 const mTokensBurned             : nat         = amount;
 
-                // Calculate new total of LP Tokens - verify that mTokensBurned is less than mTokensTotal
-                verifyLessThanOrEqual(mTokensBurned, mTokensTotal, error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS);
-                const newMTokensTotal : nat = abs(mTokensTotal - mTokensBurned);
+                // Calculate new total of LP Tokens - verify that mTokensBurned is less than rawMTokensTotalSupply
+                verifyLessThanOrEqual(mTokensBurned, rawMTokensTotalSupply, error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS);
+                const newMTokensTotal : nat = abs(rawMTokensTotalSupply - mTokensBurned);
 
                 // Calculate new token pool amount - verify that amount is less than loan token pool total
                 verifyLessThanOrEqual(amount, loanTokenPoolTotal, error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE);
@@ -649,7 +636,7 @@ block {
 
                 // update pool totals
                 loanTokenRecord.tokenPoolTotal   := newTokenPoolTotal;
-                loanTokenRecord.mTokensTotal     := newMTokensTotal;   // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply     := newMTokensTotal;   // mTokens to follow movement of token pool total
                 loanTokenRecord.totalRemaining   := newTotalRemaining;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
@@ -711,8 +698,10 @@ block {
                     
                     if collateralTokenName = "tez" then block {
 
-                        const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mutez );
-                        operations := transferTezOperation # operations;
+                        if finalTokenBalance > 0n then {
+                            const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mutez );
+                            operations := transferTezOperation # operations;
+                        } else skip;
 
                         vault.collateralBalanceLedger[collateralTokenName]  := 0n;
                         
@@ -730,14 +719,16 @@ block {
                             finalTokenBalance := getBalanceFromStakingContract(vaultAddress, stakingContractAddress);
 
                             // for special case of sMVK
-                            const withdrawAllStakedMvkOperation : operation = onWithdrawStakedTokenFromVaultOperation(
-                                vaultOwner,                         // vault owner
-                                vaultAddress,                       // vault address
-                                finalTokenBalance,                  // withdraw amount
-                                stakingContractAddress              // staking contract address
-                            );
+                            if finalTokenBalance > 0n then {
+                                const withdrawAllStakedMvkOperation : operation = onWithdrawStakedTokenFromVaultOperation(
+                                    vaultOwner,                         // vault owner
+                                    vaultAddress,                       // vault address
+                                    finalTokenBalance,                  // withdraw amount
+                                    stakingContractAddress              // staking contract address
+                                );
 
-                            operations := withdrawAllStakedMvkOperation # operations;
+                                operations := withdrawAllStakedMvkOperation # operations;
+                            } else skip;
 
                         } else if collateralTokenRecord.isScaledToken then {
 
@@ -747,24 +738,28 @@ block {
                             finalTokenBalance := getBalanceFromScaledTokenContract(vaultAddress, collateralTokenRecord.tokenContractAddress);
 
                             // for other collateral token types besides sMVK and scaled tokens
-                            const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                vaultOwner,                         // to_
-                                collateralTokenName,                // token name
-                                finalTokenBalance,                  // token amount to be withdrawn
-                                vaultAddress                        // vault address
-                            );
-                            operations := withdrawTokenOperation # operations;
+                            if finalTokenBalance > 0n then {
+                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                    vaultOwner,                         // to_
+                                    collateralTokenName,                // token name
+                                    finalTokenBalance,                  // token amount to be withdrawn
+                                    vaultAddress                        // vault address
+                                );
+                                operations := withdrawTokenOperation # operations;
+                            } else skip;
 
                         } else {
 
                             // for other collateral token types besides sMVK and scaled tokens
-                            const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                vaultOwner,                         // to_
-                                collateralTokenName,                // token name
-                                finalTokenBalance,                  // token amount to be withdrawn
-                                vaultAddress                        // vault address
-                            );
-                            operations := withdrawTokenOperation # operations;
+                            if finalTokenBalance > 0n then {
+                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                    vaultOwner,                         // to_
+                                    collateralTokenName,                // token name
+                                    finalTokenBalance,                  // token amount to be withdrawn
+                                    vaultAddress                        // vault address
+                                );
+                                operations := withdrawTokenOperation # operations;
+                            } else skip;
 
                         };
 
@@ -776,7 +771,7 @@ block {
                 }; // end loop for withdraw operations of tez/tokens in vault collateral 
 
 
-                // remove vault from stroage
+                // remove vault from storage
                 var ownerVaultSet : ownerVaultSetType := getOwnerVaultSet(vaultOwner, s);
                 s.ownerLedger[vaultOwner] := Set.remove(vaultId, ownerVaultSet);
                 remove vaultHandle from map s.vaults;
@@ -928,7 +923,7 @@ block {
                 const totalRemaining      : nat         = loanTokenRecord.totalRemaining;
                 const loanTokenDecimals   : nat         = loanTokenRecord.tokenDecimals;
                 const loanTokenType       : tokenType   = loanTokenRecord.tokenType;
-                const accRewardsPerShare  : nat         = loanTokenRecord.accumulatedRewardsPerShare;
+                const accRewardsPerShare  : nat         = loanTokenRecord.tokenRewardIndex;
 
                 // Get loan token price
                 const loanTokenLastCompletedData  : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(loanTokenRecord.oracleAddress);
@@ -1139,11 +1134,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update token storage
-                loanTokenRecord.mTokensTotal                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply                := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.accumulatedRewardsPerShare  := newAccRewardsPerShare;
+                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;
 
                 // Update Loan Token State again: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
@@ -1361,7 +1356,7 @@ block {
                 const totalBorrowed         : nat         = loanTokenRecord.totalBorrowed;
                 const totalRemaining        : nat         = loanTokenRecord.totalRemaining;
                 const loanTokenType         : tokenType   = loanTokenRecord.tokenType;
-                const accRewardsPerShare    : nat         = loanTokenRecord.accumulatedRewardsPerShare;
+                const accRewardsPerShare    : nat         = loanTokenRecord.tokenRewardIndex;
 
                 // ------------------------------------------------------------------
                 // Calculate Service Loan Fees
@@ -1456,11 +1451,11 @@ block {
                 // ------------------------------------------------------------------
                 
                 // Update loan token storage
-                loanTokenRecord.mTokensTotal                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply                := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.accumulatedRewardsPerShare  := newAccRewardsPerShare;   
+                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;   
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
@@ -1529,7 +1524,7 @@ block {
                 const totalRemaining      : nat         = loanTokenRecord.totalRemaining;
                 const minRepaymentAmount  : nat         = loanTokenRecord.minRepaymentAmount;
                 const loanTokenType       : tokenType   = loanTokenRecord.tokenType;
-                const accRewardsPerShare  : nat         = loanTokenRecord.accumulatedRewardsPerShare;
+                const accRewardsPerShare  : nat         = loanTokenRecord.tokenRewardIndex;
 
                 // Check that minimum repayment amount is reached - verify that initialRepaymentAmount is greater than minRepaymentAmount
                 verifyGreaterThanOrEqual(initialRepaymentAmount, minRepaymentAmount, error_MIN_REPAYMENT_AMOUNT_NOT_REACHED);
@@ -1681,11 +1676,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update token storage
-                loanTokenRecord.mTokensTotal                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply       := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.accumulatedRewardsPerShare  := newAccRewardsPerShare;
+                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);

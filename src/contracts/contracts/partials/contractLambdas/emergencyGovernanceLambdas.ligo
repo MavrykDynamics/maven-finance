@@ -79,11 +79,11 @@ block {
                 const updateConfigNewValue  : emergencyUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                        ConfigVoteExpiryDays (_v)                     -> s.config.voteExpiryDays                  := updateConfigNewValue
+                        ConfigDurationInMinutes (_v)                  -> s.config.durationInMinutes               := updateConfigNewValue
                     |   ConfigRequiredFeeMutez (_v)                   -> s.config.requiredFeeMutez                := updateConfigNewValue * 1mutez
                     |   ConfigStakedMvkPercentRequired (_v)           -> if updateConfigNewValue > 10_000n     then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.stakedMvkPercentageRequired     := updateConfigNewValue  
                     |   ConfigMinStakedMvkForVoting (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvkRequiredToVote      := updateConfigNewValue
-                    |   ConfigMinStakedMvkForTrigger (_v)             -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
+                    |   ConfigMinStakedMvkToTrigger (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
                     |   ConfigProposalTitleMaxLength (_v)             -> s.config.proposalTitleMaxLength          := updateConfigNewValue
                     |   ConfigProposalDescMaxLength (_v)              -> s.config.proposalDescMaxLength           := updateConfigNewValue
                 ];
@@ -280,14 +280,11 @@ block {
                 // Get current Emergency Governance Record
                 var _emergencyGovernance : emergencyGovernanceRecordType := getCurrentEmergencyGovernance(s);
 
-                // Verify that emergency governance has not been dropped
-                verifyEmergencyGovernanceNotDropped(_emergencyGovernance);
-
                 // Verify that emergency governance has not been executed
                 verifyEmergencyGovernanceNotExecuted(_emergencyGovernance);
 
                 // Verify that user has not voted for the current Emergency Governance
-                verifyUserHasNotVoted(userAddress, _emergencyGovernance);
+                verifyUserHasNotVoted(userAddress, s.currentEmergencyGovernanceId, s);
 
                 // Get user's staked MVK balance from the Doorman Contract
                 const stakedMvkBalance : nat = getUserStakedMvkBalance(userAddress, s);
@@ -299,9 +296,9 @@ block {
                 const totalStakedMvkVotes : nat = _emergencyGovernance.totalStakedMvkVotes + stakedMvkBalance;
 
                 // Update emergency governance record with new votes
-                _emergencyGovernance.voters[userAddress] := (stakedMvkBalance, Tezos.get_now());
                 _emergencyGovernance.totalStakedMvkVotes := totalStakedMvkVotes;
                 s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
+                s.emergencyGovernanceVoters := Big_map.add((s.currentEmergencyGovernanceId, userAddress), (stakedMvkBalance, Tezos.get_now()), s.emergencyGovernanceVoters);
 
                 // Check if total votes has exceed threshold - if yes, trigger operation to break glass contract
                 if totalStakedMvkVotes > _emergencyGovernance.stakedMvkRequiredForBreakGlass then block {
@@ -312,8 +309,8 @@ block {
 
                     // Update emergency governance record
                     _emergencyGovernance.executed            := True;
-                    _emergencyGovernance.executedDateTime    := Tezos.get_now();
-                    _emergencyGovernance.executedLevel       := Tezos.get_level();
+                    _emergencyGovernance.executedDateTime    := Some(Tezos.get_now());
+                    _emergencyGovernance.executedLevel       := Some(Tezos.get_level());
                     
                     // Save emergency governance record
                     s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
@@ -330,50 +327,6 @@ block {
     ];
 
 } with (operations, s)
-
-
-
- (* dropEmergencyGovernance lambda  *)
-function lambdaDropEmergencyGovernance(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is 
-block {
-
-    // Steps Overview:
-    // 1. Check that there is an active emergency governance
-    // 2. Get current Emergency Governance Record 
-    //    - Check that emergency governance has not been executed
-    // 3. Check that sender is the proposer of the emergency governance
-    // 4. Update Emergency Governance Record dropped boolean to true and update storage
-    // 5. Reset currentEmergencyGovernanceId to 0
-
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
-
-    case emergencyGovernanceLambdaAction of [
-        |   LambdaDropEmergencyGovernance(_parameters) -> {
-                
-                // Verify that there is an active emergency governance
-                verifyOngoingActiveEmergencyGovernance(s);
-
-                // Get current Emergency Governance Record
-                var emergencyGovernance : emergencyGovernanceRecordType := getCurrentEmergencyGovernance(s);
-
-                // Verify that emergency governance has not been executed
-                verifyEmergencyGovernanceNotExecuted(emergencyGovernance);
-
-                // Check that sender is the proposer of the emergency governance
-                verifySenderIsProposer(emergencyGovernance);
-
-                // Update Emergency Governance Record dropped boolean to true and update storage
-                emergencyGovernance.dropped := True; 
-                s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := emergencyGovernance;
-
-                // Reset currentEmergencyGovernanceId to 0
-                s.currentEmergencyGovernanceId := 0n; 
-
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Emergency Governance Lambdas End

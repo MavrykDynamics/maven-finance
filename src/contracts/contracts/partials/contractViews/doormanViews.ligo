@@ -10,27 +10,33 @@
 
 
 
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : doormanStorageType) : address is
+    s.governanceAddress
+
+
+
 (*  View: get config *)
 [@view] function getConfig(const _ : unit; const s : doormanStorageType) : doormanConfigType is
     s.config
 
 
 
-(*  View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const s : doormanStorageType) : whitelistContractsType is
-    s.whitelistContracts
-
-
-
-(*  View: get general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const s : doormanStorageType) : generalContractsType is
-    s.generalContracts
-
-
-
 (*  View: get break glass config *)
 [@view] function getBreakGlassConfig(const _ : unit; const s : doormanStorageType) : doormanBreakGlassConfigType is
     s.breakGlassConfig
+
+
+
+(* View: get whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : doormanStorageType) : option(unit) is 
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
+
+
+
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const s : doormanStorageType) : option(address) is
+    Big_map.find_opt(contractName, s.generalContracts)
 
 
 
@@ -63,13 +69,7 @@
 
 (* View: get a lambda *)
 [@view] function getLambdaOpt(const lambdaName: string; const s : doormanStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.lambdaLedger)
-
-
-
-(* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; const s : doormanStorageType) : lambdaLedgerType is
-    s.lambdaLedger
+    Big_map.find_opt(lambdaName, s.lambdaLedger)
 
 // ------------------------------------------------------------------------------
 //

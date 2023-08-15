@@ -1,12 +1,11 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
-import { BigNumber } from "bignumber.js";
-
-const { bob } = require('../scripts/sandbox/accounts')
-
-import { delegationStorageType } from "../test/types/delegationStorageType";
+import { MichelsonMap } from "@taquito/michelson-encoder"
+import { BigNumber } from "bignumber.js"
+import { bob } from '../scripts/sandbox/accounts'
+import { MVK } from "../test/helpers/Utils"
+import { delegationStorageType } from "./storageTypes/delegationStorageType"
 
 const config = {
-    minimumStakedMvkBalance             : 100000000,
+    minimumStakedMvkBalance             : MVK(10), 
     delegationRatio                     : 1000,
     maxSatellites                       : 100,
     satelliteNameMaxLength              : 400,

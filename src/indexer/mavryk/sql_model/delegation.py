@@ -21,6 +21,7 @@ class Delegation(MavrykContract, Model):
     unregister_as_satellite_paused          = fields.BooleanField(default=False)
     update_satellite_record_paused          = fields.BooleanField(default=False)
     distribute_reward_paused                = fields.BooleanField(default=False)
+    take_satellites_snapshot_paused         = fields.BooleanField(default=False)
 
     class Meta:
         table = 'delegation'
@@ -33,6 +34,7 @@ class DelegationLambda(ContractLambda, Model):
 
 class DelegationGeneralContract(LinkedContract, Model):
     contract                                 = fields.ForeignKeyField('models.Delegation', related_name='general_contracts')
+    contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'delegation_general_contract'
@@ -52,6 +54,8 @@ class SatelliteRewards(Model):
     paid                                    = fields.FloatField(default=0)
     participation_rewards_per_share         = fields.FloatField(default=0)
     satellite_accumulated_reward_per_share  = fields.FloatField(default=0)
+    reference_governance_cycle_id           = fields.BigIntField(default=0, index=True)
+    tracked                                 = fields.BooleanField(default=False, index=True)
 
     class Meta:
         table = 'satellite_rewards'

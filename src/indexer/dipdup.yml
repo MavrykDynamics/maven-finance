@@ -351,6 +351,10 @@ templates:
       pattern:
       - destination: <m_token_contract>
         entrypoint: mintOrBurn
+    - callback: on_m_token_compound
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: compound
   # Governance satellite snapshot template
   # Index the snapshot ledger bigmap of the governance contract
   governance_satellite_snapshot_template:
@@ -489,6 +493,10 @@ templates:
       pattern:
       - destination: <mvk_token_contract>
         entrypoint: mint
+    - callback: on_mvk_burn
+      pattern:
+      - destination: <mvk_token_contract>
+        entrypoint: burn
     - callback: on_mvk_update_inflation_rate
       pattern:
       - destination: <mvk_token_contract>
@@ -641,6 +649,13 @@ templates:
       - destination: <doorman_contract>
         entrypoint: unstake
       - source: <doorman_contract>
+        destination: <mvk_token_contract>
+        entrypoint: transfer
+    - callback: on_doorman_exit
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: exit
+      - source: doorman
         destination: <mvk_token_contract>
         entrypoint: transfer
     - callback: on_doorman_compound
@@ -873,10 +888,6 @@ templates:
       pattern:
       - destination: <emergency_governance_contract>
         entrypoint: voteForEmergencyControl
-    - callback: on_emergency_governance_drop_emergency_governance
-      pattern:
-      - destination: <emergency_governance_contract>
-        entrypoint: dropEmergencyGovernance
     - callback: on_emergency_governance_set_lambda
       pattern:
       - destination: <emergency_governance_contract>
@@ -1001,30 +1012,26 @@ templates:
       pattern:
       - destination: <break_glass_contract>
         entrypoint: updateCouncilMemberInfo
-    - callback: on_break_glass_add_council_member
+    - callback: on_break_glass_council_action_add_member
       pattern:
       - destination: <break_glass_contract>
-        entrypoint: addCouncilMember
-    - callback: on_break_glass_remove_council_member
+        entrypoint: councilActionAddMember
+    - callback: on_break_glass_council_action_remove_member
       pattern:
       - destination: <break_glass_contract>
-        entrypoint: removeCouncilMember
-    - callback: on_break_glass_change_council_member
+        entrypoint: councilActionRemoveMember
+    - callback: on_break_glass_council_action_change_member
       pattern:
       - destination: <break_glass_contract>
-        entrypoint: changeCouncilMember
+        entrypoint: councilActionChangeMember
     - callback: on_break_glass_propagate_break_glass
       pattern:
       - destination: <break_glass_contract>
         entrypoint: propagateBreakGlass
-    - callback: on_break_glass_set_single_contract_admin
+    - callback: on_break_glass_set_contracts_admin
       pattern:
       - destination: <break_glass_contract>
-        entrypoint: setSingleContractAdmin
-    - callback: on_break_glass_set_all_contracts_admin
-      pattern:
-      - destination: <break_glass_contract>
-        entrypoint: setAllContractsAdmin
+        entrypoint: setContractsAdmin
     - callback: on_break_glass_pause_all_entrypoints
       pattern:
       - destination: <break_glass_contract>
@@ -1359,10 +1366,6 @@ templates:
       pattern:
       - destination: <lending_controller_contract>
         entrypoint: updateConfig
-    - callback: on_lending_controller_update_whitelist_token_contracts
-      pattern:
-      - destination: <lending_controller_contract>
-        entrypoint: updateWhitelistTokenContracts
     - callback: on_lending_controller_pause_all
       pattern:
       - destination: <lending_controller_contract>
@@ -1445,10 +1448,6 @@ templates:
       pattern:
       - destination: <lending_controller_mock_time_contract>
         entrypoint: updateConfig
-    - callback: on_lending_controller_mock_time_update_whitelist_token_contracts
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: updateWhitelistTokenContracts
     - callback: on_lending_controller_mock_time_pause_all
       pattern:
       - destination: <lending_controller_mock_time_contract>
@@ -1574,7 +1573,6 @@ templates:
       pattern:
       - destination: <sirius_contract>
         entrypoint: transfer
-
 
 indexes:
   mavryk_finance_ghostnet_init:

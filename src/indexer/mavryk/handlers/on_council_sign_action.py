@@ -23,8 +23,11 @@ async def on_council_sign_action(
         status                  = action_record_storage.status
         executed                = action_record_storage.executed
         execution_datetime      = action_record_storage.executedDateTime
+        if execution_datetime:
+            execution_datetime  = parser.parse(execution_datetime)
         execution_level         = int(action_record_storage.executedLevel)
         council_members         = sign_action.storage.councilMembers
+        council_size            = sign_action.storage.councilSize
     
         # Select correct status
         status_type = models.ActionStatus.PENDING
@@ -35,17 +38,19 @@ async def on_council_sign_action(
     
         # Update record
         council = await models.Council.get(network=ctx.datasource.network, address= council_address)
+        council.council_size    = council_size
+        await council.save()
         action_record   = await models.CouncilAction.get(
             council     = council,
             internal_id = action_id
         )
-        action_record.council_size_snapshot = len(await models.CouncilCouncilMember.filter(council=council).all())
+        action_record.council_size_snapshot = council.council_size
         action_record.status                = status_type
         if action_record.status == models.ActionStatus.FLUSHED:
             action_record.flushed_datetime  = timestamp
         action_record.signers_count         = signer_count
         action_record.executed              = executed
-        action_record.execution_datetime    = parser.parse(execution_datetime)
+        action_record.execution_datetime    = execution_datetime
         action_record.execution_level       = execution_level
         await action_record.save()
     
@@ -63,7 +68,7 @@ async def on_council_sign_action(
                     council     = council,
                     internal_id = single_action_id
                 ).update(
-                    council_size_snapshot  = len(await models.CouncilCouncilMember.filter(council=council).all()),
+                    council_size_snapshot  = council.council_size,
                     status                 = status_type
                 )
     

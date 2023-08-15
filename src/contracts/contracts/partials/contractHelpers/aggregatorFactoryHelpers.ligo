@@ -74,6 +74,7 @@ block {
     const updateGeneralMapRecord : updateGeneralContractsType = record [
         generalContractName    = contractName;
         generalContractAddress = contractAddress;
+        updateType             = Update(unit);
     ];
 
     // Create and send updateGeneralContractsMap operation to the Governance Contract
@@ -197,19 +198,19 @@ block {
         percentOracleResponse     = 0n;
         lastUpdatedAt             = Tezos.get_now();
     ];
-    const oracleRewardXtz        : oracleRewardXtzType        = map[];
-    const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = map[];
+    const oracleRewardXtz        : oracleRewardXtzType        = Big_map.empty;
+    const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = Big_map.empty;
 
     // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
     const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
 
     // Add Aggregator Factory Contract and Governance Satellite Contract to Whitelisted Contracts Map on the new Aggregator Contract
-    const aggregatorWhitelistContracts : whitelistContractsType = map[
-        ("aggregatorFactory")   -> (Tezos.get_self_address() : address);
-        ("governanceSatellite") -> (governanceSatelliteAddress : address);
+    const aggregatorWhitelistContracts : whitelistContractsType = big_map[
+        (Tezos.get_self_address())   -> unit;
+        (governanceSatelliteAddress) -> unit;
     ];
     
-    const aggregatorGeneralContracts : generalContractsType = map[];
+    const aggregatorGeneralContracts : generalContractsType = big_map[];
 
     const aggregatorLambdaLedger : lambdaLedgerType = s.aggregatorLambdaLedger;
 
@@ -223,7 +224,7 @@ block {
     const aggregatorMetadata: metadataType = Big_map.literal (list [
         ("", ("74657a6f732d73746f726167653a64617461" : bytes));
         ("data", createAggregatorParams.metadata);
-    ]); 
+    ]);
 
     // Validate name input does not exceed max length
     const aggregatorName : string = createAggregatorParams.name;

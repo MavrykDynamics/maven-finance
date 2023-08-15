@@ -1,28 +1,25 @@
-const { InMemorySigner } = require("@taquito/signer");
-import { Utils } from "../helpers/Utils";
-const saveContractAddress = require("../../helpers/saveContractAddress")
+import { Utils } from "../helpers/Utils"
 import { MichelsonMap } from '@taquito/michelson-encoder'
+const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob } from '../../scripts/sandbox/accounts'
-
 // ------------------------------------------------------------------------------
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
-import doormanAddress from '../../deployments/doormanAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Delegation, setDelegationLambdas } from '../contractHelpers/delegationTestHelper'
+import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
+import { bob } from '../../scripts/sandbox/accounts'
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -36,59 +33,47 @@ import { delegationStorage } from '../../storage/delegationStorage'
 
 describe('Delegation', async () => {
   
-  var utils: Utils
-  var delegation: Delegation
-  var tezos
-  
+    var utils: Utils
+    var delegation
+    var tezos
 
-  const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-    return tezos
-  }
+    before('setup', async () => {
+        try{
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+        
+            delegationStorage.governanceAddress = contractDeployments.governance.address
+            delegationStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
+            delegationStorage.whitelistContracts = MichelsonMap.fromLiteral({
+                [contractDeployments.doorman.address]: null,
+            })
+            delegation = await GeneralContract.originate(utils.tezos, "delegation", delegationStorage);
+            await saveContractAddress('delegationAddress', delegation.contract.address)
+        
+            /* ---- ---- ---- ---- ---- */
+        
+            tezos = delegation.tezos
+            await helperFunctions.signerFactory(tezos, bob.sk);
 
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-  
-      delegationStorage.governanceAddress = governanceAddress.address
-      delegationStorage.mvkTokenAddress   = mvkTokenAddress.address
-      delegationStorage.whitelistContracts = MichelsonMap.fromLiteral({
-        doorman: doormanAddress.address,
-      })
-      delegation = await Delegation.originate(utils.tezos, delegationStorage)
-  
-      await saveContractAddress('delegationAddress', delegation.contract.address)
-      console.log('Delegation Contract deployed at:', delegation.contract.address)
-  
-      /* ---- ---- ---- ---- ---- */
-  
-      tezos = delegation.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
-  
-      // Delegation Setup Lambdas
-      await setDelegationLambdas(tezos, delegation.contract)
-      console.log("Delegation Lambdas Setup")
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "delegation", delegation.contract)
 
-    } catch(e){
-      console.dir(e, {depth: 5})
-    }
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
 
-  })
+    })
 
-  it(`delegation contract deployment`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+    it(`delegation contract deployment`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })

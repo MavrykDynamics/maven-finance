@@ -3,8 +3,7 @@ import json
 from os import path, listdir
 
 # Constants
-DEPLOYMENT_FOLDER="../contracts/deployments/"
-SUFFIX="Address.json"
+DEPLOYMENT_FILE="../contracts/test/contractDeployments.json"
 
 # Helpers
 def to_camel_case(snake_str):
@@ -17,19 +16,21 @@ def update_dipdup_config(dipdup_config_filename):
 
     contracts   = data['contracts']
     for contract in contracts:
-        filename    = DEPLOYMENT_FOLDER + to_camel_case(contract) + SUFFIX
-        if path.exists(filename):
+        if path.exists(DEPLOYMENT_FILE):
             
             # Open file
-            json_file   = open(filename)
-            json_data   = json.load(json_file)
-            new_address = json_data['address']
+            json_file       = open(DEPLOYMENT_FILE)
+            json_data       = json.load(json_file)
+            contract_camel  = to_camel_case(contract)
 
-            # Save new address in dipdup config
-            if 'code_hash' in data['contracts'][contract]:
-                data['contracts'][contract]['code_hash']  = new_address
-            else:
-                data['contracts'][contract]['address']  = new_address
+            if contract_camel in json_data:
+                new_address = json_data[contract_camel]['address']
+
+                # Save new address in dipdup config
+                if 'code_hash' in data['contracts'][contract]:
+                    data['contracts'][contract]['code_hash']  = new_address
+                else:
+                    data['contracts'][contract]['address']  = new_address
 
     with open(dipdup_config_filename, 'w') as f:
             yaml.dump(data, f, Dumper=NewLineDumper, default_flow_style=False, sort_keys=False)

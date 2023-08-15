@@ -12,28 +12,28 @@ class UpdateConfigActionItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configApprovalPercentage: Dict[str, Any]
+    configActionDurationInDays: Dict[str, Any]
 
 
 class UpdateConfigActionItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMaxActionsPerSatellite: Dict[str, Any]
+    configApprovalPercentage: Dict[str, Any]
 
 
 class UpdateConfigActionItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configPurposeMaxLength: Dict[str, Any]
+    configMaxActionsPerSatellite: Dict[str, Any]
 
 
 class UpdateConfigActionItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configSatelliteDurationInDays: Dict[str, Any]
+    configPurposeMaxLength: Dict[str, Any]
 
 
 class UpdateConfigParameter(BaseModel):

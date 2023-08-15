@@ -14,26 +14,32 @@ async def on_delegation_on_stake_change(
     try:
         # Get operation info
         delegation_address      = on_stake_change.data.target_address
-        user_address            = on_stake_change.parameter.__root__
+        user_records            = on_stake_change.parameter.__root__
         satellite_ledger        = on_stake_change.storage.satelliteLedger
         delegation              = await models.Delegation.get(
             network = ctx.datasource.network,
             address = delegation_address
         )
-    
-        # Get and update records
-        if user_address in on_stake_change.storage.satelliteRewardsLedger:
-            rewards_record          = on_stake_change.storage.satelliteRewardsLedger[user_address]
-            user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=user_address)
-            satellite_rewards, _    = await models.SatelliteRewards.get_or_create(
-                user        = user,
-                delegation  = delegation
-            )
-            satellite_rewards.unpaid                                    = float(rewards_record.unpaid)
-            satellite_rewards.paid                                      = float(rewards_record.paid)
-            satellite_rewards.participation_rewards_per_share           = float(rewards_record.participationRewardsPerShare)
-            satellite_rewards.satellite_accumulated_reward_per_share    = float(rewards_record.satelliteAccumulatedRewardsPerShare)
-            await satellite_rewards.save()
+
+        for user_record in user_records:
+            # Parse parameter
+            user_address    = user_record.address
+
+            # Get and update records
+            if user_address in on_stake_change.storage.satelliteRewardsLedger:
+                rewards_record          = on_stake_change.storage.satelliteRewardsLedger[user_address]
+                user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=user_address)
+                satellite_rewards, _    = await models.SatelliteRewards.get_or_create(
+                    user        = user,
+                    delegation  = delegation
+                )
+                satellite_rewards.unpaid                                    = float(rewards_record.unpaid)
+                satellite_rewards.paid                                      = float(rewards_record.paid)
+                satellite_rewards.participation_rewards_per_share           = float(rewards_record.participationRewardsPerShare)
+                satellite_rewards.satellite_accumulated_reward_per_share    = float(rewards_record.satelliteAccumulatedRewardsPerShare)
+                satellite_rewards.reference_governance_cycle_id             = int(rewards_record.referenceGovernanceCycleId)
+                satellite_rewards.tracked                                   = rewards_record.tracked
+                await satellite_rewards.save()
 
         # Update satellites total delegated amount
         for satellite_address in satellite_ledger:

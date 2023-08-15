@@ -1,0 +1,22 @@
+import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder"
+import { BigNumber } from "bignumber.js"
+
+export type mTokenStorageType = {
+
+    admin               : string;
+    metadata            : MichelsonMap<MichelsonMapKey, unknown>;
+    
+    loanToken           : string;
+    tokenRewardIndex    : BigNumber;
+    rewardIndexLedger   : MichelsonMap<MichelsonMapKey, unknown>;
+
+    governanceAddress   : string;
+
+    whitelistContracts  : MichelsonMap<MichelsonMapKey, unknown>;
+
+    token_metadata      : MichelsonMap<MichelsonMapKey, unknown>;
+    totalSupply         : BigNumber;
+    ledger              : MichelsonMap<MichelsonMapKey, unknown>;
+    operators           : MichelsonMap<MichelsonMapKey, unknown>;
+    
+};

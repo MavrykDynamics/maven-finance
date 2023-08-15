@@ -73,6 +73,7 @@ type farmUpdateConfigParamsType is [@layout:comb] record [
 ]
 
 
+(* togglePauseEntrypoint entrypoint inputs *)
 type farmPausableEntrypointType is
         Deposit     of bool
     |   Withdraw    of bool
@@ -82,6 +83,10 @@ type farmTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : farmPausableEntrypointType;
     empty             : unit
 ];
+
+
+(* claim entrypoint inputs *)
+type claimType is set(address)
 
 
 // ------------------------------------------------------------------------------
@@ -113,7 +118,7 @@ type farmLambdaActionType is
         // Farm Entrypoints
     |   LambdaDeposit                     of nat
     |   LambdaWithdraw                    of nat
-    |   LambdaClaim                       of address
+    |   LambdaClaim                       of claimType
 
 
 // ------------------------------------------------------------------------------

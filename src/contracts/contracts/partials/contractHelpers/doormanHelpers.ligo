@@ -46,7 +46,7 @@ function verifyMinMvkAmountReached(const stakeAmount : nat; const s : doormanSto
 block {
     
     // verify first value (stakeAmount) is greater than second value (minMvkAmount)
-    verifyGreaterThanOrEqual(stakeAmount, s.config.minMvkAmount, error_MVK_ACCESS_AMOUNT_NOT_REACHED);
+    verifyGreaterThanOrEqual(stakeAmount, s.config.minMvkAmount, error_MIN_MVK_AMOUNT_NOT_REACHED);
 
 } with unit 
 
@@ -57,7 +57,7 @@ function verifySufficientWithdrawalBalance(const unstakeAmount : nat; const user
 block {
 
     // verify first value (unstakeAmount) is less than second value (user balance)
-    verifyLessThanOrEqual(unstakeAmount, userStakeBalanceRecord.balance, error_NOT_ENOUGH_SMVK_BALANCE);
+    verifyLessThanOrEqual(unstakeAmount, userStakeBalanceRecord.balance, error_INSUFFICIENT_STAKED_MVK_BALANCE);
 
 } with unit
 
@@ -68,14 +68,14 @@ function verifyUnstakeAmountLessThanStakedTotalSupply(const unstakeAmount : nat;
 block {
 
     // verify first value (unstakeAmount) is less than second value (staked MVK total supply)
-    verifyLessThanOrEqual(unstakeAmount, stakedMvkTotalSupply, error_UNSTAKE_AMOUNT_ERROR);
+    verifyLessThanOrEqual(unstakeAmount, stakedMvkTotalSupply, error_UNSTAKE_AMOUNT_CANNOT_BE_GREATER_THAN_STAKED_MVK_TOTAL_SUPPLY);
 
 } with unit
 
 
 
 // helper function to check farm exists
-function checkFarmExists(const farmAddress : address; const s : doormanStorageType) : bool is 
+function checkFarmAddressInFarmFactory(const farmAddress : address; const s : doormanStorageType) : bool is 
 block {
 
     // Get Farm Factory Contract Address from the General Contracts Map on the Governance Contract
@@ -96,7 +96,7 @@ block {
 function verifyFarmExists(const farmAddress : address; const s : doormanStorageType) : unit is 
 block {
 
-    const checkFarmExists : bool = checkFarmExists(farmAddress, s);
+    const checkFarmExists : bool = checkFarmAddressInFarmFactory(farmAddress, s);
     if not checkFarmExists then failwith(error_FARM_CONTRACT_NOT_FOUND) else skip;
 
 } with unit
@@ -120,6 +120,9 @@ block {
 
     if s.breakGlassConfig.unstakeIsPaused then skip
     else s.breakGlassConfig.unstakeIsPaused := True;
+
+    if s.breakGlassConfig.exitIsPaused then skip
+    else s.breakGlassConfig.exitIsPaused := True;
 
     if s.breakGlassConfig.compoundIsPaused then skip
     else s.breakGlassConfig.compoundIsPaused := True;
@@ -150,6 +153,9 @@ block {
 
     if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
     else skip;
+
+    if s.breakGlassConfig.exitIsPaused then s.breakGlassConfig.exitIsPaused := False
+    else skip;
     
     if s.breakGlassConfig.compoundIsPaused then s.breakGlassConfig.compoundIsPaused := False
     else skip;
@@ -178,12 +184,12 @@ block {
 // ------------------------------------------------------------------------------
 
 // helper function to %onStakeChange entrypoint in the Delegation Contract
-function delegationOnStakeChange(const delegationAddress : address) : contract(delegationOnStakeChangeType) is
+function delegationOnStakeChange(const delegationAddress : address) : contract(onStakeChangeType) is
     case (Tezos.get_entrypoint_opt(
         "%onStakeChange",
-        delegationAddress) : option(contract(delegationOnStakeChangeType))) of [
+        delegationAddress) : option(contract(onStakeChangeType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(delegationOnStakeChangeType))
+            |   None -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(onStakeChangeType))
         ];
 
 
@@ -208,7 +214,7 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
 // ------------------------------------------------------------------------------
 
 // helper function to create a onStakeChange operation on the delegation contract
-function delegationOnStakeChangeOperation(const userAddress : address; const s : doormanStorageType) : operation is 
+function delegationOnStakeChangeOperation(const userAddresses : onStakeChangeType; const s : doormanStorageType) : operation is 
 block {
 
     // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
@@ -216,7 +222,7 @@ block {
 
     // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
     const delegationOnStakeChangeOperation : operation = Tezos.transaction(
-        (userAddress),
+        (userAddresses),
         0tez,
         delegationOnStakeChange(delegationAddress)
     );

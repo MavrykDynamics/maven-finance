@@ -15,7 +15,7 @@ async def on_governance_financial_origination(
         # Get operation values
         address                     = governance_financial_origination.data.originated_contract_address
         admin                       = governance_financial_origination.storage.admin
-        fin_req_approval_percentage = int(governance_financial_origination.storage.config.financialRequestApprovalPercentage)
+        approval_percentage         = int(governance_financial_origination.storage.config.approvalPercentage)
         fin_req_duration_in_days    = int(governance_financial_origination.storage.config.financialRequestDurationInDays)
         fin_req_counter             = int(governance_financial_origination.storage.financialRequestCounter)
         timestamp                   = governance_financial_origination.data.timestamp
@@ -37,7 +37,7 @@ async def on_governance_financial_origination(
             admin                       = admin,
             last_updated_at             = timestamp,
             governance                  = governance,
-            fin_req_approval_percentage = fin_req_approval_percentage,
+            approval_percentage         = approval_percentage,
             fin_req_duration_in_days    = fin_req_duration_in_days,
             fin_req_counter             = fin_req_counter,
         )

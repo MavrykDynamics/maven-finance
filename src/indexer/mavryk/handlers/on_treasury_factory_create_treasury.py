@@ -26,8 +26,9 @@ async def on_treasury_factory_create_treasury(
         creation_timestamp              = treasury_origination.data.timestamp
         transfer_paused                 = treasury_origination.storage.breakGlassConfig.transferIsPaused
         mint_mvk_and_transfer_paused    = treasury_origination.storage.breakGlassConfig.mintMvkAndTransferIsPaused
-        stake_mvk_paused                = treasury_origination.storage.breakGlassConfig.stakeMvkIsPaused
-        unstake_mvk_paused              = treasury_origination.storage.breakGlassConfig.unstakeMvkIsPaused
+        update_token_operators_paused   = treasury_origination.storage.breakGlassConfig.updateTokenOperatorsIsPaused
+        stake_tokens_paused             = treasury_origination.storage.breakGlassConfig.stakeTokensIsPaused
+        unstake_tokens_paused           = treasury_origination.storage.breakGlassConfig.unstakeTokensIsPaused
     
         # Check treasury does not already exists
         treasury_exists                     = await models.Treasury.filter(
@@ -89,8 +90,9 @@ async def on_treasury_factory_create_treasury(
                 factory                         = treasury_factory,
                 transfer_paused                 = transfer_paused,
                 mint_mvk_and_transfer_paused    = mint_mvk_and_transfer_paused,
-                stake_mvk_paused                = stake_mvk_paused,
-                unstake_mvk_paused              = unstake_mvk_paused
+                update_token_operators_paused   = update_token_operators_paused,
+                stake_tokens_paused             = stake_tokens_paused,
+                unstake_tokens_paused           = unstake_tokens_paused
             )
     
             # Create a baker or not

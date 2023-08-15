@@ -31,6 +31,7 @@ type lendingControllerConfigType is [@layout:comb] record [
     decimals                     : nat;         // decimals used for percentage calculation
     interestRateDecimals         : nat;         // decimals used for interest rate (ray : 10^27)
     maxDecimalsForCalculation    : nat;         // max decimals to be used in calculations
+    lastCompletedDataMaxDelay    : nat;         // max delay in last updated at for last completed data in fetching prices
 
     maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% for AAVE)
     liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
@@ -43,13 +44,13 @@ type lendingControllerBreakGlassConfigType is record [
     // Lending Controller Admin Entrypoints
     setLoanTokenIsPaused                : bool;
     setCollateralTokenIsPaused          : bool;
-    registerVaultCreationIsPaused       : bool; 
 
     // Lending Controller Token Pool Entrypoints
     addLiquidityIsPaused                : bool;
     removeLiquidityIsPaused             : bool;
 
     // Lending Controller Vault Entrypoints
+    registerVaultCreationIsPaused       : bool; 
     closeVaultIsPaused                  : bool;
     registerDepositIsPaused             : bool;
     registerWithdrawalIsPaused          : bool;
@@ -89,7 +90,7 @@ type collateralTokenRecordType is [@layout:comb] record [
 
     isPaused                : bool;
 ]
-type collateralTokenLedgerType is map(string, collateralTokenRecordType) 
+type collateralTokenLedgerType is big_map(string, collateralTokenRecordType) 
 
 
 type loanTokenRecordType is [@layout:comb] record [
@@ -100,7 +101,7 @@ type loanTokenRecordType is [@layout:comb] record [
 
     oracleAddress                           : address;   
 
-    mTokensTotal                            : nat;
+    rawMTokensTotalSupply                   : nat;
     mTokenAddress                           : address;
 
     tokenPoolTotal                          : nat;  // sum of totalBorrowed and totalRemaining
@@ -118,13 +119,13 @@ type loanTokenRecordType is [@layout:comb] record [
 
     currentInterestRate                     : nat;
     lastUpdatedBlockLevel                   : nat; 
-    accumulatedRewardsPerShare              : nat;
+    tokenRewardIndex                        : nat;
     borrowIndex                             : nat;
 
     isPaused                                : bool;
 ]
 
-type loanTokenLedgerType is map(string, loanTokenRecordType)
+type loanTokenLedgerType is big_map(string, loanTokenRecordType)
 
 
 type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
@@ -178,6 +179,10 @@ type lendingControllerUpdateConfigActionType is
     |   ConfigMinimumLoanFeePercent     of unit
     |   ConfigMinLoanFeeTreasuryShare   of unit
     |   ConfigInterestTreasuryShare     of unit
+    |   ConfigLastCompletedDataMaxDelay of unit
+    |   ConfigMaxVaultLiqPercent        of unit
+    |   ConfigLiquidationDelayInMins    of unit
+    |   ConfigLiquidationMaxDuration    of unit
 
 type lendingControllerUpdateConfigParamsType is [@layout:comb] record [
     updateConfigNewValue    : lendingControllerUpdateConfigNewValueType;  
@@ -321,12 +326,6 @@ type repayActionType is [@layout:comb] record [
 ]
 
 
-type updateRewardsActionType is [@layout:comb] record [
-    tokenName       : string;
-    amount          : nat;
-]
-
-
 type vaultDepositStakedTokenActionType is [@layout:comb] record [
     tokenName       : string;
     vaultId         : nat;
@@ -389,7 +388,6 @@ type lendingControllerLambdaActionType is
     |   LambdaSetAdmin                        of (address)
     |   LambdaSetGovernance                   of (address)
     |   LambdaUpdateConfig                    of lendingControllerUpdateConfigParamsType
-    |   LambdaUpdateWhitelistTokens           of updateWhitelistTokenContractsType
 
         // Pause / Break Glass Lambdas
     |   LambdaPauseAll                        of (unit)
@@ -433,10 +431,6 @@ type lendingControllerStorageType is [@layout:comb] record [
     mvkTokenAddress             : address;
     governanceAddress           : address;
     
-    whitelistContracts          : whitelistContractsType;       // can be used for vaults whitelist contracts as well
-    generalContracts            : generalContractsType;
-    whitelistTokenContracts     : whitelistTokenContractsType;      
-
     // vaults and owners
     vaults                      : big_map(vaultHandleType, vaultRecordType);
     ownerLedger                 : ownerLedgerType;              // for some convenience in checking vaults owned by user
@@ -447,8 +441,5 @@ type lendingControllerStorageType is [@layout:comb] record [
 
     // lambdas
     lambdaLedger                : lambdaLedgerType;
-
-    // temp
-    tempMap                     : map(string, nat);
 
 ]

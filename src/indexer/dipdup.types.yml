@@ -52,6 +52,10 @@ templates:
       pattern:
       - destination: <m_token_contract>
         entrypoint: mintOrBurn
+    - callback: on_m_token_compound
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: compound
 
 indexes:
   treasury_token_transfer_receiver:
@@ -535,6 +539,10 @@ indexes:
       pattern:
       - destination: mvk_token
         entrypoint: mint
+    - callback: on_mvk_burn
+      pattern:
+      - destination: mvk_token
+        entrypoint: burn
     - callback: on_mvk_update_inflation_rate
       pattern:
       - destination: mvk_token
@@ -686,6 +694,13 @@ indexes:
       pattern:
       - destination: doorman
         entrypoint: unstake
+      - source: doorman
+        destination: mvk_token
+        entrypoint: transfer
+    - callback: on_doorman_exit
+      pattern:
+      - destination: doorman
+        entrypoint: exit
       - source: doorman
         destination: mvk_token
         entrypoint: transfer
@@ -919,10 +934,6 @@ indexes:
       pattern:
       - destination: emergency_governance
         entrypoint: voteForEmergencyControl
-    - callback: on_emergency_governance_drop_emergency_governance
-      pattern:
-      - destination: emergency_governance
-        entrypoint: dropEmergencyGovernance
     - callback: on_emergency_governance_set_lambda
       pattern:
       - destination: emergency_governance
@@ -1047,30 +1058,26 @@ indexes:
       pattern:
       - destination: break_glass
         entrypoint: updateCouncilMemberInfo
-    - callback: on_break_glass_add_council_member
+    - callback: on_break_glass_council_action_add_member
       pattern:
       - destination: break_glass
-        entrypoint: addCouncilMember
-    - callback: on_break_glass_remove_council_member
+        entrypoint: councilActionAddMember
+    - callback: on_break_glass_council_action_remove_member
       pattern:
       - destination: break_glass
-        entrypoint: removeCouncilMember
-    - callback: on_break_glass_change_council_member
+        entrypoint: councilActionRemoveMember
+    - callback: on_break_glass_council_action_change_member
       pattern:
       - destination: break_glass
-        entrypoint: changeCouncilMember
+        entrypoint: councilActionChangeMember
     - callback: on_break_glass_propagate_break_glass
       pattern:
       - destination: break_glass
         entrypoint: propagateBreakGlass
-    - callback: on_break_glass_set_single_contract_admin
+    - callback: on_break_glass_set_contracts_admin
       pattern:
       - destination: break_glass
-        entrypoint: setSingleContractAdmin
-    - callback: on_break_glass_set_all_contracts_admin
-      pattern:
-      - destination: break_glass
-        entrypoint: setAllContractsAdmin
+        entrypoint: setContractsAdmin
     - callback: on_break_glass_pause_all_entrypoints
       pattern:
       - destination: break_glass
@@ -1405,10 +1412,6 @@ indexes:
       pattern:
       - destination: lending_controller
         entrypoint: updateConfig
-    - callback: on_lending_controller_update_whitelist_token_contracts
-      pattern:
-      - destination: lending_controller
-        entrypoint: updateWhitelistTokenContracts
     - callback: on_lending_controller_pause_all
       pattern:
       - destination: lending_controller
@@ -1491,10 +1494,6 @@ indexes:
       pattern:
       - destination: lending_controller_mock_time
         entrypoint: updateConfig
-    - callback: on_lending_controller_mock_time_update_whitelist_token_contracts
-      pattern:
-      - destination: lending_controller_mock_time
-        entrypoint: updateWhitelistTokenContracts
     - callback: on_lending_controller_mock_time_pause_all
       pattern:
       - destination: lending_controller_mock_time

@@ -60,6 +60,16 @@ block {
 
 } with unit
 
+
+function verifyValidSatelliteStatus(const newStatus : string) : unit is
+block {
+
+    if newStatus = "BANNED" or newStatus = "SUSPENDED" or newStatus = "ACTIVE" 
+    then skip 
+    else failwith(error_INVALID_SATELLITE_STATUS);
+
+} with unit
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -93,6 +103,9 @@ block {
     if s.breakGlassConfig.distributeRewardIsPaused then skip
     else s.breakGlassConfig.distributeRewardIsPaused := True;
 
+    if s.breakGlassConfig.takeSatellitesSnapshotPaused then skip
+    else s.breakGlassConfig.takeSatellitesSnapshotPaused := True;
+
 } with s
 
 
@@ -118,6 +131,9 @@ block {
     else skip;
 
     if s.breakGlassConfig.distributeRewardIsPaused then s.breakGlassConfig.distributeRewardIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.takeSatellitesSnapshotPaused then s.breakGlassConfig.takeSatellitesSnapshotPaused := False
     else skip;
 
 } with s
@@ -154,13 +170,13 @@ function getUndelegateFromSatelliteEntrypoint(const delegationAddress : address)
 
 
 
-// helper function to %updateSatelliteSnapshot entrypoint on the Governance contract
-function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatelliteSnapshotType) is
+// helper function to %updateSatellitesSnapshot entrypoint on the Governance contract
+function sendUpdateSatellitesSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatellitesSnapshotType) is
     case (Tezos.get_entrypoint_opt(
-        "%updateSatelliteSnapshot",
-        governanceAddress) : option(contract(updateSatelliteSnapshotType))) of [
+        "%updateSatellitesSnapshot",
+        governanceAddress) : option(contract(updateSatellitesSnapshotType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatelliteSnapshotType))
+            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatellitesSnapshotType))
         ];
 
 // ------------------------------------------------------------------------------
@@ -243,6 +259,57 @@ block {
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to get the current governance cycle counter
+function getCurrentCycleCounter(const s : delegationStorageType) : nat is 
+block {
+
+    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
+    const currentCycle : nat = case cycleCounterView of [
+            Some (_cycleCounter)   -> _cycleCounter
+        |   None                   -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+} with currentCycle
+
+
+
+// helper function to get satellite last snapshot
+function getSatelliteLastSnapshot(const satelliteAddress : address; const s : delegationStorageType) : nat is 
+block {
+
+    const lastSnapshotOptView : option (option(nat)) = Tezos.call_view ("getSatelliteLastSnapshotOpt", satelliteAddress, s.governanceAddress);
+    const satelliteLastSnapshotOpt: option(nat) = case lastSnapshotOptView of [
+            Some (_cycleId) -> _cycleId
+        |   None             -> failwith (error_GET_SATELLITE_LAST_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    const satelliteLastSnapshot : nat = case satelliteLastSnapshotOpt of [
+            Some (_cycleId)    -> _cycleId
+        |   None               -> failwith(error_SATELLITE_LAST_SNAPSHOT_NOT_FOUND)
+    ];
+
+} with satelliteLastSnapshot
+
+
+
+// helper function to get satellite snapshot
+function getSatelliteSnapshot(const governanceCycleId : nat; const satelliteAddress : address; const s : delegationStorageType) : governanceSatelliteSnapshotRecordType is
+block {
+
+    var snapshotOptView : option (option(governanceSatelliteSnapshotRecordType))    := Tezos.call_view ("getSnapshotOpt", (governanceCycleId, satelliteAddress), s.governanceAddress);
+    var satelliteSnapshot: governanceSatelliteSnapshotRecordType                    := case snapshotOptView of [
+            Some (_snapshotOpt) -> case _snapshotOpt of [
+                    Some (_snapshot)    -> _snapshot
+                |   None                -> failwith (error_SNAPSHOT_NOT_FOUND)
+            ]
+        |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+} with satelliteSnapshot
+
+
+
+
 // helper function to get user staked mvk balance from Doorman contract
 function getUserStakedMvkBalanceFromDoorman(const userAddress : address; const s : delegationStorageType) : nat is 
 block {
@@ -281,7 +348,6 @@ block {
     ];
 
 } with satelliteRecord
-
 
 
 // helper function to get a satellite's record or default to an empty record
@@ -327,7 +393,7 @@ block {
     const userStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
 
     // Check if user's staked MVK balance has reached the minimum staked MVK amount required to be a satellite
-    verifyGreaterThanOrEqual(userStakedMvkBalance, s.config.minimumStakedMvkBalance, error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
+    verifyGreaterThanOrEqual(userStakedMvkBalance, s.config.minimumStakedMvkBalance, error_MIN_STAKED_MVK_AMOUNT_NOT_REACHED);
 
     // Init new satellite record params
     const name          : string  = registerAsSatelliteParams.name;
@@ -393,14 +459,14 @@ block {
     const website       : string  = updateSatelliteRecordParams.website;
     const satelliteFee  : nat     = updateSatelliteRecordParams.satelliteFee;
 
-    const oraclePublicKey : key  = case updateSatelliteRecordParams.oraclePublicKey of [
-            Some(_key) -> _key
-        |   None       -> ("edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd" : key)
+    case updateSatelliteRecordParams.oraclePublicKey of [
+            Some(_key) -> satelliteRecord.oraclePublicKey := _key
+        |   None       -> skip
     ];
 
-    const oraclePeerId : string  = case updateSatelliteRecordParams.oraclePeerId of [
-            Some(_peerId) -> _peerId
-        |   None          -> "peerId"
+    case updateSatelliteRecordParams.oraclePeerId of [
+            Some(_peerId) -> satelliteRecord.oraclePeerId := _peerId
+        |   None          -> skip
     ];
 
     // Validate inputs (max length not exceeded)
@@ -418,9 +484,6 @@ block {
     satelliteRecord.image               := image;
     satelliteRecord.website             := website;
     satelliteRecord.satelliteFee        := satelliteFee;        
-
-    satelliteRecord.oraclePublicKey     := oraclePublicKey;        
-    satelliteRecord.oraclePeerId        := oraclePeerId;        
 
 } with satelliteRecord
 
@@ -443,14 +506,18 @@ block {
 function getOrCreateSatelliteRewardsRecord(const userAddress : address; const s : delegationStorageType) : satelliteRewardsType is 
 block {
 
+    const currentGovernanceCycleId : nat = getCurrentCycleCounter(s);
+
     const satelliteRewardsRecord : satelliteRewardsType = case s.satelliteRewardsLedger[userAddress] of [
             Some (_rewardsRecord) -> _rewardsRecord
         |   None -> record [
-                unpaid                                      = 0n;
-                paid                                        = 0n;
-                participationRewardsPerShare                = 0n;
-                satelliteAccumulatedRewardsPerShare         = 0n;
-                satelliteReferenceAddress                   = userAddress
+                unpaid                                  = 0n;
+                paid                                    = 0n;
+                participationRewardsPerShare            = 0n;
+                satelliteAccumulatedRewardsPerShare     = 0n;
+                satelliteReferenceAddress               = userAddress;
+                referenceGovernanceCycleId              = currentGovernanceCycleId;
+                tracked                                 = False;
             ]
     ];
 
@@ -462,15 +529,19 @@ block {
 function getOrCreateUpdatedDelegateRewardsRecord(const userAddress : address; const satelliteAddress : address; const satelliteAccumulatedRewardsPerShare : nat; const s : delegationStorageType) : satelliteRewardsType is 
 block {
 
+    const currentGovernanceCycleId : nat = getCurrentCycleCounter(s);
+
     // Get the user reward record or create a new one
     var delegateRewardsRecord : satelliteRewardsType    := case s.satelliteRewardsLedger[userAddress] of [
             Some (_rewardsRecord) -> _rewardsRecord
         |   None -> record [
-                unpaid                                      = 0n;
-                paid                                        = 0n;
-                participationRewardsPerShare                = satelliteAccumulatedRewardsPerShare;
-                satelliteAccumulatedRewardsPerShare         = satelliteAccumulatedRewardsPerShare;
-                satelliteReferenceAddress                   = satelliteAddress;
+                unpaid                                  = 0n;
+                paid                                    = 0n;
+                participationRewardsPerShare            = satelliteAccumulatedRewardsPerShare;
+                satelliteAccumulatedRewardsPerShare     = satelliteAccumulatedRewardsPerShare;
+                satelliteReferenceAddress               = satelliteAddress;
+                referenceGovernanceCycleId              = currentGovernanceCycleId;
+                tracked                                 = False;
             ]
     ];
 
@@ -479,6 +550,8 @@ block {
         delegateRewardsRecord.participationRewardsPerShare          := satelliteAccumulatedRewardsPerShare;
         delegateRewardsRecord.satelliteAccumulatedRewardsPerShare   := satelliteAccumulatedRewardsPerShare;
         delegateRewardsRecord.satelliteReferenceAddress             := satelliteAddress;
+        delegateRewardsRecord.referenceGovernanceCycleId            := currentGovernanceCycleId;
+        delegateRewardsRecord.tracked                               := False;
     }
 
 } with delegateRewardsRecord
@@ -521,20 +594,6 @@ block {
 // Snapshot Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get the current governance cycle counter
-function getCurrentCycleCounter(const s : delegationStorageType) : nat is 
-block {
-
-    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
-    const currentCycle : nat = case cycleCounterView of [
-            Some (_cycleCounter)   -> _cycleCounter
-        |   None                   -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
-
-} with currentCycle
-
-
-
 // helper function to check if satellite snapshot exists
 function createSatelliteSnapshotCheck(const currentCycle : nat; const satelliteAddress : address; const s : delegationStorageType) : bool is
 block {
@@ -545,6 +604,8 @@ block {
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
 
+    // If a snapshot already exists, set the boolean to False as we do not need to create another satellite snapshot
+    // If no snapshot exists, then set the boolean to True, for the creation of a new satellite snapshot
     const satelliteSnapshotExists : bool = case satelliteSnapshotOpt of [
             Some (_snapshot)    -> False
         |   None                -> True
@@ -555,48 +616,72 @@ block {
 
 
 // helper function to update satellite snapshot
-function updateSatelliteSnapshotOperation(const satelliteAddress : address; const ready : bool; const s : delegationStorageType) : operation is 
+function updateSatellitesSnapshotOperation(const satelliteAddresses : set(address); const ready : bool; const s : delegationStorageType) : operation is 
 block {
 
-    // Get the satellite record
-    const satelliteRecord : satelliteRecordType = getSatelliteRecord(satelliteAddress, s);
+    // Prepare the satellites to update
+    var satellitesSnapshots : updateSatellitesSnapshotType   := set[];
 
-    // Create a snapshot
-    const satelliteSnapshotParams : updateSatelliteSnapshotType  = record[
-        satelliteAddress    = satelliteAddress;
-        satelliteRecord     = satelliteRecord;
-        ready               = ready;
-        delegationRatio     = s.config.delegationRatio;
-    ];
+    for satelliteAddress in set satelliteAddresses block {
+
+        // Get the satellite record
+        const satelliteRecord   : satelliteRecordType  = getSatelliteRecord(satelliteAddress, s);
+        const satelliteRewards  : satelliteRewardsType = getOrCreateSatelliteRewardsRecord(satelliteAddress, s);
+
+        // Create a snapshot
+        const satelliteSnapshot : updateSatelliteSingleSnapshotType  = record[
+            satelliteAddress            = satelliteAddress;
+            totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
+            totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
+            ready                       = ready;
+            delegationRatio             = s.config.delegationRatio;
+            accumulatedRewardsPerShare  = satelliteRewards.satelliteAccumulatedRewardsPerShare;
+        ];
+
+        // Add the snapshot to the list
+        satellitesSnapshots := Set.add(satelliteSnapshot, satellitesSnapshots);
+
+    };
 
     // Send the snapshot to the governance contract
-    const updateSatelliteSnapshotOperation : operation   = Tezos.transaction(
-        (satelliteSnapshotParams),
+    const updateSatellitesSnapshotOperation : operation   = Tezos.transaction(
+        (satellitesSnapshots),
         0tez, 
-        sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
+        sendUpdateSatellitesSnapshotOperationToGovernance(s.governanceAddress)
     );
 
-} with updateSatelliteSnapshotOperation
+} with updateSatellitesSnapshotOperation
 
 
 
 // helper function to refresh a satellite governance snapshot
-function updateGovernanceSnapshot (const satelliteAddress : address; const ready : bool; var operations : list(operation); const s : delegationStorageType) : list(operation) is
+function updateGovernanceSnapshot (const satelliteAddresses : set(address); const ready : bool; var operations : list(operation); const s : delegationStorageType) : list(operation) is
 block {
 
     // Get the current round 
-    const currentCycle : nat = getCurrentCycleCounter(s);
+    const currentCycle : nat                = getCurrentCycleCounter(s);
 
-    // Check if satellite snapshot exists in the current governance cycle
-    const createSatelliteSnapshotCheck : bool = createSatelliteSnapshotCheck(currentCycle, satelliteAddress, s);
+    // Init parameters
+    var satellitesToUpdate : set(address)  := set[];
 
-    // Create satellite snapshot if it does not exist in the current governance cycle
-    if createSatelliteSnapshotCheck and Big_map.mem(satelliteAddress, s.satelliteLedger) then{
+    // Create snapshot for each satellite provided
+    for satelliteAddress in set satelliteAddresses block {
+ 
+        // Check if satellite snapshot exists in the current governance cycle
+        const createSatelliteSnapshotCheck : bool = createSatelliteSnapshotCheck(currentCycle, satelliteAddress, s);
 
-        const updateSatelliteSnapshotOperation : operation = updateSatelliteSnapshotOperation(satelliteAddress, ready, s);
-        operations := updateSatelliteSnapshotOperation # operations;
+        // Create satellite snapshot if it does not exist in the current governance cycle
+        if createSatelliteSnapshotCheck and Big_map.mem(satelliteAddress, s.satelliteLedger) then{
+            satellitesToUpdate  := Set.add(satelliteAddress, satellitesToUpdate);
+        } else skip;
 
-    } else skip;
+    };
+
+    // Update the satellites snapshot
+    if Set.size(satellitesToUpdate) > 0n then {
+        const updateSatellitesSnapshotOperation : operation = updateSatellitesSnapshotOperation(satellitesToUpdate, ready, s);
+        operations := updateSatellitesSnapshotOperation # operations;
+    }
 
 } with operations
 
@@ -629,29 +714,78 @@ block{
         // Check if user is recorded in the Satellite Rewards Ledger
         if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
 
-            // Get user's satellite rewards record
-            var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(userAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
+            // Get user's rewards record
+            var userRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(userAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
+            const satelliteReferenceAddress : address = userRewardsRecord.satelliteReferenceAddress;
 
             // Get user's staked MVK balance from the Doorman Contract
             const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
 
             // Get satellite rewards record of satellite that user is delegated to
-            const satelliteReferenceRewardsRecord : satelliteRewardsType = getSatelliteRewardsRecord(satelliteRewardsRecord.satelliteReferenceAddress, s, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND);
+            const satelliteReferenceRewardsRecord : satelliteRewardsType = getSatelliteRewardsRecord(satelliteReferenceAddress, s, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND);
 
-            // Calculate satellite unclaimed rewards
-            // - calculate rewards ratio: difference between satellite's accumulatedRewardsPerShare and user's current participationRewardsPerShare
-            // - user's satellite rewards is equal to his staked MVK balance multiplied by rewards ratio
+            // if user rewards is already tracked (user participationRewardsPerShare is correct)
+            if userRewardsRecord.tracked = True then block {
+
+                // Calculate satellite unclaimed rewards
+                // - calculate rewards ratio: difference between satellite's accumulatedRewardsPerShare and user's current participationRewardsPerShare
+                // - user's satellite rewards is equal to his staked MVK balance multiplied by rewards ratio
+                
+                const satelliteRewardsRatio : nat  = abs(satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - userRewardsRecord.participationRewardsPerShare);
+                const satelliteRewards : nat       = (stakedMvkBalance * satelliteRewardsRatio) / fixedPointAccuracy;
+
+                // Update user's satellite rewards record 
+                // - set participationRewardsPerShare to satellite's accumulatedRewardsPerShare
+                // - increment user's unpaid rewards by the calculated rewards
+
+                userRewardsRecord.participationRewardsPerShare    := satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                userRewardsRecord.unpaid                          := userRewardsRecord.unpaid + satelliteRewards;
+                s.satelliteRewardsLedger[userAddress]             := userRewardsRecord;
             
-            const satelliteRewardsRatio : nat  = abs(satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - satelliteRewardsRecord.participationRewardsPerShare);
-            const satelliteRewards : nat       = (stakedMvkBalance * satelliteRewardsRatio) / fixedPointAccuracy;
+            } else block {
 
-            // Update user's satellite rewards record 
-            // - set participationRewardsPerShare to satellite's accumulatedRewardsPerShare
-            // - increment user's unpaid rewards by the calculated rewards
+                // check if user is able to earn rewards by comparing governance cycle of when user delegated
 
-            satelliteRewardsRecord.participationRewardsPerShare    := satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare;
-            satelliteRewardsRecord.unpaid                          := satelliteRewardsRecord.unpaid + satelliteRewards;
-            s.satelliteRewardsLedger[userAddress]                  := satelliteRewardsRecord;
+                const currentGovernanceCycleId    : nat = getCurrentCycleCounter(s);
+                const referenceGovernanceCycleId  : nat = userRewardsRecord.referenceGovernanceCycleId;
+
+                // user cannot earn rewards in the same governance cycle that he delegated to a satellite
+                if currentGovernanceCycleId = referenceGovernanceCycleId then skip else block {
+
+                    // user can start to earn rewards, and will accrue rewards from the start of the next governance cycle after he delegated
+
+                    // get satellite snapshot of when the satellite delegated
+                    const satelliteSnapshot : governanceSatelliteSnapshotRecordType     = getSatelliteSnapshot(referenceGovernanceCycleId, satelliteReferenceAddress, s);
+
+                    // update rewards if next snapshot cycle id is found
+                    // - N.B. if none is found, that means there is no updated snapshot of the satellite, and hence no changes in its satelliteAccumulatedRewardsPerShare,
+                    //          and hence no changes in rewards to be accrued to users 
+                    //   
+                    case satelliteSnapshot.nextSnapshotCycleId of [
+                            Some (_snapshotCycleId) -> {
+
+                                const satelliteSnapshotNext : governanceSatelliteSnapshotRecordType = getSatelliteSnapshot(_snapshotCycleId, satelliteReferenceAddress, s);
+
+                                 // get satellite's accumulated rewards per share at this instance, which will be equivalent to user's participation rewards per share
+                                const initialParticipationRewardsPerShare : nat = satelliteSnapshotNext.accumulatedRewardsPerShare;
+
+                                 // Calculate satellite unclaimed rewards
+                                const satelliteRewardsRatio : nat  = abs(satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - initialParticipationRewardsPerShare);
+                                const satelliteRewards : nat       = (stakedMvkBalance * satelliteRewardsRatio) / fixedPointAccuracy;
+
+                                // Update user's satellite rewards record 
+                                userRewardsRecord.participationRewardsPerShare    := satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                                userRewardsRecord.unpaid                          := userRewardsRecord.unpaid + satelliteRewards;
+                                userRewardsRecord.tracked                         := True;                // set tracked to True since referenceGovernanceCycleId has been used
+                                s.satelliteRewardsLedger[userAddress]             := userRewardsRecord;
+                                 
+                            }
+                        |   None                    -> skip
+                    ];
+
+                };
+
+        }
 
         } else skip;
 

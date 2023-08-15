@@ -23,10 +23,13 @@ async def on_break_glass_sign_action(
         status                  = action_record_storage.status
         executed                = action_record_storage.executed
         execution_datetime      = action_record_storage.executedDateTime
+        if execution_datetime:
+            execution_datetime      = parser.parse(execution_datetime)
         execution_level         = int(action_record_storage.executedLevel)
         council_members         = sign_action.storage.councilMembers
         admin                   = sign_action.storage.admin
         glass_broken            = sign_action.storage.glassBroken
+        council_size            = sign_action.storage.councilSize
     
         # Select correct status
         status_type = models.ActionStatus.PENDING
@@ -39,18 +42,19 @@ async def on_break_glass_sign_action(
         break_glass                 = await models.BreakGlass.get(network=ctx.datasource.network, address= break_glass_address)
         break_glass.admin           = admin
         break_glass.glass_broken    = glass_broken
+        break_glass.council_size    = council_size
         await break_glass.save()
         action_record               = await models.BreakGlassAction.get(
             break_glass = break_glass,
             internal_id = action_id
         )
-        action_record.council_size_snapshot = len(await models.BreakGlassCouncilMember.filter(break_glass=break_glass).all())
+        action_record.council_size_snapshot = break_glass.council_size
         action_record.status                = status_type
         if action_record.status == models.ActionStatus.FLUSHED:
             action_record.flushed_datetime  = timestamp
         action_record.signers_count         = signer_count
         action_record.executed              = executed
-        action_record.execution_datetime    = parser.parse(execution_datetime)
+        action_record.execution_datetime    = execution_datetime
         action_record.execution_level       = execution_level
         
         await action_record.save()
@@ -70,7 +74,7 @@ async def on_break_glass_sign_action(
                     break_glass = break_glass,
                     internal_id = single_action_id
                 ).update(
-                    council_size_snapshot  = len(await models.BreakGlassCouncilMember.filter(break_glass=break_glass).all()),
+                    council_size_snapshot  = break_glass.council_size,
                     status                 = status_type
                 )
     

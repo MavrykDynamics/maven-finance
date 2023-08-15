@@ -3,11 +3,10 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Extra
+from typing import List
+
+from pydantic import BaseModel
 
 
 class PauseAllEntrypointsParameter(BaseModel):
-    pass
-
-    class Config:
-        extra = Extra.forbid
+    __root__: List[str]

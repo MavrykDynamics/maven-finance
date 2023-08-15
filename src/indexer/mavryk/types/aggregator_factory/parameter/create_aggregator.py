@@ -23,7 +23,7 @@ class AggregatorConfig(BaseModel):
     decimals: str
     alphaPercentPerThousand: str
     percentOracleThreshold: str
-    heartBeatSeconds: str
+    heartbeatSeconds: str
     rewardAmountStakedMvk: str
     rewardAmountXtz: str
 

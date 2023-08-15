@@ -1,18 +1,15 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 
-const { bob, alice } = require('../scripts/sandbox/accounts')
-
+import { bob } from '../scripts/sandbox/accounts'
 import { MVK, zeroAddress } from '../test/helpers/Utils'
-
-import { governanceStorageType } from '../test/types/governanceStorageType'
+import { governanceStorageType } from './storageTypes/governanceStorageType'
 
 const config = {
     successReward                       : MVK(10),
     cycleVotersReward                   : MVK(100),
 
     minProposalRoundVotePercentage      : 1000,
-    minProposalRoundVotesRequired       : 10000,
 
     minQuorumPercentage                 : 1000,
     minYayVotePercentage                : 5100,
@@ -57,19 +54,21 @@ export const governanceStorage: governanceStorageType = {
     whitelistContracts      : MichelsonMap.fromLiteral({}),
     generalContracts        : MichelsonMap.fromLiteral({}),
 
-    proposalLedger          : MichelsonMap.fromLiteral({}),
-    proposalRewards         : MichelsonMap.fromLiteral({}),
-    snapshotLedger          : MichelsonMap.fromLiteral({}),
+    proposalLedger                      : MichelsonMap.fromLiteral({}),
+    proposalVoters                      : MichelsonMap.fromLiteral({}),
+    proposalRewards                     : MichelsonMap.fromLiteral({}),
+    stakedMvkSnapshotLedger             : MichelsonMap.fromLiteral({}),
+    snapshotLedger                      : MichelsonMap.fromLiteral({}),
+    satelliteLastSnapshotLedger         : MichelsonMap.fromLiteral({}),
 
-    // startLevel              : new BigNumber(1),
     nextProposalId          : new BigNumber(1),
-    cycleId            : new BigNumber(1),
+    cycleId                 : new BigNumber(0),
 
-    currentCycleInfo         : {
+    currentCycleInfo        : {
         round                     : { proposal: null },
-        blocksPerProposalRound    :  new BigNumber(0),
-        blocksPerVotingRound      :  new BigNumber(0),
-        blocksPerTimelockRound    :  new BigNumber(0),
+        blocksPerProposalRound    : new BigNumber(0),
+        blocksPerVotingRound      : new BigNumber(0),
+        blocksPerTimelockRound    : new BigNumber(0),
         roundStartLevel           : new BigNumber(0),
         roundEndLevel             : new BigNumber(0),
         cycleEndLevel             : new BigNumber(0),

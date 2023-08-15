@@ -63,7 +63,6 @@ type vaultFactoryAction is
     |   SetLambda                   of setLambdaType
     |   SetProductLambda            of setLambdaType
 
-
 type return is list (operation) * vaultFactoryStorageType
 const noOperations: list (operation) = nil;
 

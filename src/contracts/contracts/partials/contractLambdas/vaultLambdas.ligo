@@ -114,27 +114,30 @@ block {
                             // verify that sender is either the vault owner or a whitelisted depositor or vault factory
                             verifyDepositAllowed(isOwner, isWhitelistedDepositor, s);
 
-                            // register deposit in Lending Controller
-                            const registerDepositOperation : operation = registerDepositInLendingController(
-                                amount,       // amount
-                                tokenName,    // tokenName
-                                s             // storage
-                            );
-
-                            operations := registerDepositOperation # operations;
-
                             // process deposit from sender to vault
-                            if collateralTokenRecord.tokenName = "tez" then {
-                                if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
-                            } else {
-                                const processVaultDepositOperation : operation = processVaultTransfer(
-                                    Tezos.get_sender(),         // from_
-                                    Tezos.get_self_address(),   // to_
-                                    amount,                     // amount
-                                    tokenType                   // tokenType
+                            if amount > 0n then {
+
+                                // register deposit in Lending Controller
+                                const registerDepositOperation : operation = registerDepositInLendingController(
+                                    amount,       // amount
+                                    tokenName,    // tokenName
+                                    s             // storage
                                 );
-                                operations := processVaultDepositOperation # operations;
-                            };
+
+                                operations := registerDepositOperation # operations;
+
+                                if collateralTokenRecord.tokenName = "tez" then {
+                                    if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
+                                } else {
+                                    const processVaultDepositOperation : operation = processVaultTransfer(
+                                        Tezos.get_sender(),         // from_
+                                        Tezos.get_self_address(),   // to_
+                                        amount,                     // amount
+                                        tokenType                   // tokenType
+                                    );
+                                    operations := processVaultDepositOperation # operations;
+                                };
+                            } else skip;
                             
                         }
                     |   Withdraw(withdrawParams) -> {
@@ -159,24 +162,26 @@ block {
                             const tokenType : tokenType = collateralTokenRecord.tokenType;
 
                             // register withdrawal in Lending Controller
-                            const registerWithdrawalOperation : operation = registerWithdrawalInLendingController(
-                                amount,       // amount
-                                tokenName,    // tokenName
-                                s             // storage
-                            );
+                            if amount > 0n then {
+                                const registerWithdrawalOperation : operation = registerWithdrawalInLendingController(
+                                    amount,       // amount
+                                    tokenName,    // tokenName
+                                    s             // storage
+                                );
 
-                            // process withdrawal from vault to sender
-                            const processVaultWithdrawalOperation : operation = processVaultTransfer(
-                                Tezos.get_self_address(),   // from_
-                                Tezos.get_sender(),         // to_
-                                amount,                     // amount
-                                tokenType                   // tokenType
-                            );
+                                // process withdrawal from vault to sender
+                                const processVaultWithdrawalOperation : operation = processVaultTransfer(
+                                    Tezos.get_self_address(),   // from_
+                                    Tezos.get_sender(),         // to_
+                                    amount,                     // amount
+                                    tokenType                   // tokenType
+                                );
 
-                            operations := list[
-                                registerWithdrawalOperation;
-                                processVaultWithdrawalOperation
-                            ];
+                                operations := list[
+                                    registerWithdrawalOperation;
+                                    processVaultWithdrawalOperation
+                                ];
+                            } else skip;
 
                         }
 
@@ -199,14 +204,15 @@ block {
                             const tokenType : tokenType = collateralTokenRecord.tokenType;
 
                             // process withdrawal from vault to liquidator
-                            const processVaultWithdrawalOperation : operation = processVaultTransfer(
-                                Tezos.get_self_address(),   // from_
-                                receiver,                   // to_
-                                amount,                     // amount
-                                tokenType                   // tokenType
-                            );
-
-                            operations := processVaultWithdrawalOperation # operations;
+                            if amount > 0n then {
+                                const processVaultWithdrawalOperation : operation = processVaultTransfer(
+                                    Tezos.get_self_address(),   // from_
+                                    receiver,                   // to_
+                                    amount,                     // amount
+                                    tokenType                   // tokenType
+                                );
+                                operations := processVaultWithdrawalOperation # operations;
+                            } else skip;
 
                         }
 

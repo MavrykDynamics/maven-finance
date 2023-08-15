@@ -5,7 +5,7 @@ import { Buffer } from 'buffer'
 
 import { MVK, zeroAddress } from '../test/helpers/Utils'
 
-import { mvkFaucetStorageType } from '../test/types/mvkFaucetStorageType'
+import { mvkFaucetStorageType } from './storageTypes/mvkFaucetStorageType'
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),

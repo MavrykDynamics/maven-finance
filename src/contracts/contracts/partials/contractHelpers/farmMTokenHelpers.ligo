@@ -214,7 +214,7 @@ block {
 
 
 // helper function to transfer reward to depositor through the %farmClaim entrypoint on the Doorman Contract
-function transferReward(const depositor : depositorType; const tokenAmount : tokenBalanceType; const s : farmMTokenStorageType) : operation is
+function transferReward(const farmClaimDepositors : set(farmClaimDepositorType); const s : farmMTokenStorageType) : operation is
 block{
 
     // --------------------------------------------------------------------------------------
@@ -231,7 +231,7 @@ block{
     ];
 
     // Init farmClaim entrypoint parameters 
-    const farmClaimParams : farmClaimType = (depositor, tokenAmount, s.config.forceRewardFromTransfer);
+    const farmClaimParams : farmClaimType = (farmClaimDepositors, s.config.forceRewardFromTransfer);
 
 } with (Tezos.transaction(farmClaimParams, 0tez, doormanContract))
 
@@ -479,7 +479,6 @@ block{
     const currentMvkPerShare = abs(accumulatedRewardsPerShareEnd - accumulatedRewardsPerShareStart);
     const depositorReward = (currentMvkPerShare * depositorRecord.balance) / fixedPointAccuracy;
 
-
     // Update user's unclaimed rewards and participationRewardsPerShare
     const unclaimedRewards : nat = depositorRecord.unclaimedRewards;
     depositorRecord.unclaimedRewards                := unclaimedRewards + depositorReward;
@@ -492,9 +491,6 @@ block{
         unpaid = abs(s.claimedRewards.unpaid - depositorReward);
         paid   = s.claimedRewards.paid + depositorReward;
     ];
-
-    // Update depositor record
-    // s.depositorLedger[depositor] := depositorRecord;
 
 } with (s, depositorRecord)
 

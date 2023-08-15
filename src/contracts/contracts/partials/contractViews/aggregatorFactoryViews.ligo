@@ -9,6 +9,11 @@
     s.admin
 
 
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : aggregatorFactoryStorageType) : address is
+    s.governanceAddress
+
+
 
 (* View: get config *)
 [@view] function getConfig(const _ : unit; const s : aggregatorFactoryStorageType) : aggregatorFactoryConfigType is
@@ -16,21 +21,27 @@
 
 
 
-(* View: get Governance address *)
-[@view] function getGovernanceAddress(const _ : unit; const s : aggregatorFactoryStorageType) : address is
-    s.governanceAddress
+(* View: get break glass config *)
+[@view] function getBreakGlassConfig (const _ : unit; const s : aggregatorFactoryStorageType) : aggregatorFactoryBreakGlassConfigType is 
+    s.breakGlassConfig
 
 
 
-(* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const s : aggregatorFactoryStorageType) : whitelistContractsType is
-    s.whitelistContracts
+(* View: get whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : aggregatorFactoryStorageType) : option(unit) is 
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
 
 
 
-(* View: get general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const s : aggregatorFactoryStorageType) : generalContractsType is
-    s.generalContracts
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const s : aggregatorFactoryStorageType) : option(address) is
+    Big_map.find_opt(contractName, s.generalContracts)
+
+
+
+(* View: checkAggregatorExists *)
+[@view] function checkAggregatorExists (const aggregatorContract : address; const s : aggregatorFactoryStorageType) : bool is 
+    Set.mem(aggregatorContract, s.trackedAggregators)
 
 
 
@@ -42,13 +53,13 @@
 
 (* View: get a lambda *)
 [@view] function getLambdaOpt(const lambdaName: string; const s : aggregatorFactoryStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.lambdaLedger)
+    Big_map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
-(* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; const s : aggregatorFactoryStorageType) : lambdaLedgerType is
-    s.lambdaLedger
+(* View: get an aggregator lambda *)
+[@view] function getAggregatorLambdaOpt(const lambdaName: string; const s : aggregatorFactoryStorageType) : option(bytes) is
+    Big_map.find_opt(lambdaName, s.aggregatorLambdaLedger)
 
 // ------------------------------------------------------------------------------
 //

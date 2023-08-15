@@ -13,10 +13,11 @@
 
 
 type treasuryBreakGlassConfigType is [@layout:comb] record [
-    transferIsPaused            : bool; 
-    mintMvkAndTransferIsPaused  : bool;
-    stakeMvkIsPaused            : bool;
-    unstakeMvkIsPaused          : bool;
+    transferIsPaused                : bool; 
+    mintMvkAndTransferIsPaused      : bool;
+    updateTokenOperatorsIsPaused    : bool;
+    stakeTokensIsPaused             : bool;
+    unstakeTokensIsPaused           : bool;
 ]
 
 
@@ -33,14 +34,32 @@ type mintMvkAndTransferType is [@layout:comb] record [
 type treasuryPausableEntrypointType is
         Transfer                       of bool   
     |   MintMvkAndTransfer             of bool
-    |   StakeMvk                       of bool
-    |   UnstakeMvk                     of bool
+    |   UpdateTokenOperators           of bool
+    |   StakeTokens                    of bool
+    |   UnstakeTokens                  of bool
 
 type treasuryTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : treasuryPausableEntrypointType;
     empty             : unit
 ];
 
+
+type updateTokenOperatorsType is [@layout:comb] record [
+    tokenContractAddress    : address;
+    updateOperators         : updateOperatorsType;
+]
+
+
+type stakeTokensType is [@layout:comb] record [
+    contractAddress  : address;
+    amount           : nat;
+]
+
+
+type unstakeTokensType is [@layout:comb] record [
+    contractAddress  : address;
+    amount           : nat;
+]
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types
@@ -67,9 +86,9 @@ type treasuryLambdaActionType is
         // Treasury Entrypoints
     |   LambdaTransfer                       of transferActionType
     |   LambdaMintMvkAndTransfer             of mintMvkAndTransferType
-    |   LambdaUpdateMvkOperators             of updateOperatorsType
-    |   LambdaStakeMvk                       of (nat)
-    |   LambdaUnstakeMvk                     of (nat)
+    |   LambdaUpdateTokenOperators           of updateTokenOperatorsType
+    |   LambdaStakeTokens                    of stakeTokensType
+    |   LambdaUnstakeTokens                  of unstakeTokensType
 
 
 // ------------------------------------------------------------------------------
