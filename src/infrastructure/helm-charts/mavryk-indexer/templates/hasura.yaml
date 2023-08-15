@@ -43,14 +43,20 @@ spec:
               cpu: '{{ $value.hasura.resources.limits.cpu }}'
           {{- end }}
           env:
+            - name: HASURA_GRAPHQL_PG_CONNECTIONS
+              value: '{{ $value.hasura.pgConnections }}'
+            - name: HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_REFETCH_INTERVAL
+              value: '15000'
+            - name: HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_BATCH_SIZE
+              value: '1000'
             - name: HASURA_GRAPHQL_ENABLE_CONSOLE
-              value: 'true'
+              value: '{{ $value.hasura.enableConsole }}'
             - name: HASURA_GRAPHQL_DEV_MODE
-              value: 'true'
+              value: '{{ $value.hasura.devMode }}'
             - name: HASURA_GRAPHQL_ENABLED_LOG_TYPES
               value: startup, http-log, webhook-log, websocket-log, query-log
             - name: HASURA_GRAPHQL_UNAUTHORIZED_ROLE
-              value: user
+              value: '{{ $value.hasura.unauthorizedRole }}'
             - name: HASURA_GRAPHQL_DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -61,6 +67,15 @@ spec:
                 secretKeyRef:
                   name: indexer
                   key: HASURA_GRAPHQL_ADMIN_SECRET
+            - name: HASURA_GRAPHQL_CORS_DOMAIN
+              value: '{{ include "listToCSV" $value.hasura.corsDomains }}'
+            {{- if $value.hasura.jwt.enabled }}
+            - name: HASURA_GRAPHQL_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: HASURA_GRAPHQL_JWT_SECRET
+            {{- end }}
           image: '{{ $value.hasura.image.registry }}/{{ $value.hasura.image.repository }}:{{ $value.hasura.image.tag }}'
           imagePullPolicy: IfNotPresent
           ports:
@@ -92,9 +107,13 @@ metadata:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/enable-cors: 'true'
-    nginx.ingress.kubernetes.io/cors-expose-headers: '*'
-    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
-    nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+    nginx.ingress.kubernetes.io/cors-allow-origin: '{{ include "listToCSV" $value.hasura.corsDomains }}'
+    nginx.ingress.kubernetes.io/cors-allow-methods: GET, POST
+    {{- if $value.hasura.rateLimit.enabled }}
+    nginx.ingress.kubernetes.io/limit-connections: '5'
+    nginx.ingress.kubernetes.io/limit-rps: '10'
+    nginx.ingress.kubernetes.io/limit-rpm: '100'
+    {{- end }}
 spec:
   tls:
     - hosts:

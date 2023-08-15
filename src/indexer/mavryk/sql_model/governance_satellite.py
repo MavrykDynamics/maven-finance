@@ -55,6 +55,7 @@ class GovernanceSatelliteAction(Model):
     expiration_datetime                     = fields.DatetimeField(index=True)
     start_datetime                          = fields.DatetimeField(index=True)
     governance_cycle_id                     = fields.BigIntField(default=0, index=True)
+    dropped_datetime                        = fields.DatetimeField(index=True, null=True)
 
     class Meta:
         table = 'governance_satellite_action'

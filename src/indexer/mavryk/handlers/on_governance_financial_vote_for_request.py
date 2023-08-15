@@ -69,29 +69,14 @@ async def on_governance_financial_vote_for_request(
             governance_financial    = governance_financial,
             internal_id             = request_id
         )
-        vote_record_exists      = await models.GovernanceFinancialRequestVote.filter(
+        vote_record, _          = await models.GovernanceFinancialRequestVote.get_or_create(
             governance_financial_request    = financial_request,
-            satellite_snapshot              = satellite_snapshot,
-            voter                           = voter
-        ).exists()
-        if vote_record_exists:
-            await models.GovernanceFinancialRequestVote.filter(
-                governance_financial_request    = financial_request,
-                satellite_snapshot              = satellite_snapshot,
-                voter                           = voter
-            ).update(
-                timestamp           = timestamp,
-                vote                = vote_type
-            )
-        else:
-            vote_record         = models.GovernanceFinancialRequestVote(
-                governance_financial_request    = financial_request,
-                satellite_snapshot              = satellite_snapshot,
-                voter                           = voter,
-                timestamp                       = timestamp,
-                vote                            = vote_type
-            )
-            await vote_record.save()
+            voter                           = voter,
+            satellite_snapshot              = satellite_snapshot
+        )
+        vote_record.timestamp               = timestamp
+        vote_record.vote                    = vote_type
+        await vote_record.save()
 
     except BaseException as e:
          await save_error_report(e)
