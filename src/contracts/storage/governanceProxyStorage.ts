@@ -1,8 +1,6 @@
-import { governanceProxyStorageType } from "../test/types/governanceProxyStorageType";
-import { MichelsonMap } from "@taquito/michelson-encoder";
-import { BigNumber } from "bignumber.js";
-
+import { MichelsonMap } from "@taquito/michelson-encoder"
 import { bob } from '../scripts/sandbox/accounts'
+import { governanceProxyStorageType } from "./storageTypes/governanceProxyStorageType"
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),

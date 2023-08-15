@@ -78,11 +78,31 @@ block {
 
 
 
+// helper function to get emergency governance
+function getCurrentEmergencyGovernance(const s : emergencyGovernanceStorageType) : emergencyGovernanceRecordType is
+block {
+
+    const emergencyGovernanceRecord : emergencyGovernanceRecordType = case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of [ 
+            None          -> failwith(error_EMERGENCY_GOVERNANCE_NOT_FOUND)
+        |   Some(_record) -> _record
+    ];
+
+} with emergencyGovernanceRecord
+
+
+
 // helper function to verify there is no active emergency governance ongoing
 function verifyNoActiveEmergencyGovernance(const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    verifyIsZero(s.currentEmergencyGovernanceId, error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS);
+    if s.currentEmergencyGovernanceId = 0n then skip 
+    else {
+        const emergencyGovernance : emergencyGovernanceRecordType = getCurrentEmergencyGovernance(s);        
+        
+        if Tezos.get_now() < emergencyGovernance.expirationDateTime 
+        then failwith(error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS) 
+        else skip;
+    };
 
 } with unit
 
@@ -91,8 +111,15 @@ block {
 // helper function to verify there is an active emergency governance ongoing
 function verifyOngoingActiveEmergencyGovernance(const s : emergencyGovernanceStorageType) : unit is 
 block {
+
+    if s.currentEmergencyGovernanceId =/= 0n then  {
+        const emergencyGovernance : emergencyGovernanceRecordType = getCurrentEmergencyGovernance(s);        
+        
+        if Tezos.get_now() > emergencyGovernance.expirationDateTime 
+        then failwith(error_EMERGENCY_GOVERNANCE_EXPIRED) 
+        else skip;
     
-    verifyIsNotZero(s.currentEmergencyGovernanceId, error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS);
+    } else failwith(error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS)
 
 } with unit
 
@@ -103,17 +130,6 @@ function verifyEmergencyGovernanceNotExecuted(const emergencyGovernanceRecord : 
 block {
 
     if emergencyGovernanceRecord.executed = True then failwith(error_EMERGENCY_GOVERNANCE_EXECUTED)
-    else skip; 
-
-} with unit
-
-
-
-// helper function to verify emergency governance has not been dropped
-function verifyEmergencyGovernanceNotDropped(const emergencyGovernanceRecord : emergencyGovernanceRecordType) : unit is
-block {
-
-    if emergencyGovernanceRecord.dropped = True then failwith(error_EMERGENCY_GOVERNANCE_DROPPED)
     else skip; 
 
 } with unit
@@ -147,7 +163,7 @@ block {
 function verifySufficientBalanceToTrigger(const stakedMvkBalance : nat; const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    verifyGreaterThanOrEqual(stakedMvkBalance, s.config.minStakedMvkRequiredToTrigger, error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
+    verifyGreaterThanOrEqual(stakedMvkBalance, s.config.minStakedMvkRequiredToTrigger, error_MIN_STAKED_MVK_AMOUNT_NOT_REACHED);
 
 } with unit
 
@@ -157,32 +173,19 @@ block {
 function verifySufficientBalanceToVote(const stakedMvkBalance : nat; const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    verifyGreaterThanOrEqual(stakedMvkBalance, s.config.minStakedMvkRequiredToVote, error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
+    verifyGreaterThanOrEqual(stakedMvkBalance, s.config.minStakedMvkRequiredToVote, error_MIN_STAKED_MVK_AMOUNT_NOT_REACHED);
 
 } with unit
 
 
 
 // helper function to verify user has not voted for emergency governance
-function verifyUserHasNotVoted(const userAddress : address; const emergencyGovernanceRecord : emergencyGovernanceRecordType) : unit is 
+function verifyUserHasNotVoted(const userAddress : address; const emergencyGovernanceRecordId : actionIdType; const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    if not Map.mem(userAddress, emergencyGovernanceRecord.voters) then skip else failwith(error_EMERGENCY_GOVERNANCE_VOTE_ALEADY_REGISTERED);
+    if not Big_map.mem((emergencyGovernanceRecordId, userAddress), s.emergencyGovernanceVoters) then skip else failwith(error_EMERGENCY_GOVERNANCE_VOTE_ALEADY_REGISTERED);
 
 } with unit
-
-
-
-// helper function to get emergency governance
-function getCurrentEmergencyGovernance(const s : emergencyGovernanceStorageType) : emergencyGovernanceRecordType is
-block {
-
-    const emergencyGovernanceRecord : emergencyGovernanceRecordType = case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of [ 
-            None          -> failwith(error_EMERGENCY_GOVERNANCE_NOT_FOUND)
-        |   Some(_record) -> _record
-    ];
-
-} with emergencyGovernanceRecord
 
 
 
@@ -190,27 +193,22 @@ block {
 function createEmergencyGovernance(const userAddress : address; const title : string; const description : string; const stakedMvkRequiredForBreakGlass : nat; const s : emergencyGovernanceStorageType) : emergencyGovernanceRecordType is
 block {
 
-    // Init empty voters map
-    const emptyVotersMap : voterMapType = map[];
-
     // Create new emergency governance record
     const newEmergencyGovernanceRecord : emergencyGovernanceRecordType = record [
         proposerAddress                  = userAddress;
         executed                         = False;
-        dropped                          = False;
 
         title                            = title;
         description                      = description; 
-        voters                           = emptyVotersMap;
         totalStakedMvkVotes              = 0n;
         stakedMvkPercentageRequired      = s.config.stakedMvkPercentageRequired;  // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
         stakedMvkRequiredForBreakGlass   = stakedMvkRequiredForBreakGlass;
 
         startDateTime                    = Tezos.get_now();
         startLevel                       = Tezos.get_level();             
-        executedDateTime                 = zeroTimestamp;
-        executedLevel                    = 0n;
-        expirationDateTime               = Tezos.get_now() + (86_400 * s.config.voteExpiryDays);
+        executedDateTime                 = None;
+        executedLevel                    = None;
+        expirationDateTime               = Tezos.get_now() + (60 * s.config.durationInMinutes);
     ];
 
 } with newEmergencyGovernanceRecord

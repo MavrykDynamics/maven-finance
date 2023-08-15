@@ -7,9 +7,9 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "baseUrl": "./",
-    "typeRoots": ["./node_modules/@types", "./test/types", "./test"],
+    "typeRoots": ["./node_modules/@types", "storage/storageTypes", "./test"],
     "types": ["node", "@types/mocha", "@types/chai", "@types/expect", "./test/types"],
   },
   "exclude": ["node_modules", "build", "cache", "artifacts"],
-  "include": ["./*.ts", "./test/*.ts", "test/contractHelpers/*.tss/*.ts", "test/deploy/00_test_deployments.spec.ts"]
+  "include": ["./*.ts", "./test/*.ts", "./test/deploy/*.ts",  "./test/helpers/*.ts"]
 }

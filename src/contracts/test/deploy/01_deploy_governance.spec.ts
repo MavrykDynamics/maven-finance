@@ -1,24 +1,24 @@
-const { InMemorySigner } = require("@taquito/signer");
-import { Utils } from "../helpers/Utils";
-const saveContractAddress = require("../../helpers/saveContractAddress")
+import { Utils } from "../helpers/Utils"
+const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob, alice } from '../../scripts/sandbox/accounts'
-
 // ------------------------------------------------------------------------------
 // Contract Address
 // ------------------------------------------------------------------------------
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
+
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Governance, setGovernanceLambdas } from '../contractHelpers/governanceTestHelper'
+import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
+import { bob, alice } from '../../scripts/sandbox/accounts'
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -32,55 +32,45 @@ import { governanceStorage } from '../../storage/governanceStorage'
 
 describe('Governance', async () => {
   
-  var utils: Utils
-  var governance: Governance
-  var tezos
-  
-  const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-    return tezos
-  }
+    var utils: Utils
+    var governance 
+    var tezos
 
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-  
-      governanceStorage.whitelistDevelopers = [alice.pkh, bob.pkh]
-      governanceStorage.mvkTokenAddress     = mvkTokenAddress.address
-      governance = await Governance.originate(utils.tezos,governanceStorage);
-  
-      await saveContractAddress('governanceAddress', governance.contract.address)
-      console.log('Governance Contract deployed at:', governance.contract.address)
-  
-      /* ---- ---- ---- ---- ---- */
-  
-      tezos = governance.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
+    before('setup', async () => {
+        try{
 
-      // Governance Setup Lambdas
-      await setGovernanceLambdas(tezos, governance.contract)
-      console.log("Governance Lambdas Setup")
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+        
+            governanceStorage.whitelistDevelopers = [alice.pkh, bob.pkh]
+            governanceStorage.mvkTokenAddress     = contractDeployments.mvkToken.address
+            governance = await GeneralContract.originate(utils.tezos, "governance", governanceStorage);
+            await saveContractAddress('governanceAddress', governance.contract.address)
+        
+            /* ---- ---- ---- ---- ---- */
+        
+            tezos = governance.tezos
+            await helperFunctions.signerFactory(tezos, bob.sk);
 
-    } catch(e){
-      console.dir(e, {depth: 5})
-    }
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "governance", governance.contract)
 
-  })
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
 
-  it(`governance contract deployment`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+    })
+
+    it(`governance contract deployment`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })

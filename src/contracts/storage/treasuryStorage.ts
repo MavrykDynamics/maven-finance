@@ -1,12 +1,6 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
-
-import { BigNumber } from "bignumber.js";
-
-const { bob } = require('../scripts/sandbox/accounts')
-
-import { zeroAddress } from "../test/helpers/Utils";
-
-import { treasuryStorageType } from "../test/types/treasuryStorageType";
+import { MichelsonMap } from "@taquito/michelson-encoder"
+import { bob } from '../scripts/sandbox/accounts'
+import { treasuryStorageType } from "./storageTypes/treasuryStorageType"
 
 const config = {
     minMvkAmount            : 0,
@@ -14,8 +8,9 @@ const config = {
 }
 
 const breakGlassConfig = {
-    transferIsPaused         : false,
-    mintAndTransferIsPaused  : false
+    transferIsPaused                : false,
+    mintAndTransferIsPaused         : false,
+    updateTokenOperatorsIsPaused    : false
 }
 
 const metadata = MichelsonMap.fromLiteral({

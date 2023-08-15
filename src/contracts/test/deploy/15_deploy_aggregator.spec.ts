@@ -1,26 +1,24 @@
-const { InMemorySigner } = require("@taquito/signer");
-import { Utils } from "../helpers/Utils";
-const saveContractAddress = require("../../helpers/saveContractAddress")
+import { Utils } from "../helpers/Utils"
+const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob } from '../../scripts/sandbox/accounts'
-
 // ------------------------------------------------------------------------------
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import {Aggregator, setAggregatorLambdas} from '../contractHelpers/aggregatorTestHelper'
+import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
+import { bob } from '../../scripts/sandbox/accounts'
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -34,60 +32,45 @@ import { aggregatorStorage } from '../../storage/aggregatorStorage'
 
 describe('Aggregator', async () => {
   
-  var utils: Utils
+    var utils: Utils
+    var aggregator
+    var tezos
 
-  var aggregator: Aggregator
-  var tezos
-  
+    before('setup', async () => {
+        try{
+            
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+        
+            aggregatorStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
+            aggregatorStorage.governanceAddress = contractDeployments.governance.address
+            aggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
+            await saveContractAddress('aggregatorAddress', aggregator.contract.address)
+        
+            /* ---- ---- ---- ---- ---- */
+        
+            tezos = aggregator.tezos
+            await helperFunctions.signerFactory(tezos, bob.sk);
+        
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "aggregator", aggregator.contract);
 
-  const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-    return tezos
-  }
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
 
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-  
-      aggregatorStorage.mvkTokenAddress = mvkTokenAddress.address
-      aggregatorStorage.governanceAddress = governanceAddress.address
-      aggregator = await Aggregator.originate(
-        utils.tezos,
-        aggregatorStorage
-      )
-  
-      await saveContractAddress('aggregatorAddress', aggregator.contract.address)
-      console.log('Aggregator Contract deployed at:', aggregator.contract.address)
-  
-      /* ---- ---- ---- ---- ---- */
-  
-      tezos = aggregator.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
-  
-      // Aggregator Setup Lambdas
-      await setAggregatorLambdas(tezos, aggregator.contract);
-      console.log("Aggregator Lambdas Setup")
+    })
 
-    } catch(e){
-      console.dir(e, {depth: 5})
-    }
-
-  })
-
-  it(`aggregator contract deployed`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+    it(`aggregator contract deployed`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })

@@ -1,12 +1,9 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
-
-import { BigNumber } from "bignumber.js";
-import { Buffer } from "buffer";
-import { zeroAddress } from "../test/helpers/Utils";
-
-const { bob, alice, eve, mallory } = require('../scripts/sandbox/accounts')
-
-import { mTokenStorageType } from "../test/types/mTokenStorageType";
+import { MichelsonMap } from "@taquito/michelson-encoder"
+import { BigNumber } from "bignumber.js"
+import { Buffer } from "buffer"
+import { zeroAddress } from "../test/helpers/Utils"
+import { bob } from '../scripts/sandbox/accounts'
+import { mTokenStorageType } from "./storageTypes/mTokenStorageType"
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),

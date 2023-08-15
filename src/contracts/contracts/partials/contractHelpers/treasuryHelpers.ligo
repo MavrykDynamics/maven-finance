@@ -12,7 +12,7 @@
 function verifySenderIsAdminOrGovernanceFinancial(const s : treasuryStorageType) : unit is
 block{
 
-    const governanceFinancialAddress : address = getLocalWhitelistContract("governanceFinancial", s.whitelistContracts, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
+    const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
     verifySenderIsAllowed(set[s.admin; governanceFinancialAddress], error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_FINANCIAL_ALLOWED)
 
 } with(unit)
@@ -23,7 +23,7 @@ block{
 function verifySenderIsAdminOrGovernanceOrFactory(const s : treasuryStorageType) : unit is
 block {
 
-    const treasuryFactoryAddress : address = getLocalWhitelistContract("treasuryFactory", s.whitelistContracts, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
+    const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
     verifySenderIsAllowed(set[s.admin; s.governanceAddress; treasuryFactoryAddress], error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED)
 
 } with(unit)
@@ -60,11 +60,14 @@ block {
     if s.breakGlassConfig.mintMvkAndTransferIsPaused then skip
     else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
 
-    if s.breakGlassConfig.stakeMvkIsPaused then skip
-    else s.breakGlassConfig.stakeMvkIsPaused := True;
+    if s.breakGlassConfig.updateTokenOperatorsIsPaused then skip
+    else s.breakGlassConfig.updateTokenOperatorsIsPaused := True;
 
-    if s.breakGlassConfig.unstakeMvkIsPaused then skip
-    else s.breakGlassConfig.unstakeMvkIsPaused := True;
+    if s.breakGlassConfig.stakeTokensIsPaused then skip
+    else s.breakGlassConfig.stakeTokensIsPaused := True;
+
+    if s.breakGlassConfig.unstakeTokensIsPaused then skip
+    else s.breakGlassConfig.unstakeTokensIsPaused := True;
 
 } with s
 
@@ -81,10 +84,13 @@ block {
     if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
     else skip;
 
-    if s.breakGlassConfig.stakeMvkIsPaused then s.breakGlassConfig.stakeMvkIsPaused := False
+    if s.breakGlassConfig.updateTokenOperatorsIsPaused then s.breakGlassConfig.updateTokenOperatorsIsPaused := False
     else skip;
 
-    if s.breakGlassConfig.unstakeMvkIsPaused then s.breakGlassConfig.unstakeMvkIsPaused := False
+    if s.breakGlassConfig.stakeTokensIsPaused then s.breakGlassConfig.stakeTokensIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.unstakeTokensIsPaused then s.breakGlassConfig.unstakeTokensIsPaused := False
     else skip;
 
 } with s
@@ -99,34 +105,34 @@ block {
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to %stake entrypoint on the Doorman contract
-function getStakeEntrypointOnDoorman(const contractAddress : address) : contract(nat) is
+// helper function to %stake entrypoint
+function getStakeEntrypoint(const contractAddress : address) : contract(nat) is
     case (Tezos.get_entrypoint_opt(
         "%stake",
         contractAddress) : option(contract(nat))) of [
                 Some(contr) -> contr
-            |   None        -> (failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
+            |   None        -> (failwith(error_STAKE_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND) : contract(nat))
         ];
 
 
 
-// helper function to %unstake entrypoint on the Doorman contract
-function getUnstakeEntrypointOnDoorman(const contractAddress : address) : contract(nat) is
+// helper function to %unstake entrypoint
+function getUnstakeEntrypoint(const contractAddress : address) : contract(nat) is
     case (Tezos.get_entrypoint_opt(
         "%unstake",
         contractAddress) : option(contract(nat))) of [
                 Some(contr) -> contr
-            |   None        -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
+            |   None        -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND) : contract(nat))
         ];
 
 
-// helper function to %update_operators entrypoint on the MVK token contract
-function getUpdateMvkOperatorsEntrypoint(const tokenContractAddress : address) : contract(updateOperatorsType) is
+// helper function to %update_operators entrypoint 
+function getUpdateOperatorsEntrypoint(const tokenContractAddress : address) : contract(updateOperatorsType) is
     case (Tezos.get_entrypoint_opt(
         "%update_operators",
         tokenContractAddress) : option(contract(updateOperatorsType))) of [
                 Some (contr)    -> contr
-            |   None            -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(updateOperatorsType))
+            |   None            -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND) : contract(updateOperatorsType))
         ];
 
 // ------------------------------------------------------------------------------
@@ -139,54 +145,57 @@ function getUpdateMvkOperatorsEntrypoint(const tokenContractAddress : address) :
 // Operations Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to stake MVK on the Doorman contract
-function stakeMvkOperation(const stakeAmount : nat; const s : treasuryStorageType) : operation is
+// helper function to stake tokens on the provided contract address
+function stakeTokensOperation(const stakeTokensParams : stakeTokensType) : operation is
 block {
 
-    // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-    const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+    const stakeAmount    : nat         = stakeTokensParams.amount;
+    const contractAddress  : address   = stakeTokensParams.contractAddress;
 
     // Create and send stake operation
-    const stakeMvkOperation : operation = Tezos.transaction(
+    const stakeTokensOperation : operation = Tezos.transaction(
         (stakeAmount),
         0tez, 
-        getStakeEntrypointOnDoorman(doormanAddress)
+        getStakeEntrypoint(contractAddress)
     );
 
-} with stakeMvkOperation
+} with stakeTokensOperation
 
 
 
-// helper function to unstake MVK on the Doorman contract
-function unstakeMvkOperation(const unstakeAmount : nat; const s : treasuryStorageType) : operation is
+// helper function to unstake tokens from the provided contract address
+function unstakeTokensOperation(const unstakeTokensParams : unstakeTokensType) : operation is
 block {
 
-    // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-    const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+    const unstakeAmount    : nat       = unstakeTokensParams.amount;
+    const contractAddress  : address   = unstakeTokensParams.contractAddress;
 
     // Create and send unstake operation
-    const unstakeMvkOperation : operation = Tezos.transaction(
+    const unstakeTokensOperation : operation = Tezos.transaction(
         (unstakeAmount),
         0tez, 
-        getUnstakeEntrypointOnDoorman(doormanAddress)
+        getUnstakeEntrypoint(contractAddress)
     );
 
-} with unstakeMvkOperation
+} with unstakeTokensOperation
 
 
 
-// helper function to update operators on the MVK token contract
-function updateMvkOperatorsOperation(const updateOperatorsParams : updateOperatorsType; const s : treasuryStorageType) : operation is
+// helper function to update operators on the provided token contract
+function updateTokenOperatorsOperation(const updateTokenOperatorsParams : updateTokenOperatorsType) : operation is
 block {
 
+    const tokenContractAddress   : address               = updateTokenOperatorsParams.tokenContractAddress;
+    const updateOperatorsParams  : updateOperatorsType   = updateTokenOperatorsParams.updateOperators;
+
     // Create and send update MVK operators operation
-    const updateMvkOperatorsOperation : operation = Tezos.transaction(
+    const updateTokenOperatorsOperation : operation = Tezos.transaction(
         (updateOperatorsParams),
         0tez, 
-        getUpdateMvkOperatorsEntrypoint(s.mvkTokenAddress)
+        getUpdateOperatorsEntrypoint(tokenContractAddress)
     );
 
-} with updateMvkOperatorsOperation
+} with updateTokenOperatorsOperation
 
 // ------------------------------------------------------------------------------
 // Operations Helper Functions End

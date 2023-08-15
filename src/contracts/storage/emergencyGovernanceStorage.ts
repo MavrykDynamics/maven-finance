@@ -1,19 +1,17 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 
-const { bob } = require('../scripts/sandbox/accounts')
-
-import { MVK, zeroAddress } from "../test/helpers/Utils";
-
-import { emergencyGovernanceStorageType } from '../test/types/emergencyGovernanceStorageType'
+import { bob } from '../scripts/sandbox/accounts'
+import { MVK } from "../test/helpers/Utils"
+import { emergencyGovernanceStorageType } from './storageTypes/emergencyGovernanceStorageType'
 
 const config = {
     decimals                        : 4,
-    voteExpiryDays                  : 3,
+    durationInMinutes               : 4320, // 3 days
     requiredFeeMutez                : 10000000,
-    stakedMvkPercentageRequired     : 10000,
-    minStakedMvkRequiredToVote      : MVK(5),
-    minStakedMvkRequiredToTrigger   : MVK(10),
+    stakedMvkPercentageRequired     : 5000,         // prod should be 10% or 1000   
+    minStakedMvkRequiredToVote      : MVK(1),
+    minStakedMvkRequiredToTrigger   : MVK(11),
     proposalTitleMaxLength          : 400,
     proposalDescMaxLength           : 400,
 }
@@ -45,8 +43,10 @@ export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
     generalContracts                    : MichelsonMap.fromLiteral({}),
 
     emergencyGovernanceLedger           : MichelsonMap.fromLiteral({}),
+    emergencyGovernanceVoters           : MichelsonMap.fromLiteral({}),
+
     currentEmergencyGovernanceId        : new BigNumber(0),
-    nextEmergencyGovernanceId   : new BigNumber(1),
+    nextEmergencyGovernanceId           : new BigNumber(1),
 
     lambdaLedger                        : MichelsonMap.fromLiteral({}),
     

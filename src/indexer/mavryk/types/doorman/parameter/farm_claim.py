@@ -3,13 +3,22 @@
 
 from __future__ import annotations
 
+from typing import List
+
 from pydantic import BaseModel, Extra
+
+
+class SetItem(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    address: str
+    nat: str
 
 
 class FarmClaimParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    address: str
-    nat: str
+    set: List[SetItem]
     bool: bool

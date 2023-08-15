@@ -1,12 +1,7 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
-
 import { BigNumber } from 'bignumber.js'
-
-const { bob } = require('../scripts/sandbox/accounts')
-
-import { zeroAddress } from '../test/helpers/Utils'
-
-import { councilStorageType } from '../test/types/councilStorageType'
+import { bob } from '../scripts/sandbox/accounts'
+import { councilStorageType } from './storageTypes/councilStorageType'
 
 const config = {
     threshold                       : 3, // 3 council members required
@@ -38,11 +33,13 @@ export const councilStorage: councilStorageType = {
     
     config                : config,
     councilMembers        : MichelsonMap.fromLiteral({}),
+    councilSize           : new BigNumber(0),
 
     whitelistContracts    : MichelsonMap.fromLiteral({}),
     generalContracts      : MichelsonMap.fromLiteral({}),
 
     councilActionsLedger  : MichelsonMap.fromLiteral({}),
+    councilActionsSigners : MichelsonMap.fromLiteral({}),
 
     actionCounter         : new BigNumber(1),
 

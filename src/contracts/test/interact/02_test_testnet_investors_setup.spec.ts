@@ -1,81 +1,59 @@
-const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
-const { InMemorySigner, importKey } = require("@taquito/signer");
-import assert, { ok, rejects, strictEqual } from "assert";
-import { MVK, Utils, zeroAddress } from "../helpers/Utils";
-import { createHash } from "crypto";
-import fs from "fs";
-import { packDataBytes, MichelsonData, MichelsonType } from '@taquito/michel-codec';
-import { confirmOperation } from "../../scripts/confirmation";
-import { BigNumber } from "bignumber.js";
-import { MichelsonMap } from "@taquito/taquito";
+import { MVK, Utils } from "../helpers/Utils";
+import { BigNumber } from "bignumber.js"
 
 const chai = require("chai");
-const salt          = 'azerty';
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);   
 chai.should();
 
-import env from "../../env";
-import { bob, alice, eve, mallory, trudy, oscar } from "../../scripts/sandbox/accounts";
-import * as accounts from "../../scripts/sandbox/accounts";
+// ------------------------------------------------------------------------------
+// Contract Address
+// ------------------------------------------------------------------------------
 
-import doormanAddress from '../../deployments/doormanAddress.json';
-import farmFactoryAddress from '../../deployments/farmFactoryAddress.json';
+import contractDeployments from '../contractDeployments.json'
+
+// ------------------------------------------------------------------------------
+// Contract Helpers
+// ------------------------------------------------------------------------------
+
+import { bob, eve, mallory, alice, oscar } from "../../scripts/sandbox/accounts";
+import * as helperFunctions from '../helpers/helperFunctions'
+import { mockSatelliteData } from "../helpers/mockTestnetData"
+
+// ------------------------------------------------------------------------------
+// Testnet Setup
+// ------------------------------------------------------------------------------
+
 import delegationAddress from '../../deployments/delegationAddress.json';
-import councilAddress from '../../deployments/councilAddress.json'
 import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
 import governanceAddress from '../../deployments/governanceAddress.json';
-import governanceProxyAddress from '../../deployments/governanceProxyAddress.json';
-import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json';
-import breakGlassAddress from '../../deployments/breakGlassAddress.json';
-import mockUsdMockFa12TokenAggregatorAddress from "../../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
-import mockUsdXtzAggregatorAddress from "../../deployments/mockUsdXtzAggregatorAddress.json";
-import mockUsdMvkAggregatorAddress from "../../deployments/mockUsdMvkAggregatorAddress.json";
-import mavrykFa12TokenAddress from '../../deployments/mavrykFa12TokenAddress.json';
-import mavrykFa2TokenAddress from '../../deployments/mavrykFa2TokenAddress.json';
-import treasuryAddress from '../../deployments/treasuryAddress.json';
-import vestingAddress from '../../deployments/vestingAddress.json';
 import governanceFinancialAddress from '../../deployments/governanceFinancialAddress.json';
-import treasuryFactoryAddress from '../../deployments/treasuryFactoryAddress.json';
-import farmAddress from '../../deployments/farmAddress.json';
-import governanceSatelliteAddress from '../../deployments/governanceSatelliteAddress.json';
-import aggregatorAddress from '../../deployments/aggregatorAddress.json';
 import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress.json';
-import tokenSaleAddress from '../../deployments/tokenSaleAddress.json';
-import lendingControllerAddress from '../../deployments/lendingControllerAddress.json';
-import lendingControllerMockTimeAddress from '../../deployments/lendingControllerMockTimeAddress.json';
-import vaultFactoryAddress from '../../deployments/vaultFactoryAddress.json';
 import mTokenEurlAddress from '../../deployments/mTokenEurlAddress.json';
 import mTokenUsdtAddress from '../../deployments/mTokenUsdtAddress.json';
 import mTokenXtzAddress from '../../deployments/mTokenXtzAddress.json';
 
 describe("Testnet setup helper", async () => {
-    var utils: Utils;
+    
+    var utils: Utils
+    var tezos
+
+    let doormanAddress
+    let tokenId = 0
 
     let doormanInstance;
     let delegationInstance;
     let mvkTokenInstance;
-    let governanceInstance;
-    let governanceProxyInstance;
-    let emergencyGovernanceInstance;
-    let breakGlassInstance;
-    let councilInstance;
-    let farmFactoryInstance;
-    let vestingInstance;
-    let governanceFinancialInstance;
-    let treasuryFactoryInstance;
-    let treasuryInstance;
-    let farmInstance;
-    let lpTokenInstance;
-    let governanceSatelliteInstance;
-    let aggregatorInstance;
-    let aggregatorFactoryInstance;
-    let tokenSaleInstance;
-    let lendingControllerInstance;
-    let lendingControllerMockTimeInstance;
-    let vaultInstance;
-    let vaultFactoryInstance;
-    let mavrykFa12TokenInstance;
+    let lendingControllerInstance
+    let aggregatorFactoryInstance
+    let treasuryFactoryInstance
+    let governanceInstance
+    let vaultFactoryInstance
+
+    // operations
+    let updateOperatorsOperation
+    let stakeOperation
+    let registerOperation
 
     let doormanStorage;
     let delegationStorage;
@@ -106,85 +84,43 @@ describe("Testnet setup helper", async () => {
     let usdtAggregator;
     let xtzAggregator;
     let btcAggregator;
-    
-    const signerFactory = async (pk) => {
-        await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
-        return utils.tezos;
-    };
 
     before("setup", async () => {
         try{
             utils = new Utils();
             await utils.init(bob.sk);
+            tezos = utils.tezos;
+
+            doormanAddress = contractDeployments.doorman.address
             
-            doormanInstance                         = await utils.tezos.contract.at(doormanAddress.address);
-            delegationInstance                      = await utils.tezos.contract.at(delegationAddress.address);
-            mvkTokenInstance                        = await utils.tezos.contract.at(mvkTokenAddress.address);
-            governanceInstance                      = await utils.tezos.contract.at(governanceAddress.address);
-            governanceProxyInstance                 = await utils.tezos.contract.at(governanceProxyAddress.address);
-            emergencyGovernanceInstance             = await utils.tezos.contract.at(emergencyGovernanceAddress.address);
-            breakGlassInstance                      = await utils.tezos.contract.at(breakGlassAddress.address);
-            councilInstance                         = await utils.tezos.contract.at(councilAddress.address);
-            farmFactoryInstance                     = await utils.tezos.contract.at(farmFactoryAddress.address);
-            vestingInstance                         = await utils.tezos.contract.at(vestingAddress.address);
-            governanceFinancialInstance             = await utils.tezos.contract.at(governanceFinancialAddress.address);
-            treasuryFactoryInstance                 = await utils.tezos.contract.at(treasuryFactoryAddress.address);
-            treasuryInstance                        = await utils.tezos.contract.at(treasuryAddress.address);
-            farmInstance                            = await utils.tezos.contract.at(farmAddress.address);
-            lpTokenInstance                         = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
-            governanceSatelliteInstance             = await utils.tezos.contract.at(governanceSatelliteAddress.address);
-            aggregatorInstance                      = await utils.tezos.contract.at(aggregatorAddress.address);
-            aggregatorFactoryInstance               = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
-            tokenSaleInstance                       = await utils.tezos.contract.at(tokenSaleAddress.address);
-            lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress.address);
-            lendingControllerMockTimeInstance       = await utils.tezos.contract.at(lendingControllerMockTimeAddress.address);
-            vaultFactoryInstance                    = await utils.tezos.contract.at(vaultFactoryAddress.address);
-            mavrykFa12TokenInstance                 = await utils.tezos.contract.at(mavrykFa12TokenAddress.address);
-    
-            doormanStorage                          = await doormanInstance.storage();
-            delegationStorage                       = await delegationInstance.storage();
-            mvkTokenStorage                         = await mvkTokenInstance.storage();
-            governanceStorage                       = await governanceInstance.storage();
-            governanceProxyStorage                  = await governanceProxyInstance.storage();
-            emergencyGovernanceStorage              = await emergencyGovernanceInstance.storage();
-            breakGlassStorage                       = await breakGlassInstance.storage();
-            councilStorage                          = await councilInstance.storage();
-            farmFactoryStorage                      = await farmFactoryInstance.storage();
-            vestingStorage                          = await vestingInstance.storage();
-            governanceFinancialStorage              = await governanceFinancialInstance.storage();
-            treasuryFactoryStorage                  = await treasuryFactoryInstance.storage();
-            treasuryStorage                         = await treasuryInstance.storage();
-            farmStorage                             = await farmInstance.storage();
-            lpTokenStorage                          = await lpTokenInstance.storage();
-            governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
-            aggregatorStorage                       = await aggregatorInstance.storage();
-            aggregatorFactoryStorage                = await aggregatorFactoryInstance.storage();
-            tokenSaleStorage                        = await tokenSaleInstance.storage();
-            lendingControllerStorage                = await lendingControllerInstance.storage();
-            lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
-            vaultFactoryStorage                     = await vaultFactoryInstance.storage();
-            mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
-    
+            doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
+            delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
+            mvkTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+            lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
+            aggregatorFactoryInstance               = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
+            treasuryFactoryInstance                 = await utils.tezos.contract.at(contractDeployments.treasuryFactory.address);
+            vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
+            governanceInstance                      = await utils.tezos.contract.at(contractDeployments.governance.address);
+
             console.log('-- -- -- -- -- Testnet Environment Setup -- -- -- --')
-            console.log('Doorman Contract deployed at:', doormanInstance.address);
-            console.log('Delegation Contract deployed at:', delegationInstance.address);
-            console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-            console.log('Governance Contract deployed at:', governanceInstance.address);
-            console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
-            console.log('Vesting Contract deployed at:', vestingInstance.address);
-            console.log('Governance Financial Contract deployed at:', governanceFinancialInstance.address);
-            console.log('Treasury Factory Contract deployed at:', treasuryFactoryInstance.address);
-            console.log('Treasury Contract deployed at:', treasuryInstance.address);
-            console.log('Farm Contract deployed at:', farmInstance.address);
-            console.log('LP Token Contract deployed at:', lpTokenInstance.address);
-            console.log('Governance Satellite Contract deployed at:', governanceSatelliteInstance.address);
-            console.log('Aggregator Contract deployed at:', aggregatorInstance.address);
-            console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryInstance.address);
-            console.log('Token Sale Contract deployed at:', tokenSaleInstance.address);
-            console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
-            console.log('Lending Controller Mock Time Contract deployed at:', lendingControllerMockTimeInstance.address);
-            console.log('Vault Factory Contract deployed at:', vaultFactoryInstance.address);
-            console.log('Mavryk FA12 Token Contract deployed at:', mavrykFa12TokenInstance.address);
+            console.log('Doorman Contract deployed at:'                         , contractDeployments.doorman.address);
+            console.log('Delegation Contract deployed at:'                      , contractDeployments.delegation.address);
+            console.log('MVK Token Contract deployed at:'                       , contractDeployments.mvkToken.address);
+            console.log('Governance Contract deployed at:'                      , contractDeployments.governance.address);
+            console.log('Emergency Governance Contract deployed at:'            , contractDeployments.emergencyGovernance.address);
+            console.log('Vesting Contract deployed at:'                         , contractDeployments.vesting.address);
+            console.log('Governance Financial Contract deployed at:'            , contractDeployments.governanceFinancial.address);
+            console.log('Treasury Factory Contract deployed at:'                , contractDeployments.treasuryFactory.address);
+            console.log('Treasury Contract deployed at:'                        , contractDeployments.treasury.address);
+            console.log('Farm Contract deployed at:'                            , contractDeployments.farm.address);
+            console.log('LP Token Contract deployed at:'                        , contractDeployments.mavrykFa12Token.address);
+            console.log('Governance Satellite Contract deployed at:'            , contractDeployments.governanceSatellite.address);
+            console.log('Aggregator Contract deployed at:'                      , contractDeployments.aggregator.address);
+            console.log('Aggregator Factory Contract deployed at:'              , contractDeployments.aggregatorFactory.address);
+            console.log('Lending Controller Contract deployed at:'              , contractDeployments.lendingController.address);
+            console.log('Lending Controller Mock Time Contract deployed at:'    , contractDeployments.lendingControllerMockTime.address);
+            console.log('Vault Factory Contract deployed at:'                   , contractDeployments.vaultFactory.address);
+            console.log('Mavryk FA12 Token Contract deployed at:'               , contractDeployments.mavrykFa12Token.address);
 
             // Get oracle addresses
             const aggregatorAddresses: Array<string>    = await aggregatorFactoryStorage.trackedAggregators;
@@ -220,18 +156,14 @@ describe("Testnet setup helper", async () => {
 
     describe("INVESTOR ENVIRONMENT SETUP", async () => {
 
-        beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
-        });
-
         it('Creation of 5 Satellites', async () => {
             try{
                 // Init var
                 const stakeAmount   = MVK(200000);
 
                 // Bob Satellite
-                await signerFactory(bob.sk);
-                var updateOperatorsOperation    = await mvkTokenInstance.methods
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                updateOperatorsOperation    = await mvkTokenInstance.methods
                     .update_operators([
                     {
                         add_operator: {
@@ -245,19 +177,43 @@ describe("Testnet setup helper", async () => {
                 await updateOperatorsOperation.confirmation();
                 var stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
-                var registerOperation           = await delegationInstance.methods.registerAsSatellite(
-                    "Mavryk Dynamics", 
-                    "The Mavryk Dynamics belongs to one of the core teams contributing to Mavryk Finance. The team as Mavryk Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
-                    "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
-                    "https://mavryk.finance/", 
-                    500,
-                    bob.pk,
-                    bob.peerId
+
+                // Eve 
+                await helperFunctions.signerFactory(tezos, eve.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, eve.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
+
+                await updateOperatorsOperation.confirmation();
+                stakeOperation = await doormanInstance.methods.stake(MVK(200)).send();
+                await stakeOperation.confirmation();
+
+                // Mallory 
+                await helperFunctions.signerFactory(tezos, mallory.sk);
+                updateOperatorsOperation = await helperFunctions.updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
+                await updateOperatorsOperation.confirmation();
+
+                stakeOperation = await doormanInstance.methods.stake(MVK(700)).send();
+                await stakeOperation.confirmation();
+
+                // ------------------------------
+                // Register Satellite Operations
+                // ------------------------------
+
+                // Bob Satellite
+                await helperFunctions.signerFactory(tezos, bob.sk);
+                registerOperation = await delegationInstance.methods.registerAsSatellite(
+                    mockSatelliteData.bob.name, 
+                    mockSatelliteData.bob.desc,
+                    mockSatelliteData.bob.image,
+                    mockSatelliteData.bob.website, 
+                    mockSatelliteData.bob.satelliteFee,
+                    mockSatelliteData.bob.oraclePublicKey,
+                    mockSatelliteData.bob.oraclePeerId
                 ).send();
                 await registerOperation.confirmation();
 
                 // Eve Satellite
-                await signerFactory(eve.sk);
+                await helperFunctions.signerFactory(tezos, eve.sk);
                 updateOperatorsOperation    = await mvkTokenInstance.methods
                     .update_operators([
                     {
@@ -273,18 +229,18 @@ describe("Testnet setup helper", async () => {
                 stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
                 registerOperation           = await delegationInstance.methods.registerAsSatellite(
-                    "Buzz Lightyear", 
-                    "Buzz is a fabled part of our childhood. He was created by Disney and Pixar mainly voiced by Tim Allen. He is a Superhero toy action figure based on the in-universe media franchise Toy Story, consisting of a blockbuster feature film and animated series, a Space Ranger. While Buzz Lightyear's sole mission used to be defeating the evil Emperor Zurg, what he now cares about most is keeping Andy's toy family together. After he feature-film Lightyear starring Chris Evans, Buzz has decided to operate a satellite of the Mavryk Finance network and sign oracle price feeds to further grow and secure the future of financial independence.", 
-                    "https://infura-ipfs.io/ipfs/QmcbigzB5PVfawr1jhctTWDgGTmLBZFbHPNfosDfq9zckQ", 
-                    "https://toystory.disney.com/buzz-lightyear", 
-                    350,
-                    eve.pk,
-                    eve.peerId
+                    mockSatelliteData.eve.name, 
+                    mockSatelliteData.eve.desc,
+                    mockSatelliteData.eve.image,
+                    mockSatelliteData.eve.website, 
+                    mockSatelliteData.eve.satelliteFee,
+                    mockSatelliteData.eve.oraclePublicKey,
+                    mockSatelliteData.eve.oraclePeerId
                 ).send();
                 await registerOperation.confirmation();
 
                 // Mallory Satellite
-                await signerFactory(mallory.sk);
+                await helperFunctions.signerFactory(tezos, mallory.sk);
                 updateOperatorsOperation    = await mvkTokenInstance.methods
                     .update_operators([
                     {
@@ -300,24 +256,24 @@ describe("Testnet setup helper", async () => {
                 stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
                 registerOperation           = await delegationInstance.methods.registerAsSatellite(
-                    "Captain Kirk", 
-                    "James Tiberius \"Jim\" Kirk is a legendary Starfleet officer who lived during the 23rd century. His time in Starfleet, made Kirk arguably one of the most famous and sometimes infamous starship captains in Starfleet history. The highly decorated Kirk served as the commanding officer of the Constitution-class starships USS Enterprise and USS Enterprise-A, where he served Federation interests as an explorer, soldier, diplomat, and time traveler. He currently spends his time as a Mavryk Satellite and signs Oracle price feeds for the Mavryk Finance network.", 
-                    "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn", 
-                    "https://intl.startrek.com/",
-                    700,
-                    mallory.pk,
-                    mallory.peerId
+                    mockSatelliteData.mallory.name, 
+                    mockSatelliteData.mallory.desc,
+                    mockSatelliteData.mallory.image,
+                    mockSatelliteData.mallory.website, 
+                    mockSatelliteData.mallory.satelliteFee,
+                    mockSatelliteData.mallory.oraclePublicKey,
+                    mockSatelliteData.mallory.oraclePeerId
                 ).send();
                 await registerOperation.confirmation();
 
                 // Alice Satellite
-                await signerFactory(alice.sk);
+                await helperFunctions.signerFactory(tezos, alice.sk);
                 updateOperatorsOperation    = await mvkTokenInstance.methods
                     .update_operators([
                     {
                         add_operator: {
                             owner: alice.pkh,
-                            operator: doormanAddress.address,
+                            operator: contractDeployments.doorman.address,
                             token_id: 0,
                         },
                     },
@@ -327,24 +283,24 @@ describe("Testnet setup helper", async () => {
                 stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
                 registerOperation           = await delegationInstance.methods.registerAsSatellite(
-                    "Bender Bending Rodriguez", 
-                    "Bender Bending Rodriguez, the rebellious robot with a heart of gold, has found a new passion in the decentralized finance (DeFi) ecosystem. With his sharp wit and cunning, Bender has become a maverick in the blockchain and crypto space, always on the lookout for the latest trends and opportunities.\n\nNow, Bender uses his unique skills to navigate the DeFi world, taking risks and reaping the rewards. With his sharp mind and quick reflexes, Bender is a force to be reckoned with in the crypto space.\n\nBender frequently shouts \"Bite my shiny metal node!\" but don't be startled, despite his rough exterior, Bender has a soft spot for his fellow robots and Mavryks, he is fiercely loyal to the Mavryk Ecosystem.\n\nIn DeFi, Bender is a true original, pushing the boundaries and exploring new frontiers. With his wit, charm, and unyielding determination, Bender is a force to be reckoned with in the crypto world.", 
-                    "https://cloudflare-ipfs.com/ipfs/QmNyw2PJEovUs9WgWHbZcKzzjxJdWL2qqAfEnZv1WkfGst", 
-                    "https://mavryk.finance/", 
-                    810,
-                    alice.pk,
-                    alice.peerId
+                    mockSatelliteData.alice.name, 
+                    mockSatelliteData.alice.desc,
+                    mockSatelliteData.alice.image,
+                    mockSatelliteData.alice.website, 
+                    mockSatelliteData.alice.satelliteFee,
+                    mockSatelliteData.alice.oraclePublicKey,
+                    mockSatelliteData.alice.oraclePeerId
                 ).send();
                 await registerOperation.confirmation();
 
                 // Oscar Satellite
-                await signerFactory(oscar.sk);
+                await helperFunctions.signerFactory(tezos, oscar.sk);
                 updateOperatorsOperation    = await mvkTokenInstance.methods
                     .update_operators([
                     {
                         add_operator: {
                             owner: oscar.pkh,
-                            operator: doormanAddress.address,
+                            operator: contractDeployments.doorman.address,
                             token_id: 0,
                         },
                     },
@@ -354,15 +310,16 @@ describe("Testnet setup helper", async () => {
                 stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
                 registerOperation           = await delegationInstance.methods.registerAsSatellite(
-                    "R2-D2", 
-                    "R2-D2 run's his Mavryk Satellite with unparalleled technical expertise and has a talent for solving complex problems. As an astromech droid, he's uniquely equipped to navigate the challenging terrain of DeFi and identify new opportunities for growth. R2-D2 is a natural leader with a deep sense of loyalty and compassion, always willing to lend a helping hand to his fellow maintainers and platform users. His adaptability and innovative spirit make him an invaluable asset to the DeFi ecosystem, and he's thrilled to be contributing to the future of finance through his work on the platform. In short, R2-D2 is a DeFi pioneer, leading the charge towards a more decentralized and equitable financial future.", 
-                    "https://cloudflare-ipfs.com/ipfs/Qmf5UC3iLco9y3CUQpWXmzDdZwDCtZLFS8WL9oe85fKX9k", 
-                    "https://mavryk.finance/", 
-                    350,
-                    oscar.pk,
-                    oscar.peerId
+                    mockSatelliteData.oscar.name, 
+                    mockSatelliteData.oscar.desc,
+                    mockSatelliteData.oscar.image,
+                    mockSatelliteData.oscar.website, 
+                    mockSatelliteData.oscar.satelliteFee,
+                    mockSatelliteData.oscar.oraclePublicKey,
+                    mockSatelliteData.oscar.oraclePeerId
                 ).send();
                 await registerOperation.confirmation();
+
             } catch(e){
                 console.dir(e, {depth: 5})
             }
@@ -677,18 +634,18 @@ describe("Testnet setup helper", async () => {
                     const treasuryInstance: any = await utils.tezos.contract.at(treasuryAddress);
                     const treasuryBatch         = await utils.tezos.wallet
                     .batch()
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("usdt", "KT1H9hKtcqcMHuCoaisu8Qy7wutoUPFELcLm"))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("eurl", "KT1UhjCszVyY5dkNUXFGAwdNcVgVe2ZeuPv5"))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("tzbtc", "KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS"))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("mvk", mvkTokenAddress.address))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("meurl", mTokenEurlAddress.address))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("mxtz", mTokenXtzAddress.address))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("musdt", mTokenUsdtAddress.address))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactoryAddress.address))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("delegation", delegationAddress.address))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("doorman", doormanAddress.address))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("governance", governanceAddress.address))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts("governanceFinancial", governanceFinancialAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1H9hKtcqcMHuCoaisu8Qy7wutoUPFELcLm"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1UhjCszVyY5dkNUXFGAwdNcVgVe2ZeuPv5"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(mvkTokenAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(mTokenEurlAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(mTokenXtzAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(mTokenUsdtAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts(aggregatorFactoryAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts(delegationAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts(doormanAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts(governanceAddress.address))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistContracts(governanceFinancialAddress.address))
     
                     const treasuryBatchOperation = await treasuryBatch.send()
                     await treasuryBatchOperation.confirmation();

@@ -8,15 +8,15 @@ type oracleInformationType is [@layout:comb] record [
     oraclePeerId     : string;
 ];
 type oracleLedgerType            is map (address, oracleInformationType);
-type oracleRewardStakedMvkType   is map (address, nat);
-type oracleRewardXtzType         is map (address, nat);
+type oracleRewardStakedMvkType   is big_map (address, nat);
+type oracleRewardXtzType         is big_map (address, nat);
 
 type aggregatorConfigType is [@layout:comb] record [
     decimals                            : nat;
     alphaPercentPerThousand             : nat;
 
     percentOracleThreshold              : nat;
-    heartBeatSeconds                    : nat;
+    heartbeatSeconds                    : nat;
 
     rewardAmountStakedMvk               : nat;
     rewardAmountXtz                     : nat;
@@ -53,24 +53,24 @@ type lastCompletedDataReturnType is  [@layout:comb] record [
     lastUpdatedAt               : timestamp;  
 ];
 
-type oracleObservationType is [@layout:comb] record [
+type oracleObservationSingleType is [@layout:comb] record [
     data                 : nat;
     epoch                : nat;
     round                : nat;
     aggregatorAddress    : address;
 ];
 
+type oracleObservationsType is map (address, oracleObservationSingleType)
+
 type updateDataType is   [@layout:comb] record [
-  oracleObservations: map (address, oracleObservationType);
-  signatures: map (address, signature);
+    oracleObservations: oracleObservationsType;
+    signatures: map (address, signature);
 ];
 
 type withdrawRewardXtzType            is address;
 type withdrawRewardStakedMvkType      is address;
 
-type addOracleType is   [@layout:comb] record [
-    oracleAddress       : address;
-];
+type addOracleType                    is address;
 
 type removeOracleType                 is address;
 
@@ -81,7 +81,7 @@ type aggregatorUpdateConfigActionType is
     |   ConfigAlphaPercentPerThousand       of unit
 
     |   ConfigPercentOracleThreshold        of unit
-    |   ConfigHeartBeatSeconds              of unit
+    |   ConfigHeartbeatSeconds              of unit
 
     |   ConfigRewardAmountStakedMvk         of unit
     |   ConfigRewardAmountXtz               of unit

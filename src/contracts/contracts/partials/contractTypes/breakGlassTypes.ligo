@@ -42,6 +42,10 @@ type breakGlassUpdateConfigParamsType is [@layout:comb] record [
     updateConfigAction    : breakGlassUpdateConfigActionType;
 ]
 
+type setContractsAdminType is [@layout:comb] record [
+    contractAddressSet  : set(address);
+    newAdminAddress     : address;
+]
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types
@@ -63,18 +67,17 @@ type breakGlassLambdaActionType is
     |   LambdaMistakenTransfer              of transferActionType
     |   LambdaUpdateCouncilMemberInfo       of councilMemberInfoType
 
-        // Internal Control of Council Members
-    |   LambdaAddCouncilMember              of councilActionAddMemberType
-    |   LambdaRemoveCouncilMember           of address
-    |   LambdaChangeCouncilMember           of councilActionChangeMemberType
+        // Council Actions for Internal Control
+    |   LambdaCouncilAddMember              of councilActionAddMemberType
+    |   LambdaCouncilRemoveMember           of address
+    |   LambdaCouncilChangeMember           of councilActionChangeMemberType
 
         // Glass Broken Required
-    |   LambdaPropagateBreakGlass           of (unit)
-    |   LambdaSetSingleContractAdmin        of setContractAdminType
-    |   LambdaSetAllContractsAdmin          of (address)               
-    |   LambdaPauseAllEntrypoints           of (unit)             
-    |   LambdaUnpauseAllEntrypoints         of (unit)
-    |   LambdaRemoveBreakGlassControl       of (unit)
+    |   LambdaPropagateBreakGlass           of set(address)
+    |   LambdaSetContractsAdmin             of setContractsAdminType
+    |   LambdaPauseAllEntrypoints           of set(address)
+    |   LambdaUnpauseAllEntrypoints         of set(address)
+    |   LambdaRemoveBreakGlassControl       of set(address)
 
         // Council Signing of Actions
     |   LambdaFlushAction                   of actionIdType
@@ -99,8 +102,10 @@ type breakGlassStorageType is [@layout:comb] record [
 
     glassBroken                 : bool;
     councilMembers              : councilMembersType;        // set of council member addresses
+    councilSize                 : nat;
     
     actionsLedger               : councilActionsLedgerType;         // record of past actions taken by council members
+    actionsSigners              : signersType;
     actionCounter               : nat;
 
     lambdaLedger                : lambdaLedgerType;

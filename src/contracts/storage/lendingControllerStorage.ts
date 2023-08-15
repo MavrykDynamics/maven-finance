@@ -1,11 +1,8 @@
 import { MichelsonMap } from "@taquito/michelson-encoder"
 import { BigNumber } from "bignumber.js"
-
-const { alice, bob } = require('../scripts/sandbox/accounts')
-
+import { bob } from '../scripts/sandbox/accounts'
 import { zeroAddress } from "../test/helpers/Utils"
-
-import { lendingControllerStorageType } from "../test/types/lendingControllerStorageType"
+import { lendingControllerStorageType } from "./storageTypes/lendingControllerStorageType"
 
 const config = {
 
@@ -23,6 +20,7 @@ const config = {
     decimals                    : 4,       // decimals 
     interestRateDecimals        : 27,      // interest rate decimals
     maxDecimalsForCalculation   : 32,
+    lastCompletedDataMaxDelay   : 9999999999, // for testing purposes - prod: 300 (i.e. 5 mins) 
 
     maxVaultLiquidationPercent  : 5000,    // 50%      
     liquidationDelayInMins      : 120,
@@ -56,7 +54,7 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-            name: 'MAVRYK Vault Controller Contract',
+            name: 'MAVRYK Lending Controller Contract',
             version: 'v1.0.0',
             authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
             source: {
@@ -91,6 +89,4 @@ export const lendingControllerStorage : lendingControllerStorageType = {
 
     lambdaLedger                    : MichelsonMap.fromLiteral({}),
     vaultLambdaLedger               : MichelsonMap.fromLiteral({}),
-
-    tempMap                         : MichelsonMap.fromLiteral({}),
 }

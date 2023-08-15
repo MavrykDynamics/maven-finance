@@ -1,11 +1,9 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
-import { zeroAddress } from "test/helpers/Utils";
-
-
-import { bob } from '../scripts/sandbox/accounts'
-import { aggregatorFactoryStorageType } from "../test/types/aggregatorFactoryStorageType";
-
+import { MichelsonMap } from "@taquito/michelson-encoder"
 import { BigNumber } from 'bignumber.js'
+import { bob } from '../scripts/sandbox/accounts'
+import { zeroAddress } from "test/helpers/Utils"
+import { aggregatorFactoryStorageType } from "./storageTypes/aggregatorFactoryStorageType"
+
 
 const config = {
     aggregatorNameMaxLength        : new BigNumber(200),

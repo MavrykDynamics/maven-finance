@@ -239,6 +239,7 @@ block {
                     |   UnregisterAsSatellite (_v)        -> s.breakGlassConfig.unregisterAsSatelliteIsPaused := _v
                     |   UpdateSatelliteRecord (_v)        -> s.breakGlassConfig.updateSatelliteRecordIsPaused := _v
                     |   DistributeReward (_v)             -> s.breakGlassConfig.distributeRewardIsPaused := _v
+                    |   TakeSatellitesSnapshot (_v)       -> s.breakGlassConfig.takeSatellitesSnapshotPaused := _v
                 ]
                 
             }
@@ -298,7 +299,7 @@ block {
                 checkUserIsNotSatellite(userAddress, s);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
+                operations := updateGovernanceSnapshot(set[satelliteAddress], True, operations, s);
 
                 // Update user's unclaimed satellite rewards (in the event user is already delegated to another satellite)
                 s := updateRewards(userAddress, s);
@@ -413,7 +414,7 @@ block {
                 const satelliteAddress : address = delegateRecord.satelliteAddress;
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
+                operations := updateGovernanceSnapshot(set[satelliteAddress], True, operations, s);
 
                 // Update unclaimed rewards for user
                 s := updateRewards(userAddress, s);
@@ -503,12 +504,13 @@ block {
                 s.satelliteCounter              := s.satelliteCounter + 1n;
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations := updateGovernanceSnapshot(userAddress, False, operations, s);
+                operations := updateGovernanceSnapshot(set[userAddress], False, operations, s);
 
                 // Get or create satellite rewards record
                 var satelliteRewardsRecord : satelliteRewardsType := getOrCreateSatelliteRewardsRecord(userAddress, s);
 
                 satelliteRewardsRecord.participationRewardsPerShare        := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                satelliteRewardsRecord.tracked                             := True;
                 s.satelliteRewardsLedger[userAddress]                      := satelliteRewardsRecord;
                 
             }
@@ -549,7 +551,7 @@ block {
                 checkSatelliteStatus(userAddress, delegationAddress, True, True);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations := updateGovernanceSnapshot(userAddress, True, operations, s);
+                operations := updateGovernanceSnapshot(set[userAddress], True, operations, s);
 
                 // Update user's unclaimed rewards
                 s := updateRewards(userAddress, s);
@@ -557,6 +559,7 @@ block {
                 // remove sender from satellite ledger
                 s.satelliteLedger   := Big_map.remove(userAddress, s.satelliteLedger);
                 s.satelliteCounter  := abs(s.satelliteCounter - 1n);
+
             }
         |   _ -> skip
     ];
@@ -593,7 +596,7 @@ block {
                 checkSatelliteStatus(satelliteAddress, delegationAddress, False, True);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
+                operations := updateGovernanceSnapshot(set[satelliteAddress], True, operations, s);
                 
                 // Update user's unclaimed rewards
                 s := updateRewards(satelliteAddress, s);
@@ -695,6 +698,33 @@ block {
 
 } with (operations, s)
 
+
+
+(* takeSatellitesSnapshot lambda *)
+function lambdaTakeSatellitesSnapshot(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
+block {
+
+    // Steps Overview: 
+    // 1. Check that %takeSatellitesSnapshot entrypoint is not paused (e.g. glass broken)
+    // 2. Update the satellites snapshots based on the parameters
+
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.takeSatellitesSnapshotPaused, error_TAKE_SATELLITES_SNAPSHOT_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED);
+
+    // Operation list
+    var operations: list(operation) := nil;
+
+    case delegationLambdaAction of [
+        |   LambdaTakeSatelliteSnapshot(takeSatellitesSnapshotParams) -> {
+
+                // Update the governance snapshot for the given satellites
+                operations  := updateGovernanceSnapshot(takeSatellitesSnapshotParams, True, operations, s);
+
+        }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
 // ------------------------------------------------------------------------------
 // Satellite Lambdas End
 // ------------------------------------------------------------------------------
@@ -741,118 +771,134 @@ block {
     var operations: list(operation) := nil;
 
     case delegationLambdaAction of [
-        |   LambdaOnStakeChange(userAddress) -> {
-
-                // Update the satellite snapshot before rewards are updated
-                operations := updateGovernanceSnapshot(userAddress, True, operations, s);
+        |   LambdaOnStakeChange(userAddressAndBalances) -> {
 
                 // Verify that sender is the Doorman Contract
                 verifySenderIsDoormanContract(s);
 
-                // Update user's rewards
-                // s := updateRewards(userAddress, s);
+                // Update the satellite snapshot
+                var satellitesToUpdate : set(address)  := set[];
 
-                // Check if user has a satellite rewards record
-                if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
+                for userAddressAndBalance in set userAddressAndBalances block {
 
-                    // Get user's satellite rewards record
-                    var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(userAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
+                    // Parse parameters
+                    const userAddress : address = userAddressAndBalance.0;
+                    const userBalance : nat     = userAddressAndBalance.1;
 
-                    // Get satellite's rewards record (that user is delegated to)
-                    const satelliteReferenceAddress : address = satelliteRewardsRecord.satelliteReferenceAddress;
-                    var _satelliteReferenceRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteReferenceAddress, s, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND);
+                    // Add the user to update
+                    satellitesToUpdate  := Set.add(userAddress, satellitesToUpdate);
 
-                    // Update user's satellite rewards record - empty pending rewards
-                    // - Set user's participationRewardsPerShare to satellite's satelliteAccumulatedRewardsPerShare
-                    // - Increment user's paid balance by his unpaid balance
-                    // - Reset user's unpaid balance to 0
+                    // Check if user has a satellite rewards record
+                    if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
 
-                    satelliteRewardsRecord.participationRewardsPerShare    := _satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare;
-                    satelliteRewardsRecord.paid                            := satelliteRewardsRecord.paid + satelliteRewardsRecord.unpaid;
-                    satelliteRewardsRecord.unpaid                          := 0n;
-                    s.satelliteRewardsLedger[userAddress]                  := satelliteRewardsRecord;
+                        // Get user's satellite rewards record
+                        var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(userAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
 
-                } else skip;
+                        // Get satellite's rewards record (that user is delegated to)
+                        const satelliteReferenceAddress : address = satelliteRewardsRecord.satelliteReferenceAddress;
+                        var _satelliteReferenceRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteReferenceAddress, s, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND);
 
-                // Check if user is a satellite
-                const userIsSatellite: bool = Big_map.mem(userAddress, s.satelliteLedger);
+                        // Calculate increment rewards based on difference between satellite's accumulated rewards per share and user's participations rewards per share
+                        const rewardsRatio      : nat   = abs(_satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - satelliteRewardsRecord.participationRewardsPerShare);
+                        const incrementRewards  : nat   = userBalance * rewardsRatio;
+                        satelliteRewardsRecord.unpaid   := satelliteRewardsRecord.unpaid + (incrementRewards / fixedPointAccuracy);
 
-                // ------------------------------------------------------------
-                // Update user's staked MVK balance depending if he is a satellite or delegator
-                // ------------------------------------------------------------
+                        // Update user's satellite rewards record - empty pending rewards
+                        // - Set user's participationRewardsPerShare to satellite's satelliteAccumulatedRewardsPerShare
+                        // - Increment user's paid balance by his unpaid balance
+                        // - Reset user's unpaid balance to 0
 
-                if userIsSatellite then block {
+                        satelliteRewardsRecord.participationRewardsPerShare    := _satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                        satelliteRewardsRecord.paid                            := satelliteRewardsRecord.paid + satelliteRewardsRecord.unpaid;
+                        satelliteRewardsRecord.unpaid                          := 0n;
+                        s.satelliteRewardsLedger[userAddress]                  := satelliteRewardsRecord;
 
-                    // Get user's staked MVK balance from the Doorman Contract
-                    const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
+                    } else skip;
 
-                    // Get user's satellite record
-                    var satelliteRecord: satelliteRecordType := getSatelliteRecord(userAddress, s);
+                    // Check if user is a satellite
+                    const userIsSatellite: bool = Big_map.mem(userAddress, s.satelliteLedger);
 
-                    // Update user's satellite record staked MVK balance and storage in satelliteLedger
-                    satelliteRecord.stakedMvkBalance  := stakedMvkBalance;
-                    s.satelliteLedger[userAddress]    := satelliteRecord;
-                }
+                    // ------------------------------------------------------------
+                    // Update user's staked MVK balance depending if he is a satellite or delegator
+                    // ------------------------------------------------------------
 
-                else block {
+                    if userIsSatellite then block {
 
-                    // check if user has delegated to a satellite
-                    const userIsDelegator: bool = Big_map.mem(userAddress, s.delegateLedger);
-                
-                    if userIsDelegator then block {
+                        // Get user's staked MVK balance from the Doorman Contract
+                        const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
+
+                        // Get user's satellite record
+                        var satelliteRecord: satelliteRecordType := getSatelliteRecord(userAddress, s);
+
+                        // Update user's satellite record staked MVK balance and storage in satelliteLedger
+                        satelliteRecord.stakedMvkBalance  := stakedMvkBalance;
+                        s.satelliteLedger[userAddress]    := satelliteRecord;
+                    }
+
+                    else block {
+
+                        // check if user has delegated to a satellite
+                        const userIsDelegator: bool = Big_map.mem(userAddress, s.delegateLedger);
                     
-                        // Get user's delegate record
-                        var delegatorRecord : delegateRecordType := getDelegateRecord(userAddress, s);
-
-                        // Get satellite address
-                        const satelliteAddress : address = delegatorRecord.satelliteAddress;
-
-                        // Check if user is delegated to an active satellite (e.g. satellite may have unregistered)
-                        // RegeristeredDateTime is checked in the case the satellite unregistered then registered again before the delegate could undelegate.
-                        const userNeedsToUndelegate : bool  = case Big_map.find_opt(satelliteAddress, s.satelliteLedger) of [
-                                Some (_satelliteRecord) -> if _satelliteRecord.registeredDateTime = delegatorRecord.satelliteRegisteredDateTime then False else True
-                            |   None                    -> True
-                        ];
-
-                        if userNeedsToUndelegate then 
-
-                            // Force User to undelegate if he does not have an active satellite anymore or if its satellite unregistered and registered
-                            operations := undelegateFromSatelliteOperation(userAddress) # operations
+                        if userIsDelegator then block {
                         
-                        else block {
+                            // Get user's delegate record
+                            var delegatorRecord : delegateRecordType := getDelegateRecord(userAddress, s);
 
-                            // Get user's staked MVK balance from the Doorman Contract
-                            const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
+                            // Get satellite address
+                            const satelliteAddress : address = delegatorRecord.satelliteAddress;
 
-                            // Get satellite record of satellite that user is delegated to
-                            var userSatellite: satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
+                            // Check if user is delegated to an active satellite (e.g. satellite may have unregistered)
+                            // RegeristeredDateTime is checked in the case the satellite unregistered then registered again before the delegate could undelegate.
+                            const userNeedsToUndelegate : bool  = case Big_map.find_opt(satelliteAddress, s.satelliteLedger) of [
+                                    Some (_satelliteRecord) -> if _satelliteRecord.registeredDateTime = delegatorRecord.satelliteRegisteredDateTime then False else True
+                                |   None                    -> True
+                            ];
 
-                            // Calculate difference between user's staked MVK balance in delegate record and his current staked MVK balance
-                            const stakeAmount: nat = abs(delegatorRecord.delegatedStakedMvkBalance - stakedMvkBalance);
+                            if userNeedsToUndelegate then 
 
-                            // Check if there has been a positive or negative change in user's staked MVK balance and adjust satellite's total delegated amount correspondingly
-                            // - If there is a positive change in user's staked MVK balance, increment userSatellite's total delegated amount by the difference (stakeAmount)
-                            // - Else If stakeAmount is greater than userSatellite's total delegated amount then fail with error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT
-                            // - Else, there is a negative change in user's staked MVK balance, so decrement userSatellite's total delegated amount by the difference (stakeAmount)
-                            if stakedMvkBalance > delegatorRecord.delegatedStakedMvkBalance then userSatellite.totalDelegatedAmount := userSatellite.totalDelegatedAmount + stakeAmount
-                            else if stakeAmount > userSatellite.totalDelegatedAmount then failwith(error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT)
-                            else userSatellite.totalDelegatedAmount := abs(userSatellite.totalDelegatedAmount - stakeAmount);
+                                // Force User to undelegate if he does not have an active satellite anymore or if its satellite unregistered and registered
+                                operations := undelegateFromSatelliteOperation(userAddress) # operations
+                            
+                            else block {
 
-                            // Update the satellite snapshot on the governance contract before updating its record
-                            operations := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
+                                // Get user's staked MVK balance from the Doorman Contract
+                                const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
 
-                            // Update storage (user's delegate record and his delegated satellite record)
-                            delegatorRecord.delegatedStakedMvkBalance  := stakedMvkBalance;
+                                // Get satellite record of satellite that user is delegated to
+                                var userSatellite: satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
 
-                            s.delegateLedger[userAddress]        := delegatorRecord;
-                            s.satelliteLedger[satelliteAddress]  := userSatellite;
+                                // Calculate difference between user's staked MVK balance in delegate record and his current staked MVK balance
+                                const stakeAmount: nat = abs(delegatorRecord.delegatedStakedMvkBalance - stakedMvkBalance);
+
+                                // Check if there has been a positive or negative change in user's staked MVK balance and adjust satellite's total delegated amount correspondingly
+                                // - If there is a positive change in user's staked MVK balance, increment userSatellite's total delegated amount by the difference (stakeAmount)
+                                // - Else If stakeAmount is greater than userSatellite's total delegated amount then fail with error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT
+                                // - Else, there is a negative change in user's staked MVK balance, so decrement userSatellite's total delegated amount by the difference (stakeAmount)
+                                if stakedMvkBalance > delegatorRecord.delegatedStakedMvkBalance then userSatellite.totalDelegatedAmount := userSatellite.totalDelegatedAmount + stakeAmount
+                                else if stakeAmount > userSatellite.totalDelegatedAmount then failwith(error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT)
+                                else userSatellite.totalDelegatedAmount := abs(userSatellite.totalDelegatedAmount - stakeAmount);
+
+                                // Add the satellite address to the set of snapshots to update
+                                satellitesToUpdate  := Set.add(satelliteAddress, satellitesToUpdate);
+
+                                // Update storage (user's delegate record and his delegated satellite record)
+                                delegatorRecord.delegatedStakedMvkBalance  := stakedMvkBalance;
+
+                                s.delegateLedger[userAddress]        := delegatorRecord;
+                                s.satelliteLedger[satelliteAddress]  := userSatellite;
+                            
+                            }
                         
-                        }
-                    
-                    } 
-                    
-                    else skip
-                }
+                        } 
+                        
+                        else skip
+                    };
+
+                };
+
+                // Update the satellites snapshots
+                operations := updateGovernanceSnapshot(satellitesToUpdate, True, operations, s);
 
             }
         |   _ -> skip
@@ -884,8 +930,10 @@ block {
                 const satelliteAddress  : address = updateSatelliteStatusParams.satelliteAddress;
                 const newStatus         : string  = updateSatelliteStatusParams.newStatus;
 
+                verifyValidSatelliteStatus(newStatus);
+
                 // Update the satellite snapshot on the governance contract before updating its record
-                operations := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
+                operations := updateGovernanceSnapshot(set[satelliteAddress], True, operations, s);
 
                 // Get satellite record 
                 var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);

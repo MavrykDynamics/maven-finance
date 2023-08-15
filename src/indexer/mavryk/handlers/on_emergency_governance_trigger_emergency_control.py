@@ -20,7 +20,6 @@ async def on_emergency_governance_trigger_emergency_control(
         emergency_storage           = trigger_emergency_control.storage.emergencyGovernanceLedger[trigger_emergency_control.storage.currentEmergencyGovernanceId]
         proposer_address            = emergency_storage.proposerAddress
         executed                    = emergency_storage.executed
-        dropped                     = emergency_storage.dropped
         title                       = emergency_storage.title
         description                 = emergency_storage.description
         total_smvk_votes            = emergency_storage.totalStakedMvkVotes
@@ -29,7 +28,11 @@ async def on_emergency_governance_trigger_emergency_control(
         start_timestamp             = emergency_storage.startDateTime
         start_level                 = int(emergency_storage.startLevel)
         execution_datetime          = emergency_storage.executedDateTime
-        executedLevel               = int(emergency_storage.executedLevel)
+        if execution_datetime:
+            execution_datetime  = parser.parse(emergency_storage.executedDateTime)
+        execution_level             = emergency_storage.executedLevel
+        if execution_level:
+            execution_level     = int(emergency_storage.executedLevel)
         expiration_timestamp        = emergency_storage.expirationDateTime
         
         # Create record
@@ -48,7 +51,6 @@ async def on_emergency_governance_trigger_emergency_control(
             emergency_governance            = emergency,
             proposer                        = proposer,
             executed                        = executed,
-            dropped                         = dropped,
             title                           = title,
             description                     = description,
             total_smvk_votes                = total_smvk_votes,
@@ -58,7 +60,7 @@ async def on_emergency_governance_trigger_emergency_control(
             execution_datetime              = execution_datetime,
             expiration_timestamp            = expiration_timestamp,
             start_level                     = start_level,
-            execution_level                 = executedLevel
+            execution_level                 = execution_level
         )
         await emergency_record.save()
         

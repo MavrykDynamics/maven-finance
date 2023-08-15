@@ -28,6 +28,7 @@ async def on_delegation_origination(
         unregister_as_satellite_paused      = delegation_origination.storage.breakGlassConfig.unregisterAsSatelliteIsPaused
         update_satellite_record_paused      = delegation_origination.storage.breakGlassConfig.updateSatelliteRecordIsPaused
         distribute_reward_paused            = delegation_origination.storage.breakGlassConfig.distributeRewardIsPaused
+        take_satellites_snapshot_paused     = delegation_origination.storage.breakGlassConfig.takeSatellitesSnapshotPaused
         timestamp                           = delegation_origination.data.timestamp
     
         # Get contract metadata
@@ -60,6 +61,7 @@ async def on_delegation_origination(
             unregister_as_satellite_paused      = unregister_as_satellite_paused,
             update_satellite_record_paused      = update_satellite_record_paused,
             distribute_reward_paused            = distribute_reward_paused,
+            take_satellites_snapshot_paused     = take_satellites_snapshot_paused
         )
         await delegation.save()
     except BaseException as e:

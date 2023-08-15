@@ -16,10 +16,10 @@
 
 
 type governanceSatelliteConfigType is [@layout:comb] record [
-    governanceSatelliteApprovalPercentage  : nat;  // threshold for satellite governance to be approved: 67% of total staked MVK supply
-    governanceSatelliteDurationInDays      : nat;  // duration of satellite governance before expiry
-    governancePurposeMaxLength             : nat;
-    maxActionsPerSatellite                 : nat;
+    approvalPercentage                  : nat;  // threshold for satellite governance to be approved: 67% of total staked MVK supply
+    satelliteActionDurationInDays       : nat;  // duration of satellite governance before expiry
+    governancePurposeMaxLength          : nat;
+    maxActionsPerSatellite              : nat;
 ]
 
 type governanceSatelliteActionRecordType is [@layout:comb] record [
@@ -29,7 +29,6 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     
     governanceType                     : string;   // "SUSPEND", "BAN", "RESTORE", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR", "TOGGLE_PAUSE_AGGREGATOR"
     governancePurpose                  : string;
-    voters                             : set(address);
 
     dataMap                            : dataMapType;
 
@@ -37,12 +36,14 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     nayVoteStakedMvkTotal              : nat;
     passVoteStakedMvkTotal             : nat;
 
+    governanceCycleId                  : nat;
     snapshotStakedMvkTotalSupply       : nat;
     stakedMvkPercentageForApproval     : nat; 
     stakedMvkRequiredForApproval       : nat; 
 
     startDateTime                      : timestamp;           
-    expiryDateTime                     : timestamp;               
+    expiryDateTime                     : timestamp;
+    executedDateTime                   : option(timestamp);
 ]
 type governanceSatelliteActionLedgerType is big_map (actionIdType, governanceSatelliteActionRecordType);
 
@@ -51,7 +52,7 @@ type subscribedAggregatorsType is map(address, timestamp)
 type satelliteAggregatorLedgerType is big_map(address, subscribedAggregatorsType) // map of aggregators that satellite oracle is providing service for
 
 
-type actionsInitiatorsType is big_map(address, set(actionIdType));
+type satelliteActionsType is big_map((nat * address), set(actionIdType)); // key: (governance cycle id * satellite address)
 
 // ------------------------------------------------------------------------------
 // Action Types
@@ -61,7 +62,7 @@ type actionsInitiatorsType is big_map(address, set(actionIdType));
 type governanceSatelliteUpdateConfigNewValueType is nat
 type governanceSatelliteUpdateConfigActionType is 
         ConfigApprovalPercentage          of unit
-    |   ConfigSatelliteDurationInDays     of unit
+    |   ConfigActionDurationInDays        of unit
     |   ConfigPurposeMaxLength            of unit
     |   ConfigMaxActionsPerSatellite      of unit
 
@@ -199,10 +200,10 @@ type governanceSatelliteStorageType is record [
     // governance satellite storage 
     governanceSatelliteActionLedger         : governanceSatelliteActionLedgerType;
     governanceSatelliteCounter              : nat;
-    governanceSatelliteVoters               : big_map((actionIdType*address), voteType);
+    governanceSatelliteVoters               : votersType;
 
     // spam check
-    actionsInitiators                       : actionsInitiatorsType;
+    satelliteActions                        : satelliteActionsType;
 
     // satellites (oracles) and aggregators
     satelliteAggregatorLedger               : satelliteAggregatorLedgerType;

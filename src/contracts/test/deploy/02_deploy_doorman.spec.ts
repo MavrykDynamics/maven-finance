@@ -1,26 +1,24 @@
-const { InMemorySigner, importKey } = require("@taquito/signer");
-import { Utils } from "../helpers/Utils";
-const saveContractAddress = require("../../helpers/saveContractAddress")
+import { Utils } from "../helpers/Utils"
+const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 chai.should()
 
-import { bob } from '../../scripts/sandbox/accounts'
-
 // ------------------------------------------------------------------------------
 // Contract Address
 // ------------------------------------------------------------------------------
 
-import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
-import governanceAddress from '../../deployments/governanceAddress.json';
+import contractDeployments from '../contractDeployments.json'
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { Doorman, setDoormanLambdas } from '../contractHelpers/doormanTestHelper'
+import { GeneralContract, setGeneralContractLambdas } from '../helpers/deploymentTestHelper'
+import { bob } from '../../scripts/sandbox/accounts'
+import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -34,56 +32,45 @@ import { doormanStorage } from '../../storage/doormanStorage'
 
 describe('Doorman', async () => {
   
-  var utils: Utils
-  var doorman: Doorman
-  var tezos
-  
+    var utils: Utils
+    var doorman
+    var tezos
 
-  const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
-    return tezos
-  }
+    before('setup', async () => {
+        try{
 
-  before('setup', async () => {
-    try{
-      utils = new Utils()
-      await utils.init(bob.sk)
-  
-      //----------------------------
-      // Originate and deploy contracts
-      //----------------------------
-  
-      doormanStorage.governanceAddress  = governanceAddress.address
-      doormanStorage.mvkTokenAddress    = mvkTokenAddress.address
-      doorman = await Doorman.originate(utils.tezos, doormanStorage)
-  
-      await saveContractAddress('doormanAddress', doorman.contract.address)
-      console.log('Doorman Contract deployed at:', doorman.contract.address)
-  
-      /* ---- ---- ---- ---- ---- */
-  
-      tezos = doorman.tezos
-  
-      // Set Lambdas
-  
-      await signerFactory(bob.sk);
+            utils = new Utils()
+            await utils.init(bob.sk)
+        
+            //----------------------------
+            // Originate and deploy contracts
+            //----------------------------
+        
+            doormanStorage.governanceAddress  = contractDeployments.governance.address
+            doormanStorage.mvkTokenAddress    = contractDeployments.mvkToken.address
+            doorman = await GeneralContract.originate(utils.tezos, "doorman", doormanStorage);
+            await saveContractAddress('doormanAddress', doorman.contract.address)
+        
+            /* ---- ---- ---- ---- ---- */
+        
+            tezos = doorman.tezos
+            await helperFunctions.signerFactory(tezos, bob.sk);
 
-      // Doorman Setup Lambdas
-      await setDoormanLambdas(tezos, doorman.contract)
-      console.log("Doorman Lambdas Setup")
+            // Set Lambdas
+            await setGeneralContractLambdas(tezos, "doorman", doorman.contract)
 
-    } catch(e){
-      console.dir(e, {depth: 5})
-    }
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
 
-  })
+    })
 
-  it(`doorman contract deployment`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-    } catch (e) {
-      console.log(e)
-    }
-  })
+    it(`doorman contract deployment`, async () => {
+        try {
+            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+        } catch (e) {
+            console.log(e)
+        }
+    })
   
 })

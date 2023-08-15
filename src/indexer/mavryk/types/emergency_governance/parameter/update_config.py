@@ -12,7 +12,7 @@ class UpdateConfigActionItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMinStakedMvkForTrigger: Dict[str, Any]
+    configDurationInMinutes: Dict[str, Any]
 
 
 class UpdateConfigActionItem1(BaseModel):
@@ -26,35 +26,35 @@ class UpdateConfigActionItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposalDescMaxLength: Dict[str, Any]
+    configMinStakedMvkToTrigger: Dict[str, Any]
 
 
 class UpdateConfigActionItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposalTitleMaxLength: Dict[str, Any]
+    configProposalDescMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configRequiredFeeMutez: Dict[str, Any]
+    configProposalTitleMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem5(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configStakedMvkPercentRequired: Dict[str, Any]
+    configRequiredFeeMutez: Dict[str, Any]
 
 
 class UpdateConfigActionItem6(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configVoteExpiryDays: Dict[str, Any]
+    configStakedMvkPercentRequired: Dict[str, Any]
 
 
 class UpdateConfigParameter(BaseModel):

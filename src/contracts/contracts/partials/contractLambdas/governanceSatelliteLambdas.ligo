@@ -78,10 +78,10 @@ block {
                 const updateConfigNewValue  : governanceSatelliteUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                    | ConfigApprovalPercentage (_v)         -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.governanceSatelliteApprovalPercentage  := updateConfigNewValue
-                    | ConfigSatelliteDurationInDays (_v)    -> s.config.governanceSatelliteDurationInDays       := updateConfigNewValue
-                    | ConfigPurposeMaxLength (_v)           -> s.config.governancePurposeMaxLength              := updateConfigNewValue
-                    | ConfigMaxActionsPerSatellite (_v)     -> s.config.maxActionsPerSatellite                  := updateConfigNewValue
+                    | ConfigApprovalPercentage (_v)         -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.approvalPercentage  := updateConfigNewValue
+                    | ConfigActionDurationInDays (_v)       -> s.config.satelliteActionDurationInDays      := updateConfigNewValue
+                    | ConfigPurposeMaxLength (_v)           -> s.config.governancePurposeMaxLength         := updateConfigNewValue
+                    | ConfigMaxActionsPerSatellite (_v)     -> s.config.maxActionsPerSatellite             := updateConfigNewValue
                 ];
 
             }
@@ -495,6 +495,7 @@ block {
                 ];
 
                 // Update storage
+                // - should not be able to set a newly created aggregator address with a name that is already in use (oldName)
                 s.aggregatorLedger[newName] := case s.aggregatorLedger[oldName] of [
                         Some(_a) -> if _a = aggregatorAddress then aggregatorAddress else failwith(error_WRONG_AGGREGATOR_ADDRESS_PROVIDED)
                     |   None     -> if oldName = newName then aggregatorAddress else failwith(error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND)
@@ -665,7 +666,7 @@ block {
                 verifySenderIsInitiator(initiator);
 
                 // Check if the action can still be interacted with
-                validateAction(governanceSatelliteActionRecord);
+                validateActionWithoutExpiration(governanceSatelliteActionRecord);
 
                 // Drop governance satellite action record  - update status to false
                 governanceSatelliteActionRecord.status := False;
@@ -673,13 +674,17 @@ block {
                 // Update storage - action ledger
                 s.governanceSatelliteActionLedger[dropActionId] := governanceSatelliteActionRecord;
 
+                // Create satelliteActionKey
+                const governanceCycleId : nat               = governanceSatelliteActionRecord.governanceCycleId;
+                const satelliteActionKey : (nat * address)  = (governanceCycleId, initiator);
+
                 // Remove the dropped action from the satellite's set
-                var initiatorActions : set(actionIdType)    := case Big_map.find_opt(initiator, s.actionsInitiators) of [
+                var satelliteActions : set(actionIdType)    := case Big_map.find_opt(satelliteActionKey, s.satelliteActions) of [
                         Some (_actionsIds)  -> _actionsIds
-                    |   None                -> failwith(error_INITIATOR_ACTIONS_NOT_FOUND)
+                    |   None                -> failwith(error_SATELLITE_ACTIONS_NOT_FOUND)
                 ];
-                initiatorActions                := Set.remove(dropActionId, initiatorActions);
-                s.actionsInitiators[initiator]  := initiatorActions;
+                satelliteActions                         := Set.remove(dropActionId, satelliteActions);
+                s.satelliteActions[satelliteActionKey]   := satelliteActions;
 
             }
         |   _ -> skip
@@ -727,6 +732,7 @@ block {
 
                 // Get governance satellite action record
                 var _governanceSatelliteActionRecord : governanceSatelliteActionRecordType := getGovernanceSatelliteActionRecord(actionId, s);
+                const actionGovernanceCycleId : nat = _governanceSatelliteActionRecord.governanceCycleId;
 
                 // ------------------------------------------------------------------
                 // Validation Checks
@@ -740,7 +746,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Get the satellite total voting power and check if it needs to be updated for the current cycle or not
-                const totalVotingPowerAndSatelliteUpdate: (nat * list(operation))   = getTotalVotingPowerAndUpdateSnapshot(Tezos.get_sender(), operations, s);
+                const totalVotingPowerAndSatelliteUpdate: (nat * list(operation))   = getTotalVotingPowerAndUpdateSnapshot(Tezos.get_sender(), actionGovernanceCycleId, operations, s);
                 const totalVotingPower : nat                                        = totalVotingPowerAndSatelliteUpdate.0;
 
                 // Update the satellite snapshot on the governance contract if it needs to
@@ -776,9 +782,6 @@ block {
 
                 // Update governance satellite action map of voters with new vote
                 s.governanceSatelliteVoters[(actionId, Tezos.get_sender())] := voteType;
-
-                // Save voter in the storage
-                _governanceSatelliteActionRecord.voters := Set.add(Tezos.get_sender(), _governanceSatelliteActionRecord.voters);
 
                 // Compute governance satellite action vote totals and execute governance satellite action if enough votes have been gathered
                 case voteType of [

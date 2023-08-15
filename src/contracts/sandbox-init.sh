@@ -1,8 +1,9 @@
 #!/bin/bash
-MAIN_SANDBOX_V="3e9dad7a"
-APPLE_SANDBOX_V="3e9dad7a"
+MAIN_SANDBOX_V="4abcc358"
+APPLE_SANDBOX_V="4abcc358"
 TZ_NODE_VERSION=$(docker exec -it mavryk-sandbox octez-node --version)
 NODE_BOOTSTRAPPED=$(docker exec -it mavryk-sandbox octez-client bootstrapped)
+echo $TZ_NODE_VERSION
 until [[ "$TZ_NODE_VERSION" == *"$MAIN_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]] || [[ "$TZ_NODE_VERSION" == *"$APPLE_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]];
 do
   echo "Waiting for Tezos Node to finish starting up......"

@@ -1,23 +1,17 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
-
-import { BigNumber } from "bignumber.js";
-
-const { alice } = require('../scripts/sandbox/accounts')
-
-import { zeroAddress } from "../test/helpers/Utils";
-
-import { vaultStorageType } from "../test/types/vaultStorageType";
+import { MichelsonMap } from "@taquito/michelson-encoder"
+import { bob } from '../scripts/sandbox/accounts'
+import { vaultStorageType } from "./storageTypes/vaultStorageType"
 
 const vaultHandle = {
     id     : 1,   
-    owner  : alice.pkh,  
+    owner  : bob.pkh,  
 }
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: 'Alice\'s MAVRYK Vault',
+        name: 'MAVRYK Vault',
         version: 'v1.0.0',
         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
         source: {
@@ -30,7 +24,7 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const vaultStorage: vaultStorageType = {
-    admin                       : alice.pkh,
+    admin                       : bob.pkh,
     handle                      : vaultHandle,
     name                        : "newVault",
     depositors                  : "any",

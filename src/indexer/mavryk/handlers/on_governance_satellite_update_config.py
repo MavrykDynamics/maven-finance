@@ -22,8 +22,8 @@ async def on_governance_satellite_update_config(
             address = satellite_address
         ).update(
             last_updated_at                 = timestamp,
-            gov_sat_approval_percentage     = update_config.storage.config.governanceSatelliteApprovalPercentage,
-            gov_sat_duration_in_days        = update_config.storage.config.governanceSatelliteDurationInDays,
+            approval_percentage             = update_config.storage.config.approvalPercentage,
+            sat_action_duration_in_days     = update_config.storage.config.satelliteActionDurationInDays,
             gov_purpose_max_length          = update_config.storage.config.governancePurposeMaxLength,
             max_actions_per_satellite       = update_config.storage.config.maxActionsPerSatellite
         )

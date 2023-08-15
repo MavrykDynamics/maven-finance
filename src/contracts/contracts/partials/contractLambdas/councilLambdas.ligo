@@ -84,7 +84,7 @@ block {
                 const updateConfigNewValue  : councilUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                        ConfigThreshold (_v)                  -> if updateConfigNewValue > Map.size(s.councilMembers) then failwith(error_COUNCIL_THRESHOLD_ERROR) else s.config.threshold := updateConfigNewValue
+                        ConfigThreshold (_v)                  -> if updateConfigNewValue > s.councilSize then failwith(error_COUNCIL_THRESHOLD_ERROR) else s.config.threshold := updateConfigNewValue
                     |   ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
                     |   ConfigCouncilNameMaxLength (_v)       -> s.config.councilMemberNameMaxLength        := updateConfigNewValue
                     |   ConfigCouncilWebsiteMaxLength (_v)    -> s.config.councilMemberWebsiteMaxLength     := updateConfigNewValue  
@@ -148,7 +148,7 @@ block {
         |   LambdaUpdateCouncilMemberInfo(councilMemberInfo) -> {
                 
                 // Check if sender is a member of the council
-                var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.get_sender(), s.councilMembers) of [
+                var councilMember: councilMemberInfoType := case Big_map.find_opt(Tezos.get_sender(), s.councilMembers) of [
                         Some (_info) -> _info
                     |   None -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
                 ];
@@ -638,6 +638,7 @@ block {
 
                 const dataMap : dataMapType = map [
                     ("treasuryAddress"       : string) -> Bytes.pack(councilActionRequestTokensParams.treasuryAddress);
+                    ("receiverAddress"       : string) -> Bytes.pack(councilActionRequestTokensParams.receiverAddress);
                     ("tokenContractAddress"  : string) -> Bytes.pack(councilActionRequestTokensParams.tokenContractAddress);
                     ("tokenName"             : string) -> Bytes.pack(councilActionRequestTokensParams.tokenName);
                     ("purpose"               : string) -> Bytes.pack(councilActionRequestTokensParams.purpose);
@@ -687,6 +688,7 @@ block {
 
                 const dataMap : dataMapType = map [
                     ("treasuryAddress"       : string) -> Bytes.pack(councilActionRequestMintParams.treasuryAddress);
+                    ("receiverAddress"       : string) -> Bytes.pack(councilActionRequestMintParams.receiverAddress);
                     ("purpose"               : string) -> Bytes.pack(councilActionRequestMintParams.purpose);
                     ("tokenAmount"           : string) -> Bytes.pack(councilActionRequestMintParams.tokenAmount);
                 ];
@@ -860,12 +862,12 @@ block {
                 var councilActionRecord : councilActionRecordType := getCouncilActionRecord(actionId, s);
 
                 // check if council member has already signed for this action
-                if Set.mem(Tezos.get_sender(), councilActionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
+                if Big_map.mem((actionId, Tezos.get_sender()), s.councilActionsSigners) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for council action record
                 var signersCount : nat             := councilActionRecord.signersCount + 1n;
                 councilActionRecord.signersCount   := signersCount;
-                councilActionRecord.signers        := Set.add(Tezos.get_sender(), councilActionRecord.signers);
+                s.councilActionsSigners            := Big_map.add((actionId, Tezos.get_sender()), unit, s.councilActionsSigners);
                 s.councilActionsLedger[actionId]   := councilActionRecord;
 
                 // check if threshold has been reached

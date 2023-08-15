@@ -68,7 +68,7 @@ export class Utils {
 export const zeroAddress: string = 'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg'
 
 // MVK Formatter
-export const MVK = (value: number = 1) => {
+export const MVK = (value : number = 1) => {
   return value * 10**parseInt(mvkTokenDecimals.decimals)
 }
 

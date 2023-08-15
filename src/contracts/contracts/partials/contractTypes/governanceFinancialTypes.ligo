@@ -19,25 +19,27 @@ type financialRequestRecordType is [@layout:comb] record [
     executed                            : bool;     // false on creation; set to true when financial request is executed successfully
     
     treasuryAddress                     : address;
+    receiverAddress                     : address;
     tokenContractAddress                : address; 
     tokenAmount                         : nat;
     tokenName                           : string; 
     tokenType                           : string;
     tokenId                             : nat;
     requestPurpose                      : string;
-    voters                              : set(address);
     keyHash                             : option(key_hash);
 
     yayVoteStakedMvkTotal               : nat;
     nayVoteStakedMvkTotal               : nat;
     passVoteStakedMvkTotal              : nat;
 
+    governanceCycleId                   : nat;
     snapshotStakedMvkTotalSupply        : nat;
     stakedMvkPercentageForApproval      : nat; 
     stakedMvkRequiredForApproval        : nat; 
 
     requestedDateTime                   : timestamp;  // log of when the request was submitted
-    expiryDateTime                      : timestamp;               
+    expiryDateTime                      : timestamp;
+    executedDateTime                    : option(timestamp);
 ]
 type financialRequestLedgerType is big_map (actionIdType, financialRequestRecordType);
 
@@ -46,7 +48,7 @@ type financialRequestLedgerType is big_map (actionIdType, financialRequestRecord
 // ------------------------------------------------------------------------------
 
 type governanceFinancialConfigType is [@layout:comb] record [
-    financialRequestApprovalPercentage  : nat;  // threshold for financial request to be approved: 67% of total staked MVK supply
+    approvalPercentage                  : nat;  // threshold for financial request to be approved: 67% of total staked MVK supply
     financialRequestDurationInDays      : nat;  // duration of final request before expiry
 ]
 
@@ -65,7 +67,7 @@ type governanceFinancialUpdateConfigNewValueType is nat
 
 
 type governanceFinancialUpdateConfigActionType is
-    |   ConfigFinancialReqApprovalPct     of unit
+    |   ConfigApprovalPercentage          of unit
     |   ConfigFinancialReqDurationDays    of unit
 
 type governanceFinancialUpdateConfigParamsType is [@layout:comb] record [
@@ -120,7 +122,7 @@ type governanceFinancialStorageType is [@layout:comb] record [
     // financial governance storage 
     financialRequestLedger              : financialRequestLedgerType;
     financialRequestCounter             : nat;
-    financialRequestVoters              : big_map((actionIdType*address), voteType);
+    financialRequestVoters              : votersType;
 
     // lambda storage
     lambdaLedger                        : lambdaLedgerType;

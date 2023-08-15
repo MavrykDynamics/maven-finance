@@ -10,33 +10,45 @@
 
 
 
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : councilStorageType) : address is
+    s.governanceAddress
+
+
+
 (* View: get config *)
 [@view] function getConfig(const _ : unit; const s : councilStorageType) : councilConfigType is
     s.config
 
 
 
-(* View: get council members *)
-[@view] function getCouncilMembers(const _ : unit; const s : councilStorageType) : councilMembersType is
-    s.councilMembers
+(* View: get whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : councilStorageType) : option(unit) is 
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
 
 
 
-(* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const s : councilStorageType) : whitelistContractsType is
-    s.whitelistContracts
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const s : councilStorageType) : option(address) is
+    Big_map.find_opt(contractName, s.generalContracts)
 
 
 
-(* View: get general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const s : councilStorageType) : generalContractsType is
-    s.generalContracts    
+(* View: get council member opt *)
+[@view] function getCouncilMemberOpt(const councilMemberAddress : address; const s : councilStorageType) : option(councilMemberInfoType) is
+    Big_map.find_opt(councilMemberAddress, s.councilMembers)
 
 
 
-(* View: get a council action *)
+(* View: get a council action opt *)
 [@view] function getCouncilActionOpt(const actionId: nat; const s : councilStorageType) : option(councilActionRecordType) is
     Big_map.find_opt(actionId, s.councilActionsLedger)
+
+
+
+(* View: get a council action signer opt *)
+[@view] function getCouncilActionSignerOpt(const signerId: (nat * address); const s : councilStorageType) : option(unit) is
+    Big_map.find_opt(signerId, s.councilActionsSigners)
 
 
 
@@ -48,13 +60,7 @@
 
 (* View: get a lambda *)
 [@view] function getLambdaOpt(const lambdaName: string; const s : councilStorageType) : option(bytes) is
-    Map.find_opt(lambdaName, s.lambdaLedger)
-
-
-
-(* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _ : unit; const s : councilStorageType) : lambdaLedgerType is
-    s.lambdaLedger
+    Big_map.find_opt(lambdaName, s.lambdaLedger)
 
 // ------------------------------------------------------------------------------
 //
