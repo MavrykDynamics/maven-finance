@@ -1276,14 +1276,14 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-            const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
+            const loanTokenDecimals    = afterBorrowloanTokenRecordView.Some.tokenDecimals;
             const interestRateDecimals = (27 - 2); 
 
-            const tokenPoolTotal           = afterBorrowloanTokenRecordView.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
-            const totalBorrowed            = afterBorrowloanTokenRecordView.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
-            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const utilisationRate          = Number(afterBorrowloanTokenRecordView.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const tokenPoolTotal           = afterBorrowloanTokenRecordView.Some.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
+            const totalBorrowed            = afterBorrowloanTokenRecordView.Some.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
+            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.Some.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const utilisationRate          = Number(afterBorrowloanTokenRecordView.Some.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.Some.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 
             // console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
@@ -1342,11 +1342,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
-            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
-            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
-            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.Some.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.Some.loanPrincipalTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.Some.borrowIndex;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
             // const estimate            = await utils.tezos.estimate.transfer(repayOpParam);
@@ -1374,12 +1374,12 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
-            const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
-            const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
-            const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+            const updatedLoanOutstandingTotal             = updatedVaultRecordView.Some.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal               = updatedVaultRecordView.Some.loanPrincipalTotal;
+            const updatedLoanInterestTotal                = updatedVaultRecordView.Some.loanInterestTotal;
 
-            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
-            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.Some.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.Some.borrowIndex;
             
             const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanOutstandingTotal.toNumber();
@@ -1539,14 +1539,14 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-            const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
+            const loanTokenDecimals    = afterBorrowloanTokenRecordView.Some.tokenDecimals;
             const interestRateDecimals = (27 - 2); 
 
-            const tokenPoolTotal           = afterBorrowloanTokenRecordView.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
-            const totalBorrowed            = afterBorrowloanTokenRecordView.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
-            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const utilisationRate          = Number(afterBorrowloanTokenRecordView.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const tokenPoolTotal           = afterBorrowloanTokenRecordView.Some.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
+            const totalBorrowed            = afterBorrowloanTokenRecordView.Some.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
+            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.Some.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const utilisationRate          = Number(afterBorrowloanTokenRecordView.Some.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.Some.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 
             // console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
@@ -1605,11 +1605,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
-            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
-            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
-            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.Some.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.Some.loanPrincipalTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.Some.borrowIndex;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
             // const estimate            = await utils.tezos.estimate.transfer(repayOpParam);
@@ -1637,12 +1637,12 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVaultRecordView = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             
-            const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
-            const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
-            const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+            const updatedLoanOutstandingTotal             = updatedVaultRecordView.Some.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal               = updatedVaultRecordView.Some.loanPrincipalTotal;
+            const updatedLoanInterestTotal                = updatedVaultRecordView.Some.loanInterestTotal;
 
-            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
-            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.Some.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.Some.borrowIndex;
             
             const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanOutstandingTotal.toNumber();
@@ -1801,14 +1801,14 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-            const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
+            const loanTokenDecimals    = afterBorrowloanTokenRecordView.Some.tokenDecimals;
             const interestRateDecimals = (27 - 2); 
 
-            const tokenPoolTotal           = afterBorrowloanTokenRecordView.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
-            const totalBorrowed            = afterBorrowloanTokenRecordView.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
-            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const utilisationRate          = Number(afterBorrowloanTokenRecordView.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const tokenPoolTotal           = afterBorrowloanTokenRecordView.Some.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
+            const totalBorrowed            = afterBorrowloanTokenRecordView.Some.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
+            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.Some.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const utilisationRate          = Number(afterBorrowloanTokenRecordView.Some.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.Some.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 
             // console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
@@ -1867,11 +1867,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
-            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
-            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
-            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.Some.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.Some.loanPrincipalTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.Some.borrowIndex;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
             // const estimate              = await utils.tezos.estimate.transfer(repayOpParam);
@@ -1899,12 +1899,12 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             
-            const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
-            const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
-            const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+            const updatedLoanOutstandingTotal             = updatedVaultRecordView.Some.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal               = updatedVaultRecordView.Some.loanPrincipalTotal;
+            const updatedLoanInterestTotal                = updatedVaultRecordView.Some.loanInterestTotal;
 
-            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
-            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.Some.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.Some.borrowIndex;
             
             const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanOutstandingTotal.toNumber();
@@ -2062,14 +2062,14 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-            const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
+            const loanTokenDecimals    = afterBorrowloanTokenRecordView.Some.tokenDecimals;
             const interestRateDecimals = (27 - 2); 
 
-            const tokenPoolTotal           = afterBorrowloanTokenRecordView.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
-            const totalBorrowed            = afterBorrowloanTokenRecordView.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
-            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const utilisationRate          = Number(afterBorrowloanTokenRecordView.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const tokenPoolTotal           = afterBorrowloanTokenRecordView.Some.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
+            const totalBorrowed            = afterBorrowloanTokenRecordView.Some.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
+            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.Some.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const utilisationRate          = Number(afterBorrowloanTokenRecordView.Some.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.Some.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 
             // console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
@@ -2128,11 +2128,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
-            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
-            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
-            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.Some.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.Some.loanPrincipalTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.Some.borrowIndex;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
             // const estimate              = await utils.tezos.estimate.transfer(repayOpParam);
@@ -2160,12 +2160,12 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
-            const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
-            const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
-            const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+            const updatedLoanOutstandingTotal             = updatedVaultRecordView.Some.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal               = updatedVaultRecordView.Some.loanPrincipalTotal;
+            const updatedLoanInterestTotal                = updatedVaultRecordView.Some.loanInterestTotal;
 
-            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
-            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.Some.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.Some.borrowIndex;
             
             const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanOutstandingTotal.toNumber();
@@ -2328,14 +2328,14 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-            const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
+            const loanTokenDecimals    = afterBorrowloanTokenRecordView.Some.tokenDecimals;
             const interestRateDecimals = (27 - 2); 
 
-            const tokenPoolTotal           = afterBorrowloanTokenRecordView.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
-            const totalBorrowed            = afterBorrowloanTokenRecordView.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
-            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const utilisationRate          = Number(afterBorrowloanTokenRecordView.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const tokenPoolTotal           = afterBorrowloanTokenRecordView.Some.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
+            const totalBorrowed            = afterBorrowloanTokenRecordView.Some.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
+            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.Some.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const utilisationRate          = Number(afterBorrowloanTokenRecordView.Some.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.Some.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 
             // console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
@@ -2394,11 +2394,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
-            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
-            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
-            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.Some.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.Some.loanPrincipalTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.Some.borrowIndex;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
             // const estimate            = await utils.tezos.estimate.transfer(repayOpParam);
@@ -2426,12 +2426,12 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
-            const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
-            const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
-            const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+            const updatedLoanOutstandingTotal             = updatedVaultRecordView.Some.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal               = updatedVaultRecordView.Some.loanPrincipalTotal;
+            const updatedLoanInterestTotal                = updatedVaultRecordView.Some.loanInterestTotal;
 
-            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
-            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.Some.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.Some.borrowIndex;
             
             const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanOutstandingTotal.toNumber();
@@ -2592,14 +2592,14 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-            const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
+            const loanTokenDecimals    = afterBorrowloanTokenRecordView.Some.tokenDecimals;
             const interestRateDecimals = (27 - 2); 
 
-            const tokenPoolTotal           = afterBorrowloanTokenRecordView.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
-            const totalBorrowed            = afterBorrowloanTokenRecordView.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
-            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const utilisationRate          = Number(afterBorrowloanTokenRecordView.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const tokenPoolTotal           = afterBorrowloanTokenRecordView.Some.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
+            const totalBorrowed            = afterBorrowloanTokenRecordView.Some.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
+            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.Some.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const utilisationRate          = Number(afterBorrowloanTokenRecordView.Some.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.Some.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 
             // console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
@@ -2658,11 +2658,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
-            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
-            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
-            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.Some.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.Some.loanPrincipalTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.Some.borrowIndex;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
             // const estimate            = await utils.tezos.estimate.transfer(repayOpParam);
@@ -2690,12 +2690,12 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
-            const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
-            const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
-            const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+            const updatedLoanOutstandingTotal             = updatedVaultRecordView.Some.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal               = updatedVaultRecordView.Some.loanPrincipalTotal;
+            const updatedLoanInterestTotal                = updatedVaultRecordView.Some.loanInterestTotal;
 
-            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
-            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.Some.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.Some.borrowIndex;
             
             const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanOutstandingTotal.toNumber();
@@ -2855,14 +2855,14 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-            const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
+            const loanTokenDecimals    = afterBorrowloanTokenRecordView.Some.tokenDecimals;
             const interestRateDecimals = (27 - 2); 
 
-            const tokenPoolTotal           = afterBorrowloanTokenRecordView.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
-            const totalBorrowed            = afterBorrowloanTokenRecordView.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
-            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const utilisationRate          = Number(afterBorrowloanTokenRecordView.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const tokenPoolTotal           = afterBorrowloanTokenRecordView.Some.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
+            const totalBorrowed            = afterBorrowloanTokenRecordView.Some.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
+            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.Some.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const utilisationRate          = Number(afterBorrowloanTokenRecordView.Some.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.Some.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 
             // console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
@@ -2921,11 +2921,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
-            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
-            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
-            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.Some.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.Some.loanPrincipalTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.Some.borrowIndex;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
             // const estimate            = await utils.tezos.estimate.transfer(repayOpParam);
@@ -2953,12 +2953,12 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
-            const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
-            const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
-            const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+            const updatedLoanOutstandingTotal             = updatedVaultRecordView.Some.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal               = updatedVaultRecordView.Some.loanPrincipalTotal;
+            const updatedLoanInterestTotal                = updatedVaultRecordView.Some.loanInterestTotal;
 
-            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
-            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.Some.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.Some.borrowIndex;
             
             const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanOutstandingTotal.toNumber();
@@ -3117,14 +3117,14 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-            const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
+            const loanTokenDecimals    = afterBorrowloanTokenRecordView.Some.tokenDecimals;
             const interestRateDecimals = (27 - 2); 
 
-            const tokenPoolTotal           = afterBorrowloanTokenRecordView.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
-            const totalBorrowed            = afterBorrowloanTokenRecordView.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
-            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const utilisationRate          = Number(afterBorrowloanTokenRecordView.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const tokenPoolTotal           = afterBorrowloanTokenRecordView.Some.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
+            const totalBorrowed            = afterBorrowloanTokenRecordView.Some.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
+            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.Some.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const utilisationRate          = Number(afterBorrowloanTokenRecordView.Some.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.Some.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 
             // console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
@@ -3183,11 +3183,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
-            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
-            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
-            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.Some.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.Some.loanPrincipalTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.Some.borrowIndex;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
             // const estimate            = await utils.tezos.estimate.transfer(repayOpParam);
@@ -3215,12 +3215,12 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
-            const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
-            const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
-            const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+            const updatedLoanOutstandingTotal             = updatedVaultRecordView.Some.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal               = updatedVaultRecordView.Some.loanPrincipalTotal;
+            const updatedLoanInterestTotal                = updatedVaultRecordView.Some.loanInterestTotal;
 
-            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
-            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.Some.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.Some.borrowIndex;
             
             const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanOutstandingTotal.toNumber();
@@ -3385,14 +3385,14 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-            const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
+            const loanTokenDecimals    = afterBorrowloanTokenRecordView.Some.tokenDecimals;
             const interestRateDecimals = (27 - 2); 
 
-            const tokenPoolTotal           = afterBorrowloanTokenRecordView.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
-            const totalBorrowed            = afterBorrowloanTokenRecordView.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
-            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const utilisationRate          = Number(afterBorrowloanTokenRecordView.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const tokenPoolTotal           = afterBorrowloanTokenRecordView.Some.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
+            const totalBorrowed            = afterBorrowloanTokenRecordView.Some.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
+            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.Some.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const utilisationRate          = Number(afterBorrowloanTokenRecordView.Some.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.Some.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 
             // console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
@@ -3436,11 +3436,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
-            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
-            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
-            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.Some.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.Some.loanPrincipalTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.Some.borrowIndex;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
             // const estimate            = await utils.tezos.estimate.transfer(repayOpParam);
@@ -3468,12 +3468,12 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
-            const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
-            const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
-            const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+            const updatedLoanOutstandingTotal             = updatedVaultRecordView.Some.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal               = updatedVaultRecordView.Some.loanPrincipalTotal;
+            const updatedLoanInterestTotal                = updatedVaultRecordView.Some.loanInterestTotal;
 
-            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
-            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.Some.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.Some.borrowIndex;
             
             const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanOutstandingTotal.toNumber();
@@ -3635,14 +3635,14 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-            const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
+            const loanTokenDecimals    = afterBorrowloanTokenRecordView.Some.tokenDecimals;
             const interestRateDecimals = (27 - 2); 
 
-            const tokenPoolTotal           = afterBorrowloanTokenRecordView.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
-            const totalBorrowed            = afterBorrowloanTokenRecordView.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
-            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const utilisationRate          = Number(afterBorrowloanTokenRecordView.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const tokenPoolTotal           = afterBorrowloanTokenRecordView.Some.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
+            const totalBorrowed            = afterBorrowloanTokenRecordView.Some.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
+            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.Some.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const utilisationRate          = Number(afterBorrowloanTokenRecordView.Some.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.Some.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 
             // console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
@@ -3686,11 +3686,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
-            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
-            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
-            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.Some.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.Some.loanPrincipalTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.Some.borrowIndex;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
             // const estimate            = await utils.tezos.estimate.transfer(repayOpParam);
@@ -3718,12 +3718,12 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
-            const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
-            const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
-            const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+            const updatedLoanOutstandingTotal             = updatedVaultRecordView.Some.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal               = updatedVaultRecordView.Some.loanPrincipalTotal;
+            const updatedLoanInterestTotal                = updatedVaultRecordView.Some.loanInterestTotal;
 
-            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
-            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.Some.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.Some.borrowIndex;
             
             const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanOutstandingTotal.toNumber();
@@ -3886,14 +3886,14 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-            const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
+            const loanTokenDecimals    = afterBorrowloanTokenRecordView.Some.tokenDecimals;
             const interestRateDecimals = (27 - 2); 
 
-            const tokenPoolTotal           = afterBorrowloanTokenRecordView.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
-            const totalBorrowed            = afterBorrowloanTokenRecordView.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
-            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const utilisationRate          = Number(afterBorrowloanTokenRecordView.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const tokenPoolTotal           = afterBorrowloanTokenRecordView.Some.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
+            const totalBorrowed            = afterBorrowloanTokenRecordView.Some.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
+            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.Some.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const utilisationRate          = Number(afterBorrowloanTokenRecordView.Some.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.Some.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 
             // console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
@@ -3937,11 +3937,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
-            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
-            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
-            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.Some.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.Some.loanPrincipalTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.Some.borrowIndex;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
             // const estimate            = await utils.tezos.estimate.transfer(repayOpParam);
@@ -3969,12 +3969,12 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
-            const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
-            const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
-            const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+            const updatedLoanOutstandingTotal             = updatedVaultRecordView.Some.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal               = updatedVaultRecordView.Some.loanPrincipalTotal;
+            const updatedLoanInterestTotal                = updatedVaultRecordView.Some.loanInterestTotal;
 
-            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
-            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.Some.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.Some.borrowIndex;
             
             const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanOutstandingTotal.toNumber();
@@ -4136,14 +4136,14 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
             // get token pool stats
             const afterBorrowloanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
-            const loanTokenDecimals    = afterBorrowloanTokenRecordView.tokenDecimals;
+            const loanTokenDecimals    = afterBorrowloanTokenRecordView.Some.tokenDecimals;
             const interestRateDecimals = (27 - 2); 
 
-            const tokenPoolTotal           = afterBorrowloanTokenRecordView.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
-            const totalBorrowed            = afterBorrowloanTokenRecordView.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
-            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const utilisationRate          = Number(afterBorrowloanTokenRecordView.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
-            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const tokenPoolTotal           = afterBorrowloanTokenRecordView.Some.tokenPoolTotal.toNumber() / (10 ** loanTokenDecimals);
+            const totalBorrowed            = afterBorrowloanTokenRecordView.Some.totalBorrowed.toNumber() / (10 ** loanTokenDecimals);
+            const optimalUtilisationRate   = Number(afterBorrowloanTokenRecordView.Some.optimalUtilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const utilisationRate          = Number(afterBorrowloanTokenRecordView.Some.utilisationRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
+            const currentInterestRate      = Number(afterBorrowloanTokenRecordView.Some.currentInterestRate / (10 ** interestRateDecimals)).toFixed(3) + "%";
 
             // console.log('   - token pool stats >> Token Pool Total: ' + tokenPoolTotal + ' | Total Borrowed: ' + totalBorrowed + ' | Utilisation Rate: ' + utilisationRate + ' | Optimal Utilisation Rate: ' + optimalUtilisationRate + ' | Current Interest Rate: ' + currentInterestRate);
 
@@ -4187,11 +4187,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const loanTokenRecordView    = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
             const beforeRepaymentStorage = await lendingControllerInstance.storage();
 
-            const initialVaultLoanOutstandingTotal         = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.borrowIndex;
-            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.loanOutstandingTotal;
-            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.loanPrincipalTotal;
-            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.borrowIndex;
+            const initialVaultLoanOutstandingTotal         = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultBorrowIndex          = vaultRecordView.Some.borrowIndex;
+            const beforeRepaymentVaultOutstandingTotal     = vaultRecordView.Some.loanOutstandingTotal;
+            const beforeRepaymentVaultPrincipalTotal       = vaultRecordView.Some.loanPrincipalTotal;
+            const beforeRepaymentTokenBorrowIndex          = loanTokenRecordView.Some.borrowIndex;
 
             // const repayOpParam        = await lendingControllerInstance.methods.repay(vaultId, repayAmount).toTransferParams();
             // const estimate            = await utils.tezos.estimate.transfer(repayOpParam);
@@ -4219,12 +4219,12 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const updatedVaultRecordView     = await lendingControllerInstance.contractViews.getVaultOpt({ id: vaultId, owner: eve.pkh}).executeView({ viewCaller : bob.pkh});
             const updatedLoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt(loanTokenName).executeView({ viewCaller : bob.pkh});
 
-            const updatedLoanOutstandingTotal             = updatedVaultRecordView.loanOutstandingTotal;
-            const updatedLoanPrincipalTotal               = updatedVaultRecordView.loanPrincipalTotal;
-            const updatedLoanInterestTotal                = updatedVaultRecordView.loanInterestTotal;
+            const updatedLoanOutstandingTotal             = updatedVaultRecordView.Some.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal               = updatedVaultRecordView.Some.loanPrincipalTotal;
+            const updatedLoanInterestTotal                = updatedVaultRecordView.Some.loanInterestTotal;
 
-            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.borrowIndex;
-            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.borrowIndex;
+            const afterRepaymentVaultBorrowIndex          = updatedVaultRecordView.Some.borrowIndex;
+            const afterRepaymentTokenBorrowIndex          = updatedLoanTokenRecordView.Some.borrowIndex;
             
             const loanOutstandingWithAccruedInterest      = lendingHelper.calculateAccruedInterest(beforeRepaymentVaultOutstandingTotal, beforeRepaymentVaultBorrowIndex, afterRepaymentTokenBorrowIndex);
             const totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanOutstandingTotal.toNumber();
