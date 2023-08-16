@@ -1,13 +1,13 @@
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.mvk_token.parameter.burn import BurnParameter
-from mavryk.types.mvk_token.storage import MvkTokenStorage
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.mvk_token.tezos_parameters.burn import BurnParameter
+from mavryk.types.mvk_token.tezos_storage import MvkTokenStorage
 from mavryk.utils.error_reporting import save_error_report
 import mavryk.models as models
 
-async def on_mvk_burn(
+async def burn(
     ctx: HandlerContext,
-    burn: Transaction[BurnParameter, MvkTokenStorage],
+    burn: TzktTransaction[BurnParameter, MvkTokenStorage],
 ) -> None:
 
     try:

@@ -12,7 +12,7 @@ class UpdateConfigActionItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configApprovalPercentage: Dict[str, Any]
+    configFinancialReqApprovalPct: Dict[str, Any]
 
 
 class UpdateConfigActionItem1(BaseModel):

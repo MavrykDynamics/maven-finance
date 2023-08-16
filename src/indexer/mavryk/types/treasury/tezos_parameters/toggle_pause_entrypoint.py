@@ -19,7 +19,7 @@ class TargetEntrypointItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    stakeTokens: bool
+    stakeMvk: bool
 
 
 class TargetEntrypointItem2(BaseModel):
@@ -33,14 +33,7 @@ class TargetEntrypointItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    unstakeTokens: bool
-
-
-class TargetEntrypointItem4(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    updateTokenOperators: bool
+    unstakeMvk: bool
 
 
 class TogglePauseEntrypointParameter(BaseModel):
@@ -52,6 +45,5 @@ class TogglePauseEntrypointParameter(BaseModel):
         TargetEntrypointItem1,
         TargetEntrypointItem2,
         TargetEntrypointItem3,
-        TargetEntrypointItem4,
     ]
     empty: Dict[str, Any]

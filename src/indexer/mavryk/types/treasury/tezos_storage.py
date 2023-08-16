@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Dict
 
 from pydantic import BaseModel, Extra
 
@@ -14,9 +14,8 @@ class BreakGlassConfig(BaseModel):
 
     transferIsPaused: bool
     mintMvkAndTransferIsPaused: bool
-    updateTokenOperatorsIsPaused: bool
-    stakeTokensIsPaused: bool
-    unstakeTokensIsPaused: bool
+    stakeMvkIsPaused: bool
+    unstakeMvkIsPaused: bool
 
 
 class TreasuryStorage(BaseModel):
@@ -28,8 +27,8 @@ class TreasuryStorage(BaseModel):
     name: str
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistContracts: Dict[str, Dict[str, Any]]
+    whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
-    whitelistTokenContracts: Dict[str, Dict[str, Any]]
+    whitelistTokenContracts: Dict[str, str]
     breakGlassConfig: BreakGlassConfig
     lambdaLedger: Dict[str, str]

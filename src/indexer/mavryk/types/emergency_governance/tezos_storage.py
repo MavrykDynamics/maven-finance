@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Dict
 
 from pydantic import BaseModel, Extra
 
@@ -13,13 +13,21 @@ class Config(BaseModel):
         extra = Extra.forbid
 
     decimals: str
-    durationInMinutes: str
     minStakedMvkRequiredToTrigger: str
     minStakedMvkRequiredToVote: str
     proposalDescMaxLength: str
     proposalTitleMaxLength: str
     requiredFeeMutez: str
     stakedMvkPercentageRequired: str
+    voteExpiryDays: str
+
+
+class Voters(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    nat: str
+    timestamp: str
 
 
 class EmergencyGovernanceLedger(BaseModel):
@@ -28,40 +36,18 @@ class EmergencyGovernanceLedger(BaseModel):
 
     proposerAddress: str
     executed: bool
+    dropped: bool
     title: str
     description: str
+    voters: Dict[str, Voters]
     totalStakedMvkVotes: str
     stakedMvkPercentageRequired: str
     stakedMvkRequiredForBreakGlass: str
     startDateTime: str
     startLevel: str
-    executedDateTime: Optional[str]
-    executedLevel: Optional[str]
+    executedDateTime: str
+    executedLevel: str
     expirationDateTime: str
-
-
-class Key(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    nat: str
-    address: str
-
-
-class Value(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    nat: str
-    timestamp: str
-
-
-class EmergencyGovernanceVoter(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: Key
-    value: Value
 
 
 class EmergencyGovernanceStorage(BaseModel):
@@ -73,10 +59,9 @@ class EmergencyGovernanceStorage(BaseModel):
     config: Config
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistContracts: Dict[str, Dict[str, Any]]
+    whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     emergencyGovernanceLedger: Dict[str, EmergencyGovernanceLedger]
-    emergencyGovernanceVoters: List[EmergencyGovernanceVoter]
     currentEmergencyGovernanceId: str
     nextEmergencyGovernanceId: str
     lambdaLedger: Dict[str, str]

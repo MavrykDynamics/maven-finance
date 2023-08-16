@@ -398,7 +398,7 @@ indexes:
     contracts:
     - sirius
     handlers:
-    - callback: sirius._transfer
+    - callback: sirius.transfer
       pattern:
       - destination: sirius
         entrypoint: transfer
