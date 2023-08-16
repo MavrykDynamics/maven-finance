@@ -94,9 +94,9 @@ async def repay(
                         new_loan_outstanding_total                          = (lending_controller_vault.loan_outstanding_total * loan_token_borrow_index) / lending_controller_vault.borrow_index
     
                 if vault_repay_amount > new_loan_outstanding_total:
-                    final_repay_amount  = new_loan_outstanding_total
-                else:
                     final_repay_amount  = vault_repay_amount
+                else:
+                    final_repay_amount  = new_loan_outstanding_total
     
                 # Save history data
                 sender                                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=sender_address)
