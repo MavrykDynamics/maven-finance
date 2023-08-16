@@ -705,15 +705,15 @@ indexes:
       pattern:
       - destination: doorman
         entrypoint: farmClaim
-    - callback: doorman.vault.deposit_stake
+    - callback: doorman.on_vault_deposit_stake
       pattern:
       - destination: doorman
         entrypoint: onVaultDepositStake
-    - callback: doorman.vault.withdraw_stake
+    - callback: doorman.on_vault_withdraw_stake
       pattern:
       - destination: doorman
         entrypoint: onVaultWithdrawStake
-    - callback: doorman.vault.liquidate_stake
+    - callback: doorman.on_vault_liquidate_stake
       pattern:
       - destination: doorman
         entrypoint: onVaultLiquidateStake
