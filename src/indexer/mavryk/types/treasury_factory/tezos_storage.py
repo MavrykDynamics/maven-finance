@@ -36,8 +36,8 @@ class TreasuryFactoryStorage(BaseModel):
     governanceAddress: str
     trackedTreasuries: List[str]
     breakGlassConfig: BreakGlassConfig
-    whitelistContracts: Dict[str, Dict[str, Any]]
+    whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
-    whitelistTokenContracts: Dict[str, Dict[str, Any]]
+    whitelistTokenContracts: Dict[str, str]
     lambdaLedger: Dict[str, str]
     treasuryLambdaLedger: Dict[str, str]

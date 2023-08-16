@@ -11,6 +11,5 @@ class RequestMintParameter(BaseModel):
         extra = Extra.forbid
 
     treasuryAddress: str
-    receiverAddress: str
     tokenAmount: str
     purpose: str

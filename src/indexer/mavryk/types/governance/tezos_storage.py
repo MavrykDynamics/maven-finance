@@ -15,6 +15,7 @@ class Config(BaseModel):
     successReward: str
     cycleVotersReward: str
     minProposalRoundVotePercentage: str
+    minProposalRoundVotesRequired: str
     minQuorumPercentage: str
     minYayVotePercentage: str
     proposalSubmissionFeeMutez: str
@@ -67,7 +68,7 @@ class TokenItem2(BaseModel):
     tez: Dict[str, Any]
 
 
-class TzktTransaction(BaseModel):
+class Transaction(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -81,7 +82,7 @@ class PaymentDatum(BaseModel):
         extra = Extra.forbid
 
     title: str
-    transaction: TzktTransaction
+    transaction: Transaction
 
 
 class ProposalLedger(BaseModel):
@@ -114,13 +115,13 @@ class ProposalLedger(BaseModel):
     nayVoteStakedMvkTotal: str
     passVoteCount: str
     passVoteStakedMvkTotal: str
+    voters: List[str]
     minQuorumPercentage: str
     minQuorumStakedMvkTotal: str
     minYayVotePercentage: str
     quorumCount: str
     quorumStakedMvkTotal: str
     startDateTime: str
-    executedDateTime: Optional[str]
     cycle: str
     currentCycleStartLevel: str
     currentCycleEndLevel: str
@@ -132,35 +133,6 @@ class Key(BaseModel):
 
     nat: str
     address: str
-
-
-class ValueItem(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    nay: Dict[str, Any]
-
-
-class ValueItem1(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    pass_: Dict[str, Any] = Field(..., alias='pass')
-
-
-class ValueItem2(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    yay: Dict[str, Any]
-
-
-class ProposalVoter(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: Key
-    value: Union[ValueItem, ValueItem1, ValueItem2]
 
 
 class ProposalReward(BaseModel):
@@ -178,9 +150,7 @@ class Value(BaseModel):
     totalStakedMvkBalance: str
     totalDelegatedAmount: str
     totalVotingPower: str
-    accumulatedRewardsPerShare: str
     ready: bool
-    nextSnapshotCycleId: Optional[str]
 
 
 class SnapshotLedgerItem(BaseModel):
@@ -235,28 +205,28 @@ class CycleProposer(BaseModel):
     value: List[str]
 
 
-class ValueItem3(BaseModel):
+class ValueItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
     proposal: str
 
 
-class ValueItem4(BaseModel):
+class ValueItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     nay: Dict[str, Any]
 
 
-class ValueItem5(BaseModel):
+class ValueItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
     pass_: Dict[str, Any] = Field(..., alias='pass')
 
 
-class ValueItem6(BaseModel):
+class ValueItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -268,7 +238,7 @@ class RoundVote(BaseModel):
         extra = Extra.forbid
 
     key: Key
-    value: Union[ValueItem3, ValueItem4, ValueItem5, ValueItem6]
+    value: Union[ValueItem, ValueItem1, ValueItem2, ValueItem3]
 
 
 class GovernanceStorage(BaseModel):
@@ -280,15 +250,12 @@ class GovernanceStorage(BaseModel):
     config: Config
     mvkTokenAddress: str
     governanceProxyAddress: str
-    whitelistContracts: Dict[str, Dict[str, Any]]
+    whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     whitelistDevelopers: List[str]
     proposalLedger: Dict[str, ProposalLedger]
-    proposalVoters: List[ProposalVoter]
     proposalRewards: List[ProposalReward]
     snapshotLedger: List[SnapshotLedgerItem]
-    satelliteLastSnapshotLedger: Dict[str, str]
-    stakedMvkSnapshotLedger: Dict[str, str]
     currentCycleInfo: CurrentCycleInfo
     cycleProposals: Dict[str, str]
     cycleProposers: List[CycleProposer]

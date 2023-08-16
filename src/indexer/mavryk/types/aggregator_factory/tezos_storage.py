@@ -38,7 +38,7 @@ class AggregatorFactoryStorage(BaseModel):
     governanceAddress: str
     trackedAggregators: List[str]
     breakGlassConfig: BreakGlassConfig
-    whitelistContracts: Dict[str, Dict[str, Any]]
+    whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     lambdaLedger: Dict[str, str]
     aggregatorLambdaLedger: Dict[str, str]

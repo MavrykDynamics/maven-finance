@@ -26,7 +26,7 @@ class UpdateConfigActionItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configHeartbeatSeconds: Dict[str, Any]
+    configHeartBeatSeconds: Dict[str, Any]
 
 
 class UpdateConfigActionItem3(BaseModel):

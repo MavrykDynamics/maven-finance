@@ -33,52 +33,24 @@ class UpdateConfigActionItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configLastCompletedDataMaxDelay: Dict[str, Any]
+    configLiquidationFeePercent: Dict[str, Any]
 
 
 class UpdateConfigActionItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configLiquidationDelayInMins: Dict[str, Any]
+    configLiquidationRatio: Dict[str, Any]
 
 
 class UpdateConfigActionItem5(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configLiquidationFeePercent: Dict[str, Any]
-
-
-class UpdateConfigActionItem6(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    configLiquidationMaxDuration: Dict[str, Any]
-
-
-class UpdateConfigActionItem7(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    configLiquidationRatio: Dict[str, Any]
-
-
-class UpdateConfigActionItem8(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    configMaxVaultLiqPercent: Dict[str, Any]
-
-
-class UpdateConfigActionItem9(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     configMinLoanFeeTreasuryShare: Dict[str, Any]
 
 
-class UpdateConfigActionItem10(BaseModel):
+class UpdateConfigActionItem6(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -98,8 +70,4 @@ class UpdateConfigParameter(BaseModel):
         UpdateConfigActionItem4,
         UpdateConfigActionItem5,
         UpdateConfigActionItem6,
-        UpdateConfigActionItem7,
-        UpdateConfigActionItem8,
-        UpdateConfigActionItem9,
-        UpdateConfigActionItem10,
     ]

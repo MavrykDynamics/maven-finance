@@ -1553,7 +1553,7 @@ templates:
       - destination: <liquidity_baking_contract>
         entrypoint: default
     # Sirius handlers
-    - callback: sirius._transfer
+    - callback: sirius.transfer
       pattern:
       - destination: <sirius_contract>
         entrypoint: transfer

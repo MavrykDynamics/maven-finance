@@ -11,7 +11,6 @@ class RequestTokensParameter(BaseModel):
         extra = Extra.forbid
 
     treasuryAddress: str
-    receiverAddress: str
     tokenContractAddress: str
     tokenName: str
     tokenAmount: str

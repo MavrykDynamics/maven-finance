@@ -1,16 +1,16 @@
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
-from mavryk.types.doorman.parameter.exit import ExitParameter
-from mavryk.types.doorman.storage import DoormanStorage
-from mavryk.types.mvk_token.parameter.transfer import TransferParameter
-from mavryk.types.mvk_token.storage import MvkTokenStorage
-from mavryk.utils.error_reporting import save_error_report
+from dipdup.models.tezos_tzkt import TzktTransaction
+from mavryk.types.doorman.tezos_parameters.exit import ExitParameter
+from mavryk.types.doorman.tezos_storage import DoormanStorage
+from mavryk.types.mvk_token.tezos_parameters.transfer import TransferParameter
+from mavryk.types.mvk_token.tezos_storage import MvkTokenStorage
 import mavryk.models as models
+from mavryk.utils.error_reporting import save_error_report
 
-async def on_doorman_exit(
+async def exit(
     ctx: HandlerContext,
-    exit: Transaction[ExitParameter, DoormanStorage],
-    transfer: Transaction[TransferParameter, MvkTokenStorage],
+    exit: TzktTransaction[ExitParameter, DoormanStorage],
+    transfer: TzktTransaction[TransferParameter, MvkTokenStorage],
 ) -> None:
 
     try:
