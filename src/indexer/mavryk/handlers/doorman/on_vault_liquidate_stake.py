@@ -1,32 +1,32 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from dipdup.models.tezos_tzkt import TzktTransaction
-from mavryk.types.doorman.tezos_parameters.liquidate_stake import OnVaultLiquidateStakeParameter
+from mavryk.types.doorman.tezos_parameters.on_vault_liquidate_stake import OnVaultLiquidateStakeParameter
 from mavryk.types.doorman.tezos_storage import DoormanStorage
 import mavryk.models as models
 
-async def liquidate_stake(
+async def on_vault_liquidate_stake(
     ctx: HandlerContext,
-    liquidate_stake: TzktTransaction[OnVaultLiquidateStakeParameter, DoormanStorage],
+    on_vault_liquidate_stake: TzktTransaction[OnVaultLiquidateStakeParameter, DoormanStorage],
 ) -> None:
 
     try:
         # Get operation info
-        timestamp                                   = liquidate_stake.data.timestamp
-        doorman_address                             = liquidate_stake.data.target_address
-        vault_owner_address                         = liquidate_stake.parameter.vaultOwner
-        vault_owner_stake_balance_ledger            = liquidate_stake.storage.userStakeBalanceLedger[vault_owner_address]
+        timestamp                                   = on_vault_liquidate_stake.data.timestamp
+        doorman_address                             = on_vault_liquidate_stake.data.target_address
+        vault_owner_address                         = on_vault_liquidate_stake.parameter.vaultOwner
+        vault_owner_stake_balance_ledger            = on_vault_liquidate_stake.storage.userStakeBalanceLedger[vault_owner_address]
         vault_owner_smvk_balance                    = float(vault_owner_stake_balance_ledger.balance)
         vault_owner_total_exit_fee_rewards_claimed  = float(vault_owner_stake_balance_ledger.totalExitFeeRewardsClaimed)
         vault_owner_total_satellite_rewards_claimed = float(vault_owner_stake_balance_ledger.totalSatelliteRewardsClaimed)
         vault_owner_total_farm_rewards_claimed      = float(vault_owner_stake_balance_ledger.totalFarmRewardsClaimed)
         vault_owner_participation_fees_per_share    = float(vault_owner_stake_balance_ledger.participationFeesPerShare)
-        vault_address                               = liquidate_stake.parameter.vaultAddress
-        vault_stake_balance_ledger                  = liquidate_stake.storage.userStakeBalanceLedger[vault_address]
+        vault_address                               = on_vault_liquidate_stake.parameter.vaultAddress
+        vault_stake_balance_ledger                  = on_vault_liquidate_stake.storage.userStakeBalanceLedger[vault_address]
         vault_smvk_balance                          = float(vault_stake_balance_ledger.balance)
         vault_participation_fees_per_share          = float(vault_stake_balance_ledger.participationFeesPerShare)
-        unclaimed_rewards                           = float(liquidate_stake.storage.unclaimedRewards)
-        accumulated_fees_per_share                  = float(liquidate_stake.storage.accumulatedFeesPerShare)
+        unclaimed_rewards                           = float(on_vault_liquidate_stake.storage.unclaimedRewards)
+        accumulated_fees_per_share                  = float(on_vault_liquidate_stake.storage.accumulatedFeesPerShare)
     
         # Update records
         doorman                                     = await models.Doorman.get(
