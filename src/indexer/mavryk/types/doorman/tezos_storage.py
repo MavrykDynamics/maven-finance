@@ -22,7 +22,6 @@ class BreakGlassConfig(BaseModel):
 
     stakeIsPaused: bool
     unstakeIsPaused: bool
-    exitIsPaused: bool
     compoundIsPaused: bool
     farmClaimIsPaused: bool
     onVaultDepositStakeIsPaused: bool
@@ -50,7 +49,7 @@ class DoormanStorage(BaseModel):
     config: Config
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistContracts: Dict[str, Dict[str, Any]]
+    whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     breakGlassConfig: BreakGlassConfig
     userStakeBalanceLedger: Dict[str, UserStakeBalanceLedger]

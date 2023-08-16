@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Union
 
 from pydantic import BaseModel, Extra, Field
 
@@ -12,8 +12,8 @@ class Config(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    approvalPercentage: str
-    satelliteActionDurationInDays: str
+    governanceSatelliteApprovalPercentage: str
+    governanceSatelliteDurationInDays: str
     governancePurposeMaxLength: str
     maxActionsPerSatellite: str
 
@@ -27,17 +27,16 @@ class GovernanceSatelliteActionLedger(BaseModel):
     executed: bool
     governanceType: str
     governancePurpose: str
+    voters: List[str]
     dataMap: Dict[str, str]
     yayVoteStakedMvkTotal: str
     nayVoteStakedMvkTotal: str
     passVoteStakedMvkTotal: str
-    governanceCycleId: str
     snapshotStakedMvkTotalSupply: str
     stakedMvkPercentageForApproval: str
     stakedMvkRequiredForApproval: str
     startDateTime: str
     expiryDateTime: str
-    executedDateTime: Optional[str]
 
 
 class Key(BaseModel):
@@ -77,18 +76,11 @@ class GovernanceSatelliteVoter(BaseModel):
     value: Union[ValueItem, ValueItem1, ValueItem2]
 
 
-class SatelliteAction(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    key: Key
-    value: List[str]
-
-
 class GovernanceSatelliteStorage(BaseModel):
     class Config:
         extra = Extra.forbid
 
+    actionsInitiators: Dict[str, List[str]]
     admin: str
     aggregatorLedger: Dict[str, str]
     config: Config
@@ -100,6 +92,5 @@ class GovernanceSatelliteStorage(BaseModel):
     lambdaLedger: Dict[str, str]
     metadata: Dict[str, str]
     mvkTokenAddress: str
-    satelliteActions: List[SatelliteAction]
     satelliteAggregatorLedger: Dict[str, Dict[str, str]]
-    whitelistContracts: Dict[str, Dict[str, Any]]
+    whitelistContracts: Dict[str, str]

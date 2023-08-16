@@ -90,7 +90,7 @@ class MFarmStorage(BaseModel):
     config: Config
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistContracts: Dict[str, Dict[str, Any]]
+    whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     breakGlassConfig: BreakGlassConfig
     lastBlockUpdate: str

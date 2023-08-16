@@ -3,38 +3,12 @@
 
 from __future__ import annotations
 
-<<<<<<< HEAD
-from typing import Any, Dict, Union
-
 from pydantic import BaseModel, Extra
 
 
-class UpdateTypeItem(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    remove: Dict[str, Any]
-
-
-class UpdateTypeItem1(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    update: Dict[str, Any]
-
-
-=======
-from pydantic import BaseModel, Extra
-
-
->>>>>>> 63661dace (handlers refactored for dipdup 7)
 class UpdateGeneralContractsParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
     generalContractName: str
     generalContractAddress: str
-<<<<<<< HEAD
-    updateType: Union[UpdateTypeItem, UpdateTypeItem1]
-=======
->>>>>>> 63661dace (handlers refactored for dipdup 7)

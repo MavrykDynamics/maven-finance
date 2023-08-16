@@ -61,7 +61,7 @@ class TokenItem2(BaseModel):
     tez: Dict[str, Any]
 
 
-class TzktTransaction(BaseModel):
+class Transaction(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -75,7 +75,7 @@ class AddOrSetPaymentData(BaseModel):
         extra = Extra.forbid
 
     title: str
-    transaction: TzktTransaction
+    transaction: Transaction
     index: Optional[str]
 
 
