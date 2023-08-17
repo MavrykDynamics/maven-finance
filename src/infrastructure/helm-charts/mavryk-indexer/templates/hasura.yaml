@@ -76,6 +76,15 @@ spec:
       containers:
         {{- if $value.hasura.redis.enabled }}
         - name: redis-{{ $key }}
+          {{- if $value.hasura.resources.enabled }}
+          resources:
+            requests:
+              memory: '{{ $value.hasura.resources.requests.memory }}'
+              cpu: '{{ $value.hasura.resources.requests.cpu }}'
+            limits:
+              memory: '{{ $value.hasura.resources.limits.memory }}'
+              cpu: '{{ $value.hasura.resources.limits.cpu }}'
+          {{- end }}
           image: '{{ $value.hasura.redis.image.registry }}/{{ $value.hasura.redis.image.repository }}:{{ $value.hasura.redis.image.tag }}'
           imagePullPolicy: IfNotPresent
           command:
