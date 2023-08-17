@@ -466,7 +466,7 @@ instances:
         repository: hasura/graphql-engine
         tag: v2.30.1
       hpa:
-        enabled: true
+        enabled: false
       resources:
         enabled: true
         requests:
