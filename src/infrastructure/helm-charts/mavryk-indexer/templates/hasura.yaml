@@ -1,7 +1,7 @@
 {{- range $key, $value := .Values.instances }}
 {{- if $value.hasura.enabled }}
 ---
-{{- if $value.hasura.metrics.enabled }}
+{{- if $value.hasura.redis.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -132,12 +132,10 @@ spec:
                   key: HASURA_GRAPHQL_JWT_SECRET
             {{- end }}
             {{- if $value.hasura.redis.enabled }}
-            - name: HASURA_GRAPHQL_ENABLED_APIS
-              value: metadata,graphql,config,metrics
-            {{- end }}
-            {{- if $value.hasura.metrics.enabled }}
             - name: HASURA_GRAPHQL_REDIS_URL
               value: redis://:test12345@127.0.0.1:6379
+            - name: HASURA_GRAPHQL_ENABLED_APIS
+              value: metadata,graphql,config,metrics
             {{- end }}
           image: '{{ $value.hasura.image.registry }}/{{ $value.hasura.image.repository }}:{{ $value.hasura.image.tag }}'
           imagePullPolicy: IfNotPresent
