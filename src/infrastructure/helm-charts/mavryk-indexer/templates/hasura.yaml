@@ -69,6 +69,7 @@ spec:
       labels:
         app: hasura-{{ $key }}
     spec:
+      {{- if $value.hasura.redis.enabled }}
       volumes:
         - name: config
           configMap:
@@ -76,6 +77,7 @@ spec:
             items:
             - key: redis-config
               path: redis.conf
+      {{- end }}
       containers:
         {{- if $value.hasura.redis.enabled }}
         - name: redis-{{ $key }}
