@@ -17,7 +17,7 @@ spec:
   jobLabel: basenet
   namespaceSelector:
     matchNames:
-    - {{ .Release.Namespace }}
+    - mavryk-indexer
   selector:
     matchLabels:
       app: hasura-{{ $key }}
