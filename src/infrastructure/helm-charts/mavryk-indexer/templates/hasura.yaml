@@ -1,6 +1,28 @@
 {{- range $key, $value := .Values.instances }}
 {{- if $value.hasura.enabled }}
 ---
+{{- if $value.hasura.metrics.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    release: prod
+  name: hasura-{{ $key }}-service-monitor
+  namespace: {{ $value.hasura.metrics.serviceMonitor.namespace }}
+spec:
+  endpoints:
+  - interval: 15s
+    port: metrics
+    path: /metrics
+  jobLabel: basenet
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app: hasura-{{ $key }}
+{{- end }}
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -11,6 +33,18 @@ spec:
       port: 8080
       protocol: TCP
       targetPort: http
+    {{- if $value.hasura.redis.enabled }}
+    - name: redis
+      port: 6379
+      protocol: TCP
+      targetPort: http
+    {{- end }}
+    {{- if $value.hasura.metrics.enabled }}
+    - name: metrics
+      port: 9090
+      protocol: TCP
+      targetPort: http
+    {{- end }}
   selector:
     app: hasura-{{ $key }}
   type: ClusterIP
@@ -32,6 +66,15 @@ spec:
         app: hasura-{{ $key }}
     spec:
       containers:
+        {{- if $value.hasura.redis.enabled }}
+        - name: redis-{{ $key }}
+          image: '{{ $value.hasura.redis.image.registry }}/{{ $value.hasura.redis.image.repository }}:{{ $value.hasura.redis.image.tag }}'
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6379
+              name: http
+              protocol: TCP
+        {{- end }}
         - name: hasura-{{ $key }}
           {{- if $value.hasura.resources.enabled }}
           resources:
@@ -76,12 +119,25 @@ spec:
                   name: indexer
                   key: HASURA_GRAPHQL_JWT_SECRET
             {{- end }}
+            {{- if $value.hasura.redis.enabled }}
+            - name: HASURA_GRAPHQL_ENABLED_APIS
+              value: metadata,graphql,config,metrics
+            {{- end }}
+            {{- if $value.hasura.metrics.enabled }}
+            - name: HASURA_GRAPHQL_REDIS_URL
+              value: redis://hasura-staging.mavryk-indexer.svc.cluster.local:6379
+            {{- end }}
           image: '{{ $value.hasura.image.registry }}/{{ $value.hasura.image.repository }}:{{ $value.hasura.image.tag }}'
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
               name: http
               protocol: TCP
+            {{- if $value.hasura.metrics.enabled }}
+            - containerPort: 9090
+              name: metrics
+              protocol: TCP
+            {{- end }}
 {{- if $value.hasura.hpa.enabled }}
 ---
 apiVersion: autoscaling/v1

@@ -96,6 +96,16 @@ instances:
       - "https://*.mavryk.finance"
       - "http://localhost:3000"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_DEV
+      redis:
+        enabled: false
+        image:
+          registry: docker.io
+          repository: redis
+          tag: 7.2.0
+      metrics:
+        enabled: false
+        serviceMonitor:
+          namespace: kube-prometheus-stack
   prod:
     dipdup:
       initialWipe: false
@@ -219,6 +229,16 @@ instances:
       corsDomains:
       - "*"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD
+      redis:
+        enabled: false
+        image:
+          registry: docker.io
+          repository: redis
+          tag: 7.2.0
+      metrics:
+        enabled: false
+        serviceMonitor:
+          namespace: kube-prometheus-stack
   prod2:
     dipdup:
       initialWipe: false
@@ -342,6 +362,16 @@ instances:
       corsDomains:
       - "*"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD_2
+      redis:
+        enabled: false
+        image:
+          registry: docker.io
+          repository: redis
+          tag: 7.2.0
+      metrics:
+        enabled: false
+        serviceMonitor:
+          namespace: kube-prometheus-stack
   staging:
     dipdup:
       initialWipe: false
@@ -438,3 +468,13 @@ instances:
       corsDomains:
       - "*"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_STAGING
+      redis:
+        enabled: true
+        image:
+          registry: docker.io
+          repository: redis
+          tag: 7.2.0
+      metrics:
+        enabled: true
+        serviceMonitor:
+          namespace: kube-prometheus-stack
