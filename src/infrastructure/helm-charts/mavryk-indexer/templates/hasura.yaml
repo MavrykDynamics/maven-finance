@@ -100,6 +100,8 @@ spec:
           env:
             - name: HASURA_GRAPHQL_PG_CONNECTIONS
               value: '{{ $value.hasura.pgConnections }}'
+            - name: HASURA_GRAPHQL_ENABLE_TELEMETRY
+              value: "false"
             - name: HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_REFETCH_INTERVAL
               value: '15000'
             - name: HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_BATCH_SIZE
