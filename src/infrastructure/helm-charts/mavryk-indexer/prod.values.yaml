@@ -101,7 +101,7 @@ instances:
         image:
           registry: docker.io
           repository: redis
-          tag: 7.2.0
+          tag: 7
       metrics:
         enabled: false
         serviceMonitor:
@@ -234,7 +234,7 @@ instances:
         image:
           registry: docker.io
           repository: redis
-          tag: 7.2.0
+          tag: 7
       metrics:
         enabled: false
         serviceMonitor:
@@ -367,7 +367,7 @@ instances:
         image:
           registry: docker.io
           repository: redis
-          tag: 7.2.0
+          tag: 7
       metrics:
         enabled: false
         serviceMonitor:
@@ -473,7 +473,7 @@ instances:
         image:
           registry: docker.io
           repository: redis
-          tag: 7.2.0
+          tag: 7
       metrics:
         enabled: true
         serviceMonitor:
