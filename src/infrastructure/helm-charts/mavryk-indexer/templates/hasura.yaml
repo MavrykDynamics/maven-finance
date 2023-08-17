@@ -51,6 +51,7 @@ metadata:
 data:
   redis-config: |
     requirepass test12345
+    protected-mode no
 {{- end }}
 ---
 apiVersion: apps/v1
