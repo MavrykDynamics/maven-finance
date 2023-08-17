@@ -43,15 +43,6 @@ spec:
     app: hasura-{{ $key }}
   type: ClusterIP
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: redis-{{ $key }}-config
-data:
-  redis-config: |
-    maxmemory 2mb
-    maxmemory-policy allkeys-lru  
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
