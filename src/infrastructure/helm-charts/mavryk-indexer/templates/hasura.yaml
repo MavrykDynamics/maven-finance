@@ -49,6 +49,16 @@ spec:
     app: hasura-{{ $key }}
   type: ClusterIP
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-{{ $key }}-config
+data:
+  redis-config: |
+    enable-protected-configs yes
+    enable-debug-command yes
+    enable-module-command yes
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -65,11 +75,26 @@ spec:
       labels:
         app: hasura-{{ $key }}
     spec:
+      {{- if $value.hasura.redis.enabled }}
+      volumes:
+        - name: config
+          configMap:
+            name: redis-{{ $key }}-config
+            items:
+            - key: redis-config
+              path: redis.conf
+      {{- end }}
       containers:
         {{- if $value.hasura.redis.enabled }}
         - name: redis-{{ $key }}
           image: '{{ $value.hasura.redis.image.registry }}/{{ $value.hasura.redis.image.repository }}:{{ $value.hasura.redis.image.tag }}'
+          command:
+            - redis-server
+            - "/redis-master/redis.conf"
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /redis-master
+              name: config
           ports:
             - containerPort: 6379
               name: http
