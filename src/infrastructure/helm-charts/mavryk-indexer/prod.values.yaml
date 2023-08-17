@@ -98,6 +98,14 @@ instances:
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_DEV
       redis:
         enabled: false
+        resources:
+          enabled: false
+          requests:
+            memory: 100Mi
+            cpu: 100m
+          limits:
+            memory: 200Mi
+            cpu: 150m
         image:
           registry: docker.io
           repository: redis
@@ -230,6 +238,14 @@ instances:
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD
       redis:
         enabled: false
+        resources:
+          enabled: false
+          requests:
+            memory: 100Mi
+            cpu: 100m
+          limits:
+            memory: 200Mi
+            cpu: 150m
         image:
           registry: docker.io
           repository: redis
@@ -362,6 +378,14 @@ instances:
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD_2
       redis:
         enabled: false
+        resources:
+          enabled: false
+          requests:
+            memory: 100Mi
+            cpu: 100m
+          limits:
+            memory: 200Mi
+            cpu: 150m
         image:
           registry: docker.io
           repository: redis
@@ -467,6 +491,14 @@ instances:
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_STAGING
       redis:
         enabled: true
+        resources:
+          enabled: true
+          requests:
+            memory: 100Mi
+            cpu: 100m
+          limits:
+            memory: 200Mi
+            cpu: 150m
         image:
           registry: docker.io
           repository: redis
