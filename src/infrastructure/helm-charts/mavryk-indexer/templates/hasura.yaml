@@ -48,6 +48,7 @@ spec:
   selector:
     app: hasura-{{ $key }}
   type: ClusterIP
+{{- if $value.hasura.redis.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -58,6 +59,7 @@ data:
     enable-protected-configs yes
     enable-debug-command yes
     enable-module-command yes
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
