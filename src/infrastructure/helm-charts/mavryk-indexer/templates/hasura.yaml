@@ -42,6 +42,16 @@ spec:
   selector:
     app: hasura-{{ $key }}
   type: ClusterIP
+{{- if $value.hasura.redis.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-{{ $key }}-config
+data:
+  redis-config: |
+    requirepass test12345
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -59,11 +69,24 @@ spec:
       labels:
         app: hasura-{{ $key }}
     spec:
+      volumes:
+        - name: config
+          configMap:
+            name: redis-{{ $key }}-config
+            items:
+            - key: redis-config
+              path: redis.conf
       containers:
         {{- if $value.hasura.redis.enabled }}
         - name: redis-{{ $key }}
           image: '{{ $value.hasura.redis.image.registry }}/{{ $value.hasura.redis.image.repository }}:{{ $value.hasura.redis.image.tag }}'
           imagePullPolicy: IfNotPresent
+          command:
+            - redis-server
+            - "/redis-master/redis.conf"
+          volumeMounts:
+          - mountPath: /redis-master
+            name: config
           ports:
             - containerPort: 6379
               name: http
@@ -119,7 +142,7 @@ spec:
             {{- end }}
             {{- if $value.hasura.metrics.enabled }}
             - name: HASURA_GRAPHQL_REDIS_URL
-              value: redis://127.0.0.1:6379
+              value: redis://:test12345@127.0.0.1:6379
             {{- end }}
           image: '{{ $value.hasura.image.registry }}/{{ $value.hasura.image.repository }}:{{ $value.hasura.image.tag }}'
           imagePullPolicy: IfNotPresent
