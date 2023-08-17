@@ -33,12 +33,6 @@ spec:
       port: 8080
       protocol: TCP
       targetPort: http
-    {{- if $value.hasura.redis.enabled }}
-    - name: redis
-      port: 6379
-      protocol: TCP
-      targetPort: http
-    {{- end }}
     {{- if $value.hasura.metrics.enabled }}
     - name: metrics
       port: 9090
@@ -48,7 +42,6 @@ spec:
   selector:
     app: hasura-{{ $key }}
   type: ClusterIP
-{{- if $value.hasura.redis.enabled }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -56,10 +49,8 @@ metadata:
   name: redis-{{ $key }}-config
 data:
   redis-config: |
-    enable-protected-configs yes
-    enable-debug-command yes
-    enable-module-command yes
-{{- end }}
+    maxmemory 2mb
+    maxmemory-policy allkeys-lru  
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -77,26 +68,11 @@ spec:
       labels:
         app: hasura-{{ $key }}
     spec:
-      {{- if $value.hasura.redis.enabled }}
-      volumes:
-        - name: config
-          configMap:
-            name: redis-{{ $key }}-config
-            items:
-            - key: redis-config
-              path: redis.conf
-      {{- end }}
       containers:
         {{- if $value.hasura.redis.enabled }}
         - name: redis-{{ $key }}
           image: '{{ $value.hasura.redis.image.registry }}/{{ $value.hasura.redis.image.repository }}:{{ $value.hasura.redis.image.tag }}'
-          command:
-            - redis-server
-            - "/redis-master/redis.conf"
           imagePullPolicy: IfNotPresent
-          volumeMounts:
-            - mountPath: /redis-master
-              name: config
           ports:
             - containerPort: 6379
               name: http
@@ -152,7 +128,7 @@ spec:
             {{- end }}
             {{- if $value.hasura.metrics.enabled }}
             - name: HASURA_GRAPHQL_REDIS_URL
-              value: redis://hasura-staging.mavryk-indexer.svc.cluster.local:6379
+              value: redis://127.0.0.1:6379
             {{- end }}
           image: '{{ $value.hasura.image.registry }}/{{ $value.hasura.image.repository }}:{{ $value.hasura.image.tag }}'
           imagePullPolicy: IfNotPresent
