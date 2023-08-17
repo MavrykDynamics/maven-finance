@@ -11,13 +11,12 @@ metadata:
   namespace: {{ $value.hasura.metrics.serviceMonitor.namespace }}
 spec:
   endpoints:
-  - interval: 15s
+  - honorLabels: true
     port: http
     path: /v1/metrics
-  jobLabel: basenet
   namespaceSelector:
     matchNames:
-    - mavryk-indexer
+      - mavryk-indexer
   selector:
     matchLabels:
       app: hasura-{{ $key }}
