@@ -453,7 +453,7 @@ instances:
           cpu: 1500m
       ingress:
         service:
-          name: hasura-staging
+          name: hasura-prod2
         enabled: true
         host: api-staging.mavryk.finance
         secretName: api-staging-mavryk-tls
