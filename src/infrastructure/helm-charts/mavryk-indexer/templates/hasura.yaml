@@ -12,8 +12,8 @@ metadata:
 spec:
   endpoints:
   - interval: 15s
-    port: metrics
-    path: /metrics
+    port: http
+    path: /v1/metrics
   jobLabel: basenet
   namespaceSelector:
     matchNames:
@@ -33,12 +33,6 @@ spec:
       port: 8080
       protocol: TCP
       targetPort: http
-    {{- if $value.hasura.metrics.enabled }}
-    - name: metrics
-      port: 9090
-      protocol: TCP
-      targetPort: http
-    {{- end }}
   selector:
     app: hasura-{{ $key }}
   type: ClusterIP
@@ -92,8 +86,6 @@ spec:
             name: config
           ports:
             - containerPort: 6379
-              name: http
-              protocol: TCP
         {{- end }}
         - name: hasura-{{ $key }}
           {{- if $value.hasura.resources.enabled }}
@@ -153,11 +145,6 @@ spec:
             - containerPort: 8080
               name: http
               protocol: TCP
-            {{- if $value.hasura.metrics.enabled }}
-            - containerPort: 9090
-              name: metrics
-              protocol: TCP
-            {{- end }}
 {{- if $value.hasura.hpa.enabled }}
 ---
 apiVersion: autoscaling/v1

@@ -103,7 +103,6 @@ instances:
           repository: redis
           tag: 7
       metrics:
-        enabled: false
         serviceMonitor:
           namespace: kube-prometheus-stack
   prod:
@@ -236,7 +235,6 @@ instances:
           repository: redis
           tag: 7
       metrics:
-        enabled: false
         serviceMonitor:
           namespace: kube-prometheus-stack
   prod2:
@@ -369,7 +367,6 @@ instances:
           repository: redis
           tag: 7
       metrics:
-        enabled: false
         serviceMonitor:
           namespace: kube-prometheus-stack
   staging:
@@ -475,6 +472,5 @@ instances:
           repository: redis
           tag: 7
       metrics:
-        enabled: true
         serviceMonitor:
           namespace: kube-prometheus-stack
