@@ -889,7 +889,7 @@ kube-prometheus-stack:
       grafana_net:
         url: https://grafana.net
       server:
-        domain: "{{ if (and .Values.ingress.enabled .Values.ingress.hosts) }}{{ .Values.ingress.hosts | first }}{{ else }}""{{ end }}"
+        domain: "{{ if (and .Values.ingress.enabled .Values.ingress.hosts) }}{{ .Values.ingress.hosts | first }}{{ else }}''{{ end }}"
         root_url: https://grafana.mavryk.io
       auth.github:
         enabled: true
