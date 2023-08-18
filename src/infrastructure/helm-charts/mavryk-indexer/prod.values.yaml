@@ -1,6 +1,7 @@
 instances:
   dev:
     dipdup:
+      enabled: true
       initialWipe: false
       image:
         registry: docker.io
@@ -73,6 +74,8 @@ instances:
         tag: v2.30.1
       hpa:
         enabled: false
+        maxReplicas: 3
+        minReplicas: 1
       resources:
         enabled: true
         requests:
@@ -96,8 +99,26 @@ instances:
       - "https://*.mavryk.finance"
       - "http://localhost:3000"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_DEV
+      redis:
+        enabled: false
+        resources:
+          enabled: false
+          requests:
+            memory: 100Mi
+            cpu: 100m
+          limits:
+            memory: 200Mi
+            cpu: 150m
+        image:
+          registry: docker.io
+          repository: redis
+          tag: 7
+      metrics:
+        serviceMonitor:
+          namespace: kube-prometheus-stack
   prod:
     dipdup:
+      enabled: true
       initialWipe: false
       image:
         registry: docker.io
@@ -197,6 +218,8 @@ instances:
         tag: v2.30.1
       hpa:
         enabled: true
+        maxReplicas: 3
+        minReplicas: 1
       resources:
         enabled: true
         requests:
@@ -219,8 +242,26 @@ instances:
       corsDomains:
       - "*"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD
+      redis:
+        enabled: false
+        resources:
+          enabled: false
+          requests:
+            memory: 100Mi
+            cpu: 100m
+          limits:
+            memory: 200Mi
+            cpu: 150m
+        image:
+          registry: docker.io
+          repository: redis
+          tag: 7
+      metrics:
+        serviceMonitor:
+          namespace: kube-prometheus-stack
   prod2:
     dipdup:
+      enabled: true
       initialWipe: false
       image:
         registry: docker.io
@@ -320,6 +361,8 @@ instances:
         tag: v2.30.1
       hpa:
         enabled: true
+        maxReplicas: 3
+        minReplicas: 1
       resources:
         enabled: true
         requests:
@@ -342,8 +385,26 @@ instances:
       corsDomains:
       - "*"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_PROD_2
+      redis:
+        enabled: false
+        resources:
+          enabled: false
+          requests:
+            memory: 100Mi
+            cpu: 100m
+          limits:
+            memory: 200Mi
+            cpu: 150m
+        image:
+          registry: docker.io
+          repository: redis
+          tag: 7
+      metrics:
+        serviceMonitor:
+          namespace: kube-prometheus-stack
   staging:
     dipdup:
+      enabled: true
       initialWipe: false
       image:
         registry: docker.io
@@ -415,7 +476,9 @@ instances:
         repository: hasura/graphql-engine
         tag: v2.30.1
       hpa:
-        enabled: true
+        enabled: false
+        maxReplicas: 3
+        minReplicas: 1
       resources:
         enabled: true
         requests:
@@ -438,3 +501,20 @@ instances:
       corsDomains:
       - "*"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_STAGING
+      redis:
+        enabled: true
+        resources:
+          enabled: true
+          requests:
+            memory: 100Mi
+            cpu: 100m
+          limits:
+            memory: 200Mi
+            cpu: 150m
+        image:
+          registry: docker.io
+          repository: redis
+          tag: 7
+      metrics:
+        serviceMonitor:
+          namespace: kube-prometheus-stack
