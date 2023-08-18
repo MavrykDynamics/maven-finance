@@ -35,9 +35,6 @@ lokiDistributed:
 promtail:
   valueFiles: prod.values.yaml
 
-promscale:
-  valueFiles: prod.values.yaml
-
 sealedSecrets:
   valueFiles: prod.values.yaml
 
