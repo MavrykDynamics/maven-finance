@@ -476,9 +476,9 @@ instances:
         repository: hasura/graphql-engine
         tag: v2.30.1
       hpa:
-        enabled: true
-        maxReplicas: 0
-        minReplicas: 0
+        enabled: false
+        maxReplicas: 3
+        minReplicas: 1
       resources:
         enabled: true
         requests:

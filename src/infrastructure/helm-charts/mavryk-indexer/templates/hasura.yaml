@@ -144,8 +144,8 @@ spec:
                   key: HASURA_GRAPHQL_JWT_SECRET
             {{- end }}
             {{- if $value.hasura.redis.enabled }}
-            # - name: HASURA_GRAPHQL_REDIS_URL
-            #   value: redis://:test12345@127.0.0.1:6379
+            - name: HASURA_GRAPHQL_REDIS_URL
+              value: redis://:test12345@127.0.0.1:6379
             - name: HASURA_GRAPHQL_ENABLED_APIS
               value: metadata,graphql,config,metrics
             {{- end }}
