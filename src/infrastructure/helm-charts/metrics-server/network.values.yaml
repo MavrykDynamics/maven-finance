@@ -5,14 +5,14 @@
 image:
   repository: registry.k8s.io/metrics-server/metrics-server
   # Overrides the image tag whose default is v{{ .Chart.AppVersion }}
-  tag: ''
+  tag: ""
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
 # - name: registrySecretName
 
-nameOverride: ''
-fullnameOverride: ''
+nameOverride: ""
+fullnameOverride: ""
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -21,7 +21,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: ''
+  name: ""
   # The list of secrets mountable by this service account.
   # See https://kubernetes.io/docs/reference/labels-annotations-taints/#enforce-mountable-secrets
   secrets: []
@@ -43,7 +43,7 @@ apiService:
   # Specifies whether to skip TLS verification
   insecureSkipTLSVerify: true
   # The PEM encoded CA bundle for TLS verification
-  caBundle: ''
+  caBundle: ""
 
 commonLabels: {}
 podLabels: {}
@@ -56,6 +56,11 @@ securityContext:
   readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 1000
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop:
+      - ALL
 
 priorityClassName: system-cluster-critical
 
@@ -118,6 +123,27 @@ service:
   #  kubernetes.io/cluster-service: "true"
   #  kubernetes.io/name: "Metrics-server"
 
+addonResizer:
+  enabled: false
+  image:
+    repository: registry.k8s.io/autoscaling/addon-resizer
+    tag: 1.8.19
+  resources:
+    requests:
+      cpu: 40m
+      memory: 25Mi
+    limits:
+      cpu: 40m
+      memory: 25Mi
+  nanny:
+    cpu: 0m
+    extraCpu: 1m
+    memory: 0Mi
+    extraMemory: 2Mi
+    minClusterSize: 100
+    pollPeriod: 300000
+    threshold: 5
+
 metrics:
   enabled: false
 
@@ -126,9 +152,17 @@ serviceMonitor:
   additionalLabels: {}
   interval: 1m
   scrapeTimeout: 10s
+  metricRelabelings: []
+  relabelings: []
 
 # See https://github.com/kubernetes-sigs/metrics-server#scaling
-resources: {}
+resources:
+  requests:
+    cpu: 100m
+    memory: 200Mi
+  # limits:
+  #   cpu:
+  #   memory:
 
 extraVolumeMounts: []
 
@@ -144,3 +178,5 @@ topologySpreadConstraints: []
 
 # Annotations to add to the deployment
 deploymentAnnotations: {}
+
+schedulerName: ""
