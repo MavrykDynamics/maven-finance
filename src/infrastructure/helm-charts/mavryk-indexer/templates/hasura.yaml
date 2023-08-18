@@ -162,8 +162,8 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: hasura-{{ $key }}
 spec:
-  maxReplicas: 3
-  minReplicas: 1
+  maxReplicas: {{ $value.hasura.hpa.maxReplicas }}
+  minReplicas: {{ $value.hasura.hpa.minReplicas }}
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment

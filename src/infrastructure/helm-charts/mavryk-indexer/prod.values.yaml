@@ -1,6 +1,7 @@
 instances:
   dev:
     dipdup:
+      enabled: true
       initialWipe: false
       image:
         registry: docker.io
@@ -73,6 +74,8 @@ instances:
         tag: v2.30.1
       hpa:
         enabled: false
+        maxReplicas: 3
+        minReplicas: 1
       resources:
         enabled: true
         requests:
@@ -115,6 +118,7 @@ instances:
           namespace: kube-prometheus-stack
   prod:
     dipdup:
+      enabled: true
       initialWipe: false
       image:
         registry: docker.io
@@ -214,6 +218,8 @@ instances:
         tag: v2.30.1
       hpa:
         enabled: true
+        maxReplicas: 3
+        minReplicas: 1
       resources:
         enabled: true
         requests:
@@ -255,6 +261,7 @@ instances:
           namespace: kube-prometheus-stack
   prod2:
     dipdup:
+      enabled: true
       initialWipe: false
       image:
         registry: docker.io
@@ -354,6 +361,8 @@ instances:
         tag: v2.30.1
       hpa:
         enabled: true
+        maxReplicas: 3
+        minReplicas: 1
       resources:
         enabled: true
         requests:
@@ -395,6 +404,123 @@ instances:
           namespace: kube-prometheus-stack
   staging:
     dipdup:
+      enabled: true
+      initialWipe: false
+      image:
+        registry: docker.io
+        repository: mavrykdynamics/mavryk-indexer
+        tag: v0.35.0
+        pullPolicy: IfNotPresent
+        pullSecret: docker-pull-credentials
+      metrics:
+        serviceMonitor:
+          namespace: kube-prometheus-stack
+      database:
+        backup:
+          enabled: false
+      env:
+        - name: POSTGRES_DB
+          value: dipdup-dev
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: POSTGRES_HOST_STAGING
+        - name: POSTGRES_PORT
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: POSTGRES_PORT_STAGING
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: POSTGRES_USERNAME_STAGING
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: POSTGRES_PASSWORD_STAGING
+        - name: ADMIN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: HASURA_GRAPHQL_ADMIN_SECRET
+        - name: HASURA_URL
+          value: http://hasura-staging2.mavryk-indexer.svc.cluster.local:8080
+        - name: TZKT_GHOSTNET_URL
+          value: https://api.ghostnet.tzkt.io
+        - name: TZKT_MAINNET_URL
+          value: https://api.tzkt.io
+        - name: LIQUIDITY_BAKING_ENABLE_INDEXER
+          value: "False"
+        - name: TELEGRAM_ENABLE_REPORTING
+          value: "True"
+        - name: TELEGRAM_BOT_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: TELEGRAM_BOT_API_TOKEN
+        - name: TELEGRAM_CHANNEL_ID
+          valueFrom:
+            secretKeyRef:
+              name: indexer
+              key: TELEGRAM_CHANNEL_ID
+    hasura:
+      enabled: true
+      devMode: true
+      enableConsole: true
+      pgConnections: 25
+      image:
+        registry: docker.io
+        repository: hasura/graphql-engine
+        tag: v2.30.1
+      hpa:
+        enabled: true
+        maxReplicas: 0
+        minReplicas: 0
+      resources:
+        enabled: true
+        requests:
+          memory: 1000Mi
+          cpu: 1000m
+        limits:
+          memory: 2000Mi
+          cpu: 1500m
+      ingress:
+        service:
+          name: hasura-staging2
+        enabled: true
+        host: api-staging.mavryk.finance
+        secretName: api-staging-mavryk-tls
+      unauthorizedRole: user
+      jwt:
+        enabled: false
+      rateLimit:
+        enabled: false
+      corsDomains:
+      - "*"
+      databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_STAGING
+      redis:
+        enabled: true
+        resources:
+          enabled: true
+          requests:
+            memory: 100Mi
+            cpu: 100m
+          limits:
+            memory: 200Mi
+            cpu: 150m
+        image:
+          registry: docker.io
+          repository: redis
+          tag: 7
+      metrics:
+        serviceMonitor:
+          namespace: kube-prometheus-stack
+  staging2:
+    dipdup:
+      enabled: false
       initialWipe: false
       image:
         registry: docker.io
@@ -467,6 +593,8 @@ instances:
         tag: v2.30.1
       hpa:
         enabled: false
+        maxReplicas: 3
+        minReplicas: 1
       resources:
         enabled: true
         requests:
@@ -477,8 +605,8 @@ instances:
           cpu: 1500m
       ingress:
         service:
-          name: hasura-prod2
-        enabled: true
+          name: hasura-staging2
+        enabled: false
         host: api-staging.mavryk.finance
         secretName: api-staging-mavryk-tls
       unauthorizedRole: user
@@ -490,9 +618,9 @@ instances:
       - "*"
       databaseURLKeyInSecret: HASURA_GRAPHQL_DATABASE_URL_STAGING
       redis:
-        enabled: true
+        enabled: false
         resources:
-          enabled: true
+          enabled: false
           requests:
             memory: 100Mi
             cpu: 100m
@@ -506,3 +634,4 @@ instances:
       metrics:
         serviceMonitor:
           namespace: kube-prometheus-stack
+
