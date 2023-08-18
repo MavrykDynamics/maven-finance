@@ -1,8 +1,8 @@
 name: external-dns-mavryk
 version: 0.0.1
 apiVersion: v2
-appVersion: 0.10.2
+appVersion: 0.13.5
 dependencies: # A list of the chart requirements (optional)
   - name: external-dns
-    version: 6.12.2
+    version: 6.23.5
     repository: https://charts.bitnami.com/bitnami
