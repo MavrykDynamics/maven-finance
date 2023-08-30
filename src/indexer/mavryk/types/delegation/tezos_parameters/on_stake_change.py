@@ -3,8 +3,18 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from typing import List
+
+from pydantic import BaseModel, Extra
+
+
+class OnStakeChangeParameterItem(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    address: str
+    nat: str
 
 
 class OnStakeChangeParameter(BaseModel):
-    __root__: str
+    __root__: List[OnStakeChangeParameterItem]

@@ -60,7 +60,7 @@ class GovernanceFinancialRequest(Model):
     smvk_percentage_for_approval            = fields.SmallIntField(default=0)
     snapshot_smvk_total_supply              = fields.FloatField(default=0.0)
     smvk_required_for_approval              = fields.FloatField(default=0.0)
-    execution_datetime                      = fields.DatetimeField()
+    execution_datetime                      = fields.DatetimeField(null=True)
     expiration_datetime                     = fields.DatetimeField(index=True)
     requested_datetime                      = fields.DatetimeField()
     governance_cycle_id                     = fields.BigIntField(default=0)

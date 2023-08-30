@@ -52,10 +52,10 @@ class EmergencyGovernanceRecord(Model):
     smvk_percentage_required                = fields.FloatField(default=0)
     smvk_required_for_trigger               = fields.FloatField(default=0)
     start_timestamp                         = fields.DatetimeField()
-    execution_datetime                      = fields.DatetimeField()
+    execution_datetime                      = fields.DatetimeField(null=True)
     expiration_timestamp                    = fields.DatetimeField()
     start_level                             = fields.BigIntField(default=0)
-    execution_level                         = fields.BigIntField(default=0)
+    execution_level                         = fields.BigIntField(null=True)
 
     class Meta:
         table = 'emergency_governance_record'

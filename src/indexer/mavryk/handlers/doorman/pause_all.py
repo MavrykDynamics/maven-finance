@@ -21,9 +21,9 @@ async def pause_all(
             unstake_paused                  = pause_all.storage.breakGlassConfig.unstakeIsPaused,
             compound_paused                 = pause_all.storage.breakGlassConfig.compoundIsPaused,
             farm_claim_paused               = pause_all.storage.breakGlassConfig.farmClaimIsPaused,
-            deposit_stake_paused   = pause_all.storage.breakGlassConfig.onVaultDepositStakeIsPaused,
-            withdraw_stake_paused  = pause_all.storage.breakGlassConfig.onVaultWithdrawStakeIsPaused,
-            liquidate_stake_paused = pause_all.storage.breakGlassConfig.onVaultLiquidateStakeIsPaused
+            on_vault_deposit_stake_paused   = pause_all.storage.breakGlassConfig.onVaultDepositStakeIsPaused,
+            on_vault_withdraw_stake_paused  = pause_all.storage.breakGlassConfig.onVaultWithdrawStakeIsPaused,
+            on_vault_liquidate_stake_paused = pause_all.storage.breakGlassConfig.onVaultLiquidateStakeIsPaused
         )
 
     except BaseException as e:

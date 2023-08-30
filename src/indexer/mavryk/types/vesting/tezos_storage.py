@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
@@ -36,7 +36,7 @@ class VestingStorage(BaseModel):
     metadata: Dict[str, str]
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistContracts: Dict[str, str]
+    whitelistContracts: Dict[str, Dict[str, Any]]
     generalContracts: Dict[str, str]
     vesteeLedger: Dict[str, VesteeLedger]
     totalVestedAmount: str
