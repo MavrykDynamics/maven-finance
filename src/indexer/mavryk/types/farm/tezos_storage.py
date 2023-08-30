@@ -88,7 +88,7 @@ class FarmStorage(BaseModel):
     config: Config
     mvkTokenAddress: str
     governanceAddress: str
-    whitelistContracts: Dict[str, str]
+    whitelistContracts: Dict[str, Dict[str, Any]]
     generalContracts: Dict[str, str]
     breakGlassConfig: BreakGlassConfig
     lastBlockUpdate: str
