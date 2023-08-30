@@ -21,9 +21,9 @@ async def toggle_pause_entrypoint(
             unstake_paused                  = toggle_pause_entrypoint.storage.breakGlassConfig.unstakeIsPaused,
             compound_paused                 = toggle_pause_entrypoint.storage.breakGlassConfig.compoundIsPaused,
             farm_claim_paused               = toggle_pause_entrypoint.storage.breakGlassConfig.farmClaimIsPaused,
-            deposit_stake_paused   = toggle_pause_entrypoint.storage.breakGlassConfig.onVaultDepositStakeIsPaused,
-            withdraw_stake_paused  = toggle_pause_entrypoint.storage.breakGlassConfig.onVaultWithdrawStakeIsPaused,
-            liquidate_stake_paused = toggle_pause_entrypoint.storage.breakGlassConfig.onVaultLiquidateStakeIsPaused
+            on_vault_deposit_stake_paused   = toggle_pause_entrypoint.storage.breakGlassConfig.onVaultDepositStakeIsPaused,
+            on_vault_withdraw_stake_paused  = toggle_pause_entrypoint.storage.breakGlassConfig.onVaultWithdrawStakeIsPaused,
+            on_vault_liquidate_stake_paused = toggle_pause_entrypoint.storage.breakGlassConfig.onVaultLiquidateStakeIsPaused
         )
 
     except BaseException as e:
