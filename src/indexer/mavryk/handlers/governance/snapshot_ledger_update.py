@@ -4,9 +4,8 @@ from mavryk.types.governance.tezos_big_maps.snapshot_ledger_key import SnapshotL
 from mavryk.types.governance.tezos_big_maps.snapshot_ledger_value import SnapshotLedgerValue
 from mavryk import models as models
 from dipdup.context import HandlerContext
-from dipdup.models import Q
+from tortoise.models import Q
 from dipdup.models.tezos_tzkt import TzktBigMapDiff
-import mavryk.models as models
 
 async def snapshot_ledger_update(
     ctx: HandlerContext,
