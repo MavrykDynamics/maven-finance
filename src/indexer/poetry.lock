@@ -740,7 +740,7 @@ http = ["httpx"]
 
 [[package]]
 name = "dipdup"
-version = "7.0.0rc3"
+version = "7.0.0rc4"
 description = "Modular framework for creating selective indexers and featureful backends for dapps"
 optional = false
 python-versions = "<3.12,>=3.11"
@@ -777,7 +777,7 @@ web3 = ">=6.2,<7.0"
 
 [package.source]
 type = "directory"
-url = "../../../../dipdup"
+url = "dipdup"
 
 [[package]]
 name = "dnspython"
@@ -2888,4 +2888,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11.4"
-content-hash = "0bfae1e6584bb84ff72cb70563a421e0133c504a0f97a2d09816245a7c147eec"
+content-hash = "e37ac5f3c6e61b729ac018993a7a598667ca31c4ef48d37c7cc61253168bc4c8"
