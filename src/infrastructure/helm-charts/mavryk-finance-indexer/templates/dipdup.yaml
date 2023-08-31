@@ -55,7 +55,6 @@ spec:
         - name: '{{ $value.image.pullSecret }}'
       containers:
         - name: dipdup-{{ $key }}
-          args: ['-c', 'dipdup.yml', 'run']
           env:
             - name: HASURA_URL
               value: http://hasura.mavryk-finance-indexer.svc.cluster.local:8080
