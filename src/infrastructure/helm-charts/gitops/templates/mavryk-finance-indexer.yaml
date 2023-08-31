@@ -1,22 +1,22 @@
-{{if .Values.promscale }}
+{{if .Values.mavrykIndexer }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ .Values.spec.environment }}-promscale
+  name: {{ .Values.spec.environment }}-mavryk-finance-indexer
   namespace: argocd
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: promscale
+    namespace: mavryk-finance-indexer
     name: {{ .Values.spec.clusterName }}
   project: default
   source:
-    path: src/infrastructure/helm-charts/promscale
+    path: src/infrastructure/helm-charts/mavryk-finance-indexer
     repoURL: git@github.com:mavrykfinance/mavryk-dapp
     targetRevision: staging
     helm:
       valueFiles:
-        - {{ .Values.promscale.valueFiles }}
+        - {{ .Values.mavrykIndexer.valueFiles }}
 {{end}}
