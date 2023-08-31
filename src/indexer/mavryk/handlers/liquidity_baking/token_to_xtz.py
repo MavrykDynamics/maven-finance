@@ -1,7 +1,6 @@
 from mavryk.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models import OperationData
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction, TzktOperationData
 from mavryk.types.liquidity_baking.tezos_parameters.token_to_xtz import TokenToXtzParameter
 from mavryk.types.liquidity_baking.tezos_storage import LiquidityBakingStorage
 from mavryk.types.tzbtc.tezos_parameters.transfer import TransferParameter
@@ -12,8 +11,8 @@ async def token_to_xtz(
     ctx: HandlerContext,
     token_to_xtz: TzktTransaction[TokenToXtzParameter, LiquidityBakingStorage],
     transfer: TzktTransaction[TransferParameter, TzbtcStorage],
-    transaction_2: OperationData,
-    transaction_3: OperationData,
+    transaction_2: TzktOperationData,
+    transaction_3: TzktOperationData,
 ) -> None:
 
     try:    
