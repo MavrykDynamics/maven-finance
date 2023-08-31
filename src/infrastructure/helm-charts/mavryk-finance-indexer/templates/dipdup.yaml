@@ -100,7 +100,7 @@ metadata:
   labels:
     app: dipdup-{{ $key }}
 data:
-  .keep:
+  .keep: ''
   max_total_connections.json: |
     {
       "type": "pg_update_source",
