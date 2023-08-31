@@ -21,7 +21,7 @@ hasura:
   ingress:
     enabled: true
     host: api-v2.mavryk.finance
-    secretName: api-mavryk-tls
+    secretName: api-mavryk-finance-tls
   unauthorizedRole: user
   jwt:
     enabled: false
