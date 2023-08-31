@@ -20,7 +20,7 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: dipdup-{{ $key }}
+  name: {{ include "fullname" $ }}-dipdup-{{ $key }}
   namespace: kube-prometheus-stack
   labels:
     release: 'prod'
@@ -124,7 +124,7 @@ data:
       }
     }
 {{- range $inner_key, $inner_value := $.Values.dipdup }}
-{{- if ne $.Values.hasura.mainDipdupInstance $inner_key }}
+{{- if and (ne $.Values.hasura.mainDipdupInstance $inner_key) ($inner_value.enabled) }}
   pg_add_source_{{ $inner_key }}.json: |
     {
       "type": "pg_add_source",
@@ -162,13 +162,13 @@ metadata:
     app: dipdup-{{ $key }}
 data:
   dipdup.hasura.yaml: |
-  hasura:
-    url: ${HASURA_URL:-changeme}
-    admin_secret: ${ADMIN_SECRET:-changeme}
-{{- if ne $.Values.hasura.mainDipdupInstance $key }}
-    source: {{ $key }}
-{{- end }}
-    select_limit: 1000
-    rest: false
+    hasura:
+      url: ${HASURA_URL:-changeme}
+      admin_secret: ${ADMIN_SECRET:-changeme}
+  {{- if ne $.Values.hasura.mainDipdupInstance $key }}
+      source: {{ $key }}
+  {{- end }}
+      select_limit: 1000
+      rest: false
 {{- end }}
 {{- end }}
