@@ -20,6 +20,9 @@ kubePrometheusStack:
 mavrykApi:
   valueFiles: prod.values.yaml
 
+mavrykFinanceIndexer:
+  valueFiles: prod.values.yaml
+
 mavrykIndexer:
   valueFiles: prod.values.yaml
 

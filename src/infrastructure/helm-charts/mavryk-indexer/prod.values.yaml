@@ -261,7 +261,7 @@ instances:
           namespace: kube-prometheus-stack
   prod2:
     dipdup:
-      enabled: true
+      enabled: false
       initialWipe: false
       image:
         registry: docker.io
@@ -351,7 +351,7 @@ instances:
               name: indexer
               key: TELEGRAM_CHANNEL_ID
     hasura:
-      enabled: true
+      enabled: false
       devMode: true
       enableConsole: true
       pgConnections: 25
@@ -404,7 +404,7 @@ instances:
           namespace: kube-prometheus-stack
   staging:
     dipdup:
-      enabled: true
+      enabled: false
       initialWipe: false
       image:
         registry: docker.io
@@ -467,7 +467,7 @@ instances:
               name: indexer
               key: TELEGRAM_CHANNEL_ID
     hasura:
-      enabled: true
+      enabled: false
       devMode: true
       enableConsole: true
       pgConnections: 25
