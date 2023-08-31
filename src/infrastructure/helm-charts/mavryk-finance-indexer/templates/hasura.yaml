@@ -122,11 +122,6 @@ spec:
               value: startup, http-log, webhook-log, websocket-log, query-log
             - name: HASURA_GRAPHQL_UNAUTHORIZED_ROLE
               value: '{{ .Values.hasura.unauthorizedRole }}'
-            - name: HASURA_GRAPHQL_DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: '{{ .Values.hasura.databaseURLKeyInSecret }}'
             - name: HASURA_GRAPHQL_ADMIN_SECRET
               valueFrom:
                 secretKeyRef:
@@ -135,12 +130,20 @@ spec:
             - name: HASURA_GRAPHQL_CORS_DOMAIN
               value: '{{ include "listToCSV" .Values.hasura.corsDomains }}'
             {{- range $key, $value := .Values.dipdup }}
-            {{- if and (ne $.Values.hasura.mainDipdupInstance $key) ($value.enabled)  }}
+            {{- if eq $.Values.hasura.mainDipdupInstance $key }}
+            - name: HASURA_GRAPHQL_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: {{ $value.hasuraGraphqlDatabaseUrlSecret }}
+            {{- else }}
+            {{- if $value.enabled }}
             - name: {{ $value.hasuraGraphqlDatabaseUrlSecret }}
               valueFrom:
                 secretKeyRef:
                   name: indexer
                   key: {{ $value.hasuraGraphqlDatabaseUrlSecret }}
+            {{- end }}
             {{- end }}
             {{- end }}
             {{- if .Values.hasura.jwt.enabled }}
