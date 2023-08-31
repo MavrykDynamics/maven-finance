@@ -4,10 +4,9 @@ from mavryk.types.liquidity_baking.tezos_parameters.remove_liquidity import Remo
 from mavryk.types.liquidity_baking.tezos_storage import LiquidityBakingStorage
 from mavryk.types.sirius.tezos_storage import SiriusStorage
 from mavryk.types.tzbtc.tezos_storage import TzbtcStorage
-from dipdup.models import OperationData
 from mavryk.types.tzbtc.tezos_parameters.transfer import TransferParameter
 from mavryk.types.sirius.tezos_parameters.mint_or_burn import MintOrBurnParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction, TzktOperationData
 import mavryk.models as models
 
 async def remove_liquidity(
@@ -15,7 +14,7 @@ async def remove_liquidity(
     remove_liquidity: TzktTransaction[RemoveLiquidityParameter, LiquidityBakingStorage],
     mint_or_burn: TzktTransaction[MintOrBurnParameter, SiriusStorage],
     transfer: TzktTransaction[TransferParameter, TzbtcStorage],
-    transaction_3: OperationData,
+    transaction_3: TzktOperationData,
 ) -> None:
 
     try:

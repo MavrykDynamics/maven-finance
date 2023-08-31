@@ -56,8 +56,8 @@ dipdup:
     image:
       registry: docker.io
       repository: mavrykdynamics/mavryk-indexer
-      tag: v0.46.0
-      pullPolicy: Always
+      tag: v0.46.1
+      pullPolicy: IfNotPresent
       pullSecret: docker-pull-credentials
     metrics:
       serviceMonitor:
@@ -118,8 +118,8 @@ dipdup:
     image:
       registry: docker.io
       repository: mavrykdynamics/mavryk-indexer
-      tag: v0.46.0
-      pullPolicy: Always
+      tag: v0.46.1
+      pullPolicy: IfNotPresent
       pullSecret: docker-pull-credentials
     metrics:
       serviceMonitor:
@@ -207,7 +207,7 @@ dipdup:
     image:
       registry: docker.io
       repository: mavrykdynamics/mavryk-indexer
-      tag: v0.46.0
+      tag: v0.46.1
       pullPolicy: IfNotPresent
       pullSecret: docker-pull-credentials
     metrics:
@@ -296,7 +296,7 @@ dipdup:
     image:
       registry: docker.io
       repository: mavrykdynamics/mavryk-indexer
-      tag: v0.46.0
+      tag: v0.46.1
       pullPolicy: IfNotPresent
       pullSecret: docker-pull-credentials
     metrics:
