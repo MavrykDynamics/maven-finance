@@ -135,7 +135,7 @@ spec:
             - name: HASURA_GRAPHQL_CORS_DOMAIN
               value: '{{ include "listToCSV" .Values.hasura.corsDomains }}'
             {{- range $key, $value := .Values.dipdup }}
-            {{- if ne $.Values.hasura.mainDipdupInstance $key  }}
+            {{- if and (ne $.Values.hasura.mainDipdupInstance $key) ($value.enabled)  }}
             - name: {{ $value.hasuraGraphqlDatabaseUrlSecret }}
               valueFrom:
                 secretKeyRef:
