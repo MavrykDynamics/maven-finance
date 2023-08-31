@@ -57,7 +57,7 @@ dipdup:
       registry: docker.io
       repository: mavrykdynamics/mavryk-indexer
       tag: v0.46.0
-      pullPolicy: IfNotPresent
+      pullPolicy: Always
       pullSecret: docker-pull-credentials
     metrics:
       serviceMonitor:
@@ -119,7 +119,7 @@ dipdup:
       registry: docker.io
       repository: mavrykdynamics/mavryk-indexer
       tag: v0.46.0
-      pullPolicy: IfNotPresent
+      pullPolicy: Always
       pullSecret: docker-pull-credentials
     metrics:
       serviceMonitor:
