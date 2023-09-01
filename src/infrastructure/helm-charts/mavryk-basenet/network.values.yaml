@@ -11,7 +11,7 @@ tezos-chain:
     chain_name: TEZOS_BASENET_2023-08-29T14:09:05Z
     genesis:
       block: BLockGenesisGenesisGenesisGenesisGenesisfc3ddfTxTo8
-      protocol: PrihK96nBAFSxVL1GLJTVhu9YnzkMFiBeuJRPA8NwuZVZCE1L6i
+      protocol: ProtoALphaALphaALphaALphaALphaALphaALphaALphaDdp3zK
       timestamp: "2023-08-29T14:09:05Z"
 
   activation:
