@@ -9,7 +9,7 @@ tezos-chain:
       # tz1Z7SUKZ9H5WeD36UByUKZ3RsqWwkcUEapY
       key: edskRyt7Apw9uFzW2hVSSaPsnigxt4PvUkV1sH4Yrpmm5ZB95hHcHEAeBMx5Nh8cerLLGoCcQAeVh3a9Ek59y27dp1qLgxPzby
       bootstrap_balance: '1000000000000'
-      is_bootstrap_baker_account: true
+      is_bootstrap_baker_account: false
       # key injected by pulumi
     comet:
       # an account with a lot of money in it
