@@ -23,11 +23,11 @@ tezos-chain:
     chain_name: TEZOS_BASENET_2023-08-29T14:09:05Z
     genesis:
       block: BLockGenesisGenesisGenesisGenesisGenesisfc3ddfTxTo8
-      protocol: ProtoALphaALphaALphaALphaALphaALphaALphaALphaDdp3zK
+      protocol: Ps9mPmXaRzmzk35gbAYNCAw6UXdE2qoABTHbN2oEEc1qM7CwT9P
       timestamp: "2023-08-29T14:09:05Z"
 
   activation:
-    protocol_hash: ProtoGenesisGenesisGenesisGenesisGenesisGenesk612im
+    protocol_hash: ProtoALphaALphaALphaALphaALphaALphaALphaALphaDdp3zK
     protocol_parameters:
       preserved_cycles: 2
       blocks_per_cycle: 8
@@ -129,7 +129,7 @@ tezos-chain:
         - accuser
         - vdf
       readiness_probe: false
-      storage_size: 20Gi
+      storage_size: 10Gi
     # Overwrite default values.yaml rolling-node
     rolling-node: null
 
