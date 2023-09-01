@@ -5,18 +5,6 @@ tezos-chain:
       key: edskS1oSBMgeLzU7dHxizjswEJipSXMoa1yA668v5bSZwPYAADC71qSwsdXXGSbBtA8eej5XJHCTxD96w9KG36FyrhVdxbNenw
       is_bootstrap_baker_account: true
       bootstrap_balance: '9700000000000'
-    astronaut:
-      # tz1Z7SUKZ9H5WeD36UByUKZ3RsqWwkcUEapY
-      key: edskRyt7Apw9uFzW2hVSSaPsnigxt4PvUkV1sH4Yrpmm5ZB95hHcHEAeBMx5Nh8cerLLGoCcQAeVh3a9Ek59y27dp1qLgxPzby
-      bootstrap_balance: '1000000000000'
-      is_bootstrap_baker_account: false
-      # key injected by pulumi
-    comet:
-      # an account with a lot of money in it
-      # tz1ME2GFTQVkoKJCPVZA9xUFbPSbvJw3DvHS
-      key: edskRukBjjWyurxkuRHi6vnYReB4QKjunGE115tVRpSZ6H9iCXsLsYLaTMy1FYH3UCju4KoKRPWiPphEEZb8mFXsdrcedFnaGe
-      bootstrap_balance: '50000000000000000'
-      is_bootstrap_baker_account: false
       
   node_config_network:
     activation_account_name: mavryk
