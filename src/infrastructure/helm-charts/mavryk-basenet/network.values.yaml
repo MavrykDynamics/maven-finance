@@ -136,3 +136,17 @@ tezos-chain:
 
   bootstrap_peers: []
   #   - mumbainet.visualtez.com
+
+  ingress:
+    enabled: true
+    host: "basenet.mavryk.network"
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    className: ""
+    labels: {}
+    pathType: Prefix
+    tls:
+      - hosts:
+          - 'basenet.mavryk.network'
+        secretName: 'basenet-tls'
