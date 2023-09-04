@@ -169,6 +169,25 @@ tezos-chain:
       ## Indexer replicas
       replicas: 1
 
+      db:
+        # By default creates a postgres db container. Setting to true won't create
+        # it and instead expects credentials for an external postgres database.
+        isExternal: false
+        ## Tzkt provides new snapshots as they update their code. Update your
+        ## indexers by specifying new docker image tags and by using the matching
+        ## snapshot_url. Spin up an additional replica if you only have one to
+        ## avoid downtime. See tzkt's readme for public networks' db snapshot urls.
+        ## If you want to index a brand new archive node you are spinning up, just
+        ## let the indexer start syncing with it from scratch.
+        ## https://github.com/baking-bad/tzkt
+        snapshot_url: null
+        host: localhost
+        port: 5432
+        name: db
+        user: foo
+        password: bar
+        command_timeout: 600
+
       ## Configurable tzkt fields
       config:
         ## RPC url of the node to index. A rolling node is sufficient if the
