@@ -1,0 +1,9 @@
+apiVersion: v2
+description: A Helm chart for Tezos nodes on Kubernetes
+home: https://github.com/oxheadalpha/tezos-k8s
+keywords:
+- tezos
+- blockchain
+name: tezos-chain
+type: application
+version: 6.22.0
