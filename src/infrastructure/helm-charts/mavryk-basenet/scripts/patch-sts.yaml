@@ -1,0 +1,4 @@
+spec:
+  template:
+    spec:
+      imagePullSecrets: docker-pull-credentials
