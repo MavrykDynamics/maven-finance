@@ -117,6 +117,7 @@ tezos-chain:
         - accuser
         - vdf
       readiness_probe: false
+      imagePullSecrets: docker-pull-credentials
       storage_size: 10Gi
     # Overwrite default values.yaml rolling-node
     rolling-node: null
