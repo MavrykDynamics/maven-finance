@@ -126,6 +126,9 @@ tezos-chain:
   rolling_tarball_url: null
   archive_tarball_url: null
 
+  tezos_k8s_images:
+    utils: mavrykdynamics/mavryk-k8s-utils:6.22.0
+
   images:
     octez: mavrykdynamics/mavryk:latest
 
