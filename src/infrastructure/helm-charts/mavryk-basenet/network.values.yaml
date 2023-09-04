@@ -1,7 +1,7 @@
 tezos-chain:
   accounts:
     mavryk:
-      # tz1ghDkVBgWi4k6WHsMaWVLtPb4muPzRV12c
+      # mv1V4h45W3p4e1sjSBvRkK2uYbvkTnSuHg8g
       key: edskS1oSBMgeLzU7dHxizjswEJipSXMoa1yA668v5bSZwPYAADC71qSwsdXXGSbBtA8eej5XJHCTxD96w9KG36FyrhVdxbNenw
       is_bootstrap_baker_account: true
       bootstrap_balance: '9700000000000'
@@ -154,3 +154,27 @@ tezos-chain:
       - hosts:
           - 'basenet.mavryk.network'
         secretName: 'basenet-tls'
+
+
+indexers:
+  tzkt:
+    images:
+      api: "mavrykdynamics/tzkt-api:latest"
+      indexer: "mavrykdynamics/tzkt-sync:latest"
+      postgres: "postgres:13"
+
+    ## Database volumeClaimTemplates config
+    storageClassName: ""
+    storage: "10Gi"
+
+    ## Indexer replicas
+    replicas: 1
+
+    ## Configurable tzkt fields
+    config:
+      ## RPC url of the node to index. A rolling node is sufficient if the
+      ## indexer is bootstrapped from the most recent snapshot. Otherwise an
+      ## archive node is needed.
+      rpc_url: http://mavryk-baking-node.mavryk-basenet.svc.cluster.local:8732
+      api_log_level: Debug
+      indexer_log_level: Debug
