@@ -5,7 +5,7 @@ description = ""
 authors = ["Tristan Allaire <tristan.allaire@alarch.fr>"]
 
 [tool.poetry.dependencies]
-python = "3.11.4"
+python = "3.11.5"
 dipdup = { path="./dipdup", develop = true }
 python-dateutil = "^2.8.2"
 PyYAML = "^6.0"

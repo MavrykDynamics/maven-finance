@@ -5,6 +5,7 @@ from dipdup.models.tezos_tzkt import TzktTransaction
 from mavryk.types.farm.tezos_storage import FarmStorage
 from mavryk.types.farm.tezos_parameters.withdraw import WithdrawParameter
 import mavryk.models as models
+import datetime
 
 async def withdraw(
     ctx: HandlerContext,
@@ -17,7 +18,7 @@ async def withdraw(
         depositor_address               = withdraw.data.sender_address
         depositor_storage               = withdraw.storage.depositorLedger[depositor_address]
         balance                         = int(depositor_storage.balance)
-        participation_rewards_per_share      = float(depositor_storage.participationRewardsPerShare )
+        participation_rewards_per_share = float(depositor_storage.participationRewardsPerShare )
         claimed_rewards                 = float(depositor_storage.claimedRewards)
         unclaimed_rewards               = float(depositor_storage.unclaimedRewards)
         lp_token_balance                = int(withdraw.storage.config.lpToken.tokenBalance)
@@ -30,7 +31,8 @@ async def withdraw(
         current_reward_per_block        = float(withdraw.storage.config.plannedRewards.currentRewardPerBlock)
         total_blocks                    = int(withdraw.storage.config.plannedRewards.totalBlocks)
         min_block_time_snapshot         = int(withdraw.storage.minBlockTimeSnapshot)
-    
+        infinite                        = withdraw.storage.config.infinite
+
         # Create and update records
         farm                            = await models.Farm.get(
             network = ctx.datasource.network,
@@ -46,6 +48,9 @@ async def withdraw(
         farm.open                       = open
         farm.unpaid_rewards             = unpaid_rewards
         farm.paid_rewards               = paid_rewards
+        if not infinite:
+            farm_duration       = min_block_time_snapshot * total_blocks
+            farm.end_timestamp  = farm.start_timestamp + datetime.timedelta(seconds=farm_duration)
         await farm.save()
     
         user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=depositor_address)
@@ -54,10 +59,10 @@ async def withdraw(
             user = user,
             farm = farm
         )
-        farm_account.deposited_amount               = balance
-        farm_account.participation_rewards_per_share     = participation_rewards_per_share 
-        farm_account.unclaimed_rewards              = unclaimed_rewards
-        farm_account.claimed_rewards                = claimed_rewards
+        farm_account.deposited_amount                   = balance
+        farm_account.participation_rewards_per_share    = participation_rewards_per_share 
+        farm_account.unclaimed_rewards                  = unclaimed_rewards
+        farm_account.claimed_rewards                    = claimed_rewards
         await farm_account.save()
 
     except BaseException as e:

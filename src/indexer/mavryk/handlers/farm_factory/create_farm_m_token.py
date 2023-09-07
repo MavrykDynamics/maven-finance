@@ -8,6 +8,7 @@ from mavryk.types.farm_factory.tezos_storage import FarmFactoryStorage
 from mavryk.types.m_farm.tezos_storage import MFarmStorage
 import mavryk.models as models
 import json
+import datetime
 
 async def create_farm_m_token(
     ctx: HandlerContext,
@@ -42,6 +43,12 @@ async def create_farm_m_token(
         unpaid_rewards                  = float(m_farm_origination.storage.claimedRewards.unpaid)
         paid_rewards                    = float(m_farm_origination.storage.claimedRewards.paid)
         contract_metadata               = json.loads(bytes.fromhex(create_farm_m_token.parameter.metadata).decode('utf-8'))
+        min_block_time_snapshot         = int(m_farm_origination.storage.minBlockTimeSnapshot)
+        start_timestamp                 = creation_timestamp
+        end_timestamp                   = None
+        if not infinite:
+            farm_duration   = min_block_time_snapshot * total_blocks
+            end_timestamp   = start_timestamp + datetime.timedelta(seconds=farm_duration)
     
         # Check farm does not already exists
         farm_exists                     = await models.Farm.filter(
@@ -171,6 +178,9 @@ async def create_farm_m_token(
                 admin                           = admin,
                 name                            = name,
                 creation_timestamp              = creation_timestamp,
+                start_timestamp                 = start_timestamp,
+                end_timestamp                   = end_timestamp,
+                min_block_time_snapshot         = min_block_time_snapshot,
                 factory                         = farm_factory,
                 force_rewards_from_transfer     = force_rewards_from_transfer,
                 infinite                        = infinite,
