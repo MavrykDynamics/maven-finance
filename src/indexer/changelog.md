@@ -26,6 +26,10 @@
 - Delegation
   - Column TakeSatellitesSnapshotPaused added
 
+- Farm
+  - Column StartTimestamp added
+  - Column EndTimestamp added
+
 - SatelliteRewards
   - Column ReferenceGovernanceCycleId added
   - Column Tracked added

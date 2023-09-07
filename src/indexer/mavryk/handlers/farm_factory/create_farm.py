@@ -8,6 +8,7 @@ from mavryk.types.farm.tezos_storage import FarmStorage, TokenStandardItem as fa
 from dipdup.models.tezos_tzkt import TzktOrigination
 import mavryk.models as models
 import json
+import datetime
 
 async def create_farm(
     ctx: HandlerContext,
@@ -41,6 +42,12 @@ async def create_farm(
         unpaid_rewards                  = float(farm_origination.storage.claimedRewards.unpaid)
         paid_rewards                    = float(farm_origination.storage.claimedRewards.paid)
         contract_metadata               = json.loads(bytes.fromhex(create_farm.parameter.metadata).decode('utf-8'))
+        min_block_time_snapshot         = int(farm_origination.storage.minBlockTimeSnapshot)
+        start_timestamp                 = creation_timestamp
+        end_timestamp                   = None
+        if not infinite:
+            farm_duration   = min_block_time_snapshot * total_blocks
+            end_timestamp   = start_timestamp + datetime.timedelta(seconds=farm_duration)
     
         # Check farm does not already exists
         farm_exists                     = await models.Farm.filter(
@@ -169,7 +176,10 @@ async def create_farm(
                 governance                      = governance,
                 admin                           = admin,
                 name                            = name,
-                creation_timestamp              = creation_timestamp ,
+                creation_timestamp              = creation_timestamp,
+                start_timestamp                 = start_timestamp,
+                end_timestamp                   = end_timestamp,
+                min_block_time_snapshot         = min_block_time_snapshot,
                 factory                         = farm_factory,
                 force_rewards_from_transfer     = force_rewards_from_transfer,
                 infinite                        = infinite,

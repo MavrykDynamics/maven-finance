@@ -5,6 +5,7 @@ from dipdup.context import HandlerContext
 from mavryk.types.farm.tezos_storage import FarmStorage
 from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
+import datetime
 
 async def deposit(
     ctx: HandlerContext,
@@ -17,7 +18,7 @@ async def deposit(
         depositor_address               = deposit.data.sender_address
         depositor_storage               = deposit.storage.depositorLedger[depositor_address]
         balance                         = int(depositor_storage.balance)
-        participation_rewards_per_share      = float(depositor_storage.participationRewardsPerShare )
+        participation_rewards_per_share = float(depositor_storage.participationRewardsPerShare )
         claimed_rewards                 = float(depositor_storage.claimedRewards)
         unclaimed_rewards               = float(depositor_storage.unclaimedRewards)
         lp_token_balance                = int(deposit.storage.config.lpToken.tokenBalance)
@@ -30,7 +31,8 @@ async def deposit(
         current_reward_per_block        = float(deposit.storage.config.plannedRewards.currentRewardPerBlock)
         total_blocks                    = int(deposit.storage.config.plannedRewards.totalBlocks)
         min_block_time_snapshot         = int(deposit.storage.minBlockTimeSnapshot)
-    
+        infinite                        = deposit.storage.config.infinite
+
         # Create and update records
         farm                            = await models.Farm.get(
             network = ctx.datasource.network,
@@ -46,6 +48,9 @@ async def deposit(
         farm.open                       = open
         farm.unpaid_rewards             = unpaid_rewards
         farm.paid_rewards               = paid_rewards
+        if not infinite:
+            farm_duration       = min_block_time_snapshot * total_blocks
+            farm.end_timestamp  = farm.start_timestamp + datetime.timedelta(seconds=farm_duration)
         await farm.save()
     
         user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=depositor_address)

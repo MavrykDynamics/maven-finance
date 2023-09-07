@@ -5,6 +5,7 @@ from mavryk.types.farm.tezos_storage import FarmStorage
 from mavryk.types.farm.tezos_parameters.claim import ClaimParameter
 from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
+import datetime
 
 async def claim(
     ctx: HandlerContext,
@@ -25,6 +26,7 @@ async def claim(
         current_reward_per_block        = float(claim.storage.config.plannedRewards.currentRewardPerBlock)
         total_blocks                    = int(claim.storage.config.plannedRewards.totalBlocks)
         min_block_time_snapshot         = int(claim.storage.minBlockTimeSnapshot)
+        infinite                        = claim.storage.config.infinite
 
         # Update farm
         farm                            = await models.Farm.get(
@@ -41,6 +43,9 @@ async def claim(
         farm.open                       = open
         farm.unpaid_rewards             = unpaid_rewards
         farm.paid_rewards               = paid_rewards
+        if not infinite:
+            farm_duration       = min_block_time_snapshot * total_blocks
+            farm.end_timestamp  = farm.start_timestamp + datetime.timedelta(seconds=farm_duration)
         await farm.save()
 
         # Update records

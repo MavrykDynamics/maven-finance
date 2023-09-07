@@ -5,6 +5,7 @@ from dipdup.context import HandlerContext
 from mavryk.types.farm.tezos_storage import FarmStorage
 from dipdup.models.tezos_tzkt import TzktTransaction
 import mavryk.models as models
+import datetime
 
 async def init_farm(
     ctx: HandlerContext,
@@ -31,14 +32,22 @@ async def init_farm(
         unpaid_rewards                  = float(init_farm.storage.claimedRewards.unpaid)
         paid_rewards                    = float(init_farm.storage.claimedRewards.paid)
         min_block_time_snapshot         = int(init_farm.storage.minBlockTimeSnapshot)
-    
+        start_timestamp                 = init_farm.data.timestamp
+        end_timestamp                   = None
+        if not infinite:
+            farm_duration   = min_block_time_snapshot * total_blocks
+            end_timestamp   = start_timestamp + datetime.timedelta(seconds=farm_duration)
+
         # Create record
         governance      = await models.Governance.get(
             network = ctx.datasource.network
         )
-        farm            = models.Farm(
+        await models.Farm.filter(
             network                         = ctx.datasource.network,
-            address                         = farm_address,
+            address                         = farm_address
+        ).update(
+            start_timestamp                 = start_timestamp,
+            end_timestamp                   = end_timestamp,
             admin                           = admin,
             governance                      = governance,
             force_rewards_from_transfer     = force_rewards_from_transfer,
@@ -58,7 +67,6 @@ async def init_farm(
             paid_rewards                    = paid_rewards,
             min_block_time_snapshot         = min_block_time_snapshot
         )
-        await farm.save()
 
     except BaseException as e:
         await save_error_report(e)
