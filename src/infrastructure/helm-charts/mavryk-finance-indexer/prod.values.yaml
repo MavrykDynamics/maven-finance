@@ -7,7 +7,7 @@ hasura:
     repository: hasura/graphql-engine
     tag: v2.33.0
   hpa:
-    enabled: true
+    enabled: false
     maxReplicas: 3
     minReplicas: 1
   resources:
