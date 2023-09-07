@@ -13,6 +13,8 @@ class Farm(MavrykContract, Model):
     token0                                  = fields.ForeignKeyField('models.Token', related_name='farms_tokens_0', null=True)
     token1                                  = fields.ForeignKeyField('models.Token', related_name='farms_tokens_1', null=True)
     creation_timestamp                      = fields.DatetimeField()
+    start_timestamp                         = fields.DatetimeField(null=True)
+    end_timestamp                           = fields.DatetimeField(null=True)
     name                                    = fields.TextField(default='')
     force_rewards_from_transfer             = fields.BooleanField(default=False)
     infinite                                = fields.BooleanField(default=False)
