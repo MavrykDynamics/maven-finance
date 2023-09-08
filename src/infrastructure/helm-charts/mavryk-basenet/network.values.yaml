@@ -130,7 +130,7 @@ tezos-chain:
     utils: mavrykdynamics/mavryk-k8s-utils:6.22.0
 
   images:
-    octez: mavrykdynamics/mavryk:latest
+    octez: mavrykdynamics/mavryk:v0.1.0
 
   protocols:
     - command: alpha
