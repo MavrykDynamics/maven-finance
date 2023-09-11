@@ -161,8 +161,8 @@ tezos-chain:
   indexers:
     tzkt:
       images:
-        api: "mavrykdynamics/tzkt-api:latest"
-        indexer: "mavrykdynamics/tzkt-sync:latest"
+        api: "mavrykdynamics/tzkt-api:v0.0.1"
+        indexer: "mavrykdynamics/tzkt-sync:v0.0.1"
         postgres: "postgres:13"
 
       ## Database volumeClaimTemplates config
