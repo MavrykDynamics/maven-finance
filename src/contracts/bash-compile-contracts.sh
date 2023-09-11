@@ -10,11 +10,11 @@ CONTRACT_BUILD_FOLDER=$PWD/build
 LAMBDA_BUILD_FOLDER=$CONTRACT_BUILD_FOLDER/lambdas
 LAMBDA_INDEX_FILE=$CONTRACT_PARTIALS_FOLDER/contractsLambdaIndex.json
 LAMBDA_INDEXES=$(cat $LAMBDA_INDEX_FILE)
-LIGO_VERSION=0.60.0
+LIGO_VERSION=latest-mav
 
 # Init arguments
 THREADS=5
-PROTOCOL=kathmandu
+PROTOCOL=nairobi
 COMPILE_CONTRACTS=1
 COMPILE_LAMBDAS=1
 APPLE_SILICON=
@@ -83,7 +83,7 @@ done
 # Compile lambda function
 compile_single_lambda () {
 
-    BYTES=$(docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:$LIGO_VERSION compile expression pascaligo "Bytes.pack($2)" --michelson-format json --init-file $PWD/contracts/main/$1.ligo --protocol $PROTOCOL | jq '.bytes')
+    BYTES=$(docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:$LIGO_VERSION compile expression pascaligo "Bytes.pack($2)" --michelson-format json --init-file $PWD/contracts/main/$1.ligo --protocol $PROTOCOL --deprecated | jq '.bytes')
     if [ -z $BYTES ]
     then
         compile_single_lambda $1 $2
@@ -152,8 +152,8 @@ compile_all_lambdas () {
 }
 
 compile_single_contract () {
-    docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --protocol $PROTOCOL > $CONTRACT_COMPILED_FOLDER/$1.tz
-    docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --michelson-format json --protocol $PROTOCOL > $PWD/test/tmp/.$1_tmp.json
+    docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --protocol $PROTOCOL --deprecated > $CONTRACT_COMPILED_FOLDER/$1.tz
+    docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --michelson-format json --protocol $PROTOCOL --deprecated > $PWD/test/tmp/.$1_tmp.json
     jq -n --arg name $1 --slurpfile code $PWD/test/tmp/.$1_tmp.json --arg version $LIGO_VERSION '{ "contractName": $name, "michelson": $code[0], "networks": {}, "compiler": { "name": "ligo", "version": $version }, "networkType": "Tezos" }' > $CONTRACT_BUILD_FOLDER/$1.json
     rm $PWD/test/tmp/.$1_tmp.json
 }
