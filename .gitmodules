@@ -1,4 +1,8 @@
 [submodule "src/indexer/dipdup"]
-	path = src/indexer/dipdup
+	path = vendorsdipdup
 	url = https://github.com/dipdup-io/dipdup
     revision = next
+[submodule "src/contracts/vendors/taquito"]
+	path = src/contracts/vendors/taquito
+	url = https://github.com/mavryk-network/taquito
+	branch = mv-addresses
