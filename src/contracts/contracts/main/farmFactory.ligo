@@ -35,7 +35,7 @@
 // Factory Create Model (Farm) Type
 // ------------------------------------------------------------------------------
 
-type createFarmFuncType is (option(key_hash) * tez * farmStorageType) -> (operation * address)
+type createFarmFuncType is (option(key_hash) * mav * farmStorageType) -> (operation * address)
 const createFarmFunc: createFarmFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
@@ -45,7 +45,7 @@ const createFarmFunc: createFarmFuncType =
 : createFarmFuncType)];
 
 
-type createFarmMTokenFuncType is (option(key_hash) * tez * farmMTokenStorageType) -> (operation * address)
+type createFarmMTokenFuncType is (option(key_hash) * mav * farmMTokenStorageType) -> (operation * address)
 const createFarmMTokenFunc: createFarmMTokenFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT

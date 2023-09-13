@@ -72,7 +72,7 @@ block {
 
 // helper function to get %initVaultAction entrypoint in a Vault Contract
 function getInitVaultActionEntrypoint(const vaultAddress : address) : contract(initVaultActionType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%initVaultAction",
         vaultAddress) : option(contract(initVaultActionType))) of [
                 Some(contr) -> contr
@@ -83,7 +83,7 @@ function getInitVaultActionEntrypoint(const vaultAddress : address) : contract(i
 
 // helper function to get %onVaultDepositStake entrypoint in staking Contract
 function getOnVaultDepositStakeEntrypoint(const contractAddress : address) : contract(onVaultDepositStakeType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%onVaultDepositStake",
         contractAddress) : option(contract(onVaultDepositStakeType))) of [
                 Some(contr) -> contr
@@ -94,7 +94,7 @@ function getOnVaultDepositStakeEntrypoint(const contractAddress : address) : con
 
 // helper function to get %onVaultWithdrawStake entrypoint from staking contract address
 function getOnVaultWithdrawStakeEntrypoint(const contractAddress : address) : contract(onVaultWithdrawStakeType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%onVaultWithdrawStake",
         contractAddress) : option(contract(onVaultWithdrawStakeType))) of [
                 Some(contr) -> contr
@@ -105,7 +105,7 @@ function getOnVaultWithdrawStakeEntrypoint(const contractAddress : address) : co
 
 // helper function to get %onVaultLiquidateStake entrypoint from staking contract address
 function getOnVaultLiquidateStakeEntrypoint(const contractAddress : address) : contract(onVaultLiquidateStakeType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%onVaultLiquidateStake",
         contractAddress) : option(contract(onVaultLiquidateStakeType))) of [
                 Some(contr) -> contr
@@ -116,7 +116,7 @@ function getOnVaultLiquidateStakeEntrypoint(const contractAddress : address) : c
 
 // helper function to get mintOrBurn entrypoint from MToken contract (FA2 Token Standard)
 function getMTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%mintOrBurn",
         tokenContractAddress) : option(contract(mintOrBurnType))) of [
                 Some(contr) -> contr
@@ -145,7 +145,7 @@ function getBalanceFromStakingContract(const userAddress : address; const contra
 block {
 
     // get staked MVK balance of user from Doorman contract
-    const getStakedBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, contractAddress);
+    const getStakedBalanceView : option (nat) = Mavryk.call_view ("getStakedBalance", userAddress, contractAddress);
     const userStakedMvkBalance : nat = case getStakedBalanceView of [
             Some (_value) -> _value
         |   None          -> failwith(error_GET_STAKED_BALANCE_VIEW_IN_CONTRACT_NOT_FOUND)
@@ -160,7 +160,7 @@ function getBalanceFromScaledTokenContract(const userAddress : address; const to
 block {
 
     // get balance of user from scaled token contract
-    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (userAddress, 0), tokenContractAddress);
+    const getBalanceView : option (nat) = Mavryk.call_view ("get_balance", (userAddress, 0), tokenContractAddress);
     const scaledBalance : nat = case getBalanceView of [
             Some (_balance) -> _balance
         |   None            -> 0n
@@ -180,7 +180,7 @@ block {
         target   = target;
     ];
 
-} with (Tezos.transaction(mintOrBurnParams, 0mutez, getMTokenMintOrBurnEntrypoint(mTokenAddress) ) )
+} with (Mavryk.transaction(mintOrBurnParams, 0mumav, getMTokenMintOrBurnEntrypoint(mTokenAddress) ) )
 
 
 
@@ -244,7 +244,7 @@ block {
         minRepaymentAmount                  = minRepaymentAmount;
 
         currentInterestRate                 = baseInterestRate;
-        lastUpdatedBlockLevel               = Tezos.get_level();
+        lastUpdatedBlockLevel               = Mavryk.get_level();
         tokenRewardIndex                    = fixedPointAccuracy;
         borrowIndex                         = fixedPointAccuracy;
 
@@ -362,8 +362,8 @@ block {
         loanDecimals                = decimals;
         borrowIndex                 = 0n;
 
-        lastUpdatedBlockLevel       = Tezos.get_level();
-        lastUpdatedTimestamp        = Tezos.get_now();
+        lastUpdatedBlockLevel       = Mavryk.get_level();
+        lastUpdatedTimestamp        = Mavryk.get_now();
 
         markedForLiquidationLevel   = 0n;
         liquidationEndLevel         = 0n;
@@ -552,7 +552,7 @@ block {
         
         |   Tez(_tez) -> {
 
-                const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez.") : contract(unit)), amount * 1mutez );
+                const transferTezOperation : operation = transferTez( (Mavryk.get_contract_with_error(to_, "Error. Unable to send tez.") : contract(unit)), amount * 1mumav );
             
             } with transferTezOperation
 
@@ -600,9 +600,9 @@ block {
         withdrawAmount  = withdrawAmount;
     ];
 
-    const vaultWithdrawStakeOperation : operation = Tezos.transaction(
+    const vaultWithdrawStakeOperation : operation = Mavryk.transaction(
         onVaultWithdrawStakeParams,
-        0tez,
+        0mav,
         getOnVaultWithdrawStakeEntrypoint(stakingContractAddress)
     );
 
@@ -621,9 +621,9 @@ block {
         depositAmount   = depositAmount;
     ];
 
-    const vaultDepositStakeOperation : operation = Tezos.transaction(
+    const vaultDepositStakeOperation : operation = Mavryk.transaction(
         onVaultDepositStakeParams,
-        0tez,
+        0mav,
         getOnVaultDepositStakeEntrypoint(stakingContractAddress)
     );
 
@@ -642,9 +642,9 @@ block {
         liquidatedAmount    = liquidatedAmount;
     ];
 
-    const vaultLiquidateStakeOperation : operation = Tezos.transaction(
+    const vaultLiquidateStakeOperation : operation = Mavryk.transaction(
         onVaultLiquidateStakeParams,
-        0tez,
+        0mav,
         getOnVaultLiquidateStakeEntrypoint(stakingContractAddress)
     );
 
@@ -664,9 +664,9 @@ block {
         ]
     );
 
-    const liquidateFromVaultOperation : operation = Tezos.transaction(
+    const liquidateFromVaultOperation : operation = Mavryk.transaction(
         liquidateOperationParams,
-        0mutez,
+        0mumav,
         getInitVaultActionEntrypoint(vaultAddress)
     );
 
@@ -745,7 +745,7 @@ function getTokenLastCompletedDataFromAggregator(const aggregatorAddress : addre
 block {
 
     // get last completed round price of token from Oracle view
-    const getTokenLastCompletedDataView : option (lastCompletedDataReturnType) = Tezos.call_view ("getLastCompletedData", unit, aggregatorAddress);
+    const getTokenLastCompletedDataView : option (lastCompletedDataReturnType) = Mavryk.call_view ("getLastCompletedData", unit, aggregatorAddress);
     const tokenLastCompletedData : lastCompletedDataReturnType = case getTokenLastCompletedDataView of [
             Some (_value) -> _value
         |   None          -> failwith (error_GET_LAST_COMPLETED_DATA_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
@@ -758,7 +758,7 @@ block {
 function verifyLastCompletedDataFreshness(const lastUpdatedAt : timestamp; const lastCompletedDataMaxDelay : nat) : unit is
 block {
 
-    if abs(Tezos.get_now() - lastUpdatedAt) <= lastCompletedDataMaxDelay 
+    if abs(Mavryk.get_now() - lastUpdatedAt) <= lastCompletedDataMaxDelay 
     then skip
     else failwith(error_LAST_COMPLETED_DATA_NOT_FRESH);
 
@@ -964,8 +964,8 @@ block{
     *
     *)
 
-    var exp : nat := abs(Tezos.get_level() - lastUpdatedBlockLevel); // exponent
-    exp := exp * Tezos.get_min_block_time(); // number of seconds
+    var exp : nat := abs(Mavryk.get_level() - lastUpdatedBlockLevel); // exponent
+    exp := exp * Mavryk.get_min_block_time(); // number of seconds
     
     const interestRateOverSecondsInYear : nat = ((interestRate * fixedPointAccuracy) / secondsInYear) / fixedPointAccuracy; // 1e27 * 1e27 / const / 1e27 -> 1e27
 
@@ -1048,14 +1048,14 @@ block{
         // check if max interest rate is exceeded
         if currentInterestRate > maxInterestRate then currentInterestRate := maxInterestRate else skip;        
 
-        if Tezos.get_level() > lastUpdatedBlockLevel then {
+        if Mavryk.get_level() > lastUpdatedBlockLevel then {
 
             const compoundedInterest : nat = calculateCompoundedInterest(currentInterestRate, lastUpdatedBlockLevel); // 1e27 
             borrowIndex := (borrowIndex * compoundedInterest) / fixedPointAccuracy; // 1e27 x 1e27 / 1e27 -> 1e27
 
         } else skip;
 
-        loanTokenRecord.lastUpdatedBlockLevel   := Tezos.get_level();
+        loanTokenRecord.lastUpdatedBlockLevel   := Mavryk.get_level();
         loanTokenRecord.borrowIndex             := borrowIndex;
         loanTokenRecord.utilisationRate         := utilisationRate;
         loanTokenRecord.currentInterestRate     := currentInterestRate;
@@ -1098,13 +1098,13 @@ function checkMarkedVaultLiquidationDuration(const vault : vaultRecordType; cons
 block {
 
     // Init variables and get level when vault can be liquidated
-    const blocksPerMinute                : nat  = 60n / Tezos.get_min_block_time();
+    const blocksPerMinute                : nat  = 60n / Mavryk.get_min_block_time();
     const liquidationDelayInMins         : nat  = s.config.liquidationDelayInMins;
     const liquidationDelayInBlockLevel   : nat  = liquidationDelayInMins * blocksPerMinute; 
     const levelWhenVaultCanBeLiquidated  : nat  = vault.markedForLiquidationLevel + liquidationDelayInBlockLevel;
 
     // Check if sufficient time has passed since vault was marked for liquidation
-    if Tezos.get_level() < levelWhenVaultCanBeLiquidated
+    if Mavryk.get_level() < levelWhenVaultCanBeLiquidated
     then failwith(error_VAULT_IS_NOT_READY_TO_BE_LIQUIDATED)
     else skip;
 
@@ -1120,7 +1120,7 @@ block {
     const vaultLiquidationEndLevel : nat = vault.liquidationEndLevel;
 
     // Check if current block level has exceeded vault liquidation end level
-    if Tezos.get_level() > vaultLiquidationEndLevel
+    if Mavryk.get_level() > vaultLiquidationEndLevel
     then failwith(error_VAULT_NEEDS_TO_BE_MARKED_FOR_LIQUIDATION_AGAIN)
     else skip;
 
@@ -1441,8 +1441,8 @@ block {
     vault.loanOutstandingTotal                := newLoanOutstandingTotal;
     vault.loanInterestTotal                   := newLoanInterestTotal;
     vault.borrowIndex                         := tokenBorrowIndex;
-    vault.lastUpdatedBlockLevel               := Tezos.get_level();
-    vault.lastUpdatedTimestamp                := Tezos.get_now();
+    vault.lastUpdatedBlockLevel               := Mavryk.get_level();
+    vault.lastUpdatedTimestamp                := Mavryk.get_now();
 
 } with(vault, loanTokenRecord)
 
@@ -1461,7 +1461,7 @@ function unpackLambda(const lambdaBytes : bytes; const lendingControllerLambdaAc
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(lendingControllerUnpackLambdaFunctionType)) of [
-            Some(f) -> f(lendingControllerLambdaAction, s)
+            Some(f) -> f((lendingControllerLambdaAction, s))
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

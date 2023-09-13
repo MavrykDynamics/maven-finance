@@ -140,8 +140,10 @@ block {
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
-                operations := List.fold_right(transferOperationFold, destinationParams, operations)
-                
+                for transferParams in list destinationParams block {
+                    operations := transferOperationFold(transferParams, operations);
+                }
+                 
             }
         |   _ -> skip
     ];
@@ -190,8 +192,8 @@ block {
 
                 for farmAddress in set s.trackedFarms 
                 block {
-                    case (Tezos.get_entrypoint_opt("%pauseAll", farmAddress) : option(contract(unit))) of [
-                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                    case (Mavryk.get_entrypoint_opt("%pauseAll", farmAddress) : option(contract(unit))) of [
+                            Some(contr) -> operations := Mavryk.transaction(Unit, 0mav, contr) # operations
                         |   None        -> skip
                     ];
                 };
@@ -236,8 +238,8 @@ block {
 
                 for farmAddress in set s.trackedFarms 
                 block {
-                    case (Tezos.get_entrypoint_opt("%unpauseAll", farmAddress) : option(contract(unit))) of [
-                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                    case (Mavryk.get_entrypoint_opt("%unpauseAll", farmAddress) : option(contract(unit))) of [
+                            Some(contr) -> operations := Mavryk.transaction(Unit, 0mav, contr) # operations
                         |   None        -> skip
                     ];
                 };
@@ -316,9 +318,9 @@ block{
 
                 // Create operation to originate Farm
                 const farmOrigination : (operation * address) = createFarmFunc(
-                    (None: option(key_hash)), 
-                    0tez,
-                    originatedFarmStorage
+                    ((None: option(key_hash)), 
+                    0mav,
+                    originatedFarmStorage)
                 );
 
                 // Add newly created Farm to tracked Farms
@@ -380,9 +382,9 @@ block{
 
                 // Create operation to originate Farm mToken
                 const farmMTokenOrigination : (operation * address) = createFarmMTokenFunc(
-                    (None: option(key_hash)), 
-                    0tez,
-                    originatedFarmMTokenStorage
+                    ((None: option(key_hash)), 
+                    0mav,
+                    originatedFarmMTokenStorage)
                 );
 
                 // Add newly created Farm to tracked Farms

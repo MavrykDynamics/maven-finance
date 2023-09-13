@@ -55,7 +55,7 @@ block {
 
     case treasuryLambdaAction of [
         |   LambdaSetBaker(keyHash) -> {
-                const setBakerOperation  : operation = Tezos.set_delegate(keyHash);
+                const setBakerOperation  : operation = Mavryk.set_delegate(keyHash);
                 operations := setBakerOperation # operations;
             }
         |   _ -> skip
@@ -85,7 +85,7 @@ block {
                 const treasuryFactoryAddress: address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Get the Treasury Factory Contract Config
-                const configView : option (treasuryFactoryConfigType) = Tezos.call_view ("getConfig", unit, treasuryFactoryAddress);
+                const configView : option (treasuryFactoryConfigType) = Mavryk.call_view ("getConfig", unit, treasuryFactoryAddress);
                 const treasuryFactoryConfig: treasuryFactoryConfigType = case configView of [
                         Some (_config) -> _config
                     |   None           -> failwith (error_GET_CONFIG_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
@@ -296,12 +296,12 @@ block {
                     const token        : tokenType        = destination.token;
                     const to_          : ownerType        = destination.to_;
                     const amt          : tokenAmountType  = destination.amount;
-                    const from_        : address          = Tezos.get_self_address(); // treasury
+                    const from_        : address          = Mavryk.get_self_address(); // treasury
                     
                     // Create transfer token operation
                     // - check that token to be transferred are in the Whitelisted Token Contracts map
                     const transferTokenOperation : operation = case token of [
-                        |   Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address") : contract(unit)), amt * 1mutez)
+                        |   Tez         -> transferTez((Mavryk.get_contract_with_error(to_, "Error. Contract not found at given address") : contract(unit)), amt * 1mumav)
                         |   Fa12(token) -> if not checkInWhitelistTokenContracts(token, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa12Token(from_, to_, amt, token)
                         |   Fa2(token)  -> if not checkInWhitelistTokenContracts(token.tokenContractAddress, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
                     ];
@@ -311,7 +311,9 @@ block {
                 } with accumulator;
 
                 const emptyOperation : list(operation) = list[];
-                operations := List.fold(transferAccumulator, txs, emptyOperation);
+                for destination in list txs block{
+                    operations  := transferAccumulator(operations, destination);
+                }
 
             }
         |   _ -> skip

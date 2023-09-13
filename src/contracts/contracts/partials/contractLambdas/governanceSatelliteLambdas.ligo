@@ -139,8 +139,10 @@ block {
                 verifySenderIsSelfOrAddress(s.admin);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
-                operations := List.fold_right(transferOperationFold, destinationParams, operations)
-                
+                for transferParams in list destinationParams block {
+                    operations := transferOperationFold(transferParams, operations);
+                }
+                 
             }
         | _ -> skip
     ];
@@ -488,9 +490,9 @@ block {
                 const newName           : string    = setAggregatorReferenceParams.newName;
 
                 // Check sender is admin, is whitelisted or is an aggregator
-                if Tezos.get_sender() = s.admin or checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip 
+                if Mavryk.get_sender() = s.admin or checkInWhitelistContracts(Mavryk.get_sender(), s.whitelistContracts) then skip 
                 else case Big_map.find_opt(oldName, s.aggregatorLedger) of [
-                        Some (_a)   -> if Tezos.get_sender() = _a and Tezos.get_sender() = aggregatorAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_WHITELISTED_ADDRESSES_OR_AGGREGATOR_ALLOWED)
+                        Some (_a)   -> if Mavryk.get_sender() = _a and Mavryk.get_sender() = aggregatorAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_WHITELISTED_ADDRESSES_OR_AGGREGATOR_ALLOWED)
                     |   None        -> failwith(error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND)
                 ];
 
@@ -656,7 +658,7 @@ block {
                 const dropActionId : nat = dropActionParams.dropActionId;
 
                 // Verify sender is a satellite which is not suspended or banned
-                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                verifySatelliteIsNotSuspendedOrBanned(Mavryk.get_sender(), s);
 
                 // Get governance satellite action record 
                 var governanceSatelliteActionRecord : governanceSatelliteActionRecordType := getGovernanceSatelliteActionRecord(dropActionId, s);
@@ -728,7 +730,7 @@ block {
                 const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
                 // check satellite record of sender
-                checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
+                checkSatelliteStatus(Mavryk.get_sender(), delegationAddress, True, True);
 
                 // Get governance satellite action record
                 var _governanceSatelliteActionRecord : governanceSatelliteActionRecordType := getGovernanceSatelliteActionRecord(actionId, s);
@@ -746,7 +748,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Get the satellite total voting power and check if it needs to be updated for the current cycle or not
-                const totalVotingPowerAndSatelliteUpdate: (nat * list(operation))   = getTotalVotingPowerAndUpdateSnapshot(Tezos.get_sender(), actionGovernanceCycleId, operations, s);
+                const totalVotingPowerAndSatelliteUpdate: (nat * list(operation))   = getTotalVotingPowerAndUpdateSnapshot(Mavryk.get_sender(), actionGovernanceCycleId, operations, s);
                 const totalVotingPower : nat                                        = totalVotingPowerAndSatelliteUpdate.0;
 
                 // Update the satellite snapshot on the governance contract if it needs to
@@ -760,7 +762,7 @@ block {
                 const voteType         : voteType   = voteForAction.vote;
 
                 // Remove previous vote if user already voted
-                case s.governanceSatelliteVoters[(actionId, Tezos.get_sender())] of [
+                case s.governanceSatelliteVoters[(actionId, Mavryk.get_sender())] of [
                     
                         Some (_voteType) -> case _voteType of [
 
@@ -781,7 +783,7 @@ block {
                 ];
 
                 // Update governance satellite action map of voters with new vote
-                s.governanceSatelliteVoters[(actionId, Tezos.get_sender())] := voteType;
+                s.governanceSatelliteVoters[(actionId, Mavryk.get_sender())] := voteType;
 
                 // Compute governance satellite action vote totals and execute governance satellite action if enough votes have been gathered
                 case voteType of [

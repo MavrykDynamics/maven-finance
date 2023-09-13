@@ -13,7 +13,7 @@ function checkSatelliteStatus(const satelliteAddress : address; const delegation
 block{
 
     // Get Satellite Record and check status from on-chain view %getSatelliteOpt on Delegation Contract
-    case (Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress) : option (option(satelliteRecordType))) of [
+    case (Mavryk.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress) : option (option(satelliteRecordType))) of [
             Some (_satelliteRecordOpt) -> case _satelliteRecordOpt of [
                     Some (_satellite) -> if checkForSuspended and _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if checkForBanned and _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
                 |   None              -> failwith(error_ONLY_SATELLITE_ALLOWED)

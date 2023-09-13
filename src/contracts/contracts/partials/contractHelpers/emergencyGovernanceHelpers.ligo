@@ -29,7 +29,7 @@ block{
 
 // helper function to %breakGlass entrypoint on specified contract
 function triggerBreakGlass(const contractAddress : address) : contract(unit) is
-    case (Tezos.get_entrypoint_opt("%breakGlass", contractAddress) : option(contract(unit))) of [
+    case (Mavryk.get_entrypoint_opt("%breakGlass", contractAddress) : option(contract(unit))) of [
             Some(contr) -> contr
         |   None        -> (failwith(error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND) : contract(unit))
     ];
@@ -51,7 +51,7 @@ block {
     // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
     const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
-    const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
+    const stakedMvkBalanceView : option (nat) = Mavryk.call_view ("getStakedBalance", userAddress, doormanAddress);
     const stakedMvkBalance: nat = case stakedMvkBalanceView of [
             Some (value) -> value
         |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
@@ -68,7 +68,7 @@ block {
     // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
     const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
-    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+    const getBalanceView : option (nat) = Mavryk.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
     const stakedMvkTotalSupply: nat = case getBalanceView of [
             Some (value) -> value
         |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -99,7 +99,7 @@ block {
     else {
         const emergencyGovernance : emergencyGovernanceRecordType = getCurrentEmergencyGovernance(s);        
         
-        if Tezos.get_now() < emergencyGovernance.expirationDateTime 
+        if Mavryk.get_now() < emergencyGovernance.expirationDateTime 
         then failwith(error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS) 
         else skip;
     };
@@ -115,7 +115,7 @@ block {
     if s.currentEmergencyGovernanceId =/= 0n then  {
         const emergencyGovernance : emergencyGovernanceRecordType = getCurrentEmergencyGovernance(s);        
         
-        if Tezos.get_now() > emergencyGovernance.expirationDateTime 
+        if Mavryk.get_now() > emergencyGovernance.expirationDateTime 
         then failwith(error_EMERGENCY_GOVERNANCE_EXPIRED) 
         else skip;
     
@@ -140,7 +140,7 @@ block {
 function verifySenderIsProposer(const emergencyGovernanceRecord : emergencyGovernanceRecordType) : unit is
 block {
 
-    if emergencyGovernanceRecord.proposerAddress =/= Tezos.get_sender() then failwith(error_ONLY_PROPOSER_ALLOWED)
+    if emergencyGovernanceRecord.proposerAddress =/= Mavryk.get_sender() then failwith(error_ONLY_PROPOSER_ALLOWED)
     else skip;
 
 } with unit
@@ -151,7 +151,7 @@ block {
 function verifyCorrectFee(const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    if Tezos.get_amount() =/= s.config.requiredFeeMutez 
+    if Mavryk.get_amount() =/= s.config.requiredFeeMutez 
     then failwith(error_INCORRECT_TEZ_FEE) 
     else skip;
 
@@ -204,11 +204,11 @@ block {
         stakedMvkPercentageRequired      = s.config.stakedMvkPercentageRequired;  // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
         stakedMvkRequiredForBreakGlass   = stakedMvkRequiredForBreakGlass;
 
-        startDateTime                    = Tezos.get_now();
-        startLevel                       = Tezos.get_level();             
+        startDateTime                    = Mavryk.get_now();
+        startLevel                       = Mavryk.get_level();             
         executedDateTime                 = None;
         executedLevel                    = None;
-        expirationDateTime               = Tezos.get_now() + (60 * s.config.durationInMinutes);
+        expirationDateTime               = Mavryk.get_now() + (60 * s.config.durationInMinutes);
     ];
 
 } with newEmergencyGovernanceRecord
@@ -230,9 +230,9 @@ block {
     // Get Break Glass Contract Address from the General Contracts Map on the Governance Contract
     const breakGlassContractAddress : address = getContractAddressFromGovernanceContract("breakGlass", s.governanceAddress, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
 
-    const triggerBreakGlassOperation : operation = Tezos.transaction(
+    const triggerBreakGlassOperation : operation = Mavryk.transaction(
         unit,
-        0tez, 
+        0mav, 
         triggerBreakGlass(breakGlassContractAddress)
     );
 
@@ -246,9 +246,9 @@ block {
 
     const governanceAddress : address = s.governanceAddress;
 
-    const triggerGovernanceBreakGlassOperation : operation = Tezos.transaction(
+    const triggerGovernanceBreakGlassOperation : operation = Mavryk.transaction(
         unit,
-        0tez, 
+        0mav, 
         triggerBreakGlass(governanceAddress)
     );
 
@@ -264,8 +264,8 @@ block {
     const treasuryAddress : address = getContractAddressFromGovernanceContract("taxTreasury", s.governanceAddress, error_TAX_TREASURY_CONTRACT_NOT_FOUND);
 
     // Transfer fee to Treasury
-    const treasuryContract : contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
-    const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.get_amount());
+    const treasuryContract : contract(unit) = Mavryk.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
+    const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Mavryk.get_amount());
 
 } with transferFeeToTreasuryOperation
 
@@ -284,7 +284,7 @@ function unpackLambda(const lambdaBytes : bytes; const emergencyGovernanceLambda
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(emergencyGovernanceUnpackLambdaFunctionType)) of [
-            Some(f) -> f(emergencyGovernanceLambdaAction, s)
+            Some(f) -> f((emergencyGovernanceLambdaAction, s))
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

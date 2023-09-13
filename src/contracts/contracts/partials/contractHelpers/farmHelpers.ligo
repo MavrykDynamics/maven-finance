@@ -182,7 +182,7 @@ block{
     const doormanContractAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
     
     // Get %farmClaim entrypoint on the Doorman Contract
-    const doormanContract : contract(farmClaimType) = case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress) : option(contract(farmClaimType))) of [
+    const doormanContract : contract(farmClaimType) = case (Mavryk.get_entrypoint_opt("%farmClaim", doormanContractAddress) : option(contract(farmClaimType))) of [
             Some (c) -> c
         |   None     -> (failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(farmClaimType))
     ];
@@ -190,7 +190,7 @@ block{
     // Init farmClaim entrypoint parameters 
     const farmClaimParams : farmClaimType = (farmClaimDepositors, s.config.forceRewardFromTransfer);
 
-} with (Tezos.transaction(farmClaimParams, 0tez, doormanContract))
+} with (Mavryk.transaction(farmClaimParams, 0mav, doormanContract))
 
 // ------------------------------------------------------------------------------
 // Transfer Helper Functions End
@@ -234,7 +234,7 @@ block {
 function _initFarm(const initFarmParams : initFarmParamsType; var s : farmStorageType) : farmStorageType is
 block {
 
-    s.initBlock                                     := Tezos.get_level();
+    s.initBlock                                     := Mavryk.get_level();
     s.config.infinite                               := initFarmParams.infinite;
     s.config.forceRewardFromTransfer                := initFarmParams.forceRewardFromTransfer;
     s.config.plannedRewards.currentRewardPerBlock   := initFarmParams.currentRewardPerBlock;
@@ -262,7 +262,7 @@ block {
     
     // Get last block time
     const lastBlockTime : nat       = s.minBlockTimeSnapshot;
-    const currentBlockTime : nat    = Tezos.get_min_block_time();
+    const currentBlockTime : nat    = Mavryk.get_min_block_time();
 
     if lastBlockTime =/= currentBlockTime then {
         
@@ -308,10 +308,10 @@ block{
 
     // Close farm if totalBlocks duration has been exceeded
     // Farm remains open if totalBlocks duration has not been exceeded, or if it's an infinite farm
-    s.open := Tezos.get_level() <= lastBlock or s.config.infinite;
+    s.open := Mavryk.get_level() <= lastBlock or s.config.infinite;
 
     // Update lastBlockUpdate in farmStorageType
-    s.lastBlockUpdate := Tezos.get_level();
+    s.lastBlockUpdate := Mavryk.get_level();
 
 } with (s)
 
@@ -322,7 +322,7 @@ function updateFarmParameters(var s: farmStorageType) : farmStorageType is
 block{
 
     // Compute the potential reward of this block
-    const multiplier : nat = abs(Tezos.get_level() - s.lastBlockUpdate);
+    const multiplier : nat = abs(Mavryk.get_level() - s.lastBlockUpdate);
     const suspectedReward : tokenBalanceType = multiplier * s.config.plannedRewards.currentRewardPerBlock;
 
     // This check is necessary in case the farm unpaid reward was not updated for a long time
@@ -353,7 +353,7 @@ function updateFarm(var s : farmStorageType) : farmStorageType is
 block{
     s := case s.config.lpToken.tokenBalance = 0n of [
             True -> updateBlock(s)
-        |   False -> case s.lastBlockUpdate = Tezos.get_level() or not s.open of [
+        |   False -> case s.lastBlockUpdate = Mavryk.get_level() or not s.open of [
                     True -> s
                 |   False -> updateFarmParameters(s)
             ]
@@ -411,7 +411,7 @@ function unpackLambda(const lambdaBytes : bytes; const farmLambdaAction : farmLa
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(farmUnpackLambdaFunctionType)) of [
-            Some(f) -> f(farmLambdaAction, s)
+            Some(f) -> f((farmLambdaAction, s))
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

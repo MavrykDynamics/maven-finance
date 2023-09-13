@@ -135,9 +135,11 @@ block {
                 // Verify that the sender is admin or the governanceSatellite contract
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
-                // Create transfer operations (transferOperationFold in transferHelpers)                
-                operations := List.fold_right(transferOperationFold, destinationParams, operations)
-                
+                // Create transfer operations (transferOperationFold in transferHelpers)
+                for transferParams in list destinationParams block {
+                    operations := transferOperationFold(transferParams, operations);
+                }
+
             }
         | _ -> skip
     ];
@@ -184,8 +186,8 @@ block {
 
                 for aggregatorAddress in set s.trackedAggregators
                 block {
-                    case (Tezos.get_entrypoint_opt("%pauseAll", aggregatorAddress) : option(contract(unit))) of [
-                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                    case (Mavryk.get_entrypoint_opt("%pauseAll", aggregatorAddress) : option(contract(unit))) of [
+                            Some(contr) -> operations := Mavryk.transaction(Unit, 0mav, contr) # operations
                         |   None        -> skip
                     ];
                 };
@@ -228,8 +230,8 @@ block {
 
                 for aggregatorAddress in set s.trackedAggregators
                 block {
-                    case (Tezos.get_entrypoint_opt("%unpauseAll", aggregatorAddress) : option(contract(unit))) of [
-                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                    case (Mavryk.get_entrypoint_opt("%unpauseAll", aggregatorAddress) : option(contract(unit))) of [
+                            Some(contr) -> operations := Mavryk.transaction(Unit, 0mav, contr) # operations
                         |   None        -> skip
                     ];
                 };
@@ -312,9 +314,9 @@ block {
 
                 // Contract origination
                 const aggregatorOrigination : (operation * address) = createAggregatorFunc(
-                    (None: option(key_hash)),
-                    0tez,
-                    originatedAggregatorStorage
+                    ((None: option(key_hash)),
+                    0mav,
+                    originatedAggregatorStorage)
                 );
                 
                 // Add new Aggregator to Tracked Aggregators map on Aggregator Factory

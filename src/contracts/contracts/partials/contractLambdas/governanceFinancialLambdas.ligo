@@ -159,8 +159,10 @@ block {
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations (transferOperationFold in transferHelpers
-                operations := List.fold_right(transferOperationFold, destinationParams, operations)
-                
+                for transferParams in list destinationParams block {
+                    operations := transferOperationFold(transferParams, operations);
+                }
+                 
             }
         |   _ -> skip
     ];
@@ -373,7 +375,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Verify that satellite exists and is not suspended or banned
-                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                verifySatelliteIsNotSuspendedOrBanned(Mavryk.get_sender(), s);
 
                 // init financial request id
                 const financialRequestId    : nat       = voteForRequest.requestId;
@@ -391,7 +393,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Get the satellite total voting power and check if it needs to be updated for the current cycle or not
-                const totalVotingPowerAndSatelliteUpdate: (nat * list(operation))   = getTotalVotingPowerAndUpdateSnapshot(Tezos.get_sender(), governanceCycleId, operations, s);
+                const totalVotingPowerAndSatelliteUpdate: (nat * list(operation))   = getTotalVotingPowerAndUpdateSnapshot(Mavryk.get_sender(), governanceCycleId, operations, s);
                 const totalVotingPower : nat                                        = totalVotingPowerAndSatelliteUpdate.0;
 
                 // Update the satellite snapshot on the governance contract if it needs to
@@ -413,7 +415,7 @@ block {
                     // Execute financial request, and set executed boolean to true
                     operations := executeFinancialRequest(financialRequestRecord, operations, s);
                     financialRequestRecord.executed         := True;
-                    financialRequestRecord.executedDateTime := Some(Tezos.get_now());
+                    financialRequestRecord.executedDateTime := Some(Mavryk.get_now());
 
                 } else skip;
 
@@ -421,7 +423,7 @@ block {
                 s.financialRequestLedger[financialRequestId] := financialRequestRecord;
                 
                 // Save financial request map of voters with new vote
-                s.financialRequestVoters[ (financialRequestId, Tezos.get_sender()) ] := newVote;
+                s.financialRequestVoters[ (financialRequestId, Mavryk.get_sender()) ] := newVote;
 
             }
         |   _ -> skip

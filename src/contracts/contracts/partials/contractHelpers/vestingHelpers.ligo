@@ -44,9 +44,9 @@ block {
 
     const mvkTokenAddress : address = s.mvkTokenAddress;
     
-    const mintTokenOperation : operation = Tezos.transaction(
+    const mintTokenOperation : operation = Mavryk.transaction(
         (to_, amount_),
-        0tez,
+        0mav,
         getMintEntrypointFromTokenAddress(mvkTokenAddress)
     );
 
@@ -88,14 +88,14 @@ block {
             totalAllocatedAmount = totalAllocatedAmount;                          // totalAllocatedAmount should be in (10^9) - MVK Token decimals
             claimAmountPerMonth  = totalAllocatedAmount / vestingInMonths;        // totalAllocatedAmount should be in (10^9) - MVK Token decimals
             
-            startTimestamp       = Tezos.get_now();                                     // date/time start of when 
+            startTimestamp       = Mavryk.get_now();                                     // date/time start of when 
 
             vestingMonths        = vestingInMonths;                               // number of months of vesting for total allocaed amount
             cliffMonths          = cliffInMonths;                                 // number of months for cliff before vestee can claim
 
-            endCliffDateTime     = Tezos.get_now() + (cliffInMonths * thirty_days);     // calculate end of cliff duration in timestamp based on dateTimeStart
+            endCliffDateTime     = Mavryk.get_now() + (cliffInMonths * thirty_days);     // calculate end of cliff duration in timestamp based on dateTimeStart
             
-            endVestingDateTime   = Tezos.get_now() + (vestingInMonths * thirty_days);   // calculate end of vesting duration in timestamp based on dateTimeStart
+            endVestingDateTime   = Mavryk.get_now() + (vestingInMonths * thirty_days);   // calculate end of vesting duration in timestamp based on dateTimeStart
 
             // updateable variables on claim ----------
 
@@ -107,8 +107,8 @@ block {
             monthsClaimed            = 0n;                                        // claimed number of months   
             monthsRemaining          = vestingInMonths;                           // remaining number of months   
             
-            nextRedemptionTimestamp  = Tezos.get_now();                                 // timestamp of when vestee will be able to claim again (claim at start of period; if cliff exists, will be the same as end of cliff timestamp)
-            lastClaimedTimestamp     = Tezos.get_now();                                 // timestamp of when vestee last claimed
+            nextRedemptionTimestamp  = Mavryk.get_now();                                 // timestamp of when vestee will be able to claim again (claim at start of period; if cliff exists, will be the same as end of cliff timestamp)
+            lastClaimedTimestamp     = Mavryk.get_now();                                 // timestamp of when vestee last claimed
         ]
     ];    
 
@@ -141,7 +141,7 @@ function unpackLambda(const lambdaBytes : bytes; const vestingLambdaAction : ves
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(vestingUnpackLambdaFunctionType)) of [
-            Some(f) -> f(vestingLambdaAction, s)
+            Some(f) -> f((vestingLambdaAction, s))
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

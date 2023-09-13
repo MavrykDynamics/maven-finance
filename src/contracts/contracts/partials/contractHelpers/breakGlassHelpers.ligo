@@ -12,7 +12,7 @@
 function verifySenderIsCouncilMember(var s : breakGlassStorageType) : unit is
 block {
     
-    if Big_map.mem(Tezos.get_sender(), s.councilMembers) then skip
+    if Big_map.mem(Mavryk.get_sender(), s.councilMembers) then skip
     else failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED);
 
 } with unit
@@ -50,7 +50,7 @@ function checkGlassIsBroken(var s : breakGlassStorageType) : unit is
 
 // Helper function to set admin entrypoints in contract 
 function setAdminInContract(const contractAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%setAdmin",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
@@ -78,7 +78,7 @@ block {
     if actionRecord.executed then failwith(error_COUNCIL_ACTION_EXECUTED) else skip;
 
     // check that break glass action has not expired
-    if Tezos.get_now() > actionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
+    if Mavryk.get_now() > actionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
 
 } with (unit)
 
@@ -88,7 +88,7 @@ block {
 function getGovernanceProxyAddress(const s : breakGlassStorageType) : address is
 block {
 
-    const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+    const governanceProxyAddressView : option (address) = Mavryk.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
     const governanceProxyAddress : address = case governanceProxyAddressView of [
             Some (value) -> value
         |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
@@ -103,7 +103,7 @@ function getWhitelistDevelopersMap(const s : breakGlassStorageType) : whitelistD
 block {
 
     // Get Whitelist Developers map from the Governance Contract
-    const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
+    const whitelistDevelopersView : option (whitelistDevelopersType) = Mavryk.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
     const whitelistDevelopers : whitelistDevelopersType = case whitelistDevelopersView of [
             Some (value) -> value
         |   None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
@@ -118,7 +118,7 @@ function verifyValidAdminAddress(const newAdminAddress : address; const whitelis
 block {
 
     // Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
-    if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.get_self_address() or newAdminAddress = governanceProxyAddress then skip
+    if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Mavryk.get_self_address() or newAdminAddress = governanceProxyAddress then skip
     else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
 } with unit
@@ -164,7 +164,7 @@ block {
 
     var actionRecord : councilActionRecordType := record[
 
-        initiator             = Tezos.get_sender();
+        initiator             = Mavryk.get_sender();
         status                = "PENDING";
         actionType            = actionType;
         executed              = False;
@@ -173,14 +173,14 @@ block {
 
         dataMap               = dataMap;
 
-        startDateTime         = Tezos.get_now();
-        startLevel            = Tezos.get_level();
+        startDateTime         = Mavryk.get_now();
+        startLevel            = Mavryk.get_level();
         executedDateTime      = None;
         executedLevel         = None;
-        expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
+        expirationDateTime    = Mavryk.get_now() + (86_400 * s.config.actionExpiryDays);
     ];
     s.actionsLedger[s.actionCounter] := actionRecord; 
-    s.actionsSigners                 := Big_map.add((s.actionCounter, Tezos.get_sender()), unit, s.actionsSigners);
+    s.actionsSigners                 := Big_map.add((s.actionCounter, Mavryk.get_sender()), unit, s.actionsSigners);
 
     // increment action counter
     s.actionCounter := s.actionCounter + 1n;
@@ -279,15 +279,15 @@ function propagateBreakGlassOperation(const contractAddressSet : set(address); c
 block {
 
     // Check if the %propagateBreakGlass entrypoint exists on the Governance Contract
-    const propagateBreakGlassEntrypoint: contract(set(address)) = case (Tezos.get_entrypoint_opt("%propagateBreakGlass", s.governanceAddress) : option(contract(set(address)))) of [
+    const propagateBreakGlassEntrypoint: contract(set(address)) = case (Mavryk.get_entrypoint_opt("%propagateBreakGlass", s.governanceAddress) : option(contract(set(address)))) of [
             Some (contr)        -> contr
         |   None                -> failwith(error_PROPAGATE_BREAK_GLASS_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
 
     // Create operation to trigger propagateBreakGlass entrypoint on the Governance Contract
-    const propagateBreakGlassOperation : operation = Tezos.transaction(
+    const propagateBreakGlassOperation : operation = Mavryk.transaction(
         contractAddressSet, 
-        0tez, 
+        0mav, 
         propagateBreakGlassEntrypoint
     );
 
@@ -432,8 +432,8 @@ block {
     // Pause all entrypoints in all contracts in the General Contracts map
     //  - iterate over contracts map with operation to pause all entrypoints
     for contractAddress in set contractAddressSet block {
-        case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
-                Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+        case (Mavryk.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
+                Some(contr) -> operations := Mavryk.transaction(unit, 0mav, contr) # operations
             |   None        -> skip
         ];
     };    
@@ -456,8 +456,8 @@ block {
     // Unpause all entrypoints in all contracts in the General Contracts map
     //  - iterate over contracts map with operation to unpause all entrypoints
     for contractAddress in set contractAddressSet block {
-        case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
-                Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+        case (Mavryk.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
+                Some(contr) -> operations := Mavryk.transaction(unit, 0mav, contr) # operations
             |   None        -> skip
         ];
     };    
@@ -508,7 +508,7 @@ block {
     verifyValidAdminAddress(newAdminAddress, whitelistDevelopers, governanceProxyAddress);
 
     // Set new contract admin of the Break Glass contract
-    if Set.mem(Tezos.get_self_address(), contractAddressSet) then {
+    if Set.mem(Mavryk.get_self_address(), contractAddressSet) then {
         s.admin             := newAdminAddress;
     }
     else skip;
@@ -520,12 +520,14 @@ block {
     // Reset all contracts admin to the new admin address
     //  - iterate over unique contracts set with setAdmin operation
     function setAdminFold(const operationList: list(operation); const singleContractAddress : address) : list(operation) is
-        case (Tezos.get_entrypoint_opt("%setAdmin", singleContractAddress) : option(contract(address))) of [
-                Some (_setAdmin)    -> if singleContractAddress = Tezos.get_self_address() then operationList else Tezos.transaction(newAdminAddress, 0tez, _setAdmin) # operationList
+        case (Mavryk.get_entrypoint_opt("%setAdmin", singleContractAddress) : option(contract(address))) of [
+                Some (_setAdmin)    -> if singleContractAddress = Mavryk.get_self_address() then operationList else Mavryk.transaction(newAdminAddress, 0mav, _setAdmin) # operationList
             |   None                -> operationList
         ];
 
-    operations := Set.fold(setAdminFold, contractAddressSet, operations);
+    for contractAddress in set contractAddressSet block{
+        operations := setAdminFold(operations, contractAddress);
+    }
 
 } with (operations, s)
 
@@ -554,11 +556,14 @@ block {
     // Reset all contracts admin to Governance Proxy contract
     //  - iterate over unique contracts set with operation to set admin as the Governance Proxy Contract
     function setAdminFold(const operationList: list(operation); const singleContractAddress : address) : list(operation) is
-        case (Tezos.get_entrypoint_opt("%setAdmin", singleContractAddress) : option(contract(address))) of [
-                Some (_setAdmin)    -> if singleContractAddress = Tezos.get_self_address() then operationList else Tezos.transaction(governanceProxyAddress, 0tez, _setAdmin) # operationList
+        case (Mavryk.get_entrypoint_opt("%setAdmin", singleContractAddress) : option(contract(address))) of [
+                Some (_setAdmin)    -> if singleContractAddress = Mavryk.get_self_address() then operationList else Mavryk.transaction(governanceProxyAddress, 0mav, _setAdmin) # operationList
             |   None                -> operationList
         ];
-    operations := Set.fold(setAdminFold, contractAddressSet, operations);
+
+    for contractAddress in set contractAddressSet block{
+        operations := setAdminFold(operations, contractAddress);
+    };
 
     // Set glassBroken boolean to False (removes access to protected Break Glass entrypoints)
     s.glassBroken := False;
@@ -615,8 +620,8 @@ block {
     // update break glass action record status
     actionRecord.status              := "EXECUTED";
     actionRecord.executed            := True;
-    actionRecord.executedDateTime    := Some(Tezos.get_now());
-    actionRecord.executedLevel       := Some(Tezos.get_level());
+    actionRecord.executedDateTime    := Some(Mavryk.get_now());
+    actionRecord.executedLevel       := Some(Mavryk.get_level());
     
     // save break glass action record
     s.actionsLedger[actionId]         := actionRecord;
@@ -638,7 +643,7 @@ function unpackLambda(const lambdaBytes : bytes; const breakGlassLambdaAction : 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(breakGlassUnpackLambdaFunctionType)) of [
-            Some(f) -> f(breakGlassLambdaAction, s)
+            Some(f) -> f((breakGlassLambdaAction, s))
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

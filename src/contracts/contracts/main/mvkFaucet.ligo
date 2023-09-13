@@ -57,7 +57,7 @@ const noOperations : list (operation) = nil;
 function verifyUserPreviousMvkRequest(var s : mvkFaucetStorageType) : unit is
 block {
 
-    if Big_map.mem(Tezos.get_sender(), s.requesters) 
+    if Big_map.mem(Mavryk.get_sender(), s.requesters) 
     then failwith("MVK_REQUEST_LIMIT_REACHED")
 
 } with unit
@@ -65,7 +65,7 @@ block {
 function saveUserMvkRequest(var s : mvkFaucetStorageType) : mvkFaucetStorageType is
 block {
 
-    s.requesters    := Big_map.update(Tezos.get_sender(), Some(unit), s.requesters);
+    s.requesters    := Big_map.update(Mavryk.get_sender(), Some(unit), s.requesters);
 
 } with (s)
 
@@ -96,8 +96,8 @@ block {
     s   := saveUserMvkRequest(s);
 
     // assign params to constants for better code readability
-    const from_: address                = Tezos.get_self_address();
-    const to_: address                  = Tezos.get_sender();
+    const from_: address                = Mavryk.get_self_address();
+    const to_: address                  = Mavryk.get_sender();
     const amountPerUser: nat            = s.amountPerUser;
     const tokenId: nat                  = 0n;
     const tokenContractAddress: address = s.mvkTokenAddress;

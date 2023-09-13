@@ -35,7 +35,7 @@
 // Factory Create Model (Treasury) Type
 // ------------------------------------------------------------------------------
 
-type createTreasuryFuncType is (option(key_hash) * tez * treasuryStorageType) -> (operation * address)
+type createTreasuryFuncType is (option(key_hash) * mav * treasuryStorageType) -> (operation * address)
 const createTreasuryFunc: createTreasuryFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT

@@ -61,19 +61,19 @@ const noOperations : list (operation) = nil;
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAllowed(var s : mTokenStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    if (Mavryk.get_sender() = s.admin or Mavryk.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 function checkSenderIsAdmin(const s : mTokenStorageType) : unit is
-    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+    if Mavryk.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
 
 
 function checkNoAmount(const _p : unit) : unit is
-    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
+    if Mavryk.get_amount() =/= 0mav then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
     else unit
 
 
@@ -81,11 +81,11 @@ function checkNoAmount(const _p : unit) : unit is
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : mTokenStorageType) : unit is
 block{
 
-  if Tezos.get_sender() = s.admin then skip
+  if Mavryk.get_sender() = s.admin then skip
   else {
     const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
     
-    if Tezos.get_sender() = governanceSatelliteAddress then skip
+    if Mavryk.get_sender() = governanceSatelliteAddress then skip
     else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
 
   }
@@ -114,24 +114,24 @@ function checkBalance(const spenderBalance : tokenBalanceType; const tokenAmount
 
 
 function checkOwnership(const owner : ownerType) : unit is
-    if Tezos.get_sender() =/= owner then failwith("FA2_NOT_OWNER")
+    if Mavryk.get_sender() =/= owner then failwith("FA2_NOT_OWNER")
     else unit
 
 
 
 function checkOperator(const owner : ownerType; const token_id : tokenIdType; const operators : operatorsType) : unit is
-    if owner = Tezos.get_sender() or Big_map.mem((owner, Tezos.get_sender(), token_id), operators) then unit
+    if owner = Mavryk.get_sender() or Big_map.mem((owner, Mavryk.get_sender(), token_id), operators) then unit
     else failwith ("FA2_NOT_OPERATOR")
 
 
 
 // mergeOperations helper function - used in transfer entrypoint
 function mergeOperations(const first : list (operation); const second : list (operation)) : list (operation) is 
-List.fold( 
-    function(const operations : list(operation); const operation : operation) : list(operation) is operation # operations,
-    first,
-    second
-)
+block{
+    for operation in list first block{
+        second  := operation # second
+    }
+} with(second)
 
 
 
@@ -237,7 +237,7 @@ block {
     const lendingControllerAddress: address = getContractAddressFromGovernanceContract("lendingController", s.governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
         
     // get loan token record of user from Lending Controller through on-chain views
-    const getLoanTokenRecordOptView : option (option (loanTokenRecordType)) = Tezos.call_view ("getLoanTokenRecordOpt", loanTokenName, lendingControllerAddress);
+    const getLoanTokenRecordOptView : option (option (loanTokenRecordType)) = Mavryk.call_view ("getLoanTokenRecordOpt", loanTokenName, lendingControllerAddress);
     const loanTokenRecord : loanTokenRecordType = case getLoanTokenRecordOptView of [
             Some (_viewResult)  -> case _viewResult of [
                     Some (_record)  -> _record
@@ -412,7 +412,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationTypes : transferActionType; var s : mTokenStorageType) : return is
+function mistakenTransfer(const destinationParams : transferActionType; var s : mTokenStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -430,14 +430,16 @@ block {
         block{
 
             const transferTokenOperation : operation = case transferParam.token of [
-                |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
-                |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
-                |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                |   Tez         -> transferTez((Mavryk.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mumav)
+                |   Fa12(token) -> transferFa12Token(Mavryk.get_self_address(), transferParam.to_, transferParam.amount, token)
+                |   Fa2(token)  -> transferFa2Token(Mavryk.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
             ];
 
         } with (transferTokenOperation # operationList);
     
-    operations  := List.fold_right(transferOperationFold, destinationTypes, operations)
+    for transferParams in list destinationParams block {
+        operations := transferOperationFold(transferParams, operations);
+    }
 
 } with (operations, s)
 
@@ -545,11 +547,19 @@ block{
             } with accumulator;
 
             const updatedOperations : list(operation) = (nil: list(operation));
-            const updatedStorage : mTokenStorageType = List.fold(transferTokens, txs, account.1);
+            var updatedStorage : mvkTokenStorageType := account.1;
+            for destination in list txs block {
+                updatedStorage  := transferTokens(updatedStorage, destination);
+            }
 
-        } with (mergeOperations(updatedOperations,account.0), updatedStorage)
+        } with (mergeOperations(updatedOperations,account.0), updatedStorage);
 
-} with List.fold(makeTransfer, transferParams, ((nil: list(operation)), s))
+    var return : return    := ((nil: list(operation)), store);
+    for transferParam in list transferParams block{
+        return  := makeTransfer(return, transferParam);
+    }
+
+} with return
 
 
 
@@ -591,7 +601,7 @@ block{
     const requests   : list(balanceOfRequestType) = balanceOfParams.requests;
     const callback   : contract(list(balanceOfResponse)) = balanceOfParams.callback;
     const responses  : list(balanceOfResponse) = List.map(retrieveBalance, requests);
-    const operation  : operation = Tezos.transaction(responses, 0tez, callback);
+    const operation  : operation = Mavryk.transaction(responses, 0mav, callback);
 
 } with (list[operation], s with record[tokenRewardIndex = tokenRewardIndex])
 
@@ -601,16 +611,13 @@ block{
 function updateOperators(const updateOperatorsParams : updateOperatorsType; const s : mTokenStorageType) : return is
 block{
 
-    var updatedOperators : operatorsType := List.fold(
-        function(const operators : operatorsType; const updateOperator : updateOperatorVariantType) : operatorsType is
-            case updateOperator of [
-                    Add_operator (param)    -> addOperator(param, operators)
-                |   Remove_operator (param) -> removeOperator(param, operators)
-            ]
-        ,
-        updateOperatorsParams,
-        s.operators
-    )
+    var updatedOperators : operatorsType := store.operators;
+    for updateOperator in list updateOperatorsParams block {
+        updatedOperators := case updateOperator of [
+                Add_operator (param)    -> addOperator(param, updatedOperators)
+            |   Remove_operator (param) -> removeOperator(param, updatedOperators)
+        ]
+    };
 
 } with (noOperations, s with record[operators=updatedOperators])
 
@@ -629,7 +636,7 @@ function mintOrBurn(const mintOrBurnParams : mintOrBurnType; var s : mTokenStora
 block {
 
     // check sender is whitelisted
-    if checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+    if checkInWhitelistContracts(Mavryk.get_sender(), s.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
     const quantity        : int             = mintOrBurnParams.quantity;
     const targetAddress   : address         = mintOrBurnParams.target;
