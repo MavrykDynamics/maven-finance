@@ -80,7 +80,7 @@ block {
 
                 case updateConfigAction of [
                         ConfigDurationInMinutes (_v)                  -> s.config.durationInMinutes               := updateConfigNewValue
-                    |   ConfigRequiredFeeMutez (_v)                   -> s.config.requiredFeeMutez                := updateConfigNewValue * 1mutez
+                    |   ConfigRequiredFeeMutez (_v)                   -> s.config.requiredFeeMutez                := updateConfigNewValue * 1mumav
                     |   ConfigStakedMvkPercentRequired (_v)           -> if updateConfigNewValue > 10_000n     then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.stakedMvkPercentageRequired     := updateConfigNewValue  
                     |   ConfigMinStakedMvkForVoting (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvkRequiredToVote      := updateConfigNewValue
                     |   ConfigMinStakedMvkToTrigger (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
@@ -147,8 +147,10 @@ block {
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
-                operations := List.fold_right(transferOperationFold, destinationParams, operations)
-                
+                for transferParams in list destinationParams block {
+                    operations := transferOperationFold(transferParams, operations);
+                }
+                 
             }
         |   _ -> skip
     ];
@@ -187,7 +189,7 @@ block {
     case emergencyGovernanceLambdaAction of [
         |   LambdaTriggerEmergencyControl(triggerEmergencyControlParams) -> {
 
-                const userAddress: address  = Tezos.get_sender();
+                const userAddress: address  = Mavryk.get_sender();
                     
                 // Verify that there is no currently active emergency governance
                 verifyNoActiveEmergencyGovernance(s);
@@ -272,7 +274,7 @@ block {
     case emergencyGovernanceLambdaAction of [
         |   LambdaVoteForEmergencyControl(_parameters) -> {
 
-                const userAddress: address  = Tezos.get_sender();
+                const userAddress: address  = Mavryk.get_sender();
                 
                 // Verify that there is an active emergency governance
                 verifyOngoingActiveEmergencyGovernance(s);
@@ -298,7 +300,7 @@ block {
                 // Update emergency governance record with new votes
                 _emergencyGovernance.totalStakedMvkVotes := totalStakedMvkVotes;
                 s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
-                s.emergencyGovernanceVoters := Big_map.add((s.currentEmergencyGovernanceId, userAddress), (stakedMvkBalance, Tezos.get_now()), s.emergencyGovernanceVoters);
+                s.emergencyGovernanceVoters := Big_map.add((s.currentEmergencyGovernanceId, userAddress), (stakedMvkBalance, Mavryk.get_now()), s.emergencyGovernanceVoters);
 
                 // Check if total votes has exceed threshold - if yes, trigger operation to break glass contract
                 if totalStakedMvkVotes > _emergencyGovernance.stakedMvkRequiredForBreakGlass then block {
@@ -309,8 +311,8 @@ block {
 
                     // Update emergency governance record
                     _emergencyGovernance.executed            := True;
-                    _emergencyGovernance.executedDateTime    := Some(Tezos.get_now());
-                    _emergencyGovernance.executedLevel       := Some(Tezos.get_level());
+                    _emergencyGovernance.executedDateTime    := Some(Mavryk.get_now());
+                    _emergencyGovernance.executedLevel       := Some(Mavryk.get_level());
                     
                     // Save emergency governance record
                     s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;

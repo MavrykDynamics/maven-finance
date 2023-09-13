@@ -35,7 +35,7 @@ block {
 function verifySenderIsRegisteredOracle(const s : aggregatorStorageType) : unit is
 block {
 
-    if Map.mem(Tezos.get_sender(), s.oracleLedger) 
+    if Map.mem(Mavryk.get_sender(), s.oracleLedger) 
     then skip 
     else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
 
@@ -70,7 +70,7 @@ block {
 function verifyCorrectAggregatorAddress(const aggregatorAddress : address) : unit is
 block {
     
-    if Tezos.get_self_address() =/= aggregatorAddress 
+    if Mavryk.get_self_address() =/= aggregatorAddress 
     then failwith(error_WRONG_AGGREGATOR_ADDRESS_IN_OBSERVATIONS_MAP);
 
 } with unit
@@ -189,7 +189,7 @@ block {
 
 // helper function to get distributeRewardXtz entrypoint in factory contract
 function getDistributeRewardXtzInFactoryEntrypoint(const contractAddress : address) : contract(distributeRewardXtzType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%distributeRewardXtz",
         contractAddress) : option(contract(distributeRewardXtzType))) of [
                 Some(contr) -> contr
@@ -200,7 +200,7 @@ function getDistributeRewardXtzInFactoryEntrypoint(const contractAddress : addre
 
 // helper function to get distributeRewardMvk entrypoint in factory contract
 function getDistributeRewardStakedMvkInFactoryEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvkType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%distributeRewardStakedMvk",
         contractAddress) : option(contract(distributeRewardStakedMvkType))) of [
                 Some(contr) -> contr
@@ -211,7 +211,7 @@ function getDistributeRewardStakedMvkInFactoryEntrypoint(const contractAddress :
 
 // helper function to get setAggregatorReference entrypoint in governanceSatellite contract
 function getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(const contractAddress : address) : contract(setAggregatorReferenceType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%setAggregatorReference",
         contractAddress) : option(contract(setAggregatorReferenceType))) of [
                 Some(contr) -> contr
@@ -239,9 +239,9 @@ block {
         reward    = rewardAmount;
     ];
 
-    const distributeRewardXtzOperation : operation = Tezos.transaction(
+    const distributeRewardXtzOperation : operation = Mavryk.transaction(
         distributeRewardXtzParams,
-        0tez,
+        0mav,
         getDistributeRewardXtzInFactoryEntrypoint(factoryAddress)
     );
 
@@ -260,9 +260,9 @@ block {
         totalStakedMvkReward   = rewardAmount;
     ];
 
-    const distributeRewardMvkOperation : operation = Tezos.transaction(
+    const distributeRewardMvkOperation : operation = Mavryk.transaction(
         distributeRewardMvkParams,
-        0tez,
+        0mav,
         getDistributeRewardStakedMvkInFactoryEntrypoint(factoryAddress)
     );
 
@@ -286,7 +286,7 @@ block {
     // Get Delegation Contract address from the General Contracts Map on the Governance Contract
     const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
-    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+    const satelliteOptView : option (option(satelliteRecordType)) = Mavryk.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
     const satelliteRecord : satelliteRecordType = case satelliteOptView of [
             Some (optionView) -> case optionView of [
                     Some(_satelliteRecord)      -> _satelliteRecord
@@ -465,7 +465,7 @@ function pivotObservationMap (var m : oracleObservationsType) : pivotedObservati
 
 
 // helper function to get median data
-function getMedianFromMap (var m : pivotedObservationsType; const sizeMap: nat) : nat is block {
+function getMedianFromMap (const m : pivotedObservationsType; const sizeMap: nat) : nat is block {
   (*
     m is a map: observationValue -> observationCount, sorted by observation value
     Example:
@@ -549,7 +549,7 @@ function getDelegationRatio(const delegationAddress : address) : nat is
 block {
 
     // Get the delegation ratio
-    const configView : option (delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+    const configView : option (delegationConfigType)  = Mavryk.call_view ("getConfig", unit, delegationAddress);
     const delegationRatio : nat = case configView of [
             Some (_config) -> _config.delegationRatio
         |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -625,10 +625,10 @@ block {
     if rewardAmountXtz > 0n then {
 
         // get current oracle xtz rewards
-        const currentOracleXtzRewards : nat = getOracleXtzRewards(Tezos.get_sender(), s);
+        const currentOracleXtzRewards : nat = getOracleXtzRewards(Mavryk.get_sender(), s);
 
         // increment oracle rewards in storage
-        s.oracleRewardXtz[Tezos.get_sender()] := currentOracleXtzRewards + rewardAmountXtz;
+        s.oracleRewardXtz[Mavryk.get_sender()] := currentOracleXtzRewards + rewardAmountXtz;
 
     } else skip;
 
@@ -643,11 +643,12 @@ block {
 // ------------------------------------------------------------------------------
 
 // refresh the oracle ledger
-function refreshStorage(var updateDataParams : updateDataType; var s : aggregatorStorageType) : (updateDataType * aggregatorStorageType) is
+function refreshStorage(const updateDataParams : updateDataType; var s : aggregatorStorageType) : (updateDataType * aggregatorStorageType) is
 block {
 
     // parse parameters
-    const satelliteAddress : address                    = Tezos.get_sender();
+    const satelliteAddress : address                    = Mavryk.get_sender();
+    var updateDataUpdatedParams : updateDataType        := updateDataParams;
     var tempOracleVotingPowerMap   : map(address, nat)  := map [];
     var totalVotingPower           : nat                := 0n;
 
@@ -661,7 +662,7 @@ block {
     const delegationRatio   : nat                       = getDelegationRatio(delegationAddress);
 
     // Check if the sender is valid
-    var satelliteOptView : option (option(satelliteRecordType))     := Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+    var satelliteOptView : option (option(satelliteRecordType))     := Mavryk.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
     const satelliteRecordOpt : option(satelliteRecordType)          = case satelliteOptView of [
             Some (optionView) -> optionView
         |   None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -688,19 +689,19 @@ block {
     }
     else {
         s.oracleLedger                      := Map.remove(satelliteAddress, s.oracleLedger);
-        updateDataParams.oracleObservations := Map.remove(satelliteAddress, updateDataParams.oracleObservations);
-        updateDataParams.signatures         := Map.remove(satelliteAddress, updateDataParams.signatures);
+        updateDataUpdatedParams.oracleObservations := Map.remove(satelliteAddress, updateDataUpdatedParams.oracleObservations);
+        updateDataUpdatedParams.signatures         := Map.remove(satelliteAddress, updateDataUpdatedParams.signatures);
     };
 
     // Check if the observations are valid
-    const oracleObservationsTemp : oracleObservationsType   = updateDataParams.oracleObservations;
+    const oracleObservationsTemp : oracleObservationsType   = updateDataUpdatedParams.oracleObservations;
     for oracleAddress -> _oracleObservation in map oracleObservationsTemp block {
 
         // Save gas by removing the sender if its not a satellite
         if oracleAddress = satelliteAddress then skip
         else{
             // Check oracle is valid
-            satelliteOptView                                        := Tezos.call_view ("getSatelliteOpt", oracleAddress, delegationAddress);
+            satelliteOptView                                        := Mavryk.call_view ("getSatelliteOpt", oracleAddress, delegationAddress);
             const satelliteRecordOpt : option(satelliteRecordType)  = case satelliteOptView of [
                     Some (optionView) -> optionView
                 |   None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -727,19 +728,19 @@ block {
             }
             else {
                 s.oracleLedger                              := Map.remove(oracleAddress, s.oracleLedger);
-                updateDataParams.oracleObservations         := Map.remove(oracleAddress, updateDataParams.oracleObservations);
-                updateDataParams.signatures                 := Map.remove(oracleAddress, updateDataParams.signatures);
+                updateDataUpdatedParams.oracleObservations         := Map.remove(oracleAddress, updateDataUpdatedParams.oracleObservations);
+                updateDataUpdatedParams.signatures                 := Map.remove(oracleAddress, updateDataUpdatedParams.signatures);
             }
         };
     };
 
     // If the sender is still an oracle, the rewards can be calculated
     if Map.mem(satelliteAddress, s.oracleLedger) then {
-        s   := updateRewardsStakedMvk(updateDataParams.oracleObservations, tempOracleVotingPowerMap, totalVotingPower, s);
+        s   := updateRewardsStakedMvk(updateDataUpdatedParams.oracleObservations, tempOracleVotingPowerMap, totalVotingPower, s);
         s   := updateRewardsXtz(s);
     }
 
-} with (updateDataParams, s)
+} with (updateDataUpdatedParams, s)
 
 // ------------------------------------------------------------------------------
 // Update Data Helper Functions End
@@ -754,7 +755,7 @@ function unpackLambda(const lambdaBytes : bytes; const aggregatorLambdaAction : 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(aggregatorUnpackLambdaFunctionType)) of [
-            Some(f) -> f(aggregatorLambdaAction, s)
+            Some(f) -> f((aggregatorLambdaAction, s))
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

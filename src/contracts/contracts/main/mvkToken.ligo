@@ -476,6 +476,7 @@ block{
 (* update_operators entrypoint *)
 function updateOperators(const updateOperatorsParams : updateOperatorsType; const store : mvkTokenStorageType) : return is
 block{
+
     var updatedOperators : operatorsType := store.operators;
     for updateOperator in list updateOperatorsParams block {
         updatedOperators := case updateOperator of [

@@ -12,7 +12,7 @@
 function verifySenderIsCouncilMember(var s : councilStorageType) : unit is
 block {
 
-    if Big_map.mem(Tezos.get_sender(), s.councilMembers) then skip
+    if Big_map.mem(Mavryk.get_sender(), s.councilMembers) then skip
     else failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED);
 
 } with unit
@@ -29,7 +29,7 @@ block {
 
 // helper function to %addVestee entrypoint to add a new vestee on the Vesting contract
 function sendAddVesteeParams(const contractAddress : address) : contract(addVesteeType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%addVestee",
         contractAddress) : option(contract(addVesteeType))) of [
                 Some(contr) -> contr
@@ -40,7 +40,7 @@ function sendAddVesteeParams(const contractAddress : address) : contract(addVest
 
 // helper function to %removeVestee entrypoint to remove a vestee on the Vesting contract
 function sendRemoveVesteeParams(const contractAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%removeVestee",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
@@ -51,7 +51,7 @@ function sendRemoveVesteeParams(const contractAddress : address) : contract(addr
 
 // helper function to %updateVestee entrypoint to update a vestee on the Vesting contract
 function sendUpdateVesteeParams(const contractAddress : address) : contract(updateVesteeType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%updateVestee",
         contractAddress) : option(contract(updateVesteeType))) of [
                 Some(contr) -> contr
@@ -62,7 +62,7 @@ function sendUpdateVesteeParams(const contractAddress : address) : contract(upda
 
 // helper function to %toggleVesteeLock entrypoint to lock or unlock a vestee on the Vesting contract
 function sendToggleVesteeLockParams(const contractAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%toggleVesteeLock",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
@@ -73,7 +73,7 @@ function sendToggleVesteeLockParams(const contractAddress : address) : contract(
 
 // helper function to %dropFinancialRequest entrypoint on the Governance Financial contract
 function sendDropFinancialRequestParams(const contractAddress : address) : contract(nat) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%dropFinancialRequest",
         contractAddress) : option(contract(nat))) of [
                 Some(contr) -> contr
@@ -84,7 +84,7 @@ function sendDropFinancialRequestParams(const contractAddress : address) : contr
 
 // helper function to %requestTokens entrypoint on the Governance Financial contract
 function sendRequestTokensParams(const contractAddress : address) : contract(councilActionRequestTokensType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%requestTokens",
         contractAddress) : option(contract(councilActionRequestTokensType))) of [
                 Some(contr) -> contr
@@ -95,7 +95,7 @@ function sendRequestTokensParams(const contractAddress : address) : contract(cou
 
 // helper function to %requestMint entrypoint on the Governance Financial contract
 function sendRequestMintParams(const contractAddress : address) : contract(councilActionRequestMintType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%requestMint",
         contractAddress) : option(contract(councilActionRequestMintType))) of [
                 Some(contr) -> contr
@@ -106,7 +106,7 @@ function sendRequestMintParams(const contractAddress : address) : contract(counc
 
 // helper function to %setContractBaker entrypoint on the Governance Financial contract
 function sendSetContractBakerParams(const contractAddress : address) : contract(councilActionSetContractBakerType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%setContractBaker",
         contractAddress) : option(contract(councilActionSetContractBakerType))) of [
                 Some(contr) -> contr
@@ -147,7 +147,7 @@ block {
     if actionRecord.executed then failwith(error_COUNCIL_ACTION_EXECUTED) else skip;
 
     // check that council action has not expired
-    if Tezos.get_now() > actionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
+    if Mavryk.get_now() > actionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
 
 } with (unit)
 
@@ -166,7 +166,7 @@ block {
     if actionRecord.executed then failwith(error_COUNCIL_ACTION_EXECUTED) else skip;
 
     // check that break glass action has not expired
-    if Tezos.get_now() > actionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
+    if Mavryk.get_now() > actionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
 
 } with (unit)
 
@@ -177,7 +177,7 @@ function createCouncilAction(const actionType : string; const dataMap : dataMapT
 block {
 
     const councilActionRecord : councilActionRecordType = record[
-        initiator             = Tezos.get_sender();
+        initiator             = Mavryk.get_sender();
         actionType            = actionType;
 
         status                = "PENDING";
@@ -186,14 +186,14 @@ block {
 
         dataMap               = dataMap;
 
-        startDateTime         = Tezos.get_now();
-        startLevel            = Tezos.get_level();             
+        startDateTime         = Mavryk.get_now();
+        startLevel            = Mavryk.get_level();             
         executedDateTime      = None;
         executedLevel         = None;
-        expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
+        expirationDateTime    = Mavryk.get_now() + (86_400 * s.config.actionExpiryDays);
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord;
-    s.councilActionsSigners                 := Big_map.add((s.actionCounter, Tezos.get_sender()), unit, s.councilActionsSigners);
+    s.councilActionsSigners                 := Big_map.add((s.actionCounter, Mavryk.get_sender()), unit, s.councilActionsSigners);
 
     // increment action counter
     s.actionCounter := s.actionCounter + 1n;
@@ -252,7 +252,7 @@ block {
     // Get Governance Financial Address from the General Contracts Map on the Governance Contract
     const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
 
-    case (Tezos.call_view ("getFinancialRequestOpt", requestId, governanceFinancialAddress) : option(option(financialRequestRecordType))) of [
+    case (Mavryk.call_view ("getFinancialRequestOpt", requestId, governanceFinancialAddress) : option(option(financialRequestRecordType))) of [
             Some (_requestOpt)  -> case _requestOpt of [
                     Some (_request) -> skip
                 |   None            -> failwith(error_FINANCIAL_REQUEST_NOT_FOUND)
@@ -271,7 +271,7 @@ block {
     // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
     const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
 
-    const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
+    const vesteeOptView : option (option(vesteeRecordType)) = Mavryk.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
     case vesteeOptView of [
             Some (_value) -> case _value of [
                     Some (_vestee) -> skip
@@ -291,7 +291,7 @@ block {
     // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
     const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
 
-    const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
+    const vesteeOptView : option (option(vesteeRecordType)) = Mavryk.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
     case vesteeOptView of [
             Some (_value) -> case _value of [
                     Some (_vestee) -> failwith (error_VESTEE_ALREADY_EXISTS)
@@ -403,9 +403,9 @@ block {
         vestingInMonths         = vestingInMonths;
     ];
 
-    const addVesteeOperation : operation = Tezos.transaction(
+    const addVesteeOperation : operation = Mavryk.transaction(
         addVesteeParams,
-        0tez, 
+        0mav, 
         sendAddVesteeParams(vestingAddress)
     );
 
@@ -420,9 +420,9 @@ block {
     // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
     const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
 
-    const removeVesteeOperation : operation = Tezos.transaction(
+    const removeVesteeOperation : operation = Mavryk.transaction(
         vesteeAddress,
-        0tez, 
+        0mav, 
         sendRemoveVesteeParams(vestingAddress)
     );
 
@@ -444,9 +444,9 @@ block {
         newVestingInMonths          = newVestingInMonths;
     ];
 
-    const updateVesteeOperation : operation = Tezos.transaction(
+    const updateVesteeOperation : operation = Mavryk.transaction(
         updateVesteeParams,
-        0tez, 
+        0mav, 
         sendUpdateVesteeParams(vestingAddress)
     );
 
@@ -461,9 +461,9 @@ block {
     // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
     const vestingAddress: address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
 
-    const toggleVesteeLockOperation : operation = Tezos.transaction(
+    const toggleVesteeLockOperation : operation = Mavryk.transaction(
         vesteeAddress,
-        0tez, 
+        0mav, 
         sendToggleVesteeLockParams(vestingAddress)
     );
 
@@ -493,9 +493,9 @@ block {
         purpose               = purpose;
     ];
 
-    const requestTokensOperation : operation = Tezos.transaction(
+    const requestTokensOperation : operation = Mavryk.transaction(
         requestTokensParams,
-        0tez, 
+        0mav, 
         sendRequestTokensParams(governanceFinancialAddress)
     );
 
@@ -520,9 +520,9 @@ block {
         purpose          = purpose;
     ];
 
-    const requestMintOperation : operation = Tezos.transaction(
+    const requestMintOperation : operation = Mavryk.transaction(
         requestMintParams,
-        0tez, 
+        0mav, 
         sendRequestMintParams(governanceFinancialAddress)
     );
 
@@ -542,9 +542,9 @@ block {
         keyHash                 = keyHash;
     ];
 
-    const setContractBakerOperation : operation = Tezos.transaction(
+    const setContractBakerOperation : operation = Mavryk.transaction(
         setContractBakerParams,
-        0tez, 
+        0mav, 
         sendSetContractBakerParams(governanceFinancialAddress)
     );
 
@@ -561,9 +561,9 @@ block {
     // Verify that financial request exists
     verifyFinancialRequestExists(requestId, s);
 
-    const dropFinancialRequestOperation : operation = Tezos.transaction(
+    const dropFinancialRequestOperation : operation = Mavryk.transaction(
         requestId,
-        0tez, 
+        0mav, 
         sendDropFinancialRequestParams(governanceFinancialAddress)
     );
 
@@ -748,7 +748,7 @@ block {
     const keyHash : option(key_hash) = unpackKeyHash(actionRecord, "keyHash");
 
     // create setBakerOperation
-    const setBakerOperation  : operation        = Tezos.set_delegate(keyHash);
+    const setBakerOperation  : operation        = Mavryk.set_delegate(keyHash);
 
     operations := setBakerOperation # operations;
 
@@ -854,7 +854,7 @@ block {
     const tokenId               : nat       = unpackNat(actionRecord, "tokenId");
     // fetch params end ---
 
-    const from_  : address   = Tezos.get_self_address();
+    const from_  : address   = Mavryk.get_self_address();
     const to_    : address   = receiverAddress;
     const amt    : nat       = tokenAmount;
     
@@ -881,7 +881,7 @@ block {
 
     // create transferTokenOperation
     const transferTokenOperation : operation = case _tokenTransferType of [ 
-        |   Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address") : contract(unit)), amt * 1mutez)
+        |   Tez         -> transferTez((Mavryk.get_contract_with_error(to_, "Error. Contract not found at given address") : contract(unit)), amt * 1mumav)
         |   Fa12(token) -> transferFa12Token(from_, to_, amt, token)
         |   Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
     ];
@@ -1113,8 +1113,8 @@ block {
     // update council action record status
     actionRecord.status              := "EXECUTED";
     actionRecord.executed            := True;
-    actionRecord.executedDateTime    := Some(Tezos.get_now());
-    actionRecord.executedLevel       := Some(Tezos.get_level());
+    actionRecord.executedDateTime    := Some(Mavryk.get_now());
+    actionRecord.executedLevel       := Some(Mavryk.get_level());
     
     // save council action record
     s.councilActionsLedger[actionId] := actionRecord;
@@ -1136,7 +1136,7 @@ function unpackLambda(const lambdaBytes : bytes; const councilLambdaAction : cou
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(councilUnpackLambdaFunctionType)) of [
-            Some(f) -> f(councilLambdaAction, s)
+            Some(f) -> f((councilLambdaAction, s))
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

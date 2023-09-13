@@ -39,7 +39,7 @@ block {
 
 // helper function to get distributeReward entrypoint in delegation contract
 function getDistributeRewardInDelegationEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvkType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%distributeReward",
         contractAddress) : option(contract(distributeRewardStakedMvkType))) of [
                 Some(contr) -> contr
@@ -50,7 +50,7 @@ function getDistributeRewardInDelegationEntrypoint(const contractAddress : addre
 
 // helper function to get setAggregatorReference entrypoint in governanceSatellite contract
 function getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(const contractAddress : address) : contract(setAggregatorReferenceType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%setAggregatorReference",
         contractAddress) : option(contract(setAggregatorReferenceType))) of [
                 Some(contr) -> contr
@@ -78,9 +78,9 @@ block {
     ];
 
     // Create and send updateGeneralContractsMap operation to the Governance Contract
-    const updateGeneralContractsOperation : operation = Tezos.transaction(
+    const updateGeneralContractsOperation : operation = Mavryk.transaction(
         updateGeneralMapRecord,
-        0tez, 
+        0mav, 
         getUpdateGeneralContractsEntrypoint(s.governanceAddress)
     );
 
@@ -103,9 +103,9 @@ block {
     ];
 
     // Create and send setAggregatorReference operation to the Governance Contract
-    const setAggregatorReferenceOperation : operation = Tezos.transaction(
+    const setAggregatorReferenceOperation : operation = Mavryk.transaction(
         setAggregatorReferenceParams,
-        0tez,
+        0mav,
         getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
     );
 
@@ -132,9 +132,9 @@ block {
         ]
     ];
 
-    const distributeRewardXtzOperation : operation = Tezos.transaction(
+    const distributeRewardXtzOperation : operation = Mavryk.transaction(
         distributeRewardXtzParams, 
-        0tez, 
+        0mav, 
         sendTransferOperationToTreasury(treasuryAddress)
     );
 
@@ -155,9 +155,9 @@ block {
         totalStakedMvkReward = rewardAmount;
     ];
 
-    const distributeRewardStakedMvkOperation : operation = Tezos.transaction(
+    const distributeRewardStakedMvkOperation : operation = Mavryk.transaction(
         rewardParams,
-        0tez,
+        0mav,
         getDistributeRewardInDelegationEntrypoint(delegationAddress)
     );
 
@@ -177,7 +177,7 @@ block {
 function getAggregatorName(const aggregatorAddress : address) : string is
 block {
 
-    const aggregatorNameView : option(string) = Tezos.call_view ("getName", unit, aggregatorAddress);
+    const aggregatorNameView : option(string) = Mavryk.call_view ("getName", unit, aggregatorAddress);
     const aggregatorName : string = case aggregatorNameView of [
                 Some (_name)    -> _name
             |   None            -> failwith (error_GET_NAME_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
@@ -196,7 +196,7 @@ block {
         epoch                     = 0n;
         data                      = 0n;
         percentOracleResponse     = 0n;
-        lastUpdatedAt             = Tezos.get_now();
+        lastUpdatedAt             = Mavryk.get_now();
     ];
     const oracleRewardXtz        : oracleRewardXtzType        = Big_map.empty;
     const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = Big_map.empty;
@@ -206,7 +206,7 @@ block {
 
     // Add Aggregator Factory Contract and Governance Satellite Contract to Whitelisted Contracts Map on the new Aggregator Contract
     const aggregatorWhitelistContracts : whitelistContractsType = big_map[
-        (Tezos.get_self_address())   -> unit;
+        (Mavryk.get_self_address())   -> unit;
         (governanceSatelliteAddress) -> unit;
     ];
     
@@ -298,7 +298,7 @@ function unpackLambda(const lambdaBytes : bytes; const aggregatorFactoryLambdaAc
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(aggregatorFactoryUnpackLambdaFunctionType)) of [
-            Some(f) -> f(aggregatorFactoryLambdaAction, s)
+            Some(f) -> f((aggregatorFactoryLambdaAction, s))
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

@@ -64,7 +64,7 @@ block {
                 const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Get the Farm Factory Contract Config
-                const configView : option (farmFactoryConfigType) = Tezos.call_view ("getConfig", unit, farmFactoryAddress);
+                const configView : option (farmFactoryConfigType) = Mavryk.call_view ("getConfig", unit, farmFactoryAddress);
                 const farmFactoryConfig: farmFactoryConfigType = case configView of [
                         Some (_config) -> _config
                     |   None -> failwith (error_GET_CONFIG_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND)
@@ -207,11 +207,13 @@ block {
                 const lpTokenAddress : address  = s.config.lpToken.tokenAddress;
 
                 // verify token is allowed to be transferred
-                verifyTokenAllowedForOperationFold(lpTokenAddress, destinationParams, error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER);
+                verifyTokenAllowedForOperationLoop(lpTokenAddress, destinationParams, error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
-                operations := List.fold_right(transferOperationFold, destinationParams, operations)
-                
+                for transferParams in list destinationParams block {
+                    operations := transferOperationFold(transferParams, operations);
+                }
+                 
             }
         |   _ -> skip
     ];
@@ -418,7 +420,7 @@ block{
                 checkFarmIsOpen(s);
 
                 // Init depositor address
-                const depositor : depositorType = Tezos.get_sender();
+                const depositor : depositorType = Mavryk.get_sender();
 
                 // Check if sender is an existing depositor
                 const existingDepositor : bool = checkDepositorExists(depositor, s);
@@ -448,7 +450,7 @@ block{
                 // Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
                 const transferFarmLpTokenOperation : operation = transferFarmLpTokenOperation(
                     depositor,                      // from_
-                    Tezos.get_self_address(),       // to_
+                    Mavryk.get_self_address(),       // to_
                     tokenAmount,                    // tokenAmount
                     s                               // storage
                 );
@@ -492,7 +494,7 @@ block{
                 s := updateFarm(s);     
 
                 // Init depositor address
-                const depositor : depositorType = Tezos.get_sender();
+                const depositor : depositorType = Mavryk.get_sender();
 
                 // Update user's unclaimedRewards if user already deposited tokens
                 s := updateUnclaimedRewards(depositor, s);
@@ -519,7 +521,7 @@ block{
                 
                 // Transfer LP tokens to the user from the farm balance in the LP Contract
                 const transferFarmLpTokenOperation : operation = transferFarmLpTokenOperation(
-                    Tezos.get_self_address(),       // from_
+                    Mavryk.get_self_address(),       // from_
                     depositor,                      // to_
                     finalWithdrawAmount,            // tokenAmount
                     s                               // storage
