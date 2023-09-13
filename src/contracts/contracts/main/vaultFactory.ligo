@@ -31,7 +31,7 @@
 // ------------------------------------------------------------------------------
 
 // helper function to create vault 
-type createVaultFuncType is (option(key_hash) * tez * vaultStorageType) -> (operation * address)
+type createVaultFuncType is (option(key_hash) * mav * vaultStorageType) -> (operation * address)
 const createVaultFunc : createVaultFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT

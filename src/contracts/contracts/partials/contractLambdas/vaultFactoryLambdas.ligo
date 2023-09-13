@@ -154,15 +154,17 @@ block {
                     block{
 
                         const transferTokenOperation : operation = case transferParam.token of [
-                            |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
-                            |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
-                            |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                            |   Tez         -> transferTez((Mavryk.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mumav)
+                            |   Fa12(token) -> transferFa12Token(Mavryk.get_self_address(), transferParam.to_, transferParam.amount, token)
+                            |   Fa2(token)  -> transferFa2Token(Mavryk.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                         ];
 
                     } with (transferTokenOperation # operationList);
                 
-                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
-                
+                for transferParams in list destinationParams block {
+                    operations := transferOperationFold(transferParams, operations);
+                }
+                 
             }
         |   _ -> skip
     ];
@@ -290,7 +292,7 @@ block{
                 // init variables
                 const vaultDelegate         : option(key_hash) = createVaultParams.baker;
                 const vaultLoanTokenName    : string = createVaultParams.loanTokenName; // e.g. USDT, EURL 
-                const vaultOwner            : address = Tezos.get_sender();
+                const vaultOwner            : address = Mavryk.get_sender();
                 const newVaultId            : vaultIdType = s.vaultCounter;
 
                 // Get deposits if any
@@ -312,9 +314,9 @@ block{
 
                 // originate vault func with delegate option
                 const vaultOrigination : (operation * address) = createVaultFunc(
-                    vaultDelegate,  
-                    Tezos.get_amount(),                       
-                    originateVaultStorage
+                    (vaultDelegate,  
+                    Mavryk.get_amount(),                       
+                    originateVaultStorage)
                 );
 
                 // get vault address
@@ -342,7 +344,7 @@ block{
 
                     // if tez is sent, check that it matches the amount listed
                     if tokenName = "tez" then {
-                        if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
+                        if Mavryk.get_amount() = (amount * 1mumav) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
                     } else skip;
 
                     operationList := registerDepositInLendingController(
@@ -357,7 +359,7 @@ block{
                     if tokenName =/= "tez" then {
                         
                         const processVaultDepositOperation : operation = processVaultCollateralTransfer(
-                            Tezos.get_sender(),         // from_
+                            Mavryk.get_sender(),         // from_
                             vaultAddress,               // to_
                             amount,                     // amount
                             tokenType                   // tokenType
@@ -367,7 +369,9 @@ block{
 
                 } with operationList;
 
-                operations := List.fold_right(processNewVaultCollateralDeposit, collateralDepositList, operations);
+                for collateralDeposit in list collateralDepositList block {
+                    operations := processNewVaultCollateralDeposit(collateralDepositList, operations);
+                }
 
                 // FILO (First-In, Last-Out) - originate vault first then register vault creation in lending controller
                 operations := registerVaultCreationOperation # operations;

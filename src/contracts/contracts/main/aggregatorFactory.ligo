@@ -37,7 +37,7 @@
 // ------------------------------------------------------------------------------
 
 
-type createAggregatorFuncType is (option(key_hash) * tez * aggregatorStorageType) -> (operation * address);
+type createAggregatorFuncType is (option(key_hash) * mav * aggregatorStorageType) -> (operation * address);
 const createAggregatorFunc: createAggregatorFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT

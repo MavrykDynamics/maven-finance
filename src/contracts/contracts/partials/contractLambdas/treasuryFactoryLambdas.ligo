@@ -156,8 +156,10 @@ block {
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
-                operations := List.fold_right(transferOperationFold, destinationParams, operations)
-                
+                for transferParams in list destinationParams block {
+                    operations := transferOperationFold(transferParams, operations);
+                }
+                 
             }
         |   _ -> skip
     ];
@@ -202,8 +204,8 @@ block {
 
                 for treasuryAddress in set s.trackedTreasuries
                 block {
-                    case (Tezos.get_entrypoint_opt("%pauseAll", treasuryAddress) : option(contract(unit))) of [
-                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                    case (Mavryk.get_entrypoint_opt("%pauseAll", treasuryAddress) : option(contract(unit))) of [
+                            Some(contr) -> operations := Mavryk.transaction(Unit, 0mav, contr) # operations
                         |   None -> skip
                     ];
                 };
@@ -244,8 +246,8 @@ block {
 
                 for treasuryAddress in set s.trackedTreasuries
                 block {
-                    case (Tezos.get_entrypoint_opt("%unpauseAll", treasuryAddress) : option(contract(unit))) of [
-                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                    case (Mavryk.get_entrypoint_opt("%unpauseAll", treasuryAddress) : option(contract(unit))) of [
+                            Some(contr) -> operations := Mavryk.transaction(Unit, 0mav, contr) # operations
                         |   None -> skip
                     ];
                 };
@@ -330,9 +332,9 @@ block{
 
                 // Create operation to originate Treasury
                 const treasuryOrigination: (operation * address) = createTreasuryFunc(
-                    createTreasuryParams.baker, 
-                    0tez,
-                    originatedTreasuryStorage
+                    (createTreasuryParams.baker, 
+                    0mav,
+                    originatedTreasuryStorage)
                 );
 
                 // Add newly created Treasury to tracked Treasuries

@@ -56,8 +56,8 @@ services:
   flextesa:
     container_name: mavryk-sandbox
     restart: always
-    image: oxheadalpha/flextesa:20230607
-    command: mumbaibox start
+    image: flextesa-build:latest
+    command: alphabox start
     environment:
       - block_time=3
       - flextesa_node_cors_origin=*

@@ -69,14 +69,14 @@ block {
 
                 // Update the reference in the governanceSatellite contract
                 const setAggregatorReferenceParams : setAggregatorReferenceType = record [
-                    aggregatorAddress   = Tezos.get_self_address();
+                    aggregatorAddress   = Mavryk.get_self_address();
                     oldName             = s.name;
                     newName             = updatedName;
                 ];
 
-                operations :=  Tezos.transaction(
+                operations :=  Mavryk.transaction(
                     setAggregatorReferenceParams,
-                    0tez,
+                    0mav,
                     getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
                 ) # operations;
 
@@ -84,7 +84,7 @@ block {
                 const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
             
                 // Get aggregator name max length from factory contract
-                const aggregatorFactoryConfigView : option (aggregatorFactoryConfigType) = Tezos.call_view ("getConfig", unit, aggregatorFactoryAddress);
+                const aggregatorFactoryConfigView : option (aggregatorFactoryConfigType) = Mavryk.call_view ("getConfig", unit, aggregatorFactoryAddress);
                 const aggregatorNameMaxLength : nat = case aggregatorFactoryConfigView of [
                         Some (_config) -> _config.aggregatorNameMaxLength
                     |   None           -> failwith (error_GET_CONFIG_VIEW_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
@@ -205,8 +205,10 @@ block {
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
-                operations := List.fold_right(transferOperationFold, destinationParams, operations)
-                
+                for transferParams in list destinationParams block {
+                    operations := transferOperationFold(transferParams, operations);
+                }
+
             }
         | _ -> skip
     ];
@@ -261,10 +263,10 @@ block {
                 verifySenderIsRegisteredOracle(s);
                 
                 // Get oracle infromation from the delegation contract
-                const oracleInformation : oracleInformationType = getOracleInformation(Tezos.get_sender(), s);
+                const oracleInformation : oracleInformationType = getOracleInformation(Mavryk.get_sender(), s);
                 
                 // Update storage
-                s.oracleLedger[Tezos.get_sender()]  := oracleInformation;
+                s.oracleLedger[Mavryk.get_sender()]  := oracleInformation;
 
             }
         |   _ -> skip
@@ -408,7 +410,7 @@ block{
                 s                                                                               := refreshedLedgerAndObservations.1;
 
                 // if the sender isn't an oracle anymore, skip the call
-                if Map.mem(Tezos.get_sender(), s.oracleLedger) then{
+                if Map.mem(Mavryk.get_sender(), s.oracleLedger) then{
 
                     // verify obervations and signatures have the same size
                     verifyEqualMapSizes(updatedUpdateDataParams, s);
@@ -432,7 +434,7 @@ block{
                         epoch                   = epochAndRound.0;
                         data                    = median;
                         percentOracleResponse   = percentOracleResponse;
-                        lastUpdatedAt           = Tezos.get_now();
+                        lastUpdatedAt           = Mavryk.get_now();
                     ];
 
                     // -----------------------------------------

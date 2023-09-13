@@ -13,7 +13,7 @@ function getGovernanceAddress(const s : vaultStorageType) : address is
 block {
 
     // get governance address view from vault factory
-    const getGovernanceAddressView : option (address) = Tezos.call_view ("getGovernanceAddress", unit, s.admin);
+    const getGovernanceAddressView : option (address) = Mavryk.call_view ("getGovernanceAddress", unit, s.admin);
     const governanceAddress : address = case getGovernanceAddressView of [
             Some (_address) -> _address
         |   None            -> failwith(error_GET_GOVERNANCE_ADDRESS_VIEW_NOT_FOUND_IN_VAULT_FACTORY)
@@ -76,7 +76,7 @@ block {
     // Get Vault Factory Address from the General Contracts map on the Governance Contract
     const vaultFactoryAddress : address = getContractAddressFromGovernanceContract("vaultFactory", governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
 
-    if isOwnerCheck = True or isAbleToDeposit = True or Tezos.get_sender() = vaultFactoryAddress
+    if isOwnerCheck = True or isAbleToDeposit = True or Mavryk.get_sender() = vaultFactoryAddress
     then skip 
     else failwith(error_NOT_AUTHORISED_TO_DEPOSIT_INTO_VAULT)
 
@@ -89,7 +89,7 @@ function checkSenderIsOwner(const s : vaultStorageType) : bool is
 block {
 
     var isOwnerCheck : bool := False;
-    if Tezos.get_sender() = s.handle.owner then isOwnerCheck := True else isOwnerCheck := False;
+    if Mavryk.get_sender() = s.handle.owner then isOwnerCheck := True else isOwnerCheck := False;
 
 } with isOwnerCheck
 
@@ -101,7 +101,7 @@ block {
 
     const isAllowedToDeposit : bool = case s.depositors of [
             Any                     -> True
-        |   Whitelist(_depositors)  -> _depositors contains Tezos.get_sender()
+        |   Whitelist(_depositors)  -> _depositors contains Mavryk.get_sender()
     ];
 
 } with isAllowedToDeposit
@@ -118,7 +118,7 @@ block {
 
 // helper function to %registerDeposit entrypoint in the Lending Controller
 function getRegisterDepositEntrypointInLendingController(const contractAddress : address) : contract(registerDepositActionType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%registerDeposit",
         contractAddress) : option(contract(registerDepositActionType))) of [
                 Some(contr) -> contr
@@ -129,7 +129,7 @@ function getRegisterDepositEntrypointInLendingController(const contractAddress :
 
 // helper function to %registerWithdrawal entrypoint in the vault controller
 function getRegisterWithdrawalEntrypointInLendingController(const contractAddress : address) : contract(registerWithdrawalActionType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%registerWithdrawal",
         contractAddress) : option(contract(registerWithdrawalActionType))) of [
                 Some(contr) -> contr
@@ -140,7 +140,7 @@ function getRegisterWithdrawalEntrypointInLendingController(const contractAddres
 
 // helper function to %delegateToSatellite entrypoint in the delegation contract
 function getDelegateToSatelliteEntrypoint(const contractAddress : address) : contract(delegateToSatelliteType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%delegateToSatellite",
         contractAddress) : option(contract(delegateToSatelliteType))) of [
                 Some(contr) -> contr
@@ -151,7 +151,7 @@ function getDelegateToSatelliteEntrypoint(const contractAddress : address) : con
 
 // helper function to %update_operators entrypoint on a given token contract
 function getUpdateTokenOperatorsEntrypoint(const tokenContractAddress : address) : contract(updateOperatorsType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%update_operators",
         tokenContractAddress) : option(contract(updateOperatorsType))) of [
                 Some (contr)    -> contr
@@ -178,14 +178,14 @@ block {
     const delegationAddress: address = getContractAddressFromGovernanceContract("delegation", governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
     const delegateToSatelliteParams : delegateToSatelliteType = record [
-        userAddress         = Tezos.get_self_address();
+        userAddress         = Mavryk.get_self_address();
         satelliteAddress    = satelliteAddress;
     ];
 
     // Create delegate to satellite operation
-    const delegateToSatelliteOperation : operation = Tezos.transaction(
+    const delegateToSatelliteOperation : operation = Mavryk.transaction(
         delegateToSatelliteParams,
-        0tez,
+        0mav,
         getDelegateToSatelliteEntrypoint(delegationAddress)
     );
 
@@ -198,9 +198,9 @@ function updateTokenOperatorsOperation(const updateOperatorsParams : updateOpera
 block {
 
     // Create operation to update operators in token contract
-    const updateTokenOperatorsOperation : operation = Tezos.transaction(
+    const updateTokenOperatorsOperation : operation = Mavryk.transaction(
         (updateOperatorsParams),
-        0tez, 
+        0mav, 
         getUpdateTokenOperatorsEntrypoint(tokenContractAddress)
     );
 
@@ -227,7 +227,7 @@ block {
     const vaultFactoryAddress : address = getContractAddressFromGovernanceContract("vaultFactory", governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
 
     // Get the vault name max length
-    const configView : option (vaultFactoryConfigType)  = Tezos.call_view ("getConfig", unit, vaultFactoryAddress);
+    const configView : option (vaultFactoryConfigType)  = Mavryk.call_view ("getConfig", unit, vaultFactoryAddress);
     const vaultNameMaxLength : nat = case configView of [
             Some (_config) -> _config.vaultNameMaxLength
         |   None -> failwith (error_GET_CONFIG_VIEW_IN_VAULT_FACTORY_CONTRACT_NOT_FOUND)
@@ -248,7 +248,7 @@ block {
     const vaultFactoryAddress : address = getContractAddressFromGovernanceContract("vaultFactory", governanceAddress, error_VAULT_FACTORY_CONTRACT_NOT_FOUND);
 
     // get vault lambda view from vault factory
-    const getVaultLambdaOptView : option(option (bytes)) = Tezos.call_view ("getVaultLambdaOpt", lambdaName, vaultFactoryAddress);
+    const getVaultLambdaOptView : option(option (bytes)) = Mavryk.call_view ("getVaultLambdaOpt", lambdaName, vaultFactoryAddress);
     const vaultLambdaBytes : bytes = case getVaultLambdaOptView of [
             Some (_viewResult) -> case _viewResult of [
                     Some (_lambda)  -> _lambda
@@ -272,7 +272,7 @@ block {
     const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
 
     // get break glass config from lending controller
-    const getBreakGlassConfigView : option (lendingControllerBreakGlassConfigType) = Tezos.call_view ("getBreakGlassConfig", unit, lendingControllerAddress);
+    const getBreakGlassConfigView : option (lendingControllerBreakGlassConfigType) = Mavryk.call_view ("getBreakGlassConfig", unit, lendingControllerAddress);
     const breakGlassConfig : lendingControllerBreakGlassConfigType = case getBreakGlassConfigView of [
             Some (_breakGlassConfig) -> _breakGlassConfig
         |   None                     -> failwith(error_BREAK_GLASS_CONFIG_NOT_FOUND_IN_LENDING_CONTROLLER)
@@ -293,7 +293,7 @@ block {
     const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
 
     // check collateral token contract address exists in Lending Controller collateral token ledger
-    const getCollateralTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getColTokenRecordByNameOpt", tokenName, lendingControllerAddress);
+    const getCollateralTokenRecordView : option (option(collateralTokenRecordType)) = Mavryk.call_view ("getColTokenRecordByNameOpt", tokenName, lendingControllerAddress);
     const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getCollateralTokenRecordView of [
             Some (_opt)    -> _opt
         |   None           -> failwith (error_GET_COL_TOKEN_RECORD_BY_NAME_OPT_VIEW_NOT_FOUND)
@@ -332,7 +332,7 @@ function processVaultTransfer(const from_ : address; const to_ : address; const 
 block {
 
     const processVaultTransferOperation : operation = case tokenType of [
-            Tez(_tez)   -> transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez to vault.") : contract(unit)), amount * 1mutez)
+            Tez(_tez)   -> transferTez( (Mavryk.get_contract_with_error(to_, "Error. Unable to send tez to vault.") : contract(unit)), amount * 1mumav)
         |   Fa12(token) -> {
                 verifyNoAmountSent(unit);
                 const transferOperation : operation = transferFa12Token(from_, to_, amount, token)
@@ -365,9 +365,9 @@ block {
     ];
     
     // create operation to register deposit on the lending controller
-    const registerDepositOperation : operation = Tezos.transaction(
+    const registerDepositOperation : operation = Mavryk.transaction(
         registerDepositParams,
-        0mutez,
+        0mumav,
         getRegisterDepositEntrypointInLendingController(lendingControllerAddress)
     );
 
@@ -393,9 +393,9 @@ block {
     ];
     
     // create operation to register withdrawal on the lending controller
-    const registerWithdrawalOperation : operation = Tezos.transaction(
+    const registerWithdrawalOperation : operation = Mavryk.transaction(
         registerWithdrawalParams,
-        0mutez,
+        0mumav,
         getRegisterWithdrawalEntrypointInLendingController(lendingControllerAddress)
     );
 
@@ -457,7 +457,7 @@ function unpackLambda(const lambdaBytes : bytes; const vaultLambdaAction : vault
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(vaultUnpackLambdaFunctionType)) of [
-            Some(f) -> f(vaultLambdaAction, s)
+            Some(f) -> f((vaultLambdaAction, s))
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

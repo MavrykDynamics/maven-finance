@@ -184,7 +184,7 @@ block {
                 const updateConfigAction    : governanceUpdateConfigActionType     = updateConfigParams.updateConfigAction;
                 const updateConfigNewValue  : governanceUpdateConfigNewValueType   = updateConfigParams.updateConfigNewValue;
 
-                const blocksPerMinute   : nat = 60n / Tezos.get_min_block_time();
+                const blocksPerMinute   : nat = 60n / Mavryk.get_min_block_time();
                 const maxRoundDuration  : nat = 10_080n * blocksPerMinute; // one week in block levels
 
                 case updateConfigAction of [
@@ -193,11 +193,11 @@ block {
                     |   ConfigMinProposalRoundVotePct (_v)                -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minProposalRoundVotePercentage := updateConfigNewValue
                     |   ConfigMinQuorumPercentage (_v)                    -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minQuorumPercentage            := updateConfigNewValue
                     |   ConfigMinYayVotePercentage (_v)                   -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minYayVotePercentage           := updateConfigNewValue
-                    |   ConfigProposeFeeMutez (_v)                        -> s.config.proposalSubmissionFeeMutez              := updateConfigNewValue * 1mutez                    
+                    |   ConfigProposeFeeMutez (_v)                        -> s.config.proposalSubmissionFeeMutez              := updateConfigNewValue * 1mumav                    
                     |   ConfigMaxProposalsPerSatellite (_v)               -> s.config.maxProposalsPerSatellite                := updateConfigNewValue
-                    |   ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerProposalRound     := updateConfigNewValue
-                    |   ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerVotingRound       := updateConfigNewValue
-                    |   ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerTimelockRound     := updateConfigNewValue
+                    |   ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Mavryk.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerProposalRound     := updateConfigNewValue
+                    |   ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Mavryk.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerVotingRound       := updateConfigNewValue
+                    |   ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Mavryk.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerTimelockRound     := updateConfigNewValue
                     |   ConfigDataTitleMaxLength (_v)                     -> s.config.proposalDataTitleMaxLength              := updateConfigNewValue
                     |   ConfigProposalTitleMaxLength (_v)                 -> s.config.proposalTitleMaxLength                  := updateConfigNewValue
                     |   ConfigProposalDescMaxLength (_v)                  -> s.config.proposalDescriptionMaxLength            := updateConfigNewValue
@@ -313,8 +313,10 @@ block {
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations (transferOperationFold in transferHelpers
-                operations := List.fold_right(transferOperationFold, destinationParams, operations);
-                
+                for transferParams in list destinationParams block {
+                    operations := transferOperationFold(transferParams, operations);
+                }
+                 
             }
         |   _ -> skip
     ];
@@ -456,7 +458,7 @@ block {
                 // ------------------------------------------------------------------
 
                 const currentCycleEndLevel  : nat = s.currentCycleInfo.cycleEndLevel;
-                const currentBlockLevel     : nat = Tezos.get_level();
+                const currentBlockLevel     : nat = Mavryk.get_level();
                 const blocksPerFullCycle    : nat = s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
 
                 // calculate number of cycles that have passed if any
@@ -554,7 +556,7 @@ block {
                                     s.proposalLedger[s.timelockProposalId]          := proposalToExecute;
 
                                     // Execute the timelock proposal if the boolean was set to true
-                                    if executePastProposal then operations := Tezos.transaction((s.timelockProposalId), 0tez, getExecuteProposalEntrypoint(Tezos.get_self_address())) # operations 
+                                    if executePastProposal then operations := Mavryk.transaction((s.timelockProposalId), 0mav, getExecuteProposalEntrypoint(Mavryk.get_self_address())) # operations 
                                     else skip;
                                     
                                 } else skip;
@@ -622,10 +624,10 @@ block {
                 // ------------------------------------------------------------------
 
                 // Verify that satellite exists and is not suspended or banned
-                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                verifySatelliteIsNotSuspendedOrBanned(Mavryk.get_sender(), s);
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
-                s := checkSatelliteSnapshot(Tezos.get_sender(), s);
+                s := checkSatelliteSnapshot(Mavryk.get_sender(), s);
                 const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getCurrentSatelliteSnapshot(s);
 
                 // ------------------------------------------------------------------
@@ -639,8 +641,8 @@ block {
                 const treasuryAddress : address = getAddressFromGeneralContracts("taxTreasury", s, error_PROPOSE_TAX_TREASURY_CONTRACT_NOT_FOUND);
 
                 // Create operation to transfer submission fee to treasury
-                const treasuryContract : contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
-                const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.get_amount());
+                const treasuryContract : contract(unit) = Mavryk.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
+                const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Mavryk.get_amount());
                 
                 operations := transferFeeToTreasuryOperation # operations;
                 
@@ -655,7 +657,7 @@ block {
                 verifySatelliteHasSufficientStakedMvk(satelliteSnapshot.totalStakedMvkBalance, minimumStakedMvkRequirement);
 
                 // Get total number of proposals from satellite for current cycle
-                var satelliteProposals : set(nat) := getSatelliteProposals(Tezos.get_sender(), s.cycleId, s);
+                var satelliteProposals : set(nat) := getSatelliteProposals(Mavryk.get_sender(), s.cycleId, s);
 
                 // Verify that satellite's total number of proposals does not exceed the maximum set in config (spam check)
                 verifyMaxProposalsPerSatelliteNotReached(satelliteProposals, s);
@@ -676,7 +678,7 @@ block {
 
                 // Add new proposal to satellite's proposals set
                 satelliteProposals                                      := Set.add(proposalId, satelliteProposals);
-                s.cycleProposers[(s.cycleId,Tezos.get_sender())]        := satelliteProposals;
+                s.cycleProposers[(s.cycleId,Mavryk.get_sender())]        := satelliteProposals;
 
                 // ------------------------------------------------------------------
                 // Add Proposal Metadata and Payment Metadata 
@@ -765,16 +767,15 @@ block {
                 // Update proposal data
                 // ------------------------------------------------------------------
 
-                proposalRecord.proposalData := case proposalData of [
-                        Some (_proposalData)    -> List.fold(
-                                function(const proposalData : proposalDataMapType; const updateProposalData : updateProposalDataVariantType) : proposalDataMapType is
-                                    case updateProposalData of [
-                                            AddOrSetProposalData (data) -> if String.length(data.title) > proposalDataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else addOrSetProposalData(data, proposalData)
-                                        |   RemoveProposalData (data)   -> removeProposalData(data, proposalData)
-                                    ],
-                                _proposalData,
-                                proposalRecord.proposalData
-                            )
+                case proposalData of [
+                        Some (_proposalData)    -> block {
+                            for updateProposalData in map _proposalData block {
+                                proposalRecord.proposalData := case updateProposalData of [
+                                        AddOrSetProposalData (data) -> if String.length(data.title) > proposalDataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else addOrSetProposalData(data, proposalData)
+                                    |   RemoveProposalData (data)   -> removeProposalData(data, proposalData)
+                                ]
+                            }
+                        }
                     |   None -> proposalRecord.proposalData
                 ];
 
@@ -782,16 +783,15 @@ block {
                 // Update payment data
                 // ------------------------------------------------------------------
 
-                proposalRecord.paymentData := case paymentData of [
-                        Some (_paymentData)    -> List.fold(
-                                function(const paymentData : proposalPaymentDataMapType; const updatePaymentData : updatePaymentDataVariantType) : proposalPaymentDataMapType is
-                                    case updatePaymentData of [
-                                            AddOrSetPaymentData (data) -> if String.length(data.title) > proposalDataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else addOrSetPaymentData(data, paymentData)
-                                        |   RemovePaymentData (data)   -> removePaymentData(data, paymentData)
-                                    ],
-                                _paymentData,
-                                proposalRecord.paymentData
-                            )
+                case paymentData of [
+                        Some (_paymentData)    -> block {
+                            for updatePaymentData in map _paymentData block {
+                                proposalRecord.paymentData  := case updatePaymentData of [
+                                        AddOrSetPaymentData (data) -> if String.length(data.title) > proposalDataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else addOrSetPaymentData(data, paymentData)
+                                    |   RemovePaymentData (data)   -> removePaymentData(data, paymentData)
+                                ]
+                            }
+                        }
                     |   None -> proposalRecord.paymentData
                 ];
 
@@ -883,10 +883,10 @@ block {
                 // ------------------------------------------------------------------
 
                 // Verify that satellite exists and is not suspended or banned
-                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                verifySatelliteIsNotSuspendedOrBanned(Mavryk.get_sender(), s);
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
-                s := checkSatelliteSnapshot(Tezos.get_sender(), s);
+                s := checkSatelliteSnapshot(Mavryk.get_sender(), s);
                 const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getCurrentSatelliteSnapshot(s);
 
                 // ------------------------------------------------------------------
@@ -910,7 +910,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check if satellite has voted
-                const checkIfSatelliteHasVotedFlag : bool = checkIfSatelliteHasVoted(Tezos.get_sender(), s);
+                const checkIfSatelliteHasVotedFlag : bool = checkIfSatelliteHasVoted(Mavryk.get_sender(), s);
 
                 // Compute satellite's votes 
                 if checkIfSatelliteHasVotedFlag = False then block {
@@ -933,7 +933,7 @@ block {
                     s.cycleProposals[proposalId]    := _proposal.proposalVoteStakedMvkTotal;
 
                     // Update current round votes with satellite
-                    s.roundVotes[(s.cycleId, Tezos.get_sender())] := (Proposal (proposalId): roundVoteType);
+                    s.roundVotes[(s.cycleId, Mavryk.get_sender())] := (Proposal (proposalId): roundVoteType);
 
                 } else block {
 
@@ -942,7 +942,7 @@ block {
                     // -------------------------------------------
 
                     // Check if satellite already voted for this proposal (double-counting check) and get the previous proposal ID
-                    const previousVotedProposalId : nat = case s.roundVotes[(s.cycleId, Tezos.get_sender())] of [
+                    const previousVotedProposalId : nat = case s.roundVotes[(s.cycleId, Mavryk.get_sender())] of [
                             Some (_voteRound)   -> case _voteRound of [
                                     Proposal (_proposalId)  -> if _proposalId = proposalId then failwith(error_VOTE_ALREADY_RECORDED) else _proposalId
                                 |   Voting (_voteType)      -> failwith(error_VOTE_NOT_FOUND)
@@ -988,7 +988,7 @@ block {
                     s.cycleProposals[previousVotedProposalId]       := _previousProposal.proposalVoteStakedMvkTotal;
 
                     // Update current round votes with satellite
-                    s.roundVotes[(s.cycleId, Tezos.get_sender())] := (Proposal (proposalId) : roundVoteType);
+                    s.roundVotes[(s.cycleId, Mavryk.get_sender())] := (Proposal (proposalId) : roundVoteType);
                 };
 
                 // Update the current round highest voted proposal
@@ -999,7 +999,9 @@ block {
                 function findHighestVotedProposalIdFold(const currentHighestVotedProposalId: actionIdType; const proposalVote: actionIdType * nat): actionIdType is
                 if proposalVote.1 >= highestVote then proposalVote.0 else currentHighestVotedProposalId;
 
-                s.cycleHighestVotedProposalId   := Map.fold(findHighestVotedProposalIdFold, s.cycleProposals, s.cycleHighestVotedProposalId);
+                for actionId -> vote in map s.cycleProposals block{
+                    s.cycleHighestVotedProposalId   := findHighestVotedProposalIdFold(s.cycleHighestVotedProposalId, (actionId, vote));
+                };
 
             }
         |   _ -> skip
@@ -1046,10 +1048,10 @@ block {
                 // ------------------------------------------------------------------
 
                 // Verify that satellite exists and is not suspended or banned
-                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                verifySatelliteIsNotSuspendedOrBanned(Mavryk.get_sender(), s);
                 
                 // Check that satellite snapshot exists (taken when proposal round was started)
-                s := checkSatelliteSnapshot(Tezos.get_sender(), s);
+                s := checkSatelliteSnapshot(Mavryk.get_sender(), s);
                 const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getCurrentSatelliteSnapshot(s);
 
                 // ------------------------------------------------------------------
@@ -1072,7 +1074,7 @@ block {
                 //  i.e. (satelliteAddress, voteType - Yay | Nay | Pass)
 
                 // Check if satellite has voted
-                const previousVoteOpt : option(voteType) = case Big_map.find_opt((s.cycleId, Tezos.get_sender()), s.roundVotes) of [
+                const previousVoteOpt : option(voteType) = case Big_map.find_opt((s.cycleId, Mavryk.get_sender()), s.roundVotes) of [
                         Some (_voteRound)   -> case _voteRound of [
                                 Proposal (_proposalId)  -> (None : option(voteType))
                             |   Voting (_voteType)      -> (Some (_voteType) : option(voteType))
@@ -1092,8 +1094,8 @@ block {
                             else skip;
 
                             // Save new vote
-                            s.roundVotes        := Big_map.update((s.cycleId, Tezos.get_sender()), Some (Voting (voteType)), s.roundVotes);
-                            s.proposalVoters    := Big_map.update((s.cycleHighestVotedProposalId, Tezos.get_sender()), Some(voteType), s.proposalVoters);
+                            s.roundVotes        := Big_map.update((s.cycleId, Mavryk.get_sender()), Some (Voting (voteType)), s.roundVotes);
+                            s.proposalVoters    := Big_map.update((s.cycleHighestVotedProposalId, Mavryk.get_sender()), Some(voteType), s.proposalVoters);
 
                             // Set proposal record based on vote type 
                             var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
@@ -1112,8 +1114,8 @@ block {
                             // -------------------------------------------
                             
                             // Save new vote
-                            s.roundVotes        := Big_map.update((s.cycleId, Tezos.get_sender()), Some (Voting (voteType)), s.roundVotes);
-                            s.proposalVoters    := Big_map.add((s.cycleHighestVotedProposalId, Tezos.get_sender()), voteType, s.proposalVoters);
+                            s.roundVotes        := Big_map.update((s.cycleId, Mavryk.get_sender()), Some (Voting (voteType)), s.roundVotes);
+                            s.proposalVoters    := Big_map.add((s.cycleHighestVotedProposalId, Mavryk.get_sender()), voteType, s.proposalVoters);
 
                             // Set proposal record based on vote type 
                             var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
@@ -1192,7 +1194,7 @@ block {
 
                 // Update proposal and set "executed" boolean to True
                 proposal.executed               := True;
-                proposal.executedDateTime       := Some(Tezos.get_now());
+                proposal.executedDateTime       := Some(Mavryk.get_now());
                 s.proposalLedger[proposalId]    := proposal;
 
                 // ------------------------------------------------------------------
@@ -1425,7 +1427,7 @@ block {
                     proposal.executed           := True;
                     
                     // Update the execution datetime
-                    proposal.executedDateTime   := Some(Tezos.get_now());
+                    proposal.executedDateTime   := Some(Mavryk.get_now());
 
                     // Send reward to proposer
                     operations                  := sendRewardToProposer(s) # operations;
@@ -1541,7 +1543,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check if sender is proposer or admin 
-                if proposal.proposerAddress = Tezos.get_sender() or Tezos.get_sender() = s.admin then block {
+                if proposal.proposerAddress = Mavryk.get_sender() or Mavryk.get_sender() = s.admin then block {
 
                     // Set proposal status to "DROPPED"
                     proposal.status               := "DROPPED";

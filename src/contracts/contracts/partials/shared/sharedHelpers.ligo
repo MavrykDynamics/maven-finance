@@ -12,7 +12,7 @@
 // ------------------------------------------------------------------------------
 
 // helper functions - conversions
-function mutezToNatural(const amt : mav) : nat is amt / 1mumav;
+function mumavToNatural(const amt : mav) : nat is amt / 1mumav;
 function naturalToMutez(const amt : nat) : mav is amt * 1mumav;
 function ceildiv(const numerator : nat; const denominator : nat) is abs( (- numerator) / (int (denominator)) );
 

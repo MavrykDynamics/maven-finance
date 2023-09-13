@@ -12,7 +12,7 @@
 function verifySenderIsInitiator(const initiatorAddrss : address) : unit is
 block {
     
-    if Tezos.get_sender() =/= initiatorAddrss then failwith(error_ONLY_INITIATOR_CAN_DROP_ACTION) else skip;
+    if Mavryk.get_sender() =/= initiatorAddrss then failwith(error_ONLY_INITIATOR_CAN_DROP_ACTION) else skip;
 
 } with unit
 
@@ -39,7 +39,7 @@ block {
 
 // helper function to get addOracle entrypoint in aggregator contract
 function getAddOracleInAggregatorEntrypoint(const contractAddress : address) : contract(addOracleType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%addOracle",
         contractAddress) : option(contract(addOracleType))) of [
                 Some(contr) -> contr
@@ -50,7 +50,7 @@ function getAddOracleInAggregatorEntrypoint(const contractAddress : address) : c
 
 // helper function to get removeOracle entrypoint in aggregator contract
 function getRemoveOracleInAggregatorEntrypoint(const contractAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%removeOracle",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
@@ -61,7 +61,7 @@ function getRemoveOracleInAggregatorEntrypoint(const contractAddress : address) 
 
 // helper function to get updateSatelliteStatus entrypoint in delegation contract
 function getUpdateSatelliteStatusInDelegationEntrypoint(const contractAddress : address) : contract(updateSatelliteStatusParamsType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%updateSatelliteStatus",
         contractAddress) : option(contract(updateSatelliteStatusParamsType))) of [
                 Some(contr) -> contr
@@ -72,7 +72,7 @@ function getUpdateSatelliteStatusInDelegationEntrypoint(const contractAddress : 
 
 // helper function to get mistaken transfer entrypoint in contract
 function getMistakenTransferEntrypoint(const contractAddress : address) : contract(transferActionType) is
-case (Tezos.get_entrypoint_opt(
+case (Mavryk.get_entrypoint_opt(
       "%mistakenTransfer",
       contractAddress) : option(contract(transferActionType))) of [
     Some(contr) -> contr
@@ -83,7 +83,7 @@ case (Tezos.get_entrypoint_opt(
 
 // helper function to %updateSatellitesSnapshot entrypoint on the Governance contract
 function sendUpdateSatellitesSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatellitesSnapshotType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%updateSatellitesSnapshot",
         governanceAddress) : option(contract(updateSatellitesSnapshotType))) of [
                 Some(contr) -> contr
@@ -94,7 +94,7 @@ function sendUpdateSatellitesSnapshotOperationToGovernance(const governanceAddre
 
 // helper function to get pauseAll entrypoint in aggregator contract
 function getPauseAllInAggregatorEntrypoint(const contractAddress : address) : contract(unit) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%pauseAll",
         contractAddress) : option(contract(unit))) of [
                 Some(contr) -> contr
@@ -105,7 +105,7 @@ function getPauseAllInAggregatorEntrypoint(const contractAddress : address) : co
 
 // helper function to get unpauseAll entrypoint in aggregator contract
 function getUnpauseAllInAggregatorEntrypoint(const contractAddress : address) : contract(unit) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%unpauseAll",
         contractAddress) : option(contract(unit))) of [
                 Some(contr) -> contr
@@ -129,9 +129,9 @@ block {
 
     const addOracleToAggregatorParams : addOracleType = oracleAddress;
     
-    const addOracleToAggregatorOperation : operation = Tezos.transaction(
+    const addOracleToAggregatorOperation : operation = Mavryk.transaction(
         addOracleToAggregatorParams,
-        0tez, 
+        0mav, 
         getAddOracleInAggregatorEntrypoint(aggregatorAddress)
     );
 
@@ -143,9 +143,9 @@ block {
 function removeOracleFromAggregatorOperation(const oracleAddress : address; const aggregatorAddress : address) : operation is 
 block {
 
-    const removeOracleFromAggregatorOperation : operation = Tezos.transaction(
+    const removeOracleFromAggregatorOperation : operation = Mavryk.transaction(
         oracleAddress, 
-        0tez, 
+        0mav, 
         getRemoveOracleInAggregatorEntrypoint(aggregatorAddress)
     );
 
@@ -157,9 +157,9 @@ block {
 function pauseAllEntrypointsInAggregatorOperation(const aggregatorAddress : address) : operation is 
 block {
 
-    const pauseAllEntrypointsInAggregatorOperation : operation = Tezos.transaction(
+    const pauseAllEntrypointsInAggregatorOperation : operation = Mavryk.transaction(
         unit,
-        0tez,
+        0mav,
         getPauseAllInAggregatorEntrypoint(aggregatorAddress)
     );
 
@@ -171,9 +171,9 @@ block {
 function unpauseAllEntrypointsInAggregatorOperation(const aggregatorAddress : address) : operation is 
 block {
 
-    const unpauseAllEntrypointsInAggregatorOperation : operation = Tezos.transaction(
+    const unpauseAllEntrypointsInAggregatorOperation : operation = Mavryk.transaction(
         unit,
-        0tez,
+        0mav,
         getUnpauseAllInAggregatorEntrypoint(aggregatorAddress)
     );
 
@@ -194,9 +194,9 @@ block {
         newStatus        = status;
     ];
 
-    const updateSatelliteStatusOperation : operation = Tezos.transaction(
+    const updateSatelliteStatusOperation : operation = Mavryk.transaction(
         updateSatelliteStatusParams,
-        0tez,
+        0mav,
         getUpdateSatelliteStatusInDelegationEntrypoint(delegationAddress)
     );
 
@@ -217,7 +217,7 @@ function getCurrentCycleCounter(const s : governanceSatelliteStorageType) : nat 
 block {
 
     // Get the current governance cycle counter from the governance contract
-    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
+    const cycleCounterView : option (nat) = Mavryk.call_view ("getCycleCounter", unit, s.governanceAddress);
     const currentCycle : nat = case cycleCounterView of [
             Some (_cycleCounter)   -> _cycleCounter
         |   None                   -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
@@ -231,7 +231,7 @@ block {
 function getStakedMvkSnapshotTotalSupply(const currentCycleId : nat; const s : governanceSatelliteStorageType) : nat is 
 block {
 
-    const getStakedMvkSnapshotOptView : option(option(nat)) = Tezos.call_view ("getStakedMvkSnapshotOpt", currentCycleId, s.governanceAddress);
+    const getStakedMvkSnapshotOptView : option(option(nat)) = Mavryk.call_view ("getStakedMvkSnapshotOpt", currentCycleId, s.governanceAddress);
     const stakedMvkTotalSupply : nat = case getStakedMvkSnapshotOptView of [
             Some (_view)  -> case _view of [
                     Some(_value) -> _value
@@ -369,7 +369,7 @@ block {
     validateActionWithoutExpiration(actionRecord);
 
     // Check if governance satellite action has expired
-    if Tezos.get_now() > actionRecord.expiryDateTime then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXPIRED) else skip;
+    if Mavryk.get_now() > actionRecord.expiryDateTime then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXPIRED) else skip;
 
 } with (unit)
 
@@ -394,7 +394,7 @@ block {
     // ------------------------------------------------------------------
 
     // Check if the satellite has created too many actions this governance cycle
-    const satelliteActionKey : (nat * address) = (currentCycleId, Tezos.get_sender());
+    const satelliteActionKey : (nat * address) = (currentCycleId, Mavryk.get_sender());
     var satelliteActions : set(actionIdType) := case Big_map.find_opt(satelliteActionKey, s.satelliteActions) of [
             Some (_actionsIds)  -> _actionsIds
         |   None                -> set []
@@ -403,7 +403,7 @@ block {
     if satelliteActionsCount >= s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTIONS_REACHED) else skip;
 
     // Verify sender is a satellite which is not suspended or banned
-    verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+    verifySatelliteIsNotSuspendedOrBanned(Mavryk.get_sender(), s);
 
     // ------------------------------------------------------------------
     // Snapshot Staked MVK Total Supply
@@ -422,7 +422,7 @@ block {
     // Create new governance satellite action record
     var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
-        initiator                          = Tezos.get_sender();
+        initiator                          = Mavryk.get_sender();
         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
         executed                           = False;
 
@@ -440,8 +440,8 @@ block {
         stakedMvkPercentageForApproval     = s.config.approvalPercentage; 
         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-        startDateTime                      = Tezos.get_now();
-        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.satelliteActionDurationInDays);
+        startDateTime                      = Mavryk.get_now();
+        expiryDateTime                     = Mavryk.get_now() + (86_400 * s.config.satelliteActionDurationInDays);
         executedDateTime                   = None;
         
     ];
@@ -481,7 +481,7 @@ block {
     // Get Delegation Contract address from the General Contracts Map on the Governance Contract
     const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
-    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+    const satelliteOptView : option (option(satelliteRecordType)) = Mavryk.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
     const satelliteRecord : satelliteRecordType = case satelliteOptView of [
             Some (optionView) -> case optionView of [
                     Some(_satelliteRecord)      -> _satelliteRecord
@@ -502,7 +502,7 @@ block {
     // Get Delegation Contract address from the General Contracts Map on the Governance Contract
     const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
-    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", satelliteAddress, delegationAddress);
+    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Mavryk.call_view ("getSatelliteRewardsOpt", satelliteAddress, delegationAddress);
     const satelliteRewards : satelliteRewardsType = case satelliteRewardsOptView of [
             Some (optionView) -> case optionView of [
                     Some(_satelliteRewards)     -> _satelliteRewards
@@ -523,7 +523,7 @@ block {
     const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
     // Get the delegation ratio
-    const configView : option (delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+    const configView : option (delegationConfigType)  = Mavryk.call_view ("getConfig", unit, delegationAddress);
     const delegationRatio : nat = case configView of [
             Some (_config) -> _config.delegationRatio
         |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -537,7 +537,7 @@ block {
 function createSatelliteSnapshotCheck(const currentCycle : nat; const satelliteAddress : address; const s : governanceSatelliteStorageType) : bool is
 block {
 
-    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Mavryk.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
     const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
             Some (_snapshotOpt) -> _snapshotOpt
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
@@ -556,7 +556,7 @@ block {
 function getSatelliteTotalVotingPower(const currentCycle : nat; const satelliteAddress : address; const s : governanceSatelliteStorageType) : nat is
 block {
 
-    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Mavryk.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
     const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
             Some (_snapshotOpt) -> _snapshotOpt
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
@@ -601,9 +601,9 @@ block {
     };
 
     // Send the snapshot to the governance contract
-    const updateSatellitesSnapshotOperation : operation   = Tezos.transaction(
+    const updateSatellitesSnapshotOperation : operation   = Mavryk.transaction(
         (satellitesSnapshots),
-        0tez, 
+        0mav, 
         sendUpdateSatellitesSnapshotOperationToGovernance(s.governanceAddress)
     );
 
@@ -615,7 +615,7 @@ block {
 function verifySatelliteSnapshotIsReady(const currentCycle : nat; const satelliteAddress : address; const s : governanceSatelliteStorageType) : unit is
 block {
 
-    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Mavryk.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
     const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
             Some (_snapshotOpt) -> _snapshotOpt
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
@@ -793,7 +793,7 @@ block {
     var subscribedAggregators : subscribedAggregatorsType := getOrCreateSubscribedAggregators(oracleAddress, s);
 
     // Update subscribed aggregators map with new aggregator
-    subscribedAggregators[aggregatorAddress] := Tezos.get_now();
+    subscribedAggregators[aggregatorAddress] := Mavryk.get_now();
 
     // Update storage
     s.satelliteAggregatorLedger[oracleAddress] := subscribedAggregators;
@@ -886,9 +886,9 @@ block {
     const transferActionsList : transferActionType = upackTransferActions(actionRecord, "transfer", error_GOVERNANCE_SATELLITE_ACTION_PARAMETER_NOT_FOUND);
 
     // call mistaken transfer entrypoint
-    const mistakenTransferOperation : operation = Tezos.transaction(
+    const mistakenTransferOperation : operation = Mavryk.transaction(
         transferActionsList,
-        0tez,
+        0mav,
         getMistakenTransferEntrypoint(targetContractAddress)
     );
 
@@ -943,7 +943,7 @@ block {
     if actionRecord.governanceType = "MISTAKEN_TRANSFER_FIX" then operations         := triggerFixMistakenTransferSatelliteAction(actionRecord, operations);
 
     actionRecord.executed                       := True;
-    actionRecord.executedDateTime               := Some(Tezos.get_now());
+    actionRecord.executedDateTime               := Some(Mavryk.get_now());
     s.governanceSatelliteActionLedger[actionId] := actionRecord;
 
     // Remove the executed action from the satellite's set
@@ -975,7 +975,7 @@ function unpackLambda(const lambdaBytes : bytes; const governanceSatelliteLambda
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceSatelliteUnpackLambdaFunctionType)) of [
-            Some(f) -> f(governanceSatelliteLambdaAction, s)
+            Some(f) -> f((governanceSatelliteLambdaAction, s))
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

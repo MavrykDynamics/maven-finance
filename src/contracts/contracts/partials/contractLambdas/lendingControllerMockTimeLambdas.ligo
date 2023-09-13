@@ -518,7 +518,7 @@ block {
                 // init variables for convenience
                 const loanTokenName       : string              = addLiquidityParams.loanTokenName;
                 const amount              : nat                 = addLiquidityParams.amount;
-                const initiator           : address             = Tezos.get_sender();
+                const initiator           : address             = Mavryk.get_sender();
 
                 // Get loan token record
                 var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(loanTokenName, s);
@@ -534,12 +534,12 @@ block {
                 // send tokens to token pool (self address) operation / skip if loan token name is tez
                 if loanTokenName =  "tez" then {
 
-                    if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_LOAN_TOKEN_AMOUNT_SENT);
+                    if Mavryk.get_amount() = (amount * 1mumav) then skip else failwith(error_INCORRECT_LOAN_TOKEN_AMOUNT_SENT);
 
                 } else {
                     const sendTokensToTokenPoolOperation : operation = tokenPoolTransfer(
                         initiator,                  // from_
-                        Tezos.get_self_address(),   // to_    
+                        Mavryk.get_self_address(),   // to_    
                         amount,                     // amount
                         loanTokenRecord.tokenType   // token type (e.g. tez, fa12, fa2)
                     );
@@ -593,7 +593,7 @@ block {
                 // init variables for convenience
                 const loanTokenName         : string    = removeLiquidityParams.loanTokenName;
                 const amount                : nat       = removeLiquidityParams.amount;
-                const initiator             : address   = Tezos.get_sender();
+                const initiator             : address   = Mavryk.get_sender();
 
                 // Get loan token record
                 var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(loanTokenName, s);
@@ -624,7 +624,7 @@ block {
                 
                 // send tokens from token pool to initiator
                 const sendTokensToInitiatorOperation : operation = tokenPoolTransfer(
-                    Tezos.get_self_address(),   // from_
+                    Mavryk.get_self_address(),   // from_
                     initiator,                  // to_    
                     amount,                     // amount
                     loanTokenType               // token type (e.g. tez, fa12, fa2)
@@ -674,7 +674,7 @@ block {
 
                 // init parameters 
                 const vaultId     : vaultIdType      = closeVaultParams.vaultId;
-                const vaultOwner  : vaultOwnerType   = Tezos.get_sender();
+                const vaultOwner  : vaultOwnerType   = Mavryk.get_sender();
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
@@ -696,7 +696,7 @@ block {
                     if collateralTokenName = "tez" then block {
 
                         if finalTokenBalance > 0n then {
-                            const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mutez );
+                            const transferTezOperation : operation = transferTez( (Mavryk.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mumav );
                             operations := transferTezOperation # operations;
 
                             vault.collateralBalanceLedger[collateralTokenName]  := 0n;
@@ -799,7 +799,7 @@ block {
                 const mockLevel                     : nat = s.config.mockLevel;
                 const configLiquidationDelayInMins  : nat = s.config.liquidationDelayInMins;
                 const configLiquidationMaxDuration  : nat = s.config.liquidationMaxDuration;
-                const blocksPerMinute               : nat = 60n / Tezos.get_min_block_time();
+                const blocksPerMinute               : nat = 60n / Mavryk.get_min_block_time();
 
                 const liquidationDelayInBlockLevel  : nat = configLiquidationDelayInMins * blocksPerMinute;                 
                 const liquidationEndLevel           : nat = mockLevel + (configLiquidationMaxDuration * blocksPerMinute);                 
@@ -871,7 +871,7 @@ block {
                 const vaultId            : nat       = liquidateVaultParams.vaultId;
                 const vaultOwner         : address   = liquidateVaultParams.vaultOwner;
                 const amount             : nat       = liquidateVaultParams.amount;
-                const liquidator         : address   = Tezos.get_sender();
+                const liquidator         : address   = Mavryk.get_sender();
                 const mockLevel          : nat       = s.config.mockLevel;
 
                 // Get Treasury Address from the General Contracts map on the Governance Contract
@@ -1057,7 +1057,7 @@ block {
 
                 // Send interest payment from Lending Controller Token Pool to treasury
                 const sendInterestToTreasuryOperation : operation = tokenPoolTransfer(
-                    Tezos.get_self_address(),    // from_    
+                    Mavryk.get_self_address(),    // from_    
                     treasuryAddress,             // to_
                     interestSentToTreasury,      // amount
                     loanTokenType                // token type
@@ -1089,7 +1089,7 @@ block {
                 if refundTotal > 0n then {
 
                     const processRefundOperation : operation = tokenPoolTransfer(
-                        Tezos.get_self_address(),   // from_
+                        Mavryk.get_self_address(),   // from_
                         liquidator,                 // to_
                         refundTotal,                // amount
                         loanTokenType               // token type
@@ -1102,7 +1102,7 @@ block {
                 // transfer operation should take place first before refund operation (N.B. First In Last Out operations)
                 const transferLiquidationAmountOperation : operation = tokenPoolTransfer(
                     liquidator,                 // from_
-                    Tezos.get_self_address(),   // to_
+                    Mavryk.get_self_address(),   // to_
                     totalLiquidationAmount,     // totalLiquidationAmount
                     loanTokenType               // token type
                 );
@@ -1169,7 +1169,7 @@ block {
                 const vaultHandle     : vaultHandleType   = registerDepositParams.handle;
                 const depositAmount   : nat               = registerDepositParams.amount;
                 const tokenName       : string            = registerDepositParams.tokenName;
-                // const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
+                // const initiator       : address           = Mavryk.get_sender(); // vault address that initiated deposit
 
                 // get collateral token record reference
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(tokenName, s);
@@ -1242,7 +1242,7 @@ block {
                 const vaultHandle         : vaultHandleType   = registerWithdrawalParams.handle;
                 const withdrawalAmount    : nat               = registerWithdrawalParams.amount;
                 const tokenName           : string            = registerWithdrawalParams.tokenName;
-                const initiator           : address           = Tezos.get_sender(); // vault address that initiated withdrawal
+                const initiator           : address           = Mavryk.get_sender(); // vault address that initiated withdrawal
 
                 // get collateral token record reference
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(tokenName, s);
@@ -1319,7 +1319,7 @@ block {
                 // Init variables for convenience
                 const vaultId            : nat                     = borrowParams.vaultId; 
                 const initialLoanAmount  : nat                     = borrowParams.quantity;
-                const initiator          : initiatorAddressType    = Tezos.get_sender();
+                const initiator          : initiatorAddressType    = Mavryk.get_sender();
                 const mockLevel          : nat                     = s.config.mockLevel;
 
                 // Get Treasury Address from the General Contracts map on the Governance Contract
@@ -1409,14 +1409,14 @@ block {
                 // ------------------------------------------------------------------
 
                 const transferLoanToBorrowerOperation : operation = tokenPoolTransfer(
-                    Tezos.get_self_address(),   // from_
+                    Mavryk.get_self_address(),   // from_
                     initiator,                  // to_
                     finalLoanAmount,            // amount
                     loanTokenType               // token type
                 );
 
                 const transferFeesToTreasuryOperation : operation = tokenPoolTransfer(
-                    Tezos.get_self_address(),   // from_
+                    Mavryk.get_self_address(),   // from_
                     treasuryAddress,            // to_
                     minimumLoanFeeToTreasury,   // amount
                     loanTokenType               // token type
@@ -1458,7 +1458,7 @@ block {
                 // Update vault storage
                 vault.loanOutstandingTotal                  := newLoanOutstandingTotal;
                 vault.loanPrincipalTotal                    := newLoanPrincipalTotal;
-                vault.lastUpdatedBlockLevel                 := mockLevel + Tezos.get_level();
+                vault.lastUpdatedBlockLevel                 := mockLevel + Mavryk.get_level();
 
                 // Update vault
                 s.vaults[vaultHandle] := vault;
@@ -1493,7 +1493,7 @@ block {
                 // Init variables for convenience
                 const vaultId                   : nat                     = repayParams.vaultId; 
                 const initialRepaymentAmount    : nat                     = repayParams.quantity;
-                const initiator                 : initiatorAddressType    = Tezos.get_sender();
+                const initiator                 : initiatorAddressType    = Mavryk.get_sender();
                 var finalRepaymentAmount        : nat                     := initialRepaymentAmount;
                 const mockLevel                 : nat                     = s.config.mockLevel;
 
@@ -1603,7 +1603,7 @@ block {
 
                 // Send interest payment to treasury
                 const sendInterestToTreasuryOperation : operation = tokenPoolTransfer(
-                    Tezos.get_self_address(),    // from_
+                    Mavryk.get_self_address(),    // from_
                     treasuryAddress,             // to_
                     interestSentToTreasury,      // amount
                     loanTokenType                // token type
@@ -1634,7 +1634,7 @@ block {
 
                 const processRepayOperation : operation = tokenPoolTransfer(
                     initiator,                  // from_
-                    Tezos.get_self_address(),   // to_
+                    Mavryk.get_self_address(),   // to_
                     initialRepaymentAmount,     // amount
                     loanTokenType               // token type
                 );
@@ -1647,7 +1647,7 @@ block {
                     // note: refundTotal will always be smaller than finalRepaymentAmount 
                     //  - since refundTotal = finalRepaymentAmount - newLoanInterestTotal - initialLoanPrincipalTotal
                     const processRefundOperation : operation = tokenPoolTransfer(
-                        Tezos.get_self_address(),   // from_
+                        Mavryk.get_self_address(),   // from_
                         initiator,                  // to_
                         refundTotal,                // amount
                         loanTokenType               // token type
@@ -1727,7 +1727,7 @@ block {
                 const vaultId               : vaultIdType       = vaultDepositStakedTokenParams.vaultId;
                 const depositAmount         : nat               = vaultDepositStakedTokenParams.depositAmount;
                 const collateralTokenName   : string            = vaultDepositStakedTokenParams.tokenName;
-                const vaultOwner            : vaultOwnerType    = Tezos.get_sender();
+                const vaultOwner            : vaultOwnerType    = Mavryk.get_sender();
 
                 var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
@@ -1813,7 +1813,7 @@ block {
                 const vaultId                   : vaultIdType       = vaultWithdrawStakedTokenParams.vaultId;
                 const withdrawAmount            : nat               = vaultWithdrawStakedTokenParams.withdrawAmount;
                 const collateralTokenName       : string            = vaultWithdrawStakedTokenParams.tokenName;
-                const vaultOwner                : vaultOwnerType    = Tezos.get_sender();
+                const vaultOwner                : vaultOwnerType    = Mavryk.get_sender();
 
                 var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
