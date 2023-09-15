@@ -654,8 +654,11 @@ block {
 
 
 // helper function to get a satellite total voting power from its snapshot on the governance contract
-function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; const actionGovernanceCycleId : nat; var operations : list(operation); const s: governanceSatelliteStorageType): (nat * list(operation)) is 
+function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; const actionGovernanceCycleId : nat; const operations : list(operation); const s: governanceSatelliteStorageType): (nat * list(operation)) is 
 block{
+
+    // Initialize an updated list of operations
+    var updatedOperations : list(operation) := operations;
 
     // Get the current cycle from the governance contract to check if the snapshot is up to date
     const currentCycle : nat = getCurrentCycleCounter(s);
@@ -674,7 +677,7 @@ block{
 
             // update satellite snapshot operation
             const updateSatellitesSnapshotOperation : operation = updateSatellitesSnapshotOperation(set[satelliteAddress], True, s);
-            operations := updateSatellitesSnapshotOperation # operations;
+            updatedOperations := updateSatellitesSnapshotOperation # updatedOperations;
 
             // Calculate the total voting power of the satellite
             totalVotingPower := calculateVotingPower(satelliteAddress, s);
@@ -689,7 +692,7 @@ block{
         verifySatelliteSnapshotIsReady(actionGovernanceCycleId, satelliteAddress, s);
     }
 
-} with (totalVotingPower, operations)
+} with (totalVotingPower, updatedOperations)
 
 // ------------------------------------------------------------------------------
 // Governance Snapshot Helper Functions End
@@ -702,10 +705,11 @@ block{
 // ------------------------------------------------------------------------------
 
 // helper function to add a remove an oracle from an aggregator
-function updateOracleInAggregator(const oracleAddress : address; const addOracle : bool; var operations : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
+function updateOracleInAggregator(const oracleAddress : address; const addOracle : bool; const operations : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
 block {
-
-    operations := case s.satelliteAggregatorLedger[oracleAddress] of [
+    
+    var updatedOperations : list(operation) := operations;
+    updatedOperations := case s.satelliteAggregatorLedger[oracleAddress] of [
             Some(_record) -> block {
 
                 for aggregatorAddress -> _startDateTime in map _record {
@@ -716,74 +720,86 @@ block {
 
                     ];
 
-                    operations := updateOperation # operations;
+                    updatedOperations := updateOperation # updatedOperations;
                 };                  
 
-            } with operations
-        |   None -> operations
+            } with updatedOperations
+        |   None -> updatedOperations
     ];
 
-} with (operations)
+} with (updatedOperations)
 
 
 
 // helper function to trigger the suspend action during the vote
-function triggerSuspendSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operations : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
+function triggerSuspendSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; const operations : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
 block {
+
+    // Initialize an list of updated operations
+    var updatedOperations : list(operation) := operations;
 
     // Get address of satellite to be suspended from governance satellite action record address map
     const satelliteToBeSuspended : address = unpackAddress(actionRecord, "satelliteToBeSuspended", error_SATELLITE_NOT_FOUND);
 
     // Update the satellite status
     const updateSatelliteStatusOperation : operation = updateSatelliteStatusOperation(satelliteToBeSuspended, "SUSPENDED", s);
-    operations := updateSatelliteStatusOperation # operations;
+    updatedOperations := updateSatelliteStatusOperation # updatedOperations;
 
     // if satellite has oracles, create operations to remove satellite oracles from aggregators
-    operations := updateOracleInAggregator(satelliteToBeSuspended, False, operations, s);
+    updatedOperations := updateOracleInAggregator(satelliteToBeSuspended, False, updatedOperations, s);
 
-} with (operations)
+} with (updatedOperations)
 
 
 
 // helper function to trigger the ban action during the vote
-function triggerBanSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operations : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
+function triggerBanSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; const operations : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
 block {
+
+    // Initialize an list of updated operations
+    var updatedOperations : list(operation) := operations;
 
     // Get address of satellite to be banned from governance satellite action record address map
     const satelliteToBeBanned : address = unpackAddress(actionRecord, "satelliteToBeBanned", error_SATELLITE_NOT_FOUND);
 
     // Update the satellite status
     const updateSatelliteStatusOperation : operation = updateSatelliteStatusOperation(satelliteToBeBanned, "BANNED", s);
-    operations := updateSatelliteStatusOperation # operations;
+    updatedOperations := updateSatelliteStatusOperation # updatedOperations;
 
     // if satellite has oracles, create operations to remove satellite oracles from aggregators
-    operations := updateOracleInAggregator(satelliteToBeBanned, False, operations, s);
+    updatedOperations := updateOracleInAggregator(satelliteToBeBanned, False, updatedOperations, s);
 
-} with (operations)
+} with (updatedOperations)
 
 
 
 // helper function to trigger the restore action during the vote
-function triggerRestoreSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operations : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
+function triggerRestoreSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; const operations : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
 block {
+
+    // Initialize an list of updated operations
+    var updatedOperations : list(operation) := operations;
 
     // Get address of satellite to be restored from governance satellite action record address map
     const satelliteToBeRestored : address = unpackAddress(actionRecord, "satelliteToBeRestored", error_SATELLITE_NOT_FOUND);
 
     // Update the satellite status
     const updateSatelliteStatusOperation : operation = updateSatelliteStatusOperation(satelliteToBeRestored, "ACTIVE", s);
-    operations := updateSatelliteStatusOperation # operations;
+    updatedOperations := updateSatelliteStatusOperation # updatedOperations;
 
     // if satellite has oracles, create operations to add satellite oracles to aggregators
-    operations := updateOracleInAggregator(satelliteToBeRestored, True, operations, s);
+    updatedOperations := updateOracleInAggregator(satelliteToBeRestored, True, updatedOperations, s);
 
-} with (operations)
+} with (updatedOperations)
 
 
 
 // helper function to trigger the add oracle to aggregator action during the vote
-function triggerAddOracleToAggregatorSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operations : list(operation); var s : governanceSatelliteStorageType) : return is
+function triggerAddOracleToAggregatorSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; const operations : list(operation); var s : governanceSatelliteStorageType) : return is
 block {
+
+    // Initialize an list of updated operations
+    var updatedOperations : list(operation) := operations;
 
     // Get oracle address and aggregator address from governance satellite action record address map
     const oracleAddress     : address = unpackAddress(actionRecord, "oracleAddress"     , error_ORACLE_NOT_FOUND);
@@ -800,22 +816,25 @@ block {
 
     // Create operation to add oracle to aggregator
     const addOracleToAggregatorOperation : operation = addOracleToAggregatorOperation(oracleAddress, aggregatorAddress);
-    operations := addOracleToAggregatorOperation # operations;
+    updatedOperations := addOracleToAggregatorOperation # updatedOperations;
 
-} with (operations, s)
+} with (updatedOperations, s)
 
 
 
 // helper function to trigger the remove oracle to aggregator action during the vote
-function triggerRemoveOracleInAggregatorSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operations : list(operation); var s : governanceSatelliteStorageType) : return is
+function triggerRemoveOracleInAggregatorSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; const operations : list(operation); var s : governanceSatelliteStorageType) : return is
 block {
+
+    // Initialize an list of updated operations
+    var updatedOperations : list(operation) := operations;
 
     // Get oracle address from governance satellite action record address map
     const oracleAddress     : address = unpackAddress(actionRecord, "oracleAddress"     , error_ORACLE_NOT_FOUND);
     const aggregatorAddress : address = unpackAddress(actionRecord, "aggregatorAddress" , error_AGGREGATOR_CONTRACT_NOT_FOUND);
 
     const removeOracleFromAggregatorOperation : operation = removeOracleFromAggregatorOperation(oracleAddress, aggregatorAddress);
-    operations := removeOracleFromAggregatorOperation # operations;
+    updatedOperations := removeOracleFromAggregatorOperation # updatedOperations;
 
     // Get subscribed aggregators belonging to satellite (oracle)
     var subscribedAggregators : subscribedAggregatorsType := getSubscribedAggregators(oracleAddress, s);
@@ -826,13 +845,16 @@ block {
     // Update storage
     s.satelliteAggregatorLedger[oracleAddress] := subscribedAggregators;
 
-} with (operations, s)
+} with (updatedOperations, s)
 
 
 
 // helper function to trigger the remove all satellite oracles action during the vote
-function triggerRemoveAllSatelliteOraclesSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operations : list(operation); var s : governanceSatelliteStorageType) : return is
+function triggerRemoveAllSatelliteOraclesSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; const operations : list(operation); var s : governanceSatelliteStorageType) : return is
 block {
+
+    // Initialize an list of updated operations
+    var updatedOperations : list(operation) := operations;
 
     // Get satellite address from governance satellite action record address map
     const satelliteAddress : address = unpackAddress(actionRecord, "satelliteAddress", error_SATELLITE_NOT_FOUND);
@@ -844,7 +866,7 @@ block {
     for aggregatorAddress -> _startDateTime in map subscribedAggregators {
 
         const removeOracleFromAggregatorOperation : operation = removeOracleFromAggregatorOperation(satelliteAddress, aggregatorAddress);
-        operations := removeOracleFromAggregatorOperation # operations;
+        updatedOperations := removeOracleFromAggregatorOperation # updatedOperations;
 
         remove aggregatorAddress from map subscribedAggregators;
     };      
@@ -852,14 +874,17 @@ block {
     // Update satellite oracle record and ledger
     s.satelliteAggregatorLedger[satelliteAddress] := subscribedAggregators;
 
-} with(operations, s)
+} with(updatedOperations, s)
 
 
 
 
 // helper function to trigger the pause or unpause of all aggregator entrypoint action during the vote
-function triggerTogglePauseAggregatorSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operations : list(operation); var s : governanceSatelliteStorageType) : return is
+function triggerTogglePauseAggregatorSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; const operations : list(operation); var s : governanceSatelliteStorageType) : return is
 block {
+
+    // Initialize an list of updated operations
+    var updatedOperations : list(operation) := operations;
 
     // Get aggregator address from governance satellite action record address map
     const aggregatorAddress : address = unpackAddress(actionRecord, "aggregatorAddress", error_AGGREGATOR_CONTRACT_NOT_FOUND);
@@ -868,18 +893,21 @@ block {
     const toggleStatus : togglePauseAggregatorVariantType = unpackAggregatorStatusBytes(actionRecord);
 
     // Create operation to pause or unpause aggregator based on status input
-    operations := case toggleStatus of [
-            PauseAll    -> pauseAllEntrypointsInAggregatorOperation(aggregatorAddress) # operations
-        |   UnpauseAll  -> unpauseAllEntrypointsInAggregatorOperation(aggregatorAddress) # operations
+    updatedOperations := case toggleStatus of [
+            PauseAll    -> pauseAllEntrypointsInAggregatorOperation(aggregatorAddress) # updatedOperations
+        |   UnpauseAll  -> unpauseAllEntrypointsInAggregatorOperation(aggregatorAddress) # updatedOperations
     ];
 
-} with (operations, s)
+} with (updatedOperations, s)
 
 
 
 // helper function to trigger the fix mistaken transfer action during the vote
-function triggerFixMistakenTransferSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operations : list(operation)) : list(operation) is
+function triggerFixMistakenTransferSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; const operations : list(operation)) : list(operation) is
 block {
+
+    // Initialize an list of updated operations
+    var updatedOperations : list(operation) := operations;
 
     // get parameters
     const targetContractAddress : address = unpackAddress(actionRecord, "targetContractAddress", error_GOVERNANCE_SATELLITE_ACTION_PARAMETER_NOT_FOUND);
@@ -892,63 +920,67 @@ block {
         getMistakenTransferEntrypoint(targetContractAddress)
     );
 
-    operations := mistakenTransferOperation # operations;
+    updatedOperations := mistakenTransferOperation # updatedOperations;
 
-} with (operations)
+} with (updatedOperations)
 
 
 
 // helper function to execute a governance action during the vote
-function executeGovernanceSatelliteAction(var actionRecord : governanceSatelliteActionRecordType; const actionId : actionIdType; var operations : list(operation); var s : governanceSatelliteStorageType) : return is
+function executeGovernanceSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; const actionId : actionIdType; const operations : list(operation); var s : governanceSatelliteStorageType) : return is
 block {
 
+    // initialize an updated operation list
+    var updatedOperations : list(operation)                                             := operations;
+
     // Governance: Suspend Satellite
-    if actionRecord.governanceType = "SUSPEND" then operations                       := triggerSuspendSatelliteAction(actionRecord, operations, s) else skip;
+    if actionRecord.governanceType = "SUSPEND" then updatedOperations                   := triggerSuspendSatelliteAction(actionRecord, updatedOperations, s) else skip;
 
     // Governance: Ban Satellite
-    if actionRecord.governanceType = "BAN" then operations                           := triggerBanSatelliteAction(actionRecord, operations, s) else skip;
+    if actionRecord.governanceType = "BAN" then updatedOperations                       := triggerBanSatelliteAction(actionRecord, updatedOperations, s) else skip;
 
     // Governance: Restore Satellite
-    if actionRecord.governanceType = "RESTORE" then operations                       := triggerRestoreSatelliteAction(actionRecord, operations, s) else skip;
+    if actionRecord.governanceType = "RESTORE" then updatedOperations                   := triggerRestoreSatelliteAction(actionRecord, updatedOperations, s) else skip;
 
     // Governance: Add Oracle To Aggregator
     if actionRecord.governanceType = "ADD_ORACLE_TO_AGGREGATOR" then block {
-        const addOracleToAggregatorActionTrigger : return                               = triggerAddOracleToAggregatorSatelliteAction(actionRecord, operations, s);
-        s           := addOracleToAggregatorActionTrigger.1;
-        operations := addOracleToAggregatorActionTrigger.0;
+        const addOracleToAggregatorActionTrigger : return                               = triggerAddOracleToAggregatorSatelliteAction(actionRecord, updatedOperations, s);
+        s                   := addOracleToAggregatorActionTrigger.1;
+        updatedOperations   := addOracleToAggregatorActionTrigger.0;
     } else skip;
 
     // Governance: Remove Oracle In Aggregator
     if actionRecord.governanceType = "REMOVE_ORACLE_IN_AGGREGATOR" then block {
-        const removeOracleInAggregatorActionTrigger : return                            = triggerRemoveOracleInAggregatorSatelliteAction(actionRecord, operations, s);
-        s           := removeOracleInAggregatorActionTrigger.1;
-        operations := removeOracleInAggregatorActionTrigger.0;
+        const removeOracleInAggregatorActionTrigger : return                            = triggerRemoveOracleInAggregatorSatelliteAction(actionRecord, updatedOperations, s);
+        s                   := removeOracleInAggregatorActionTrigger.1;
+        updatedOperations   := removeOracleInAggregatorActionTrigger.0;
     } else skip;
 
     // Governance: Remove All Satellite Oracles (in aggregators)
     if actionRecord.governanceType = "REMOVE_ALL_SATELLITE_ORACLES" then block {
-        const removeAllSatelliteOraclesActionTrigger : return                           = triggerRemoveAllSatelliteOraclesSatelliteAction(actionRecord, operations, s);
-        s           := removeAllSatelliteOraclesActionTrigger.1;
-        operations := removeAllSatelliteOraclesActionTrigger.0;
+        const removeAllSatelliteOraclesActionTrigger : return                           = triggerRemoveAllSatelliteOraclesSatelliteAction(actionRecord, updatedOperations, s);
+        s                   := removeAllSatelliteOraclesActionTrigger.1;
+        updatedOperations   := removeAllSatelliteOraclesActionTrigger.0;
     } else skip;
 
     // Governance: Update Aggregator Status
     if actionRecord.governanceType = "TOGGLE_PAUSE_AGGREGATOR" then block {
-        const togglePauseAggregatorActionTrigger : return                               = triggerTogglePauseAggregatorSatelliteAction(actionRecord, operations, s);
-        s           := togglePauseAggregatorActionTrigger.1;
-        operations := togglePauseAggregatorActionTrigger.0;
+        const togglePauseAggregatorActionTrigger : return                               = triggerTogglePauseAggregatorSatelliteAction(actionRecord, updatedOperations, s);
+        s                   := togglePauseAggregatorActionTrigger.1;
+        updatedOperations   := togglePauseAggregatorActionTrigger.0;
     } else skip;
 
     // Governance: Mistaken Transfer Fix
-    if actionRecord.governanceType = "MISTAKEN_TRANSFER_FIX" then operations         := triggerFixMistakenTransferSatelliteAction(actionRecord, operations);
+    if actionRecord.governanceType = "MISTAKEN_TRANSFER_FIX" then updatedOperations     := triggerFixMistakenTransferSatelliteAction(actionRecord, updatedOperations);
 
-    actionRecord.executed                       := True;
-    actionRecord.executedDateTime               := Some(Mavryk.get_now());
-    s.governanceSatelliteActionLedger[actionId] := actionRecord;
+    var updatedActionRecord : governanceSatelliteActionRecordType   := actionRecord;
+    updatedActionRecord.executed                                    := True;
+    updatedActionRecord.executedDateTime                            := Some(Mavryk.get_now());
+    s.governanceSatelliteActionLedger[actionId]                     := updatedActionRecord;
 
     // Remove the executed action from the satellite's set
-    const initiator : address                   = actionRecord.initiator;
-    const governanceCycleId : nat               = actionRecord.governanceCycleId;
+    const initiator : address                   = updatedActionRecord.initiator;
+    const governanceCycleId : nat               = updatedActionRecord.governanceCycleId;
     const satelliteActionKey : (nat * address)  = (governanceCycleId, initiator);
 
     var satelliteActions : set(actionIdType)    := case s.satelliteActions[satelliteActionKey] of [
@@ -958,7 +990,7 @@ block {
     satelliteActions                        := Set.remove(actionId, satelliteActions);
     s.satelliteActions[satelliteActionKey]  := satelliteActions;
 
-} with (operations, s)
+} with (updatedOperations, s)
 
 // ------------------------------------------------------------------------------
 // Vote Helper Functions End

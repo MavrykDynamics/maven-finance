@@ -10,6 +10,7 @@
 **/error.log
 **/compiled/*.tz
 .ligoproject
+._.DS_Store
 
 # Python
 __pycache__/
