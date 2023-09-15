@@ -590,18 +590,19 @@ block {
 
 
 // helper function to set admin on specified contract if the %setAdmin entrypoint exists
-function setAdminIfExistOperation(const contractAddress : address; var operations : list(operation); const s : governanceStorageType) : list(operation) is 
+function setAdminIfExistOperation(const contractAddress : address; const operations : list(operation); const s : governanceStorageType) : list(operation) is 
 block {
 
     // Get Break Glass Contract address from the general contracts map
-    const breakGlassAddress : address = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
+    const breakGlassAddress : address       = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
 
+    var updatedOperations : list(operation) := operations;
     case (Mavryk.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-            Some(contr) -> operations := Mavryk.transaction(breakGlassAddress, 0mav, contr) # operations
+            Some(contr) -> updatedOperations := Mavryk.transaction(breakGlassAddress, 0mav, contr) # updatedOperations
         |   None        -> skip
     ];
 
-} with operations
+} with updatedOperations
 
 
 
