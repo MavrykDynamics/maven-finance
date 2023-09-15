@@ -655,7 +655,7 @@ block {
 
 
 // helper function to refresh a satellite governance snapshot
-function updateGovernanceSnapshot (const satelliteAddresses : set(address); const ready : bool; var operations : list(operation); const s : delegationStorageType) : list(operation) is
+function updateGovernanceSnapshot (const satelliteAddresses : set(address); const ready : bool; const operations : list(operation); const s : delegationStorageType) : list(operation) is
 block {
 
     // Get the current round 
@@ -678,12 +678,13 @@ block {
     };
 
     // Update the satellites snapshot
+    var updatedOperations : list(operation) := operations;
     if Set.size(satellitesToUpdate) > 0n then {
         const updateSatellitesSnapshotOperation : operation = updateSatellitesSnapshotOperation(satellitesToUpdate, ready, s);
-        operations := updateSatellitesSnapshotOperation # operations;
+        updatedOperations := updateSatellitesSnapshotOperation # updatedOperations;
     }
 
-} with operations
+} with updatedOperations
 
 // ------------------------------------------------------------------------------
 // Snapshot Helper Functions End

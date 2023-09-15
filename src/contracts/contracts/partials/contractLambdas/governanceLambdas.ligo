@@ -769,14 +769,14 @@ block {
 
                 case proposalData of [
                         Some (_proposalData)    -> block {
-                            for updateProposalData in map _proposalData block {
+                            for updateProposalData in list _proposalData block {
                                 proposalRecord.proposalData := case updateProposalData of [
-                                        AddOrSetProposalData (data) -> if String.length(data.title) > proposalDataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else addOrSetProposalData(data, proposalData)
-                                    |   RemoveProposalData (data)   -> removeProposalData(data, proposalData)
+                                        AddOrSetProposalData (data) -> if String.length(data.title) > proposalDataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else addOrSetProposalData(data, proposalRecord.proposalData)
+                                    |   RemoveProposalData (data)   -> removeProposalData(data, proposalRecord.proposalData)
                                 ]
                             }
                         }
-                    |   None -> proposalRecord.proposalData
+                    |   None -> skip
                 ];
 
                 // ------------------------------------------------------------------
@@ -785,14 +785,14 @@ block {
 
                 case paymentData of [
                         Some (_paymentData)    -> block {
-                            for updatePaymentData in map _paymentData block {
+                            for updatePaymentData in list _paymentData block {
                                 proposalRecord.paymentData  := case updatePaymentData of [
-                                        AddOrSetPaymentData (data) -> if String.length(data.title) > proposalDataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else addOrSetPaymentData(data, paymentData)
-                                    |   RemovePaymentData (data)   -> removePaymentData(data, paymentData)
+                                        AddOrSetPaymentData (data) -> if String.length(data.title) > proposalDataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else addOrSetPaymentData(data, proposalRecord.paymentData)
+                                    |   RemovePaymentData (data)   -> removePaymentData(data, proposalRecord.paymentData)
                                 ]
                             }
                         }
-                    |   None -> proposalRecord.paymentData
+                    |   None -> skip
                 ];
 
                 // Save changes and update proposal ledger

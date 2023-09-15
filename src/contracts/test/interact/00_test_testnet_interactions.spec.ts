@@ -24,6 +24,7 @@ import contractDeployments from '../contractDeployments.json'
 import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
 import * as helperFunctions from '../helpers/helperFunctions'
 import { mockSatelliteData } from "../helpers/mockSampleData"
+import { mockMetadata } from "../helpers/mockSampleData";
 
 // ------------------------------------------------------------------------------
 // Testnet Setup
@@ -99,38 +100,7 @@ describe("Testnet interactions helper", async () => {
 
     let createdTreasuryAddress;
 
-    const treasuryMetadataBase = Buffer.from(
-        JSON.stringify({
-          name: 'MAVRYK Farm Treasury',
-          description: 'MAVRYK Treasury Contract',
-          version: 'v1.0.0',
-          authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-        }),
-        'ascii',
-      ).toString('hex')
-
     let createdFarmAddress;
-    const farmMetadataBase = Buffer.from(
-        JSON.stringify({
-            name: 'MAVRYK PLENTY-USDTz Farm',
-            description: 'MAVRYK Farm Contract',
-            version: 'v1.0.0',
-            liquidityPairToken: {
-                tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-                origin: ['Plenty'],
-                token0: {
-                symbol: ['PLENTY'],
-                tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-                },
-                token1: {
-                symbol: ['USDtz'],
-                tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-                }
-            },
-            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-            }),
-            'ascii',
-        ).toString('hex')
 
     let createdAggregatorAddress;
 
@@ -1622,7 +1592,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     "treasuryInteraction",
                     true,
-                    treasuryMetadataBase
+                    mockMetadata.treasury
                 ).send()
                 await operation.confirmation();
             } catch(e){
@@ -1888,32 +1858,6 @@ describe("Testnet interactions helper", async () => {
         it('Admin creates a farm', async () => {
             try{
                 // Operation
-                const farmMetadataBase2 = Buffer.from(
-                    JSON.stringify({
-                    name: "MAVRYK USDT.e-USDC.e Farm",
-                    description: "Mavryk Farm Contract for USDT.e-USDC.e",
-                    version: "v1.0.0",
-                    liquidityPairToken: {
-                        tokenAddress: ["KT1CDeAxaiqbA5aMkPMmqqYXxqgfFwocJHza"],
-                        origin: ["Mavryk Finance"],
-                        symbol: ["MLP"],
-                        thumbnailUri: "https://infura-ipfs.io/ipfs/QmaazYGXFxbLvdVBUkxkprsZuBpQeraMWyUkU1gGsigiYm",
-                        decimals: 15,
-                        token0: {
-                            symbol: ["USDT.e"],
-                            tokenAddress: ["KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"],
-                            thumbnailUri: "https://infura-ipfs.io/ipfs/QmdQ4R6TtBe75wSVEsLfRDtAn36Bv2zLAHyVe1cuLYeyfK"
-                        },
-                        token1: {
-                            symbol: ["USDC.e"],
-                            tokenAddress: ["KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9"],
-                            thumbnailUri: "https://www.plentydefi.com/static/media/usdc_icon.771d659c.svg"
-                        }
-                    },
-                    authors: ["MAVRYK Dev Team <contact@mavryk.finance>"]
-                    }),
-                    'ascii',
-                ).toString('hex')
                 const operation = await farmFactoryInstance.methods.createFarm(
                     "testFarm",
                     false,
@@ -1921,10 +1865,32 @@ describe("Testnet interactions helper", async () => {
                     false,
                     12000,
                     100,
-                    farmMetadataBase2,
+                    mockMetadata.farm,
                     contractDeployments.mavrykFa12Token.address,
                     0,
                     "fa12",
+                ).send();
+                await operation.confirmation()
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin creates a mfarm', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.createFarmMToken(
+                    "testFarm",
+                    'usdt',
+                    false,
+                    false,
+                    false,
+                    12000,
+                    100,
+                    mockMetadata.farmMToken,
+                    contractDeployments.mTokenUsdt.address,
+                    0,
+                    "fa2",
                 ).send();
                 await operation.confirmation()
             } catch(e){
@@ -2908,7 +2874,7 @@ describe("Testnet interactions helper", async () => {
                         false,
                         12000,
                         100,
-                        farmMetadataBase,
+                        mockMetadata.farm,
                         contractDeployments.mavrykFa12Token.address,
                         0,
                         "FA12"
@@ -3028,7 +2994,7 @@ describe("Testnet interactions helper", async () => {
                         false,
                         12000,
                         100,
-                        farmMetadataBase,
+                        mockMetadata.farm,
                         contractDeployments.mavrykFa12Token.address,
                         0,
                         "FA12"
@@ -3132,7 +3098,7 @@ describe("Testnet interactions helper", async () => {
                         false,
                         12000,
                         100,
-                        farmMetadataBase,
+                        mockMetadata.farm,
                         contractDeployments.mavrykFa12Token.address,
                         0,
                         "FA12"

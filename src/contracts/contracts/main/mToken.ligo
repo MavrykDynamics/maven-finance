@@ -126,7 +126,7 @@ function checkOperator(const owner : ownerType; const token_id : tokenIdType; co
 
 
 // mergeOperations helper function - used in transfer entrypoint
-function mergeOperations(const first : list (operation); const second : list (operation)) : list (operation) is 
+function mergeOperations(const first : list (operation); var second : list (operation)) : list (operation) is 
 block{
     for operation in list first block{
         second  := operation # second
@@ -480,7 +480,7 @@ block{
             const loanTokenRecord    : loanTokenRecordType = getLoanTokenRecordFromLendingController(s.loanToken, s);
             const tokenRewardIndex   : nat                 = loanTokenRecord.tokenRewardIndex; // decimals: 1e27
              
-            function transferTokens(var accumulator : mTokenStorageType; const destination : transferDestination) : mTokenStorageType is
+            function transferTokens(const accumulator : mTokenStorageType; const destination : transferDestination) : mTokenStorageType is
             block {
 
                 // init variables
@@ -538,23 +538,24 @@ block{
                 else skip;
 
                 // update storage
-                accumulator := updateUserBalanceAndRewardIndex(owner, ownerNewBalance, tokenRewardIndex, accumulator);
-                accumulator := updateUserBalanceAndRewardIndex(receiver, receiverNewBalance, tokenRewardIndex, accumulator);
+                var updatedAccumulator : mTokenStorageType  := accumulator;
+                updatedAccumulator                          := updateUserBalanceAndRewardIndex(owner, ownerNewBalance, tokenRewardIndex, updatedAccumulator);
+                updatedAccumulator                          := updateUserBalanceAndRewardIndex(receiver, receiverNewBalance, tokenRewardIndex, updatedAccumulator);
 
-                accumulator.tokenRewardIndex    := tokenRewardIndex;
-                accumulator.totalSupply         := newTotalSupply;
+                updatedAccumulator.tokenRewardIndex         := tokenRewardIndex;
+                updatedAccumulator.totalSupply              := newTotalSupply;
 
-            } with accumulator;
+            } with updatedAccumulator;
 
             const updatedOperations : list(operation) = (nil: list(operation));
-            var updatedStorage : mvkTokenStorageType := account.1;
+            var updatedStorage : mTokenStorageType := account.1;
             for destination in list txs block {
                 updatedStorage  := transferTokens(updatedStorage, destination);
             }
 
         } with (mergeOperations(updatedOperations,account.0), updatedStorage);
 
-    var return : return    := ((nil: list(operation)), store);
+    var return : return    := ((nil: list(operation)), s);
     for transferParam in list transferParams block{
         return  := makeTransfer(return, transferParam);
     }
@@ -611,7 +612,7 @@ block{
 function updateOperators(const updateOperatorsParams : updateOperatorsType; const s : mTokenStorageType) : return is
 block{
 
-    var updatedOperators : operatorsType := store.operators;
+    var updatedOperators : operatorsType := s.operators;
     for updateOperator in list updateOperatorsParams block {
         updatedOperators := case updateOperator of [
                 Add_operator (param)    -> addOperator(param, updatedOperators)

@@ -370,8 +370,8 @@ block{
                 } with operationList;
 
                 for collateralDeposit in list collateralDepositList block {
-                    operations := processNewVaultCollateralDeposit(collateralDepositList, operations);
-                }
+                    operations := processNewVaultCollateralDeposit(collateralDeposit, operations);
+                };
 
                 // FILO (First-In, Last-Out) - originate vault first then register vault creation in lending controller
                 operations := registerVaultCreationOperation # operations;

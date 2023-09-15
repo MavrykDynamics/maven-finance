@@ -290,7 +290,7 @@ block {
                 
                 const whitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
 
-                function transferAccumulator (var accumulator : list(operation); const destination : transferDestinationType) : list(operation) is 
+                function transferAccumulator (const accumulator : list(operation); const destination : transferDestinationType) : list(operation) is 
                 block {
 
                     const token        : tokenType        = destination.token;
@@ -306,11 +306,8 @@ block {
                         |   Fa2(token)  -> if not checkInWhitelistTokenContracts(token.tokenContractAddress, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
                     ];
 
-                    accumulator := transferTokenOperation # accumulator;
+                } with transferTokenOperation # accumulator;
 
-                } with accumulator;
-
-                const emptyOperation : list(operation) = list[];
                 for destination in list txs block{
                     operations  := transferAccumulator(operations, destination);
                 }

@@ -992,21 +992,22 @@ block{
 
 // helper function to update token state
 // - updates last updated block level and borrow index
-function updateLoanTokenState(var loanTokenRecord : loanTokenRecordType) : loanTokenRecordType is
+function updateLoanTokenState(const loanTokenRecord : loanTokenRecordType) : loanTokenRecordType is
 block{
     
-    const tokenPoolTotal            : nat    = loanTokenRecord.tokenPoolTotal;             // 1e6
-    const totalBorrowed             : nat    = loanTokenRecord.totalBorrowed;              // 1e6
-    const optimalUtilisationRate    : nat    = loanTokenRecord.optimalUtilisationRate;     // 1e27
-    const lastUpdatedBlockLevel     : nat    = loanTokenRecord.lastUpdatedBlockLevel;
-    const maxInterestRate           : nat    = loanTokenRecord.maxInterestRate;
+    var updatedLoanTokenRecord      : loanTokenRecordType   := loanTokenRecord;
+    const tokenPoolTotal            : nat                   = updatedLoanTokenRecord.tokenPoolTotal;             // 1e6
+    const totalBorrowed             : nat                   = updatedLoanTokenRecord.totalBorrowed;              // 1e6
+    const optimalUtilisationRate    : nat                   = updatedLoanTokenRecord.optimalUtilisationRate;     // 1e27
+    const lastUpdatedBlockLevel     : nat                   = updatedLoanTokenRecord.lastUpdatedBlockLevel;
+    const maxInterestRate           : nat                   = updatedLoanTokenRecord.maxInterestRate;
 
-    const baseInterestRate                      : nat = loanTokenRecord.baseInterestRate;                    // r0 - 1e27
-    const interestRateBelowOptimalUtilisation   : nat = loanTokenRecord.interestRateBelowOptimalUtilisation; // r1 - 1e27
-    const interestRateAboveOptimalUtilisation   : nat = loanTokenRecord.interestRateAboveOptimalUtilisation; // r2 - 1e27
+    const baseInterestRate                      : nat = updatedLoanTokenRecord.baseInterestRate;                    // r0 - 1e27
+    const interestRateBelowOptimalUtilisation   : nat = updatedLoanTokenRecord.interestRateBelowOptimalUtilisation; // r1 - 1e27
+    const interestRateAboveOptimalUtilisation   : nat = updatedLoanTokenRecord.interestRateAboveOptimalUtilisation; // r2 - 1e27
 
-    var borrowIndex                 : nat := loanTokenRecord.borrowIndex;
-    var currentInterestRate         : nat := loanTokenRecord.currentInterestRate;
+    var borrowIndex                 : nat := updatedLoanTokenRecord.borrowIndex;
+    var currentInterestRate         : nat := updatedLoanTokenRecord.currentInterestRate;
 
     if tokenPoolTotal > 0n then {
         // calculate utilisation rate - total debt borrowed / token pool total
@@ -1055,14 +1056,14 @@ block{
 
         } else skip;
 
-        loanTokenRecord.lastUpdatedBlockLevel   := Mavryk.get_level();
-        loanTokenRecord.borrowIndex             := borrowIndex;
-        loanTokenRecord.utilisationRate         := utilisationRate;
-        loanTokenRecord.currentInterestRate     := currentInterestRate;
+        updatedLoanTokenRecord.lastUpdatedBlockLevel   := Mavryk.get_level();
+        updatedLoanTokenRecord.borrowIndex             := borrowIndex;
+        updatedLoanTokenRecord.utilisationRate         := utilisationRate;
+        updatedLoanTokenRecord.currentInterestRate     := currentInterestRate;
 
     } else skip;
 
-} with loanTokenRecord
+} with updatedLoanTokenRecord
 
 
 
@@ -1278,7 +1279,7 @@ block {
 
 
 // helper function to calculate the ratio used in the collateral token amount receive calculation
-function processCollateralTokenLiquidation(const liquidatorAddress : address; const treasuryAddress : address; const loanTokenDecimals : nat; const loanTokenLastCompletedData : lastCompletedDataReturnType; const vaultAddress : address; const vaultCollateralValueRebased; const collateralTokenName : string; const collateralTokenBalance : nat; const liquidationAmount : nat; var operations : list(operation); const s : lendingControllerStorageType) : list(operation) * nat is
+function processCollateralTokenLiquidation(const liquidatorAddress : address; const treasuryAddress : address; const loanTokenDecimals : nat; const loanTokenLastCompletedData : lastCompletedDataReturnType; const vaultAddress : address; const vaultCollateralValueRebased; const collateralTokenName : string; const collateralTokenBalance : nat; const liquidationAmount : nat; const operations : list(operation); const s : lendingControllerStorageType) : list(operation) * nat is
 block {
 
     // get collateral token record through on-chain view
@@ -1364,19 +1365,17 @@ block {
     if treasuryTokenQuantityTotal > newCollateralTokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
     newCollateralTokenBalance := abs(newCollateralTokenBalance - treasuryTokenQuantityTotal);
 
-    // ------------------------------------------------------------------
-    // Process liquidation transfer of collateral token
-    // ------------------------------------------------------------------
-    
-    operations := processLiquidationCollateralTransferOperations(
-        collateralTokenRecord,
-        vaultAddress,
-        (liquidatorAddress, liquidatorTokenQuantityTotal),
-        (treasuryAddress, treasuryTokenQuantityTotal),
-        operations
-    );
 
-} with (operations, newCollateralTokenBalance)
+} with (
+            processLiquidationCollateralTransferOperations(
+                collateralTokenRecord,
+                vaultAddress,
+                (liquidatorAddress, liquidatorTokenQuantityTotal),
+                (treasuryAddress, treasuryTokenQuantityTotal),
+                operations
+            ), 
+            newCollateralTokenBalance
+        )
 
 // ------------------------------------------------------------------------------
 // Liquidate Vault Helper Functions End
