@@ -111,7 +111,7 @@ type doormanUnpackLambdaFunctionType is (doormanLambdaActionType * doormanStorag
 function main (const action : doormanAction; const s : doormanStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any mav amount  
 
 } with(
 

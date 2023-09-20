@@ -144,8 +144,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                initialReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // transfer operation
                 transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
@@ -153,8 +153,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                updatedReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // check balances
                 assert.equal(updatedSenderTokenBalance.toNumber()   , +initialSenderTokenBalance.toNumber() - +tokenAmount);
@@ -175,8 +175,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                initialReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // transfer operation
                 transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
@@ -184,8 +184,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                updatedReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // check balances
                 assert.equal(updatedSenderTokenBalance.toNumber()   , +initialSenderTokenBalance.toNumber() - +tokenAmount);
@@ -206,7 +206,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
 
                 // transfer operation
                 transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
@@ -214,7 +214,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
 
                 // check balances
                 assert.equal(updatedSenderTokenBalance.toNumber(), initialSenderTokenBalance.toNumber());
@@ -234,7 +234,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
 
                 // transfer operation
                 transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
@@ -242,7 +242,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
 
                 // check balances
                 assert.equal(updatedSenderTokenBalance.toNumber(), initialSenderTokenBalance.toNumber());
@@ -263,9 +263,9 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                initialEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                initialMalloryTokenBalance  = await getStorageMapValue(tokenStorage, 'ledger', mallory.pkh);
+                initialAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
 
                 // transfer operation
                 transferOperation = await fa2MultiTransfer(
@@ -280,9 +280,9 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 await transferOperation.confirmation();
 
                 tokenStorage                = await tokenInstance.storage()
-                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                updatedMalloryTokenBalance  = await getStorageMapValue(tokenStorage, 'ledger', mallory.pkh);
+                updatedEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                updatedAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
                 
                 assert.equal(updatedEveTokenBalance.toNumber()      , +initialEveTokenBalance.toNumber() - +amountSentToAlice)
                 assert.equal(updatedAliceTokenBalance.toNumber()    , +initialAliceTokenBalance.toNumber() + +amountSentToAlice)
@@ -303,9 +303,9 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
-                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                initialAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
+                initialMalloryTokenBalance  = await getStorageMapValue(tokenStorage, 'ledger', mallory.pkh);
 
                 // transfer operation
                 transferOperation = await fa2MultiTransfer(
@@ -320,9 +320,9 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
-                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                updatedAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
+                updatedMalloryTokenBalance  = await getStorageMapValue(tokenStorage, 'ledger', mallory.pkh);
 
                 assert.equal(updatedSenderTokenBalance.toNumber()   , +initialSenderTokenBalance.toNumber()  -  +amountSentToAlice - +amountSentToMallory)
                 assert.equal(updatedMalloryTokenBalance.toNumber()  , +initialMalloryTokenBalance.toNumber() +  +amountSentToMallory);
@@ -342,8 +342,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                initialReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 tokenAmount = initialSenderTokenBalance;
 
@@ -353,8 +353,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                updatedReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
                 
                 assert.equal(updatedSenderTokenBalance.toNumber()   , +initialSenderTokenBalance.toNumber()   -  +tokenAmount);
                 assert.equal(updatedReceiverTokenBalance.toNumber() , +initialReceiverTokenBalance.toNumber() +  +tokenAmount);
@@ -390,7 +390,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
 
                 // transfer operation
                 transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
@@ -400,7 +400,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
 
                 assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
                 assert.equal(updatedSenderTokenBalance.toNumber(), initialSenderTokenBalance.toNumber());
@@ -418,8 +418,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                initialReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // transfer operation
                 transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
@@ -429,8 +429,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                updatedReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // check balances
                 assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
@@ -451,8 +451,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                initialReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // transfer operation
                 transferOperation = await fa2MultiTransfer(
@@ -469,8 +469,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                updatedReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // check error message
                 assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
@@ -493,8 +493,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                initialReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // transfer operation
                 transferOperation = await fa2Transfer(tokenInstance, sender, receiver, wrongTokenId, tokenAmount);
@@ -504,8 +504,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                updatedReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // check error message
                 assert.equal(e.message, 'FA2_TOKEN_UNDEFINED', "Mallory shouldn't be able to send a token from a token id that does not exist on the contract",);
@@ -527,8 +527,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                initialReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // transfer operation
                 transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
@@ -538,8 +538,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                updatedReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // no changes in balances
                 assert.equal(updatedSenderTokenBalance.toNumber()   , initialSenderTokenBalance.toNumber());
@@ -580,8 +580,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage();
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                initialReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 await signerFactory(tezos, alice.sk);
                 transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
@@ -589,8 +589,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage();
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                updatedReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // check balances
                 assert.equal(updatedSenderTokenBalance.toNumber()    , +initialSenderTokenBalance.toNumber()   - +tokenAmount);
@@ -625,8 +625,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                initialReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 await signerFactory(tezos, alice.sk);
                 transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
@@ -636,8 +636,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                updatedReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // check error message
                 assert.equal(e.message, 'FA2_NOT_OPERATOR', "Alice isn't the operator of Eve")
@@ -688,8 +688,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                initialReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 await signerFactory(tezos, alice.sk);
                 transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
@@ -699,8 +699,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                updatedReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // check error message
                 assert.equal(e.message, 'FA2_NOT_OPERATOR', "Alice isn't the operator of Eve")
@@ -757,8 +757,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                initialReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                initialSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                initialReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 await signerFactory(tezos, alice.sk);
                 transferOperation = await fa2Transfer(tokenInstance, sender, receiver, tokenId, tokenAmount);
@@ -766,8 +766,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedSenderTokenBalance   = await tokenStorage.ledger.get(sender);
-                updatedReceiverTokenBalance = await tokenStorage.ledger.get(receiver);
+                updatedSenderTokenBalance   = await getStorageMapValue(tokenStorage, 'ledger', sender);
+                updatedReceiverTokenBalance = await getStorageMapValue(tokenStorage, 'ledger', receiver);
 
                 // check balances
                 assert.equal(updatedSenderTokenBalance.toNumber()    , +initialSenderTokenBalance.toNumber()   - +tokenAmount);
@@ -815,9 +815,9 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                initialEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                initialMalloryTokenBalance  = await getStorageMapValue(tokenStorage, 'ledger', mallory.pkh);
+                initialAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
 
                 // transfer operation
                 await signerFactory(tezos, eve.sk);
@@ -847,9 +847,9 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                updatedEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                updatedMalloryTokenBalance  = await getStorageMapValue(tokenStorage, 'ledger', mallory.pkh);
+                updatedAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
 
                 // check balances
                 assert.equal(updatedEveTokenBalance.toNumber()      , +initialEveTokenBalance.toNumber()      +  +tokenAmount + +tokenAmount);
@@ -886,9 +886,9 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                initialEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                initialMalloryTokenBalance  = await getStorageMapValue(tokenStorage, 'ledger', mallory.pkh);
+                initialAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
 
                 // transfer operation - eve transfer on mallory's behalf
                 await signerFactory(tezos, eve.sk);
@@ -897,9 +897,9 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                updatedEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                updatedMalloryTokenBalance  = await getStorageMapValue(tokenStorage, 'ledger', mallory.pkh);
+                updatedAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
 
                 // check balances
                 assert.equal(updatedMalloryTokenBalance.toNumber()  , +initialMalloryTokenBalance.toNumber() - +tokenAmount);
@@ -926,9 +926,9 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                initialEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                initialMalloryTokenBalance  = await getStorageMapValue(tokenStorage, 'ledger', mallory.pkh);
+                initialAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
 
                 // transfer operation - eve transfer on mallory's behalf
                 await signerFactory(tezos, eve.sk);
@@ -939,9 +939,9 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                updatedEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                updatedMalloryTokenBalance  = await getStorageMapValue(tokenStorage, 'ledger', mallory.pkh);
+                updatedAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
 
                 // check error message
                 assert.equal(e.message, 'FA2_NOT_OPERATOR', "Eve isn't the operator of Mallory")
@@ -963,9 +963,9 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                initialMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                initialEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                initialMalloryTokenBalance  = await getStorageMapValue(tokenStorage, 'ledger', mallory.pkh);
+                initialAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
 
                 transferOperation = await tokenInstance.methods.transfer([
                     {
@@ -995,9 +995,9 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // updated storage
                 tokenStorage                = await tokenInstance.storage()
-                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                updatedMalloryTokenBalance  = await tokenStorage.ledger.get(mallory.pkh);
-                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                updatedEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                updatedMalloryTokenBalance  = await getStorageMapValue(tokenStorage, 'ledger', mallory.pkh);
+                updatedAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
 
                 // check error message
                 assert.equal(e.message, 'FA2_NOT_OPERATOR', "Eve isn't the operator of Alice and Eve")
@@ -1033,8 +1033,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                initialEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                initialAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
                 initialTotalSupply          = await tokenStorage.totalSupply;
                 
                 await signerFactory(tezos, eve.sk);
@@ -1047,8 +1047,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 await updateWhitelistContractsOperation.confirmation()
 
                 tokenStorage                = await tokenInstance.storage()
-                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                updatedEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                updatedAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
                 updatedTotalSupply          = await tokenStorage.totalSupply;
 
                 assert.equal(updatedEveTokenBalance.toNumber()      , initialEveTokenBalance.toNumber());
@@ -1068,8 +1068,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                initialEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                initialAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
                 mintOperation = await tokenInstance.methods.mintOrBurn(receiver, tokenId, tokenAmount).send()
@@ -1078,8 +1078,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             } catch (e) {
                 
                 tokenStorage                = await tokenInstance.storage()
-                updatedEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
-                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                updatedEveTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', eve.pkh);
+                updatedAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
                 updatedTotalSupply          = await tokenStorage.totalSupply;
 
                 assert.equal(e.message, 'ONLY_WHITELISTED_CONTRACTS_ALLOWED', "Eve address isn't in the whitelistContracts map")
@@ -1126,8 +1126,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialBobTokenBalance      = await tokenStorage.ledger.get(bob.pkh);
-                initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                initialBobTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', bob.pkh);
+                initialAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
                 mintOperation = await tokenInstance.methods.mintOrBurn(receiver, tokenId, tokenAmount).send()
@@ -1136,8 +1136,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             } catch (e) {
                 
                 tokenStorage                = await tokenInstance.storage()
-                updatedBobTokenBalance      = await tokenStorage.ledger.get(bob.pkh);
-                updatedAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
+                updatedBobTokenBalance      = await getStorageMapValue(tokenStorage, 'ledger', bob.pkh);
+                updatedAliceTokenBalance    = await getStorageMapValue(tokenStorage, 'ledger', alice.pkh);
                 updatedTotalSupply          = await tokenStorage.totalSupply;
 
                 assert.equal(e.message, 'ONLY_WHITELISTED_CONTRACTS_ALLOWED', "Bob address isn't in the whitelistContracts map")
@@ -1169,7 +1169,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialUserTokenBalance     = await tokenStorage.ledger.get(user);
+                initialUserTokenBalance     = await getStorageMapValue(tokenStorage, 'ledger', user);
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
                 await signerFactory(tezos, eve.sk);
@@ -1177,7 +1177,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 await burnOperation.confirmation()
 
                 tokenStorage                = await tokenInstance.storage()
-                updatedUserTokenBalance     = await tokenStorage.ledger.get(user);
+                updatedUserTokenBalance     = await getStorageMapValue(tokenStorage, 'ledger', user);
                 updatedTotalSupply          = await tokenStorage.totalSupply;
 
                 // check that user token balance and total supply have decreased by token amount
@@ -1207,7 +1207,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialUserTokenBalance     = await tokenStorage.ledger.get(user);
+                initialUserTokenBalance     = await getStorageMapValue(tokenStorage, 'ledger', user);
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
                 await signerFactory(tezos, eve.sk);
@@ -1215,7 +1215,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 await burnOperation.confirmation()
 
                 tokenStorage                = await tokenInstance.storage()
-                updatedUserTokenBalance     = await tokenStorage.ledger.get(user);
+                updatedUserTokenBalance     = await getStorageMapValue(tokenStorage, 'ledger', user);
                 updatedTotalSupply          = await tokenStorage.totalSupply;
 
                 // check that there are no changes to user token balance and total supply 
@@ -1244,7 +1244,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialUserTokenBalance     = await tokenStorage.ledger.get(user);
+                initialUserTokenBalance     = await getStorageMapValue(tokenStorage, 'ledger', user);
                 tokenAmount                 = initialUserTokenBalance.toNumber();
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
@@ -1253,7 +1253,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 await burnOperation.confirmation()
 
                 tokenStorage                = await tokenInstance.storage()
-                updatedUserTokenBalance     = await tokenStorage.ledger.get(user);
+                updatedUserTokenBalance     = await getStorageMapValue(tokenStorage, 'ledger', user);
                 updatedTotalSupply          = await tokenStorage.totalSupply;
 
                 // check that user token balance and total supply have decreased by token amount
@@ -1307,7 +1307,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
-                initialUserTokenBalance     = await tokenStorage.ledger.get(user);
+                initialUserTokenBalance     = await getStorageMapValue(tokenStorage, 'ledger', user);
                 tokenAmount                 = initialUserTokenBalance + 1000;
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
@@ -1318,7 +1318,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             } catch (e) {
                 
                 tokenStorage                = await tokenInstance.storage()
-                updatedUserTokenBalance     = await tokenStorage.ledger.get(user);
+                updatedUserTokenBalance     = await getStorageMapValue(tokenStorage, 'ledger', user);
                 updatedTotalSupply          = await tokenStorage.totalSupply;
 
                 // check message
@@ -1463,14 +1463,14 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 await transferOperation.confirmation();
                 
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa12TokenStorage.ledger.get(user)).balance.toNumber()
+                const initialUserBalance    = (await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', user)).balance.toNumber()
 
                 await signerFactory(tezos, bob.sk);
                 mistakenTransferOperation = await mistakenTransferFa12Token(tokenInstance, user, mavrykFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa12TokenStorage.ledger.get(user)).balance.toNumber();
+                const updatedUserBalance    = (await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', user)).balance.toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);

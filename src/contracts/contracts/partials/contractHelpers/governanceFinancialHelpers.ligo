@@ -63,7 +63,7 @@ block {
 function validateWhitelistedToken(const tokenType : string; const tokenContractAddress : address; const s : governanceFinancialStorageType) : unit is
 block {
     
-    // fail if token type is not tez, and not whitelisted 
+    // fail if token type is not mav, and not whitelisted 
     if tokenType =/= "TEZ" and not checkInWhitelistTokenContracts(tokenContractAddress, s.whitelistTokenContracts) 
     then failwith(error_TOKEN_NOT_WHITELISTED) 
     else skip;
@@ -271,7 +271,7 @@ block{
 function formatTokenTransferType(const financialRequestRecord : financialRequestRecordType) : tokenType is 
 block {
 
-    // init token transfer type to tez
+    // init token transfer type to mav
     var tokenTransferType : tokenType := Tez;
 
     // set to FA12 or FA2 token type depending on request record's token type
@@ -380,57 +380,55 @@ block {
 // ------------------------------------------------------------------------------
 
 // helper function to remove previous vote
-function removePreviousVote(const financialRequestRecord : financialRequestRecordType; const financialRequestId : nat; const totalVotingPower : nat; var s : governanceFinancialStorageType) : financialRequestRecordType is 
+function removePreviousVote(var financialRequestRecord : financialRequestRecordType; const financialRequestId : nat; const totalVotingPower : nat; var s : governanceFinancialStorageType) : financialRequestRecordType is 
 block {
 
-    var updatedFinancialRequestRecord : financialRequestRecordType  := financialRequestRecord;
     case s.financialRequestVoters[(financialRequestId, Mavryk.get_sender())] of [
                     
             Some (_voteType) -> case _voteType of [
 
-                    Yay(_v)   ->    if totalVotingPower > updatedFinancialRequestRecord.yayVoteStakedMvkTotal 
+                    Yay(_v)   ->    if totalVotingPower > financialRequestRecord.yayVoteStakedMvkTotal 
                                     then failwith(error_CALCULATION_ERROR) 
-                                    else updatedFinancialRequestRecord.yayVoteStakedMvkTotal := abs(updatedFinancialRequestRecord.yayVoteStakedMvkTotal - totalVotingPower)
+                                    else financialRequestRecord.yayVoteStakedMvkTotal := abs(financialRequestRecord.yayVoteStakedMvkTotal - totalVotingPower)
 
-                |   Nay(_v)   ->    if totalVotingPower > updatedFinancialRequestRecord.nayVoteStakedMvkTotal 
+                |   Nay(_v)   ->    if totalVotingPower > financialRequestRecord.nayVoteStakedMvkTotal 
                                     then failwith(error_CALCULATION_ERROR) 
-                                    else updatedFinancialRequestRecord.nayVoteStakedMvkTotal := abs(updatedFinancialRequestRecord.nayVoteStakedMvkTotal - totalVotingPower)
+                                    else financialRequestRecord.nayVoteStakedMvkTotal := abs(financialRequestRecord.nayVoteStakedMvkTotal - totalVotingPower)
 
-                |   Pass(_v)  ->    if totalVotingPower > updatedFinancialRequestRecord.passVoteStakedMvkTotal 
+                |   Pass(_v)  ->    if totalVotingPower > financialRequestRecord.passVoteStakedMvkTotal 
                                     then failwith(error_CALCULATION_ERROR) 
-                                    else updatedFinancialRequestRecord.passVoteStakedMvkTotal := abs(updatedFinancialRequestRecord.passVoteStakedMvkTotal - totalVotingPower)                    
+                                    else financialRequestRecord.passVoteStakedMvkTotal := abs(financialRequestRecord.passVoteStakedMvkTotal - totalVotingPower)                    
             ]
 
         |   None -> skip
 
     ];
 
-} with updatedFinancialRequestRecord
+} with financialRequestRecord
 
 
 
 // helper function to compute new vote
-function computeNewVote(const financialRequestRecord : financialRequestRecordType; const voteType : voteType; const totalVotingPower : nat) : financialRequestRecordType is 
+function computeNewVote(var financialRequestRecord : financialRequestRecordType; const voteType : voteType; const totalVotingPower : nat) : financialRequestRecordType is 
 block {
 
     // compute new vote totals
-    var updatedFinancialRequestRecord : financialRequestRecordType  := financialRequestRecord;
     case voteType of [
 
             Yay(_v) -> block {                
-                updatedFinancialRequestRecord.yayVoteStakedMvkTotal := updatedFinancialRequestRecord.yayVoteStakedMvkTotal + totalVotingPower;
+                financialRequestRecord.yayVoteStakedMvkTotal := financialRequestRecord.yayVoteStakedMvkTotal + totalVotingPower;
             }
 
         |   Nay(_v) -> block {
-                updatedFinancialRequestRecord.nayVoteStakedMvkTotal := updatedFinancialRequestRecord.nayVoteStakedMvkTotal + totalVotingPower;
+                financialRequestRecord.nayVoteStakedMvkTotal := financialRequestRecord.nayVoteStakedMvkTotal + totalVotingPower;
             }
 
         |   Pass(_v) -> block {
-                updatedFinancialRequestRecord.passVoteStakedMvkTotal := updatedFinancialRequestRecord.passVoteStakedMvkTotal + totalVotingPower;
+                financialRequestRecord.passVoteStakedMvkTotal := financialRequestRecord.passVoteStakedMvkTotal + totalVotingPower;
             }
     ];
 
-} with updatedFinancialRequestRecord
+} with financialRequestRecord
 
 
 
@@ -451,22 +449,19 @@ block {
 
 
 // helper function to execute a financial governance request during the vote
-function executeFinancialRequest(const financialRequestRecord : financialRequestRecordType; const operations : list(operation); const s : governanceFinancialStorageType) : list(operation) is
+function executeFinancialRequest(const financialRequestRecord : financialRequestRecordType; var operations : list(operation); const s : governanceFinancialStorageType) : list(operation) is
 block {
-
-    // Initialize a list of updated operations
-    var updatedOperations : list(operation) := operations;
 
     // If token is specified, validate that token is whitelisted (security measure to prevent interacting with potentially malicious contracts)
     validateWhitelistedToken(financialRequestRecord.tokenType, financialRequestRecord.tokenContractAddress, s);
 
-    if financialRequestRecord.requestType = "TRANSFER"           then updatedOperations := transferFromTreasuryToCouncilOperation(financialRequestRecord) # updatedOperations; 
+    if financialRequestRecord.requestType = "TRANSFER"           then operations := transferFromTreasuryToCouncilOperation(financialRequestRecord) # operations; 
 
-    if financialRequestRecord.requestType = "MINT"               then updatedOperations := mintMvkAndTransferOperation(financialRequestRecord) # updatedOperations;
+    if financialRequestRecord.requestType = "MINT"               then operations := mintMvkAndTransferOperation(financialRequestRecord) # operations;
 
-    if financialRequestRecord.requestType = "SET_CONTRACT_BAKER" then updatedOperations := setContractBakerOperation(financialRequestRecord) # updatedOperations;
+    if financialRequestRecord.requestType = "SET_CONTRACT_BAKER" then operations := setContractBakerOperation(financialRequestRecord) # operations;
 
-} with updatedOperations
+} with operations
 
 // ------------------------------------------------------------------------------
 // Vote Helper Functions End
@@ -658,11 +653,8 @@ block {
 
 
 // helper function to get a satellite total voting power from its snapshot on the governance contract
-function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress : address; const requestGovernanceCycleId : nat; const operations : list(operation); const s : governanceFinancialStorageType): (nat * list(operation)) is 
+function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress : address; const requestGovernanceCycleId : nat; var operations : list(operation); const s : governanceFinancialStorageType): (nat * list(operation)) is 
 block{
-
-    // Initialize a list of updated operations
-    var updatedOperations : list(operation) := operations;
 
     // Get the current cycle from the governance contract at time of voting to check if the snapshot is up to date
     const currentCycle : nat = getCurrentCycleCounter(s);
@@ -681,7 +673,7 @@ block{
             
             // update satellite snapshot operation
             const updateSatellitesSnapshotOperation : operation = updateSatellitesSnapshotOperation(set[satelliteAddress], True, s);
-            updatedOperations := updateSatellitesSnapshotOperation # updatedOperations;
+            operations := updateSatellitesSnapshotOperation # operations;
 
             // Calculate and set the total voting power of the satellite
             totalVotingPower := calculateVotingPower(satelliteAddress, s);
@@ -697,7 +689,7 @@ block{
 
     }
 
-} with (totalVotingPower, updatedOperations)
+} with (totalVotingPower, operations)
 
 // ------------------------------------------------------------------------------
 // Governance Snapshot Helper Functions End
@@ -714,7 +706,7 @@ function unpackLambda(const lambdaBytes : bytes; const governanceFinancialLambda
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceUnpackLambdaFunctionType)) of [
-            Some(f) -> f((governanceFinancialLambdaAction, s))
+            Some(f) -> f(governanceFinancialLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

@@ -21,6 +21,7 @@ import contractDeployments from './contractDeployments.json'
 import { bob, alice, eve, mallory, susie, oscar, ivan, trudy, isaac, david } from "../scripts/sandbox/accounts";
 import { aggregatorMockData } from "./helpers/mockSampleData"
 import { 
+    getStorageMapValue,
     signerFactory
 } from './helpers/helperFunctions'
 
@@ -131,7 +132,7 @@ describe("Setup: Mock Aggregators", async () => {
             try{
                 
                 const aggregatorName = 'USD/BTC';
-                const aggregatorRecord = await governanceSatelliteStorage.aggregatorLedger.get(aggregatorName);
+                const aggregatorRecord = await getStorageMapValue(governanceSatelliteStorage, 'aggregatorLedger', aggregatorName);
                 if(aggregatorRecord == undefined){
 
                     // const oracleMap              = MichelsonMap.fromLiteral({});
@@ -167,7 +168,7 @@ describe("Setup: Mock Aggregators", async () => {
             try{
                 
                 const aggregatorName = 'USD/XTZ';
-                const aggregatorRecord = await governanceSatelliteStorage.aggregatorLedger.get(aggregatorName);
+                const aggregatorRecord = await getStorageMapValue(governanceSatelliteStorage, 'aggregatorLedger', aggregatorName);
                 if(aggregatorRecord == undefined){
 
                     // const oracleMap              = MichelsonMap.fromLiteral({});
@@ -203,7 +204,7 @@ describe("Setup: Mock Aggregators", async () => {
             try{
                 
                 const aggregatorName = 'USD/DOGE';
-                const aggregatorRecord = await governanceSatelliteStorage.aggregatorLedger.get(aggregatorName);
+                const aggregatorRecord = await getStorageMapValue(governanceSatelliteStorage, 'aggregatorLedger', aggregatorName);
                 if(aggregatorRecord == undefined){
 
                     // const oracleMap              = MichelsonMap.fromLiteral({});
@@ -239,7 +240,7 @@ describe("Setup: Mock Aggregators", async () => {
             try{
                 
                 const aggregatorName = 'USD/MVK';
-                const aggregatorRecord = await governanceSatelliteStorage.aggregatorLedger.get(aggregatorName);
+                const aggregatorRecord = await getStorageMapValue(governanceSatelliteStorage, 'aggregatorLedger', aggregatorName);
                 if(aggregatorRecord == undefined){
 
                     // const oracleMap              = MichelsonMap.fromLiteral({});

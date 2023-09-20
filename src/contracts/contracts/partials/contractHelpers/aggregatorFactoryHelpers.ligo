@@ -298,7 +298,7 @@ function unpackLambda(const lambdaBytes : bytes; const aggregatorFactoryLambdaAc
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(aggregatorFactoryUnpackLambdaFunctionType)) of [
-            Some(f) -> f((aggregatorFactoryLambdaAction, s))
+            Some(f) -> f(aggregatorFactoryLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

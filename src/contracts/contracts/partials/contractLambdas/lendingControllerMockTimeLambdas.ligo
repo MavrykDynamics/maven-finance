@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit);  // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);  // entrypoint should not receive any mav amount  
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -32,7 +32,7 @@ block {
 function lambdaSetGovernance(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any mav amount  
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -320,7 +320,7 @@ block {
     // 1. Access Checks 
     //      -   Check that %setLoanToken entrypoint is not paused (e.g. glass broken)
     //      -   Check that sender is admin (Governance Proxy)
-    //      -   Check that no tez is sent
+    //      -   Check that no mav is sent
     // 2a. If variant is CreateLoanToken
     //      -   Check if loan token already exists
     //      -   Update loan token ledger with new loan token record
@@ -329,7 +329,7 @@ block {
     //      -   Update and save loan token record with new parameters
 
 
-    verifyNoAmountSent(Unit);           // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);           // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrTester(s);       // verify that sender is admin 
     
     // verify that %setLoanToken entrypoint is not paused (e.g. if glass broken)
@@ -376,7 +376,7 @@ block {
     // 1. Access Checks 
     //      -   Check that %setCollateralToken entrypoint is not paused (e.g. glass broken)
     //      -   Check that sender is admin (Governance Proxy)
-    //      -   Check that no tez is sent
+    //      -   Check that no mav is sent
     // 2a. If variant is CreateCollateralToken
     //      -   Check if collateral token already exists
     //      -   Update collateral token ledger with new collateral token record
@@ -384,7 +384,7 @@ block {
     //      -   Get collateral token record if exists
     //      -   Update and save collateral token record with new parameters
 
-    verifyNoAmountSent(Unit);                 // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);                 // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrTester(s);             // verify that sender is admin 
     
     // Verify that %setCollateralToken entrypoint is not paused (e.g. if glass broken)
@@ -531,8 +531,8 @@ block {
                 loanTokenRecord.rawMTokensTotalSupply     := loanTokenRecord.rawMTokensTotalSupply + amount;
                 loanTokenRecord.totalRemaining   := loanTokenRecord.totalRemaining + amount;
 
-                // send tokens to token pool (self address) operation / skip if loan token name is tez
-                if loanTokenName =  "tez" then {
+                // send tokens to token pool (self address) operation / skip if loan token name is mav
+                if loanTokenName =  "mav" then {
 
                     if Mavryk.get_amount() = (amount * 1mumav) then skip else failwith(error_INCORRECT_LOAN_TOKEN_AMOUNT_SENT);
 
@@ -541,7 +541,7 @@ block {
                         initiator,                  // from_
                         Mavryk.get_self_address(),   // to_    
                         amount,                     // amount
-                        loanTokenRecord.tokenType   // token type (e.g. tez, fa12, fa2)
+                        loanTokenRecord.tokenType   // token type (e.g. mav, fa12, fa2)
                     );
                     operations := sendTokensToTokenPoolOperation # operations;
                 };
@@ -570,7 +570,7 @@ block {
 
     // Steps Overview: 
     // 1. Check that %removeLiquidity entrypoint is not paused (e.g. glass broken)
-    // 2. Check that no tez is sent
+    // 2. Check that no mav is sent
     // 2. Process remove liquidity operation
     //      -   Get loan token record
     //      -   Send tokens from token pool / lending controller (i.e. self address) to user
@@ -579,7 +579,7 @@ block {
     // 3. Get or create user's current token pool deposit balance 
     // 4. Update user rewards (based on user's current token pool deposit balance, and not the updated balance)
     
-    verifyNoAmountSent(Unit);              // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);              // entrypoint should not receive any mav amount  
     
     // Verify that %removeLiquidity entrypoint is not paused (e.g. if glass broken)
     verifyEntrypointIsNotPaused(s.breakGlassConfig.removeLiquidityIsPaused, error_REMOVE_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
@@ -627,7 +627,7 @@ block {
                     Mavryk.get_self_address(),   // from_
                     initiator,                  // to_    
                     amount,                     // amount
-                    loanTokenType               // token type (e.g. tez, fa12, fa2)
+                    loanTokenType               // token type (e.g. mav, fa12, fa2)
                 );
                 operations := sendTokensToInitiatorOperation # operations;
 
@@ -693,10 +693,10 @@ block {
                     // init final token balance var
                     var finalTokenBalance  : nat := collateralTokenBalance;
 
-                    if collateralTokenName = "tez" then block {
+                    if collateralTokenName = "mav" then block {
 
                         if finalTokenBalance > 0n then {
-                            const transferTezOperation : operation = transferTez( (Mavryk.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mumav );
+                            const transferTezOperation : operation = transferTez( (Mavryk.get_contract_with_error(vaultOwner, "Error. Unable to send mav.") : contract(unit)), finalTokenBalance * 1mumav );
                             operations := transferTezOperation # operations;
 
                             vault.collateralBalanceLedger[collateralTokenName]  := 0n;
@@ -760,9 +760,9 @@ block {
                         // save and update balance for collateral token to zero
                         vault.collateralBalanceLedger[collateralTokenName]  := 0n;
 
-                    }; // end if/else check for tez/token
+                    }; // end if/else check for mav/token
 
-                }; // end loop for withdraw operations of tez/tokens in vault collateral 
+                }; // end loop for withdraw operations of mav/tokens in vault collateral 
 
 
                 // remove vault from stroage
@@ -1192,8 +1192,8 @@ block {
                 // Register token deposit in vault collateral balance ledger
                 // ------------------------------------------------------------------
                 
-                // Check if token is tez or exists in collateral token ledger
-                if tokenName = "tez" then skip else {
+                // Check if token is mav or exists in collateral token ledger
+                if tokenName = "mav" then skip else {
                     checkCollateralTokenExists(tokenName, s)    
                 };
 

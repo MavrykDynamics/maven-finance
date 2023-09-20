@@ -44,9 +44,14 @@ export const almostEqual = (actual, expected, delta) => {
 }
 
 
-export async function getStorageMapValue (contractStorage, mapName, key) {
-    const storageMapValue = await contractStorage[mapName].get(key);
-    return storageMapValue;
+export async function getStorageMapValue (parentStorage, mapName, key) {
+    try {
+        const storageMapValue = await parentStorage[mapName].get(key);
+        return storageMapValue;
+    }
+    catch(e) {
+        return undefined
+    }
 }
 
 

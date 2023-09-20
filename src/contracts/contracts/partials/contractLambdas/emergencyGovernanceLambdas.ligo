@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case emergencyGovernanceLambdaAction of [
@@ -30,7 +30,7 @@ block {
 function lambdaSetGovernance(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case emergencyGovernanceLambdaAction of [
@@ -69,7 +69,7 @@ block {
 function lambdaUpdateConfig(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is 
 block {
 
-  verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
+  verifyNoAmountSent(Unit);   // entrypoint should not receive any mav amount  
   verifySenderIsAdmin(s.admin); // verify that sender is admin
 
   case emergencyGovernanceLambdaAction of [
@@ -147,10 +147,8 @@ block {
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
-                for transferParams in list destinationParams block {
-                    operations := transferOperationFold(transferParams, operations);
-                }
-                 
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
+                
             }
         |   _ -> skip
     ];
@@ -172,7 +170,7 @@ block {
 
     // Steps Overview:
     // 1. Check that there is no currently active emergency governance being voted on
-    // 2. Check if tez sent is equal to the required fee
+    // 2. Check if mav sent is equal to the required fee
     // 3. Transfer required fee to the Tax Treasury
     //    - Get Tax Treasury Contract Address from the General Contracts Map on the Governance Contract
     // 4. Check if user has sufficient staked MVK to trigger emergency control
@@ -194,7 +192,7 @@ block {
                 // Verify that there is no currently active emergency governance
                 verifyNoActiveEmergencyGovernance(s);
 
-                // Verify that tez sent is equal to the required fee
+                // Verify that mav sent is equal to the required fee
                 verifyCorrectFee(s);
 
                 // Transfer fee to Treasury
@@ -267,7 +265,7 @@ block {
     //    - Trigger break glass in Governance contract  - set Governance Contract admin to Break Glass Contract address
     // 7. Update storage - emergency governance record
 
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
 
     var operations : list(operation) := nil;
 

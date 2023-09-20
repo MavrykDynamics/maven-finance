@@ -217,7 +217,7 @@ describe("FarmFactory", async () => {
                 // Final values
                 farmFactoryStorage          = await farmFactoryInstance.storage();            
 
-                const updatedData       = await farmFactoryStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(farmFactoryStorage, 'metadata', key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -353,14 +353,14 @@ describe("FarmFactory", async () => {
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userOne)).toNumber()
+                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', userOne)).toNumber()
 
                 await signerFactory(tezos, adminSk);
                 mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userOne)).toNumber();
+                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', userOne)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -621,7 +621,7 @@ describe("FarmFactory", async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 farmFactoryStorage          = await farmFactoryInstance.storage();   
-                const initialMetadata   = await farmFactoryStorage.metadata.get(key);
+                const initialMetadata   = await getStorageMapValue(farmFactoryStorage, 'metadata', key);
 
                 // Operation
                 const updateOperation = await farmFactoryInstance.methods.updateMetadata(key, hash);
@@ -629,7 +629,7 @@ describe("FarmFactory", async () => {
 
                 // Final values
                 farmFactoryStorage          = await farmFactoryInstance.storage();            
-                const updatedData       = await farmFactoryStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(farmFactoryStorage, 'metadata', key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);

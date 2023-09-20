@@ -210,15 +210,15 @@ describe("Test: Doorman Contract", async () => {
                 // Initial values
                 user                      = eve.pkh;
                 stakeAmount               = MVK(10);
-                initialUserTokenBalance   = (await mvkTokenStorage.ledger.get(user)).toNumber();
+                initialUserTokenBalance   = (await getStorageMapValue(mvkTokenStorage, 'ledger', user)).toNumber();
 
                 // Compound first so values are updated below (for retesting if required)
                 compoundOperation   = await doormanInstance.methods.compound([user]).send();
                 await compoundOperation.confirmation();
                 
-                initialUserStakedRecord   = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord   = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance  = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
-                initialStakedMvkTotal     = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+                initialStakedMvkTotal     = ((await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress))).toNumber();
 
                 // update operators operation
                 updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -233,10 +233,10 @@ describe("Test: Doorman Contract", async () => {
                 mvkTokenStorage = await mvkTokenInstance.storage();
 
                 // Final Values
-                updatedUserTokenBalance  = (await mvkTokenStorage.ledger.get(user)).toNumber();
-                updatedUserStakedRecord  = await doormanStorage.userStakeBalanceLedger.get(user);
+                updatedUserTokenBalance  = (await getStorageMapValue(mvkTokenStorage, 'ledger', user)).toNumber();
+                updatedUserStakedRecord  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 updatedUserStakedBalance = updatedUserStakedRecord.balance.toNumber()
-                updatedStakedMvkTotal    = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+                updatedStakedMvkTotal    = ((await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress))).toNumber();
 
                 // Assertion
                 assert.equal(updatedStakedMvkTotal      , initialStakedMvkTotal    + stakeAmount);
@@ -277,7 +277,7 @@ describe("Test: Doorman Contract", async () => {
                 const negativeStakeAmount   = -1000000000;
 
                 doormanStorage              = await doormanInstance.storage();
-                initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance   = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // update operators operation
@@ -291,7 +291,7 @@ describe("Test: Doorman Contract", async () => {
             } catch(e) {
                 
                 doormanStorage              = await doormanInstance.storage();
-                updatedUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                updatedUserStakedRecord     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 updatedUserStakedBalance    = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
 
                 // check no change in staked balances
@@ -305,7 +305,7 @@ describe("Test: Doorman Contract", async () => {
 
                 // Initial values
                 user                    = eve.pkh;
-                initialUserTokenBalance = (await mvkTokenStorage.ledger.get(user)).toNumber();
+                initialUserTokenBalance = (await getStorageMapValue(mvkTokenStorage, 'ledger', user)).toNumber();
                 stakeAmount             = initialUserTokenBalance + MVK(1);
 
                 // update operators operation
@@ -347,11 +347,11 @@ describe("Test: Doorman Contract", async () => {
                 accumulatedFeesPerShare  = doormanStorage.accumulatedFeesPerShare;
 
                 initialMvkTotalSupply    = (mvkTokenStorage.totalSupply).toNumber();
-                initialStakedMvkTotal    = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+                initialStakedMvkTotal    = ((await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress))).toNumber();
 
                 // Initial values
-                initialUserTokenBalance             = (await mvkTokenStorage.ledger.get(user)).toNumber();
-                initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserTokenBalance             = (await getStorageMapValue(mvkTokenStorage, 'ledger', user)).toNumber();
+                initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialParticipationFeesPerShare    = initialUserStakedRecord.participationFeesPerShare;
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
@@ -377,11 +377,11 @@ describe("Test: Doorman Contract", async () => {
                 doormanStorage                      = await doormanInstance.storage();
                 mvkTokenStorage                     = await mvkTokenInstance.storage();
                 updatedAccumulatedFeesPerShare      = doormanStorage.accumulatedFeesPerShare;
-                updatedStakedMvkTotal               = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+                updatedStakedMvkTotal               = ((await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress))).toNumber();
 
                 // Final Values for user
-                updatedUserTokenBalance             = (await mvkTokenStorage.ledger.get(user)).toNumber();
-                updatedUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
+                updatedUserTokenBalance             = (await getStorageMapValue(mvkTokenStorage, 'ledger', user)).toNumber();
+                updatedUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 updatedParticipationFeesPerShare    = updatedUserStakedRecord.participationFeesPerShare;
                 updatedUserStakedBalance            = updatedUserStakedRecord.balance.toNumber()
                 
@@ -465,20 +465,20 @@ describe("Test: Doorman Contract", async () => {
                 accumulatedFeesPerShare     = doormanStorage.accumulatedFeesPerShare;
 
                 // first user
-                firstUserStakedRecord                = await doormanStorage.userStakeBalanceLedger.get(firstUser)
+                firstUserStakedRecord                = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', firstUser)
                 firstUserStakedBalance               = firstUserStakedRecord === undefined ? 0 : firstUserStakedRecord.balance.toNumber()
                 firstUserParticipationFeesPerShare   = firstUserStakedRecord.participationFeesPerShare;
-                firstUserTokenBalance                = await mvkTokenStorage.ledger.get(firstUser)
+                firstUserTokenBalance                = await getStorageMapValue(mvkTokenStorage, 'ledger', firstUser)
                 
                 // second user
-                secondUserStakedRecord               = await doormanStorage.userStakeBalanceLedger.get(secondUser)
+                secondUserStakedRecord               = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', secondUser)
                 secondUserStakedBalance              = secondUserStakedRecord === undefined ? 0 : secondUserStakedRecord.balance.toNumber()
                 secondUserParticipationFeesPerShare  = secondUserStakedRecord.participationFeesPerShare;
-                secondUserTokenBalance               = await mvkTokenStorage.ledger.get(secondUser)
+                secondUserTokenBalance               = await getStorageMapValue(mvkTokenStorage, 'ledger', secondUser)
 
                 // total supply
                 initialMvkTotalSupply                = mvkTokenStorage.totalSupply.toNumber()
-                initialStakedMvkTotal                = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+                initialStakedMvkTotal                = ((await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress))).toNumber();
 
                 // --------------------------------
                 // Unstake and Compound Operation
@@ -500,16 +500,16 @@ describe("Test: Doorman Contract", async () => {
                 doormanStorage                      = await doormanInstance.storage();
                 mvkTokenStorage                     = await mvkTokenInstance.storage();
                 updatedAccumulatedFeesPerShare      = doormanStorage.accumulatedFeesPerShare;
-                updatedStakedMvkTotal               = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+                updatedStakedMvkTotal               = ((await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress))).toNumber();
                 
                 // updated values for first user
-                firstUserUpdatedStakedRecord                = await doormanStorage.userStakeBalanceLedger.get(firstUser)
+                firstUserUpdatedStakedRecord                = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', firstUser)
                 firstUserUpdatedStakedBalance               = firstUserUpdatedStakedRecord === undefined ? 0 : firstUserUpdatedStakedRecord.balance.toNumber()
                 firstUserUpdatedParticipationFeesPerShare   = firstUserUpdatedStakedRecord.participationFeesPerShare;
-                firstUserUpdatedTokenBalance                = await mvkTokenStorage.ledger.get(firstUser)
+                firstUserUpdatedTokenBalance                = await getStorageMapValue(mvkTokenStorage, 'ledger', firstUser)
 
                 // updated values for second user
-                secondUserUpdatedStakedRecord               = await doormanStorage.userStakeBalanceLedger.get(secondUser)
+                secondUserUpdatedStakedRecord               = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', secondUser)
                 secondUserUpdatedStakedBalance              = secondUserUpdatedStakedRecord === undefined ? 0 : secondUserUpdatedStakedRecord.balance.toNumber()
                 secondUserUpdatedParticipationFeesPerShare  = secondUserUpdatedStakedRecord.participationFeesPerShare;
 
@@ -588,7 +588,7 @@ describe("Test: Doorman Contract", async () => {
                 // Initial values
                 user = eve.pkh;
 
-                initialUserStakedRecord   = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord   = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance  = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
                 unstakeAmount             = initialUserStakedBalance +  MVK(1);
 
@@ -609,7 +609,7 @@ describe("Test: Doorman Contract", async () => {
                 await signerFactory(tezos, alice.sk);
 
                 // Initial values
-                initialUserStakedRecord = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 unstakeAmount           = MVK(1);
 
                 // Assertion
@@ -641,7 +641,7 @@ describe("Test: Doorman Contract", async () => {
                 await signerFactory(tezos, userSk);
 
                 // Initial storage
-                initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance    = initialUserStakedRecord.balance.toNumber()
                 
                 // update operators operation 
@@ -659,7 +659,7 @@ describe("Test: Doorman Contract", async () => {
                 // Final values
                 doormanStorage = await doormanInstance.storage();
                 
-                updatedUserStakedRecord   = await doormanStorage.userStakeBalanceLedger.get(user);
+                updatedUserStakedRecord   = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 updatedUserStakedBalance  = updatedUserStakedRecord.balance.toNumber()
                 
                 const expectedFinalBalance = initialUserStakedBalance - unstakeAmount;
@@ -723,7 +723,7 @@ describe("Test: Doorman Contract", async () => {
                 doormanStorage          = await doormanInstance.storage();
 
                 // get pre-compound staked balance
-                secondUserStakedRecord  = await doormanStorage.userStakeBalanceLedger.get(secondUser);
+                secondUserStakedRecord  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', secondUser);
                 secondUserStakedBalance = secondUserStakedRecord === undefined ? 0 : secondUserStakedRecord.balance.toNumber()
 
                 // compound operation to increment rewards for second user
@@ -734,7 +734,7 @@ describe("Test: Doorman Contract", async () => {
                 doormanStorage = await doormanInstance.storage();
                 
                 // get post-compound staked balance
-                secondUserUpdatedStakedRecord  = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+                secondUserUpdatedStakedRecord  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', eve.pkh);
                 secondUserUpdatedStakedBalance = secondUserUpdatedStakedRecord.balance.toNumber()
 
                 assert.notEqual(secondUserStakedBalance, secondUserUpdatedStakedBalance)
@@ -803,7 +803,7 @@ describe("Test: Doorman Contract", async () => {
                 doormanStorage = await doormanInstance.storage();
                 
                 // Final values
-                thirdUserStakedRecord  = await doormanStorage.userStakeBalanceLedger.get(thirdUser);
+                thirdUserStakedRecord  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', thirdUser);
                 thirdUserStakedBalance = thirdUserStakedRecord.balance.toNumber()
 
                 assert.equal(0, thirdUserStakedBalance)
@@ -863,7 +863,7 @@ describe("Test: Doorman Contract", async () => {
                 
                 // Refresh values
                 doormanStorage              = await doormanInstance.storage()
-                firstUserStakedBalance      = await doormanStorage.userStakeBalanceLedger.get(firstUser)
+                firstUserStakedBalance      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', firstUser)
                 firstUserUnstakeAmount      = firstUserStakedBalance.balance.toNumber()
 
                 // unstake and compound operations
@@ -876,7 +876,7 @@ describe("Test: Doorman Contract", async () => {
 
                 // Final value
                 doormanStorage                 = await doormanInstance.storage()
-                firstUserUpdatedStakedRecord   = await doormanStorage.userStakeBalanceLedger.get(firstUser)
+                firstUserUpdatedStakedRecord   = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', firstUser)
                 firstUserUpdatedStakedBalance = firstUserUpdatedStakedRecord === undefined ? 0 : firstUserUpdatedStakedRecord.balance.toNumber()
                 
                 // Assertion
@@ -940,7 +940,7 @@ describe("Test: Doorman Contract", async () => {
                 doormanStorage          = await doormanInstance.storage();
 
                 // get pre-compound staked balance
-                secondUserStakedRecord  = await doormanStorage.userStakeBalanceLedger.get(secondUser);
+                secondUserStakedRecord  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', secondUser);
                 secondUserStakedBalance = secondUserStakedRecord === undefined ? 0 : secondUserStakedRecord.balance.toNumber()
 
                 // compound operation
@@ -951,7 +951,7 @@ describe("Test: Doorman Contract", async () => {
                 doormanStorage                  = await doormanInstance.storage();
 
                 // get pre-compound staked balance
-                secondUserUpdatedStakedRecord   = await doormanStorage.userStakeBalanceLedger.get(secondUser);
+                secondUserUpdatedStakedRecord   = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', secondUser);
                 secondUserUpdatedStakedBalance  = secondUserUpdatedStakedRecord.balance.toNumber()
 
                 assert.equal(secondUserStakedBalance, secondUserUpdatedStakedBalance)
@@ -983,17 +983,17 @@ describe("Test: Doorman Contract", async () => {
             accumulatedFeesPerShare     = doormanStorage.accumulatedFeesPerShare;
 
             // get initial values
-            initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
+            initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
             initialParticipationFeesPerShare    = initialUserStakedRecord.participationFeesPerShare;
             initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
-            initialUserTokenBalance             = await mvkTokenStorage.ledger.get(user)
+            initialUserTokenBalance             = await getStorageMapValue(mvkTokenStorage, 'ledger', user)
 
             // set unstake amount to initial user staked balance for calculation below
             unstakeAmount                        = initialUserStakedBalance;
 
             // total supply
             initialMvkTotalSupply               = mvkTokenStorage.totalSupply.toNumber()
-            initialStakedMvkTotal               = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+            initialStakedMvkTotal               = ((await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress))).toNumber();
 
             // exit operation
             exitOperation = await doormanInstance.methods.exit().send();
@@ -1004,13 +1004,13 @@ describe("Test: Doorman Contract", async () => {
             mvkTokenStorage             = await mvkTokenInstance.storage();
 
             updatedAccumulatedFeesPerShare      = doormanStorage.accumulatedFeesPerShare.toNumber();
-            updatedStakedMvkTotal               = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+            updatedStakedMvkTotal               = ((await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress))).toNumber();
 
             // updated values for user
-            updatedUserStakedRecord                = await doormanStorage.userStakeBalanceLedger.get(user)
+            updatedUserStakedRecord                = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user)
             updatedUserStakedBalance               = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
             updatedParticipationFeesPerShare       = updatedUserStakedRecord.participationFeesPerShare.toNumber();
-            updatedUserTokenBalance                = await mvkTokenStorage.ledger.get(user)
+            updatedUserTokenBalance                = await getStorageMapValue(mvkTokenStorage, 'ledger', user)
 
             // Calculate exit fees and final unstake amount
             const mli                   = calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
@@ -1045,17 +1045,17 @@ describe("Test: Doorman Contract", async () => {
             accumulatedFeesPerShare     = doormanStorage.accumulatedFeesPerShare;
 
             // get initial values
-            initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
+            initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
             initialParticipationFeesPerShare    = initialUserStakedRecord.participationFeesPerShare;
             initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
-            initialUserTokenBalance             = await mvkTokenStorage.ledger.get(user)
+            initialUserTokenBalance             = await getStorageMapValue(mvkTokenStorage, 'ledger', user)
 
             // set unstake amount to initial user staked balance for calculation below
             unstakeAmount                        = initialUserStakedBalance;
 
             // total supply
             initialMvkTotalSupply               = mvkTokenStorage.totalSupply.toNumber()
-            initialStakedMvkTotal               = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+            initialStakedMvkTotal               = ((await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress))).toNumber();
 
             // exit operation
             exitOperation = await doormanInstance.methods.exit().send();
@@ -1066,13 +1066,13 @@ describe("Test: Doorman Contract", async () => {
             mvkTokenStorage             = await mvkTokenInstance.storage();
 
             updatedAccumulatedFeesPerShare      = doormanStorage.accumulatedFeesPerShare.toNumber();
-            updatedStakedMvkTotal               = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+            updatedStakedMvkTotal               = ((await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress))).toNumber();
 
             // updated values for user
-            updatedUserStakedRecord                = await doormanStorage.userStakeBalanceLedger.get(user)
+            updatedUserStakedRecord                = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user)
             updatedUserStakedBalance               = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
             updatedParticipationFeesPerShare       = updatedUserStakedRecord.participationFeesPerShare.toNumber();
-            updatedUserTokenBalance                = await mvkTokenStorage.ledger.get(user)
+            updatedUserTokenBalance                = await getStorageMapValue(mvkTokenStorage, 'ledger', user)
 
             // Calculate exit fees and final unstake amount
             const mli                   = calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
@@ -1172,7 +1172,7 @@ describe("Test: Doorman Contract", async () => {
                 // Final values
                 doormanStorage          = await doormanInstance.storage();            
 
-                const updatedData       = await doormanStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(doormanStorage, 'metadata', key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -1321,14 +1321,14 @@ describe("Test: Doorman Contract", async () => {
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber()
 
                 await signerFactory(tezos, adminSk);
                 mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -1352,14 +1352,14 @@ describe("Test: Doorman Contract", async () => {
                 await transferOperation.confirmation();
                 
                 mvkTokenStorage             = await mvkTokenInstance.storage();
-                const initialUserBalance    = (await mvkTokenStorage.ledger.get(user)).toNumber()
+                const initialUserBalance    = (await getStorageMapValue(mvkTokenStorage, 'ledger', user)).toNumber()
 
                 await signerFactory(tezos, adminSk);
                 mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mvkTokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
                 mvkTokenStorage             = await mvkTokenInstance.storage();
-                const updatedUserBalance    = (await mvkTokenStorage.ledger.get(user)).toNumber();
+                const updatedUserBalance    = (await getStorageMapValue(mvkTokenStorage, 'ledger', user)).toNumber();
 
                 // no change in balance
                 assert.equal(updatedUserBalance, initialUserBalance);
@@ -1377,8 +1377,8 @@ describe("Test: Doorman Contract", async () => {
                 mvkTokenStorage             = await mvkTokenInstance.storage();
 
                 const newDoormanAddress     = alice.pkh
-                const initNewDoormanBalance = await mvkTokenStorage.ledger.get(newDoormanAddress);
-                const initDoormanBalance    = await mvkTokenStorage.ledger.get(doormanAddress);
+                const initNewDoormanBalance = await getStorageMapValue(mvkTokenStorage, 'ledger', newDoormanAddress);
+                const initDoormanBalance    = await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress);
 
                 // pause all operation
                 pauseAllOperation = await doormanInstance.methods.pauseAll().send();
@@ -1393,8 +1393,8 @@ describe("Test: Doorman Contract", async () => {
                 mvkTokenStorage             = await mvkTokenInstance.storage();
 
                 // get updated values
-                const endNewDoormanBalance  = await mvkTokenStorage.ledger.get(newDoormanAddress);
-                const endDoormanBalance     = await mvkTokenStorage.ledger.get(doormanAddress);
+                const endNewDoormanBalance  = await getStorageMapValue(mvkTokenStorage, 'ledger', newDoormanAddress);
+                const endDoormanBalance     = await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress);
 
                 // Assertions
                 assert.equal(endNewDoormanBalance.toNumber(), initNewDoormanBalance.toNumber() + initDoormanBalance.toNumber())
@@ -1423,7 +1423,7 @@ describe("Test: Doorman Contract", async () => {
                 
                 // Initial values
                 doormanStorage              = await doormanInstance.storage();
-                const initDoormanBalance    = await mvkTokenStorage.ledger.get(doormanAddress);
+                const initDoormanBalance    = await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress);
                 
                 // pause all operation
                 pauseAllOperation = await doormanInstance.methods.pauseAll().send();
@@ -1439,7 +1439,7 @@ describe("Test: Doorman Contract", async () => {
 
                 // Final values
                 doormanStorage              = await doormanInstance.storage()
-                const endDoormanBalance     = await mvkTokenStorage.ledger.get(doormanAddress);
+                const endDoormanBalance     = await getStorageMapValue(mvkTokenStorage, 'ledger', doormanAddress);
 
                 // check that there is no change to doorman MVK balance
                 assert.equal(endDoormanBalance.toNumber(), initDoormanBalance.toNumber())
@@ -1629,7 +1629,7 @@ describe("Test: Doorman Contract", async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 doormanStorage          = await doormanInstance.storage();   
-                const initialMetadata   = await doormanStorage.metadata.get(key);
+                const initialMetadata   = await getStorageMapValue(doormanStorage, 'metadata', key);
 
                 // Operation
                 const updateOperation = await doormanInstance.methods.updateMetadata(key, hash);
@@ -1637,7 +1637,7 @@ describe("Test: Doorman Contract", async () => {
 
                 // Final values
                 doormanStorage          = await doormanInstance.storage();            
-                const updatedData       = await doormanStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(doormanStorage, 'metadata', key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);

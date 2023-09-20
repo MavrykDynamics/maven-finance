@@ -3316,8 +3316,8 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var contractAccount         = await mvkTokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
-                var userAccount             = await mvkTokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.aggregatorFactory.address)
+                var userAccount             = await getStorageMapValue(mvkTokenStorage, 'ledger', bob.pkh)
                 const tokenAmount           = MVK(200);
                 const purpose               = "Transfer made by mistake to the aggregator factory"
 
@@ -4290,7 +4290,7 @@ describe("Testnet interactions helper", async () => {
                     "id"    : vaultId,
                     "owner" : bob.pkh
                 };
-                const vault                         = await lendingControllerStorage.vaults.get(vaultHandle)
+                const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle)
                 createdVaultAddress                 = vault.address;
 
                 // Adds TEZ as a collateral token
@@ -5018,7 +5018,7 @@ describe("Testnet interactions helper", async () => {
     //                 "id"    : vaultId,
     //                 "owner" : bob.pkh
     //             };
-    //             const vault                         = await lendingControllerMockTimeStorage.vaults.get(vaultHandle)
+    //             const vault                         = await getStorageMapValue(lendingControllerMockTimeStorage, 'vaults', vaultHandle)
     //             createdVaultAddress                 = vault.address;
 
     //             // Adds TEZ as a collateral token
@@ -5206,10 +5206,10 @@ describe("Testnet interactions helper", async () => {
     //                 "id"    : vaultId,
     //                 "owner" : bob.pkh
     //             };
-    //             const vault                         = await lendingControllerMockTimeStorage.vaults.get(vaultHandle)
+    //             const vault                         = await getStorageMapValue(lendingControllerMockTimeStorage, 'vaults', vaultHandle)
     //             const tmpVaultInstance              = await utils.tezos.contract.at(vault.address);
     //             const borrowAmount                  = 1000;
-    //             const withdrawAmount                = (await vault.collateralBalanceLedger.get("tez")).toNumber();
+    //             const withdrawAmount                = (await getStorageMapValue(vault, 'collateralBalanceLedger', "tez")).toNumber();
     //             const lastUpdatedBlockLevel         = vault.lastUpdatedBlockLevel.toNumber();
     //             const mockLevel                     = oneMonthLevelBlocks + lastUpdatedBlockLevel;
 
@@ -5242,7 +5242,7 @@ describe("Testnet interactions helper", async () => {
     //                 "id"    : vaultId,
     //                 "owner" : bob.pkh
     //             };
-    //             const vault                         = await lendingControllerMockTimeStorage.vaults.get(vaultHandle)
+    //             const vault                         = await getStorageMapValue(lendingControllerMockTimeStorage, 'vaults', vaultHandle)
     //             const mockLevel                     = vault.markedForLiquidationLevel.toNumber() + oneDayLevelBlocks;
 
     //             // Update Mock Level
@@ -5665,7 +5665,7 @@ describe("Testnet interactions helper", async () => {
                 "id"    : vaultId,
                 "owner" : bob.pkh
             };
-            const vault                         = await lendingControllerMockTimeStorage.vaults.get(vaultHandle)
+            const vault                         = await getStorageMapValue(lendingControllerMockTimeStorage, 'vaults', vaultHandle)
             vaultInstance                       = await utils.tezos.contract.at(vault.address);
             vaultStorage                        = await vaultInstance.storage();
         });

@@ -465,7 +465,7 @@ function pivotObservationMap (var m : oracleObservationsType) : pivotedObservati
 
 
 // helper function to get median data
-function getMedianFromMap (const m : pivotedObservationsType; const sizeMap: nat) : nat is block {
+function getMedianFromMap (var m : pivotedObservationsType; const sizeMap: nat) : nat is block {
   (*
     m is a map: observationValue -> observationCount, sorted by observation value
     Example:
@@ -643,12 +643,11 @@ block {
 // ------------------------------------------------------------------------------
 
 // refresh the oracle ledger
-function refreshStorage(const updateDataParams : updateDataType; var s : aggregatorStorageType) : (updateDataType * aggregatorStorageType) is
+function refreshStorage(var updateDataParams : updateDataType; var s : aggregatorStorageType) : (updateDataType * aggregatorStorageType) is
 block {
 
     // parse parameters
     const satelliteAddress : address                    = Mavryk.get_sender();
-    var updateDataUpdatedParams : updateDataType        := updateDataParams;
     var tempOracleVotingPowerMap   : map(address, nat)  := map [];
     var totalVotingPower           : nat                := 0n;
 
@@ -689,12 +688,12 @@ block {
     }
     else {
         s.oracleLedger                      := Map.remove(satelliteAddress, s.oracleLedger);
-        updateDataUpdatedParams.oracleObservations := Map.remove(satelliteAddress, updateDataUpdatedParams.oracleObservations);
-        updateDataUpdatedParams.signatures         := Map.remove(satelliteAddress, updateDataUpdatedParams.signatures);
+        updateDataParams.oracleObservations := Map.remove(satelliteAddress, updateDataParams.oracleObservations);
+        updateDataParams.signatures         := Map.remove(satelliteAddress, updateDataParams.signatures);
     };
 
     // Check if the observations are valid
-    const oracleObservationsTemp : oracleObservationsType   = updateDataUpdatedParams.oracleObservations;
+    const oracleObservationsTemp : oracleObservationsType   = updateDataParams.oracleObservations;
     for oracleAddress -> _oracleObservation in map oracleObservationsTemp block {
 
         // Save gas by removing the sender if its not a satellite
@@ -728,19 +727,19 @@ block {
             }
             else {
                 s.oracleLedger                              := Map.remove(oracleAddress, s.oracleLedger);
-                updateDataUpdatedParams.oracleObservations         := Map.remove(oracleAddress, updateDataUpdatedParams.oracleObservations);
-                updateDataUpdatedParams.signatures                 := Map.remove(oracleAddress, updateDataUpdatedParams.signatures);
+                updateDataParams.oracleObservations         := Map.remove(oracleAddress, updateDataParams.oracleObservations);
+                updateDataParams.signatures                 := Map.remove(oracleAddress, updateDataParams.signatures);
             }
         };
     };
 
     // If the sender is still an oracle, the rewards can be calculated
     if Map.mem(satelliteAddress, s.oracleLedger) then {
-        s   := updateRewardsStakedMvk(updateDataUpdatedParams.oracleObservations, tempOracleVotingPowerMap, totalVotingPower, s);
+        s   := updateRewardsStakedMvk(updateDataParams.oracleObservations, tempOracleVotingPowerMap, totalVotingPower, s);
         s   := updateRewardsXtz(s);
     }
 
-} with (updateDataUpdatedParams, s)
+} with (updateDataParams, s)
 
 // ------------------------------------------------------------------------------
 // Update Data Helper Functions End
@@ -755,7 +754,7 @@ function unpackLambda(const lambdaBytes : bytes; const aggregatorLambdaAction : 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(aggregatorUnpackLambdaFunctionType)) of [
-            Some(f) -> f((aggregatorLambdaAction, s))
+            Some(f) -> f(aggregatorLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

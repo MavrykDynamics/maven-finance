@@ -31,7 +31,7 @@ function unpackLambda(const lambdaBytes : bytes; const governanceProxyLambdaActi
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceProxyUnpackLambdaFunctionType)) of [
-            Some(f) -> f((governanceProxyLambdaAction, s))
+            Some(f) -> f(governanceProxyLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

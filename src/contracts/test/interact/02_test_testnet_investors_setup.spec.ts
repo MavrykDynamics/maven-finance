@@ -444,7 +444,7 @@ describe("Testnet setup helper", async () => {
                     "createCollateralToken",
 
                     "tez",
-                    'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg',
+                    'mv18Cw7psUrAAPBpXYd9CtCpHg9EgjHP9KTe',
                     6,
 
                     xtzAggregator,

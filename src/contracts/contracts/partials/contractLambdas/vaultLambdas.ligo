@@ -19,7 +19,7 @@ block {
 
                 // init deposit operation params
                 const amount     : nat        = (Mavryk.get_amount() / 1mumav);
-                const tokenName  : string     = "tez";
+                const tokenName  : string     = "mav";
 
                 // get collateral token record from Lending Controller through on-chain view
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
@@ -69,7 +69,7 @@ block {
                             // verify sender is vault owner
                             verifySenderIsVaultOwner(s);
                             
-                            // Create delegate to tez baker operation
+                            // Create delegate to mav baker operation
                             const delegateToTezBakerOperation : operation = Mavryk.set_delegate(optionKeyHash);
                             
                             operations := delegateToTezBakerOperation # operations;
@@ -126,7 +126,7 @@ block {
 
                                 operations := registerDepositOperation # operations;
 
-                                if collateralTokenRecord.tokenName = "tez" then {
+                                if collateralTokenRecord.tokenName = "mav" then {
                                     if Mavryk.get_amount() = (amount * 1mumav) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
                                 } else {
                                     const processVaultDepositOperation : operation = processVaultTransfer(

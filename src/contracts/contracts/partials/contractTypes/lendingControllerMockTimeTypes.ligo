@@ -130,11 +130,11 @@ type loanTokenRecordType is [@layout:comb] record [
 type loanTokenLedgerType is big_map(string, loanTokenRecordType)
 
 
-type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
+type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (mav/token)
 type vaultRecordType is [@layout:comb] record [
 
     address                     : address;
-    collateralBalanceLedger     : collateralBalanceLedgerType;   // tez/token balance
+    collateralBalanceLedger     : collateralBalanceLedgerType;   // mav/token balance
     loanToken                   : string;                        // e.g. USDT, EURL,  
 
     // loan variables

@@ -1,6 +1,6 @@
 #!/bin/bash
-MAIN_SANDBOX_V="4abcc358"
-APPLE_SANDBOX_V="4abcc358"
+MAIN_SANDBOX_V="b2bc6d7f"
+APPLE_SANDBOX_V="b2bc6d7f"
 TZ_NODE_VERSION=$(docker exec -it mavryk-sandbox octez-node --version)
 NODE_BOOTSTRAPPED=$(docker exec -it mavryk-sandbox octez-client bootstrapped)
 echo $TZ_NODE_VERSION

@@ -1,8 +1,12 @@
 [submodule "src/indexer/dipdup"]
-	path = vendorsdipdup
+	path = src/indexer/dipdup
 	url = https://github.com/dipdup-io/dipdup
     revision = next
 [submodule "src/contracts/vendors/taquito"]
 	path = src/contracts/vendors/taquito
 	url = https://github.com/mavryk-network/taquito
+	branch = mv-addresses
+[submodule "src/contracts/vendors/create-lambda-bytes"]
+	path = src/contracts/vendors/create-lambda-bytes
+	url = https://github.com/mavrykfinance/create-lambda-bytes
 	branch = mv-addresses

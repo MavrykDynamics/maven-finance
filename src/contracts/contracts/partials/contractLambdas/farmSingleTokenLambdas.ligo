@@ -210,10 +210,8 @@ block {
                     ];
                   } with(transferTokenOperation # operationList);
                 
-                for transferParams in list destinationParams block {
-                    operations := transferOperationFold(transferParams, operations);
-                }
-                 
+                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                
             }
         | _ -> skip
     ];

@@ -419,7 +419,7 @@ block {
 
 
 // helper function to trigger the pause all entrypoint action during the sign
-function triggerPauseAllEntrypointsAction(const actionRecord : councilActionRecordType; const operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
+function triggerPauseAllEntrypointsAction(const actionRecord : councilActionRecordType; var operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
 block {
 
     // check that glass is broken
@@ -431,20 +431,19 @@ block {
 
     // Pause all entrypoints in all contracts in the General Contracts map
     //  - iterate over contracts map with operation to pause all entrypoints
-    var updatedOperations : list(operation) := operations;
     for contractAddress in set contractAddressSet block {
         case (Mavryk.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
-                Some(contr) -> updatedOperations := Mavryk.transaction(unit, 0mav, contr) # updatedOperations
+                Some(contr) -> operations := Mavryk.transaction(unit, 0mav, contr) # operations
             |   None        -> skip
         ];
     };    
 
-} with (updatedOperations)
+} with (operations)
 
 
 
 // helper function to trigger the unpause all entrypoint action during the sign
-function triggerUnpauseAllEntrypointsAction(const actionRecord : councilActionRecordType; const operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
+function triggerUnpauseAllEntrypointsAction(const actionRecord : councilActionRecordType; var operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
 block {
 
     // check that glass is broken
@@ -456,20 +455,19 @@ block {
 
     // Unpause all entrypoints in all contracts in the General Contracts map
     //  - iterate over contracts map with operation to unpause all entrypoints
-    var updatedOperations : list(operation) := operations;
     for contractAddress in set contractAddressSet block {
         case (Mavryk.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
-                Some(contr) -> updatedOperations := Mavryk.transaction(unit, 0mav, contr) # updatedOperations
+                Some(contr) -> operations := Mavryk.transaction(unit, 0mav, contr) # operations
             |   None        -> skip
         ];
     };    
 
-} with (updatedOperations)
+} with (operations)
 
 
 
 // helper function to trigger the propagate break glass action during the sign
-function triggerPropagateBreakGlassAction(const actionRecord : councilActionRecordType; const operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
+function triggerPropagateBreakGlassAction(const actionRecord : councilActionRecordType; var operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
 block {
     
     // check that glass is broken
@@ -482,12 +480,14 @@ block {
     // Create operation to trigger propagateBreakGlass entrypoint on the Governance Contract
     const propagateBreakGlassOperation : operation = propagateBreakGlassOperation(contractAddressSet, s);
 
-} with (propagateBreakGlassOperation # operations)
+    operations := propagateBreakGlassOperation # operations;
+
+} with (operations)
 
 
 
 // helper function to trigger the all contracts admin action during the sign
-function triggerSetContractsAdminAction(const actionRecord : councilActionRecordType; const operations : list(operation); var s : breakGlassStorageType) : return is 
+function triggerSetContractsAdminAction(const actionRecord : councilActionRecordType; var operations : list(operation); var s : breakGlassStorageType) : return is 
 block {
 
     // check that glass is broken
@@ -525,17 +525,14 @@ block {
             |   None                -> operationList
         ];
 
-    var updatedOperations : list(operation) := operations;
-    for contractAddress in set contractAddressSet block{
-        updatedOperations := setAdminFold(updatedOperations, contractAddress);
-    }
+    operations := Set.fold(setAdminFold, contractAddressSet, operations);
 
-} with (updatedOperations, s)
+} with (operations, s)
 
 
 
 // helper function to trigger the remove break glass control action during the sign
-function triggerRemoveBreakGlassControlAction(const actionRecord : councilActionRecordType; const operations : list(operation); var s : breakGlassStorageType) : return is 
+function triggerRemoveBreakGlassControlAction(const actionRecord : councilActionRecordType; var operations : list(operation); var s : breakGlassStorageType) : return is 
 block {
 
     // remove access to protected Break Glass entrypoints                        
@@ -561,21 +558,17 @@ block {
                 Some (_setAdmin)    -> if singleContractAddress = Mavryk.get_self_address() then operationList else Mavryk.transaction(governanceProxyAddress, 0mav, _setAdmin) # operationList
             |   None                -> operationList
         ];
-
-    var updatedOperations : list(operation) := operations;
-    for contractAddress in set contractAddressSet block{
-        updatedOperations := setAdminFold(updatedOperations, contractAddress);
-    };
+    operations := Set.fold(setAdminFold, contractAddressSet, operations);
 
     // Set glassBroken boolean to False (removes access to protected Break Glass entrypoints)
     s.glassBroken := False;
 
-} with (updatedOperations, s)
+} with (operations, s)
 
 
 
 // helper function to execute a break glass action during the sign
-function executeBreakGlassAction(const actionRecord : councilActionRecordType; const actionId : actionIdType; const operations : list(operation); var s : breakGlassStorageType) : return is 
+function executeBreakGlassAction(var actionRecord : councilActionRecordType; const actionId : actionIdType; var operations : list(operation); var s : breakGlassStorageType) : return is 
 block {
 
     // --------------------------------------
@@ -583,9 +576,6 @@ block {
     // --------------------------------------
 
     const actionType : string = actionRecord.actionType;
-
-    // initialize an updated operation list
-    var updatedOperations : list(operation)                     := operations;
 
     // flush action type
     if actionType = "flushAction" then s                                := triggerFlushActionAction(actionRecord, s);
@@ -600,39 +590,38 @@ block {
     if actionType = "changeCouncilMember" then s                        := triggerChangeCouncilMemberAction(actionRecord, s);
 
     // pauseAllEntrypoints action type
-    if actionType = "pauseAllEntrypoints" then updatedOperations        := triggerPauseAllEntrypointsAction(actionRecord, updatedOperations, s);
+    if actionType = "pauseAllEntrypoints" then operations               := triggerPauseAllEntrypointsAction(actionRecord, operations, s);
 
     // unpauseAllEntrypoints action type
-    if actionType = "unpauseAllEntrypoints" then updatedOperations      := triggerUnpauseAllEntrypointsAction(actionRecord, updatedOperations, s);
+    if actionType = "unpauseAllEntrypoints" then operations             := triggerUnpauseAllEntrypointsAction(actionRecord, operations, s);
 
     // propagateBreakGlass action type
-    if actionType = "propagateBreakGlass" then updatedOperations        := triggerPropagateBreakGlassAction(actionRecord, updatedOperations, s);
+    if actionType = "propagateBreakGlass" then operations               := triggerPropagateBreakGlassAction(actionRecord, operations, s);
 
     // setContractsAdmin action type
     if actionType = "setContractsAdmin" then block {
-        const triggerSetContractsAdminActionTrigger : return            = triggerSetContractsAdminAction(actionRecord, updatedOperations, s);
-        s                   := triggerSetContractsAdminActionTrigger.1;
-        updatedOperations   := triggerSetContractsAdminActionTrigger.0;
+        const triggerSetContractsAdminActionTrigger : return            = triggerSetContractsAdminAction(actionRecord, operations, s);
+        s            := triggerSetContractsAdminActionTrigger.1;
+        operations   := triggerSetContractsAdminActionTrigger.0;
     } else skip;
 
     // removeBreakGlassControl action type
     if actionType = "removeBreakGlassControl" then block {
-        const triggerRemoveBreakGlassControlActionTrigger : return      = triggerRemoveBreakGlassControlAction(actionRecord, updatedOperations, s);
-        s                   := triggerRemoveBreakGlassControlActionTrigger.1;
-        updatedOperations   := triggerRemoveBreakGlassControlActionTrigger.0;
+        const triggerRemoveBreakGlassControlActionTrigger : return    = triggerRemoveBreakGlassControlAction(actionRecord, operations, s);
+        s            := triggerRemoveBreakGlassControlActionTrigger.1;
+        operations   := triggerRemoveBreakGlassControlActionTrigger.0;
     } else skip;
         
     // update break glass action record status
-    var updatedActionRecord : councilActionRecordType := actionRecord;
-    updatedActionRecord.status              := "EXECUTED";
-    updatedActionRecord.executed            := True;
-    updatedActionRecord.executedDateTime    := Some(Mavryk.get_now());
-    updatedActionRecord.executedLevel       := Some(Mavryk.get_level());
+    actionRecord.status              := "EXECUTED";
+    actionRecord.executed            := True;
+    actionRecord.executedDateTime    := Some(Mavryk.get_now());
+    actionRecord.executedLevel       := Some(Mavryk.get_level());
     
     // save break glass action record
-    s.actionsLedger[actionId]         := updatedActionRecord;
+    s.actionsLedger[actionId]         := actionRecord;
 
-} with (updatedOperations, s)
+} with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Sign Helper Functions End
@@ -649,7 +638,7 @@ function unpackLambda(const lambdaBytes : bytes; const breakGlassLambdaAction : 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(breakGlassUnpackLambdaFunctionType)) of [
-            Some(f) -> f((breakGlassLambdaAction, s))
+            Some(f) -> f(breakGlassLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

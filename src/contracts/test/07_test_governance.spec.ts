@@ -547,9 +547,9 @@ describe("Governance tests", async () => {
                     // Increase user stake if they cannot exceed the votes needed to switch to the voting round
                     governanceStorage           = await governanceInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
-                    const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposal              = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
                     const minimumNeeded         = proposal.minProposalRoundVotesRequired.toNumber();
-                    let satelliteSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                    let satelliteSMVKRecord   = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                     let satelliteSMVKBalance  = satelliteSMVKRecord.balance.toNumber();
                     const stakeRequired         = minimumNeeded - satelliteSMVKBalance;
                     if(stakeRequired > 0){
@@ -558,7 +558,7 @@ describe("Governance tests", async () => {
                         await stakeOperation.confirmation();
                     }
                     doormanStorage              = await doormanInstance.storage();
-                    satelliteSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                    satelliteSMVKRecord   = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                     satelliteSMVKBalance  = satelliteSMVKRecord.balance.toNumber();
 
                     // Lock and vote for the proposal
@@ -674,7 +674,7 @@ describe("Governance tests", async () => {
                     // ---------------------------------------
 
                     governanceStorage         = await governanceInstance.storage();
-                    proposalRecord            = await governanceStorage.proposalLedger.get(proposalId);
+                    proposalRecord            = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                     const yayVotesRequired    = Math.floor((proposalRecord.quorumStakedMvkTotal * proposalRecord.minYayVotePercentage) / 10000);
 
@@ -695,7 +695,7 @@ describe("Governance tests", async () => {
                     }
 
                     governanceStorage         = await governanceInstance.storage();
-                    proposalRecord            = await governanceStorage.proposalLedger.get(proposalId);
+                    proposalRecord            = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
                     yayVoteStakedMvkTotal     = proposalRecord.yayVoteStakedMvkTotal;
                     quorumStakedMvkTotal      = proposalRecord.quorumStakedMvkTotal;
 
@@ -707,7 +707,7 @@ describe("Governance tests", async () => {
                     }
 
                     governanceStorage         = await governanceInstance.storage();
-                    proposalRecord            = await governanceStorage.proposalLedger.get(proposalId);
+                    proposalRecord            = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
                     yayVoteStakedMvkTotal     = proposalRecord.yayVoteStakedMvkTotal;
                     quorumStakedMvkTotal      = proposalRecord.quorumStakedMvkTotal;
 
@@ -811,8 +811,8 @@ describe("Governance tests", async () => {
                     const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
                     const cycleId = governanceStorage.cycleId
                     const finalNextProposalId = governanceStorage.nextProposalId;
-                    const newProposal = await governanceStorage.proposalLedger.get(nextProposalId);
-                    const cycleProposal = await governanceStorage.cycleProposals.get(nextProposalId)
+                    const newProposal = await getStorageMapValue(governanceStorage, 'proposalLedger', nextProposalId);
+                    const cycleProposal = await getStorageMapValue(governanceStorage, 'cycleProposals', nextProposalId)
 
                     // Assertions
                     assert.equal(nextProposalId.toNumber() + 1, finalNextProposalId.toNumber());
@@ -903,10 +903,10 @@ describe("Governance tests", async () => {
                     const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
                     const cycleId = governanceStorage.cycleId
                     const finalNextProposalId = governanceStorage.nextProposalId;
-                    const newProposal = await governanceStorage.proposalLedger.get(nextProposalId.toNumber());
-                    const proposalDataStorage = await newProposal.proposalData.get("0");
-                    const paymentDataStorage = await newProposal.paymentData.get("0");
-                    const cycleProposal = await governanceStorage.cycleProposals.get(nextProposalId)
+                    const newProposal = await getStorageMapValue(governanceStorage, 'proposalLedger', nextProposalId.toNumber());
+                    const proposalDataStorage = await getStorageMapValue(newProposal, 'proposalData', "0");
+                    const paymentDataStorage = await getStorageMapValue(newProposal, 'paymentData', "0");
+                    const cycleProposal = await getStorageMapValue(governanceStorage, 'cycleProposals', nextProposalId)
                     
                     // Assertions
                     assert.notStrictEqual(proposalDataStorage, undefined);
@@ -967,7 +967,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const newProposal = await governanceStorage.proposalLedger.get(nextProposalId);
+                    const newProposal = await getStorageMapValue(governanceStorage, 'proposalLedger', nextProposalId);
 
                     // Assertions
                     assert.strictEqual(newProposal, undefined);
@@ -996,10 +996,10 @@ describe("Governance tests", async () => {
 
                     delegationStorage                = await delegationInstance.storage();
                     doormanStorage                   = await doormanInstance.storage();
-                    initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(newSatellite);         
+                    initialSatelliteRecord           = await getStorageMapValue(delegationStorage, 'satelliteLedger', newSatellite);         
 
                     initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
-                    initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
+                    initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                     // check that user has sufficient staked balance
@@ -1019,7 +1019,7 @@ describe("Governance tests", async () => {
 
                     // update user staked balance for assertion check below (satellite's staked mvk balance)
                     doormanStorage                      = await doormanInstance.storage();
-                    initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
+                    initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
 
                     // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
@@ -1039,7 +1039,7 @@ describe("Governance tests", async () => {
 
                         // check state after registering as satellite
                         delegationStorage               = await delegationInstance.storage();
-                        updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(newSatellite);         
+                        updatedSatelliteRecord          = await getStorageMapValue(delegationStorage, 'satelliteLedger', newSatellite);         
                         
                         // check satellite details
                         assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
@@ -1055,7 +1055,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const newProposal = await governanceStorage.proposalLedger.get(nextProposalId);
+                    const newProposal = await getStorageMapValue(governanceStorage, 'proposalLedger', nextProposalId);
 
                     // Assertions
                     assert.strictEqual(newProposal, undefined);
@@ -1081,7 +1081,7 @@ describe("Governance tests", async () => {
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
                     const proposalId            = secondReferenceProposalId;
-                    const proposalDebug         = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposalDebug         = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                     // Operation
                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
@@ -1097,8 +1097,8 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage           = await governanceInstance.storage();
-                    const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-                    const proposalDataStorage   = await proposal.proposalData.get("1");
+                    const proposal              = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const proposalDataStorage   = await getStorageMapValue(proposal, 'proposalData', "1");
 
                     // Assertions
                     assert.strictEqual(proposalDataStorage.Some.title, "Data#1")
@@ -1129,8 +1129,8 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const proposal = await governanceStorage.proposalLedger.get(proposalId);
-                    const proposalDataStorage = await proposal.proposalData.get("1");
+                    const proposal = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const proposalDataStorage = await getStorageMapValue(proposal, 'proposalData', "1");
 
                     // Assertions
                     assert.strictEqual(proposalDataStorage.Some.title, "Data#1.1")
@@ -1161,8 +1161,8 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const proposal = await governanceStorage.proposalLedger.get(proposalId);
-                    const proposalDataStorage = await proposal.proposalData.get("2");
+                    const proposal = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const proposalDataStorage = await getStorageMapValue(proposal, 'proposalData', "2");
 
                     // Assertions
                     assert.strictEqual(proposalDataStorage, undefined)
@@ -1177,8 +1177,8 @@ describe("Governance tests", async () => {
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
                     const proposalId            = secondReferenceProposalId;
-                    const initProposal          = await governanceStorage.proposalLedger.get(proposalId);
-                    const initDataStorage       = initProposal.proposalData.get("1");
+                    const initProposal          = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const initDataStorage       = await getStorageMapValue(initProposal, 'proposalData', "1");
 
                     // Operation
                     const removeOperation       = await governanceInstance.methods.updateProposalData(proposalId, [
@@ -1190,8 +1190,8 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage           = await governanceInstance.storage();
-                    const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-                    const proposalDataStorage   = await proposal.proposalData.get("1");
+                    const proposal              = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const proposalDataStorage   = await getStorageMapValue(proposal, 'proposalData', "1");
 
                     // Assertions
                     assert.notStrictEqual(initDataStorage, undefined)
@@ -1247,10 +1247,10 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage               = await governanceInstance.storage();
-                    const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
-                    const firstProposalDataStorage  = await proposal.proposalData.get("1");
-                    const secondProposalDataStorage = await proposal.proposalData.get("2");
-                    const thirdProposalDataStorage  = await proposal.proposalData.get("3");
+                    const proposal                  = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const firstProposalDataStorage  = await getStorageMapValue(proposal, 'proposalData', "1");
+                    const secondProposalDataStorage = await getStorageMapValue(proposal, 'proposalData', "2");
+                    const thirdProposalDataStorage  = await getStorageMapValue(proposal, 'proposalData', "3");
 
                     // Assertions
                     assert.strictEqual(firstProposalDataStorage.Some.title, "Data#1.2")
@@ -1296,8 +1296,8 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage               = await governanceInstance.storage();
-                    const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
-                    const firstProposalDataStorage  = await proposal.paymentData.get("1");
+                    const proposal                  = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const firstProposalDataStorage  = await getStorageMapValue(proposal, 'paymentData', "1");
 
 
                     // Assertions
@@ -1342,8 +1342,8 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage               = await governanceInstance.storage();
-                    const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
-                    const firstProposalDataStorage  = await proposal.paymentData.get("1");
+                    const proposal                  = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const firstProposalDataStorage  = await getStorageMapValue(proposal, 'paymentData', "1");
 
                     // Assertions
                     assert.strictEqual(firstProposalDataStorage.Some.title, "Payment#2.1")
@@ -1371,8 +1371,8 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage               = await governanceInstance.storage();
-                    const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
-                    const firstProposalDataStorage  = await proposal.paymentData.get("1");
+                    const proposal                  = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const firstProposalDataStorage  = await getStorageMapValue(proposal, 'paymentData', "1");
 
                     // Assertions
                     assert.strictEqual(firstProposalDataStorage, null)
@@ -1440,9 +1440,9 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage               = await governanceInstance.storage();
-                    const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
-                    const firstProposalDataStorage  = await proposal.paymentData.get("1");
-                    const secondProposalDataStorage = await proposal.paymentData.get("2");
+                    const proposal                  = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const firstProposalDataStorage  = await getStorageMapValue(proposal, 'paymentData', "1");
+                    const secondProposalDataStorage = await getStorageMapValue(proposal, 'paymentData', "2");
 
                     // Assertions
                     assert.strictEqual(firstProposalDataStorage.Some.title, "Payment#2.2")
@@ -1541,7 +1541,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const proposal = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposal = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                     // Assertions
                     assert.strictEqual(proposal.locked, true);
@@ -1576,7 +1576,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const proposal = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposal = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                     // Assertions
                     assert.strictEqual(proposal, undefined);
@@ -1636,11 +1636,11 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const roundVoter = await governanceStorage.roundVotes.get({
+                    const roundVoter = await getStorageMapValue(governanceStorage, 'roundVotes', {
                         0: cycleId,
                         1: eve.pkh,
                     })
-                    const proposal = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposal = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
                     const proposalVoteCount = await proposal.proposalVoteCount;
 
                     // Assertions
@@ -1664,7 +1664,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const roundVoter = await governanceStorage.roundVotes.get({
+                    const roundVoter = await getStorageMapValue(governanceStorage, 'roundVotes', {
                         0: cycleId,
                         1: bob.pkh,
                     })
@@ -1708,9 +1708,9 @@ describe("Governance tests", async () => {
                     var compoundOperation = await doormanInstance.methods.compound([satelliteOne]).send();
                     await compoundOperation.confirmation();
 
-                    const preIncreaseSnapshot           = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne})
-                    const preIncreaseUserSMVK           = (await doormanStorage.userStakeBalanceLedger.get(satelliteOne)).balance.toNumber();
-                    const preIncreaseSatellite          = await delegationStorage.satelliteLedger.get(satelliteOne);
+                    const preIncreaseSnapshot           = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne})
+                    const preIncreaseUserSMVK           = (await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)).balance.toNumber();
+                    const preIncreaseSatellite          = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
 
                     // satellite increases her stake (which should not increase her total voting power)
                     var stakeOperation = await doormanInstance.methods.stake(MVK(3)).send()
@@ -1753,10 +1753,10 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage                   = await governanceInstance.storage();
-                    const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
-                    const postIncreaseSnapshot          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
-                    const postIncreaseUserSMVK          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
-                    const postIncreaseSatellite         = await delegationStorage.satelliteLedger.get(eve.pkh);
+                    const proposal                      = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const postIncreaseSnapshot          = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: eve.pkh})
+                    const postIncreaseUserSMVK          = (await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', eve.pkh)).balance.toNumber();
+                    const postIncreaseSatellite         = await getStorageMapValue(delegationStorage, 'satelliteLedger', eve.pkh);
                     
                     // console.log("BALANCE:", preIncreaseSatellite)
                     // console.log("BALANCE2:", postIncreaseSatellite)
@@ -1800,10 +1800,10 @@ describe("Governance tests", async () => {
 
                     delegationStorage                = await delegationInstance.storage();
                     doormanStorage                   = await doormanInstance.storage();
-                    initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(newSatellite);         
+                    initialSatelliteRecord           = await getStorageMapValue(delegationStorage, 'satelliteLedger', newSatellite);         
 
                     initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
-                    initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
+                    initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                     // check that user has sufficient staked balance
@@ -1823,7 +1823,7 @@ describe("Governance tests", async () => {
 
                     // update user staked balance for assertion check below (satellite's staked mvk balance)
                     doormanStorage                      = await doormanInstance.storage();
-                    initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
+                    initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
 
                     // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
@@ -1843,7 +1843,7 @@ describe("Governance tests", async () => {
 
                         // check state after registering as satellite
                         delegationStorage               = await delegationInstance.storage();
-                        updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(newSatellite);         
+                        updatedSatelliteRecord          = await getStorageMapValue(delegationStorage, 'satelliteLedger', newSatellite);         
                         
                         // check satellite details
                         assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
@@ -1859,7 +1859,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const roundVoter = await governanceStorage.roundVotes.get({
+                    const roundVoter = await getStorageMapValue(governanceStorage, 'roundVotes', {
                         0: cycleId,
                         1: mallory.pkh,
                     })
@@ -1912,11 +1912,11 @@ describe("Governance tests", async () => {
                     governanceStorage           = await governanceInstance.storage()
                     const cycleId               = governanceStorage.cycleId.toNumber();
                     const proposalId            = firstReferenceProposalId;
-                    const roundVoter            = await governanceStorage.roundVotes.get({
+                    const roundVoter            = await getStorageMapValue(governanceStorage, 'roundVotes', {
                         0: cycleId,
                         1: eve.pkh,
                     })
-                    const previousProposal = await governanceStorage.proposalLedger.get(roundVoter.proposal.toNumber());
+                    const previousProposal = await getStorageMapValue(governanceStorage, 'proposalLedger', roundVoter.proposal.toNumber());
                     const previousProposalVoteCount = await previousProposal.proposalVoteCount;
 
                     // Add data to proposal for later execution
@@ -1940,14 +1940,14 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const finalRoundVoter = await governanceStorage.roundVotes.get({
+                    const finalRoundVoter = await getStorageMapValue(governanceStorage, 'roundVotes', {
                         0: cycleId,
                         1: eve.pkh,
                     })
-                    const proposal = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposal = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
                     const proposalVoteCount = await proposal.proposalVoteCount;
 
-                    const oldProposal = await governanceStorage.proposalLedger.get(roundVoter.proposal.toNumber());
+                    const oldProposal = await getStorageMapValue(governanceStorage, 'proposalLedger', roundVoter.proposal.toNumber());
                     const oldProposalVoteCount = await oldProposal.proposalVoteCount;
 
                     // Assertions
@@ -1981,7 +1981,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const proposal = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposal = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                     // Assertions
                     assert.strictEqual(proposal.status, "DROPPED")
@@ -2018,7 +2018,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const proposal = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposal = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                     // Assertions
                     assert.strictEqual(proposal.status, "ACTIVE")
@@ -2040,7 +2040,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const proposal = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposal = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                     // Assertions
                     assert.strictEqual(proposal.status, "DROPPED")
@@ -2108,10 +2108,10 @@ describe("Governance tests", async () => {
 
                     delegationStorage                = await delegationInstance.storage();
                     doormanStorage                   = await doormanInstance.storage();
-                    initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(newSatellite);         
+                    initialSatelliteRecord           = await getStorageMapValue(delegationStorage, 'satelliteLedger', newSatellite);         
 
                     initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
-                    initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
+                    initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                     // check that user has sufficient staked balance
@@ -2131,7 +2131,7 @@ describe("Governance tests", async () => {
 
                     // update user staked balance for assertion check below (satellite's staked mvk balance)
                     doormanStorage                      = await doormanInstance.storage();
-                    initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
+                    initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
 
                     // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
@@ -2151,7 +2151,7 @@ describe("Governance tests", async () => {
 
                         // check state after registering as satellite
                         delegationStorage               = await delegationInstance.storage();
-                        updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(newSatellite);         
+                        updatedSatelliteRecord          = await getStorageMapValue(delegationStorage, 'satelliteLedger', newSatellite);         
                         
                         // check satellite details
                         assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
@@ -2167,7 +2167,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const roundVoter = await governanceStorage.roundVotes.get({
+                    const roundVoter = await getStorageMapValue(governanceStorage, 'roundVotes', {
                         0: cycleId,
                         1: mallory.pkh,
                     })
@@ -2277,7 +2277,7 @@ describe("Governance tests", async () => {
                     // Initial Values
                     governanceStorage   = await governanceInstance.storage()
                     const proposalId    = firstReferenceProposalId;
-                    const proposal      = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposal      = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                     // Operation
                     await chai.expect(governanceInstance.methods.distributeProposalRewards(satelliteThree, [proposalId]).send()).to.be.rejected;
@@ -2312,7 +2312,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage                   = await governanceInstance.storage()
-                    const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposal                      = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                     // Assertion
                     assert.equal(proposal.rewardClaimReady, false);
@@ -2328,10 +2328,10 @@ describe("Governance tests", async () => {
                     // Initial Values
                     governanceStorage                   = await governanceInstance.storage();
                     delegationStorage                   = await delegationInstance.storage();
-                    const satelliteRewardsBegin         = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
+                    const satelliteRewardsBegin         = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', eve.pkh);
                     const proposalId                    = firstReferenceProposalId;
-                    const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
-                    const claimTraceBegin               = await governanceStorage.proposalRewards.get({
+                    const proposal                      = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const claimTraceBegin               = await getStorageMapValue(governanceStorage, 'proposalRewards', {
                         0: proposalId,
                         1: eve.pkh
                     })
@@ -2346,8 +2346,8 @@ describe("Governance tests", async () => {
                     // Final values
                     // governanceStorage               = await governanceInstance.storage();
                     // delegationStorage               = await delegationInstance.storage();
-                    // const satelliteRewardsEnd       = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
-                    // const claimTraceEnd             = await governanceStorage.proposalRewards.get({
+                    // const satelliteRewardsEnd       = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', eve.pkh);
+                    // const claimTraceEnd             = await getStorageMapValue(governanceStorage, 'proposalRewards', {
                     //     0: proposalId,
                     //     1: eve.pkh
                     // })
@@ -2373,10 +2373,10 @@ describe("Governance tests", async () => {
                     // Initial Values
                     governanceStorage                   = await governanceInstance.storage();
                     delegationStorage                   = await delegationInstance.storage();
-                    const satelliteRewardsBegin         = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
+                    const satelliteRewardsBegin         = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', eve.pkh);
                     const proposalId                    = firstReferenceProposalId;
-                    const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
-                    const claimTraceBegin               = await governanceStorage.proposalRewards.get({
+                    const proposal                      = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const claimTraceBegin               = await getStorageMapValue(governanceStorage, 'proposalRewards', {
                         0: proposalId,
                         1: eve.pkh
                     })
@@ -2388,8 +2388,8 @@ describe("Governance tests", async () => {
                     // Final values
                     governanceStorage               = await governanceInstance.storage();
                     delegationStorage               = await delegationInstance.storage();
-                    const satelliteRewardsEnd       = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
-                    const claimTraceEnd             = await governanceStorage.proposalRewards.get({
+                    const satelliteRewardsEnd       = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', eve.pkh);
+                    const claimTraceEnd             = await getStorageMapValue(governanceStorage, 'proposalRewards', {
                         0: proposalId,
                         1: eve.pkh
                     })
@@ -2416,8 +2416,8 @@ describe("Governance tests", async () => {
                     governanceStorage         = await governanceInstance.storage();
                     delegationStorage         = await delegationInstance.storage();
                     const proposalId          = firstReferenceProposalId;
-                    const proposal            = await governanceStorage.proposalLedger.get(proposalId);
-                    const claimTraceBegin     = await governanceStorage.proposalRewards.get({
+                    const proposal            = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const claimTraceBegin     = await getStorageMapValue(governanceStorage, 'proposalRewards', {
                         0: proposalId,
                         1: eve.pkh
                     })
@@ -2566,17 +2566,17 @@ describe("Governance tests", async () => {
                     const newSatellite              = baker.pkh;
                     const newSatelliteSk            = baker.sk;
 
-                    const preregisteringSnapshot    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: newSatellite})
+                    const preregisteringSnapshot    = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: newSatellite})
 
                     // set signer to new satellite (baker)
                     await signerFactory(tezos, newSatelliteSk);
 
                     delegationStorage                = await delegationInstance.storage();
                     doormanStorage                   = await doormanInstance.storage();
-                    initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(newSatellite);         
+                    initialSatelliteRecord           = await getStorageMapValue(delegationStorage, 'satelliteLedger', newSatellite);         
 
                     initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
-                    initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
+                    initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                     // check that user has sufficient staked balance
@@ -2596,7 +2596,7 @@ describe("Governance tests", async () => {
 
                     // update user staked balance for assertion check below (satellite's staked mvk balance)
                     doormanStorage                      = await doormanInstance.storage();
-                    initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
+                    initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
 
                     // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
@@ -2616,7 +2616,7 @@ describe("Governance tests", async () => {
 
                         // check state after registering as satellite
                         delegationStorage               = await delegationInstance.storage();
-                        updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(newSatellite);         
+                        updatedSatelliteRecord          = await getStorageMapValue(delegationStorage, 'satelliteLedger', newSatellite);         
                         
                         // check satellite details
                         assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
@@ -2632,7 +2632,7 @@ describe("Governance tests", async () => {
                     // Post registering values
                     governanceStorage               = await governanceInstance.storage();
                     currentCycle                    = governanceStorage.cycleId;
-                    const postregisteringSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: newSatellite})
+                    const postregisteringSnapshot   = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: newSatellite})
 
                     // Operation
                     await chai.expect(governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mutez: true})).to.be.rejected; 
@@ -3005,9 +3005,9 @@ describe("Governance tests", async () => {
                     var compoundOperation = await doormanInstance.methods.compound([satelliteOne]).send();
                     await compoundOperation.confirmation();
 
-                    const preIncreaseSnapshot           = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne})
-                    const preIncreaseUserSMVK           = (await doormanStorage.userStakeBalanceLedger.get(satelliteOne)).balance.toNumber();
-                    const preIncreaseSatellite          = await delegationStorage.satelliteLedger.get(satelliteOne);
+                    const preIncreaseSnapshot           = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne})
+                    const preIncreaseUserSMVK           = (await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)).balance.toNumber();
+                    const preIncreaseSatellite          = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
 
                     // satellite increases her stake
                     var stakeOperation = await doormanInstance.methods.stake(MVK(3)).send()
@@ -3050,10 +3050,10 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage                   = await governanceInstance.storage();
-                    const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
-                    const postIncreaseSnapshot          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
-                    const postIncreaseUserSMVK          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
-                    const postIncreaseSatellite         = await delegationStorage.satelliteLedger.get(eve.pkh);
+                    const proposal                      = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                    const postIncreaseSnapshot          = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: eve.pkh})
+                    const postIncreaseUserSMVK          = (await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', eve.pkh)).balance.toNumber();
+                    const postIncreaseSatellite         = await getStorageMapValue(delegationStorage, 'satelliteLedger', eve.pkh);
                     
                     // console.log("BALANCE:", preIncreaseSatellite)
                     // console.log("BALANCE2:", postIncreaseSatellite)
@@ -3517,7 +3517,7 @@ describe("Governance tests", async () => {
                 const finalCouncilAdmin             = councilStorage.admin;
                 var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round;
                 var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0];
-                var proposal                        = await governanceStorage.proposalLedger.get(proposalId);
+                var proposal                        = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                 assert.strictEqual(currentCycleInfoRoundString, "proposal")
                 assert.strictEqual(proposal.executed, true)
@@ -3599,7 +3599,7 @@ describe("Governance tests", async () => {
                     governanceStorage                   = await governanceInstance.storage();
                     var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round;
                     var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0];
-                    var proposal                        = await governanceStorage.proposalLedger.get(proposalId);
+                    var proposal                        = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
                     assert.strictEqual(proposal.executed, true)
@@ -3673,7 +3673,7 @@ describe("Governance tests", async () => {
                     // Mid values
                     governanceStorage             = await governanceInstance.storage();
                     const secondProposalId        = governanceStorage.nextProposalId;
-                    const midValuesProposal       = await governanceStorage.proposalLedger.get(firstProposalId);
+                    const midValuesProposal       = await getStorageMapValue(governanceStorage, 'proposalLedger', firstProposalId);
 
                     // Second cycle operations
                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mutez: true});
@@ -3719,7 +3719,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage                   = await governanceInstance.storage();
-                    var proposal                        = await governanceStorage.proposalLedger.get(firstProposalId);
+                    var proposal                        = await getStorageMapValue(governanceStorage, 'proposalLedger', firstProposalId);
 
                     assert.strictEqual(midValuesProposal.executed, false)
                     assert.strictEqual(midValuesProposal.executionReady, true)
@@ -3849,7 +3849,7 @@ describe("Governance tests", async () => {
                     governanceStorage                   = await governanceInstance.storage();
                     var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round;
                     var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0];
-                    const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposal                      = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
                     assert.strictEqual(proposal.executed, true)
@@ -3922,7 +3922,7 @@ describe("Governance tests", async () => {
                     governanceStorage                   = await governanceInstance.storage();
                     var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round;
                     var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0];
-                    const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposal                      = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
                     assert.strictEqual(proposal.executed, false)
@@ -3992,7 +3992,7 @@ describe("Governance tests", async () => {
                     governanceStorage                   = await governanceInstance.storage();
                     var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round;
                     var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0];
-                    const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+                    const proposal                      = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
 
                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
                     assert.strictEqual(proposal.executed, false)
@@ -4086,7 +4086,7 @@ describe("Governance tests", async () => {
                 // Final values
                 governanceStorage       = await governanceInstance.storage();            
 
-                const updatedData       = await governanceStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(governanceStorage, 'metadata', key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -4419,14 +4419,14 @@ describe("Governance tests", async () => {
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
                 mistakenTransferOperation = await mistakenTransferFa2Token(governanceInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -4498,7 +4498,7 @@ describe("Governance tests", async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 governanceStorage       = await governanceInstance.storage();   
-                const initialMetadata   = await governanceStorage.metadata.get(key);
+                const initialMetadata   = await getStorageMapValue(governanceStorage, 'metadata', key);
 
                 // Operation
                 const updateOperation = await governanceInstance.methods.updateMetadata(key, hash);
@@ -4506,7 +4506,7 @@ describe("Governance tests", async () => {
 
                 // Final values
                 governanceStorage       = await governanceInstance.storage();            
-                const updatedData       = await governanceStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(governanceStorage, 'metadata', key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);

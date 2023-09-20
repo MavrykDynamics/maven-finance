@@ -141,7 +141,7 @@ function unpackLambda(const lambdaBytes : bytes; const vestingLambdaAction : ves
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(vestingUnpackLambdaFunctionType)) of [
-            Some(f) -> f((vestingLambdaAction, s))
+            Some(f) -> f(vestingLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

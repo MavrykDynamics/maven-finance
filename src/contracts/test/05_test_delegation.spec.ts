@@ -182,10 +182,10 @@ describe("Test: Delegation Contract", async () => {
 
                 delegationStorage                = await delegationInstance.storage();
                 doormanStorage                   = await doormanInstance.storage();
-                initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(user);         
+                initialSatelliteRecord           = await getStorageMapValue(delegationStorage, 'satelliteLedger', user);         
 
                 initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
-                initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
@@ -205,7 +205,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // update user staked balance for assertion check below (satellite's staked mvk balance)
                 doormanStorage                      = await doormanInstance.storage();
-                initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
 
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
@@ -225,8 +225,8 @@ describe("Test: Delegation Contract", async () => {
 
                     // check state after registering as satellite
                     delegationStorage               = await delegationInstance.storage();
-                    updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(user);         
-                    updatedUserStakedRecord         = await doormanStorage.userStakeBalanceLedger.get(user);    
+                    updatedSatelliteRecord          = await getStorageMapValue(delegationStorage, 'satelliteLedger', user);         
+                    updatedUserStakedRecord         = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);    
                     updatedUserStakedBalance        = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
                     
                     // check satellite details
@@ -260,10 +260,10 @@ describe("Test: Delegation Contract", async () => {
 
                 delegationStorage                = await delegationInstance.storage();
                 doormanStorage                   = await doormanInstance.storage();
-                initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(user);         
+                initialSatelliteRecord           = await getStorageMapValue(delegationStorage, 'satelliteLedger', user);         
 
                 initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
-                initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord             = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
@@ -283,7 +283,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // update user staked balance for assertion check below (satellite's staked mvk balance)
                 doormanStorage           = await doormanInstance.storage();
-                initialUserStakedRecord  = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // if retest: run registerAsSatellite operation if satellite has not been registered yet, and skip for subsequent retesting
@@ -303,8 +303,8 @@ describe("Test: Delegation Contract", async () => {
 
                     // check state after registering as satellite
                     delegationStorage               = await delegationInstance.storage();
-                    updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(user);         
-                    updatedUserStakedRecord         = await doormanStorage.userStakeBalanceLedger.get(user);    
+                    updatedSatelliteRecord          = await getStorageMapValue(delegationStorage, 'satelliteLedger', user);         
+                    updatedUserStakedRecord         = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);    
                     updatedUserStakedBalance        = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
                     
                     // check satellite details
@@ -338,7 +338,7 @@ describe("Test: Delegation Contract", async () => {
                 doormanStorage                      = await doormanInstance.storage();
                 initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
                 
-                initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
@@ -387,7 +387,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // update storage
                 delegationStorage       = await delegationInstance.storage();
-                initialDelegateRecord   = await delegationStorage.delegateLedger.get(user);
+                initialDelegateRecord   = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
 
                 // if retest - skip if user is already delegated
                 if(initialDelegateRecord == null){
@@ -401,10 +401,10 @@ describe("Test: Delegation Contract", async () => {
                     doormanStorage                      = await doormanInstance.storage();
                     initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
                     
-                    initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                    initialUserStakedRecord     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                     initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
-                    initialDelegateRecord       = await delegationStorage.delegateLedger.get(user);
-                    initialSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);
+                    initialDelegateRecord       = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
+                    initialSatelliteRecord      = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
 
                     // check that user has sufficient staked balance
                     if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
@@ -524,7 +524,7 @@ describe("Test: Delegation Contract", async () => {
                 doormanStorage              = await doormanInstance.storage();
                 initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
                 
-                initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
@@ -573,7 +573,7 @@ describe("Test: Delegation Contract", async () => {
 
                 delegationStorage         = await delegationInstance.storage();
                 doormanStorage            = await doormanInstance.storage();
-                initialUserStakedRecord   = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord   = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance  = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 const initialMinimumStakedMvkRequirement = delegationStorage.config.minimumStakedMvkBalance;
@@ -639,7 +639,7 @@ describe("Test: Delegation Contract", async () => {
                 await unregisterAsSatelliteOperation.confirmation();
 
                 // Check state after unregistering as satellite
-                const satelliteExists  = await delegationStorage.satelliteLedger.get(satellite); 
+                const satelliteExists  = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite); 
                 assert.equal(satelliteExists, null);
 
             } catch(e){
@@ -664,7 +664,7 @@ describe("Test: Delegation Contract", async () => {
                 doormanStorage                      = await doormanInstance.storage();
                 initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
                 
-                initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
@@ -699,8 +699,8 @@ describe("Test: Delegation Contract", async () => {
                 doormanStorage                  = await doormanInstance.storage();
 
                 // check state after registering as satellite
-                updatedSatelliteRecord          = await delegationStorage.satelliteLedger.get(user);         
-                updatedUserStakedRecord         = await doormanStorage.userStakeBalanceLedger.get(user);    
+                updatedSatelliteRecord          = await getStorageMapValue(delegationStorage, 'satelliteLedger', user);         
+                updatedUserStakedRecord         = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);    
                 updatedUserStakedBalance        = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
                 
                 // check satellite details
@@ -796,7 +796,7 @@ describe("Test: Delegation Contract", async () => {
                 
                 // init values
                 delegationStorage               = await delegationInstance.storage();
-                initialSatelliteRecord          = await delegationStorage.satelliteLedger.get(satellite);
+                initialSatelliteRecord          = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
 
                 // eve updates satellite record (use alice's mock satellite data)
                 updateSatelliteRecordOperation = await delegationInstance.methods.updateSatelliteRecord(
@@ -812,7 +812,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // Check state after registering as satellite
                 delegationStorage         = await delegationInstance.storage();
-                updatedSatelliteRecord    = await delegationStorage.satelliteLedger.get(satellite);
+                updatedSatelliteRecord    = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
                 
                 // check that satellite record is updated
                 assert.equal(updatedSatelliteRecord.name,             mockSatelliteData.alice.name);
@@ -842,7 +842,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // Check state after registering as satellite
                 delegationStorage         = await delegationInstance.storage();
-                updatedSatelliteRecord    = await delegationStorage.satelliteLedger.get(satellite);
+                updatedSatelliteRecord    = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
 
                 // check that satellite record is reset
                 assert.equal(updatedSatelliteRecord.name,                       initialSatelliteRecord.name);
@@ -953,10 +953,10 @@ describe("Test: Delegation Contract", async () => {
                 delegationStorage           = await delegationInstance.storage();
                 doormanStorage              = await doormanInstance.storage();
 
-                initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
-                initialDelegateRecord       = await delegationStorage.delegateLedger.get(user);
-                initialSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);
+                initialDelegateRecord       = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
+                initialSatelliteRecord      = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
                 initialTotalDelegatedAmount = initialSatelliteRecord.totalDelegatedAmount.toNumber();
 
                 // if retest - skip if user is already delegated
@@ -978,10 +978,10 @@ describe("Test: Delegation Contract", async () => {
                     delegationStorage           = await delegationInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
 
-                    updatedUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                    updatedUserStakedRecord     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                     updatedUserStakedBalance    = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
-                    updatedDelegateRecord       = await delegationStorage.delegateLedger.get(user);
-                    updatedSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);
+                    updatedDelegateRecord       = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
+                    updatedSatelliteRecord      = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
                     updatedTotalDelegatedAmount = updatedSatelliteRecord.totalDelegatedAmount.toNumber();
 
                     assert.strictEqual(updatedDelegateRecord.satelliteAddress, satellite)
@@ -1009,15 +1009,15 @@ describe("Test: Delegation Contract", async () => {
                 delegationStorage               = await delegationInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
                 
-                initialDelegateRecord           = await delegationStorage.delegateLedger.get(user);
-                initialUserStakedRecord         = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialDelegateRecord           = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
+                initialUserStakedRecord         = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance        = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
                 
                 const previousSatellite                       = initialDelegateRecord.satelliteAddress;
-                const previousSatelliteRecord                 = await delegationStorage.satelliteLedger.get(previousSatellite);
+                const previousSatelliteRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', previousSatellite);
                 const previousSatelliteTotalDelegatedAmount   = previousSatelliteRecord.totalDelegatedAmount.toNumber();
 
-                const newSatelliteRecord                      = await delegationStorage.satelliteLedger.get(satellite);
+                const newSatelliteRecord                      = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
                 const newSatelliteTotalDelegatedAmount        = newSatelliteRecord.totalDelegatedAmount.toNumber();
                     
                 // redelegate operation
@@ -1028,12 +1028,12 @@ describe("Test: Delegation Contract", async () => {
                 delegationStorage               = await delegationInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
 
-                updatedDelegateRecord             = await delegationStorage.delegateLedger.get(user);
+                updatedDelegateRecord             = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
 
-                const updatedPreviousSatelliteRecord                = await delegationStorage.satelliteLedger.get(previousSatellite);
+                const updatedPreviousSatelliteRecord                = await getStorageMapValue(delegationStorage, 'satelliteLedger', previousSatellite);
                 const updatedPreviousSatelliteTotalDelegatedAmount  = updatedPreviousSatelliteRecord.totalDelegatedAmount.toNumber();
 
-                const updatedNewSatelliteRecord                 = await delegationStorage.satelliteLedger.get(satellite);
+                const updatedNewSatelliteRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
                 const updatedNewSatelliteTotalDelegatedAmount   = updatedNewSatelliteRecord.totalDelegatedAmount.toNumber();
 
                 // check that user is now delegated to the new satellite
@@ -1049,7 +1049,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // update storage
                 delegationStorage          = await delegationInstance.storage();
-                updatedDelegateRecord      = await delegationStorage.delegateLedger.get(user);
+                updatedDelegateRecord      = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
 
                 // check that user is now delegated to the previous satellite
                 assert.strictEqual(updatedDelegateRecord.satelliteAddress, previousSatellite)
@@ -1089,7 +1089,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // initial storage
                 delegationStorage        = await delegationInstance.storage();
-                initialSatelliteRecord   = await delegationStorage.satelliteLedger.get(satellite);
+                initialSatelliteRecord   = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
 
                 // update operators operation for user
                 updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
@@ -1103,7 +1103,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // updated storage
                 delegationStorage          = await delegationInstance.storage();
-                updatedSatelliteRecord     = await delegationStorage.satelliteLedger.get(satellite);
+                updatedSatelliteRecord     = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
                 
                 assert.strictEqual(initialSatelliteRecord, undefined);
                 assert.strictEqual(updatedSatelliteRecord, undefined);
@@ -1130,7 +1130,7 @@ describe("Test: Delegation Contract", async () => {
                 // Final values
                 delegationStorage   = await delegationInstance.storage();
 
-                const delegateRecord = await delegationStorage.delegateLedger.get(user)
+                const delegateRecord = await getStorageMapValue(delegationStorage, 'delegateLedger', user)
                 assert.strictEqual(delegateRecord, undefined)
 
             } catch(e){
@@ -1234,7 +1234,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // initial storage
                 delegationStorage           = await delegationInstance.storage();
-                initialDelegateRecord       = await delegationStorage.delegateLedger.get(user)
+                initialDelegateRecord       = await getStorageMapValue(delegationStorage, 'delegateLedger', user)
 
                 // undelegate operation
                 undelegateOperation = delegationInstance.methods.undelegateFromSatellite(user);
@@ -1242,7 +1242,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // updated storage
                 delegationStorage           = await delegationInstance.storage();
-                updatedDelegateRecord       = await delegationStorage.delegateLedger.get(user)
+                updatedDelegateRecord       = await getStorageMapValue(delegationStorage, 'delegateLedger', user)
 
                 // check that there is no delegate record
                 assert.strictEqual(initialDelegateRecord, undefined)
@@ -1363,12 +1363,12 @@ describe("Test: Delegation Contract", async () => {
                 delegationStorage           = await delegationInstance.storage();
                 doormanStorage              = await doormanInstance.storage();
 
-                initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakedRecord     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
-                initialDelegateRecord       = await delegationStorage.delegateLedger.get(user);
+                initialDelegateRecord       = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
                 satellite                   = initialDelegateRecord.satelliteAddress;
-                initialSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite); 
+                initialSatelliteRecord      = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite); 
                 initialTotalDelegatedAmount = initialSatelliteRecord.totalDelegatedAmount.toNumber();
 
                 // Operation
@@ -1377,8 +1377,8 @@ describe("Test: Delegation Contract", async () => {
 
                 // Final Values
                 delegationStorage           = await delegationInstance.storage();
-                updatedDelegateRecord       = await delegationStorage.delegateLedger.get(user);
-                updatedSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);         
+                updatedDelegateRecord       = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
+                updatedSatelliteRecord      = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);         
                 updatedTotalDelegatedAmount = updatedSatelliteRecord.totalDelegatedAmount.toNumber();
 
                 // check that delegate record is removed after undelegation
@@ -1408,8 +1408,8 @@ describe("Test: Delegation Contract", async () => {
                 
                 // initial storage
                 delegationStorage        = await delegationInstance.storage();
-                initialSatelliteRecord   = await delegationStorage.satelliteLedger.get(satellite);
-                initialDelegateRecord    = await delegationStorage.delegateLedger.get(user);
+                initialSatelliteRecord   = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
+                initialDelegateRecord    = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
 
                 // check initial state
                 // i) delegate record should still exist 
@@ -1440,8 +1440,8 @@ describe("Test: Delegation Contract", async () => {
                 
                 // mid-test storage
                 delegationStorage     = await delegationInstance.storage();
-                midSatelliteRecord    = await delegationStorage.satelliteLedger.get(satellite);
-                midDelegateRecord     = await delegationStorage.delegateLedger.get(user);
+                midSatelliteRecord    = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
+                midDelegateRecord     = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
 
                 // check mid-state 
                 // i) delegate record should still exist 
@@ -1458,8 +1458,8 @@ describe("Test: Delegation Contract", async () => {
 
                 // final storage
                 delegationStorage       = await delegationInstance.storage();
-                updatedSatelliteRecord  = await delegationStorage.satelliteLedger.get(satellite);
-                updatedDelegateRecord   = await delegationStorage.delegateLedger.get(user);
+                updatedSatelliteRecord  = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
+                updatedDelegateRecord   = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
 
                 // final assertions
                 // i) delegate should be able to undelegate successfully
@@ -1489,8 +1489,8 @@ describe("Test: Delegation Contract", async () => {
                 
                 // initial storage
                 delegationStorage        = await delegationInstance.storage();
-                initialSatelliteRecord   = await delegationStorage.satelliteLedger.get(satellite);
-                initialDelegateRecord    = await delegationStorage.delegateLedger.get(user);
+                initialSatelliteRecord   = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
+                initialDelegateRecord    = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
                 stakeAmount              = MVK(2);
 
                 // check initial state
@@ -1522,8 +1522,8 @@ describe("Test: Delegation Contract", async () => {
                 
                 // mid-test storage
                 delegationStorage     = await delegationInstance.storage();
-                midSatelliteRecord    = await delegationStorage.satelliteLedger.get(satellite);
-                midDelegateRecord     = await delegationStorage.delegateLedger.get(user);
+                midSatelliteRecord    = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
+                midDelegateRecord     = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
 
                 // check mid-state 
                 // i) delegate record should still exist 
@@ -1540,8 +1540,8 @@ describe("Test: Delegation Contract", async () => {
 
                 // final storage
                 delegationStorage       = await delegationInstance.storage();
-                updatedSatelliteRecord  = await delegationStorage.satelliteLedger.get(satellite);
-                updatedDelegateRecord   = await delegationStorage.delegateLedger.get(user);
+                updatedSatelliteRecord  = await getStorageMapValue(delegationStorage, 'satelliteLedger', satellite);
+                updatedDelegateRecord   = await getStorageMapValue(delegationStorage, 'delegateLedger', user);
 
                 // final assertions
                 // i) delegate should be automatically undelegated after staking operation
@@ -1574,7 +1574,7 @@ describe("Test: Delegation Contract", async () => {
                 // Initial Values
                 governanceStorage           = await governanceInstance.storage();
                 governanceCycleId           = governanceStorage.cycleId;
-                satelliteSnapshot           = await governanceStorage.snapshotLedger.get({
+                satelliteSnapshot           = await getStorageMapValue(governanceStorage, 'snapshotLedger', {
                     0: governanceCycleId,
                     1: satellite
                 })
@@ -1586,7 +1586,7 @@ describe("Test: Delegation Contract", async () => {
                 // Final Values
                 governanceStorage           = await governanceInstance.storage();
                 governanceCycleId           = governanceStorage.cycleId;
-                updatedSatelliteSnapshot    = await governanceStorage.snapshotLedger.get({
+                updatedSatelliteSnapshot    = await getStorageMapValue(governanceStorage, 'snapshotLedger', {
                     0: governanceCycleId,
                     1: satellite
                 })
@@ -1610,7 +1610,7 @@ describe("Test: Delegation Contract", async () => {
                 // Initial Values
                 governanceStorage               = await governanceInstance.storage();
                 governanceCycleId               = governanceStorage.cycleId;
-                satelliteSnapshot               = await governanceStorage.snapshotLedger.get({
+                satelliteSnapshot               = await getStorageMapValue(governanceStorage, 'snapshotLedger', {
                     0: governanceCycleId,
                     1: satellite
                 })
@@ -1635,7 +1635,7 @@ describe("Test: Delegation Contract", async () => {
                 // Mid Values
                 governanceStorage               = await governanceInstance.storage();
                 updatedGovernanceCycleId        = governanceStorage.cycleId;
-                updatedSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({
+                updatedSatelliteSnapshot        = await getStorageMapValue(governanceStorage, 'snapshotLedger', {
                     0: updatedGovernanceCycleId,
                     1: satellite
                 })
@@ -1654,7 +1654,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // Final Values
                 governanceStorage               = await governanceInstance.storage();
-                updatedSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({
+                updatedSatelliteSnapshot        = await getStorageMapValue(governanceStorage, 'snapshotLedger', {
                     0: updatedGovernanceCycleId,
                     1: satellite
                 });
@@ -1760,7 +1760,7 @@ describe("Test: Delegation Contract", async () => {
                 // Final values
                 delegationStorage       = await delegationInstance.storage();            
 
-                const updatedData       = await delegationStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(delegationStorage, 'metadata', key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -1909,14 +1909,14 @@ describe("Test: Delegation Contract", async () => {
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
                 mistakenTransferOperation = await mistakenTransferFa2Token(delegationInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -2107,7 +2107,7 @@ describe("Test: Delegation Contract", async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 delegationStorage       = await delegationInstance.storage();   
-                const initialMetadata   = await delegationStorage.metadata.get(key);
+                const initialMetadata   = await getStorageMapValue(delegationStorage, 'metadata', key);
 
                 // Operation
                 const updateOperation = await delegationInstance.methods.updateMetadata(key, hash);
@@ -2115,7 +2115,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // Final values
                 delegationStorage       = await delegationInstance.storage();            
-                const updatedData       = await delegationStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(delegationStorage, 'metadata', key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);

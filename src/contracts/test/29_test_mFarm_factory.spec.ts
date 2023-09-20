@@ -176,7 +176,7 @@ describe("FarmFactory for Farm mToken", async () => {
         const minRepaymentAmount                    = 10000;
 
         // check if loan token exists
-        const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+        const checkLoanTokenExists   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
 
         if(checkLoanTokenExists === undefined){
 
@@ -208,7 +208,7 @@ describe("FarmFactory for Farm mToken", async () => {
             await adminSetMockFa12LoanTokenOperation.confirmation();
 
             lendingControllerStorage  = await lendingControllerInstance.storage();
-            const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+            const mockFa12LoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
 
             assert.equal(mockFa12LoanToken.rawMTokensTotalSupply , 0);
             assert.equal(mockFa12LoanToken.mTokenAddress         , mTokenContractAddress);
@@ -228,7 +228,7 @@ describe("FarmFactory for Farm mToken", async () => {
         } else {
 
             lendingControllerStorage  = await lendingControllerInstance.storage();
-            const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+            const mockFa12LoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
         
             // other variables will be affected by repeated tests
             assert.equal(mockFa12LoanToken.tokenName              , tokenName);
@@ -265,19 +265,19 @@ describe("FarmFactory for Farm mToken", async () => {
             const mTokenPoolMockFa12TokenStorage      = await mTokenUsdtInstance.storage();
             
             // get initial bob's Mock FA12 Token balance
-            const bobMockFa12Ledger                   = await mockFa12TokenStorage.ledger.get(bob.pkh);            
+            const bobMockFa12Ledger                   = await getStorageMapValue(mockFa12TokenStorage, 'ledger', bob.pkh);            
             const bobInitialMockFa12TokenBalance      = bobMockFa12Ledger == undefined ? 0 : bobMockFa12Ledger.balance.toNumber();
 
             // get initial bob's mEurl Token - Mock FA12 Token - balance
-            const bobMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(bob.pkh);            
+            const bobMUsdtTokenLedger                 = await getStorageMapValue(mTokenPoolMockFa12TokenStorage, 'ledger', bob.pkh);            
             const bobInitialMUsdtTokenTokenBalance    = bobMUsdtTokenLedger == undefined ? 0 : bobMUsdtTokenLedger.toNumber();
 
             // get initial lending controller's Mock FA12 Token balance
-            const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress);            
+            const lendingControllerMockFa12Ledger                = await getStorageMapValue(mockFa12TokenStorage, 'ledger', lendingControllerAddress);            
             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
 
             // get initial lending controller token pool total
-            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            const initialLoanTokenRecord                 = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // bob resets mock FA12 tokens allowance then set new allowance to deposit amount
@@ -308,19 +308,19 @@ describe("FarmFactory for Farm mToken", async () => {
             const updatedMUsdtTokenTokenStorage           = await mTokenUsdtInstance.storage();
 
             // check new balance for loan token pool total
-            const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            const updatedLoanTokenRecord           = await getStorageMapValue(updatedLendingControllerStorage, 'loanTokenLedger', loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
 
             // check Bob's Mock FA12 Token balance
-            const updatedBobMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(bob.pkh);            
+            const updatedBobMockFa12Ledger         = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', bob.pkh);            
             assert.equal(updatedBobMockFa12Ledger.balance, bobInitialMockFa12TokenBalance - liquidityAmount);
 
             // check Lending Controller's Mock FA12 Token Balance
-            const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress);            
+            const lendingControllerMockFa12Account  = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', lendingControllerAddress);            
             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + liquidityAmount);
 
             // check Bob's mUsdt Token Token balance
-            const updatedBobMUsdtTokenLedger        = await updatedMUsdtTokenTokenStorage.ledger.get(bob.pkh);            
+            const updatedBobMUsdtTokenLedger        = await getStorageMapValue(updatedMUsdtTokenTokenStorage, 'ledger', bob.pkh);            
             assert.equal(updatedBobMUsdtTokenLedger, bobInitialMUsdtTokenTokenBalance + liquidityAmount);        
 
             } catch (e) {
@@ -344,21 +344,21 @@ describe("FarmFactory for Farm mToken", async () => {
             const mTokenPoolMockFa12TokenStorage      = await mTokenUsdtInstance.storage();
             
             // get initial alice's Mock FA12 Token balance
-            const aliceMockFa12Ledger                   = await mockFa12TokenStorage.ledger.get(alice.pkh);            
+            const aliceMockFa12Ledger                   = await getStorageMapValue(mockFa12TokenStorage, 'ledger', alice.pkh);            
             const aliceInitialMockFa12TokenBalance      = aliceMockFa12Ledger == undefined ? 0 : aliceMockFa12Ledger.balance.toNumber();
 
             // get initial alice's mToken - Mock FA12 Token (USDT) - balance
             compoundOperation                           = await mTokenUsdtInstance.methods.compound([alice.pkh]).send();
             await compoundOperation.confirmation();
-            const aliceMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(alice.pkh);            
+            const aliceMUsdtTokenLedger                 = await getStorageMapValue(mTokenPoolMockFa12TokenStorage, 'ledger', alice.pkh);            
             const aliceInitialMUsdtTokenTokenBalance    = aliceMUsdtTokenLedger == undefined ? 0 : aliceMUsdtTokenLedger.toNumber();
 
             // get initial lending controller's Mock FA12 Token balance
-            const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress);            
+            const lendingControllerMockFa12Ledger                = await getStorageMapValue(mockFa12TokenStorage, 'ledger', lendingControllerAddress);            
             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
 
             // get initial lending controller token pool total
-            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            const initialLoanTokenRecord                 = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // alice resets mock FA12 tokens allowance then set new allowance to deposit amount
@@ -389,19 +389,19 @@ describe("FarmFactory for Farm mToken", async () => {
             const updatedMUsdtTokenTokenStorage           = await mTokenUsdtInstance.storage();
 
             // check new balance for loan token pool total
-            const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            const updatedLoanTokenRecord           = await getStorageMapValue(updatedLendingControllerStorage, 'loanTokenLedger', loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
 
             // check alice's Mock FA12 Token balance
-            const updatedAliceMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(alice.pkh);            
+            const updatedAliceMockFa12Ledger         = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', alice.pkh);            
             assert.equal(updatedAliceMockFa12Ledger.balance, aliceInitialMockFa12TokenBalance - liquidityAmount);
 
             // check Lending Controller's Mock FA12 Token Balance
-            const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress);            
+            const lendingControllerMockFa12Account  = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', lendingControllerAddress);            
             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + liquidityAmount);
 
             // check alice's mUsdt Token Token balance
-            const updatedAliceMUsdtTokenLedger        = await updatedMUsdtTokenTokenStorage.ledger.get(alice.pkh);            
+            const updatedAliceMUsdtTokenLedger        = await getStorageMapValue(updatedMUsdtTokenTokenStorage, 'ledger', alice.pkh);            
             assert.equal(updatedAliceMUsdtTokenLedger, aliceInitialMUsdtTokenTokenBalance + liquidityAmount);        
 
             } catch (e) {
@@ -489,7 +489,7 @@ describe("FarmFactory for Farm mToken", async () => {
                 // Final values
                 farmFactoryStorage          = await farmFactoryInstance.storage();            
 
-                const updatedData       = await farmFactoryStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(farmFactoryStorage, 'metadata', key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -625,14 +625,14 @@ describe("FarmFactory for Farm mToken", async () => {
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userOne)).toNumber()
+                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', userOne)).toNumber()
 
                 await signerFactory(tezos, adminSk);
                 mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userOne)).toNumber();
+                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', userOne)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -896,7 +896,7 @@ describe("FarmFactory for Farm mToken", async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 farmFactoryStorage          = await farmFactoryInstance.storage();   
-                const initialMetadata   = await farmFactoryStorage.metadata.get(key);
+                const initialMetadata   = await getStorageMapValue(farmFactoryStorage, 'metadata', key);
 
                 // Operation
                 const updateOperation = await farmFactoryInstance.methods.updateMetadata(key, hash);
@@ -904,7 +904,7 @@ describe("FarmFactory for Farm mToken", async () => {
 
                 // Final values
                 farmFactoryStorage          = await farmFactoryInstance.storage();            
-                const updatedData       = await farmFactoryStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(farmFactoryStorage, 'metadata', key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);

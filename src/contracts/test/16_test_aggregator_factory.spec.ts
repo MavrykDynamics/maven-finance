@@ -245,7 +245,7 @@ describe('AggregatorFactory', () => {
                 // Final values
                 aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();            
 
-                const updatedData       = await aggregatorFactoryStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(aggregatorFactoryStorage, 'metadata', key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -393,14 +393,14 @@ describe('AggregatorFactory', () => {
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
                 mistakenTransferOperation = await mistakenTransferFa2Token(aggregatorFactoryInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -442,7 +442,7 @@ describe('AggregatorFactory', () => {
                 // Final values
                 aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
                 governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
-                const aggregatorRecord          = await governanceSatelliteStorage.aggregatorLedger.get(randomAggregatorName);
+                const aggregatorRecord          = await getStorageMapValue(governanceSatelliteStorage, 'aggregatorLedger', randomAggregatorName);
                 const endTrackedAggregators     = aggregatorFactoryStorage.trackedAggregators.length;
 
                 // Assertion
@@ -768,7 +768,7 @@ describe('AggregatorFactory', () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 aggregatorFactoryStorage = await aggregatorFactoryInstance.storage();   
-                const initialMetadata    = await aggregatorFactoryStorage.metadata.get(key);
+                const initialMetadata    = await getStorageMapValue(aggregatorFactoryStorage, 'metadata', key);
 
                 // Operation
                 const updateOperation = await aggregatorFactoryInstance.methods.updateMetadata(key, hash);
@@ -776,7 +776,7 @@ describe('AggregatorFactory', () => {
 
                 // Final values
                 aggregatorFactoryStorage = await aggregatorFactoryInstance.storage();            
-                const updatedData        = await aggregatorFactoryStorage.metadata.get(key);
+                const updatedData        = await getStorageMapValue(aggregatorFactoryStorage, 'metadata', key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);
