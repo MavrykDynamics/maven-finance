@@ -236,7 +236,7 @@ function unpackLambda(const lambdaBytes : bytes; const treasuryLambdaAction : tr
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(treasuryUnpackLambdaFunctionType)) of [
-            Some(f) -> f((treasuryLambdaAction, s))
+            Some(f) -> f(treasuryLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

@@ -211,13 +211,11 @@ block {
                 const lpTokenAddress : address  = s.config.lpToken.tokenAddress;
 
                 // verify token is allowed to be transferred
-                verifyTokenAllowedForOperationLoop(lpTokenAddress, destinationParams, error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER);
+                verifyTokenAllowedForOperationFold(lpTokenAddress, destinationParams, error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
-                for transferParams in list destinationParams block {
-                    operations := transferOperationFold(transferParams, operations);
-                }
-                 
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
+                
             }
         |   _ -> skip
     ];

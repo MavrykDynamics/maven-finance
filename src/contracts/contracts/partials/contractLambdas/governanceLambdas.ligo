@@ -91,13 +91,13 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Validation check for new admin address
     //      -   Check if the new admin address is a whitelisted developer or the current Governance Proxy Contract address
     //      -   Check if the new admin address is the Break Glass Contract
     // 4. Set new admin address
 
-    verifyNoAmountSent(Unit);    // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);    // check that no mav is sent to the entrypoint
     verifySenderIsAdmin(s.admin); // verify that sender is admin (e.g. Governance Proxy contract)
     
     case governanceLambdaAction of [
@@ -123,10 +123,10 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Set new Governance Proxy Contract address
     
-    verifyNoAmountSent(Unit);    // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);    // check that no mav is sent to the entrypoint
     verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case governanceLambdaAction of [
@@ -145,10 +145,10 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Set new contract metadata
 
-    verifyNoAmountSent(Unit);    // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);    // check that no mav is sent to the entrypoint
     verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case governanceLambdaAction of [
@@ -172,10 +172,10 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Update config with new input (validate if necessary)
 
-    verifyNoAmountSent(Unit);   // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);   // check that no mav is sent to the entrypoint
     verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case governanceLambdaAction of [
@@ -219,11 +219,11 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin or whitelisted (e.g. Factory contracts)
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Update whitelist contracts map
 
     verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
-    verifyNoAmountSent(Unit);            // verify that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);            // verify that no mav is sent to the entrypoint
     
     case governanceLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -242,11 +242,11 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin or whitelisted (e.g. Factory contracts)
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Update general contracts map
 
     verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
-    verifyNoAmountSent(Unit);            // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);            // check that no mav is sent to the entrypoint
     
     case governanceLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -265,12 +265,12 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Remove developer address if it is already present in the whitelist developers set, otherwise add developer address
     //      -   Check that there will always be at least one whitelisted developer address present
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin
-    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);     // check that no mav is sent to the entrypoint
 
     case governanceLambdaAction of [
             LambdaUpdateWhitelistDevelopers(developer) -> 
@@ -313,10 +313,8 @@ block {
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations (transferOperationFold in transferHelpers
-                for transferParams in list destinationParams block {
-                    operations := transferOperationFold(transferParams, operations);
-                }
-                 
+                operations := List.fold_right(transferOperationFold, destinationParams, operations);
+                
             }
         |   _ -> skip
     ];
@@ -331,11 +329,11 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Create operation to set new admin of contract
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin
-    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint    
+    verifyNoAmountSent(Unit);     // check that no mav is sent to the entrypoint    
 
     var operations : list(operation) := nil;
 
@@ -359,11 +357,11 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Create operation to set new Governance Address of contract
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin
-    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint    
+    verifyNoAmountSent(Unit);     // check that no mav is sent to the entrypoint    
 
     // Operations list
     var operations : list(operation) := nil;
@@ -634,7 +632,7 @@ block {
                 // Process Proposal Submission Fee
                 // ------------------------------------------------------------------
 
-                // check if tez sent is equal to the required fee
+                // check if mav sent is equal to the required fee
                 verifyCorrectSubmissionFee(s);
 
                 // Get Tax Treasury from General Contracts map
@@ -767,32 +765,34 @@ block {
                 // Update proposal data
                 // ------------------------------------------------------------------
 
-                case proposalData of [
-                        Some (_proposalData)    -> block {
-                            for updateProposalData in list _proposalData block {
-                                proposalRecord.proposalData := case updateProposalData of [
-                                        AddOrSetProposalData (data) -> if String.length(data.title) > proposalDataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else addOrSetProposalData(data, proposalRecord.proposalData)
-                                    |   RemoveProposalData (data)   -> removeProposalData(data, proposalRecord.proposalData)
-                                ]
-                            }
-                        }
-                    |   None -> skip
+                proposalRecord.proposalData := case proposalData of [
+                        Some (_proposalData)    -> List.fold(
+                                function(const proposalData : proposalDataMapType; const updateProposalData : updateProposalDataVariantType) : proposalDataMapType is
+                                    case updateProposalData of [
+                                            AddOrSetProposalData (data) -> if String.length(data.title) > proposalDataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else addOrSetProposalData(data, proposalData)
+                                        |   RemoveProposalData (data)   -> removeProposalData(data, proposalData)
+                                    ],
+                                _proposalData,
+                                proposalRecord.proposalData
+                            )
+                    |   None -> proposalRecord.proposalData
                 ];
 
                 // ------------------------------------------------------------------
                 // Update payment data
                 // ------------------------------------------------------------------
 
-                case paymentData of [
-                        Some (_paymentData)    -> block {
-                            for updatePaymentData in list _paymentData block {
-                                proposalRecord.paymentData  := case updatePaymentData of [
-                                        AddOrSetPaymentData (data) -> if String.length(data.title) > proposalDataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else addOrSetPaymentData(data, proposalRecord.paymentData)
-                                    |   RemovePaymentData (data)   -> removePaymentData(data, proposalRecord.paymentData)
-                                ]
-                            }
-                        }
-                    |   None -> skip
+                proposalRecord.paymentData := case paymentData of [
+                        Some (_paymentData)    -> List.fold(
+                                function(const paymentData : proposalPaymentDataMapType; const updatePaymentData : updatePaymentDataVariantType) : proposalPaymentDataMapType is
+                                    case updatePaymentData of [
+                                            AddOrSetPaymentData (data) -> if String.length(data.title) > proposalDataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else addOrSetPaymentData(data, paymentData)
+                                        |   RemovePaymentData (data)   -> removePaymentData(data, paymentData)
+                                    ],
+                                _paymentData,
+                                proposalRecord.paymentData
+                            )
+                    |   None -> proposalRecord.paymentData
                 ];
 
                 // Save changes and update proposal ledger
@@ -999,9 +999,7 @@ block {
                 function findHighestVotedProposalIdFold(const currentHighestVotedProposalId: actionIdType; const proposalVote: actionIdType * nat): actionIdType is
                 if proposalVote.1 >= highestVote then proposalVote.0 else currentHighestVotedProposalId;
 
-                for actionId -> vote in map s.cycleProposals block{
-                    s.cycleHighestVotedProposalId   := findHighestVotedProposalIdFold(s.cycleHighestVotedProposalId, (actionId, vote));
-                };
+                s.cycleHighestVotedProposalId   := Map.fold(findHighestVotedProposalIdFold, s.cycleProposals, s.cycleHighestVotedProposalId);
 
             }
         |   _ -> skip

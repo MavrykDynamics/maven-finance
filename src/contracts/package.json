@@ -17,12 +17,12 @@
     "rimraf": "^3.0.2"
   },
   "scripts": {
-    "build-taquito": "bash ./build-taquito.sh",
-    "install-deps": "git submodule sync --recursive && git submodule update --init --recursive --remote",
-    "pull-sandbox": "TAG=4.7.0 docker-compose -f docker-compose.yml pull",
-    "start-sandbox": "TAG=4.7.0 docker-compose -f docker-compose.yml up -d && bash ./sandbox-init.sh",
-    "down-sandbox": "docker-compose -f docker-compose.yml down",
-    "clear-sandbox": "docker-compose -f docker-compose.yml down -v",
+    "build-deps": "bash ./build-deps.sh",
+    "install-deps": "git submodule sync && git submodule update --init --remote",
+    "pull-sandbox": "TAG=4.7.2 docker compose -f docker-compose.yml pull",
+    "start-sandbox": "TAG=4.7.2 docker compose -f docker-compose.yml up -d && bash ./sandbox-init.sh",
+    "down-sandbox": "docker compose -f docker-compose.yml down",
+    "clear-sandbox": "docker compose -f docker-compose.yml down -v",
     "restart-sandbox": "yarn clear-sandbox && yarn start-sandbox",
     "start-sandbox-old": "docker run --rm --name mavryk-sandbox -e flextesa_node_cors_origin='*' -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20230607 mumbaibox start && bash ./sandbox-init.sh",
     "start-sandbox-m1": "docker run --rm --platform=linux/arm64/v8 --name mavryk-sandbox -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20230607 mumbaibox start && bash ./sandbox-init.sh",
@@ -48,7 +48,7 @@
   "author": "devteam@mavryk.finance",
   "license": "MIT",
   "dependencies": {
-    "@mavrykdynamics/create-lambda-bytes": "^0.2.4",
+    "@mavrykdynamics/create-lambda-bytes": "file:vendors/create-lambda-bytes",
     "@taquito/signer": "file:vendors/taquito/packages/taquito-signer",
     "@taquito/taquito": "file:vendors/taquito/packages/taquito",
     "@taquito/tezbridge-signer": "^14.2.0",

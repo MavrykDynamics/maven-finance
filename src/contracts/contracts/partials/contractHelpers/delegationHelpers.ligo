@@ -655,7 +655,7 @@ block {
 
 
 // helper function to refresh a satellite governance snapshot
-function updateGovernanceSnapshot (const satelliteAddresses : set(address); const ready : bool; const operations : list(operation); const s : delegationStorageType) : list(operation) is
+function updateGovernanceSnapshot (const satelliteAddresses : set(address); const ready : bool; var operations : list(operation); const s : delegationStorageType) : list(operation) is
 block {
 
     // Get the current round 
@@ -678,13 +678,12 @@ block {
     };
 
     // Update the satellites snapshot
-    var updatedOperations : list(operation) := operations;
     if Set.size(satellitesToUpdate) > 0n then {
         const updateSatellitesSnapshotOperation : operation = updateSatellitesSnapshotOperation(satellitesToUpdate, ready, s);
-        updatedOperations := updateSatellitesSnapshotOperation # updatedOperations;
+        operations := updateSatellitesSnapshotOperation # operations;
     }
 
-} with updatedOperations
+} with operations
 
 // ------------------------------------------------------------------------------
 // Snapshot Helper Functions End
@@ -807,7 +806,7 @@ function unpackLambda(const lambdaBytes : bytes; const delegationLambdaAction : 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(delegationUnpackLambdaFunctionType)) of [
-            Some(f) -> f((delegationLambdaAction, s))
+            Some(f) -> f(delegationLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

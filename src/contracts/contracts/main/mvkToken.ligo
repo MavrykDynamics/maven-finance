@@ -144,12 +144,12 @@ function checkOperator(const owner : ownerType; const token_id : tokenIdType; co
 
 
 // mergeOperations helper function - used in transfer entrypoint
-function mergeOperations(const first : list (operation); var second : list (operation)) : list (operation) is 
-block{
-    for operation in list first block{
-        second  := operation # second
-    }
-} with(second)
+function mergeOperations(const first : list (operation); const second : list (operation)) : list (operation) is 
+List.fold( 
+    function(const operations : list(operation); const operation : operation) : list(operation) is operation # operations,
+    first,
+    second
+)
 
 
 
@@ -356,9 +356,7 @@ block {
     var operations : list(operation) := nil;
 
     // Create transfer operations (transferOperationFold in transferHelpers)
-    for transferParams in list destinationParams block {
-        operations := transferOperationFold(transferParams, operations);
-    }
+    operations := List.fold_right(transferOperationFold, destinationParams, operations)
 
 } with (operations, store)
 
@@ -431,19 +429,11 @@ block{
             } with accumulator with record[ledger=updatedLedger];
 
             const updatedOperations : list(operation) = (nil: list(operation));
-            var updatedStorage : mvkTokenStorageType := account.1;
-            for destination in list txs block {
-                updatedStorage  := transferTokens(updatedStorage, destination);
-            }
+            const updatedStorage : mvkTokenStorageType = List.fold(transferTokens, txs, account.1);
 
-        } with (mergeOperations(updatedOperations,account.0), updatedStorage);
+        } with (mergeOperations(updatedOperations,account.0), updatedStorage)
 
-    var return : return    := ((nil: list(operation)), store);
-    for transferParam in list transferParams block{
-        return  := makeTransfer(return, transferParam);
-    }
-
-} with return
+} with List.fold(makeTransfer, transferParams, ((nil: list(operation)), store))
 
 
 
@@ -477,13 +467,16 @@ block{
 function updateOperators(const updateOperatorsParams : updateOperatorsType; const store : mvkTokenStorageType) : return is
 block{
 
-    var updatedOperators : operatorsType := store.operators;
-    for updateOperator in list updateOperatorsParams block {
-        updatedOperators := case updateOperator of [
-                Add_operator (param)    -> addOperator(param, updatedOperators)
-            |   Remove_operator (param) -> removeOperator(param, updatedOperators)
-        ]
-    };
+    var updatedOperators : operatorsType := List.fold(
+        function(const operators : operatorsType; const updateOperator : updateOperatorVariantType) : operatorsType is
+            case updateOperator of [
+                    Add_operator (param)    -> addOperator(param, operators)
+                |   Remove_operator (param) -> removeOperator(param, operators)
+            ]
+        ,
+        updateOperatorsParams,
+        store.operators
+    )
 
 } with (noOperations, store with record[operators=updatedOperators])
 
@@ -602,7 +595,7 @@ block {
 function main (const action : action; const store : mvkTokenStorageType) : return is
 block{
 
-    verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // // entrypoints should not receive any mav amount  
 
 } with(
     

@@ -358,7 +358,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const totalAllocatedAmount  = 1000;
                     const cliffInMonths         = 2000;
                     const vestingInMonths       = 3000;
-                    const initVesteeRecord      = await vestingStorage.vesteeLedger.get(vesteeAddress);
+                    const initVesteeRecord      = await getStorageMapValue(vestingStorage, 'vesteeLedger', vesteeAddress);
     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -379,7 +379,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     vestingStorage              = await vestingInstance.storage();
-                    const finalVesteeRecord     = await vestingStorage.vesteeLedger.get(vesteeAddress);
+                    const finalVesteeRecord     = await getStorageMapValue(vestingStorage, 'vesteeLedger', vesteeAddress);
     
                     // Assertions
                     assert.strictEqual(initVesteeRecord, undefined);
@@ -401,7 +401,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const newTotalAllocatedAmount   = 1001;
                     const newCliffInMonths          = 2002;
                     const newVestingInMonths        = 3003;
-                    const initVesteeRecord          = await vestingStorage.vesteeLedger.get(vesteeAddress);
+                    const initVesteeRecord          = await getStorageMapValue(vestingStorage, 'vesteeLedger', vesteeAddress);
     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -422,7 +422,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     vestingStorage                  = await vestingInstance.storage();
-                    const finalVesteeRecord         = await vestingStorage.vesteeLedger.get(vesteeAddress);
+                    const finalVesteeRecord         = await getStorageMapValue(vestingStorage, 'vesteeLedger', vesteeAddress);
     
                     // Assertions
                     assert.notStrictEqual(initVesteeRecord, undefined);
@@ -441,7 +441,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // Initial values
                     vestingStorage                  = await vestingInstance.storage();
                     const vesteeAddress             = alice.pkh;
-                    const initVesteeRecord          = await vestingStorage.vesteeLedger.get(vesteeAddress);
+                    const initVesteeRecord          = await getStorageMapValue(vestingStorage, 'vesteeLedger', vesteeAddress);
     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -459,7 +459,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     vestingStorage                  = await vestingInstance.storage();
-                    const finalVesteeRecord         = await vestingStorage.vesteeLedger.get(vesteeAddress);
+                    const finalVesteeRecord         = await getStorageMapValue(vestingStorage, 'vesteeLedger', vesteeAddress);
     
                     // Assertions
                     assert.notStrictEqual(initVesteeRecord, undefined);
@@ -478,7 +478,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // Initial values
                     vestingStorage                  = await vestingInstance.storage();
                     const vesteeAddress             = alice.pkh;
-                    const initVesteeRecord          = await vestingStorage.vesteeLedger.get(vesteeAddress);
+                    const initVesteeRecord          = await getStorageMapValue(vestingStorage, 'vesteeLedger', vesteeAddress);
     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -496,7 +496,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     vestingStorage                  = await vestingInstance.storage();
-                    const finalVesteeRecord         = await vestingStorage.vesteeLedger.get(vesteeAddress);
+                    const finalVesteeRecord         = await getStorageMapValue(vestingStorage, 'vesteeLedger', vesteeAddress);
     
                     // Assertions
                     assert.notStrictEqual(initVesteeRecord, undefined);
@@ -845,7 +845,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const lpTokenId                 = 0;
                     const lpTokenStandard           = "FA2";
                     const initTrackedFarmsLength    = farmFactoryStorage.trackedFarms.length;
-                    const initFarmTestGovernance    = await governanceStorage.generalContracts.get(farmName);
+                    const initFarmTestGovernance    = await getStorageMapValue(governanceStorage, 'generalContracts', farmName);
     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -877,7 +877,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const createdFarmInstance       = await utils.tezos.contract.at(createdFarmAddress);
                     const createdFarmStorage: any   = await createdFarmInstance.storage();
                     const finalTrackedFarmsLength   = farmFactoryStorage.trackedFarms.length;
-                    const finalFarmTestGovernance   = await governanceStorage.generalContracts.get(farmName);
+                    const finalFarmTestGovernance   = await getStorageMapValue(governanceStorage, 'generalContracts', farmName);
 
                     // Assertions
                     assert.equal(initTrackedFarmsLength, 0);
@@ -1048,7 +1048,7 @@ describe('Governance proxy lambdas tests', async () => {
                     farmFactoryStorage                  = await farmFactoryInstance.storage();
                     const lambdaName                    = "lambdaUnstake";
                     const newFarmUnstakeLambda          = doormanLambdas.lambdaNewUnstake;
-                    const initFarmUnstakeLambda         = await farmFactoryStorage.mFarmLambdaLedger.get(lambdaName);
+                    const initFarmUnstakeLambda         = await getStorageMapValue(farmFactoryStorage, 'mFarmLambdaLedger', lambdaName);
                     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -1068,7 +1068,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     farmFactoryStorage                  = await farmFactoryInstance.storage();
-                    const finalFarmFactoryUnstakeLambda = await farmFactoryStorage.mFarmLambdaLedger.get(lambdaName);
+                    const finalFarmFactoryUnstakeLambda = await getStorageMapValue(farmFactoryStorage, 'mFarmLambdaLedger', lambdaName);
 
                     // Assertions
                     assert.notStrictEqual(initFarmUnstakeLambda, finalFarmFactoryUnstakeLambda);
@@ -1089,7 +1089,7 @@ describe('Governance proxy lambdas tests', async () => {
                     treasuryStorage     = await treasuryInstance.storage();
     
                     // Set WhitelistContracts Operation
-                    const adminWhitelist        = await treasuryStorage.whitelistContracts.get(contractDeployments.governanceProxy.address);
+                    const adminWhitelist        = await getStorageMapValue(treasuryStorage, 'whitelistContracts', contractDeployments.governanceProxy.address);
                     if(adminWhitelist === undefined){
                         const updateWhitelistContractsOperation    = await treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governanceProxy.address, "update").send();
                         await updateWhitelistContractsOperation.confirmation();
@@ -1101,7 +1101,7 @@ describe('Governance proxy lambdas tests', async () => {
                     await transferXTZOperation.confirmation();
                     
                     // FA12
-                    const fa12InTreasury        = await treasuryStorage.whitelistTokenContracts.get(contractDeployments.mavrykFa12Token.address);
+                    const fa12InTreasury        = await getStorageMapValue(treasuryStorage, 'whitelistTokenContracts', contractDeployments.mavrykFa12Token.address);
                     if(fa12InTreasury === undefined){
                         const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa12Token.address, "update").send();
                         await updateWhitelistTokenContractsOperation.confirmation();
@@ -1110,7 +1110,7 @@ describe('Governance proxy lambdas tests', async () => {
                     await transferFA12Operation.confirmation();
                     
                     // FA2
-                    const fa2InTreasury         = await treasuryStorage.whitelistTokenContracts.get(contractDeployments.mavrykFa2Token.address);
+                    const fa2InTreasury         = await getStorageMapValue(treasuryStorage, 'whitelistTokenContracts', contractDeployments.mavrykFa2Token.address);
                     if(fa2InTreasury === undefined){
                         const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa2Token.address, "update").send();
                         await updateWhitelistTokenContractsOperation.confirmation();
@@ -1146,7 +1146,7 @@ describe('Governance proxy lambdas tests', async () => {
                     mvkTokenStorage                     = await mvkTokenInstance.storage();
                     const receiverAddress               = alice.pkh;
                     const mintedAmount                  = MVK(2);
-                    const initReceiverMvkLedger         = await mvkTokenStorage.ledger.get(receiverAddress);
+                    const initReceiverMvkLedger         = await getStorageMapValue(mvkTokenStorage, 'ledger', receiverAddress);
                     const initReceiverMvkBalance        = initReceiverMvkLedger ? initReceiverMvkLedger.toNumber() : 0;
                     
                     // Operation
@@ -1167,7 +1167,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
                     mvkTokenStorage                     = await mvkTokenInstance.storage();
-                    const finalReceiverMvkLedger        = await mvkTokenStorage.ledger.get(receiverAddress);
+                    const finalReceiverMvkLedger        = await getStorageMapValue(mvkTokenStorage, 'ledger', receiverAddress);
                     const finalReceiverMvkBalance       = finalReceiverMvkLedger ? finalReceiverMvkLedger.toNumber() : 0;
 
                     // Assertions
@@ -1183,7 +1183,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // Initial values
                     treasuryStorage                     = await treasuryInstance.storage();
                     mvkTokenStorage                     = await mvkTokenInstance.storage();
-                    const initTreasuryOperators         = await mvkTokenStorage.operators.get({
+                    const initTreasuryOperators         = await getStorageMapValue(mvkTokenStorage, 'operators', {
                         0: contractDeployments.treasury.address,
                         1: bob.pkh,
                         2: 0
@@ -1223,7 +1223,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
                     mvkTokenStorage                     = await mvkTokenInstance.storage();
-                    const finalTreasuryOperators        = await mvkTokenStorage.operators.get({
+                    const finalTreasuryOperators        = await getStorageMapValue(mvkTokenStorage, 'operators', {
                         0: contractDeployments.treasury.address,
                         1: bob.pkh,
                         2: 0
@@ -1244,7 +1244,7 @@ describe('Governance proxy lambdas tests', async () => {
                     treasuryStorage                     = await treasuryInstance.storage();
                     doormanStorage                      = await doormanInstance.storage();
                     const stakedAmount                  = MVK(2);
-                    const initTreasurySMvkLedger        = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
+                    const initTreasurySMvkLedger        = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', contractDeployments.treasury.address);
                     const initTreasurySMvkBalance       = initTreasurySMvkLedger ? initTreasurySMvkLedger.balance.toNumber() : 0;
                     
                     // Operation
@@ -1265,7 +1265,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
                     doormanStorage                      = await doormanInstance.storage();
-                    const finalTreasurySMvkLedger       = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
+                    const finalTreasurySMvkLedger       = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', contractDeployments.treasury.address);
                     const finalTreasurySMvkBalance      = finalTreasurySMvkLedger ? finalTreasurySMvkLedger.balance.toNumber() : 0;
 
                     // Assertions
@@ -1282,7 +1282,7 @@ describe('Governance proxy lambdas tests', async () => {
                     treasuryStorage                     = await treasuryInstance.storage();
                     doormanStorage                      = await doormanInstance.storage();
                     const unstakedAmount                = MVK();
-                    const initTreasurySMvkLedger        = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
+                    const initTreasurySMvkLedger        = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', contractDeployments.treasury.address);
                     const initTreasurySMvkBalance       = initTreasurySMvkLedger ? initTreasurySMvkLedger.balance.toNumber() : 0;
                     
                     // Operation
@@ -1303,7 +1303,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
                     doormanStorage                      = await doormanInstance.storage();
-                    const finalTreasurySMvkLedger       = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
+                    const finalTreasurySMvkLedger       = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', contractDeployments.treasury.address);
                     const finalTreasurySMvkBalance      = finalTreasurySMvkLedger ? finalTreasurySMvkLedger.balance.toNumber() : 0;
 
                     // Assertions
@@ -1321,9 +1321,9 @@ describe('Governance proxy lambdas tests', async () => {
                     mavrykFa12TokenStorage              = await mavrykFa12TokenInstance.storage();
                     mavrykFa2TokenStorage               = await mavrykFa2TokenInstance.storage();
                     const receiver                      = alice.pkh;
-                    const initUserFA12Ledger            = await mavrykFa12TokenStorage.ledger.get(receiver)
+                    const initUserFA12Ledger            = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', receiver)
                     const initUserFA12Balance           = initUserFA12Ledger ? initUserFA12Ledger.balance.toNumber() : 0;
-                    const initUserFA2Ledger             = await mavrykFa2TokenStorage.ledger.get(receiver)
+                    const initUserFA2Ledger             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', receiver)
                     const initUserFA2Balance            = initUserFA2Ledger ? initUserFA2Ledger.toNumber() : 0;
                     const initUserXTZBalance            = (await utils.tezos.tz.getBalance(receiver)).toNumber();
                     const tokenAmount                   = 50;
@@ -1370,9 +1370,9 @@ describe('Governance proxy lambdas tests', async () => {
                     treasuryStorage                     = await treasuryInstance.storage();
                     mavrykFa12TokenStorage              = await mavrykFa12TokenInstance.storage();
                     mavrykFa2TokenStorage               = await mavrykFa2TokenInstance.storage();
-                    const finalUserFA12Ledger           = await mavrykFa12TokenStorage.ledger.get(receiver)
+                    const finalUserFA12Ledger           = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', receiver)
                     const finalUserFA12Balance          = finalUserFA12Ledger ? finalUserFA12Ledger.balance.toNumber() : 0;
-                    const finalUserFA2Ledger            = await mavrykFa2TokenStorage.ledger.get(receiver)
+                    const finalUserFA2Ledger            = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', receiver)
                     const finalUserFA2Balance           = finalUserFA2Ledger ? finalUserFA2Ledger.toNumber() : 0;
                     const finalUserXTZBalance           = (await utils.tezos.tz.getBalance(receiver)).toNumber();
 
@@ -1471,7 +1471,7 @@ describe('Governance proxy lambdas tests', async () => {
                         'ascii',
                         ).toString('hex')
                     const initTrackedTreasuryLength     = treasuryFactoryStorage.trackedTreasuries.length;
-                    const initTreasuryTestGovernance    = await governanceStorage.generalContracts.get(treasuryName);
+                    const initTreasuryTestGovernance    = await getStorageMapValue(governanceStorage, 'generalContracts', treasuryName);
                     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -1497,7 +1497,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const createdTreasuryInstance       = await utils.tezos.contract.at(createdTreasuryAddress);
                     const createdTreasuryStorage: any   = await createdTreasuryInstance.storage();
                     const finalTrackedFarmsLength       = treasuryFactoryStorage.trackedTreasuries.length;
-                    const finalTreasuryTestGovernance   = await governanceStorage.generalContracts.get(treasuryName);
+                    const finalTreasuryTestGovernance   = await getStorageMapValue(governanceStorage, 'generalContracts', treasuryName);
 
                     // Assertions
                     assert.equal(initTrackedTreasuryLength, 0);
@@ -1962,7 +1962,7 @@ describe('Governance proxy lambdas tests', async () => {
                             'ascii',
                         ).toString('hex');
                     const initTrackedAggregatorsLength  = aggregatorFactoryStorage.trackedAggregators.length;
-                    const initAggregatorTestGovernance  = await governanceStorage.generalContracts.get(aggregatorName);
+                    const initAggregatorTestGovernance  = await getStorageMapValue(governanceStorage, 'generalContracts', aggregatorName);
                     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -1994,7 +1994,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const createdAggregatorInstance     = await utils.tezos.contract.at(createdAggregatorAddress);
                     const createdAggregatorStorage: any = await createdAggregatorInstance.storage();
                     const finalTrackedAggregatorLength  = aggregatorFactoryStorage.trackedAggregators.length;
-                    const finalAggregatorTestGovernance = await governanceStorage.generalContracts.get(aggregatorName);
+                    const finalAggregatorTestGovernance = await getStorageMapValue(governanceStorage, 'generalContracts', aggregatorName);
 
                     // Assertions
                     assert.equal(initTrackedAggregatorsLength, 0);
@@ -2689,7 +2689,7 @@ describe('Governance proxy lambdas tests', async () => {
                             tokenType                           : tokenType
                         }
                     };
-                    const initLoanToken                 = await lendingControllerStorage.loanTokenLedger.get(tokenName);
+                    const initLoanToken                 = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName);
 
                     // Operation
                     lambdaFunction                = await createLambdaBytes(
@@ -2707,7 +2707,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     lendingControllerStorage            = await lendingControllerInstance.storage();
-                    const finalLoanToken                = await lendingControllerStorage.loanTokenLedger.get(tokenName);
+                    const finalLoanToken                = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName);
 
                     // Assertions
                     assert.strictEqual(initLoanToken, undefined);
@@ -2761,7 +2761,7 @@ describe('Governance proxy lambdas tests', async () => {
                             isPaused                            : isPaused
                         }
                     };
-                    const initLoanToken                 = await lendingControllerStorage.loanTokenLedger.get(tokenName);
+                    const initLoanToken                 = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName);
 
                     // Operation
                     lambdaFunction                = await createLambdaBytes(
@@ -2779,7 +2779,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     lendingControllerStorage            = await lendingControllerInstance.storage();
-                    const finalLoanToken                = await lendingControllerStorage.loanTokenLedger.get(tokenName);
+                    const finalLoanToken                = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName);
 
                     // Assertions
                     assert.notStrictEqual(initLoanToken, undefined);
@@ -2828,7 +2828,7 @@ describe('Governance proxy lambdas tests', async () => {
                             tokenType                               : tokenType
                         }
                     };
-                    const initCollateralToken                   = await lendingControllerStorage.collateralTokenLedger.get(tokenName);
+                    const initCollateralToken                   = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName);
 
                     // Operation
                     lambdaFunction                = await createLambdaBytes(
@@ -2846,7 +2846,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     lendingControllerStorage            = await lendingControllerInstance.storage();
-                    const finalCollateralToken          = await lendingControllerStorage.collateralTokenLedger.get(tokenName);
+                    const finalCollateralToken          = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName);
 
                     // Assertions
                     assert.strictEqual(initCollateralToken, undefined);
@@ -2884,7 +2884,7 @@ describe('Governance proxy lambdas tests', async () => {
                             maxDepositAmount                        : maxDepositAmount
                         }
                     };
-                    const initCollateralToken                   = await lendingControllerStorage.collateralTokenLedger.get(tokenName);
+                    const initCollateralToken                   = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName);
 
                     // Operation
                     lambdaFunction                = await createLambdaBytes(
@@ -2902,7 +2902,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     lendingControllerStorage            = await lendingControllerInstance.storage();
-                    const finalCollateralToken          = await lendingControllerStorage.collateralTokenLedger.get(tokenName);
+                    const finalCollateralToken          = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName);
 
                     // Assertions
                     assert.notStrictEqual(initCollateralToken, undefined);
@@ -3078,7 +3078,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     doormanStorage                      = await doormanInstance.storage();
-                    const finalDoormanUnstakeLambda     = await doormanStorage.lambdaLedger.get(lambdaName);
+                    const finalDoormanUnstakeLambda     = await getStorageMapValue(doormanStorage, 'lambdaLedger', lambdaName);
 
                     // Assertions
                     assert.notStrictEqual(initDoormanUnstakeLambda, finalDoormanUnstakeLambda);
@@ -3095,7 +3095,7 @@ describe('Governance proxy lambdas tests', async () => {
                     treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
                     const lambdaName                    = "lambdaUnstake";
                     const newTreasuryUnstakeLambda      = doormanLambdas.lambdaNewUnstake;
-                    const initTreasuryUnstakeLambda     = await treasuryFactoryStorage.treasuryLambdaLedger.get(lambdaName);
+                    const initTreasuryUnstakeLambda     = await getStorageMapValue(treasuryFactoryStorage, 'treasuryLambdaLedger', lambdaName);
                     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -3114,7 +3114,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
-                    const finalTreasuryFactoryUnstakeLambda = await treasuryFactoryStorage.treasuryLambdaLedger.get(lambdaName);
+                    const finalTreasuryFactoryUnstakeLambda = await getStorageMapValue(treasuryFactoryStorage, 'treasuryLambdaLedger', lambdaName);
 
                     // Assertions
                     assert.notStrictEqual(initTreasuryUnstakeLambda, finalTreasuryFactoryUnstakeLambda);
@@ -3151,7 +3151,7 @@ describe('Governance proxy lambdas tests', async () => {
                         }),
                         'ascii',
                     ).toString('hex');
-                    const initDoormanMetadata           = await doormanStorage.metadata.get(metadataKey);
+                    const initDoormanMetadata           = await getStorageMapValue(doormanStorage, 'metadata', metadataKey);
                     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -3170,7 +3170,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     doormanStorage                      = await doormanInstance.storage();
-                    const finalDoormanMetadata          = await doormanStorage.metadata.get(metadataKey);
+                    const finalDoormanMetadata          = await getStorageMapValue(doormanStorage, 'metadata', metadataKey);
 
                     // Assertions
                     assert.notStrictEqual(initDoormanMetadata, finalDoormanMetadata);
@@ -3186,7 +3186,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // Initial values
                     doormanStorage                      = await doormanInstance.storage();
                     const whitelistContractAddress      = bob.pkh;
-                    const initDoormanWhitelistContract  = await doormanStorage.whitelistContracts.get(whitelistContractAddress);
+                    const initDoormanWhitelistContract  = await getStorageMapValue(doormanStorage, 'whitelistContracts', whitelistContractAddress);
                     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -3205,7 +3205,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     doormanStorage                      = await doormanInstance.storage();
-                    const finalDoormanWhitelistContract = await doormanStorage.whitelistContracts.get(whitelistContractAddress);
+                    const finalDoormanWhitelistContract = await getStorageMapValue(doormanStorage, 'whitelistContracts', whitelistContractAddress);
 
                     // Assertions
                     assert.strictEqual(initDoormanWhitelistContract, undefined);
@@ -3222,7 +3222,7 @@ describe('Governance proxy lambdas tests', async () => {
                     doormanStorage                      = await doormanInstance.storage();
                     const generalContractName           = "test";
                     const generalContractAddress        = bob.pkh;
-                    const initDoormanGeneralContract    = await doormanStorage.generalContracts.get(generalContractName);
+                    const initDoormanGeneralContract    = await getStorageMapValue(doormanStorage, 'generalContracts', generalContractName);
                     
                     // Operation
                     lambdaFunction                = await createLambdaBytes(
@@ -3242,7 +3242,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     doormanStorage                      = await doormanInstance.storage();
-                    const finalDoormanGeneralContract   = await doormanStorage.generalContracts.get(generalContractName);
+                    const finalDoormanGeneralContract   = await getStorageMapValue(doormanStorage, 'generalContracts', generalContractName);
 
                     // Assertions
                     assert.notStrictEqual(initDoormanGeneralContract, finalDoormanGeneralContract);
@@ -3258,7 +3258,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // Initial values
                     treasuryFactoryStorage                              = await treasuryFactoryInstance.storage();
                     const whitelistTokenContractAddress                 = bob.pkh;
-                    const initTreasuryFactoryWhitelistTokenContract     = await treasuryFactoryStorage.whitelistTokenContracts.get(whitelistTokenContractAddress);
+                    const initTreasuryFactoryWhitelistTokenContract     = await getStorageMapValue(treasuryFactoryStorage, 'whitelistTokenContracts', whitelistTokenContractAddress);
                     
                     // Operation
                     lambdaFunction                                = await createLambdaBytes(
@@ -3277,7 +3277,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     treasuryFactoryStorage                              = await treasuryFactoryInstance.storage();
-                    const finalTreasuryFactoryWhitelistTokenContract    = await treasuryFactoryStorage.whitelistTokenContracts.get(whitelistTokenContractAddress);
+                    const finalTreasuryFactoryWhitelistTokenContract    = await getStorageMapValue(treasuryFactoryStorage, 'whitelistTokenContracts', whitelistTokenContractAddress);
 
                     // Assertions
                     assert.notStrictEqual(initTreasuryFactoryWhitelistTokenContract, finalTreasuryFactoryWhitelistTokenContract);
@@ -3369,7 +3369,7 @@ describe('Governance proxy lambdas tests', async () => {
                 // Final values
                 governanceProxyStorage       = await governanceProxyInstance.storage();            
 
-                const updatedData       = await governanceProxyStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(governanceProxyStorage, 'metadata', key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -3391,14 +3391,14 @@ describe('Governance proxy lambdas tests', async () => {
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
                 mistakenTransferOperation = await mistakenTransferFa2Token(governanceProxyInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -3467,7 +3467,7 @@ describe('Governance proxy lambdas tests', async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 governanceProxyStorage  = await governanceProxyInstance.storage();   
-                const initialMetadata   = await governanceProxyStorage.metadata.get(key);
+                const initialMetadata   = await getStorageMapValue(governanceProxyStorage, 'metadata', key);
 
                 // Operation
                 const updateOperation = await governanceProxyInstance.methods.updateMetadata(key, hash);
@@ -3475,7 +3475,7 @@ describe('Governance proxy lambdas tests', async () => {
 
                 // Final values
                 governanceProxyStorage  = await governanceProxyInstance.storage();            
-                const updatedData       = await governanceProxyStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(governanceProxyStorage, 'metadata', key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);

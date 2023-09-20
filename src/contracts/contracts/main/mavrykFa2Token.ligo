@@ -108,12 +108,12 @@ function checkOperator(const owner : ownerType; const token_id : tokenIdType; co
 
 
 // mergeOperations helper function - used in transfer entrypoint
-function mergeOperations(const first : list (operation); var second : list (operation)) : list (operation) is 
-block{
-    for operation in list first block{
-        second  := operation # second
-    }
-} with(second)
+function mergeOperations(const first : list (operation); const second : list (operation)) : list (operation) is 
+List.fold( 
+    function(const operations : list(operation); const operation : operation) : list(operation) is operation # operations,
+    first,
+    second
+)
 
 
 
@@ -267,7 +267,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams : transferActionType; var s : mavrykFa2TokenStorageType) : return is
+function mistakenTransfer(const destinationTypes : transferActionType; var s : mavrykFa2TokenStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -281,9 +281,7 @@ block {
     var operations : list(operation) := nil;
 
     // Create transfer operations (transferOperationFold in transferHelpers)
-    for transferParams in list destinationParams block {
-        operations := transferOperationFold(transferParams, operations);
-    }
+    operations := List.fold_right(transferOperationFold, destinationTypes, operations)
 
 } with (operations, s)
 
@@ -354,19 +352,11 @@ block{
             } with accumulator with record[ledger=updatedLedger];
 
             const updatedOperations : list(operation) = (nil: list(operation));
-            var updatedStorage : mavrykFa2TokenStorageType := account.1;
-            for destination in list txs block {
-                updatedStorage  := transferTokens(updatedStorage, destination);
-            }
+            const updatedStorage : mavrykFa2TokenStorageType = List.fold(transferTokens, txs, account.1);
 
-        } with (mergeOperations(updatedOperations,account.0), updatedStorage);
-    
-    var return : return    := ((nil: list(operation)), s);
-    for transferParam in list transferParams block{
-        return  := makeTransfer(return, transferParam);
-    }
+        } with (mergeOperations(updatedOperations,account.0), updatedStorage)
 
-} with return
+} with List.fold(makeTransfer, transferParams, ((nil: list(operation)), s))
 
 
 
@@ -401,13 +391,16 @@ block{
 function updateOperators(const updateOperatorsParams : updateOperatorsType; const s : mavrykFa2TokenStorageType) : return is
 block{
 
-    var updatedOperators : operatorsType := s.operators;
-    for updateOperator in list updateOperatorsParams block {
-        updatedOperators := case updateOperator of [
-                Add_operator (param)    -> addOperator(param, updatedOperators)
-            |   Remove_operator (param) -> removeOperator(param, updatedOperators)
-        ]
-    };
+    var updatedOperators : operatorsType := List.fold(
+        function(const operators : operatorsType; const updateOperator : updateOperatorVariantType) : operatorsType is
+            case updateOperator of [
+                    Add_operator (param)    -> addOperator(param, operators)
+                |   Remove_operator (param) -> removeOperator(param, operators)
+            ]
+        ,
+        updateOperatorsParams,
+        s.operators
+    )
 
 } with (noOperations, s with record[operators=updatedOperators])
 
@@ -486,7 +479,7 @@ block {
 function main (const action : action; const s : mavrykFa2TokenStorageType) : return is
 block{
 
-    verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // // entrypoints should not receive any mav amount  
 
 } with(
     

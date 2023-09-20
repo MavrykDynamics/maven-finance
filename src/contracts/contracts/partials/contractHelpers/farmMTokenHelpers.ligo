@@ -443,13 +443,12 @@ block {
 
 
 
-function updateBalanceWithMTokenAccrual(const depositorRecord : depositorRecordType; const latestTokenRewardIndex : nat) : depositorRecordType is
+function updateBalanceWithMTokenAccrual(var depositorRecord : depositorRecordType; const latestTokenRewardIndex : nat) : depositorRecordType is
 block {
 
     // Get depositor record variables
-    var updatedDepositorRecord : depositorRecordType    := depositorRecord;
-    const userBalance       : nat                       = updatedDepositorRecord.balance;
-    const userRewardIndex   : nat                       = updatedDepositorRecord.tokenRewardIndex;
+    const userBalance       : nat = depositorRecord.balance;
+    const userRewardIndex   : nat = depositorRecord.tokenRewardIndex;
     
     if userBalance > 0n then {
         // increment token balance with calculated additional rewards 
@@ -457,16 +456,16 @@ block {
         const newUserBalance    : nat = userBalance + additionalRewards;
 
         // update depositor balance with accrued mToken balance and latest token reward index
-        updatedDepositorRecord.balance      := newUserBalance;
+        depositorRecord.balance           := newUserBalance;
     } else skip;
 
-    updatedDepositorRecord.tokenRewardIndex := latestTokenRewardIndex;
+    depositorRecord.tokenRewardIndex  := latestTokenRewardIndex;
 
-} with updatedDepositorRecord
+} with depositorRecord
 
 
 // helper function to update depositor's unclaimed rewards
-function updateUnclaimedRewards(const depositorRecord : depositorRecordType; var s : farmMTokenStorageType) : (farmMTokenStorageType * depositorRecordType) is
+function updateUnclaimedRewards(var depositorRecord : depositorRecordType; var s : farmMTokenStorageType) : (farmMTokenStorageType * depositorRecordType) is
 block{
 
     // Compute depositor reward
@@ -474,17 +473,16 @@ block{
     //  -   check that user's participationRewardsPerShare does not exceed farm's accumulatedRewardsPerShare
     //  -   calculate total user's reward based on currentMvkPerShare multiplied by his balance
 
-    var updatedDepositorRecord : depositorRecordType    := depositorRecord;
-    const accumulatedRewardsPerShareStart : tokenBalanceType = updatedDepositorRecord.participationRewardsPerShare;
+    const accumulatedRewardsPerShareStart : tokenBalanceType = depositorRecord.participationRewardsPerShare;
     const accumulatedRewardsPerShareEnd : tokenBalanceType = s.accumulatedRewardsPerShare;
     if accumulatedRewardsPerShareStart > accumulatedRewardsPerShareEnd then failwith(error_CALCULATION_ERROR) else skip;
     const currentMvkPerShare = abs(accumulatedRewardsPerShareEnd - accumulatedRewardsPerShareStart);
-    const depositorReward = (currentMvkPerShare * updatedDepositorRecord.balance) / fixedPointAccuracy;
+    const depositorReward = (currentMvkPerShare * depositorRecord.balance) / fixedPointAccuracy;
 
     // Update user's unclaimed rewards and participationRewardsPerShare
-    const unclaimedRewards : nat = updatedDepositorRecord.unclaimedRewards;
-    updatedDepositorRecord.unclaimedRewards                := unclaimedRewards + depositorReward;
-    updatedDepositorRecord.participationRewardsPerShare    := accumulatedRewardsPerShareEnd;
+    const unclaimedRewards : nat = depositorRecord.unclaimedRewards;
+    depositorRecord.unclaimedRewards                := unclaimedRewards + depositorReward;
+    depositorRecord.participationRewardsPerShare    := accumulatedRewardsPerShareEnd;
 
     // Update paid and unpaid rewards in farm storage 
     //  -   check that user's reward does not exceed total unpaid claimed rewards on the farm
@@ -494,7 +492,7 @@ block{
         paid   = s.claimedRewards.paid + depositorReward;
     ];
 
-} with (s, updatedDepositorRecord)
+} with (s, depositorRecord)
 
 // ------------------------------------------------------------------------------
 // Farm Helper Functions End
@@ -511,7 +509,7 @@ function unpackLambda(const lambdaBytes : bytes; const farmLambdaAction : farmLa
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(farmUnpackLambdaFunctionType)) of [
-            Some(f) -> f((farmLambdaAction, s))
+            Some(f) -> f(farmLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

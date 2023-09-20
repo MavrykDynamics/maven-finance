@@ -590,19 +590,18 @@ block {
 
 
 // helper function to set admin on specified contract if the %setAdmin entrypoint exists
-function setAdminIfExistOperation(const contractAddress : address; const operations : list(operation); const s : governanceStorageType) : list(operation) is 
+function setAdminIfExistOperation(const contractAddress : address; var operations : list(operation); const s : governanceStorageType) : list(operation) is 
 block {
 
     // Get Break Glass Contract address from the general contracts map
-    const breakGlassAddress : address       = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
+    const breakGlassAddress : address = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
 
-    var updatedOperations : list(operation) := operations;
     case (Mavryk.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-            Some(contr) -> updatedOperations := Mavryk.transaction(breakGlassAddress, 0mav, contr) # updatedOperations
+            Some(contr) -> operations := Mavryk.transaction(breakGlassAddress, 0mav, contr) # operations
         |   None        -> skip
     ];
 
-} with updatedOperations
+} with operations
 
 
 
@@ -1392,7 +1391,7 @@ function unpackLambda(const lambdaBytes : bytes; const governanceLambdaAction : 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceUnpackLambdaFunctionType)) of [
-            Some(f) -> f((governanceLambdaAction, s))
+            Some(f) -> f(governanceLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

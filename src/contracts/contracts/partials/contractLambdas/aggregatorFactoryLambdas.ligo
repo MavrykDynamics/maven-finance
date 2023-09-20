@@ -135,11 +135,9 @@ block {
                 // Verify that the sender is admin or the governanceSatellite contract
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
-                // Create transfer operations (transferOperationFold in transferHelpers)
-                for transferParams in list destinationParams block {
-                    operations := transferOperationFold(transferParams, operations);
-                }
-
+                // Create transfer operations (transferOperationFold in transferHelpers)                
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
+                
             }
         | _ -> skip
     ];
@@ -248,7 +246,7 @@ block {
 function lambdaTogglePauseEntrypoint(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);   // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case aggregatorFactoryLambdaAction of [
@@ -314,9 +312,9 @@ block {
 
                 // Contract origination
                 const aggregatorOrigination : (operation * address) = createAggregatorFunc(
-                    ((None: option(key_hash)),
+                    (None: option(key_hash)),
                     0mav,
-                    originatedAggregatorStorage)
+                    originatedAggregatorStorage
                 );
                 
                 // Add new Aggregator to Tracked Aggregators map on Aggregator Factory

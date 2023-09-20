@@ -284,7 +284,7 @@ function unpackLambda(const lambdaBytes : bytes; const emergencyGovernanceLambda
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(emergencyGovernanceUnpackLambdaFunctionType)) of [
-            Some(f) -> f((emergencyGovernanceLambdaAction, s))
+            Some(f) -> f(emergencyGovernanceLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

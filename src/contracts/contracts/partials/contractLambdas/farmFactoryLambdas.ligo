@@ -140,10 +140,8 @@ block {
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
-                for transferParams in list destinationParams block {
-                    operations := transferOperationFold(transferParams, operations);
-                }
-                 
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
+                
             }
         |   _ -> skip
     ];
@@ -318,9 +316,9 @@ block{
 
                 // Create operation to originate Farm
                 const farmOrigination : (operation * address) = createFarmFunc(
-                    ((None: option(key_hash)), 
+                    (None: option(key_hash)), 
                     0mav,
-                    originatedFarmStorage)
+                    originatedFarmStorage
                 );
 
                 // Add newly created Farm to tracked Farms
@@ -382,9 +380,9 @@ block{
 
                 // Create operation to originate Farm mToken
                 const farmMTokenOrigination : (operation * address) = createFarmMTokenFunc(
-                    ((None: option(key_hash)), 
+                    (None: option(key_hash)), 
                     0mav,
-                    originatedFarmMTokenStorage)
+                    originatedFarmMTokenStorage
                 );
 
                 // Add newly created Farm to tracked Farms

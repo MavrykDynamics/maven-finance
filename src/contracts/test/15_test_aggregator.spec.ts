@@ -182,22 +182,22 @@ describe('Aggregator Tests', async () => {
         
         await signerFactory(tezos, adminSk);
 
-        if(await aggregatorStorage.oracleLedger.get(satelliteOne) === undefined){
+        if(await getStorageMapValue(aggregatorStorage, 'oracleLedger', satelliteOne) === undefined){
             addOracleOperation = await aggregatorInstance.methods.addOracle(satelliteOne).send();
             await addOracleOperation.confirmation();
         }
 
-        if(await aggregatorStorage.oracleLedger.get(satelliteTwo) === undefined){
+        if(await getStorageMapValue(aggregatorStorage, 'oracleLedger', satelliteTwo) === undefined){
             addOracleOperation = await aggregatorInstance.methods.addOracle(satelliteTwo).send();
             await addOracleOperation.confirmation();
         }
 
-        if(await aggregatorStorage.oracleLedger.get(satelliteFour) === undefined){
+        if(await getStorageMapValue(aggregatorStorage, 'oracleLedger', satelliteFour) === undefined){
             addOracleOperation = await aggregatorInstance.methods.addOracle(satelliteFour).send();
             await addOracleOperation.confirmation();
         }
 
-        if(await aggregatorStorage.oracleLedger.get(satelliteFive) === undefined){
+        if(await getStorageMapValue(aggregatorStorage, 'oracleLedger', satelliteFive) === undefined){
             addOracleOperation = await aggregatorInstance.methods.addOracle(satelliteFive).send();
             await addOracleOperation.confirmation();
         }
@@ -243,7 +243,7 @@ describe('Aggregator Tests', async () => {
                 aggregatorStorage           = await aggregatorInstance.storage();
                 
                 // Assertions
-                assert.notStrictEqual(await aggregatorStorage.oracleLedger.get(oracleAddress),undefined);
+                assert.notStrictEqual(await getStorageMapValue(aggregatorStorage, 'oracleLedger', oracleAddress),undefined);
             } catch(e){
                 console.dir(e, {depth: 5})
             }
@@ -295,7 +295,7 @@ describe('Aggregator Tests', async () => {
                 
                 // Final values
                 aggregatorStorage       = await aggregatorInstance.storage();
-                const susieOracleInfo   = await aggregatorStorage.oracleLedger.get(oracleAddress);
+                const susieOracleInfo   = await getStorageMapValue(aggregatorStorage, 'oracleLedger', oracleAddress);
                 
                 const publicKey = susieOracleInfo.oraclePublicKey;
                 const peerId = susieOracleInfo.oraclePeerId;
@@ -342,7 +342,7 @@ describe('Aggregator Tests', async () => {
                 aggregatorStorage           = await aggregatorInstance.storage();
 
                 // Assertion
-                assert.strictEqual(await aggregatorStorage.oracleLedger.get(oracleAddress), undefined);
+                assert.strictEqual(await getStorageMapValue(aggregatorStorage, 'oracleLedger', oracleAddress), undefined);
             } catch(e){
                 console.dir(e, {depth: 5})
             }
@@ -382,7 +382,7 @@ describe('Aggregator Tests', async () => {
                 var totalVotingPower                    = 0;
                 for (const { oracle, data } of observations) {
                     // Get oracle voting power
-                    const satelliteRecord               = await delegationStorage.satelliteLedger.get(oracle);
+                    const satelliteRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', oracle);
                     const votingPower                   = satelliteRecord.totalDelegatedAmount.toNumber() + satelliteRecord.stakedMvkBalance.toNumber();
                     totalVotingPower                    += votingPower;
                     oracleVotingPowers.set(oracle, votingPower)
@@ -397,9 +397,9 @@ describe('Aggregator Tests', async () => {
 
                 };
                 const signatures                        = new MichelsonMap<string, string>();
-                var startOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
+                var startOscarSMvkRewards               = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteFour);
                 startOscarSMvkRewards                   = startOscarSMvkRewards ? startOscarSMvkRewards.toNumber() : 0;
-                var startOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
+                var startOscarXtzRewards                = await getStorageMapValue(aggregatorStorage, 'oracleRewardXtz', satelliteFour);
                 startOscarXtzRewards                    = startOscarXtzRewards ? startOscarXtzRewards.toNumber() : 0;
                 const smvkReward                        = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
                 const xtzReward                         = aggregatorStorage.config.rewardAmountXtz.toNumber();
@@ -421,8 +421,8 @@ describe('Aggregator Tests', async () => {
 
                 // Final values
                 aggregatorStorage                       = await aggregatorInstance.storage();
-                const endOscarSMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
-                const endOscarXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
+                const endOscarSMvkRewards             = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteFour);
+                const endOscarXtzRewards              = await getStorageMapValue(aggregatorStorage, 'oracleRewardXtz', satelliteFour);
                 const expectedMaintainerSMvkReward      = Math.trunc(rewardRatio * smvkReward) + startOscarSMvkRewards;
                 const expectedMaintainerXtzReward      = xtzReward + startOscarXtzRewards;
 
@@ -475,7 +475,7 @@ describe('Aggregator Tests', async () => {
                 var totalVotingPower                    = 0;
                 for (const { oracle, data } of observations) {
                     // Get oracle voting power
-                    const satelliteRecord               = await delegationStorage.satelliteLedger.get(oracle);
+                    const satelliteRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', oracle);
                     const votingPower                   = satelliteRecord.totalDelegatedAmount.toNumber() + satelliteRecord.stakedMvkBalance.toNumber();
                     totalVotingPower                    += votingPower;
                     oracleVotingPowers.set(oracle, votingPower)
@@ -490,8 +490,8 @@ describe('Aggregator Tests', async () => {
 
                 };
                 const signatures                        = new MichelsonMap<string, string>();
-                const startOscarSMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
-                const startOscarXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
+                const startOscarSMvkRewards           = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteFour);
+                const startOscarXtzRewards            = await getStorageMapValue(aggregatorStorage, 'oracleRewardXtz', satelliteFour);
                 const smvkReward                        = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
                 const xtzReward                         = aggregatorStorage.config.rewardAmountXtz.toNumber();
                 const rewardRatio                       = oracleVotingPowers.get(satelliteFour) / totalVotingPower;
@@ -512,8 +512,8 @@ describe('Aggregator Tests', async () => {
 
                 // Final values
                 aggregatorStorage                       = await aggregatorInstance.storage();
-                const endOscarSMvkRewards             = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
-                const endOscarXtzRewards              = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
+                const endOscarSMvkRewards             = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteFour);
+                const endOscarXtzRewards              = await getStorageMapValue(aggregatorStorage, 'oracleRewardXtz', satelliteFour);
                 const expectedMaintainerSMvkReward      = Math.trunc(startOscarSMvkRewards.toNumber() + rewardRatio * smvkReward);
                 const expectedMaintainerXtzReward       = startOscarXtzRewards.toNumber() + xtzReward;
 
@@ -555,7 +555,7 @@ describe('Aggregator Tests', async () => {
                 var totalVotingPower                    = 0;
                 for (const { oracle, data } of observations) {
                     // Get oracle voting power
-                    const satelliteRecord               = await delegationStorage.satelliteLedger.get(oracle);
+                    const satelliteRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', oracle);
                     const votingPower                   = satelliteRecord.totalDelegatedAmount.toNumber() + satelliteRecord.stakedMvkBalance.toNumber();
                     totalVotingPower                    += votingPower;
                     oracleVotingPowers.set(oracle, votingPower)
@@ -570,8 +570,8 @@ describe('Aggregator Tests', async () => {
 
                 };
                 const signatures                        = new MichelsonMap<string, string>();
-                const startOscarSMvkRewards           = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
-                const startOscarXtzRewards            = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
+                const startOscarSMvkRewards           = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteFour);
+                const startOscarXtzRewards            = await getStorageMapValue(aggregatorStorage, 'oracleRewardXtz', satelliteFour);
                 const smvkReward                        = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
                 const xtzReward                         = aggregatorStorage.config.rewardAmountXtz.toNumber();
                 const rewardRatio                       = oracleVotingPowers.get(satelliteFour) / totalVotingPower;
@@ -592,8 +592,8 @@ describe('Aggregator Tests', async () => {
 
                 // Final values
                 aggregatorStorage                       = await aggregatorInstance.storage();
-                const endOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
-                const endOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
+                const endOscarSMvkRewards               = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteFour);
+                const endOscarXtzRewards                = await getStorageMapValue(aggregatorStorage, 'oracleRewardXtz', satelliteFour);
                 const expectedMaintainerSMvkReward      = Math.trunc(startOscarSMvkRewards.toNumber() + rewardRatio * smvkReward);
                 const expectedMaintainerXtzReward       = xtzReward + startOscarXtzRewards.toNumber();
 
@@ -919,7 +919,7 @@ describe('Aggregator Tests', async () => {
                 var totalVotingPower                    = 0;
                 for (const { oracle, data } of observations) {
                     // Get oracle voting power
-                    const satelliteRecord               = await delegationStorage.satelliteLedger.get(oracle);
+                    const satelliteRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', oracle);
                     const votingPower                   = satelliteRecord.totalDelegatedAmount.toNumber() + satelliteRecord.stakedMvkBalance.toNumber();
                     totalVotingPower                    += votingPower;
                     oracleVotingPowers.set(oracle, votingPower)
@@ -934,12 +934,12 @@ describe('Aggregator Tests', async () => {
 
                 };
                 const signatures                        = new MichelsonMap<string, string>();
-                var startOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
+                var startOscarSMvkRewards               = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteFour);
                 startOscarSMvkRewards                   = startOscarSMvkRewards ? startOscarSMvkRewards.toNumber() : 0;
-                var startOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
+                var startOscarXtzRewards                = await getStorageMapValue(aggregatorStorage, 'oracleRewardXtz', satelliteFour);
                 startOscarXtzRewards                    = startOscarXtzRewards ? startOscarXtzRewards.toNumber() : 0;
                 const startLastCompletedData            = aggregatorStorage.lastCompletedData;
-                const startOracleInLedger               = await aggregatorStorage.oracleLedger.get(satelliteFour);
+                const startOracleInLedger               = await getStorageMapValue(aggregatorStorage, 'oracleLedger', satelliteFour);
     
                 // Sign observations
                 await signerFactory(tezos, satelliteOneSk);
@@ -961,10 +961,10 @@ describe('Aggregator Tests', async () => {
 
                 // Final values
                 aggregatorStorage                       = await aggregatorInstance.storage();
-                const endOscarSMvkRewards               = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
-                const endOscarXtzRewards                = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
+                const endOscarSMvkRewards               = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteFour);
+                const endOscarXtzRewards                = await getStorageMapValue(aggregatorStorage, 'oracleRewardXtz', satelliteFour);
                 const endLastCompletedData              = aggregatorStorage.lastCompletedData;
-                const endOracleInLedger                 = await aggregatorStorage.oracleLedger.get(satelliteFour);
+                const endOracleInLedger                 = await getStorageMapValue(aggregatorStorage, 'oracleLedger', satelliteFour);
 
                 // Assertions
                 assert.equal(endOscarSMvkRewards.toNumber(), startOscarSMvkRewards);
@@ -986,7 +986,7 @@ describe('Aggregator Tests', async () => {
                 delegationStorage               = await delegationInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
                 const minimumRequired           = delegationStorage.config.minimumStakedMvkBalance.toNumber();
-                const smvkBalanceRecord         = await doormanStorage.userStakeBalanceLedger.get(satelliteFour);
+                const smvkBalanceRecord         = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteFour);
                 const smvkBalance               = smvkBalanceRecord.balance.toNumber();
                 if(smvkBalance < minimumRequired){
                     const stakeAmount       = minimumRequired - smvkBalance + MVK();
@@ -1047,7 +1047,7 @@ describe('Aggregator Tests', async () => {
                 var totalVotingPower                        = 0;
                 for (const { oracle, data } of observations) {
                     // Get oracle voting power
-                    const satelliteRecord               = await delegationStorage.satelliteLedger.get(oracle);
+                    const satelliteRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', oracle);
                     const votingPower                   = satelliteRecord.totalDelegatedAmount.toNumber() + satelliteRecord.stakedMvkBalance.toNumber();
                     totalVotingPower                    += votingPower;
                     oracleVotingPowers.set(oracle, votingPower)
@@ -1059,12 +1059,12 @@ describe('Aggregator Tests', async () => {
                 const eveStakedMvk                          = oracleVotingPowers.get(satelliteTwo);
                 const oscarStakedMvk                      = oracleVotingPowers.get(satelliteFour);
                 const rewardAmountStakedMvk                 = aggregatorStorage.config.rewardAmountStakedMvk.toNumber();
-                const aliceSMvkRewards                        = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteOne);
-                const eveSMvkRewards                        = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteTwo);
-                const oscarSMvkRewards                    = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
-                const beforeAliceRewardsLedger                = await delegationStorage.satelliteRewardsLedger.get(satelliteOne);
-                const beforeEveRewardsLedger                = await delegationStorage.satelliteRewardsLedger.get(satelliteTwo);
-                const beforeOscarRewardsLedger            = await delegationStorage.satelliteRewardsLedger.get(satelliteFour);
+                const aliceSMvkRewards                        = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteOne);
+                const eveSMvkRewards                        = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteTwo);
+                const oscarSMvkRewards                    = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteFour);
+                const beforeAliceRewardsLedger                = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne);
+                const beforeEveRewardsLedger                = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteTwo);
+                const beforeOscarRewardsLedger            = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteFour);
     
                 // Operation
                 withdrawRewardOperation          = await aggregatorInstance.methods.withdrawRewardStakedMvk(satelliteOne).send();
@@ -1079,12 +1079,12 @@ describe('Aggregator Tests', async () => {
                 // Final values
                 aggregatorStorage                           = await aggregatorInstance.storage();
                 delegationStorage                           = await delegationInstance.storage();
-                const aliceRewardsLedger                      = await delegationStorage.satelliteRewardsLedger.get(satelliteOne);
-                const eveRewardsLedger                      = await delegationStorage.satelliteRewardsLedger.get(satelliteTwo);
-                const oscarRewardsLedger                  = await delegationStorage.satelliteRewardsLedger.get(satelliteFour);
-                const resetAliceRewardStakedMvk               = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteOne);
-                const resetEveRewardStakedMvk               = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteTwo);
-                const resetOscarRewardStakedMvk           = await aggregatorStorage.oracleRewardStakedMvk.get(satelliteFour);
+                const aliceRewardsLedger                      = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne);
+                const eveRewardsLedger                      = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteTwo);
+                const oscarRewardsLedger                  = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteFour);
+                const resetAliceRewardStakedMvk               = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteOne);
+                const resetEveRewardStakedMvk               = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteTwo);
+                const resetOscarRewardStakedMvk           = await getStorageMapValue(aggregatorStorage, 'oracleRewardStakedMvk', satelliteFour);
                 const finalAliceStakedMvkRewardsAfterFees     = aliceSatelliteFee * aliceSMvkRewards / 10000;
                 const finalEveStakedMvkRewardsAfterFees     = eveSatelliteFee * eveSMvkRewards / 10000;
                 const finalOscarStakedMvkRewardsAfterFees = oscarSatelliteFee * oscarSMvkRewards / 10000;
@@ -1112,7 +1112,7 @@ describe('Aggregator Tests', async () => {
             try {
                 // Initial values
                 aggregatorStorage                           = await aggregatorInstance.storage();
-                const oraclePendingRewards                  = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
+                const oraclePendingRewards                  = await getStorageMapValue(aggregatorStorage, 'oracleRewardXtz', satelliteFour);
                 const beforeOscarTezBalance                 = await utils.tezos.tz.getBalance(satelliteFour);
                 const beforeEveTezBalance                   = await utils.tezos.tz.getBalance(satelliteTwo);
     
@@ -1125,8 +1125,8 @@ describe('Aggregator Tests', async () => {
     
                 // Final values
                 aggregatorStorage                           = await aggregatorInstance.storage();
-                const resetOscarRewardXtz                 = await aggregatorStorage.oracleRewardXtz.get(satelliteFour);
-                const resetEveRewardXtz                     = await aggregatorStorage.oracleRewardXtz.get(satelliteTwo);
+                const resetOscarRewardXtz                 = await getStorageMapValue(aggregatorStorage, 'oracleRewardXtz', satelliteFour);
+                const resetEveRewardXtz                     = await getStorageMapValue(aggregatorStorage, 'oracleRewardXtz', satelliteTwo);
                 const oscarTezBalance                     = await utils.tezos.tz.getBalance(satelliteFour);
                 const eveTezBalance                         = await utils.tezos.tz.getBalance(satelliteTwo);
     
@@ -1216,8 +1216,8 @@ describe('Aggregator Tests', async () => {
 
                 const oldName                   = aggregatorStorage.name;
                 const newName                   = oldName === "name1" ? "name2" : "name1";
-                const startOldReference         = await governanceSatelliteStorage.aggregatorLedger.get(oldName);
-                const startNewReference         = await governanceSatelliteStorage.aggregatorLedger.get(newName);
+                const startOldReference         = await getStorageMapValue(governanceSatelliteStorage, 'aggregatorLedger', oldName);
+                const startNewReference         = await getStorageMapValue(governanceSatelliteStorage, 'aggregatorLedger', newName);
 
                 // Operation
                 const operation     = await aggregatorInstance.methods.setName(newName).send();
@@ -1226,8 +1226,8 @@ describe('Aggregator Tests', async () => {
                 // Final values
                 governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
                 aggregatorStorage               = await aggregatorInstance.storage();
-                const endOldReference           = await governanceSatelliteStorage.aggregatorLedger.get(oldName);
-                const endNewReference           = await governanceSatelliteStorage.aggregatorLedger.get(newName);
+                const endOldReference           = await getStorageMapValue(governanceSatelliteStorage, 'aggregatorLedger', oldName);
+                const endNewReference           = await getStorageMapValue(governanceSatelliteStorage, 'aggregatorLedger', newName);
 
                 // Assertion
                 assert.strictEqual(aggregatorStorage.name, newName);
@@ -1253,7 +1253,7 @@ describe('Aggregator Tests', async () => {
                 // Final values
                 aggregatorStorage       = await aggregatorInstance.storage();            
 
-                const updatedData       = await aggregatorStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(aggregatorStorage, 'metadata', key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -1578,7 +1578,7 @@ describe('Aggregator Tests', async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 aggregatorStorage = await aggregatorInstance.storage();   
-                const initialMetadata    = await aggregatorStorage.metadata.get(key);
+                const initialMetadata    = await getStorageMapValue(aggregatorStorage, 'metadata', key);
 
                 // Operation
                 const updateOperation = await aggregatorInstance.methods.updateMetadata(key, hash);
@@ -1586,7 +1586,7 @@ describe('Aggregator Tests', async () => {
 
                 // Final values
                 aggregatorStorage = await aggregatorInstance.storage();            
-                const updatedData        = await aggregatorStorage.metadata.get(key);
+                const updatedData        = await getStorageMapValue(aggregatorStorage, 'metadata', key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);

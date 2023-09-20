@@ -50,7 +50,7 @@ type updateGeneralContractsType is [@layout:comb] record [
 ]
 
 type tokenAmountType     is nat
-type tezType             is unit
+type mavType             is unit
 type fa12TokenType       is address
 type fa2TokenType        is [@layout:comb] record [
     tokenContractAddress    : address;
@@ -58,7 +58,7 @@ type fa2TokenType        is [@layout:comb] record [
 ]
 
 type tokenType is
-    |   Tez    of tezType         // unit
+    |   Tez    of mavType         // unit
     |   Fa12   of fa12TokenType   // address
     |   Fa2    of fa2TokenType    // record [ tokenContractAddress : address; tokenId : nat; ]
 

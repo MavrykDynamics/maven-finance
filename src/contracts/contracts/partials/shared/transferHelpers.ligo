@@ -94,8 +94,8 @@ function sendMintMvkAndTransferOperationToTreasury(const contractAddress : addre
 
 
 
-// verify that token is allowed for operation loop
-function verifyTokenAllowedForOperationLoop(const invalidTokenAddress : address; const transferParams : transferActionType; const errorCode : nat) : unit is
+// verify that token is allowed for operation fold
+function verifyTokenAllowedForOperationFold(const invalidTokenAddress : address; const transferParams : transferActionType; const errorCode : nat) : unit is
 block {
 
     for transferDestination in list transferParams block {

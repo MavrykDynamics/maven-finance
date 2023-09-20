@@ -49,7 +49,7 @@ function lambdaSetName(const aggregatorLambdaAction : aggregatorLambdaActionType
 block {
 
     // Steps Overview: 
-    // 1. Check that no tez is sent to this entrypoint
+    // 1. Check that no mav is sent to this entrypoint
     // 2. Check that sender is admin (i.e. Governance Proxy Contract address)
     // 3. Get Aggregator Factory address
     // 4. Get Config from Aggregator Factory through on-chain views, and get aggregatorNameMaxLength variable
@@ -205,10 +205,8 @@ block {
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
-                for transferParams in list destinationParams block {
-                    operations := transferOperationFold(transferParams, operations);
-                }
-
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
+                
             }
         | _ -> skip
     ];
@@ -389,7 +387,7 @@ block{
     // Steps Overview:
     // 1. Standard checks
     //    - Check that %updateData entrypoint is not paused (e.g. glass broken)
-    //    - Check that entrypoint should not receive any tez amount   
+    //    - Check that entrypoint should not receive any mav amount   
     //    - Check that sender is oracle
     //    - Check that satellite is not suspended or banned
     // 2. Verify the observations and signatures maps sizes
@@ -470,7 +468,7 @@ block{
   // Steps Overview:
     // 1. Standard checks
     //    - Check that %withdrawRewardXtz entrypoint is not paused (e.g. glass broken)
-    //    - Check that entrypoint should not receive any tez amount   
+    //    - Check that entrypoint should not receive any mav amount   
     //    - Check that sender is an oracle registered on the aggregator
     //    - Check that satellite is not suspended or banned
     // 2. Get oracle's XTZ reward amount 
@@ -517,7 +515,7 @@ block{
     // Steps Overview:
     // 1. Standard checks
     //    - Check that %withdrawRewardStakedMvk entrypoint is not paused (e.g. glass broken)
-    //    - Check that entrypoint should not receive any tez amount   
+    //    - Check that entrypoint should not receive any mav amount   
     //    - Check that sender is an oracle registered on the aggregator
     //    - Check that satellite is not suspended or banned
     // 2. Get oracle's staked MVK reward amount 

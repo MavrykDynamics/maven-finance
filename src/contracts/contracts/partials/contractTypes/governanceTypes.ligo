@@ -140,7 +140,7 @@ type governanceConfigType is [@layout:comb] record [
     minQuorumPercentage                 : nat;  // minimum quorum percentage to be achieved (in SMVK)
     minYayVotePercentage                : nat;  // minimum yay percentage to be achieved from the quorum SMVK
 
-    proposalSubmissionFeeMutez          : mav;  // e.g. 10 tez per submitted proposal
+    proposalSubmissionFeeMutez          : mav;  // e.g. 10 mav per submitted proposal
     maxProposalsPerSatellite            : nat;  // number of active proposals a satellite can make
 
     blocksPerProposalRound              : nat;  // to determine duration of proposal round

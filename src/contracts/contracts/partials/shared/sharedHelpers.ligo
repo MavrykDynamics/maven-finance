@@ -13,7 +13,7 @@
 
 // helper functions - conversions
 function mumavToNatural(const amt : mav) : nat is amt / 1mumav;
-function naturalToMutez(const amt : nat) : mav is amt * 1mumav;
+function naturalToMumav(const amt : nat) : mav is amt * 1mumav;
 function ceildiv(const numerator : nat; const denominator : nat) is abs( (- numerator) / (int (denominator)) );
 
 
@@ -182,7 +182,7 @@ block {
 
 
 
-// verify that no Mavryk is sent to the entrypoint
+// verify that no Tezos is sent to the entrypoint
 function verifyNoAmountSent(const _p : unit) : unit is
 block {
     

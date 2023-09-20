@@ -20,6 +20,7 @@ import contractDeployments from './contractDeployments.json'
 
 import { bob, eve } from "../scripts/sandbox/accounts";
 import * as helperFunctions from './helpers/helperFunctions'
+import { getStorageMapValue } from "./helpers/helperFunctions";
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -74,7 +75,7 @@ describe("MVK Faucet tests", async () => {
             try{
                 // Admin sends MVK token to the faucet
                 await helperFunctions.signerFactory(tezos, adminSk)
-                const adminEntireMVKBalance = await mvkTokenStorage.ledger.get(admin)
+                const adminEntireMVKBalance = await getStorageMapValue(mvkTokenStorage, 'ledger', admin)
                 const operation             = await mvkTokenInstance.methods.transfer([
                     {
                         from_: admin,
@@ -102,9 +103,9 @@ describe("MVK Faucet tests", async () => {
                 await helperFunctions.signerFactory(tezos, userSk)
                 mvkTokenStorage             = await mvkTokenInstance.storage();
                 mvkFaucetStorage            = await mvkFaucetInstance.storage();
-                const faucetStartBalance    = await mvkTokenStorage.ledger.get(mvkFaucetInstance.address);
-                const userStartBalance      = await mvkTokenStorage.ledger.get(user);
-                const userRequestStartTrace = await mvkFaucetStorage.requesters.get(user);
+                const faucetStartBalance    = await getStorageMapValue(mvkTokenStorage, 'ledger', mvkFaucetInstance.address);
+                const userStartBalance      = await getStorageMapValue(mvkTokenStorage, 'ledger', user);
+                const userRequestStartTrace = await getStorageMapValue(mvkFaucetStorage, 'requesters', user);
 
                 // Operation
                 const operation             = await mvkFaucetInstance.methods.requestMvk().send();
@@ -113,9 +114,9 @@ describe("MVK Faucet tests", async () => {
                 // Final values
                 mvkTokenStorage             = await mvkTokenInstance.storage();
                 mvkFaucetStorage            = await mvkFaucetInstance.storage();
-                const faucetEndBalance      = await mvkTokenStorage.ledger.get(mvkFaucetInstance.address);
-                const userEndBalance        = await mvkTokenStorage.ledger.get(user);
-                const userRequestEndTrace   = await mvkFaucetStorage.requesters.get(user);
+                const faucetEndBalance      = await getStorageMapValue(mvkTokenStorage, 'ledger', mvkFaucetInstance.address);
+                const userEndBalance        = await getStorageMapValue(mvkTokenStorage, 'ledger', user);
+                const userRequestEndTrace   = await getStorageMapValue(mvkFaucetStorage, 'requesters', user);
 
                 // Assertions
                 assert.equal(faucetEndBalance.toNumber(), faucetStartBalance.toNumber() - MVK(1000));
@@ -134,7 +135,7 @@ describe("MVK Faucet tests", async () => {
                 // Initial values
                 await helperFunctions.signerFactory(tezos, userSk)
                 mvkFaucetStorage            = await mvkFaucetInstance.storage();
-                const userRequestTrace      = await mvkFaucetStorage.requesters.get(user);
+                const userRequestTrace      = await getStorageMapValue(mvkFaucetStorage, 'requesters', user);
 
                 // Operation
                 await chai.expect(mvkFaucetInstance.methods.requestMvk().send()).to.be.rejected;

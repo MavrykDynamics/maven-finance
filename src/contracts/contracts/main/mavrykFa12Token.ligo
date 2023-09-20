@@ -218,7 +218,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams : transferActionType; var s : mavrykFa12TokenStorageType) : return is
+function mistakenTransfer(const destinationTypes : transferActionType; var s : mavrykFa12TokenStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -232,9 +232,7 @@ block {
     var operations : list(operation) := nil;
 
     // Create transfer operations (transferOperationFold in transferHelpers)
-    for transferParams in list destinationParams block {
-        operations := transferOperationFold(transferParams, operations);
-    }
+    operations := List.fold_right(transferOperationFold, destinationTypes, operations)
 
 } with (operations, s)
 
@@ -420,7 +418,7 @@ block {
 function main (const action : action; const s : mavrykFa12TokenStorageType) : return is
 block{
 
-    verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // // entrypoints should not receive any mav amount  
 
 } with(
     
