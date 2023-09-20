@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
 
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -32,7 +32,7 @@ block {
 function lambdaSetGovernance(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
 
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -52,7 +52,7 @@ block {
 function lambdaUpdateMetadata(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
     
     case vaultFactoryLambdaAction of [
@@ -74,7 +74,7 @@ block {
 function lambdaUpdateConfig(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is 
 block {
 
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin); // verify that sender is admin 
 
     case vaultFactoryLambdaAction of [
@@ -99,7 +99,7 @@ block {
 function lambdaUpdateWhitelistContracts(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case vaultFactoryLambdaAction of [
@@ -117,7 +117,7 @@ block {
 function lambdaUpdateGeneralContracts(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin); // verify that sender is admin 
     
     case vaultFactoryLambdaAction of [
@@ -139,7 +139,7 @@ block {
     // 1. Check that sender is admin or from the Governance Satellite Contract
     // 2. Create and execute transfer operations based on the params sent
 
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
 
     var operations : list(operation) := nil;
 
@@ -161,10 +161,8 @@ block {
 
                     } with (transferTokenOperation # operationList);
                 
-                for transferParams in list destinationParams block {
-                    operations := transferOperationFold(transferParams, operations);
-                }
-                 
+                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                
             }
         |   _ -> skip
     ];
@@ -189,7 +187,7 @@ block {
     // 1. Check that sender is from Admin or the the Governance Contract
     // 2. Pause entrypoints in Vault Factory
 
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
 
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -219,7 +217,7 @@ block {
     // 1. Check that sender is from Admin or the the Governance Contract
     // 2. Unpause entrypoints in Vault Factory
 
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
 
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -245,7 +243,7 @@ block {
 function lambdaTogglePauseEntrypoint(const vaultFactoryLambdaAction : vaultFactoryLambdaActionType; var s : vaultFactoryStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin); // check that sender is admin
 
     case vaultFactoryLambdaAction of [
@@ -314,9 +312,9 @@ block{
 
                 // originate vault func with delegate option
                 const vaultOrigination : (operation * address) = createVaultFunc(
-                    (vaultDelegate,  
+                    vaultDelegate,  
                     Mavryk.get_amount(),                       
-                    originateVaultStorage)
+                    originateVaultStorage
                 );
 
                 // get vault address
@@ -342,8 +340,8 @@ block{
                     const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, lendingControllerAddress);
                     const tokenType : tokenType = collateralTokenRecord.tokenType;
 
-                    // if tez is sent, check that it matches the amount listed
-                    if tokenName = "tez" then {
+                    // if mav is sent, check that it matches the amount listed
+                    if tokenName = "mav" then {
                         if Mavryk.get_amount() = (amount * 1mumav) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
                     } else skip;
 
@@ -356,7 +354,7 @@ block{
                     ) # operationList;
 
                     // process deposit from sender to vault address
-                    if tokenName =/= "tez" then {
+                    if tokenName =/= "mav" then {
                         
                         const processVaultDepositOperation : operation = processVaultCollateralTransfer(
                             Mavryk.get_sender(),         // from_
@@ -369,9 +367,7 @@ block{
 
                 } with operationList;
 
-                for collateralDeposit in list collateralDepositList block {
-                    operations := processNewVaultCollateralDeposit(collateralDeposit, operations);
-                };
+                operations := List.fold_right(processNewVaultCollateralDeposit, collateralDepositList, operations);
 
                 // FILO (First-In, Last-Out) - originate vault first then register vault creation in lending controller
                 operations := registerVaultCreationOperation # operations;

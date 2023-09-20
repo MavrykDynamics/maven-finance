@@ -203,7 +203,7 @@ describe("Treasury Factory tests", async () => {
                 // Final values
                 treasuryFactoryStorage       = await treasuryFactoryInstance.storage();            
 
-                const updatedData       = await treasuryFactoryStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(treasuryFactoryStorage, 'metadata', key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -351,14 +351,14 @@ describe("Treasury Factory tests", async () => {
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
                 mistakenTransferOperation = await mistakenTransferFa2Token(treasuryFactoryInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -637,7 +637,7 @@ describe("Treasury Factory tests", async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 treasuryFactoryStorage = await treasuryFactoryInstance.storage();   
-                const initialMetadata    = await treasuryFactoryStorage.metadata.get(key);
+                const initialMetadata    = await getStorageMapValue(treasuryFactoryStorage, 'metadata', key);
 
                 // Operation
                 const updateOperation = await treasuryFactoryInstance.methods.updateMetadata(key, hash);
@@ -645,7 +645,7 @@ describe("Treasury Factory tests", async () => {
 
                 // Final values
                 treasuryFactoryStorage = await treasuryFactoryInstance.storage();            
-                const updatedData        = await treasuryFactoryStorage.metadata.get(key);
+                const updatedData        = await getStorageMapValue(treasuryFactoryStorage, 'metadata', key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);

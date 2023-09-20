@@ -65,7 +65,7 @@ export class Utils {
 
 }
 
-export const zeroAddress: string = 'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg'
+export const zeroAddress: string = 'mv18Cw7psUrAAPBpXYd9CtCpHg9EgjHP9KTe'
 
 // MVK Formatter
 export const MVK = (value : number = 1) => {

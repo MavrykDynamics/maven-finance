@@ -300,7 +300,7 @@ function unpackLambda(const lambdaBytes : bytes; const farmFactoryLambdaAction :
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(farmFactoryUnpackLambdaFunctionType)) of [
-            Some(f) -> f((farmFactoryLambdaAction, s))
+            Some(f) -> f(farmFactoryLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

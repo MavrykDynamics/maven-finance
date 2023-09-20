@@ -115,7 +115,7 @@ type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType
 function main (const action : treasuryFactoryAction; var s : treasuryFactoryStorageType) : return is
 block{
     
-    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any mav amount  
 
 } with(
 

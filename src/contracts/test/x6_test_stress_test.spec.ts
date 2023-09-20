@@ -110,7 +110,7 @@ describe("Stress tests", async () => {
             for(let accountName in accounts){
                 let account = accounts[accountName];
                 if(ledger.has(account.pkh)){
-                    let balance = await mvkTokenStorage.ledger.get(account.pkh);
+                    let balance = await getStorageMapValue(mvkTokenStorage, 'ledger', account.pkh);
                     if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== admin){
                         // Transfer all funds to bob
                         await signerFactory(tezos, account.sk);
@@ -137,7 +137,7 @@ describe("Stress tests", async () => {
             // Transfer TEZ and MVK for each user
             await signerFactory(tezos, adminSk);
             mvkTokenStorage             = await mvkTokenInstance.storage();
-            const mainUserMVKBalance    = await mvkTokenStorage.ledger.get(admin);
+            const mainUserMVKBalance    = await getStorageMapValue(mvkTokenStorage, 'ledger', admin);
             const batchSize             = 50
             const tezAmount             = 50
             const userAmount            = randomUserAccounts.length;
@@ -218,7 +218,7 @@ describe("Stress tests", async () => {
                     doormanStorage              = await doormanInstance.storage();
                     const accessAmount          = delegationStorage.config.minimumStakedMvkBalance.toNumber() > doormanStorage.config.minMvkAmount.toNumber() ? delegationStorage.config.minimumStakedMvkBalance.toNumber() : doormanStorage.config.minMvkAmount.toNumber();
                     const account: any          = randomUserAccounts[index];
-                    var satelliteRecord         = await delegationStorage.satelliteLedger.get(account.pkh);
+                    var satelliteRecord         = await getStorageMapValue(delegationStorage, 'satelliteLedger', account.pkh);
                     const satelliteName         = account.pkh;
                     const satelliteDescription  = "Test Description";
                     const satelliteImage        = "https://placeholder.com/300";
@@ -309,7 +309,7 @@ describe("Stress tests", async () => {
 
                         // Print the result and the estimations
                         delegationStorage       = await delegationInstance.storage();
-                        satelliteRecord         = await delegationStorage.satelliteLedger.get(account.pkh);
+                        satelliteRecord         = await getStorageMapValue(delegationStorage, 'satelliteLedger', account.pkh);
                         console.log("Satellite record for", account.pkh, ":", satelliteRecord);
                         console.log("   - Batch estimation :", batchTotalCost);
                     }
@@ -406,7 +406,7 @@ describe("Stress tests", async () => {
 
                 // Final values
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage();
-                const satelliteAction       = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const satelliteAction       = await getStorageMapValue(governanceSatelliteStorage, 'governanceSatelliteActionLedger', actionId);
                 console.log("Governance satellite action:", satelliteAction)
 
             } catch(e){
@@ -474,7 +474,7 @@ describe("Stress tests", async () => {
 
                 // Final values
                 governanceFinancialStorage      = await governanceFinancialInstance.storage();
-                const financialAction           = await governanceFinancialStorage.financialRequestLedger.get(financialActionId);
+                const financialAction           = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialActionId);
 
                 console.log("Governance financial action:", financialAction)
             } catch(e){
@@ -531,7 +531,7 @@ describe("Stress tests", async () => {
 
                 // Transfer Farm LP to each users
                 lpTokenStorage          = await lpTokenInstance.storage();
-                const adminLPRecord     = await lpTokenStorage.ledger.get(admin);
+                const adminLPRecord     = await getStorageMapValue(lpTokenStorage, 'ledger', admin);
                 const adminLPBalance    = adminLPRecord.balance.toNumber();
                 const batchSize         = 50
                 const userAmount        = randomUserAccounts.length;
@@ -549,7 +549,7 @@ describe("Stress tests", async () => {
 
                         if ((index) < (batchSize * (i + 1)) && ((index) >= batchSize * i)){
                             // Transfer only if receiver as less than 1XTZ
-                            const userLPRecord  = await lpTokenStorage.ledger.get(account.pkh);
+                            const userLPRecord  = await getStorageMapValue(lpTokenStorage, 'ledger', account.pkh);
                             const userLPBalance = userLPRecord !== undefined ? userLPRecord.balance.toNumber() : 0;
                             if(userLPBalance < 1){
                                 batch.withContractCall(lpTokenInstance.methods.transfer(admin, account.pkh, userLPGiveaway))
@@ -592,9 +592,9 @@ describe("Stress tests", async () => {
                     lpTokenStorage              = await lpTokenInstance.storage();
                     farmStorage                 = await farmInstance.storage();
                     const account: any          = randomUserAccounts[index];
-                    const accountLPRecord       = await lpTokenStorage.ledger.get(account.pkh);
+                    const accountLPRecord       = await getStorageMapValue(lpTokenStorage, 'ledger', account.pkh);
                     const accountLPBalance      = accountLPRecord !== undefined ? accountLPRecord.balance.toNumber() : 0;
-                    const acccountLPAllowances  = await accountLPRecord.allowances.get(contractDeployments.farm.address);
+                    const acccountLPAllowances  = await getStorageMapValue(accountLPRecord, 'allowances', contractDeployments.farm.address);
                     const amountToDeposit       = Math.floor(Math.random() * accountLPBalance);
                     const depositBatch: any     = utils.tezos.wallet.batch();
                     var approvals               = 0;
@@ -625,7 +625,7 @@ describe("Stress tests", async () => {
 
                     // Print Estimation
                     farmStorage             = await farmInstance.storage();
-                    const depositRecord     = await farmStorage.depositorLedger.get(account.pkh)
+                    const depositRecord     = await getStorageMapValue(farmStorage, 'depositorLedger', account.pkh)
                     
                     var batchTotalCost      = []
                     batchOpEstimate.forEach((estimate: Estimate) => {
@@ -659,7 +659,7 @@ describe("Stress tests", async () => {
                     lpTokenStorage              = await lpTokenInstance.storage();
                     farmStorage                 = await farmInstance.storage();
                     const account: any          = randomUserAccounts[index];
-                    var depositRecord           = await farmStorage.depositorLedger.get(account.pkh);
+                    var depositRecord           = await getStorageMapValue(farmStorage, 'depositorLedger', account.pkh);
                     const depositorBalance      = depositRecord !== undefined ? depositRecord.balance.toNumber() : 0;
                     const amountToWithdraw      = Math.floor(Math.random() * depositorBalance);
     
@@ -676,7 +676,7 @@ describe("Stress tests", async () => {
         
                         // Print Estimation
                         farmStorage             = await farmInstance.storage();
-                        depositRecord           = await farmStorage.depositorLedger.get(account.pkh)
+                        depositRecord           = await getStorageMapValue(farmStorage, 'depositorLedger', account.pkh)
         
                         console.log("USER", account.pkh, "WITHDREW", amountToWithdraw, "LP TOKEN FROM THE FARM");
                         console.log("ESTIMATE:", withdrawEstimate, 
@@ -714,9 +714,9 @@ describe("Stress tests", async () => {
                     doormanStorage          = await doormanInstance.storage();
                     farmFactoryStorage      = await farmFactoryInstance.storage();
                     const account: any      = randomUserAccounts[index];
-                    const initSMVKRecord    = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                    const initSMVKRecord    = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', account.pkh);
                     const initSMVKBalance   = initSMVKRecord !== undefined ? initSMVKRecord.balance.toNumber() : 0;
-                    var depositRecord       = await farmStorage.depositorLedger.get(account.pkh);
+                    var depositRecord       = await getStorageMapValue(farmStorage, 'depositorLedger', account.pkh);
                     const depositorBalance  = depositRecord !== undefined ? depositRecord.balance.toNumber() : 0;
 
                     if(depositorBalance > 0){
@@ -733,9 +733,9 @@ describe("Stress tests", async () => {
                         // Print Estimation
                         farmStorage             = await farmInstance.storage();
                         doormanStorage          = await doormanInstance.storage();
-                        const finalSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                        const finalSMVKRecord   = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', account.pkh);
                         const finalSMVKBalance  = finalSMVKRecord !== undefined ? finalSMVKRecord.balance.toNumber() : 0;
-                        depositRecord           = await farmStorage.depositorLedger.get(account.pkh)
+                        depositRecord           = await getStorageMapValue(farmStorage, 'depositorLedger', account.pkh)
         
                         console.log("USER", account.pkh, "CLAIM REWARDS FROM THE FARM");
                         console.log("ESTIMATE:", claimEstimate, 
@@ -906,7 +906,7 @@ describe("Stress tests", async () => {
 
                 // Final values
                 governanceStorage               = await governanceInstance.storage();
-                const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
+                const proposal                  = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
                 console.log("Final proposal: ", proposal)
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -924,9 +924,9 @@ describe("Stress tests", async () => {
                     doormanStorage          = await doormanInstance.storage();
                     mvkTokenStorage         = await mvkTokenInstance.storage();
                     const account: any      = randomUserAccounts[index];
-                    const initSMVKRecord    = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                    const initSMVKRecord    = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', account.pkh);
                     const initSMVKBalance   = initSMVKRecord !== undefined ? initSMVKRecord.balance.toNumber() : 0;
-                    const mvkBalance        = (await mvkTokenStorage.ledger.get(account.pkh)).toNumber();
+                    const mvkBalance        = (await getStorageMapValue(mvkTokenStorage, 'ledger', account.pkh)).toNumber();
                     const amountToStake     = Math.floor(Math.random() * (mvkBalance - doormanStorage.config.minMvkAmount.toNumber())) + doormanStorage.config.minMvkAmount.toNumber();
 
                     if(amountToStake > 0){
@@ -969,7 +969,7 @@ describe("Stress tests", async () => {
         
                         // Print Estimation
                         doormanStorage          = await doormanInstance.storage();
-                        const finalSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                        const finalSMVKRecord   = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', account.pkh);
                         const finalSMVKBalance  = finalSMVKRecord !== undefined ? finalSMVKRecord.balance.toNumber() : 0;
         
                         console.log("USER", account.pkh, "STAKE", amountToStake, "MVK IN THE DOORMAN CONTRACT");
@@ -993,11 +993,11 @@ describe("Stress tests", async () => {
                     doormanStorage          = await doormanInstance.storage();
                     mvkTokenStorage         = await mvkTokenInstance.storage();
                     const account: any      = randomUserAccounts[index];
-                    const initSMVKRecord    = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                    const initSMVKRecord    = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', account.pkh);
                     const initSMVKBalance   = initSMVKRecord !== undefined ? initSMVKRecord.balance.toNumber() : 0;
                     const amountToUnstake   = Math.floor(Math.random() * (initSMVKBalance - doormanStorage.config.minMvkAmount.toNumber())) + doormanStorage.config.minMvkAmount.toNumber();
-                    const initMVKBalance    = (await mvkTokenStorage.ledger.get(account.pkh)).toNumber();
-                    const smvkTotalSupply   = (await mvkTokenStorage.ledger.get(contractDeployments.doorman.address)).toNumber();
+                    const initMVKBalance    = (await getStorageMapValue(mvkTokenStorage, 'ledger', account.pkh)).toNumber();
+                    const smvkTotalSupply   = (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)).toNumber();
                     const mvkTotalSupply    = mvkTokenStorage.totalSupply.toNumber();
                     const mli               = smvkTotalSupply * 100 / mvkTotalSupply;
                     const exitFee           = 30 - 0.525 * mli + 0.0025 * mli *mli;
@@ -1017,8 +1017,8 @@ describe("Stress tests", async () => {
                         // Print Estimation
                         doormanStorage          = await doormanInstance.storage();
                         mvkTokenStorage         = await mvkTokenInstance.storage();
-                        const finalMVKBalance   = (await mvkTokenStorage.ledger.get(account.pkh)).toNumber();
-                        const finalSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                        const finalMVKBalance   = (await getStorageMapValue(mvkTokenStorage, 'ledger', account.pkh)).toNumber();
+                        const finalSMVKRecord   = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', account.pkh);
                         const finalSMVKBalance  = finalSMVKRecord !== undefined ? finalSMVKRecord.balance.toNumber() : 0;
                         const finalAmount       = finalMVKBalance - initMVKBalance;
         

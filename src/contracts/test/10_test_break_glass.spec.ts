@@ -215,7 +215,7 @@ describe("Test: Break Glass Contract", async () => {
                 
                 // initial storage
                 breakGlassStorage               = await breakGlassInstance.storage();
-                const initialCouncilMemberInfo  = await breakGlassStorage.councilMembers.get(councilMember);
+                const initialCouncilMemberInfo  = await getStorageMapValue(breakGlassStorage, 'councilMembers', councilMember);
                 
                 const oldMemberName     = initialCouncilMemberInfo.name
                 const oldMemberImage    = initialCouncilMemberInfo.image
@@ -232,7 +232,7 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage               = await breakGlassInstance.storage();
-                const updatedCouncilMemberInfo   = await breakGlassStorage.councilMembers.get(councilMember);
+                const updatedCouncilMemberInfo   = await getStorageMapValue(breakGlassStorage, 'councilMembers', councilMember);
 
                 // Assertions
                 assert.strictEqual(updatedCouncilMemberInfo.name       , newMemberName);
@@ -265,8 +265,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                   = await breakGlassInstance.storage();
-                const action                        = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner                  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                const action                        = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner                  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: newMember }, type: { prim: 'address' } })).packed
                 const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
@@ -324,8 +324,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                   = await breakGlassInstance.storage();
-                const action                        = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner                  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                const action                        = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner                  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberToBeRemoved }, type: { prim: 'address' } })).packed
 
@@ -413,8 +413,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                   = await breakGlassInstance.storage();
-                const action                        = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner                  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                const action                        = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner                  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedOldCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: oldMember }, type: { prim: 'address' } })).packed
                 const packedNewCouncilMemberAddress = (await utils.tezos.rpc.packData({ data: { string: newMember }, type: { prim: 'address' } })).packed
@@ -626,7 +626,7 @@ describe("Test: Break Glass Contract", async () => {
 
                 const requiredFeeMutez           = emergencyGovernanceStorage.config.requiredFeeMutez;
 
-                initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 // ---------------------------------------------------------------
@@ -665,7 +665,7 @@ describe("Test: Break Glass Contract", async () => {
                 doormanStorage                  = await doormanInstance.storage();
 
                 // ensure that user has enough staked MVK to trigger break glass
-                const emergencyGovernanceRecord = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyGovernanceStorage.currentEmergencyGovernanceId);
+                const emergencyGovernanceRecord = await getStorageMapValue(emergencyGovernanceStorage, 'emergencyGovernanceLedger', emergencyGovernanceStorage.currentEmergencyGovernanceId);
                 const sMvkRequired              = emergencyGovernanceRecord.stakedMvkRequiredForBreakGlass.toNumber();
                 if(initialUserStakedBalance < sMvkRequired){
                     
@@ -765,8 +765,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage       = await breakGlassInstance.storage();
-                const action            = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner      = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                const action            = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner      = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap           = await action.dataMap;
                 const packedFlushedId   = (await utils.tezos.rpc.packData({ data: { int: flushedAction.toString() }, type: { prim: 'nat' } })).packed
 
@@ -828,8 +828,8 @@ describe("Test: Break Glass Contract", async () => {
                 await signOperation.confirmation();
 
                 breakGlassStorage       = await breakGlassInstance.storage();
-                const flushedAction     = await breakGlassStorage.actionsLedger.get(flushActionId);
-                const newAction         = await breakGlassStorage.actionsLedger.get(actionId);
+                const flushedAction     = await getStorageMapValue(breakGlassStorage, 'actionsLedger', flushActionId);
+                const newAction         = await getStorageMapValue(breakGlassStorage, 'actionsLedger', actionId);
                 const signerThreshold   = breakGlassStorage.config.threshold;
 
                 assert.equal(flushedAction.executed, true);
@@ -864,8 +864,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                   = await breakGlassInstance.storage();
-                var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner                  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                var action                          = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner                  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: newCouncilMember }, type: { prim: 'address' } })).packed
                 const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
@@ -897,9 +897,9 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage       = await breakGlassInstance.storage();
-                action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+                action                  = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
 
-                const newCouncilStorage = await breakGlassStorage.councilMembers.get(newCouncilMember);
+                const newCouncilStorage = await getStorageMapValue(breakGlassStorage, 'councilMembers', newCouncilMember);
                 const newCouncilSize    = breakGlassStorage.councilSize;
 
                 assert.equal(action.executed, true);
@@ -986,8 +986,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                   = await breakGlassInstance.storage();
-                const action                        = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner                  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                const action                        = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner                  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedAdmin                   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
 
@@ -1024,8 +1024,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                   = await breakGlassInstance.storage();
-                const action                        = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner                  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                const action                        = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner                  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedAdmin                   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
 
@@ -1062,8 +1062,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                   = await breakGlassInstance.storage();
-                const action                        = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner                  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                const action                        = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner                  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedAdmin                   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
 
@@ -1121,8 +1121,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage   = await breakGlassInstance.storage();
-                const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                const action        = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap       = await action.dataMap;
                 const packedAdmin   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
 
@@ -1156,8 +1156,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage   = await breakGlassInstance.storage();
-                const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                const action        = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap       = await action.dataMap;
                 const packedAdmin   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
 
@@ -1190,8 +1190,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage   = await breakGlassInstance.storage();
-                const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                const action        = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap       = await action.dataMap;
                 const packedAdmin   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
 
@@ -1223,8 +1223,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage   = await breakGlassInstance.storage();
-                const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                const action        = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
 
                 // Assertions
                 assert.strictEqual(action.initiator,councilMember);
@@ -1251,8 +1251,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage   = await breakGlassInstance.storage();
-                const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                const action        = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
 
                 // Assertions
                 assert.strictEqual(action.initiator, councilMember);
@@ -1281,8 +1281,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage   = await breakGlassInstance.storage();
-                const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                const action        = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
 
                 // Assertions
                 assert.strictEqual(action.initiator, councilMember);
@@ -1436,8 +1436,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                   = await breakGlassInstance.storage();
-                var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner                  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                var action                          = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner                  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: newCouncilMember }, type: { prim: 'address' } })).packed
                 const packedCouncilMemberName       = (await utils.tezos.rpc.packData({ data: { string: newMemberName }, type: { prim: 'string' } })).packed
@@ -1469,13 +1469,13 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage       = await breakGlassInstance.storage();
-                action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+                action                  = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
 
                 assert.equal(action.executed, true);
                 assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
                 assert.equal(action.status, "EXECUTED");
 
-                const newCouncilStorage = await breakGlassStorage.councilMembers.get(newCouncilMember)
+                const newCouncilStorage = await getStorageMapValue(breakGlassStorage, 'councilMembers', newCouncilMember)
                 const newCouncilSize    = breakGlassStorage.councilSize;
                 assert.deepEqual(newCouncilSize, councilSize.plus(1));
                 assert.notStrictEqual(newCouncilStorage, undefined);
@@ -1498,8 +1498,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                   = await breakGlassInstance.storage();
-                var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner                  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                var action                          = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner                  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: removedCouncilMember }, type: { prim: 'address' } })).packed
                 const signerThreshold               = breakGlassStorage.config.threshold;
@@ -1525,13 +1525,13 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage       = await breakGlassInstance.storage();
-                action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+                action                  = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
 
                 assert.equal(action.executed, true);
                 assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
                 assert.equal(action.status, "EXECUTED");
 
-                const newCouncilStorage = await breakGlassStorage.councilMembers.get(removedCouncilMember)
+                const newCouncilStorage = await getStorageMapValue(breakGlassStorage, 'councilMembers', removedCouncilMember)
                 const newCouncilSize    = breakGlassStorage.councilSize;
                 assert.strictEqual(newCouncilStorage, undefined);
                 assert.deepEqual(newCouncilSize, councilSize.minus(1))
@@ -1555,8 +1555,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                   = await breakGlassInstance.storage();
-                var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
-                var actionSigner                    = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                var action                          = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                var actionSigner                    = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 var dataMap                         = await action.dataMap;
                 const packedCouncilMemberAddress    = (await utils.tezos.rpc.packData({ data: { string: memberAddress }, type: { prim: 'address' } })).packed
 
@@ -1619,8 +1619,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                       = await breakGlassInstance.storage();
-                var action                              = await breakGlassStorage.actionsLedger.get(nextActionID);
-                var actionSigner                        = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                var action                              = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                var actionSigner                        = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 var dataMap                             = await action.dataMap;
                 const packedOldCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: oldMemberAddress }, type: { prim: 'address' } })).packed
                 const packedNewCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: newMemberAddress }, type: { prim: 'address' } })).packed
@@ -1648,12 +1648,12 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage   = await breakGlassInstance.storage();
-                var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
-                var actionSigner    = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                var action          = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                var actionSigner    = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 dataMap             = await action.dataMap;
 
-                const memberRemoved = await breakGlassStorage.councilMembers.get(oldMemberAddress);
-                const memberAdded   = await breakGlassStorage.councilMembers.get(newMemberAddress);
+                const memberRemoved = await getStorageMapValue(breakGlassStorage, 'councilMembers', oldMemberAddress);
+                const memberAdded   = await getStorageMapValue(breakGlassStorage, 'councilMembers', newMemberAddress);
                 const newCouncilSize= breakGlassStorage.councilSize;
 
                 // Assertions
@@ -1713,8 +1713,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                       = await breakGlassInstance.storage();
-                var action                              = await breakGlassStorage.actionsLedger.get(actionId);
-                var actionSigner                        = await breakGlassStorage.actionsSigners.get({0: actionId, 1: councilMember})
+                var action                              = await getStorageMapValue(breakGlassStorage, 'actionsLedger', actionId);
+                var actionSigner                        = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: actionId, 1: councilMember})
                 var dataMap                             = await action.dataMap;
                 const packedOldCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: oldMemberAddress }, type: { prim: 'address' } })).packed
                 const packedNewCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: newMemberAddress }, type: { prim: 'address' } })).packed
@@ -1806,8 +1806,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                       = await breakGlassInstance.storage();
-                var action                              = await breakGlassStorage.actionsLedger.get(actionId);
-                var actionSigner                        = await breakGlassStorage.actionsSigners.get({0: actionId, 1: councilMember})
+                var action                              = await getStorageMapValue(breakGlassStorage, 'actionsLedger', actionId);
+                var actionSigner                        = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: actionId, 1: councilMember})
                 var dataMap                             = await action.dataMap;
                 const packedOldCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: oldMemberAddress }, type: { prim: 'address' } })).packed
                 const packedNewCouncilMemberAddress     = (await utils.tezos.rpc.packData({ data: { string: newMemberAddress }, type: { prim: 'address' } })).packed
@@ -1889,8 +1889,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage   = await breakGlassInstance.storage();
-                var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                var action          = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
 
                 // Assertions
                 assert.strictEqual(action.initiator, councilMember);
@@ -1913,7 +1913,7 @@ describe("Test: Break Glass Contract", async () => {
                 // Final values
                 breakGlassStorage               = await breakGlassInstance.storage();
                 governanceStorage               = await governanceInstance.storage();
-                action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
+                action                          = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
 
                 assert.equal(action.executed, true);
                 assert.equal(action.status, "EXECUTED");
@@ -1956,8 +1956,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage   = await breakGlassInstance.storage();
-                var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                var action          = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
 
                 // Assertions
                 assert.strictEqual(action.initiator, councilMember);
@@ -1980,7 +1980,7 @@ describe("Test: Break Glass Contract", async () => {
                 // Final values
                 breakGlassStorage       = await breakGlassInstance.storage();
                 governanceStorage       = await governanceInstance.storage();
-                action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+                action                  = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
 
                 assert.equal(action.executed, true);
                 assert.equal(action.status, "EXECUTED");
@@ -2023,8 +2023,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage                   = await breakGlassInstance.storage();
-                var action                          = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner                  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                var action                          = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner                  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap                       = await action.dataMap;
                 const packedAdmin                   = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
 
@@ -2050,7 +2050,7 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage       = await breakGlassInstance.storage();
-                action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+                action                  = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
 
                 assert.equal(action.executed, true);
                 assert.equal(action.status, "EXECUTED");
@@ -2084,8 +2084,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage       = await breakGlassInstance.storage();
-                var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner      = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                var action              = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner      = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const dataMap           = await action.dataMap;
                 const packedAdmin       = (await utils.tezos.rpc.packData({ data: { string: newAdmin }, type: { prim: 'address' } })).packed
                 const signerThreshold   = breakGlassStorage.config.threshold;
@@ -2112,7 +2112,7 @@ describe("Test: Break Glass Contract", async () => {
                 // Final values
                 breakGlassStorage       = await breakGlassInstance.storage();
                 governanceStorage       = await governanceInstance.storage();
-                action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+                action                  = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
 
                 assert.equal(action.executed, true);
                 assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
@@ -2184,8 +2184,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage       = await breakGlassInstance.storage();
-                const originalAction    = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const flushAction       = await breakGlassStorage.actionsLedger.get(flushActionID);
+                const originalAction    = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const flushAction       = await getStorageMapValue(breakGlassStorage, 'actionsLedger', flushActionID);
 
                 assert.equal(originalAction.executed, false);
                 assert.equal(originalAction.status, "FLUSHED");
@@ -2232,7 +2232,7 @@ describe("Test: Break Glass Contract", async () => {
 
                 // update storage
                 breakGlassStorage       = await breakGlassInstance.storage();
-                const originalAction    = await breakGlassStorage.actionsLedger.get(nextActionID);
+                const originalAction    = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
 
                 // check that original action is executed
                 assert.equal(originalAction.executed, true);
@@ -2309,7 +2309,7 @@ describe("Test: Break Glass Contract", async () => {
 
                 // update storage
                 breakGlassStorage       = await breakGlassInstance.storage();
-                const originalAction    = await breakGlassStorage.actionsLedger.get(nextActionID);
+                const originalAction    = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
 
                 // check that original action is flushed
                 assert.equal(originalAction.executed, false);
@@ -2375,7 +2375,7 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Assertions
                 breakGlassStorage       = await breakGlassInstance.storage();
-                var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                var action              = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
                 assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "PENDING");
                 assert.strictEqual(action.actionType, "addCouncilMember");
@@ -2407,7 +2407,7 @@ describe("Test: Break Glass Contract", async () => {
                 // Initial Values
                 breakGlassStorage       = await breakGlassInstance.storage();
                 const nextActionID      = 999;
-                var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                var action              = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
 
                 // Assertions
                 assert.strictEqual(action, undefined);
@@ -2456,8 +2456,8 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage   = await breakGlassInstance.storage();
-                var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
-                const actionSigner  = await breakGlassStorage.actionsSigners.get({0: nextActionID, 1: councilMember})
+                var action          = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
+                const actionSigner  = await getStorageMapValue(breakGlassStorage, 'actionsSigners', {0: nextActionID, 1: councilMember})
                 const signerThreshold   = breakGlassStorage.config.threshold;
 
                 // Assertions
@@ -2481,7 +2481,7 @@ describe("Test: Break Glass Contract", async () => {
                 // Final values
                 breakGlassStorage       = await breakGlassInstance.storage();
                 governanceStorage       = await governanceInstance.storage();
-                action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+                action                  = await getStorageMapValue(breakGlassStorage, 'actionsLedger', nextActionID);
 
                 assert.equal(action.executed, true);
                 assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
@@ -2622,7 +2622,7 @@ describe("Test: Break Glass Contract", async () => {
                 // Final values
                 breakGlassStorage = await breakGlassInstance.storage();            
 
-                const updatedData = await breakGlassStorage.metadata.get(key);
+                const updatedData = await getStorageMapValue(breakGlassStorage, 'metadata', key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -2821,14 +2821,14 @@ describe("Test: Break Glass Contract", async () => {
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber()
 
                 await signerFactory(tezos, adminSk);
                 mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -2901,7 +2901,7 @@ describe("Test: Break Glass Contract", async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 breakGlassStorage  = await breakGlassInstance.storage();   
-                const initialMetadata       = await breakGlassStorage.metadata.get(key);
+                const initialMetadata       = await getStorageMapValue(breakGlassStorage, 'metadata', key);
 
                 // fail: update metadata operation
                 const updateOperation = await breakGlassInstance.methods.updateMetadata(key, hash);
@@ -2909,7 +2909,7 @@ describe("Test: Break Glass Contract", async () => {
 
                 // Final values
                 breakGlassStorage  = await breakGlassInstance.storage();            
-                const updatedData           = await breakGlassStorage.metadata.get(key);
+                const updatedData           = await getStorageMapValue(breakGlassStorage, 'metadata', key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);

@@ -22,7 +22,8 @@ import {
     updateOperators,
     fa2Transfer,
     mistakenTransferFa2Token,
-    mistakenTransferFa12Token
+    mistakenTransferFa12Token,
+    getStorageMapValue
 } from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -160,8 +161,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.doorman.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.doorman.address)
+                var userAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const initContractBalance   = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -172,8 +173,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.doorman.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.doorman.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const midContractBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -182,8 +183,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.doorman.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.doorman.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const endContractBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -249,8 +250,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.farm.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.farm.address)
+                var userAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -267,8 +268,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.farm.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.farm.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -277,8 +278,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.farm.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.farm.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 
@@ -344,8 +345,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.delegation.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.delegation.address)
+                var userAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -356,8 +357,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.delegation.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.delegation.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -366,8 +367,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.delegation.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.delegation.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -414,8 +415,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.breakGlass.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.breakGlass.address)
+                var userAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -426,8 +427,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.breakGlass.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.breakGlass.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -436,8 +437,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.breakGlass.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.breakGlass.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -484,8 +485,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.emergencyGovernance.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.emergencyGovernance.address)
+                var userAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -496,8 +497,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.emergencyGovernance.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.emergencyGovernance.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -506,8 +507,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.emergencyGovernance.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.emergencyGovernance.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -554,8 +555,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.farmFactory.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.farmFactory.address)
+                var userAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -566,8 +567,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.farmFactory.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.farmFactory.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -576,8 +577,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.farmFactory.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.farmFactory.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -624,8 +625,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governance.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.governance.address)
+                var userAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -636,8 +637,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governance.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.governance.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -646,8 +647,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governance.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.governance.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -694,8 +695,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governanceFinancial.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.governanceFinancial.address)
+                var userAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -706,8 +707,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governanceFinancial.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.governanceFinancial.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -716,8 +717,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governanceFinancial.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.governanceFinancial.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -764,8 +765,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governanceProxy.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.governanceProxy.address)
+                var userAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -776,8 +777,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governanceProxy.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.governanceProxy.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -786,8 +787,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governanceProxy.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.governanceProxy.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -834,8 +835,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.mvkToken.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.mvkToken.address)
+                var userAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -846,8 +847,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.mvkToken.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.mvkToken.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -856,8 +857,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.mvkToken.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.mvkToken.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -904,8 +905,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.treasuryFactory.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.treasuryFactory.address)
+                var userAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -916,8 +917,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.treasuryFactory.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.treasuryFactory.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -926,8 +927,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.treasuryFactory.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.treasuryFactory.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -974,8 +975,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vaultFactory.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.vaultFactory.address)
+                var userAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -986,8 +987,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vaultFactory.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.vaultFactory.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -996,8 +997,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vaultFactory.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.vaultFactory.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -1045,8 +1046,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vesting.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.vesting.address)
+                var userAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -1057,8 +1058,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vesting.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.vesting.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -1067,8 +1068,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vesting.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', contractDeployments.vesting.address)
+                userAccount                 = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -1115,8 +1116,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.aggregator.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.aggregator.address)
+                var userAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -1133,8 +1134,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.aggregator.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.aggregator.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -1143,8 +1144,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa2TokenStorage        = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.aggregator.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.aggregator.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 
@@ -1197,8 +1198,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.aggregatorFactory.address)
+                var userAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -1215,8 +1216,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.aggregatorFactory.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -1225,8 +1226,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.aggregatorFactory.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 
@@ -1280,8 +1281,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.governanceSatellite.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.governanceSatellite.address)
+                var userAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -1298,8 +1299,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.governanceSatellite.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.governanceSatellite.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -1308,8 +1309,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.governanceSatellite.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.governanceSatellite.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 
@@ -1362,8 +1363,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mavrykFa12Token.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.mavrykFa12Token.address)
+                var userAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -1380,8 +1381,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mavrykFa12Token.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.mavrykFa12Token.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -1390,8 +1391,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mavrykFa12Token.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.mavrykFa12Token.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 
@@ -1444,8 +1445,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mavrykFa2Token.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.mavrykFa2Token.address)
+                var userAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -1462,8 +1463,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mavrykFa2Token.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.mavrykFa2Token.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -1472,8 +1473,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mavrykFa2Token.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.mavrykFa2Token.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 
@@ -1526,8 +1527,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Initial values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mTokenUsdt.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                var contractAccount         = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.mTokenUsdt.address)
+                var userAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
@@ -1544,8 +1545,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mid values
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mTokenUsdt.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.mTokenUsdt.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
@@ -1554,8 +1555,8 @@ describe("Mistaken transfers tests", async () => {
 
                 // Final values
                 mavrykFa2TokenStorage        = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mTokenUsdt.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                contractAccount             = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', contractDeployments.mTokenUsdt.address)
+                userAccount                 = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 

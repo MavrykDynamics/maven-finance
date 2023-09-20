@@ -19,7 +19,7 @@ import contractDeployments from './contractDeployments.json'
 
 import { bob, alice, eve, mallory, oscar, susie, trudy, david, isaac, ivan } from "../scripts/sandbox/accounts";
 import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
-import { almostEqual, signerFactory } from './helpers/helperFunctions'
+import { almostEqual, getStorageMapValue, signerFactory } from './helpers/helperFunctions'
 import { mockSatelliteData } from "./helpers/mockSampleData";
 
 // ------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
         delegateFourSk  = mallory.sk;
 
         // Whitelist Bob in the delegation contract (to be able to call the %distributeReward entrypoint)
-        const adminHasWhitelist = await delegationStorage.whitelistContracts.get(admin)
+        const adminHasWhitelist = await getStorageMapValue(delegationStorage, 'whitelistContracts', admin)
         if(adminHasWhitelist === undefined) {
             await signerFactory(tezos, adminSk)
             const updateWhitelistOperation  = await delegationInstance.methods.updateWhitelistContracts(admin, 'update').send();
@@ -162,8 +162,8 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             delegationStorage = await delegationInstance.storage();
             doormanStorage    = await doormanInstance.storage();
             
-            var satelliteRecord = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
-            var satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
+            var satelliteRecord = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
+            var satelliteStake  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)
 
             console.log("PRE-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
@@ -175,8 +175,8 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             delegationStorage   = await delegationInstance.storage();
             doormanStorage      = await doormanInstance.storage();
             
-            var satelliteRecord = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
-            satelliteStake      = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
+            var satelliteRecord = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
+            satelliteStake      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)
 
             console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
@@ -188,8 +188,8 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             delegationStorage = await delegationInstance.storage();
             doormanStorage  = await doormanInstance.storage();
             
-            var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(delegateOne)
-            var delegateStake  = await doormanStorage.userStakeBalanceLedger.get(delegateOne)
+            var delegateRecord = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', delegateOne)
+            var delegateStake  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateOne)
             
             console.log("POST-CLAIM DAVID: ", delegateRecord.unpaid.toNumber(), " | ", delegateRecord.paid.toNumber(), " | ", delegateStake.balance.toNumber())
 
@@ -201,8 +201,8 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
             delegationStorage = await delegationInstance.storage();
             doormanStorage  = await doormanInstance.storage();
             
-            var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(delegateTwo)
-            delegateStake  = await doormanStorage.userStakeBalanceLedger.get(delegateTwo)
+            var delegateRecord = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', delegateTwo)
+            delegateStake  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateTwo)
             console.log("POST-CLAIM IVAN: ", delegateRecord.unpaid.toNumber(), " | ", delegateRecord.paid.toNumber(), " | ", delegateStake.balance.toNumber())
 
         });
@@ -227,8 +227,8 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 await distributeOperation.confirmation();
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
-                var satelliteRecord = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
-                var satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
+                var satelliteRecord = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
+                var satelliteStake  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)
                 console.log("PRE-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
                 // Claim operations
@@ -236,14 +236,14 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
-                var satelliteRecord = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
-                satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
+                var satelliteRecord = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
+                satelliteStake  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)
                 console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
-                var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(delegateOne)
-                var delegateStake  = await doormanStorage.userStakeBalanceLedger.get(delegateOne)
+                var delegateRecord = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', delegateOne)
+                var delegateStake  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateOne)
                 console.log("POST-CLAIM DAVID: ", delegateRecord.unpaid.toNumber(), " | ", delegateRecord.paid.toNumber(), " | ", delegateStake.balance.toNumber())
-                var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(delegateTwo)
-                delegateStake  = await doormanStorage.userStakeBalanceLedger.get(delegateTwo)
+                var delegateRecord = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', delegateTwo)
+                delegateStake  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateTwo)
                 console.log("POST-CLAIM IVAN: ", delegateRecord.unpaid.toNumber(), " | ", delegateRecord.paid.toNumber(), " | ", delegateStake.balance.toNumber())
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -258,15 +258,15 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 doormanStorage              = await doormanInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
                 const reward                = MVK(100);
-                const initSatelliteSMVK     = await doormanStorage.userStakeBalanceLedger.get(satelliteOne) 
-                const initSatelliteRewards  = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
+                const initSatelliteSMVK     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne) 
+                const initSatelliteRewards  = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
                 
-                var satelliteTest           = await delegationStorage.satelliteLedger.get(satelliteOne);
-                var aliceTest               = await doormanStorage.userStakeBalanceLedger.get(delegateOne);
-                var eveTest                 = await doormanStorage.userStakeBalanceLedger.get(delegateTwo);
+                var satelliteTest           = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
+                var aliceTest               = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateOne);
+                var eveTest                 = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateTwo);
 
-                const initSatelliteRecord   = await delegationStorage.satelliteLedger.get(satelliteOne);
-                const initDoormanBalance    = await mvkTokenStorage.ledger.get(contractDeployments.doorman.address);
+                const initSatelliteRecord   = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
+                const initDoormanBalance    = await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address);
                 const satelliteVotingPower  = initSatelliteRecord.totalDelegatedAmount.toNumber() + initSatelliteRecord.stakedMvkBalance.toNumber();
                 const satelliteFee          = initSatelliteRecord.satelliteFee.toNumber();
 
@@ -281,12 +281,12 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 const distributedReward         = reward / 2 - satelliteFeeReward
                 const accumulatedRewardPerShare = distributedReward / satelliteVotingPower
                 var unpaidRewards               = Math.trunc(initSatelliteRewards.unpaid.toNumber() + satelliteFeeReward)
-                var satelliteRewards            = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
-                var satelliteStake              = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
-                var doormanBalance              = await mvkTokenStorage.ledger.get(contractDeployments.doorman.address);
-                satelliteTest                   = await delegationStorage.satelliteLedger.get(satelliteOne);
-                aliceTest                       = await doormanStorage.userStakeBalanceLedger.get(delegateOne);
-                eveTest                         = await doormanStorage.userStakeBalanceLedger.get(delegateTwo);
+                var satelliteRewards            = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
+                var satelliteStake              = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)
+                var doormanBalance              = await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address);
+                satelliteTest                   = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
+                aliceTest                       = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateOne);
+                eveTest                         = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateTwo);
 
                 // Assertions
                 assert.equal(satelliteRewards.unpaid.toNumber(), unpaidRewards)
@@ -300,8 +300,8 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 await unregisterOperation.confirmation();
                 delegationStorage   = await delegationInstance.storage();
                 doormanStorage      = await doormanInstance.storage();
-                satelliteRewards    = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
-                satelliteStake      = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
+                satelliteRewards    = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
+                satelliteStake      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)
 
                 // New unpaid reward
                 unpaidRewards       = Math.trunc(initSatelliteRewards.unpaid.toNumber() + satelliteFeeReward + initSatelliteSMVK.balance.toNumber() * accumulatedRewardPerShare)
@@ -313,14 +313,14 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
 
                 // Undelegate operation
                 await signerFactory(tezos, delegateOneSk);
-                const initDelegateOneSMVK     = await doormanStorage.userStakeBalanceLedger.get(delegateOne) 
-                const initDelegateOneRewards  = await delegationStorage.satelliteRewardsLedger.get(delegateOne)
+                const initDelegateOneSMVK     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateOne) 
+                const initDelegateOneRewards  = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', delegateOne)
                 const undelegateOperation = await delegationInstance.methods.undelegateFromSatellite(delegateOne).send();
                 await undelegateOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
-                var delegateRewards = await delegationStorage.satelliteRewardsLedger.get(delegateOne)
-                var delegateStake  = await doormanStorage.userStakeBalanceLedger.get(delegateOne)
+                var delegateRewards = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', delegateOne)
+                var delegateStake  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateOne)
 
                 // Assertions
                 assert.equal(delegateRewards.paid.toNumber(), initDelegateOneRewards.paid.toNumber());
@@ -329,15 +329,15 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
 
                 // Satellite Claim operation
                 var paidRewards   = Math.trunc(initSatelliteRewards.unpaid.toNumber() + satelliteFeeReward + initSatelliteSMVK.balance.toNumber() * accumulatedRewardPerShare)
-                satelliteRewards = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
+                satelliteRewards = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
                 console.log("START: ", satelliteRewards)
 
                 var claimOperation = await doormanInstance.methods.compound([satelliteOne, satelliteTwo]).send(); // COMPOUND FOR SATELLITE TWO TO PREPARE NEXT TEXT
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
-                satelliteRewards = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
-                satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
+                satelliteRewards = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
+                satelliteStake  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)
 
                 console.log("START: ", satelliteRewards)
                 console.log("POST-CLAIM SATELLITE: ", satelliteRewards.unpaid.toNumber(), " | ", satelliteStake.balance.toNumber())
@@ -353,24 +353,24 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 await delegateOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
-                delegateRewards = await delegationStorage.satelliteRewardsLedger.get(delegateOne)
-                delegateStake  = await doormanStorage.userStakeBalanceLedger.get(delegateOne)
+                delegateRewards = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', delegateOne)
+                delegateStake  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateOne)
 
                 // Assertions
                 assert.equal(initDelegateOneSMVK.balance.toNumber(), delegateStake.balance.toNumber())
                 console.log("POST-DELEGATE ALICE: ", delegateRewards.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
                 // Init variables for claim
-                const initDelegateTwoSMVK     = await doormanStorage.userStakeBalanceLedger.get(delegateTwo) 
-                const initDelegateTwoRewards  = await delegationStorage.satelliteRewardsLedger.get(delegateTwo)
+                const initDelegateTwoSMVK     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateTwo) 
+                const initDelegateTwoRewards  = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', delegateTwo)
 
                 // Claims operations
                 claimOperation = await doormanInstance.methods.compound([delegateOne, delegateTwo]).send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
-                delegateRewards = await delegationStorage.satelliteRewardsLedger.get(delegateOne)
-                delegateStake  = await doormanStorage.userStakeBalanceLedger.get(delegateOne)
+                delegateRewards = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', delegateOne)
+                delegateStake  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateOne)
                 paidRewards   = delegateRewards.paid.toNumber() - initDelegateOneRewards.paid.toNumber()
                 
                 // Assertions
@@ -378,8 +378,8 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 assert.equal(initDelegateOneSMVK.balance.toNumber() + paidRewards, delegateStake.balance.toNumber())
                 console.log("POST-CLAIM DAVID: ", delegateRewards.unpaid.toNumber(), " | ", delegateRewards.paid.toNumber(), " | ", delegateStake.balance.toNumber())
                 paidRewards   = Math.trunc(initDelegateTwoRewards.unpaid.toNumber() + initDelegateTwoSMVK.balance.toNumber() * accumulatedRewardPerShare)
-                delegateRewards = await delegationStorage.satelliteRewardsLedger.get(delegateTwo)
-                delegateStake  = await doormanStorage.userStakeBalanceLedger.get(delegateTwo)
+                delegateRewards = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', delegateTwo)
+                delegateStake  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', delegateTwo)
                 
                 // Assertions
                 console.log("POST-CLAIM IVAN: ", delegateRewards.unpaid.toNumber(), " | ", delegateRewards.paid.toNumber(), " | ", delegateStake.balance.toNumber())
@@ -411,7 +411,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 doormanStorage              = await doormanInstance.storage();
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
-                const initDoormanBalance    = await mvkTokenStorage.ledger.get(contractDeployments.doorman.address);
+                const initDoormanBalance    = await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address);
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "New Proposal #1";
                 const proposalDesc          = "Details about new proposal #1";
@@ -420,17 +420,17 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 const proposalReward        = governanceStorage.config.cycleVotersReward.toNumber();
 
                 // Satellite ledger
-                const firstSatelliteRecordStart     = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
-                const firstSatelliteStakeStart      = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
-                const secondSatelliteRecordStart    = await delegationStorage.satelliteRewardsLedger.get(satelliteTwo)
-                const secondSatelliteStakeStart     = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo)
-                const firstSatellite                = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const firstSatelliteRecordStart     = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
+                const firstSatelliteStakeStart      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)
+                const secondSatelliteRecordStart    = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteTwo)
+                const secondSatelliteStakeStart     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo)
+                const firstSatellite                = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const firstSatelliteFeePct          = firstSatellite.satelliteFee.toNumber();
                 const firstSatelliteFee             = firstSatelliteFeePct / 10000 * proposalReward/2;
                 const firstSatelliteVotingPower     = firstSatellite.totalDelegatedAmount.toNumber() + firstSatellite.stakedMvkBalance.toNumber();
                 const firstSatelliteDistributed     = proposalReward / 2 - firstSatelliteFee
                 const firstSatelliteAccu            = firstSatelliteDistributed / firstSatelliteVotingPower
-                const secondSatellite               = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const secondSatellite               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteTwo);
                 const secondSatelliteFeePct         = secondSatellite.satelliteFee.toNumber();
                 const secondSatelliteFee            = secondSatelliteFeePct / 10000 * proposalReward/2;
                 const secondSatelliteVotingPower    = secondSatellite.totalDelegatedAmount.toNumber() + secondSatellite.stakedMvkBalance.toNumber();
@@ -525,11 +525,11 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 delegationStorage                       = await delegationInstance.storage();
                 doormanStorage                          = await doormanInstance.storage();
                 mvkTokenStorage                         = await mvkTokenInstance.storage();
-                const finalDoormanBalance               = await mvkTokenStorage.ledger.get(contractDeployments.doorman.address);
-                const firstSatelliteRecordNoClaim       = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
-                const firstSatelliteStakeNoClaim        = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
-                const secondSatelliteRecordNoClaim      = await delegationStorage.satelliteRewardsLedger.get(satelliteTwo)
-                const secondSatelliteStakeNoClaim       = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo)
+                const finalDoormanBalance               = await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address);
+                const firstSatelliteRecordNoClaim       = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
+                const firstSatelliteStakeNoClaim        = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)
+                const secondSatelliteRecordNoClaim      = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteTwo)
+                const secondSatelliteStakeNoClaim       = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo)
 
                 // Assertions
                 assert.equal(finalDoormanBalance.toNumber(), initDoormanBalance.toNumber() + proposalReward)
@@ -545,10 +545,10 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 doormanStorage                      = await doormanInstance.storage();
                 const firstSatelliteReward          = firstSatelliteAccu * firstSatelliteStakeStart.balance.toNumber() + firstSatelliteFee + firstSatelliteRecordStart.unpaid.toNumber()
                 const secondSatelliteReward         = secondSatelliteAccu * secondSatelliteStakeStart.balance.toNumber() + secondSatelliteFee + secondSatelliteRecordStart.unpaid.toNumber();
-                const firstSatelliteRecordEnd       = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
-                const firstSatelliteStakeEnd        = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
-                const secondSatelliteRecordEnd      = await delegationStorage.satelliteRewardsLedger.get(satelliteTwo)
-                const secondSatelliteStakeEnd       = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo)
+                const firstSatelliteRecordEnd       = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
+                const firstSatelliteStakeEnd        = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)
+                const secondSatelliteRecordEnd      = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteTwo)
+                const secondSatelliteStakeEnd       = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo)
 
                 // Assertions
                 assert.equal(firstSatelliteRecordEnd.unpaid.toNumber(), 0)
@@ -570,7 +570,7 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 doormanStorage              = await doormanInstance.storage();
                 governanceStorage           = await governanceInstance.storage();
                 mvkTokenStorage             = await mvkTokenInstance.storage();
-                const initDoormanBalance    = await mvkTokenStorage.ledger.get(contractDeployments.doorman.address);
+                const initDoormanBalance    = await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address);
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
                 const proposalName          = "New Proposal #1";
                 const proposalDesc          = "Details about new proposal #1";
@@ -580,17 +580,17 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 const proposerReward        = governanceStorage.config.successReward.toNumber();
 
                 // Satellite ledger
-                const firstSatelliteRecordStart     = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
-                const firstSatelliteStakeStart      = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
-                const secondSatelliteRecordStart    = await delegationStorage.satelliteRewardsLedger.get(satelliteTwo)
-                const secondSatelliteStakeStart     = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo)
-                const firstSatellite                = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const firstSatelliteRecordStart     = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
+                const firstSatelliteStakeStart      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)
+                const secondSatelliteRecordStart    = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteTwo)
+                const secondSatelliteStakeStart     = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo)
+                const firstSatellite                = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const firstSatelliteFeePct          = firstSatellite.satelliteFee.toNumber();
                 const firstSatelliteFee             = firstSatelliteFeePct / 10000 * proposalReward/2;
                 const firstSatelliteVotingPower     = firstSatellite.totalDelegatedAmount.toNumber() + firstSatellite.stakedMvkBalance.toNumber();
                 const firstSatelliteDistributed     = proposalReward / 2 - firstSatelliteFee
                 const firstSatelliteAccu            = firstSatelliteDistributed / firstSatelliteVotingPower
-                const secondSatellite               = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const secondSatellite               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteTwo);
                 const secondSatelliteFeePct         = secondSatellite.satelliteFee.toNumber();
                 const secondSatelliteFee            = secondSatelliteFeePct / 10000 * proposalReward/2;
                 const secondSatelliteVotingPower    = secondSatellite.totalDelegatedAmount.toNumber() + secondSatellite.stakedMvkBalance.toNumber();
@@ -675,11 +675,11 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 delegationStorage                       = await delegationInstance.storage();
                 doormanStorage                          = await doormanInstance.storage();
                 mvkTokenStorage                         = await mvkTokenInstance.storage();
-                const finalDoormanBalance               = await mvkTokenStorage.ledger.get(contractDeployments.doorman.address);
-                const firstSatelliteRecordNoClaim       = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
-                const firstSatelliteStakeNoClaim        = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
-                const secondSatelliteRecordNoClaim      = await delegationStorage.satelliteRewardsLedger.get(satelliteTwo)
-                const secondSatelliteStakeNoClaim       = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo)
+                const finalDoormanBalance               = await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address);
+                const firstSatelliteRecordNoClaim       = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
+                const firstSatelliteStakeNoClaim        = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)
+                const secondSatelliteRecordNoClaim      = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteTwo)
+                const secondSatelliteStakeNoClaim       = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo)
 
                 // Assertions
                 assert.equal(finalDoormanBalance.toNumber(), initDoormanBalance.toNumber() + proposalReward + proposerReward)
@@ -695,10 +695,10 @@ describe("Delegation Contract: Distribute Reward tests", async () => {
                 doormanStorage                      = await doormanInstance.storage();
                 const firstSatelliteReward          = firstSatelliteAccu * firstSatelliteStakeStart.balance.toNumber() + firstSatelliteFee + firstSatelliteRecordStart.unpaid.toNumber() + proposerReward;
                 const secondSatelliteReward         = secondSatelliteAccu * secondSatelliteStakeStart.balance.toNumber() + secondSatelliteFee + secondSatelliteRecordStart.unpaid.toNumber();
-                const firstSatelliteRecordEnd       = await delegationStorage.satelliteRewardsLedger.get(satelliteOne)
-                const firstSatelliteStakeEnd        = await doormanStorage.userStakeBalanceLedger.get(satelliteOne)
-                const secondSatelliteRecordEnd      = await delegationStorage.satelliteRewardsLedger.get(satelliteTwo)
-                const secondSatelliteStakeEnd       = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo)
+                const firstSatelliteRecordEnd       = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteOne)
+                const firstSatelliteStakeEnd        = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne)
+                const secondSatelliteRecordEnd      = await getStorageMapValue(delegationStorage, 'satelliteRewardsLedger', satelliteTwo)
+                const secondSatelliteStakeEnd       = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo)
 
                 // Assertions
                 assert.equal(firstSatelliteRecordEnd.unpaid.toNumber(), 0)

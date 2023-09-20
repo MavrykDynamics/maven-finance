@@ -326,24 +326,24 @@ describe("Test: Governance Financial Contract", async () => {
                 currentCycle                    = governanceStorage.cycleId;
 
                 // get initial council balance of Mavryk FA12 tokens
-                const initialCouncilMavrykFa12Balance           = (await mavrykFa12TokenStorage.ledger.get(councilAddress)) == undefined ? 0 : (await mavrykFa12TokenStorage.ledger.get(councilAddress)).balance.toNumber();
+                const initialCouncilMavrykFa12Balance           = (await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', councilAddress)) == undefined ? 0 : (await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', councilAddress)).balance.toNumber();
 
                 // get initial values of satellites
-                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                 const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
-                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
-                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo);
                 const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
-                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteTwo);
                 const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
 
-                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteThree);
                 const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
-                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteThree);
                 const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
@@ -372,8 +372,8 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get new council storage and assert tests
                 councilStorage                      = await councilInstance.storage();
-                const councilActionRequestTokens    = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner           = await councilStorage.councilActionsSigners.get({
+                const councilActionRequestTokens    = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner           = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 })
@@ -417,8 +417,8 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage         = await governanceFinancialInstance.storage();
                 
                 // get updated council action and governance financial request
-                const updatedCouncilAction         = await councilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest   = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const updatedCouncilAction         = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const governanceFinancialRequest   = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
@@ -466,21 +466,21 @@ describe("Test: Governance Financial Contract", async () => {
                 mavrykFa12TokenStorage                             = await mavrykFa12TokenInstance.storage();
 
                 // get updated governance financial request and updated council mavryk FA12 token balance   
-                const updatedGovernanceFinancialRequest            = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
-                const updatedCouncilMavrykFa12Balance              = (await mavrykFa12TokenStorage.ledger.get(councilAddress)) == undefined ? 0 : (await mavrykFa12TokenStorage.ledger.get(councilAddress)).balance.toNumber();
+                const updatedGovernanceFinancialRequest            = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);            
+                const updatedCouncilMavrykFa12Balance              = (await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', councilAddress)) == undefined ? 0 : (await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', councilAddress)).balance.toNumber();
 
                 // check details of financial request snapshot ledger
-                const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const satelliteOneFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                const satelliteTwoFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-                const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                const satelliteThreeFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
@@ -514,24 +514,24 @@ describe("Test: Governance Financial Contract", async () => {
                 currentCycle                    = governanceStorage.cycleId;
 
                 // get initial council balance of Mavryk FA2 tokens
-                const initialCouncilMavrykFa2Balance            = (await mavrykFa2TokenStorage.ledger.get(councilAddress)) == undefined ? 0 : (await mavrykFa2TokenStorage.ledger.get(councilAddress)).toNumber();
+                const initialCouncilMavrykFa2Balance            = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', councilAddress)) == undefined ? 0 : (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', councilAddress)).toNumber();
 
                 // get initial values of satellites
-                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                 const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
-                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
-                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo);
                 const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
-                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteTwo);
                 const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
 
-                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteThree);
                 const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
-                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteThree);
                 const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
@@ -560,8 +560,8 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get new council storage and assert tests
                 councilStorage                      = await councilInstance.storage();
-                const councilActionRequestTokens    = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner           = await councilStorage.councilActionsSigners.get({
+                const councilActionRequestTokens    = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner           = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 })
@@ -605,8 +605,8 @@ describe("Test: Governance Financial Contract", async () => {
                 councilStorage                        = await councilInstance.storage();
                 
                 // get updated council action and governance financial request
-                const updatedCouncilAction            = await councilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest      = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const updatedCouncilAction            = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const governanceFinancialRequest      = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
@@ -653,21 +653,21 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage               = await governanceFinancialInstance.storage();        
                 mavrykFa2TokenStorage                    = await mavrykFa2TokenInstance.storage();
                 
-                const updatedGovernanceFinancialRequest  = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
-                const updatedCouncilMavrykFa2Balance     = (await mavrykFa2TokenStorage.ledger.get(councilAddress)) == undefined ? 0 : (await mavrykFa2TokenStorage.ledger.get(councilAddress)).toNumber();
+                const updatedGovernanceFinancialRequest  = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);            
+                const updatedCouncilMavrykFa2Balance     = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', councilAddress)) == undefined ? 0 : (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', councilAddress)).toNumber();
     
                 // check details of financial request snapshot ledger
-                const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const satelliteOneFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                const satelliteTwoFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-                const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                const satelliteThreeFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
@@ -704,27 +704,27 @@ describe("Test: Governance Financial Contract", async () => {
                 const initialCouncilTezBalance  = (await utils.tezos.tz.getBalance(councilAddress)).toNumber();
 
                 // get initial values of satellites
-                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                 const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
-                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
-                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo);
                 const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
-                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteTwo);
                 const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
 
-                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteThree);
                 const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
-                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteThree);
                 const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
                 // request tokens params
                 const tokenAmount                   = 5000000; // 5 XTZ
-                const zeroAddress                   = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
+                const zeroAddress                   = "mv18Cw7psUrAAPBpXYd9CtCpHg9EgjHP9KTe";
                 const treasury                      = contractDeployments.treasury.address;
                 const receiverAddress               = councilAddress;
                 const tokenContractAddress          = zeroAddress;
@@ -748,8 +748,8 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get new council storage and assert tests
                 councilStorage                      = await councilInstance.storage();
-                const councilActionRequestTokens    = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner           = await councilStorage.councilActionsSigners.get({
+                const councilActionRequestTokens    = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner           = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 })
@@ -793,8 +793,8 @@ describe("Test: Governance Financial Contract", async () => {
                 councilStorage                        = await councilInstance.storage();
                 
                 // get updated council action and governance financial request
-                const updatedCouncilAction            = await councilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest      = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const updatedCouncilAction            = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const governanceFinancialRequest      = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
@@ -839,23 +839,23 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get updated storage
                 governanceFinancialStorage                         = await governanceFinancialInstance.storage();        
-                const updatedGovernanceFinancialRequest            = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
+                const updatedGovernanceFinancialRequest            = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);            
 
                 // get updated tez balance for council
                 const updatedCouncilTezBalance                     = (await utils.tezos.tz.getBalance(councilAddress)).toNumber();
                 
                 // check details of financial request snapshot ledger
-                const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const satelliteOneFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                const satelliteTwoFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-                const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                const satelliteThreeFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
@@ -922,24 +922,24 @@ describe("Test: Governance Financial Contract", async () => {
                 currentCycle                    = governanceStorage.cycleId;
 
                 // get council initial mvk balance
-                const initialCouncilMvkBalance  = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                const initialCouncilMvkBalance  = (await getStorageMapValue(mvkTokenStorage, 'ledger', councilAddress)).toNumber();
 
                 // get initial values of satellites
-                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                 const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
-                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
-                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo);
                 const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
-                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteTwo);
                 const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
 
-                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteThree);
                 const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
-                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteThree);
                 const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
@@ -961,8 +961,8 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get new council storage and assert tests            
                 councilStorage                  = await councilInstance.storage();
-                const councilActionRequestMint  = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner           = await councilStorage.councilActionsSigners.get({
+                const councilActionRequestMint  = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner           = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
@@ -997,8 +997,8 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
                 councilStorage                          = await councilInstance.storage();
                 
-                const councilActionRequestMintSigned    = await councilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest        = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const councilActionRequestMintSigned    = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const governanceFinancialRequest        = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
@@ -1045,21 +1045,21 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage                    = await governanceFinancialInstance.storage();        
                 mvkTokenStorage                               = await mvkTokenInstance.storage();
 
-                const updatedGovernanceFinancialRequest       = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
-                const updatedCouncilMvkBalance                = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                const updatedGovernanceFinancialRequest       = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);            
+                const updatedCouncilMvkBalance                = (await getStorageMapValue(mvkTokenStorage, 'ledger', councilAddress)).toNumber();
                 
                 // check details of financial request snapshot ledger
-                const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const satelliteOneFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                const satelliteTwoFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-                const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                const satelliteThreeFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
@@ -1094,24 +1094,24 @@ describe("Test: Governance Financial Contract", async () => {
                 currentCycle                    = governanceStorage.cycleId;
 
                 // get council initial mvk balance
-                const initialCouncilMvkBalance  = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                const initialCouncilMvkBalance  = (await getStorageMapValue(mvkTokenStorage, 'ledger', councilAddress)).toNumber();
 
                 // get initial values of satellites
-                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                 const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
-                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
-                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo);
                 const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
-                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteTwo);
                 const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
 
-                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteThree);
                 const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
-                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteThree);
                 const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
@@ -1134,8 +1134,8 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get new council storage and assert tests            
                 councilStorage                  = await councilInstance.storage();
-                const councilActionRequestMint  = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner           = await councilStorage.councilActionsSigners.get({
+                const councilActionRequestMint  = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner           = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
@@ -1170,8 +1170,8 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
                 councilStorage                          = await councilInstance.storage();
                 
-                const councilActionRequestMintSigned    = await councilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest        = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const councilActionRequestMintSigned    = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const governanceFinancialRequest        = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
@@ -1219,21 +1219,21 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage                    = await governanceFinancialInstance.storage();        
                 mvkTokenStorage                               = await mvkTokenInstance.storage();
 
-                const updatedGovernanceFinancialRequest       = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
-                const updatedCouncilMvkBalance                = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                const updatedGovernanceFinancialRequest       = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);            
+                const updatedCouncilMvkBalance                = (await getStorageMapValue(mvkTokenStorage, 'ledger', councilAddress)).toNumber();
                 
                 // check details of financial request snapshot ledger
-                const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const satelliteOneFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                const satelliteTwoFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-                const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                const satelliteThreeFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
@@ -1295,21 +1295,21 @@ describe("Test: Governance Financial Contract", async () => {
                 currentCycle                    = governanceStorage.cycleId;
 
                 // get initial values of satellites
-                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                 const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
-                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
-                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo);
                 const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
-                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteTwo);
                 const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
 
-                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteThree);
                 const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
-                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteThree);
                 const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
@@ -1326,8 +1326,8 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get new council storage and assert tests            
                 councilStorage                  = await councilInstance.storage();
-                const councilAction             = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner       = await councilStorage.councilActionsSigners.get({
+                const councilAction             = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner       = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
@@ -1356,8 +1356,8 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
                 councilStorage                          = await councilInstance.storage();
                 
-                const councilActionSetContractBakerSigned   = await councilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest            = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const councilActionSetContractBakerSigned   = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const governanceFinancialRequest            = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
@@ -1369,7 +1369,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(councilActionSetContractBakerSigned.executed,      true);
                 assert.equal(councilActionSetContractBakerSigned.status,        "EXECUTED");
 
-                const zeroAddress = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
+                const zeroAddress = "mv18Cw7psUrAAPBpXYd9CtCpHg9EgjHP9KTe";
 
                 // check details of financial request
                 assert.equal(governanceFinancialRequest.requesterAddress,               councilAddress);
@@ -1405,20 +1405,20 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage                    = await governanceFinancialInstance.storage();        
                 mvkTokenStorage                               = await mvkTokenInstance.storage();
 
-                const updatedGovernanceFinancialRequest       = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
+                const updatedGovernanceFinancialRequest       = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);            
                 
                 // check details of financial request snapshot ledger
-                const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const satelliteOneFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                const satelliteTwoFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-                const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                const satelliteThreeFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
@@ -1451,21 +1451,21 @@ describe("Test: Governance Financial Contract", async () => {
                 currentCycle                    = governanceStorage.cycleId;
 
                 // get initial values of satellites
-                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                 const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
-                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
-                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo);
                 const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
-                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteTwo);
                 const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
 
-                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteThree);
                 const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
-                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteThree);
                 const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
@@ -1482,8 +1482,8 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get new council storage and assert tests            
                 councilStorage                  = await councilInstance.storage();
-                const councilAction             = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner       = await councilStorage.councilActionsSigners.get({
+                const councilAction             = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner       = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
@@ -1512,8 +1512,8 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
                 councilStorage                          = await councilInstance.storage();
                 
-                const councilActionSetContractBakerSigned   = await councilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest            = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const councilActionSetContractBakerSigned   = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const governanceFinancialRequest            = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
@@ -1525,7 +1525,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(councilActionSetContractBakerSigned.executed,      true);
                 assert.equal(councilActionSetContractBakerSigned.status,        "EXECUTED");
 
-                const zeroAddress = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
+                const zeroAddress = "mv18Cw7psUrAAPBpXYd9CtCpHg9EgjHP9KTe";
 
                 // check details of financial request
                 assert.equal(governanceFinancialRequest.requesterAddress,               councilAddress);
@@ -1561,20 +1561,20 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage                    = await governanceFinancialInstance.storage();        
                 mvkTokenStorage                               = await mvkTokenInstance.storage();
 
-                const updatedGovernanceFinancialRequest       = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
+                const updatedGovernanceFinancialRequest       = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);            
                 
                 // check details of financial request snapshot ledger
-                const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const satelliteOneFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                const satelliteTwoFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-                const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                const satelliteThreeFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
@@ -1653,8 +1653,8 @@ describe("Test: Governance Financial Contract", async () => {
     
                 // get new council storage and assert tests            
                 councilStorage                      = await councilInstance.storage();
-                const councilActionRequestTokens    = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner           = await councilStorage.councilActionsSigners.get({
+                const councilActionRequestTokens    = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner           = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
@@ -1695,7 +1695,7 @@ describe("Test: Governance Financial Contract", async () => {
     
                 // get updated storage
                 var updatedCouncilStorage      = await councilInstance.storage();
-                const updatedCouncilAction     = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
+                const updatedCouncilAction     = await getStorageMapValue(updatedCouncilStorage, 'councilActionsLedger', councilActionId);
                 const dropCouncilActionId      = updatedCouncilStorage.actionCounter;
     
                 // check that council action is yayd and has been executed
@@ -1718,7 +1718,7 @@ describe("Test: Governance Financial Contract", async () => {
                 await signActionOperation.confirmation();
 
                 councilStorage                       = await councilInstance.storage();
-                var councilActionDropRequestSigned   = await councilStorage.councilActionsLedger.get(dropCouncilActionId);
+                var councilActionDropRequestSigned   = await getStorageMapValue(councilStorage, 'councilActionsLedger', dropCouncilActionId);
 
                 // check that council action is yayd and has been executed
                 assert.equal(councilActionDropRequestSigned.signersCount,  3);
@@ -1727,7 +1727,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // Check that request has been dropped on the governance contract
                 governanceFinancialStorage   = await governanceFinancialInstance.storage();
-                const financialRequest       = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const financialRequest       = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 assert.equal(financialRequest.executed,      false);
                 assert.equal(financialRequest.status,        false);
@@ -1757,24 +1757,24 @@ describe("Test: Governance Financial Contract", async () => {
                 currentCycle                    = governanceStorage.cycleId;
 
                 // get council initial mvk balance
-                const initialCouncilMvkBalance  = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                const initialCouncilMvkBalance  = (await getStorageMapValue(mvkTokenStorage, 'ledger', councilAddress)).toNumber();
 
                 // get initial values of satellites
-                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                 const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
-                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
-                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo);
                 const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
-                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteTwo);
                 const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
 
-                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteThree);
                 const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
-                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteThree);
                 const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
@@ -1797,8 +1797,8 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get new council storage and assert tests            
                 councilStorage                  = await councilInstance.storage();
-                const councilActionRequestMint  = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner       = await councilStorage.councilActionsSigners.get({
+                const councilActionRequestMint  = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner       = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
@@ -1833,8 +1833,8 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
                 councilStorage                          = await councilInstance.storage();
                 
-                const councilActionRequestMintSigned   = await councilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest        = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const councilActionRequestMintSigned   = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const governanceFinancialRequest        = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
@@ -1881,21 +1881,21 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage                    = await governanceFinancialInstance.storage();        
                 mvkTokenStorage                               = await mvkTokenInstance.storage();
 
-                const updatedGovernanceFinancialRequest       = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
-                const updatedCouncilMvkBalance                = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                const updatedGovernanceFinancialRequest       = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);            
+                const updatedCouncilMvkBalance                = (await getStorageMapValue(mvkTokenStorage, 'ledger', councilAddress)).toNumber();
                 
                 // check details of financial request snapshot ledger
-                const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const satelliteOneFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                const satelliteTwoFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-                const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                const satelliteThreeFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
@@ -1935,21 +1935,21 @@ describe("Test: Governance Financial Contract", async () => {
                 currentCycle                    = governanceStorage.cycleId;
 
                 // get initial values of satellites
-                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                 const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
-                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
-                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo);
                 const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
-                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteTwo);
                 const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
 
-                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteThree);
                 const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
-                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteThree);
                 const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
@@ -1972,8 +1972,8 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get new council storage and assert tests            
                 councilStorage                  = await councilInstance.storage();
-                const councilActionRequestMint  = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner       = await councilStorage.councilActionsSigners.get({
+                const councilActionRequestMint  = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner       = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
@@ -2008,8 +2008,8 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
                 councilStorage                          = await councilInstance.storage();
                 
-                const updatedCouncilAction              = await councilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest        = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const updatedCouncilAction              = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const governanceFinancialRequest        = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
@@ -2046,7 +2046,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get updated storage (governance financial request)
                 governanceFinancialStorage                    = await governanceFinancialInstance.storage();        
-                var updatedGovernanceFinancialRequest         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                var updatedGovernanceFinancialRequest         = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
                 
                 assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal, initialSatelliteOneTotalVotingPower)
                 assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal, 0)
@@ -2057,7 +2057,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get updated storage (governance financial request)
                 governanceFinancialStorage                       = await governanceFinancialInstance.storage();        
-                updatedGovernanceFinancialRequest                = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                updatedGovernanceFinancialRequest                = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
                 assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal, 0)
                 assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal, initialSatelliteOneTotalVotingPower)
 
@@ -2067,22 +2067,22 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get updated storage (governance financial request)
                 governanceFinancialStorage                 = await governanceFinancialInstance.storage();        
-                updatedGovernanceFinancialRequest          = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                updatedGovernanceFinancialRequest          = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
                 assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal, 0)
                 assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal, initialSatelliteOneTotalVotingPower)
 
                 // check details of financial request snapshot
-                const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const satelliteOneFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                const satelliteTwoFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-                const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                const satelliteThreeFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
@@ -2112,9 +2112,9 @@ describe("Test: Governance Financial Contract", async () => {
                 currentCycle                    = governanceStorage.cycleId;
 
                 // get initial values of satellites
-                const initialSatelliteOneStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                 const initialSatelliteOneStakedBalance        = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
-                const initialSatelliteOneRecord               = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const initialSatelliteOneTotalDelegatedAmount = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteOneTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
@@ -2137,8 +2137,8 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get new council storage and assert tests            
                 councilStorage                  = await councilInstance.storage();
-                const councilActionRequestMint  = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner       = await councilStorage.councilActionsSigners.get({
+                const councilActionRequestMint  = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner       = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
@@ -2173,8 +2173,8 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage          = await governanceFinancialInstance.storage();
                 councilStorage                      = await councilInstance.storage();
                 
-                const updatedCouncilAction          = await councilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest    = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const updatedCouncilAction          = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const governanceFinancialRequest    = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
@@ -2210,7 +2210,7 @@ describe("Test: Governance Financial Contract", async () => {
                 await chai.expect(satelliteVotesForFinancialRequestOperation.send()).to.be.rejected;
     
                 // check details of financial request snapshot ledger
-                const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const satelliteOneFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
@@ -2264,12 +2264,12 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // check created council action
                 councilStorage                      = await councilInstance.storage();
-                const councilAction                 = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner           = await councilStorage.councilActionsSigners.get({
+                const councilAction                 = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner           = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
-                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: councilActionId, 1: councilMember})
+                const actionSigner                  = await getStorageMapValue(councilStorage, 'councilActionsSigners', {0: councilActionId, 1: councilMember})
                 const dataMap                       = await councilAction.dataMap;
 
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasuryAddress }, type: { prim: 'address' } })).packed
@@ -2310,8 +2310,8 @@ describe("Test: Governance Financial Contract", async () => {
                 councilStorage                  = await councilInstance.storage();
                 governanceFinancialStorage      = await governanceFinancialInstance.storage();
 
-                const updatedCouncilAction      = await councilStorage.councilActionsLedger.get(councilActionId);
-                var governanceFinancialRequest  = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const updatedCouncilAction      = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                var governanceFinancialRequest  = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // check that council action is approved and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -2378,12 +2378,12 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // check created council action
                 councilStorage                      = await councilInstance.storage();
-                const councilAction                 = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner           = await councilStorage.councilActionsSigners.get({
+                const councilAction                 = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner           = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
-                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: councilActionId, 1: councilMember})
+                const actionSigner                  = await getStorageMapValue(councilStorage, 'councilActionsSigners', {0: councilActionId, 1: councilMember})
                 const dataMap                       = await councilAction.dataMap;
 
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasuryAddress }, type: { prim: 'address' } })).packed
@@ -2424,8 +2424,8 @@ describe("Test: Governance Financial Contract", async () => {
                 councilStorage                  = await councilInstance.storage();
                 governanceFinancialStorage      = await governanceFinancialInstance.storage();
 
-                const updatedCouncilAction      = await councilStorage.councilActionsLedger.get(councilActionId);
-                var governanceFinancialRequest  = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const updatedCouncilAction      = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                var governanceFinancialRequest  = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // check that council action is approved and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -2455,7 +2455,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get updated council action for drop request
                 councilStorage          = await councilInstance.storage();
-                var dropCouncilAction   = await councilStorage.councilActionsLedger.get(dropCouncilActionId);
+                var dropCouncilAction   = await getStorageMapValue(councilStorage, 'councilActionsLedger', dropCouncilActionId);
 
                 // check that council action is successful and has been executed
                 assert.equal(dropCouncilAction.signersCount,  3);
@@ -2463,7 +2463,7 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(dropCouncilAction.status,        "EXECUTED");
                 
                 governanceFinancialStorage           = await governanceFinancialInstance.storage();
-                var governanceFinancialRequest       = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                var governanceFinancialRequest       = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // check details of financial request (status should be false)
                 assert.equal(governanceFinancialRequest.executed,      false);
@@ -2493,24 +2493,24 @@ describe("Test: Governance Financial Contract", async () => {
                 currentCycle                    = governanceStorage.cycleId;
                 
                 // get initial MVK balance of council
-                const initialCouncilMvkBalance                  = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                const initialCouncilMvkBalance                  = (await getStorageMapValue(mvkTokenStorage, 'ledger', councilAddress)).toNumber();
 
                 // get initial values of satellites
-                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                 const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
-                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
-                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo);
                 const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
-                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteTwo);
                 const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
 
-                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteThree);
                 const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
-                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteThree);
                 const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
@@ -2533,8 +2533,8 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get new council storage and assert tests            
                 councilStorage                  = await councilInstance.storage();
-                const councilActionRequestMint  = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner       = await councilStorage.councilActionsSigners.get({
+                const councilActionRequestMint  = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner       = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
@@ -2569,8 +2569,8 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage   = await governanceFinancialInstance.storage();
                 var updatedCouncilStorage    = await councilInstance.storage();
                 
-                const updatedCouncilAction          = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest    = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const updatedCouncilAction          = await getStorageMapValue(updatedCouncilStorage, 'councilActionsLedger', councilActionId);
+                const governanceFinancialRequest    = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // check that council action is yayd and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -2614,20 +2614,20 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get updated storage (governance financial request ledger and council account in mvk token contract)
                 governanceFinancialStorage                  = await governanceFinancialInstance.storage();        
-                const updatedGovernanceFinancialRequest     = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
+                const updatedGovernanceFinancialRequest     = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);            
     
                 // check details of financial request snapshot ledger
-                const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const satelliteOneFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                const satelliteTwoFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-                const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                const satelliteThreeFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
@@ -2640,7 +2640,7 @@ describe("Test: Governance Financial Contract", async () => {
             
                 // update mvk token storage
                 mvkTokenStorage                  = await mvkTokenInstance.storage();
-                const updatedCouncilMvkBalance   = await mvkTokenStorage.ledger.get(councilAddress);
+                const updatedCouncilMvkBalance   = await getStorageMapValue(mvkTokenStorage, 'ledger', councilAddress);
 
                 // check that council now has the correct updated balance
                 assert.equal(updatedCouncilMvkBalance, initialCouncilMvkBalance + tokenAmount);
@@ -2687,21 +2687,21 @@ describe("Test: Governance Financial Contract", async () => {
                 currentCycle                    = governanceStorage.cycleId;
 
                 // get initial values of satellites
-                const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                const initialSatelliteOneStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteOne);
                 const initialSatelliteOneStakedBalance          = initialSatelliteOneStakeRecord === undefined ? 0 : initialSatelliteOneStakeRecord.balance.toNumber();
-                const initialSatelliteOneRecord                 = await delegationStorage.satelliteLedger.get(satelliteOne);
+                const initialSatelliteOneRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteOne);
                 const initialSatelliteOneTotalDelegatedAmount   = initialSatelliteOneRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteOneTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteOneStakedBalance, initialSatelliteOneTotalDelegatedAmount);
 
-                const initialSatelliteTwoStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteTwo);
+                const initialSatelliteTwoStakeRecord            = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteTwo);
                 const initialSatelliteTwoStakedBalance          = initialSatelliteTwoStakeRecord === undefined ? 0 : initialSatelliteTwoStakeRecord.balance.toNumber();
-                const initialSatelliteTwoRecord                 = await delegationStorage.satelliteLedger.get(satelliteTwo);
+                const initialSatelliteTwoRecord                 = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteTwo);
                 const initialSatelliteTwoTotalDelegatedAmount   = initialSatelliteTwoRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteTwoTotalVotingPower       = calcTotalVotingPower(delegationRatio, initialSatelliteTwoStakedBalance, initialSatelliteTwoTotalDelegatedAmount);
 
-                const initialSatelliteThreeStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(satelliteThree);
+                const initialSatelliteThreeStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', satelliteThree);
                 const initialSatelliteThreeStakedBalance        = initialSatelliteThreeStakeRecord === undefined ? 0 : initialSatelliteThreeStakeRecord.balance.toNumber();
-                const initialSatelliteThreeRecord               = await delegationStorage.satelliteLedger.get(satelliteThree);
+                const initialSatelliteThreeRecord               = await getStorageMapValue(delegationStorage, 'satelliteLedger', satelliteThree);
                 const initialSatelliteThreeTotalDelegatedAmount = initialSatelliteThreeRecord.totalDelegatedAmount.toNumber();
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
                 
@@ -2724,8 +2724,8 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get new council storage and assert tests            
                 councilStorage                  = await councilInstance.storage();
-                const councilActionRequestMint  = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner       = await councilStorage.councilActionsSigners.get({
+                const councilActionRequestMint  = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner       = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
@@ -2760,8 +2760,8 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage          = await governanceFinancialInstance.storage();
                 councilStorage                      = await councilInstance.storage();
                 
-                const updatedCouncilAction          = await councilStorage.councilActionsLedger.get(councilActionId);
-                const governanceFinancialRequest    = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const updatedCouncilAction          = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const governanceFinancialRequest    = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
                 // calculate staked MVK required for approval
@@ -2808,17 +2808,17 @@ describe("Test: Governance Financial Contract", async () => {
                 await chai.expect(councilInstance.methods.signAction(dropCouncilActionId).send()).to.be.rejected;
     
                 // check details of financial request snapshot
-                const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const satelliteOneFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
-                const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                const satelliteTwoFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
-                const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                const satelliteThreeFinancialRequestSnapshot = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
@@ -2915,7 +2915,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // Final values
                 governanceFinancialStorage       = await governanceFinancialInstance.storage();            
 
-                const updatedData       = await governanceFinancialStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(governanceFinancialStorage, 'metadata', key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -3149,14 +3149,14 @@ describe("Test: Governance Financial Contract", async () => {
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
                 mistakenTransferOperation = await mistakenTransferFa2Token(governanceFinancialInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -3278,12 +3278,12 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // check created council action
                 councilStorage                      = await councilInstance.storage();
-                const councilAction                 = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner           = await councilStorage.councilActionsSigners.get({
+                const councilAction                 = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner           = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
-                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: councilActionId, 1: councilMember})
+                const actionSigner                  = await getStorageMapValue(councilStorage, 'councilActionsSigners', {0: councilActionId, 1: councilMember})
                 const dataMap                       = await councilAction.dataMap;
 
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasuryAddress }, type: { prim: 'address' } })).packed
@@ -3324,8 +3324,8 @@ describe("Test: Governance Financial Contract", async () => {
                 councilStorage                  = await councilInstance.storage();
                 governanceFinancialStorage      = await governanceFinancialInstance.storage();
 
-                const updatedCouncilAction      = await councilStorage.councilActionsLedger.get(councilActionId);
-                var governanceFinancialRequest  = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const updatedCouncilAction      = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                var governanceFinancialRequest  = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // check that council action is approved and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -3387,12 +3387,12 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // check created council action
                 councilStorage                      = await councilInstance.storage();
-                const councilAction                 = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner           = await councilStorage.councilActionsSigners.get({
+                const councilAction                 = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner           = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
-                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: councilActionId, 1: councilMember})
+                const actionSigner                  = await getStorageMapValue(councilStorage, 'councilActionsSigners', {0: councilActionId, 1: councilMember})
                 const dataMap                       = await councilAction.dataMap;
 
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasuryAddress }, type: { prim: 'address' } })).packed
@@ -3433,8 +3433,8 @@ describe("Test: Governance Financial Contract", async () => {
                 councilStorage                  = await councilInstance.storage();
                 governanceFinancialStorage      = await governanceFinancialInstance.storage();
 
-                const updatedCouncilAction      = await councilStorage.councilActionsLedger.get(councilActionId);
-                var governanceFinancialRequest  = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const updatedCouncilAction      = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                var governanceFinancialRequest  = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // check that council action is approved and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -3467,7 +3467,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // random lambda for testing
                 const lambdaName            = "lambdaSetGovernance";
-                const initialLambdaBytes    = await governanceFinancialStorage.lambdaLedger.get(lambdaName);
+                const initialLambdaBytes    = await getStorageMapValue(governanceFinancialStorage, 'lambdaLedger', lambdaName);
                 const randomLambdaBytes     = "050200000cba0743096500000112075e09650000005a036e036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a0362036203620362036200000000036203620760036803690000000009650000000a0362036203620362036e00000000075e09650000006c09650000000a0362036203620362036200000000036e07610368036907650362036c036e036e07600368036e07600368036e09650000000e0359035903590359035903590359000000000761036e09650000000a036203620362036203620000000003620362076003680369000000000362075e07650765036203620362036c075e076507650368036e0362036e036200000000070702000001770743075e076507650368036e0362036e020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c03200342020000010e037a034c037a07430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700002034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f02000000090743036200810303270200000000072f020000000907430362009c0203270200000000070702000000600743036200808080809d8fc0d0bff2f1b26703420200000047037a034c037a0321052900080570000205290015034b031105710002031605700002033a0322072f020000001307430368010000000844495620627920300327020000000003160707020000001a037a037a03190332072c0200000002032002000000020327034f0707020000004d037a037a0790010000001567657447656e6572616c436f6e74726163744f70740563036e072f020000000b03200743036200a60603270200000012072f020000000203270200000004034c032000808080809d8fc0d0bff2f1b2670342020000092d037a057a000505700005037a034c07430362008f03052100020529000f0529000307430359030a034c03190325072c0200000002032702000000020320053d036d05700002072e02000008a4072e020000007c057000030570000405700005057000060570000705200005072e020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000002c072e0200000010072e02000000020320020000000203200200000010072e0200000002032002000000020320020000081c072e0200000044057000030570000405700005057000060570000705200005072e0200000010072e02000000020320020000000203200200000010072e020000000203200200000002032002000007cc072e0200000028057000030570000405700005057000060570000705200005072e02000000020320020000000203200200000798072e0200000774034c032003480521000305210003034c052900050316034c03190328072c020000000002000000090743036200880303270570000205210002034c0321052100030521000205290011034c0329072f020000002005290015074303620000074303620000074303620000074303620000054200050200000004034c03200743036200000521000203160319032a072c020000021c052100020521000407430362008e02057000020529000907430368010000000a64656c65676174696f6e034203420521000b034c0326034c07900100000016676574536174656c6c697465526577617264734f7074056309650000008504620000000725756e70616964046200000005257061696404620000001d2570617274696369706174696f6e52657761726473506572536861726504620000002425736174656c6c697465416363756d756c61746564526577617264735065725368617265046e0000001a25736174656c6c6974655265666572656e63654164647265737300000000072f0200000009074303620081030327020000001a072f02000000060743035903030200000008032007430359030a074303620000034c072c020000007303200521000205210004034205210007034c0326052100030521000205290008034205700007034c03260521000205290005034c05290007034b0311052100030316033a0521000b034c0322072f02000000130743036801000000084449562062792030032702000000000316034c0316031202000000060570000603200521000305210003034205210008034c0326052100030521000205700004052900030312055000030571000205210003052100030570000405290005031205500005057100020521000305700002052100030570000403160312031205500001034c05210003034c0570000305290013034b031105500013034c02000000060570000503200521000205290015055000080521000205700002052900110570000205700003034c0346034c0350055000110571000205210003052900070743036200000790010000000c746f74616c5f737570706c790362072f020000000907430362008a01032702000000000521000405290007074303620000037703420790010000000b6765745f62616c616e63650362072f02000000090743036200890103270200000000034c052100090743036200a40105210004033a033a0322072f0200000013074303680100000008444956206279203003270200000000031605210009074303620002033a0312052100090521000a07430362008803033a033a0322072f020000001307430368010000000844495620627920300327020000000003160743036200a401034c0322072f0200000013074303680100000008444956206279203003270200000000031605210004033a05210009052100020322072f0200000013074303680100000008444956206279203003270200000000031605210005034b0311052100060570000a052100040322072f0200000013074303680100000008444956206279203003270200000000031605700007052900130312055000130571000507430362008c0305210004052100070342034205210009034c0326032005700005057000030342052100050570000305700002037a034c0570000305700002034b0311074303620000052100020319032a072c020000003b05210002034c057000030322072f02000000130743036801000000084449562062792030032702000000000316057000020529001503120550001502000000080570000205200002057100030521000405210003034c05290011034c0329072f0200000009074303620089030327020000000003210521000507430362008b03057000020316057000020342034205700007034c03260320032105700004057000020316034b031105500001052100040529000707430362000005700003034205210004037705700002037a057000040655055f0765046e000000062566726f6d5f065f096500000026046e0000000425746f5f04620000000925746f6b656e5f696404620000000725616d6f756e7400000000000000042574787300000009257472616e73666572072f0200000008074303620027032702000000000743036a0000053d0765036e055f096500000006036e0362036200000000053d096500000006036e036203620000000005700004057000050570000705420003031b057000040342031b034d0743036200000521000303160319032a072c02000000440521000405210003034205700005034c032605210003052100020570000403160312055000010571000205210005034c0570000505290013034b031105500013057100030200000006057000040320034c052100040529001505500008034c0521000405700004052900110570000305210005034c0346034c03500550001105710002052100030570000207430362008e02057000020529000907430368010000000a64656c65676174696f6e0342034205700004034c03260655036e0000000e256f6e5374616b654368616e6765072f02000000090743036200b702032702000000000743036a000005700002034d053d036d034c031b034c031b02000000180570000305700004057000050570000605700007052000060200000036057000030570000405700005057000060570000705200005072e0200000010072e0200000002032002000000020320020000000203200342";
 
                 // set lambda operation
@@ -3478,7 +3478,7 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage = await governanceFinancialInstance.storage();
 
                 // check that new random lambda is set
-                const lambda = await governanceFinancialStorage.lambdaLedger.get(lambdaName);
+                const lambda = await getStorageMapValue(governanceFinancialStorage, 'lambdaLedger', lambdaName);
                 assert.equal(lambda, randomLambdaBytes);
 
                 // reset lambda operation
@@ -3489,7 +3489,7 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage = await governanceFinancialInstance.storage();
 
                 // check that lambda is reset
-                const updatedLambda = await governanceFinancialStorage.lambdaLedger.get(lambdaName);
+                const updatedLambda = await getStorageMapValue(governanceFinancialStorage, 'lambdaLedger', lambdaName);
                 assert.equal(updatedLambda, initialLambdaBytes);
 
             } catch(e) {
@@ -3558,7 +3558,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 governanceFinancialStorage       = await governanceFinancialInstance.storage();   
-                const initialMetadata   = await governanceFinancialStorage.metadata.get(key);
+                const initialMetadata   = await getStorageMapValue(governanceFinancialStorage, 'metadata', key);
 
                 // Operation
                 const updateOperation = await governanceFinancialInstance.methods.updateMetadata(key, hash);
@@ -3566,7 +3566,7 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // Final values
                 governanceFinancialStorage       = await governanceFinancialInstance.storage();            
-                const updatedData       = await governanceFinancialStorage.metadata.get(key);
+                const updatedData       = await getStorageMapValue(governanceFinancialStorage, 'metadata', key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);
@@ -3808,12 +3808,12 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // check created council action
                 councilStorage                      = await councilInstance.storage();
-                const councilAction                 = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner           = await councilStorage.councilActionsSigners.get({
+                const councilAction                 = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner           = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
-                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: councilActionId, 1: councilMember})
+                const actionSigner                  = await getStorageMapValue(councilStorage, 'councilActionsSigners', {0: councilActionId, 1: councilMember})
                 const dataMap                       = await councilAction.dataMap;
 
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasuryAddress }, type: { prim: 'address' } })).packed
@@ -3854,8 +3854,8 @@ describe("Test: Governance Financial Contract", async () => {
                 councilStorage                  = await councilInstance.storage();
                 governanceFinancialStorage      = await governanceFinancialInstance.storage();
 
-                const updatedCouncilAction      = await councilStorage.councilActionsLedger.get(councilActionId);
-                var governanceFinancialRequest  = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const updatedCouncilAction      = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                var governanceFinancialRequest  = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // check that council action is approved and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -3917,12 +3917,12 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // check created council action
                 councilStorage                      = await councilInstance.storage();
-                const councilAction                 = await councilStorage.councilActionsLedger.get(councilActionId);
-                const councilActionSigner           = await councilStorage.councilActionsSigners.get({
+                const councilAction                 = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                const councilActionSigner           = await getStorageMapValue(councilStorage, 'councilActionsSigners', {
                     0: councilActionId,
                     1: councilMemberOne
                 });
-                const actionSigner                  = await councilStorage.councilActionsSigners.get({0: councilActionId, 1: councilMember})
+                const actionSigner                  = await getStorageMapValue(councilStorage, 'councilActionsSigners', {0: councilActionId, 1: councilMember})
                 const dataMap                       = await councilAction.dataMap;
 
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasuryAddress }, type: { prim: 'address' } })).packed
@@ -3963,8 +3963,8 @@ describe("Test: Governance Financial Contract", async () => {
                 councilStorage                  = await councilInstance.storage();
                 governanceFinancialStorage      = await governanceFinancialInstance.storage();
 
-                const updatedCouncilAction      = await councilStorage.councilActionsLedger.get(councilActionId);
-                var governanceFinancialRequest  = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const updatedCouncilAction      = await getStorageMapValue(councilStorage, 'councilActionsLedger', councilActionId);
+                var governanceFinancialRequest  = await getStorageMapValue(governanceFinancialStorage, 'financialRequestLedger', financialRequestCounter);
 
                 // check that council action is approved and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);

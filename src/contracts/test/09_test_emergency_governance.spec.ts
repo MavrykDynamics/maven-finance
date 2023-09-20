@@ -198,7 +198,7 @@ describe("Emergency Governance tests", async () => {
                 const sMvkRequiredToTrigger     = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
                 stakeAmount                     = sMvkRequiredToTrigger; 
 
-                initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 // ensure that user has enough staked MVK to trigger emergency governance
@@ -236,7 +236,7 @@ describe("Emergency Governance tests", async () => {
                 const sMvkRequiredToTrigger     = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
                 stakeAmount                     = sMvkRequiredToTrigger; 
 
-                initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 const belowRequiredFeeMutz      = requiredFeeMutez - 1;
@@ -280,7 +280,7 @@ describe("Emergency Governance tests", async () => {
                 doormanStorage                  = await doormanInstance.storage();
                 const requiredFeeMutez          = emergencyGovernanceStorage.config.requiredFeeMutez;
                 const sMvkRequiredToTrigger     = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
-                initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 // ensure that user staked balance does not exceed staked MVK required to trigger
@@ -316,7 +316,7 @@ describe("Emergency Governance tests", async () => {
                 const requiredFeeMutez           = emergencyGovernanceStorage.config.requiredFeeMutez;
                 const sMvkRequiredToTrigger      = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
 
-                initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
                 
                 // ensure that user has enough staked MVK to trigger emergency governance
@@ -381,7 +381,7 @@ describe("Emergency Governance tests", async () => {
                 const sMvkRequiredToTrigger      = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
                 const stakeMvkPercentageRequired = emergencyGovernanceStorage.config.stakedMvkPercentageRequired;
 
-                initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
@@ -409,7 +409,7 @@ describe("Emergency Governance tests", async () => {
                 // Final values
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
-                const emergencyProposal     = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+                const emergencyProposal     = await getStorageMapValue(emergencyGovernanceStorage, 'emergencyGovernanceLedger', emergencyID);
 
                 // check that emergency id is not zero, and emergency proposal is not undefined
                 assert.notEqual(emergencyID         , 0);
@@ -472,7 +472,7 @@ describe("Emergency Governance tests", async () => {
                 const sMvkRequiredToTrigger      = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
                 const stakeMvkPercentageRequired = emergencyGovernanceStorage.config.stakedMvkPercentageRequired;
 
-                initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
@@ -500,7 +500,7 @@ describe("Emergency Governance tests", async () => {
                 // Final values
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
-                const emergencyProposal     = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+                const emergencyProposal     = await getStorageMapValue(emergencyGovernanceStorage, 'emergencyGovernanceLedger', emergencyID);
 
                 // check that emergency id is not zero, and emergency proposal is not undefined
                 assert.notEqual(emergencyID         , 0);
@@ -545,7 +545,7 @@ describe("Emergency Governance tests", async () => {
                 doormanStorage              = await doormanInstance.storage()
                 const sMvkRequiredToVote    = emergencyGovernanceStorage.config.minStakedMvkRequiredToVote;
 
-                initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakeRecord          = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 // ensure that user staked balance does not exceed staked MVK required to vote
@@ -557,7 +557,7 @@ describe("Emergency Governance tests", async () => {
                 } 
 
                 doormanStorage              = await doormanInstance.storage()
-                updatedUserStakeRecord      = await doormanStorage.userStakeBalanceLedger.get(user);
+                updatedUserStakeRecord      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 updatedUserStakedBalance    = updatedUserStakeRecord === undefined ? 0 : updatedUserStakeRecord.balance.toNumber()
 
                 assert.equal(updatedUserStakedBalance < sMvkRequiredToVote, true);
@@ -587,7 +587,7 @@ describe("Emergency Governance tests", async () => {
                 const sMvkRequiredToVote        = emergencyGovernanceStorage.config.minStakedMvkRequiredToVote;
 
                 // get user staked balance
-                initialUserStakeRecord      = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakeRecord      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance    = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 // ensure that user has enough staked MVK to vote for emergency governance
@@ -636,11 +636,11 @@ describe("Emergency Governance tests", async () => {
                 doormanStorage              = await doormanInstance.storage();
                 const sMvkRequiredToVote    = emergencyGovernanceStorage.config.minStakedMvkRequiredToVote;
                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
-                emergencyProposal           = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+                emergencyProposal           = await getStorageMapValue(emergencyGovernanceStorage, 'emergencyGovernanceLedger', emergencyID);
                 initialTotalStakedMvkVotes  = emergencyProposal.totalStakedMvkVotes;
                 
                 // get user staked balance
-                initialUserStakeRecord      = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakeRecord      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance    = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 // ensure that user has enough staked MVK to vote for emergency governance
@@ -657,7 +657,7 @@ describe("Emergency Governance tests", async () => {
 
                 // get updated user staked balance
                 doormanStorage              = await doormanInstance.storage();
-                updatedUserStakeRecord      = await doormanStorage.userStakeBalanceLedger.get(user);
+                updatedUserStakeRecord      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 updatedUserStakedBalance    = updatedUserStakeRecord === undefined ? 0 : updatedUserStakeRecord.balance.toNumber()
                 assert.notEqual(updatedUserStakeRecord, 0);
                 
@@ -669,9 +669,9 @@ describe("Emergency Governance tests", async () => {
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
                 doormanStorage              = await doormanInstance.storage()
 
-                emergencyProposal           = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+                emergencyProposal           = await getStorageMapValue(emergencyGovernanceStorage, 'emergencyGovernanceLedger', emergencyID);
                 updatedTotalStakedMvkVotes  = emergencyProposal.totalStakedMvkVotes;
-                const userVote              = await emergencyGovernanceStorage.emergencyGovernanceVoters.get({
+                const userVote              = await getStorageMapValue(emergencyGovernanceStorage, 'emergencyGovernanceVoters', {
                     0: emergencyGovernanceStorage.currentEmergencyGovernanceId,
                     1: user
                 });
@@ -702,11 +702,11 @@ describe("Emergency Governance tests", async () => {
                 doormanStorage              = await doormanInstance.storage();
                 const sMvkRequiredToVote    = emergencyGovernanceStorage.config.minStakedMvkRequiredToVote;
                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
-                emergencyProposal           = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+                emergencyProposal           = await getStorageMapValue(emergencyGovernanceStorage, 'emergencyGovernanceLedger', emergencyID);
                 initialTotalStakedMvkVotes  = emergencyProposal.totalStakedMvkVotes;
                 
                 // get user staked balance
-                initialUserStakeRecord      = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakeRecord      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance    = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 // ensure that user has enough staked MVK to vote for emergency governance
@@ -723,7 +723,7 @@ describe("Emergency Governance tests", async () => {
 
                 // get updated user staked balance
                 doormanStorage              = await doormanInstance.storage();
-                updatedUserStakeRecord      = await doormanStorage.userStakeBalanceLedger.get(user);
+                updatedUserStakeRecord      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 updatedUserStakedBalance    = updatedUserStakeRecord === undefined ? 0 : updatedUserStakeRecord.balance.toNumber()
                 assert.notEqual(updatedUserStakeRecord, 0);
 
@@ -735,9 +735,9 @@ describe("Emergency Governance tests", async () => {
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
                 doormanStorage              = await doormanInstance.storage()
 
-                emergencyProposal           = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+                emergencyProposal           = await getStorageMapValue(emergencyGovernanceStorage, 'emergencyGovernanceLedger', emergencyID);
                 updatedTotalStakedMvkVotes  = emergencyProposal.totalStakedMvkVotes;
-                const userVote              = await emergencyGovernanceStorage.emergencyGovernanceVoters.get({
+                const userVote              = await getStorageMapValue(emergencyGovernanceStorage, 'emergencyGovernanceVoters', {
                     0: emergencyGovernanceStorage.currentEmergencyGovernanceId,
                     1: user
                 });
@@ -793,11 +793,11 @@ describe("Emergency Governance tests", async () => {
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
 
-                const emergencyGovernanceRecord = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyGovernanceStorage.currentEmergencyGovernanceId);
+                const emergencyGovernanceRecord = await getStorageMapValue(emergencyGovernanceStorage, 'emergencyGovernanceLedger', emergencyGovernanceStorage.currentEmergencyGovernanceId);
                 const sMvkRequired              = emergencyGovernanceRecord.stakedMvkRequiredForBreakGlass.toNumber();
 
                 // get user staked balance
-                initialUserStakeRecord      = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakeRecord      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance    = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 // ensure that user has enough staked MVK to trigger the emergency governance
@@ -845,11 +845,11 @@ describe("Emergency Governance tests", async () => {
                 // Initial Values
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
-                var emergencyProposal       = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+                var emergencyProposal       = await getStorageMapValue(emergencyGovernanceStorage, 'emergencyGovernanceLedger', emergencyID);
 
                 // get user staked balance
                 doormanStorage              = await doormanInstance.storage();
-                initialUserStakeRecord      = await doormanStorage.userStakeBalanceLedger.get(user);
+                initialUserStakeRecord      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', user);
                 initialUserStakedBalance    = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
                 voteOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
@@ -862,7 +862,7 @@ describe("Emergency Governance tests", async () => {
                 governanceStorage           = await governanceInstance.storage();
 
                 // updated emergency proposal
-                emergencyProposal           = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+                emergencyProposal           = await getStorageMapValue(emergencyGovernanceStorage, 'emergencyGovernanceLedger', emergencyID);
                 updatedTotalStakedMvkVotes  = emergencyProposal.totalStakedMvkVotes;
 
                 // check assertions
@@ -1020,7 +1020,7 @@ describe("Emergency Governance tests", async () => {
                 // Final values
                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();            
 
-                const updatedData          = await emergencyGovernanceStorage.metadata.get(key);
+                const updatedData          = await getStorageMapValue(emergencyGovernanceStorage, 'metadata', key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -1219,14 +1219,14 @@ describe("Emergency Governance tests", async () => {
                 await transferOperation.confirmation();
                 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber()
 
                 await signerFactory(tezos, adminSk);
                 mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -1298,7 +1298,7 @@ describe("Emergency Governance tests", async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();   
-                const initialMetadata       = await emergencyGovernanceStorage.metadata.get(key);
+                const initialMetadata       = await getStorageMapValue(emergencyGovernanceStorage, 'metadata', key);
 
                 // fail: update metadata operation
                 const updateOperation = await emergencyGovernanceInstance.methods.updateMetadata(key, hash);
@@ -1306,7 +1306,7 @@ describe("Emergency Governance tests", async () => {
 
                 // Final values
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();            
-                const updatedData           = await emergencyGovernanceStorage.metadata.get(key);
+                const updatedData           = await getStorageMapValue(emergencyGovernanceStorage, 'metadata', key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);

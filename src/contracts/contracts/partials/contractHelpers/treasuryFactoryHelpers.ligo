@@ -184,7 +184,7 @@ function unpackLambda(const lambdaBytes : bytes; const treasuryFactoryLambdaActi
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(treasuryFactoryUnpackLambdaFunctionType)) of [
-            Some(f) -> f((treasuryFactoryLambdaAction, s))
+            Some(f) -> f(treasuryFactoryLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

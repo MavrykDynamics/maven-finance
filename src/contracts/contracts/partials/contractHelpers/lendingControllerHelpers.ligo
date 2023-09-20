@@ -550,9 +550,9 @@ block {
 
     const tokenPoolTransferOperation : operation = case token of [
         
-        |   Tez(_tez) -> {
+        |   Tez(_mav) -> {
 
-                const transferTezOperation : operation = transferTez( (Mavryk.get_contract_with_error(to_, "Error. Unable to send tez.") : contract(unit)), amount * 1mumav );
+                const transferTezOperation : operation = transferTez( (Mavryk.get_contract_with_error(to_, "Error. Unable to send mav.") : contract(unit)), amount * 1mumav );
             
             } with transferTezOperation
 
@@ -992,22 +992,21 @@ block{
 
 // helper function to update token state
 // - updates last updated block level and borrow index
-function updateLoanTokenState(const loanTokenRecord : loanTokenRecordType) : loanTokenRecordType is
+function updateLoanTokenState(var loanTokenRecord : loanTokenRecordType) : loanTokenRecordType is
 block{
     
-    var updatedLoanTokenRecord      : loanTokenRecordType   := loanTokenRecord;
-    const tokenPoolTotal            : nat                   = updatedLoanTokenRecord.tokenPoolTotal;             // 1e6
-    const totalBorrowed             : nat                   = updatedLoanTokenRecord.totalBorrowed;              // 1e6
-    const optimalUtilisationRate    : nat                   = updatedLoanTokenRecord.optimalUtilisationRate;     // 1e27
-    const lastUpdatedBlockLevel     : nat                   = updatedLoanTokenRecord.lastUpdatedBlockLevel;
-    const maxInterestRate           : nat                   = updatedLoanTokenRecord.maxInterestRate;
+    const tokenPoolTotal            : nat    = loanTokenRecord.tokenPoolTotal;             // 1e6
+    const totalBorrowed             : nat    = loanTokenRecord.totalBorrowed;              // 1e6
+    const optimalUtilisationRate    : nat    = loanTokenRecord.optimalUtilisationRate;     // 1e27
+    const lastUpdatedBlockLevel     : nat    = loanTokenRecord.lastUpdatedBlockLevel;
+    const maxInterestRate           : nat    = loanTokenRecord.maxInterestRate;
 
-    const baseInterestRate                      : nat = updatedLoanTokenRecord.baseInterestRate;                    // r0 - 1e27
-    const interestRateBelowOptimalUtilisation   : nat = updatedLoanTokenRecord.interestRateBelowOptimalUtilisation; // r1 - 1e27
-    const interestRateAboveOptimalUtilisation   : nat = updatedLoanTokenRecord.interestRateAboveOptimalUtilisation; // r2 - 1e27
+    const baseInterestRate                      : nat = loanTokenRecord.baseInterestRate;                    // r0 - 1e27
+    const interestRateBelowOptimalUtilisation   : nat = loanTokenRecord.interestRateBelowOptimalUtilisation; // r1 - 1e27
+    const interestRateAboveOptimalUtilisation   : nat = loanTokenRecord.interestRateAboveOptimalUtilisation; // r2 - 1e27
 
-    var borrowIndex                 : nat := updatedLoanTokenRecord.borrowIndex;
-    var currentInterestRate         : nat := updatedLoanTokenRecord.currentInterestRate;
+    var borrowIndex                 : nat := loanTokenRecord.borrowIndex;
+    var currentInterestRate         : nat := loanTokenRecord.currentInterestRate;
 
     if tokenPoolTotal > 0n then {
         // calculate utilisation rate - total debt borrowed / token pool total
@@ -1056,14 +1055,14 @@ block{
 
         } else skip;
 
-        updatedLoanTokenRecord.lastUpdatedBlockLevel   := Mavryk.get_level();
-        updatedLoanTokenRecord.borrowIndex             := borrowIndex;
-        updatedLoanTokenRecord.utilisationRate         := utilisationRate;
-        updatedLoanTokenRecord.currentInterestRate     := currentInterestRate;
+        loanTokenRecord.lastUpdatedBlockLevel   := Mavryk.get_level();
+        loanTokenRecord.borrowIndex             := borrowIndex;
+        loanTokenRecord.utilisationRate         := utilisationRate;
+        loanTokenRecord.currentInterestRate     := currentInterestRate;
 
     } else skip;
 
-} with updatedLoanTokenRecord
+} with loanTokenRecord
 
 
 
@@ -1279,7 +1278,7 @@ block {
 
 
 // helper function to calculate the ratio used in the collateral token amount receive calculation
-function processCollateralTokenLiquidation(const liquidatorAddress : address; const treasuryAddress : address; const loanTokenDecimals : nat; const loanTokenLastCompletedData : lastCompletedDataReturnType; const vaultAddress : address; const vaultCollateralValueRebased; const collateralTokenName : string; const collateralTokenBalance : nat; const liquidationAmount : nat; const operations : list(operation); const s : lendingControllerStorageType) : list(operation) * nat is
+function processCollateralTokenLiquidation(const liquidatorAddress : address; const treasuryAddress : address; const loanTokenDecimals : nat; const loanTokenLastCompletedData : lastCompletedDataReturnType; const vaultAddress : address; const vaultCollateralValueRebased; const collateralTokenName : string; const collateralTokenBalance : nat; const liquidationAmount : nat; var operations : list(operation); const s : lendingControllerStorageType) : list(operation) * nat is
 block {
 
     // get collateral token record through on-chain view
@@ -1365,17 +1364,19 @@ block {
     if treasuryTokenQuantityTotal > newCollateralTokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
     newCollateralTokenBalance := abs(newCollateralTokenBalance - treasuryTokenQuantityTotal);
 
+    // ------------------------------------------------------------------
+    // Process liquidation transfer of collateral token
+    // ------------------------------------------------------------------
+    
+    operations := processLiquidationCollateralTransferOperations(
+        collateralTokenRecord,
+        vaultAddress,
+        (liquidatorAddress, liquidatorTokenQuantityTotal),
+        (treasuryAddress, treasuryTokenQuantityTotal),
+        operations
+    );
 
-} with (
-            processLiquidationCollateralTransferOperations(
-                collateralTokenRecord,
-                vaultAddress,
-                (liquidatorAddress, liquidatorTokenQuantityTotal),
-                (treasuryAddress, treasuryTokenQuantityTotal),
-                operations
-            ), 
-            newCollateralTokenBalance
-        )
+} with (operations, newCollateralTokenBalance)
 
 // ------------------------------------------------------------------------------
 // Liquidate Vault Helper Functions End
@@ -1460,7 +1461,7 @@ function unpackLambda(const lambdaBytes : bytes; const lendingControllerLambdaAc
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(lendingControllerUnpackLambdaFunctionType)) of [
-            Some(f) -> f((lendingControllerLambdaAction, s))
+            Some(f) -> f(lendingControllerLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

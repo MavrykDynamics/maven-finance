@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case treasuryLambdaAction of [
@@ -30,7 +30,7 @@ block {
 function lambdaSetGovernance(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case treasuryLambdaAction of [
@@ -48,7 +48,7 @@ block {
 function lambdaSetBaker(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit);                        // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);                        // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrGovernanceFinancial(s);     // verify that sender is admin or the Governance Financial Contract address
 
     var operations : list(operation) := nil;
@@ -233,7 +233,7 @@ block {
 function lambdaTogglePauseEntrypoint(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit);     // entrypoint should not receive any tez amount    
+    verifyNoAmountSent(Unit);     // entrypoint should not receive any mav amount    
     verifySenderIsAdmin(s.admin); // verify that sender is admin 
 
     case treasuryLambdaAction of [
@@ -290,7 +290,7 @@ block {
                 
                 const whitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
 
-                function transferAccumulator (const accumulator : list(operation); const destination : transferDestinationType) : list(operation) is 
+                function transferAccumulator (var accumulator : list(operation); const destination : transferDestinationType) : list(operation) is 
                 block {
 
                     const token        : tokenType        = destination.token;
@@ -306,11 +306,12 @@ block {
                         |   Fa2(token)  -> if not checkInWhitelistTokenContracts(token.tokenContractAddress, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
                     ];
 
-                } with transferTokenOperation # accumulator;
+                    accumulator := transferTokenOperation # accumulator;
 
-                for destination in list txs block{
-                    operations  := transferAccumulator(operations, destination);
-                }
+                } with accumulator;
+
+                const emptyOperation : list(operation) = list[];
+                operations := List.fold(transferAccumulator, txs, emptyOperation);
 
             }
         |   _ -> skip

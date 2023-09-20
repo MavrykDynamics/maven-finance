@@ -156,10 +156,8 @@ block {
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
-                for transferParams in list destinationParams block {
-                    operations := transferOperationFold(transferParams, operations);
-                }
-                 
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
+                
             }
         |   _ -> skip
     ];
@@ -332,9 +330,9 @@ block{
 
                 // Create operation to originate Treasury
                 const treasuryOrigination: (operation * address) = createTreasuryFunc(
-                    (createTreasuryParams.baker, 
+                    createTreasuryParams.baker, 
                     0mav,
-                    originatedTreasuryStorage)
+                    originatedTreasuryStorage
                 );
 
                 // Add newly created Treasury to tracked Treasuries

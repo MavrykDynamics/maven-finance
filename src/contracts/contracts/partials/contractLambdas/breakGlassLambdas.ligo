@@ -177,10 +177,8 @@ block {
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
-                for transferParams in list destinationParams block {
-                    operations := transferOperationFold(transferParams, operations);
-                }
-
+                operations := List.fold_right(transferOperationFold, destinationParams, operations)
+                
             }
         |   _ -> skip
     ];

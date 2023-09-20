@@ -572,7 +572,7 @@ function unpackLambda(const lambdaBytes : bytes; const doormanLambdaAction : doo
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(doormanUnpackLambdaFunctionType)) of [
-            Some(f) -> f((doormanLambdaAction, s))
+            Some(f) -> f(doormanLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 

@@ -170,7 +170,7 @@ describe("Testnet setup helper", async () => {
                 for(let accountName in accounts){
                     let account = accounts[accountName];
                     if(ledger.has(account.pkh)){
-                        let balance = await mvkTokenStorage.ledger.get(account.pkh);
+                        let balance = await getStorageMapValue(mvkTokenStorage, 'ledger', account.pkh);
                         if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== mvkFaucetAddress.address){
                             // Transfer all funds to bob
                             await helperFunctions.signerFactory(tezos, account.sk);
@@ -245,11 +245,11 @@ describe("Testnet setup helper", async () => {
 
                     // Check whitelist [Council, Factory]
                     if(storage.hasOwnProperty('whitelistContracts')){
-                        if(await storage.whitelistContracts.get(contractDeployments.council.address) === undefined){
+                        if(await getStorageMapValue(storage, 'whitelistContracts', contractDeployments.council.address) === undefined){
                             var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.council.address, 'update').send()
                             await operation.confirmation()
                         }
-                        if(await storage.whitelistContracts.get(contractDeployments.farmFactory.address) === undefined){
+                        if(await getStorageMapValue(storage, 'whitelistContracts', contractDeployments.farmFactory.address) === undefined){
                             var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.farmFactory.address, 'update').send()
                             await operation.confirmation()
                         }
