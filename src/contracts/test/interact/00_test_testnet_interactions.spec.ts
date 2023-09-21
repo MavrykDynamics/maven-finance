@@ -4339,7 +4339,7 @@ describe("Testnet interactions helper", async () => {
                 const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
                 // Operation
-                const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mutez : true, amount : depositAmountMutez });
+                const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mumav: true, amount : depositAmountMutez });
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5067,7 +5067,7 @@ describe("Testnet interactions helper", async () => {
     //             const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
     //             // Operation
-    //             const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mutez : true, amount : depositAmountMutez });
+    //             const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mumav: true, amount : depositAmountMutez });
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
