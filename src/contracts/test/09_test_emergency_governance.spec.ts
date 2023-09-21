@@ -256,11 +256,11 @@ describe("Emergency Governance tests", async () => {
 
                 // fail: trigger emergency control operation
                 emergencyGovernanceOperation = emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc);
-                await chai.expect(emergencyGovernanceOperation.send({ amount : belowRequiredFeeMutz, mutez: true})).to.be.rejected;
+                await chai.expect(emergencyGovernanceOperation.send({ amount : belowRequiredFeeMutz, mumav: true})).to.be.rejected;
 
                 // fail: trigger emergency control operation
                 emergencyGovernanceOperation = emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc);
-                await chai.expect(emergencyGovernanceOperation.send({ amount : aboveRequiredFeeMutz, mutez: true})).to.be.rejected;
+                await chai.expect(emergencyGovernanceOperation.send({ amount : aboveRequiredFeeMutz, mumav: true})).to.be.rejected;
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -294,7 +294,7 @@ describe("Emergency Governance tests", async () => {
 
                 // fail: trigger emergency control operation
                 emergencyGovernanceOperation = emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc);
-                await chai.expect(emergencyGovernanceOperation.send({amount : requiredFeeMutez, mutez: true})).to.be.rejected;
+                await chai.expect(emergencyGovernanceOperation.send({amount : requiredFeeMutez, mumav: true})).to.be.rejected;
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -342,7 +342,7 @@ describe("Emergency Governance tests", async () => {
                 // fail: trigger emergency control operation
                 await signerFactory(tezos, userSk);
                 emergencyGovernanceOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc);
-                await chai.expect(emergencyGovernanceOperation.send({amount : requiredFeeMutez, mutez: true})).to.be.rejected;
+                await chai.expect(emergencyGovernanceOperation.send({amount : requiredFeeMutez, mumav: true})).to.be.rejected;
 
                 // reset contracts in Governance General Contracts map
                 await signerFactory(tezos, adminSk);
@@ -403,7 +403,7 @@ describe("Emergency Governance tests", async () => {
                 }
 
                 // Operation
-                emergencyGovernanceOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc).send({amount: requiredFeeMutez, mutez: true});
+                emergencyGovernanceOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc).send({amount: requiredFeeMutez, mumav: true});
                 await emergencyGovernanceOperation.confirmation();
 
                 // Final values
@@ -448,7 +448,7 @@ describe("Emergency Governance tests", async () => {
 
                 // fail: vote for emergency control
                 emergencyGovernanceOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc);
-                await chai.expect(emergencyGovernanceOperation.send({amount: requiredFeeMutez, mutez: true})).to.be.rejected;
+                await chai.expect(emergencyGovernanceOperation.send({amount: requiredFeeMutez, mumav: true})).to.be.rejected;
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -494,7 +494,7 @@ describe("Emergency Governance tests", async () => {
                 }
 
                 // Operation
-                emergencyGovernanceOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc).send({amount: requiredFeeMutez, mutez: true});
+                emergencyGovernanceOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc).send({amount: requiredFeeMutez, mumav: true});
                 await emergencyGovernanceOperation.confirmation();
 
                 // Final values

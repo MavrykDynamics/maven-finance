@@ -1444,7 +1444,7 @@ describe("Lending Controller (mToken) tests", async () => {
             const eveAddLiquidityOperation  = await lendingControllerInstance.methods.addLiquidity(
                 loanTokenName,
                 liquidityAmount, 
-            ).send({ mutez : true, amount: liquidityAmount });
+            ).send({ mumav: true, amount: liquidityAmount });
             await eveAddLiquidityOperation.confirmation();
 
             // get updated storages

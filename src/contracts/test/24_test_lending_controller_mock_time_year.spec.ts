@@ -1116,7 +1116,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             const eveAddLiquidityOperation  = await lendingControllerInstance.methods.addLiquidity(
                 loanTokenName,
                 liquidityAmount, 
-            ).send({ mutez : true, amount: liquidityAmount });
+            ).send({ mumav: true, amount: liquidityAmount });
             await eveAddLiquidityOperation.confirmation();
 
             // get updated storages
@@ -3448,7 +3448,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mutez : true, amount : repayAmount});
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mumav: true, amount : repayAmount});
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -3698,7 +3698,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mutez : true, amount : repayAmount});
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mumav: true, amount : repayAmount});
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -3949,7 +3949,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mutez : true, amount : repayAmount});
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mumav: true, amount : repayAmount});
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -4199,7 +4199,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mutez : true, amount : repayAmount});
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mumav: true, amount : repayAmount});
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);

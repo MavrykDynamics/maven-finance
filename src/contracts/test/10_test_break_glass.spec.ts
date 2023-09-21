@@ -657,7 +657,7 @@ describe("Test: Break Glass Contract", async () => {
                 await signerFactory(tezos, userSk)
                 const emergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                     emergencyTitle, emergencyDesc
-                ).send({amount: requiredFeeMutez, mutez: true});
+                ).send({amount: requiredFeeMutez, mumav: true});
                 await emergencyControlOperation.confirmation();
 
                 // update storage
