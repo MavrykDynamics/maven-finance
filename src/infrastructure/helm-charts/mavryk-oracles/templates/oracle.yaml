@@ -21,7 +21,7 @@ data:
 
     # List enabled public keys hashes here
     tezos:
-        {{ $value.tezos.address }}:
+      {{ $value.tezos.address }}:
         log_payloads: true
         allowed_operations:
           # List of [generic, block, endorsement]
