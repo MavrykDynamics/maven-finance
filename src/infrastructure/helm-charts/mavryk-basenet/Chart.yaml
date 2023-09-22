@@ -1,8 +1,0 @@
-name: mavryk-basenet
-version: 0.0.1
-apiVersion: v2
-appVersion: 6.22.0
-dependencies:
-  - name: tezos-chain
-    version: 6.22.0
-    repository: https://oxheadalpha.github.io/tezos-helm-charts/
