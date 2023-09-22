@@ -1,10 +1,33 @@
 {{- range $key, $value := .Values.instances }}
 {{- if $value.hasura.enabled }}
 ---
+{{- if $value.hasura.redis.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    release: prod
+  name: hasura-{{ $key }}-service-monitor
+  namespace: {{ $value.hasura.metrics.serviceMonitor.namespace }}
+spec:
+  endpoints:
+  - honorLabels: true
+    port: http
+    path: /v1/metrics
+  namespaceSelector:
+    matchNames:
+      - mavryk-indexer
+  selector:
+    matchLabels:
+      app: hasura-{{ $key }}
+{{- end }}
+---
 apiVersion: v1
 kind: Service
 metadata:
   name: hasura-{{ $key }}
+  labels:
+    app: hasura-{{ $key }}
 spec:
   ports:
     - name: http
@@ -14,6 +37,17 @@ spec:
   selector:
     app: hasura-{{ $key }}
   type: ClusterIP
+{{- if $value.hasura.redis.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-{{ $key }}-config
+data:
+  redis-config: |
+    requirepass test12345
+    protected-mode no
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -31,7 +65,38 @@ spec:
       labels:
         app: hasura-{{ $key }}
     spec:
+      {{- if $value.hasura.redis.enabled }}
+      volumes:
+        - name: config
+          configMap:
+            name: redis-{{ $key }}-config
+            items:
+            - key: redis-config
+              path: redis.conf
+      {{- end }}
       containers:
+        {{- if $value.hasura.redis.enabled }}
+        - name: redis-{{ $key }}
+          {{- if $value.hasura.redis.resources.enabled }}
+          resources:
+            requests:
+              memory: '{{ $value.hasura.redis.resources.requests.memory }}'
+              cpu: '{{ $value.hasura.redis.resources.requests.cpu }}'
+            limits:
+              memory: '{{ $value.hasura.redis.resources.limits.memory }}'
+              cpu: '{{ $value.hasura.redis.resources.limits.cpu }}'
+          {{- end }}
+          image: '{{ $value.hasura.redis.image.registry }}/{{ $value.hasura.redis.image.repository }}:{{ $value.hasura.redis.image.tag }}'
+          imagePullPolicy: IfNotPresent
+          command:
+            - redis-server
+            - "/redis-master/redis.conf"
+          volumeMounts:
+          - mountPath: /redis-master
+            name: config
+          ports:
+            - containerPort: 6379
+        {{- end }}
         - name: hasura-{{ $key }}
           {{- if $value.hasura.resources.enabled }}
           resources:
@@ -45,6 +110,8 @@ spec:
           env:
             - name: HASURA_GRAPHQL_PG_CONNECTIONS
               value: '{{ $value.hasura.pgConnections }}'
+            - name: HASURA_GRAPHQL_ENABLE_TELEMETRY
+              value: "false"
             - name: HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_REFETCH_INTERVAL
               value: '15000'
             - name: HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_BATCH_SIZE
@@ -76,6 +143,12 @@ spec:
                   name: indexer
                   key: HASURA_GRAPHQL_JWT_SECRET
             {{- end }}
+            {{- if $value.hasura.redis.enabled }}
+            - name: HASURA_GRAPHQL_REDIS_URL
+              value: redis://:test12345@127.0.0.1:6379
+            - name: HASURA_GRAPHQL_ENABLED_APIS
+              value: metadata,graphql,config,metrics
+            {{- end }}
           image: '{{ $value.hasura.image.registry }}/{{ $value.hasura.image.repository }}:{{ $value.hasura.image.tag }}'
           imagePullPolicy: IfNotPresent
           ports:
@@ -89,8 +162,8 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: hasura-{{ $key }}
 spec:
-  maxReplicas: 3
-  minReplicas: 1
+  maxReplicas: {{ $value.hasura.hpa.maxReplicas }}
+  minReplicas: {{ $value.hasura.hpa.minReplicas }}
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
