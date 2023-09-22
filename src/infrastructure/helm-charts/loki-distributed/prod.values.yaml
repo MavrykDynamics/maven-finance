@@ -21,6 +21,12 @@ loki-distributed:
   # -- Image pull secrets for Docker images
   imagePullSecrets: []
 
+  # -- hostAliases to add
+  hostAliases: []
+  #  - ip: 1.2.3.4
+  #    hostnames:
+  #      - domain.tld
+
   loki:
     # -- If set, these annotations are added to all of the Kubernetes controllers
     # (Deployments, StatefulSets, etc) that this chart launches. Use this to
@@ -75,16 +81,21 @@ loki-distributed:
     appProtocol: ""
     # -- Common annotations for all loki services
     serviceAnnotations: {}
+    # Loki server configuration
+    # Refers to https://grafana.com/docs/loki/latest/configuration/#server
+    server:
+      # -- HTTP server listen port
+      http_listen_port: 3100
     # -- Config file contents for Loki
     # @default -- See values.yaml
     config: |
       auth_enabled: false
 
       server:
-        http_listen_port: 3100
+        {{- toYaml .Values.loki.server | nindent 6 }}
 
       common:
-        compactor_address: {{ include "loki.compactorFullname" . }}:3100
+        compactor_address: http://{{ include "loki.compactorFullname" . }}:3100
 
       distributor:
         ring:
@@ -93,7 +104,7 @@ loki-distributed:
 
       memberlist:
         join_members:
-        - {{ include "loki.fullname" . }}-memberlist
+          - {{ include "loki.fullname" . }}-memberlist
 
       ingester:
         lifecycler:
@@ -182,7 +193,7 @@ loki-distributed:
         {{- if .Values.queryScheduler.enabled }}
         scheduler_address: {{ include "loki.querySchedulerFullname" . }}:9095
         {{- else }}
-        frontend_address: {{ include "loki.queryFrontendFullname" . }}:9095
+        frontend_address: {{ include "loki.queryFrontendFullname" . }}-headless:9095
         {{- end }}
 
       frontend:
@@ -235,11 +246,11 @@ loki-distributed:
         insecure: false
       boltdb_shipper:
         shared_store: s3
-    # -- Uncomment to configure each storage individually
-    #   azure: {}
-    #   gcs: {}
-    #   s3: {}
-    #   boltdb: {}
+  # -- Uncomment to configure each storage individually
+  #   azure: {}
+  #   gcs: {}
+  #   s3: {}
+  #   boltdb: {}
 
     # -- Structured loki configuration, takes precedence over `loki.config`, `loki.schemaConfig`, `loki.storageConfig`
     structuredConfig: {}
@@ -255,6 +266,8 @@ loki-distributed:
     name: null
     # -- Image pull secrets for the service account
     imagePullSecrets: []
+    # -- Labels for the service account
+    labels: {}
     # -- Annotations for the service account
     annotations: {}
     # -- Set this toggle to false to opt out of automounting API credentials for the service account
@@ -311,14 +324,58 @@ loki-distributed:
     labels: {}
     # -- Contents of Prometheus rules file
     groups: []
-    # - name: loki-rules
-    #   rules:
-    #     - record: job:loki_request_duration_seconds_bucket:sum_rate
-    #       expr: sum(rate(loki_request_duration_seconds_bucket[1m])) by (le, job)
-    #     - record: job_route:loki_request_duration_seconds_bucket:sum_rate
-    #       expr: sum(rate(loki_request_duration_seconds_bucket[1m])) by (le, job, route)
-    #     - record: node_namespace_pod_container:container_cpu_usage_seconds_total:sum_rate
-    #       expr: sum(rate(container_cpu_usage_seconds_total[1m])) by (node, namespace, pod, container)
+    #  - name: loki_rules
+    #    rules:
+    #      - expr: histogram_quantile(0.99, sum(rate(loki_request_duration_seconds_bucket[1m]))
+    #          by (le, cluster, job))
+    #        record: cluster_job:loki_request_duration_seconds:99quantile
+    #      - expr: histogram_quantile(0.50, sum(rate(loki_request_duration_seconds_bucket[1m]))
+    #          by (le, cluster, job))
+    #        record: cluster_job:loki_request_duration_seconds:50quantile
+    #      - expr: sum(rate(loki_request_duration_seconds_sum[1m])) by (cluster, job) / sum(rate(loki_request_duration_seconds_count[1m]))
+    #          by (cluster, job)
+    #        record: cluster_job:loki_request_duration_seconds:avg
+    #      - expr: sum(rate(loki_request_duration_seconds_bucket[1m])) by (le, cluster, job)
+    #        record: cluster_job:loki_request_duration_seconds_bucket:sum_rate
+    #      - expr: sum(rate(loki_request_duration_seconds_sum[1m])) by (cluster, job)
+    #        record: cluster_job:loki_request_duration_seconds_sum:sum_rate
+    #      - expr: sum(rate(loki_request_duration_seconds_count[1m])) by (cluster, job)
+    #        record: cluster_job:loki_request_duration_seconds_count:sum_rate
+    #      - expr: histogram_quantile(0.99, sum(rate(loki_request_duration_seconds_bucket[1m]))
+    #          by (le, cluster, job, route))
+    #        record: cluster_job_route:loki_request_duration_seconds:99quantile
+    #      - expr: histogram_quantile(0.50, sum(rate(loki_request_duration_seconds_bucket[1m]))
+    #          by (le, cluster, job, route))
+    #        record: cluster_job_route:loki_request_duration_seconds:50quantile
+    #      - expr: sum(rate(loki_request_duration_seconds_sum[1m])) by (cluster, job, route)
+    #          / sum(rate(loki_request_duration_seconds_count[1m])) by (cluster, job, route)
+    #        record: cluster_job_route:loki_request_duration_seconds:avg
+    #      - expr: sum(rate(loki_request_duration_seconds_bucket[1m])) by (le, cluster, job,
+    #          route)
+    #        record: cluster_job_route:loki_request_duration_seconds_bucket:sum_rate
+    #      - expr: sum(rate(loki_request_duration_seconds_sum[1m])) by (cluster, job, route)
+    #        record: cluster_job_route:loki_request_duration_seconds_sum:sum_rate
+    #      - expr: sum(rate(loki_request_duration_seconds_count[1m])) by (cluster, job, route)
+    #        record: cluster_job_route:loki_request_duration_seconds_count:sum_rate
+    #      - expr: histogram_quantile(0.99, sum(rate(loki_request_duration_seconds_bucket[1m]))
+    #          by (le, cluster, namespace, job, route))
+    #        record: cluster_namespace_job_route:loki_request_duration_seconds:99quantile
+    #      - expr: histogram_quantile(0.50, sum(rate(loki_request_duration_seconds_bucket[1m]))
+    #          by (le, cluster, namespace, job, route))
+    #        record: cluster_namespace_job_route:loki_request_duration_seconds:50quantile
+    #      - expr: sum(rate(loki_request_duration_seconds_sum[1m])) by (cluster, namespace,
+    #          job, route) / sum(rate(loki_request_duration_seconds_count[1m])) by (cluster,
+    #          namespace, job, route)
+    #        record: cluster_namespace_job_route:loki_request_duration_seconds:avg
+    #      - expr: sum(rate(loki_request_duration_seconds_bucket[1m])) by (le, cluster, namespace,
+    #          job, route)
+    #        record: cluster_namespace_job_route:loki_request_duration_seconds_bucket:sum_rate
+    #      - expr: sum(rate(loki_request_duration_seconds_sum[1m])) by (cluster, namespace,
+    #          job, route)
+    #        record: cluster_namespace_job_route:loki_request_duration_seconds_sum:sum_rate
+    #      - expr: sum(rate(loki_request_duration_seconds_count[1m])) by (cluster, namespace,
+    #          job, route)
+    #        record: cluster_namespace_job_route:loki_request_duration_seconds_count:sum_rate
 
   # Configuration for the ingester
   ingester:
@@ -326,6 +383,11 @@ loki-distributed:
     kind: StatefulSet
     # -- Number of replicas for the ingester
     replicas: 1
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     autoscaling:
       # -- Enable autoscaling for the ingester
       enabled: false
@@ -337,6 +399,13 @@ loki-distributed:
       targetCPUUtilizationPercentage: 60
       # -- Target memory utilisation percentage for the ingester
       targetMemoryUtilizationPercentage:
+      behavior:
+        # -- Enable autoscaling behaviours
+        enabled: false
+        # -- define scale down policies, must conform to HPAScalingRules
+        scaleDown: {}
+        # -- define scale up policies, must conform to HPAScalingRules
+        scaleUp: {}
     image:
       # -- The Docker registry for the ingester image. Overrides `loki.image.registry`
       registry: null
@@ -376,6 +445,8 @@ loki-distributed:
     # this must be increased. It must be long enough so ingesters can be gracefully shutdown flushing/transferring
     # all data and to successfully leave the member ring on shutdown.
     terminationGracePeriodSeconds: 300
+    # -- Lifecycle for the ingester container
+    lifecycle: {}
     # -- topologySpread for ingester pods. Passed through `tpl` and, thus, to be configured as string
     # @default -- Defaults to allow skew no more then 1 node per AZ
     topologySpreadConstraints: |
@@ -403,6 +474,8 @@ loki-distributed:
               topologyKey: failure-domain.beta.kubernetes.io/zone
     # -- Pod Disruption Budget maxUnavailable
     maxUnavailable: null
+    # -- Max Surge for ingester pods
+    maxSurge: 0
     # -- Node selector for ingester pods
     nodeSelector: {}
     # -- Tolerations for ingester pods
@@ -416,16 +489,20 @@ loki-distributed:
       enabled: false
       # -- Use emptyDir with ramdisk for storage. **Please note that all data in ingester will be lost on pod restart**
       inMemory: false
-      # -- Size of persistent or memory disk
-      size: 10Gi
-      # -- Storage class to be used.
-      # If defined, storageClassName: <storageClass>.
-      # If set to "-", storageClassName: "", which disables dynamic provisioning.
-      # If empty or set to null, no storageClassName spec is
-      # set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS, and OpenStack).
-      storageClass: do-block-storage
-      # -- Annotations for ingester PVCs
-      annotations: {}
+        # -- List of the ingester PVCs
+        # @notationType -- list
+      claims:
+        - name: data
+          size: 10Gi
+          #   -- Storage class to be used.
+          #   If defined, storageClassName: <storageClass>.
+          #   If set to "-", storageClassName: "", which disables dynamic provisioning.
+          #   If empty or set to null, no storageClassName spec is
+          #   set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS, and OpenStack).
+          storageClass: do-block-storage
+        # - name: wal
+        #   size: 150Gi
+
     # -- Adds the appProtocol field to the ingester service. This allows ingester to work with istio protocol selection.
     appProtocol:
       # -- Set the optional grpc service protocol. Ex: "grpc", "http2" or "https"
@@ -435,6 +512,11 @@ loki-distributed:
   distributor:
     # -- Number of replicas for the distributor
     replicas: 1
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     autoscaling:
       # -- Enable autoscaling for the distributor
       enabled: false
@@ -446,6 +528,13 @@ loki-distributed:
       targetCPUUtilizationPercentage: 60
       # -- Target memory utilisation percentage for the distributor
       targetMemoryUtilizationPercentage:
+      behavior:
+        # -- Enable autoscaling behaviours
+        enabled: false
+        # -- define scale down policies, must conform to HPAScalingRules
+        scaleDown: {}
+        # -- define scale up policies, must conform to HPAScalingRules
+        scaleUp: {}
     image:
       # -- The Docker registry for the distributor image. Overrides `loki.image.registry`
       registry: null
@@ -499,6 +588,8 @@ loki-distributed:
               topologyKey: failure-domain.beta.kubernetes.io/zone
     # -- Pod Disruption Budget maxUnavailable
     maxUnavailable: null
+    # -- Max Surge for distributor pods
+    maxSurge: 0
     # -- Node selector for distributor pods
     nodeSelector: {}
     # -- Tolerations for distributor pods
@@ -512,6 +603,11 @@ loki-distributed:
   querier:
     # -- Number of replicas for the querier
     replicas: 1
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     autoscaling:
       # -- Enable autoscaling for the querier, this is only used if `indexGateway.enabled: true`
       enabled: false
@@ -523,6 +619,13 @@ loki-distributed:
       targetCPUUtilizationPercentage: 60
       # -- Target memory utilisation percentage for the querier
       targetMemoryUtilizationPercentage:
+      behavior:
+        # -- Enable autoscaling behaviours
+        enabled: false
+        # -- define scale down policies, must conform to HPAScalingRules
+        scaleDown: {}
+        # -- define scale up policies, must conform to HPAScalingRules
+        scaleUp: {}
     image:
       # -- The Docker registry for the querier image. Overrides `loki.image.registry`
       registry: null
@@ -571,9 +674,24 @@ loki-distributed:
             {{- include "loki.querierSelectorLabels" . | nindent 6 }}
     # -- Affinity for querier pods. Passed through `tpl` and, thus, to be configured as string
     # @default -- Hard node and soft zone anti-affinity
-    affinity: {}
+    affinity: |
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                {{- include "loki.querierSelectorLabels" . | nindent 10 }}
+            topologyKey: kubernetes.io/hostname
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  {{- include "loki.querierSelectorLabels" . | nindent 12 }}
+              topologyKey: failure-domain.beta.kubernetes.io/zone
     # -- Pod Disruption Budget maxUnavailable
     maxUnavailable: null
+    # -- Max Surge for querier pods
+    maxSurge: 0
     # -- Node selector for querier pods
     nodeSelector: {}
     # -- Tolerations for querier pods
@@ -602,6 +720,11 @@ loki-distributed:
   queryFrontend:
     # -- Number of replicas for the query-frontend
     replicas: 1
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     autoscaling:
       # -- Enable autoscaling for the query-frontend
       enabled: false
@@ -613,6 +736,13 @@ loki-distributed:
       targetCPUUtilizationPercentage: 60
       # -- Target memory utilisation percentage for the query-frontend
       targetMemoryUtilizationPercentage:
+      behavior:
+        # -- Enable autoscaling behaviours
+        enabled: false
+        # -- define scale down policies, must conform to HPAScalingRules
+        scaleDown: {}
+        # -- define scale up policies, must conform to HPAScalingRules
+        scaleUp: {}
     image:
       # -- The Docker registry for the query-frontend image. Overrides `loki.image.registry`
       registry: null
@@ -683,6 +813,11 @@ loki-distributed:
     # It should be lower than `-querier.max-concurrent` to avoid generating back-pressure in queriers;
     # it's also recommended that this value evenly divides the latter
     replicas: 2
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     image:
       # -- The Docker registry for the query-scheduler image. Overrides `loki.image.registry`
       registry: null
@@ -743,6 +878,11 @@ loki-distributed:
   tableManager:
     # -- Specifies whether the table-manager should be enabled
     enabled: false
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     image:
       # -- The Docker registry for the table-manager image. Overrides `loki.image.registry`
       registry: null
@@ -804,13 +944,13 @@ loki-distributed:
   # You'll need to supply authn configuration for your ingress controller.
   ingress:
     enabled: false
-    #  ingressClassName: nginx
+  #  ingressClassName: nginx
     annotations: {}
-    #    nginx.ingress.kubernetes.io/auth-type: basic
-    #    nginx.ingress.kubernetes.io/auth-secret: loki-distributed-basic-auth
-    #    nginx.ingress.kubernetes.io/auth-secret-type: auth-map
-    #    nginx.ingress.kubernetes.io/configuration-snippet: |
-    #      proxy_set_header X-Scope-OrgID $remote_user;
+  #    nginx.ingress.kubernetes.io/auth-type: basic
+  #    nginx.ingress.kubernetes.io/auth-secret: loki-distributed-basic-auth
+  #    nginx.ingress.kubernetes.io/auth-secret-type: auth-map
+  #    nginx.ingress.kubernetes.io/configuration-snippet: |
+  #      proxy_set_header X-Scope-OrgID $remote_user;
     paths:
       distributor:
         - /api/prom/push
@@ -827,15 +967,20 @@ loki-distributed:
         - /prometheus/api/v1/alerts
     hosts:
       - loki.example.com
-  #  tls:
-  #    - hosts:
-  #       - loki.example.com
-  #      secretName: loki-distributed-tls
+    # tls:
+    #   - secretName: loki-distributed-tls
+    #     hosts:
+    #       - loki.example.com
 
   # Configuration for the gateway
   gateway:
     # -- Specifies whether the gateway should be enabled
     enabled: true
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     # -- Number of replicas for the gateway
     replicas: 1
     # -- Enable logging of 2xx and 3xx HTTP requests
@@ -851,6 +996,13 @@ loki-distributed:
       targetCPUUtilizationPercentage: 60
       # -- Target memory utilisation percentage for the gateway
       targetMemoryUtilizationPercentage:
+      behavior:
+        # -- Enable autoscaling behaviours
+        enabled: false
+        # -- define scale down policies, must conform to HPAScalingRules
+        scaleDown: {}
+        # -- define scale up policies, must conform to HPAScalingRules
+        scaleUp: {}
     # -- See `kubectl explain deployment.spec.strategy` for more,
     # ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
     deploymentStrategy:
@@ -965,7 +1117,12 @@ loki-distributed:
               # -- pathType (e.g. ImplementationSpecific, Prefix, .. etc.) might also be required by some Ingress Controllers
               pathType: Prefix
       # -- TLS configuration for the gateway ingress
-      tls: {}
+      tls: []
+      # tls:
+      #   - secretName: loki-gateway-tls
+      #     hosts:
+      #       - gateway.loki.example.com
+
     # Basic auth configuration
     basicAuth:
       # -- Enables basic authentication for the gateway
@@ -1132,6 +1289,11 @@ loki-distributed:
   compactor:
     # -- Specifies whether compactor should be enabled
     enabled: true
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     image:
       # -- The Docker registry for the compactor image. Overrides `loki.image.registry`
       registry: null
@@ -1147,8 +1309,22 @@ loki-distributed:
     podLabels: {}
     # -- Annotations for compactor pods
     podAnnotations: {}
-    # -- Specify the compactor affinity
-    affinity: {}
+    # -- Affinity for compactor pods. Passed through `tpl` and, thus, to be configured as string
+    # @default -- Hard node and soft zone anti-affinity
+    affinity: |
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                {{- include "loki.compactorSelectorLabels" . | nindent 10 }}
+            topologyKey: kubernetes.io/hostname
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  {{- include "loki.compactorSelectorLabels" . | nindent 12 }}
+              topologyKey: failure-domain.beta.kubernetes.io/zone
     # -- Labels for compactor service
     serviceLabels: {}
     # -- Additional CLI args for the compactor
@@ -1175,6 +1351,9 @@ loki-distributed:
     nodeSelector: {}
     # -- Tolerations for compactor pods
     tolerations: []
+    # -- Set the optional grpc service protocol. Ex: "grpc", "http2" or "https"
+    appProtocol:
+      grpc: ""
     persistence:
       # -- Enable creating PVCs for the compactor
       enabled: false
@@ -1209,6 +1388,11 @@ loki-distributed:
     kind: Deployment
     # -- Number of replicas for the ruler
     replicas: 1
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     image:
       # -- The Docker registry for the ruler image. Overrides `loki.image.registry`
       registry: null
@@ -1356,6 +1540,11 @@ loki-distributed:
     enabled: false
     # -- Number of replicas for the index-gateway
     replicas: 1
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     image:
       # -- The Docker registry for the index-gateway image. Overrides `loki.image.registry`
       registry: null
@@ -1495,6 +1684,11 @@ loki-distributed:
   memcachedChunks:
     # -- Specifies whether the Memcached chunks cache should be enabled
     enabled: false
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     # -- Number of replicas for memcached-chunks
     replicas: 1
     # -- The name of the PriorityClass for memcached-chunks pods
@@ -1557,6 +1751,11 @@ loki-distributed:
   memcachedFrontend:
     # -- Specifies whether the Memcached frontend cache should be enabled
     enabled: false
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     # -- Number of replicas for memcached-frontend
     replicas: 1
     # -- The name of the PriorityClass for memcached-frontend pods
@@ -1621,6 +1820,11 @@ loki-distributed:
     enabled: false
     # -- Number of replicas for memcached-index-queries
     replicas: 1
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     # -- The name of the PriorityClass for memcached-index-queries pods
     priorityClassName: null
     # -- Labels for memcached-index-queries pods
@@ -1683,6 +1887,11 @@ loki-distributed:
     enabled: false
     # -- Number of replicas for memcached-index-writes
     replicas: 1
+    # -- hostAliases to add
+    hostAliases: []
+    #  - ip: 1.2.3.4
+    #    hostnames:
+    #      - domain.tld
     # -- The name of the PriorityClass for memcached-index-writes pods
     priorityClassName: null
     # -- Labels for memcached-index-writes pods

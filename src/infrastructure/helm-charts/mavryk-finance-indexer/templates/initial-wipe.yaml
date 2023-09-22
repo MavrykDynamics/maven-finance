@@ -1,0 +1,30 @@
+{{- range $key, $value := .Values.dipdup }}
+{{- if $value.initialWipe }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: wipe-{{ $key }}-database-{{ now | unixEpoch }}
+spec:
+  restartPolicy: Never
+  imagePullSecrets:
+    - name: '{{ $value.image.pullSecret }}'
+  containers:
+    - name: wipe-dipdup-database
+      args: ['schema', 'wipe', '--force']
+      env:
+      {{- range $value.env }}
+        - name: {{ .name }}
+          {{- if ((.value))}}
+          value: "{{.value}}"
+          {{- else }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .valueFrom.secretKeyRef.name }}
+              key: {{ .valueFrom.secretKeyRef.key }}
+          {{- end }}
+      {{- end }}
+      image: '{{ $value.image.registry }}/{{ $value.image.repository }}:{{ $value.image.tag }}'
+      imagePullPolicy: '{{ $value.image.pullPolicy }}'
+{{- end }}
+{{- end }}

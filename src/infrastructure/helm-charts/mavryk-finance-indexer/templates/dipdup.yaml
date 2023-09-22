@@ -1,0 +1,175 @@
+{{- range $key, $value := .Values.dipdup }}
+{{- if $value.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dipdup-prometheus-{{ $key }}
+  labels:
+    app: dipdup-{{ $key }}
+spec:
+  ports:
+    - name: metrics
+      port: 9090
+      protocol: TCP
+      targetPort: metrics
+  selector:
+    app: dipdup-{{ $key }}
+  type: ClusterIP
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "fullname" $ }}-dipdup-{{ $key }}
+  namespace: kube-prometheus-stack
+  labels:
+    release: 'prod'
+spec:
+  endpoints:
+    - honorLabels: true
+      port: metrics
+  namespaceSelector:
+    matchNames:
+      - mavryk-finance-indexer
+  selector:
+    matchLabels:
+      app: dipdup-{{ $key }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dipdup-{{ $key }}
+  labels:
+    app: dipdup-{{ $key }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dipdup-{{ $key }}
+  template:
+    metadata:
+      labels:
+        app: dipdup-{{ $key }}
+    spec:
+      imagePullSecrets:
+        - name: '{{ $value.image.pullSecret }}'
+      containers:
+        - name: dipdup-{{ $key }}
+          args: ['-c', 'dipdup.hasura.yml', 'run']
+          env:
+            - name: HASURA_URL
+              value: http://hasura.mavryk-finance-indexer.svc.cluster.local:8080
+          {{- range $value.env }}
+            - name: {{ .name }}
+              {{- if ((.value))}}
+              value: "{{.value}}"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .valueFrom.secretKeyRef.name }}
+                  key: {{ .valueFrom.secretKeyRef.key }}
+              {{- end }}
+          {{- end }}
+          image: '{{ $value.image.registry }}/{{ $value.image.repository }}:{{ $value.image.tag }}'
+          imagePullPolicy: '{{ $value.image.pullPolicy }}'
+          ports:
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          volumeMounts:
+          - name: hasura-config
+            mountPath: /mavryk/dipdup.hasura.yaml
+            subPath: dipdup.hasura.yaml
+          {{- if eq $.Values.hasura.mainDipdupInstance $key }}
+          - name: hasura-metadata-config
+            mountPath: /mavryk/mavryk/hasura
+          {{- end }}
+      volumes:
+        - name: hasura-config
+          configMap:
+            name: dipdup-{{ $key }}-hasura-config
+{{- if eq $.Values.hasura.mainDipdupInstance $key }}
+        - name: hasura-metadata-config
+          configMap:
+            name: dipdup-{{ $key }}-hasura-metadata-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dipdup-{{ $key }}-hasura-metadata-config
+  labels:
+    app: dipdup-{{ $key }}
+data:
+  .keep: ''
+  max_total_connections.json: |
+    {
+      "type": "pg_update_source",
+      "args": {
+        "name": "default",
+        "configuration": {
+          "connection_info": {
+            "database_url": {
+              "from_env": "HASURA_GRAPHQL_DATABASE_URL"
+            },
+            "pool_settings": {
+              "total_max_connections": 60,
+              "idle_timeout": 180,
+              "retries": 1,
+              "pool_timeout": 360,
+              "connection_lifetime": 600
+            },
+            "use_prepared_statements": true,
+            "isolation_level": "read-committed"
+          }
+        }
+      }
+    }
+{{- range $inner_key, $inner_value := $.Values.dipdup }}
+{{- if and (ne $.Values.hasura.mainDipdupInstance $inner_key) ($inner_value.enabled) }}
+  pg_add_source_{{ $inner_key }}.json: |
+    {
+      "type": "pg_add_source",
+      "args": {
+        "name": "{{ $inner_key }}",
+        "configuration": {
+          "connection_info": {
+            "database_url": {
+                "from_env": "{{ $inner_value.hasuraGraphqlDatabaseUrlSecret }}"
+            }
+          },
+          "use_prepared_statements": true
+        },
+        "replace_configuration": true,
+        "customization": {
+          "root_fields": {
+            "prefix": "{{ $inner_key }}_"
+          },
+          "type_names": {
+            "prefix": "{{ $inner_key }}_"
+          },
+          "naming_convention": "hasura-default"
+        }
+      }
+    }
+{{- end }}
+{{- end }}
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dipdup-{{ $key }}-hasura-config
+  labels:
+    app: dipdup-{{ $key }}
+data:
+  dipdup.hasura.yaml: |
+    hasura:
+      url: ${HASURA_URL:-changeme}
+      admin_secret: ${ADMIN_SECRET:-changeme}
+  {{- if ne $.Values.hasura.mainDipdupInstance $key }}
+      source: {{ $key }}
+  {{- end }}
+      select_limit: 1000
+      rest: false
+{{- end }}
+{{- end }}

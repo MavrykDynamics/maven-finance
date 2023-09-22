@@ -1,91 +1,121 @@
 contracts:
   liquidity_baking:
+    kind: tezos
     address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
     typename: liquidity_baking
   sirius:
+    kind: tezos
     address: KT1AafHA1C1vk959wvHWBispY9Y2f3fxBUUo
     typename: sirius
   tzbtc:
+    kind: tezos
     address: KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn
     typename: tzbtc
   mvk_token:
-    address: KT1Rm6AHPhGLDZ6KpjSgxPQBsBb4HphhjGmq
+    kind: tezos
+    address: KT1PKKPr6gSqh1MSZUB6UteToskN8KncpN2j
     typename: mvk_token
   mvk_faucet:
-    address: KT1Py5wXLdcTyKnkZd4jf7LVtbLUpp6HXo2N
+    kind: tezos
+    address: KT1XTCNJg4XkdxaR1HqMxK16fwzTWhCDyHiL
     typename: mvk_faucet
   governance_proxy:
-    address: KT1SwKwDcE1sp8xDricFi5k5kDjQuZkwkHhb
+    kind: tezos
+    address: KT1HWZ4mWogtvLKqDQWnJrwiCg8NUdt9RTzD
     typename: governance_proxy
   governance:
-    address: KT1NagAXeMUxoQtBBTW8oJAFqfLK8P14tMff
+    kind: tezos
+    address: KT1GXYj2chnGXMH8XDcL85mPqtUBxBXqKZqA
     typename: governance
   doorman:
-    address: KT1T9KNfw9X29hCDK1PX8bxPBeeYPfqhoiAL
+    kind: tezos
+    address: KT1Uc7Bgc7q4J4ghcaN6u4TiTbxYcoqGTDpp
     typename: doorman
   farm:
-    code_hash: KT1DDmJe5yMSRqJEw6CrvNBdC6gtHkfvKEAp
+    kind: tezos
+    code_hash: KT1CLcX4KcRqoQCVQC5EYEVWLDkcXLX4pxyY
     typename: farm
   farm_m_token:
-    code_hash: KT1T1FYoBdJz2cKCyfFfEsCq4Yfh9KREo3r4
+    kind: tezos
+    code_hash: KT1KXrs8u1rwnfRBLhWwbWKYiKpEmtZwHEj3
     typename: m_farm
   farm_factory:
-    address: KT1NsRC3RSHe1F7AnimUkp5sCcLaRi79mfEB
+    kind: tezos
+    address: KT1VsXD5e651fhF62LYriqQJFw9oJqzExC1M
     typename: farm_factory
   delegation:
-    address: KT1GY81Xf1hDkSu3zy8QacK7qVnmqCHBz7D3
+    kind: tezos
+    address: KT1NimLEvSmgoPdzvZiqeUyMt3SuoCUmgXsp
     typename: delegation
   vesting:
-    address: KT1RNPoAVaLDBrGH8e81Ynounqi7ngC9wfoR
+    kind: tezos
+    address: KT1JW9rJzyjn6zKk9qJZuQYg9gsH9j4FnznQ
     typename: vesting
   emergency_governance:
-    address: KT1EXzLDKUfnC7iewrB6ofBNBX1X6NLmTvBu
+    kind: tezos
+    address: KT1LSonthJGG524dHtRLQ2yMTatzTiTdKu5x
     typename: emergency_governance
   council:
-    address: KT1Uz4i5AD1qy78AfgeYqKhXCoTjDS8Jzdrt
+    kind: tezos
+    address: KT1KZHRFrvAYD3WPXTJVGbS36BShjcoivTTe
     typename: council
   break_glass:
-    address: KT1LmoTcb83JrvL8USwTvZELHivehdaNM3Wi
+    kind: tezos
+    address: KT1VEBdDHje4yFcwSnsBqcY3BBA9mWoFZVmh
     typename: break_glass
   governance_financial:
-    address: KT1Cc4oPkvabkGDmxdmbzRq6B5Yq4WStxE6p
+    kind: tezos
+    address: KT1LnAidzuhnaWohf3urUR4X6p2AH35T4SKn
     typename: governance_financial
   governance_satellite:
-    address: KT1PzqGQehSoy3ocU9j3QxBWvQCe94ceVZVj
+    kind: tezos
+    address: KT1VnN3xQ3gZJF9dzJ9s4R4tdvhgTMaCij6a
     typename: governance_satellite
   aggregator:
-    code_hash: KT1RCGcLcdU9ar4DVfC7pZnUmkLMhkLRuJdE
+    kind: tezos
+    code_hash: KT1WqwxLf21kNYaFuvoA16LZE73gWYkupRYm
     typename: aggregator
   aggregator_factory:
-    address: KT1QbSrMiRkexqj3MXGnsLMsUJ9qnZgHV9tW
+    kind: tezos
+    address: KT1JrjU1Xyk2bopAo42uvyJVck89jPuPYVtL
     typename: aggregator_factory
   treasury:
-    code_hash: KT1B77V84wZnhXM3GERgdZcK1fi4xDvfkU2q
+    kind: tezos
+    code_hash: KT1XsTGK32zifpGjhuNHWDXcbMwzHbaax8VX
     typename: treasury
   treasury_factory:
-    address: KT1VBAvESBj9LEeMmGSM6eNzB9dsCiRe3LNU
+    kind: tezos
+    address: KT1U7EJEy4oKj26kGp4Wv9tKvBHeUYubhK3F
     typename: treasury_factory
   lending_controller:
-    address: KT1AXkpatvgPrpM1R2Uppxd1v2zFGMqs2n91
+    kind: tezos
+    address: KT1FaQ26AxeYzveFdconGb92MdUQCeT5uFse
     typename: lending_controller
   lending_controller_mock_time:
-    address: KT1QcgHYG93LeRo4phYRV7aq6BB5d3eEZ1EU
+    kind: tezos
+    address: KT1RfmsYcsmviN8E4KvtEUgUCkfLNWA9Np1w
     typename: lending_controller_mock_time
   m_token_xtz:
-    address: KT1EqGvzxfLbMdSjWqppHMQtVBZm5usmLoqL
+    kind: tezos
+    address: KT1W5NAZuxjXhCJjS9aQVMEYq63D9E5y2DPY
     typename: m_token
   m_token_eurl:
-    address: KT1DMMXgA57XVM7S5dAkxx5SL62DBjFnZXPt
+    kind: tezos
+    address: KT1CHWoKkYv8yuG2rfXTDQpWLgck1MHRm6Uu
     typename: m_token
   m_token_tzbtc:
-    address: KT1WfQgLSfRYXJM2DpzVXP992QGfinoYxqDh
+    kind: tezos
+    address: KT1MsNLRSME98cN16djgfPhT13CYexpEK25T
     typename: m_token
   m_token_usdt:
-    address: KT1G5g9fY6JZvfK64Z9HjekvC3K9igvY6aZd
+    kind: tezos
+    address: KT1QQasqcv6ZRfNmYXuTRf5dk3RCxKPuwc5j
     typename: m_token
   vault:
-    code_hash: KT1QikHEgiAiiNh8RGVhLtNL912USicSP2vz
+    kind: tezos
+    code_hash: KT1BfdJr5WTjLeExLJLbmpR5hsSd3uZapCuM
     typename: vault
   vault_factory:
-    address: KT1RmKgWCSmCCiE6j9McNMzF1gio3YsZGPAM
+    kind: tezos
+    address: KT1NkJTmaLmTNnryrPZ4Qoxu4sefxGk7TFVw
     typename: vault_factory
