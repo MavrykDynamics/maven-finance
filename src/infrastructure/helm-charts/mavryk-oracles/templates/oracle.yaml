@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: signatory-config
+  name: signatory-config-{{ $key }}
 data:
   signatory.yaml: |
     server:
