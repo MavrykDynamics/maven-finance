@@ -20,9 +20,6 @@ externalDNS:
 kubePrometheusStack:
   valueFiles: network.values.yaml
 
-mavrykBasenet:
-  valueFiles: network.values.yaml
-
 metricsServer:
   valueFiles: network.values.yaml
 
