@@ -25,11 +25,11 @@ async def transfer(
     
         # Get MVK Token
         token                       = await models.Token.get(
-            network         = ctx.datasource.network,
+            network         = ctx.datasource.name.replace('tzkt_',''),
             token_address   = m_token_address,
             token_id        = 0
         )
-        m_token                     = await models.MToken.get(network=ctx.datasource.network, address=m_token_address, token=token)
+        m_token                     = await models.MToken.get(network=ctx.datasource.name.replace('tzkt_',''), address=m_token_address, token=token)
         m_token.token_reward_index  = token_reward_index
         m_token.total_supply        = total_supply
         await m_token.save()
@@ -39,7 +39,7 @@ async def transfer(
             transactions            = entry.txs
     
             # Get or create from
-            from_user               = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=from_address)
+            from_user               = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=from_address)
             from_account, _         = await models.MTokenAccount.get_or_create(
                 m_token = m_token,
                 user    = from_user
@@ -65,7 +65,7 @@ async def transfer(
                 to_address          = transaction.to_
     
                 # Get or create to
-                to_user             = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=to_address)
+                to_user             = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=to_address)
                 to_account, _       = await models.MTokenAccount.get_or_create(
                     m_token = m_token,
                     user    = to_user

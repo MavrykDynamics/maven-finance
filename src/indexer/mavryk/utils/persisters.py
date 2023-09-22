@@ -16,7 +16,7 @@ async def persist_council_action(ctx, action):
 
     # Update record
     council                         = await models.Council.get(
-        network = ctx.datasource.network,
+        network = ctx.datasource.name.replace('tzkt_',''),
         address = council_address
     )
     council.action_counter          = council_action_counter
@@ -45,7 +45,7 @@ async def persist_council_action(ctx, action):
         elif council_action_status == 'EXPIRED':
             record_status    = models.ActionStatus.EXPIRED
 
-        initiator                       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=council_action_initiator)
+        initiator                       = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=council_action_initiator)
 
         action_exists                   = await models.CouncilAction.filter(
             council     = council,
@@ -84,7 +84,7 @@ async def persist_council_action(ctx, action):
 
                 if action_id == council_action_id:
                     # Signers
-                    user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=action_signer)
+                    user                            = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=action_signer)
                     council_action_record_signer    = models.CouncilActionSigner(
                         signer                  = user,
                         council_action          = council_action_record
@@ -100,7 +100,7 @@ async def persist_break_glass_action(ctx, action):
 
     # Update record
     break_glass                         = await models.BreakGlass.get(
-        network         = ctx.datasource.network,
+        network         = ctx.datasource.name.replace('tzkt_',''),
         address         = break_glass_address
     )
     break_glass.action_counter          = break_glass_action_counter
@@ -129,7 +129,7 @@ async def persist_break_glass_action(ctx, action):
         elif break_glass_action_status == 'EXPIRED':
             record_status   = models.ActionStatus.EXPIRED
 
-        initiator       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=break_glass_action_initiator)
+        initiator       = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=break_glass_action_initiator)
 
         action_exists   = await models.BreakGlassAction.filter(
             break_glass = break_glass,
@@ -168,7 +168,7 @@ async def persist_break_glass_action(ctx, action):
                 
                 if action_id == break_glass_action_id:
                     # Signers
-                    user                                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=action_signer)
+                    user                                = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=action_signer)
                     break_glass_action_record_signer    = models.BreakGlassActionSigner(
                         signer                      = user,
                         break_glass_action          = break_glass_action_record
@@ -183,7 +183,7 @@ async def persist_financial_request(ctx, action):
 
     # Create record
     governanceFinancial     = await models.GovernanceFinancial.get(
-        network         = ctx.datasource.network,
+        network         = ctx.datasource.name.replace('tzkt_',''),
         address         = financial_address
     )
     governanceFinancial.fin_req_counter = request_counter
@@ -225,7 +225,7 @@ async def persist_financial_request(ctx, action):
 
             # Check if treasury exists
             treasury                        = await models.Treasury.get_or_none(
-                network         = ctx.datasource.network,
+                network         = ctx.datasource.name.replace('tzkt_',''),
                 address         = treasury_address
             )
             if not treasury:
@@ -233,7 +233,7 @@ async def persist_financial_request(ctx, action):
                 governance  = await governanceFinancial.governance
                 treasury    = models.Treasury(
                     address     = treasury_address,
-                    network     = ctx.datasource.network,
+                    network     = ctx.datasource.name.replace('tzkt_',''),
                     governance  = governance
                 )
                 await treasury.save()
@@ -253,7 +253,7 @@ async def persist_financial_request(ctx, action):
 
             # Get the related token
             token, _         = await models.Token.get_or_create(
-                network         = ctx.datasource.network,
+                network         = ctx.datasource.name.replace('tzkt_',''),
                 token_address   = token_contract_address,
                 token_id        = token_id
             )
@@ -262,8 +262,8 @@ async def persist_financial_request(ctx, action):
             token.token_standard    = standard
             await token.save()
 
-            requester               = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=requester_address)
-            receiver                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=receiver_address)
+            requester               = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=requester_address)
+            receiver                = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=receiver_address)
             requestRecord           = models.GovernanceFinancialRequest(
                 internal_id                     = int(request_id),
                 governance_financial            = governanceFinancial,
@@ -301,7 +301,7 @@ async def persist_governance_satellite_action(ctx, action):
 
     # Create record
     governance_satellite     = await models.GovernanceSatellite.get(
-        network = ctx.datasource.network,
+        network = ctx.datasource.name.replace('tzkt_',''),
         address = governance_satellite_address
     )
     governance_satellite.fin_req_counter = action_counter
@@ -336,7 +336,7 @@ async def persist_governance_satellite_action(ctx, action):
             governance_cycle_id             = int(action_record_storage.governanceCycleId)
             data                            = action_record_storage.dataMap
 
-            initiator                       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=initiator_address)
+            initiator                       = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=initiator_address)
             action_record                   = models.GovernanceSatelliteAction(
                 internal_id                     = int(action_id),
                 governance_satellite            = governance_satellite,
@@ -382,7 +382,7 @@ async def persist_linked_contract(ctx, contract_class, linked_contract_class, up
     # Get operation info
     target_address          = update_linked_contracts.data.target_address
     contract                = await contract_class.get(
-        network         = ctx.datasource.network,
+        network         = ctx.datasource.name.replace('tzkt_',''),
         address         = target_address
     )
 
@@ -440,7 +440,7 @@ async def persist_linked_contract(ctx, contract_class, linked_contract_class, up
 
         # Get the related token
         token, _                = await models.Token.get_or_create(
-            network         = ctx.datasource.network,
+            network         = ctx.datasource.name.replace('tzkt_',''),
             token_address   = contract_address
         )
         if token_contract_metadata:
@@ -470,7 +470,7 @@ async def persist_admin(ctx, contract_class, set_admin):
 
     # Update record
     await contract_class.filter(
-        network     = ctx.datasource.network, 
+        network     = ctx.datasource.name.replace('tzkt_',''), 
         address     = contract_address
     ).update(
         admin       = admin_address
@@ -483,9 +483,9 @@ async def persist_governance(ctx, contract_class, set_governance):
 
     # Update record
     # Get governance record
-    governance                  = await models.Governance.get(network = ctx.datasource.network)
+    governance                  = await models.Governance.get(network = ctx.datasource.name.replace('tzkt_',''))
     await contract_class.filter(
-        network     = ctx.datasource.network, 
+        network     = ctx.datasource.name.replace('tzkt_',''), 
         address     = contract_address
     ).update(
         governance  = governance
@@ -506,7 +506,7 @@ async def persist_lambda(ctx, contract_class, lambda_contract_class, set_lambda)
 
     # Save / Update record
     contract                = await contract_class.get(
-        network     = ctx.datasource.network,
+        network     = ctx.datasource.name.replace('tzkt_',''),
         address     = contract_address
     )
     contract.last_updated_at            = timestamp

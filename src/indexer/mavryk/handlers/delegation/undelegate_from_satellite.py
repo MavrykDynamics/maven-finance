@@ -23,10 +23,10 @@ async def undelegate_from_satellite(
             total_delegated_amount      = float(satellite_storage.totalDelegatedAmount)
         
             # Create and/or update record
-            user                                                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=user_address)
-            satellite                                                       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
+            user                                                            = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=user_address)
+            satellite                                                       = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=satellite_address)
             delegation                                                      = await models.Delegation.get(
-                network = ctx.datasource.network,
+                network = ctx.datasource.name.replace('tzkt_',''),
                 address = delegation_address
             )
             satellite_record                                                = await models.Satellite.get(

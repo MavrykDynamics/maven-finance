@@ -18,7 +18,7 @@ async def update_operators(
     
         # Update records
         mvk_token           = await models.MVKToken.get(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = mvk_token_address
         )
         for operatorChange in operator_changes:
@@ -26,8 +26,8 @@ async def update_operators(
                 owner_address       = operatorChange.add_operator.owner
                 operator_address    = operatorChange.add_operator.operator
                 
-                owner               = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=owner_address)            
-                operator            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=operator_address)
+                owner               = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=owner_address)            
+                operator            = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=operator_address)
     
                 operator_record, _  = await models.MVKTokenOperator.get_or_create(
                     mvk_token   = mvk_token,
@@ -39,8 +39,8 @@ async def update_operators(
                 owner_address       = operatorChange.remove_operator.owner
                 operator_address    = operatorChange.remove_operator.operator
                 
-                owner               = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=owner_address)
-                operator            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=operator_address)
+                owner               = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=owner_address)
+                operator            = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=operator_address)
     
                 operator_record, _  = await models.MVKTokenOperator.get_or_create(
                     mvk_token   = mvk_token,

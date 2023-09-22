@@ -1,6 +1,37 @@
 {{ range $key, $value := .Values.oracles }}
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: signatory-config
+data:
+  signatory.yaml: |
+    server:
+      # Address/Port that Signatory listens on
+      address: :6732
+      # Address/Port that Signatory serves prometheus metrics on
+      utility_address: :9583
+
+    vaults:
+      # Name of vault
+      local_file_keys:
+        driver: file
+        config:
+          file: /etc/secret.json
+
+    # List enabled public keys hashes here
+    tezos:
+        {{ $value.tezos.address }}:
+        log_payloads: true
+        allowed_operations:
+          # List of [generic, block, endorsement]
+          - generic
+          - failing_noop
+        allowed_kinds:
+          # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
+          - transaction
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: oracle-{{ $key }}
@@ -38,7 +69,27 @@ spec:
     spec:
       imagePullSecrets:
           - name: '{{ $.Values.image.pullSecret }}'
+      volumes:
+        - name: signatory-config
+          configMap:
+            signatory-config
+        - name: signatory-secret
+          secret:
+            secretName: signatory
       containers:
+        - name: signatory
+          image: 'ecadlabs/signatory:v0.3.3-beta-rc1-amd64'
+          ports:
+            - containerPort: 6732
+              protocol: TCP
+          volumeMounts:
+            - name: signatory-config
+              mountPath: /etc/signatory.yaml
+              subPath: signatory.yaml
+            - name: signatory-secret
+              mountPath: /etc/secret.json
+              subPath: secret.json
+              readOnly: true
         - name: oracle
           env:
           {{- range $value.env }}
@@ -54,6 +105,8 @@ spec:
           {{- end }}
             - name: TEZOS_POLLING_INTERVAL_MILLISECONDS
               value: '2000'
+            - name: SIGNER_URL
+              value: 'http://0.0.0.0:6732'
             - name: RPC_URL
               value: '{{ $value.rpcUrl }}'
             - name: P2P_BOOTSTRAP_PEERS
@@ -71,11 +124,6 @@ spec:
               value: '{{ $value.tezos.address }}'
             - name: TEZOS_PUBLIC_KEY
               value: '{{ $value.tezos.publicKey }}'
-            - name: TEZOS_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $value.tezos.secretKey.secretName }}
-                  key: {{ $value.tezos.secretKey.key }}
             - name: AGGREGATOR_SMART_CONTRACT_ADDRESSES
               value: '{{ join "," $.Values.aggregatorsAddresses }}'
             - name: ALPHAVANTAGE_API_KEY

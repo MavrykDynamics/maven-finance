@@ -27,12 +27,12 @@ async def stake(
         participation_fees_per_share        = float(sender_stake_balance_ledger.participationFeesPerShare)
         timestamp                           = stake.data.timestamp
         amount                              = float(stake.parameter.__root__)
-        doorman                             = await models.Doorman.get(network=ctx.datasource.network, address=doorman_address)
+        doorman                             = await models.Doorman.get(network=ctx.datasource.name.replace('tzkt_',''), address=doorman_address)
         unclaimed_rewards                   = float(stake.storage.unclaimedRewards)
         accumulated_fees_per_share          = float(stake.storage.accumulatedFeesPerShare)
     
         # Get or create the interacting user
-        user                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=sender_address)
+        user                = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=sender_address)
         user.mvk_balance    = mvk_balance
         user.smvk_balance   = smvk_balance
         await user.save()

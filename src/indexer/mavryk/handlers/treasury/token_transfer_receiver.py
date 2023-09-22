@@ -30,7 +30,7 @@ async def token_transfer_receiver(
         token, _            = await models.Token.get_or_create(
             token_address       = token_address,
             token_id            = token_id,
-            network             = ctx.datasource.network
+            network             = ctx.datasource.name.replace('tzkt_','')
         )
         token.token_standard    = standard
         if metadata:
@@ -39,7 +39,7 @@ async def token_transfer_receiver(
     
         # Update records
         treasury            = await models.Treasury.get(
-            network         = ctx.datasource.network,
+            network         = ctx.datasource.name.replace('tzkt_',''),
             address         = treasury_address
         )
         treasury_balance, _ = await models.TreasuryBalance.get_or_create(

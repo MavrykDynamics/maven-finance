@@ -21,8 +21,8 @@ async def update_council_member_info(
         image                   = council_member_storage.image
     
         # Update record
-        council                 = await models.Council.get(network=ctx.datasource.network, address= council_address)
-        user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=council_member_address)
+        council                 = await models.Council.get(network=ctx.datasource.name.replace('tzkt_',''), address= council_address)
+        user                    = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=council_member_address)
         await models.CouncilCouncilMember.filter(
             council     = council,
             user        = user

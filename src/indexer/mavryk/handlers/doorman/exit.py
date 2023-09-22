@@ -31,7 +31,7 @@ async def exit(
         accumulated_fees_per_share              = float(exit.storage.accumulatedFeesPerShare)
 
         # Get or create the interacting user
-        user                                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=initiator_address)
+        user                                    = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=initiator_address)
         user.mvk_balance                        = mvk_balance
         user.smvk_balance                       = smvk_balance
         await user.save()

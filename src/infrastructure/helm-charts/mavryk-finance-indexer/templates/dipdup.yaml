@@ -162,7 +162,7 @@ metadata:
   labels:
     app: dipdup-{{ $key }}
 data:
-  dipdup.hasura.yaml: |
+  dipdup.hasura.yml: |
     hasura:
       url: ${HASURA_URL:-changeme}
       admin_secret: ${ADMIN_SECRET:-changeme}

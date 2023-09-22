@@ -21,7 +21,7 @@ async def update_proposal_data(
         payment_data_storage    = storage_proposal.paymentData
         
         # Update or create record
-        governance      = await models.Governance.get(network=ctx.datasource.network, address= governance_address)
+        governance      = await models.Governance.get(network=ctx.datasource.name.replace('tzkt_',''), address= governance_address)
         proposal        = await models.GovernanceProposal.get(
             internal_id         = proposal_id,
             governance          = governance
@@ -92,7 +92,7 @@ async def update_proposal_data(
                 token, _            = await models.Token.get_or_create(
                     token_address       = token_address,
                     token_id            = token_id,
-                    network             = ctx.datasource.network
+                    network             = ctx.datasource.name.replace('tzkt_','')
                 )
                 if token_contract_metadata:
                     token.metadata          = token_contract_metadata
@@ -101,7 +101,7 @@ async def update_proposal_data(
 
                 # Get receiver
                 receiver_address                = payment_single_data.transaction.to_
-                receiver                        = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=receiver_address)
+                receiver                        = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=receiver_address)
 
                 # Save the payment record
                 payment_data.title              = payment_single_data.title
