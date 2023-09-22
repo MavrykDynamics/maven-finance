@@ -18,7 +18,7 @@ async def pause_all(
     
         # Update record
         await models.VaultFactory.filter(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = vault_factory_address
         ).update(
             create_vault_paused   = create_vault_paused

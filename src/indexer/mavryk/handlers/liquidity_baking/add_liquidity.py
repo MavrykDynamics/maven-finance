@@ -38,7 +38,7 @@ async def add_liquidity(
     
         # Create / Update record
         liquidity_baking, _ = await models.LiquidityBaking.get_or_create(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = liquidity_baking_address
         )
     
@@ -54,7 +54,7 @@ async def add_liquidity(
             price   = xtz_pool_decimals / token_pool_decimals
         value                   = xtz_qty_decimals + price * token_qty_decimals
     
-        trader                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=trader_address)
+        trader                  = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=trader_address)
     
         shares_qty              = lqt_balance
         position, _             = await models.LiquidityBakingPosition.get_or_create(

@@ -35,7 +35,7 @@ async def origination(
         )
     
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.network)
+        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('tzkt_',''))
 
         # Get the token standard
         standard = await get_token_standard(
@@ -46,7 +46,7 @@ async def origination(
         # Get the related token
         token, _            = await models.Token.get_or_create(
             token_address       = mvk_address,
-            network             = ctx.datasource.network,
+            network             = ctx.datasource.name.replace('tzkt_',''),
             token_id            = 0
         )
         if token_contract_metadata:
@@ -57,7 +57,7 @@ async def origination(
         # Save MVK in DB
         mvk = models.MVKToken(
             address                     = mvk_address,
-            network                     = ctx.datasource.network,
+            network                     = ctx.datasource.name.replace('tzkt_',''),
             metadata                    = contract_metadata,
             token                       = token,
             admin                       = admin,
@@ -73,7 +73,7 @@ async def origination(
         # Create first users
         originated_ledger = mvk_origination.storage.ledger
         for address in originated_ledger:
-            new_user                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=address)
+            new_user                = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=address)
             new_user.mvk_balance    = originated_ledger[address]
             await new_user.save()
 
