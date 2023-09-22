@@ -49,7 +49,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: '{{defaultContext}}:src/indexer/'
+          context: '{{defaultContext}}:src/indexer/mavryk/deploy/'
           push: true
           tags: mavrykdynamics/mavryk-indexer:${{ github.event.inputs.imageTag }}
   setup-app:
@@ -85,7 +85,7 @@ jobs:
         with:
           version: 2.5.2
           command: app set prod-mavryk-indexer
-          options: -p instances.dev.dipdup.initialWipe=false -p instances.prod.dipdup.initialWipe=false -p instances.prod2.dipdup.initialWipe=false --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
+          options: -p instances.dev.dipdup.initialWipe=False -p instances.prod.dipdup.initialWipe=False -p instances.prod2.dipdup.initialWipe=False --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
       - name: create-wipe-database-pod
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:

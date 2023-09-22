@@ -1,0 +1,216 @@
+---
+{{- if .Values.hasura.redis.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    release: prod
+  name: hasura-service-monitor
+  namespace: {{ .Values.hasura.metrics.serviceMonitor.namespace }}
+spec:
+  endpoints:
+  - honorLabels: true
+    port: http
+    path: /v1/metrics
+  namespaceSelector:
+    matchNames:
+      - mavryk-finance-indexer
+  selector:
+    matchLabels:
+      app: hasura
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hasura
+  labels:
+    app: hasura
+spec:
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: http
+  selector:
+    app: hasura
+  type: ClusterIP
+{{- if .Values.hasura.redis.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+data:
+  redis-config: |
+    requirepass test12345
+    protected-mode no
+{{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hasura
+  labels:
+    app: hasura
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hasura
+  template:
+    metadata:
+      labels:
+        app: hasura
+    spec:
+      {{- if .Values.hasura.redis.enabled }}
+      volumes:
+        - name: config
+          configMap:
+            name: redis-config
+            items:
+            - key: redis-config
+              path: redis.conf
+      {{- end }}
+      containers:
+        {{- if .Values.hasura.redis.enabled }}
+        - name: redis
+          {{- if .Values.hasura.redis.resources.enabled }}
+          resources:
+            requests:
+              memory: '{{ .Values.hasura.redis.resources.requests.memory }}'
+              cpu: '{{ .Values.hasura.redis.resources.requests.cpu }}'
+            limits:
+              memory: '{{ .Values.hasura.redis.resources.limits.memory }}'
+              cpu: '{{ .Values.hasura.redis.resources.limits.cpu }}'
+          {{- end }}
+          image: '{{ .Values.hasura.redis.image.registry }}/{{ .Values.hasura.redis.image.repository }}:{{ .Values.hasura.redis.image.tag }}'
+          imagePullPolicy: IfNotPresent
+          command:
+            - redis-server
+            - "/redis-master/redis.conf"
+          volumeMounts:
+          - mountPath: /redis-master
+            name: config
+          ports:
+            - containerPort: 6379
+        {{- end }}
+        - name: hasura
+          {{- if .Values.hasura.resources.enabled }}
+          resources:
+            requests:
+              memory: '{{ .Values.hasura.resources.requests.memory }}'
+              cpu: '{{ .Values.hasura.resources.requests.cpu }}'
+            limits:
+              memory: '{{ .Values.hasura.resources.limits.memory }}'
+              cpu: '{{ .Values.hasura.resources.limits.cpu }}'
+          {{- end }}
+          env:
+            - name: HASURA_GRAPHQL_PG_CONNECTIONS
+              value: '{{ .Values.hasura.pgConnections }}'
+            - name: HASURA_GRAPHQL_ENABLE_TELEMETRY
+              value: "false"
+            - name: HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_REFETCH_INTERVAL
+              value: '15000'
+            - name: HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_BATCH_SIZE
+              value: '1000'
+            - name: HASURA_GRAPHQL_ENABLE_CONSOLE
+              value: '{{ .Values.hasura.enableConsole }}'
+            - name: HASURA_GRAPHQL_DEV_MODE
+              value: '{{ .Values.hasura.devMode }}'
+            - name: HASURA_GRAPHQL_ENABLED_LOG_TYPES
+              value: startup, http-log, webhook-log, websocket-log, query-log
+            - name: HASURA_GRAPHQL_UNAUTHORIZED_ROLE
+              value: '{{ .Values.hasura.unauthorizedRole }}'
+            - name: HASURA_GRAPHQL_ADMIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: HASURA_GRAPHQL_ADMIN_SECRET
+            - name: HASURA_GRAPHQL_CORS_DOMAIN
+              value: '{{ include "listToCSV" .Values.hasura.corsDomains }}'
+            {{- range $key, $value := .Values.dipdup }}
+            {{- if eq $.Values.hasura.mainDipdupInstance $key }}
+            - name: HASURA_GRAPHQL_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: {{ $value.hasuraGraphqlDatabaseUrlSecret }}
+            {{- else }}
+            {{- if $value.enabled }}
+            - name: {{ $value.hasuraGraphqlDatabaseUrlSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: {{ $value.hasuraGraphqlDatabaseUrlSecret }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.hasura.jwt.enabled }}
+            - name: HASURA_GRAPHQL_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: HASURA_GRAPHQL_JWT_SECRET
+            {{- end }}
+            {{- if .Values.hasura.redis.enabled }}
+            - name: HASURA_GRAPHQL_REDIS_URL
+              value: redis://:test12345@127.0.0.1:6379
+            - name: HASURA_GRAPHQL_ENABLED_APIS
+              value: metadata,graphql,config,metrics
+            {{- end }}
+          image: '{{ .Values.hasura.image.registry }}/{{ .Values.hasura.image.repository }}:{{ .Values.hasura.image.tag }}'
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+{{- if .Values.hasura.hpa.enabled }}
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hasura
+spec:
+  maxReplicas: {{ .Values.hasura.hpa.maxReplicas }}
+  minReplicas: {{ .Values.hasura.hpa.minReplicas }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hasura
+  targetCPUUtilizationPercentage: 80
+{{- end}}
+{{- if .Values.hasura.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hasura
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/cors-allow-origin: '{{ include "listToCSV" .Values.hasura.corsDomains }}'
+    nginx.ingress.kubernetes.io/cors-allow-methods: GET, POST
+    {{- if .Values.hasura.rateLimit.enabled }}
+    nginx.ingress.kubernetes.io/limit-connections: '5'
+    nginx.ingress.kubernetes.io/limit-rps: '10'
+    nginx.ingress.kubernetes.io/limit-rpm: '100'
+    {{- end }}
+spec:
+  tls:
+    - hosts:
+        - '{{ .Values.hasura.ingress.host }}'
+      secretName: '{{ .Values.hasura.ingress.secretName }}'
+  rules:
+    - host: '{{ .Values.hasura.ingress.host }}'
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hasura
+                port:
+                  number: 8080
+{{- end }}

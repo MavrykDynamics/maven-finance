@@ -19,6 +19,7 @@ inputs = {
   name                        = "network"
   region                      = local.do_region
   vpc_id                      = dependency.vpc.outputs.vpc_id
+  k8s_version                 = "1.27.4-do.0"
   high_availability_enabled   = false
   tags                        = [
     "mavryk",
@@ -36,7 +37,7 @@ inputs = {
     "default"
   ]
   additional_node_pools       = [
-    {
+    /* {
       name        = "node-0",
       size        = "s-4vcpu-8gb",
       node_count  = 1,
@@ -92,6 +93,6 @@ inputs = {
         value   = "2",
         effect  = "NoSchedule"
       }
-    }
+    } */
   ]
 }

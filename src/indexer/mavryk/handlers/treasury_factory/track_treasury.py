@@ -1,0 +1,33 @@
+from mavryk.utils.error_reporting import save_error_report
+
+from mavryk.types.treasury_factory.tezos_parameters.track_treasury import TrackTreasuryParameter
+from mavryk.types.treasury_factory.tezos_storage import TreasuryFactoryStorage
+from dipdup.context import HandlerContext
+from dipdup.models.tezos_tzkt import TzktTransaction
+import mavryk.models as models
+
+async def track_treasury(
+    ctx: HandlerContext,
+    track_treasury: TzktTransaction[TrackTreasuryParameter, TreasuryFactoryStorage],
+) -> None:
+
+    try:
+        # Get operation info
+        treasury_address            = track_treasury.parameter.__root__
+        treasury_factory_address    = track_treasury.data.target_address
+    
+        # Update record
+        treasury_factory    = await models.TreasuryFactory.get(
+            network = ctx.datasource.network,
+            address = treasury_factory_address
+        )
+        await models.Treasury.filter(
+            network = ctx.datasource.network,
+            address = treasury_address
+        ).update(
+            factory        = treasury_factory
+        )
+
+    except BaseException as e:
+        await save_error_report(e)
+

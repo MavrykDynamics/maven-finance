@@ -1,0 +1,353 @@
+hasura:
+  devMode: true
+  enableConsole: true
+  pgConnections: 50
+  image:
+    registry: docker.io
+    repository: hasura/graphql-engine
+    tag: v2.33.0
+  hpa:
+    enabled: false
+    maxReplicas: 3
+    minReplicas: 1
+  resources:
+    enabled: true
+    requests:
+      memory: 1000Mi
+      cpu: 1000m
+    limits:
+      memory: 6000Mi
+      cpu: 3000m
+  ingress:
+    enabled: true
+    host: api-v2.mavryk.finance
+    secretName: api-mavryk-finance-tls
+  unauthorizedRole: user
+  jwt:
+    enabled: false
+  rateLimit:
+    enabled: false
+  corsDomains:
+  - "*"
+  mainDipdupInstance: prod
+  redis:
+    enabled: false
+    resources:
+      enabled: false
+      requests:
+        memory: 100Mi
+        cpu: 100m
+      limits:
+        memory: 200Mi
+        cpu: 150m
+    image:
+      registry: docker.io
+      repository: redis
+      tag: 7
+  metrics:
+    serviceMonitor:
+      namespace: kube-prometheus-stack
+
+dipdup:
+  dev:
+    enabled: true
+    initialWipe: false
+    hasuraGraphqlDatabaseUrlSecret: HASURA_GRAPHQL_DATABASE_URL_DEV
+    image:
+      registry: docker.io
+      repository: mavrykdynamics/mavryk-indexer
+      tag: v0.46.2
+      pullPolicy: IfNotPresent
+      pullSecret: docker-pull-credentials
+    metrics:
+      serviceMonitor:
+        namespace: kube-prometheus-stack
+    database:
+      backup:
+        enabled: false
+    env:
+      - name: POSTGRES_DB
+        value: dipdup-dev
+      - name: POSTGRES_HOST
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_HOST_DEV
+      - name: POSTGRES_PORT
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_PORT_DEV
+      - name: POSTGRES_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_USERNAME_DEV
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_PASSWORD_DEV
+      - name: ADMIN_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: HASURA_GRAPHQL_ADMIN_SECRET
+      - name: TZKT_GHOSTNET_URL
+        value: https://api.ghostnet.tzkt.io
+      - name: TZKT_MAINNET_URL
+        value: https://api.tzkt.io
+      - name: LIQUIDITY_BAKING_ENABLE_INDEXER
+        value: "False"
+      - name: TELEGRAM_ENABLE_REPORTING
+        value: "True"
+      - name: TELEGRAM_BOT_API_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: TELEGRAM_BOT_API_TOKEN
+      - name: TELEGRAM_CHANNEL_ID
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: TELEGRAM_CHANNEL_ID
+  prod:
+    enabled: true
+    initialWipe: false
+    hasuraGraphqlDatabaseUrlSecret: HASURA_GRAPHQL_DATABASE_URL_PROD
+    image:
+      registry: docker.io
+      repository: mavrykdynamics/mavryk-indexer
+      tag: v0.46.2
+      pullPolicy: IfNotPresent
+      pullSecret: docker-pull-credentials
+    metrics:
+      serviceMonitor:
+        namespace: kube-prometheus-stack
+    database:
+      backup:
+        enabled: false
+        env:
+          - name: POSTGRES_DB
+            value: dipdup
+          - name: PGHOST
+            valueFrom:
+              secretKeyRef:
+                name: indexer
+                key: POSTGRES_HOST_PROD
+          - name: PGPORT
+            valueFrom:
+              secretKeyRef:
+                name: indexer
+                key: POSTGRES_PORT_PROD
+          - name: PGUSER
+            valueFrom:
+              secretKeyRef:
+                name: indexer
+                key: POSTGRES_USERNAME_PROD
+          - name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: indexer
+                key: POSTGRES_PASSWORD_PROD
+          - name: BACKUP_RETENTION_IN_DAYS
+            value: '7'
+          - name: BACKUP_FOLDER
+            value: '/usr/indexer-backup'
+    env:
+      - name: POSTGRES_DB
+        value: dipdup
+      - name: POSTGRES_HOST
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_HOST_PROD
+      - name: POSTGRES_PORT
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_PORT_PROD
+      - name: POSTGRES_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_USERNAME_PROD
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_PASSWORD_PROD
+      - name: ADMIN_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: HASURA_GRAPHQL_ADMIN_SECRET
+      - name: TZKT_GHOSTNET_URL
+        value: https://api.ghostnet.tzkt.io
+      - name: TZKT_MAINNET_URL
+        value: https://api.tzkt.io
+      - name: LIQUIDITY_BAKING_ENABLE_INDEXER
+        value: "True"
+      - name: TELEGRAM_ENABLE_REPORTING
+        value: "True"
+      - name: TELEGRAM_BOT_API_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: TELEGRAM_BOT_API_TOKEN
+      - name: TELEGRAM_CHANNEL_ID
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: TELEGRAM_CHANNEL_ID
+  prod2:
+    enabled: false
+    initialWipe: false
+    hasuraGraphqlDatabaseUrlSecret: HASURA_GRAPHQL_DATABASE_URL_PROD_2
+    image:
+      registry: docker.io
+      repository: mavrykdynamics/mavryk-indexer
+      tag: v0.46.2
+      pullPolicy: IfNotPresent
+      pullSecret: docker-pull-credentials
+    metrics:
+      serviceMonitor:
+        namespace: kube-prometheus-stack
+    database:
+      backup:
+        enabled: false
+        env:
+          - name: POSTGRES_DB
+            value: dipdup
+          - name: PGHOST
+            valueFrom:
+              secretKeyRef:
+                name: indexer
+                key: POSTGRES_HOST_PROD_2
+          - name: PGPORT
+            valueFrom:
+              secretKeyRef:
+                name: indexer
+                key: POSTGRES_PORT_PROD_2
+          - name: PGUSER
+            valueFrom:
+              secretKeyRef:
+                name: indexer
+                key: POSTGRES_USERNAME_PROD_2
+          - name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: indexer
+                key: POSTGRES_PASSWORD_PROD_2
+          - name: BACKUP_RETENTION_IN_DAYS
+            value: '7'
+          - name: BACKUP_FOLDER
+            value: '/usr/indexer-backup'
+    env:
+      - name: POSTGRES_DB
+        value: dipdup
+      - name: POSTGRES_HOST
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_HOST_PROD_2
+      - name: POSTGRES_PORT
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_PORT_PROD_2
+      - name: POSTGRES_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_USERNAME_PROD_2
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_PASSWORD_PROD_2
+      - name: ADMIN_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: HASURA_GRAPHQL_ADMIN_SECRET
+      - name: TZKT_GHOSTNET_URL
+        value: https://api.ghostnet.tzkt.io
+      - name: TZKT_MAINNET_URL
+        value: https://api.tzkt.io
+      - name: LIQUIDITY_BAKING_ENABLE_INDEXER
+        value: "True"
+      - name: TELEGRAM_ENABLE_REPORTING
+        value: "True"
+      - name: TELEGRAM_BOT_API_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: TELEGRAM_BOT_API_TOKEN
+      - name: TELEGRAM_CHANNEL_ID
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: TELEGRAM_CHANNEL_ID
+  staging:
+    enabled: false
+    initialWipe: false
+    hasuraGraphqlDatabaseUrlSecret: HASURA_GRAPHQL_DATABASE_URL_STAGING
+    image:
+      registry: docker.io
+      repository: mavrykdynamics/mavryk-indexer
+      tag: v0.46.2
+      pullPolicy: IfNotPresent
+      pullSecret: docker-pull-credentials
+    metrics:
+      serviceMonitor:
+        namespace: kube-prometheus-stack
+    database:
+      backup:
+        enabled: false
+    env:
+      - name: POSTGRES_DB
+        value: dipdup-dev
+      - name: POSTGRES_HOST
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_HOST_STAGING
+      - name: POSTGRES_PORT
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_PORT_STAGING
+      - name: POSTGRES_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_USERNAME_STAGING
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: POSTGRES_PASSWORD_STAGING
+      - name: ADMIN_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: HASURA_GRAPHQL_ADMIN_SECRET
+      - name: TZKT_GHOSTNET_URL
+        value: https://api.ghostnet.tzkt.io
+      - name: TZKT_MAINNET_URL
+        value: https://api.tzkt.io
+      - name: LIQUIDITY_BAKING_ENABLE_INDEXER
+        value: "False"
+      - name: TELEGRAM_ENABLE_REPORTING
+        value: "True"
+      - name: TELEGRAM_BOT_API_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: TELEGRAM_BOT_API_TOKEN
+      - name: TELEGRAM_CHANNEL_ID
+        valueFrom:
+          secretKeyRef:
+            name: indexer
+            key: TELEGRAM_CHANNEL_ID

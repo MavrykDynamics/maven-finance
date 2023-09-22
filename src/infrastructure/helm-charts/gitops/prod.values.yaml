@@ -20,6 +20,9 @@ kubePrometheusStack:
 mavrykApi:
   valueFiles: prod.values.yaml
 
+mavrykFinanceIndexer:
+  valueFiles: prod.values.yaml
+
 mavrykIndexer:
   valueFiles: prod.values.yaml
 
@@ -33,9 +36,6 @@ lokiDistributed:
   valueFiles: prod.values.yaml
 
 promtail:
-  valueFiles: prod.values.yaml
-
-promscale:
   valueFiles: prod.values.yaml
 
 sealedSecrets:
