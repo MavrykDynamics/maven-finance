@@ -52,7 +52,7 @@ async def create_farm_m_token(
     
         # Check farm does not already exists
         farm_exists                     = await models.Farm.filter(
-            network     = ctx.datasource.network,
+            network     = ctx.datasource.name.replace('tzkt_',''),
             address     = farm_address
         ).exists()
     
@@ -101,7 +101,7 @@ async def create_farm_m_token(
                 # Get the related token
                 token0, _               = await models.Token.get_or_create(
                     token_address       = token0_address,
-                    network             = ctx.datasource.network
+                    network             = ctx.datasource.name.replace('tzkt_','')
                 )
                 if token_contract_metadata:
                     token0.metadata          = token_contract_metadata
@@ -124,7 +124,7 @@ async def create_farm_m_token(
                 # Get the related token
                 token1, _               = await models.Token.get_or_create(
                     token_address       = token1_address,
-                    network             = ctx.datasource.network
+                    network             = ctx.datasource.name.replace('tzkt_','')
                 )
                 if token_contract_metadata:
                     token1.metadata          = token_contract_metadata
@@ -154,7 +154,7 @@ async def create_farm_m_token(
             lp_token, _                 = await models.Token.get_or_create(
                 token_address       = lp_token_address,
                 token_id            = lp_token_id,
-                network             = ctx.datasource.network
+                network             = ctx.datasource.name.replace('tzkt_','')
             )
             if token_contract_metadata:
                 lp_token.metadata          = token_contract_metadata
@@ -163,15 +163,15 @@ async def create_farm_m_token(
     
             # Create record
             farm_factory    = await models.FarmFactory.get(
-                network = ctx.datasource.network,
+                network = ctx.datasource.name.replace('tzkt_',''),
                 address = farm_factory_address
             )
             governance      = await models.Governance.get(
-                network = ctx.datasource.network
+                network = ctx.datasource.name.replace('tzkt_','')
             )
             farm            = models.Farm(
                 address                         = farm_address,
-                network                         = ctx.datasource.network,
+                network                         = ctx.datasource.name.replace('tzkt_',''),
                 lp_token                        = lp_token,
                 metadata                        = contract_metadata,
                 governance                      = governance,

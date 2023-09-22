@@ -17,10 +17,10 @@ async def distribute_proposal_rewards(
     
         # Update records
         governance          = await models.Governance.get(
-            network     = ctx.datasource.network
+            network     = ctx.datasource.name.replace('tzkt_','')
         )
         for proposal_id in proposal_ids:
-            satellite                           = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
+            satellite                           = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=satellite_address)
             proposal                            = await models.GovernanceProposal.get(
                 governance  = governance,
                 internal_id = int(proposal_id)
