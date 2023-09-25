@@ -18,11 +18,11 @@ async def untrack_aggregator(
     
         # Update record
         aggregator_factory          = await models.AggregatorFactory.get(
-            network             = ctx.datasource.network,
+            network             = ctx.datasource.name.replace('tzkt_',''),
             address             = aggregator_factory_address
         )
         aggregator                  = await models.Aggregator.get(
-            network             = ctx.datasource.network,
+            network             = ctx.datasource.name.replace('tzkt_',''),
             factory             = aggregator_factory,
             address             = aggregator_address
         )

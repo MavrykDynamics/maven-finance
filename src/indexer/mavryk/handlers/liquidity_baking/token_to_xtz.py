@@ -32,7 +32,7 @@ async def token_to_xtz(
     
         # Create / Update record
         liquidity_baking, _ = await models.LiquidityBaking.get_or_create(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = liquidity_baking_address
         )
     
@@ -58,7 +58,7 @@ async def token_to_xtz(
         liquidity_baking.share_price        = share_price
         await liquidity_baking.save()
     
-        trader                          = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=trader_address)
+        trader                          = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=trader_address)
     
         liquidity_baking_history_data   = models.LiquidityBakingHistoryData(
             timestamp           = timestamp,

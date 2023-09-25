@@ -21,7 +21,7 @@ async def toggle_pause_entrypoint(
         distribute_reward_smvk_paused                       = toggle_pause_entrypoint.storage.breakGlassConfig.distributeRewardStakedMvkIsPaused
     
         # Update record
-        await models.AggregatorFactory.get(network=ctx.datasource.network, address    = aggregator_factory_address).update(
+        await models.AggregatorFactory.get(network=ctx.datasource.name.replace('tzkt_',''), address    = aggregator_factory_address).update(
             create_aggregator_paused         = create_aggregator_paused,
             track_aggregator_paused          = track_aggregator_paused,
             untrack_aggregator_paused        = untrack_aggregator_paused,

@@ -37,7 +37,7 @@ async def sign_action(
             status_type = models.ActionStatus.EXECUTED
     
         # Update record
-        council = await models.Council.get(network=ctx.datasource.network, address= council_address)
+        council = await models.Council.get(network=ctx.datasource.name.replace('tzkt_',''), address= council_address)
         council.council_size    = council_size
         await council.save()
         action_record   = await models.CouncilAction.get(
@@ -82,7 +82,7 @@ async def sign_action(
         for council_member_address in council_members:
             # Change or update records
             member_info             = council_members[council_member_address]
-            member_user             = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=council_member_address)
+            member_user             = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=council_member_address)
             updated_member, _       = await models.CouncilCouncilMember.get_or_create(
                 council     = council,
                 user        = member_user
@@ -93,7 +93,7 @@ async def sign_action(
             await updated_member.save() 
         
         # Create signature record
-        user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=signer_address)
+        user                    = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=signer_address)
         signer_record           = await models.CouncilActionSigner(
             council_action              = action_record,
             signer                      = user

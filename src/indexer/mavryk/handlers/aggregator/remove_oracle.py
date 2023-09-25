@@ -17,8 +17,8 @@ async def remove_oracle(
         oracle_address                  = remove_oracle.parameter.__root__
     
         # Remove records
-        oracle                          = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
-        aggregator                      = await models.Aggregator.get(network=ctx.datasource.network, address= aggregator_address)
+        oracle                          = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=oracle_address)
+        aggregator                      = await models.Aggregator.get(network=ctx.datasource.name.replace('tzkt_',''), address= aggregator_address)
         aggregator_oracle               = await models.AggregatorOracle.get(
             aggregator  = aggregator,
             user        = oracle

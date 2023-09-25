@@ -18,11 +18,11 @@ async def track_farm(
     
         # Update record
         farm_factory    = await models.FarmFactory.get(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = farm_factory_address
         )
         await models.Farm.filter(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = farm_address
         ).update(
             factory    = farm_factory

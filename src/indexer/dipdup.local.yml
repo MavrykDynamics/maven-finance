@@ -49,7 +49,7 @@ datasources:
     network: ghostnet
   tzkt_ghostnet:
     kind: tezos.tzkt
-    url: https://api.ghostnet.tzkt.io
+    url: https://api.mavryk.network
   tzkt_mainnet:
     kind: tezos.tzkt
     url: https://api.tzkt.io
