@@ -1,0 +1,52 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  name: baking-node-rpc
+  namespace: mavryk-basenet
+spec:
+  rules:
+  - host: basenet-baking-node.mavryk.network
+    http:
+      paths:
+      - backend:
+          service:
+            name: mavryk-baking-node
+            port:
+              number: 8732
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - basenet-baking-node.mavryk.network
+    secretName: basenet-baking-node-tls
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  name: rolling-node-rpc
+  namespace: mavryk-basenet
+spec:
+  rules:
+  - host: basenet-rolling-node.mavryk.network
+    http:
+      paths:
+      - backend:
+          service:
+            name: rolling-node
+            port:
+              number: 8732
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - basenet-rolling-node.mavryk.network
+    secretName: basenet-rolling-node-tls
