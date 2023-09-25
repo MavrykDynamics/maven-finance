@@ -70,21 +70,21 @@ async def create_vault(
 
         # Create vault record
         vault_factory       = await models.VaultFactory.get(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = vault_factory_address
         )
     
         # Check vault does not already exists
         # the vault can also be created through the lendingController vault registration entrypoint
         vault_exists            = await models.Vault.filter(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = vault_address
         ).exists()
 
         if not vault_exists:
             vault               = models.Vault(
                 address             = vault_address,
-                network             = ctx.datasource.network,
+                network             = ctx.datasource.name.replace('tzkt_',''),
                 metadata            = contract_metadata,
                 name                = name,
                 factory             = vault_factory,
@@ -96,7 +96,7 @@ async def create_vault(
 
             # Create a baker or not
             if baker_address:
-                baker       = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=baker_address)
+                baker       = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=baker_address)
                 vault.baker = baker
 
             # Save vault
@@ -104,7 +104,7 @@ async def create_vault(
 
             # Register depositors
             for depositor_address in whitelisted_addresses:
-                depositor           = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=depositor_address)
+                depositor           = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=depositor_address)
                 vault_depositor, _  = await models.VaultDepositor.get_or_create(
                     vault       = vault,
                     depositor   = depositor
@@ -114,11 +114,11 @@ async def create_vault(
             # Register vault creation
             # Create / Update record
             lending_controller          = await models.LendingController.get(
-                network         = ctx.datasource.network,
+                network         = ctx.datasource.name.replace('tzkt_',''),
                 address         = lending_controller_address,
                 mock_time       = False
             )
-            vault_owner                 = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vault_owner_address)
+            vault_owner                 = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=vault_owner_address)
 
             for vault_storage in vaults_storage:
                 vault_address                           = vault_storage.value.address
@@ -158,7 +158,7 @@ async def create_vault(
                 await lending_controller_vault.save()
         
                 # Save history data
-                sender                                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=sender_address)
+                sender                                  = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = lending_controller_loan_token,

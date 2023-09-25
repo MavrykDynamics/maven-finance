@@ -16,7 +16,7 @@ async def toggle_pause_entrypoint(
         treasury_address    = toggle_pause_entrypoint.data.target_address
     
         # Update record
-        treasury            = await models.Treasury.filter(network=ctx.datasource.network, address=treasury_address).update(
+        treasury            = await models.Treasury.filter(network=ctx.datasource.name.replace('tzkt_',''), address=treasury_address).update(
             transfer_paused                 = toggle_pause_entrypoint.storage.breakGlassConfig.transferIsPaused,
             mint_mvk_and_transfer_paused    = toggle_pause_entrypoint.storage.breakGlassConfig.mintMvkAndTransferIsPaused,
             update_token_operators_paused   = toggle_pause_entrypoint.storage.breakGlassConfig.updateTokenOperatorsIsPaused,

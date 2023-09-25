@@ -55,7 +55,7 @@ async def remove_liquidity(
 
             # Get the related token
             token, _                                = await models.Token.get_or_create(
-                network             = ctx.datasource.network,
+                network             = ctx.datasource.name.replace('tzkt_',''),
                 token_address       = loan_token_address,
                 token_id            = loan_token_id
             )
@@ -64,7 +64,7 @@ async def remove_liquidity(
     
         # Create / Update record
         lending_controller                      = await models.LendingController.get(
-            network         = ctx.datasource.network,
+            network         = ctx.datasource.name.replace('tzkt_',''),
             address         = lending_controller_address,
             mock_time       = True
         )
@@ -89,7 +89,7 @@ async def remove_liquidity(
         await lending_controller_loan_token.save()
     
         # Save history data
-        sender                                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=sender_address)
+        sender                                  = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=sender_address)
         history_data                            = models.LendingControllerHistoryData(
             lending_controller  = lending_controller,
             sender              = sender,

@@ -17,7 +17,7 @@ async def transfer(
         treasury_address    = transfer.data.target_address
         txs                 = transfer.parameter.__root__
         timestamp           = transfer.data.timestamp
-        treasury            = await models.Treasury.get(network=ctx.datasource.network, address= treasury_address)
+        treasury            = await models.Treasury.get(network=ctx.datasource.name.replace('tzkt_',''), address= treasury_address)
         await treasury.save()
     
         # Create records
@@ -57,7 +57,7 @@ async def transfer(
                 token_id=str(token_id)
             )
     
-            receiver                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=receiver_address)
+            receiver                = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=receiver_address)
             treasury_transfer_data  = models.TreasuryTransferHistoryData(
                 timestamp                       = timestamp,
                 treasury                        = treasury,
@@ -71,7 +71,7 @@ async def transfer(
             token, _                = await models.Token.get_or_create(
                 token_address   = token_contract_address,
                 token_id        = token_id,
-                network         = ctx.datasource.network
+                network         = ctx.datasource.name.replace('tzkt_','')
             )
             if token_contract_metadata:
                 token.metadata          = token_contract_metadata

@@ -17,7 +17,7 @@ async def update_inflation_rate(
         inflation_rate              = int(update_inflation_rate.parameter.__root__)
     
         # Update record
-        await models.MVKToken.filter(network=ctx.datasource.network, address= mvk_address).update(
+        await models.MVKToken.filter(network=ctx.datasource.name.replace('tzkt_',''), address= mvk_address).update(
             inflation_rate    = inflation_rate
         )
 

@@ -18,9 +18,9 @@ async def unregister_as_satellite(
         rewards_record              = unregister_as_satellite.storage.satelliteRewardsLedger[satellite_address]
     
         # Delete records
-        user                        = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
+        user                        = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=satellite_address)
         delegation = await models.Delegation.get(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = delegation_address
         )
         satellite_reward_record, _ = await models.SatelliteRewards.get_or_create(
