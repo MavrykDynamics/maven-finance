@@ -19,7 +19,7 @@ async def toggle_pause_entrypoint(
         withdraw_reward_smvk_paused                         = toggle_pause_entrypoint.storage.breakGlassConfig.withdrawRewardStakedMvkIsPaused
     
         # Update record
-        await models.Aggregator.filter(network=ctx.datasource.network, address= aggregator_address).update(
+        await models.Aggregator.filter(network=ctx.datasource.name.replace('tzkt_',''), address= aggregator_address).update(
             update_data_paused                       = update_data_paused,
             withdraw_reward_xtz_paused               = withdraw_reward_xtz_paused,
             withdraw_reward_smvk_paused              = withdraw_reward_smvk_paused

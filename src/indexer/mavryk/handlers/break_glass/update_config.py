@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.BreakGlass.filter(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = break_glass_address
         ).update(
             last_updated_at                     = timestamp,

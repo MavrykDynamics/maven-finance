@@ -19,10 +19,10 @@ async def request_mvk(
     
         # Create request record
         mvk_faucet          = await models.MVKFaucet.get(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = mvk_faucet_address
         )
-        user                = await models.mavryk_user_cache.get(network=ctx.datasource.network, 
+        user                = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), 
             address = requester_address
         )
         requester           = models.MVKFaucetRequester(

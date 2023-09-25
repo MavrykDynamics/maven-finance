@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.Doorman.filter(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = doorman_address
         ).update(
             last_updated_at = timestamp,

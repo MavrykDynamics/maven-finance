@@ -15,7 +15,7 @@ async def pause_all(
         farm_address    = pause_all.data.target_address
     
         # Update record
-        await models.Farm.filter(network=ctx.datasource.network, address=farm_address).update(
+        await models.Farm.filter(network=ctx.datasource.name.replace('tzkt_',''), address=farm_address).update(
             deposit_paused     = pause_all.storage.breakGlassConfig.depositIsPaused,
             withdraw_paused    = pause_all.storage.breakGlassConfig.withdrawIsPaused,
             claim_paused       = pause_all.storage.breakGlassConfig.claimIsPaused

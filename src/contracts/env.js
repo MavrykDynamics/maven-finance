@@ -19,7 +19,7 @@ module.exports = {
   michelsonBuildDir : "contracts/compiled",
   contractsDir: "contracts/main",
   contractLambdasDir: "contracts/partials/contractLambdas",
-  ligoVersion: "0.62.0",
+  ligoVersion: "0.60.0m",
   network: "development",
   networks: {
     development: {
@@ -29,7 +29,7 @@ module.exports = {
       port: 8732,
     },
     basenet: {
-      rpc: "https://basenet.mavryk.network",
+      rpc: "https://basenet-rolling-node.mavryk.network",
       network_id: "*",
       secretKey: bob.sk,
       port: 443,

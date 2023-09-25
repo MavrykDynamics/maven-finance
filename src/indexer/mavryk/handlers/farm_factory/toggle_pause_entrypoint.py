@@ -16,7 +16,7 @@ async def toggle_pause_entrypoint(
         farm_factory_address    = toggle_pause_entrypoint.data.target_address
     
         # Update record
-        await models.FarmFactory.filter(network=ctx.datasource.network, address=farm_factory_address).update(
+        await models.FarmFactory.filter(network=ctx.datasource.name.replace('tzkt_',''), address=farm_factory_address).update(
             create_farm_paused         = toggle_pause_entrypoint.storage.breakGlassConfig.createFarmIsPaused,
             create_farm_m_token_paused = toggle_pause_entrypoint.storage.breakGlassConfig.createFarmMTokenIsPaused,
             track_farm_paused          = toggle_pause_entrypoint.storage.breakGlassConfig.trackFarmIsPaused,
