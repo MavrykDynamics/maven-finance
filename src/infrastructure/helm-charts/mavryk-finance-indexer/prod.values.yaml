@@ -20,7 +20,7 @@ hasura:
       cpu: 3000m
   ingress:
     enabled: true
-    host: api-v2.mavryk.finance
+    host: api.mavryk.finance
     secretName: api-mavryk-finance-tls
   unauthorizedRole: user
   jwt:
