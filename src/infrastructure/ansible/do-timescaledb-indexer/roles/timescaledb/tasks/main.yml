@@ -10,11 +10,9 @@
     update_cache: yes
 
 - name: Set up PostgresSQL-14 repo
-  shell: |
+  ansible.builtin.shell: |
     echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-  args:
-    warn: no
 
 - name: Run the PostgreSQL repository setup script
   ansible.builtin.command: echo -e “\n” | sh /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
