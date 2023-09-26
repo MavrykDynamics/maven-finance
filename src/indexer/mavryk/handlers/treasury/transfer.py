@@ -75,6 +75,14 @@ async def transfer(
             )
             if token_contract_metadata:
                 token.metadata          = token_contract_metadata
+            elif type(token) == tez:
+                token.metadata          = {
+                    "name": "Tezos",
+                    "symbol": "XTZ",
+                    "decimals": "6",
+                    "icon": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
+                    "thumbnailUri": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
+                }
             token.token_standard    = token_standard
             await token.save()
 
