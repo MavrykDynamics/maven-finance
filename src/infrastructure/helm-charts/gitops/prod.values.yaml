@@ -23,9 +23,6 @@ mavrykApi:
 mavrykFinanceIndexer:
   valueFiles: prod.values.yaml
 
-mavrykIndexer:
-  valueFiles: prod.values.yaml
-
 mavrykOracles:
   valueFiles: prod.values.yaml
 
