@@ -29,8 +29,7 @@ async def default(
             network             = ctx.datasource.name.replace('tzkt_','')
         )
         token.token_standard    = token_standard
-        if metadata:
-            token.metadata          = metadata
+        token.metadata          = metadata
         await token.save()
 
         # Update records

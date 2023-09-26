@@ -74,13 +74,22 @@ async def update_proposal_data(
                     token_id        = int(token.fa2.tokenId)
                 elif type(token) == tez:
                     token_address   = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg"
-    
-                # Persist Token Metadata
-                token_contract_metadata = await get_contract_token_metadata(
-                    ctx=ctx,
-                    token_address=token_address,
-                    token_id=str(token_id)
-                )
+        
+                # Persist loan Token Metadata
+                if loan_token_address != "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":
+                    token_contract_metadata = await get_contract_token_metadata(
+                        ctx=ctx,
+                        token_address=loan_token_address,
+                        token_id=str(loan_token_id)
+                    )
+                else:
+                    token_contract_metadata = {
+                        "name": "Tezos",
+                        "symbol": "XTZ",
+                        "decimals": "6",
+                        "icon": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
+                        "thumbnailUri": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
+                    }
 
                 # Get the token standard
                 standard = await get_token_standard(
@@ -94,8 +103,7 @@ async def update_proposal_data(
                     token_id            = token_id,
                     network             = ctx.datasource.name.replace('tzkt_','')
                 )
-                if token_contract_metadata:
-                    token.metadata          = token_contract_metadata
+                token.metadata          = token_contract_metadata
                 token.token_standard    = standard
                 await token.save()
 
