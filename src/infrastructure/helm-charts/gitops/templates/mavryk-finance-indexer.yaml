@@ -1,4 +1,4 @@
-{{if .Values.mavrykIndexer }}
+{{if .Values.mavrykFinanceIndexer }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -18,5 +18,5 @@ spec:
     targetRevision: staging
     helm:
       valueFiles:
-        - {{ .Values.mavrykIndexer.valueFiles }}
+        - {{ .Values.mavrykFinanceIndexer.valueFiles }}
 {{end}}
