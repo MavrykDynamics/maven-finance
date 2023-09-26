@@ -218,7 +218,7 @@ dipdup:
         enabled: false
     env:
       - name: POSTGRES_DB
-        value: dipdup-dev
+        value: dipdup
       - name: POSTGRES_HOST
         valueFrom:
           secretKeyRef:
