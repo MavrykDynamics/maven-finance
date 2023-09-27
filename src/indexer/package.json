@@ -3,16 +3,15 @@
   "version": "1.0.0",
   "description": "Indexer scripts",
   "scripts": {
-    "poetry": "poetry shell",
     "setup-env": "poetry install",
     "install-deps": "git submodule sync --recursive && git submodule update --init --recursive --remote",
     "start-sandbox": "docker compose -f mavryk/deploy/docker-compose.yml up -d",
     "clear-sandbox": "docker compose -f mavryk/deploy/docker-compose.yml down -v --remove-orphans",
-    "init-types": "dipdup -c dipdup.types.yml -c dipdup.contract.yml -c dipdup.local.yml init -f -b",
-    "start": "DEBUG_MODE=True LIQUIDITY_BAKING_ENABLE_INDEXER=False dipdup -c dipdup.yml -c dipdup.contract.yml -c dipdup.local.yml run",
-    "wipe": "DEBUG_MODE=True LIQUIDITY_BAKING_ENABLE_INDEXER=False dipdup -c dipdup.yml -c dipdup.contract.yml -c dipdup.local.yml schema wipe --force",
+    "init-types": "poetry run dipdup -c dipdup.types.yml -c dipdup.contract.yml -c dipdup.local.yml init -f -b",
+    "start": "DEBUG_MODE=True LIQUIDITY_BAKING_ENABLE_INDEXER=False poetry run dipdup -c dipdup.yml -c dipdup.contract.yml -c dipdup.local.yml run",
+    "wipe": "DEBUG_MODE=True LIQUIDITY_BAKING_ENABLE_INDEXER=False poetry run dipdup -c dipdup.yml -c dipdup.contract.yml -c dipdup.local.yml schema wipe --force",
     "restart": "yarn wipe && yarn start",
-    "import-contracts": "python ./scripts/import-contracts.py"
+    "import-contracts": "poetry run python ./scripts/import-contracts.py"
   },
   "keywords": [],
   "author": "",

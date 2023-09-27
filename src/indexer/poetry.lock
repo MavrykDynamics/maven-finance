@@ -740,12 +740,14 @@ http = ["httpx"]
 
 [[package]]
 name = "dipdup"
-version = "7.0.0rc5"
+version = "7.0.0"
 description = "Modular framework for creating selective indexers and featureful backends for dapps"
 optional = false
 python-versions = "<3.12,>=3.11"
-files = []
-develop = true
+files = [
+    {file = "dipdup-7.0.0-py3-none-any.whl", hash = "sha256:fff15430a1cc12a182876f5678f08ac3f596d16a994303e3ba341e7064164fd2"},
+    {file = "dipdup-7.0.0.tar.gz", hash = "sha256:3403218f61b8b2dd3b75d2725ffb56b62d3e8fcbeafe76a4080c01e2e5ffa17d"},
+]
 
 [package.dependencies]
 aiohttp = ">=3.8,<4.0"
@@ -774,10 +776,6 @@ survey = ">=4.4,<5.0"
 tabulate = ">=0.9,<1.0"
 tortoise-orm = "0.19.3"
 web3 = ">=6.2,<7.0"
-
-[package.source]
-type = "directory"
-url = "dipdup"
 
 [[package]]
 name = "dnspython"
@@ -3011,4 +3009,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11.5"
-content-hash = "55adc9f8010fc06d66300fb8350d9d8064ce5bc90b8b45c81f44cf9ed765c658"
+content-hash = "fa0ce4a998da797691986baed3e1e67c24f17f0ee60e7d2c41b43e449b0e8fff"

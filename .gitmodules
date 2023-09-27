@@ -1,4 +1,0 @@
-[submodule "src/indexer/dipdup"]
-	path = src/indexer/dipdup
-	url = https://github.com/dipdup-io/dipdup
-    revision = next
