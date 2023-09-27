@@ -25,7 +25,9 @@ async def sign_action(
         execution_datetime      = action_record_storage.executedDateTime
         if execution_datetime:
             execution_datetime      = parser.parse(execution_datetime)
-        execution_level         = int(action_record_storage.executedLevel)
+        execution_level         = action_record_storage.executedLevel
+        if execution_level:
+            execution_level     = int(action_record_storage.executedLevel)
         council_members         = sign_action.storage.councilMembers
         admin                   = sign_action.storage.admin
         glass_broken            = sign_action.storage.glassBroken
