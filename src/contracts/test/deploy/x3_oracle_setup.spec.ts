@@ -105,9 +105,9 @@ describe('Oracle Setup', async () => {
                     'ascii',
                 ).toString('hex')
 
-                const eurocUsdMetadata = Buffer.from(
+                const eurcUsdMetadata = Buffer.from(
                     JSON.stringify({
-                        name: 'EUROC/USD Aggregator Contract',
+                        name: 'EURC/USD Aggregator Contract',
                         icon: 'https://www.circle.com/hubfs/euro-coin-lockup-sm.svg',
                         version: 'v1.0.0',
                         authors: ['Mavryk Dev Team <info@mavryk.io>'],
@@ -177,7 +177,7 @@ describe('Oracle Setup', async () => {
                     ))
                     .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
         
-                        'EUROC/USD',
+                        'EURC/USD',
                         true,
                         
                         oracleMap,
@@ -191,7 +191,7 @@ describe('Oracle Setup', async () => {
                         new BigNumber(10000000),      // rewardAmountStakedMvk
                         new BigNumber(1300),          // rewardAmountXtz
                         
-                        eurocUsdMetadata              // metadata
+                        eurcUsdMetadata              // metadata
                         
                     ))
         
