@@ -1,9 +1,9 @@
 oracles:
-  bob:
+  susie:
     rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
     tezos:
-      address: tz1Y2tUUooW6QT6pQCeqz9ep9wCkX5bnKeTs
-      publicKey: edpkurC3L4Y3v3WXK8HMSLGeUfgVbdwYTstt4FUqhPzZD8MFeB6Ymn
+      address: tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7
+      publicKey: edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN
     p2p:
       peerId: 12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1
       peerPublicKey: CAESIH+cTTTZ4gyqjEsn4L17gs9BTYU1ZeAnrBbUqQQQ9uW2
@@ -33,11 +33,11 @@ oracles:
     messari:
       secretName: oracle-keys
       key: MESSARI_API_KEY_2
-  mallory:
+  trudy:
     rpcUrl: https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev
     tezos:
-      address: tz1gvYDynpK667R9VM8hwTxKmRmkcK94aqQy
-      publicKey: edpku7okdYQQcNNtVhtZSWDSTHsCyMh8BHQ23MGxJe1HWnTqske7X2
+      address: tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq
+      publicKey: edpkubMsp1wdfpARu3ZsHKwrtkR9PQiAN8nsACP2hiksb7oM5aUhpu
     p2p:
       peerId: 12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3
       peerPublicKey: CAESIJwuGA2Ua44At3SqYSvFPk/S4ZK8JIChdtEIHowkTCno
