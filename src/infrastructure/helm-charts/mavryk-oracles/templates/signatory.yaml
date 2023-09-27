@@ -64,6 +64,13 @@ spec:
       labels:
         app: signatory
     spec:
+      volumes:
+        - name: signatory-config
+          configMap:
+            name: signatory-config
+        - name: signatory-secret
+          secret:
+            secretName: signatory
       containers:
         - name: signatory
           image: 'ecadlabs/signatory:v0.3.3-beta-rc1-amd64'
@@ -77,10 +84,3 @@ spec:
             - name: signatory-secret
               mountPath: /etc/secret.json
               subPath: secret.json
-      volumes:
-        - name: signatory-config
-          configMap:
-            signatory-config
-        - name: signatory-secret
-          secret:
-            secretName: signatory
