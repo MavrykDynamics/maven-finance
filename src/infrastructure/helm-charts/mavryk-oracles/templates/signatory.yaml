@@ -1,0 +1,86 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: signatory-config
+data:
+  signatory.yaml: |
+    server:
+      # Address/Port that Signatory listens on
+      address: :6732
+      # Address/Port that Signatory serves prometheus metrics on
+      utility_address: :9583
+
+    vaults:
+      # Name of vault
+      local_file_keys:
+        driver: file
+        config:
+          file: /etc/secret.json
+
+    # List enabled public keys hashes here
+    tezos:
+    {{ range $key, $value := .Values.oracles }}
+      {{ $value.tezos.address }}:
+        log_payloads: true
+        allowed_operations:
+          # List of [generic, block, endorsement]
+          - generic
+          - failing_noop
+        allowed_kinds:
+          # List of [endorsement, ballot, reveal, transaction, origination, delegation, seed_nonce_revelation, activate_account]
+          - transaction
+    {{ end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: signatory
+  labels:
+    app: signatory
+spec:
+  clusterIP: None
+  ports:
+    - port: 6732
+      protocol: TCP
+      targetPort: 6732
+  selector:
+    app: signatory
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: signatory
+  labels:
+    app: signatory
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: signatory
+  template:
+    metadata:
+      labels:
+        app: signatory
+    spec:
+      containers:
+        - name: signatory
+          image: 'ecadlabs/signatory:v0.3.3-beta-rc1-amd64'
+          ports:
+            - containerPort: 6732
+              protocol: TCP
+          volumeMounts:
+            - name: signatory-config
+              mountPath: /etc/signatory.yaml
+              subPath: signatory.yaml
+            - name: signatory-secret
+              mountPath: /etc/secret.json
+              subPath: secret.json
+      volumes:
+        - name: signatory-config
+          configMap:
+            signatory-config
+        - name: signatory-secret
+          secret:
+            secretName: signatory
