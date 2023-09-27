@@ -16,7 +16,7 @@ import contractDeployments from '../contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { bob, eve, mallory, alice, oscar } from "../../scripts/sandbox/accounts";
+import { bob, susie, eve, trudy, alice, oscar } from "../../scripts/sandbox/accounts";
 import {
     signerFactory,
     updateOperators
@@ -140,9 +140,9 @@ describe("Testnet setup helper", async () => {
                 // Init var
                 const stakeAmount   = MVK(200000);
 
-                // Bob
-                await signerFactory(tezos, bob.sk);
-                updateOperatorsOperation        = await updateOperators(mvkTokenInstance, bob.pkh, doormanAddress, tokenId);
+                // Susie
+                await signerFactory(tezos, susie.sk);
+                updateOperatorsOperation        = await updateOperators(mvkTokenInstance, susie.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
                 var stakeOperation              = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
@@ -155,8 +155,8 @@ describe("Testnet setup helper", async () => {
                 await stakeOperation.confirmation();
 
                 // Mallory 
-                await signerFactory(tezos, mallory.sk);
-                updateOperatorsOperation        = await updateOperators(mvkTokenInstance, mallory.pkh, doormanAddress, tokenId);
+                await signerFactory(tezos, trudy.sk);
+                updateOperatorsOperation        = await updateOperators(mvkTokenInstance, trudy.pkh, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
                 stakeOperation                  = await doormanInstance.methods.stake(stakeAmount).send();
                 await stakeOperation.confirmation();
@@ -179,16 +179,16 @@ describe("Testnet setup helper", async () => {
                 // Register Satellite Operations
                 // ------------------------------
 
-                // Bob Satellite
-                await signerFactory(tezos, bob.sk);
+                // Susie Satellite
+                await signerFactory(tezos, susie.sk);
                 registerOperation = await delegationInstance.methods.registerAsSatellite(
-                    mockSatelliteData.bob.name, 
-                    mockSatelliteData.bob.desc,
-                    mockSatelliteData.bob.image,
-                    mockSatelliteData.bob.website, 
-                    mockSatelliteData.bob.satelliteFee,
-                    mockSatelliteData.bob.oraclePublicKey,
-                    mockSatelliteData.bob.oraclePeerId
+                    mockSatelliteData.susie.name, 
+                    mockSatelliteData.susie.desc,
+                    mockSatelliteData.susie.image,
+                    mockSatelliteData.susie.website, 
+                    mockSatelliteData.susie.satelliteFee,
+                    mockSatelliteData.susie.oraclePublicKey,
+                    mockSatelliteData.susie.oraclePeerId
                 ).send();
                 await registerOperation.confirmation();
 
@@ -206,15 +206,15 @@ describe("Testnet setup helper", async () => {
                 await registerOperation.confirmation();
 
                 // Mallory Satellite
-                await signerFactory(tezos, mallory.sk);
+                await signerFactory(tezos, trudy.sk);
                 registerOperation           = await delegationInstance.methods.registerAsSatellite(
-                    mockSatelliteData.mallory.name, 
-                    mockSatelliteData.mallory.desc,
-                    mockSatelliteData.mallory.image,
-                    mockSatelliteData.mallory.website, 
-                    mockSatelliteData.mallory.satelliteFee,
-                    mockSatelliteData.mallory.oraclePublicKey,
-                    mockSatelliteData.mallory.oraclePeerId
+                    mockSatelliteData.trudy.name, 
+                    mockSatelliteData.trudy.desc,
+                    mockSatelliteData.trudy.image,
+                    mockSatelliteData.trudy.website, 
+                    mockSatelliteData.trudy.satelliteFee,
+                    mockSatelliteData.trudy.oraclePublicKey,
+                    mockSatelliteData.trudy.oraclePeerId
                 ).send();
                 await registerOperation.confirmation();
 
