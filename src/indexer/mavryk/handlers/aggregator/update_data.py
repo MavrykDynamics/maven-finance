@@ -26,8 +26,12 @@ async def update_data(
         # Update data
         if oracle_address in oracle_ledger:
         
-            oracle_reward_xtz_amount        = float(update_data.storage.oracleRewardXtz[oracle_address])
-            oracle_reward_smvk_amount       = float(update_data.storage.oracleRewardStakedMvk[oracle_address])
+            oracle_reward_xtz_amount        = 0
+            if oracle_address in update_data.storage.oracleRewardXtz:
+                oracle_reward_xtz_amount    = float(update_data.storage.oracleRewardXtz[oracle_address])
+            oracle_reward_smvk_amount       = 0
+            if oracle_address in update_data.storage.oracleRewardStakedMvk:
+                oracle_reward_smvk_amount   = float(update_data.storage.oracleRewardStakedMvk[oracle_address])
             oracle_observations             = update_data.parameter.oracleObservations
         
             # Update / create record
