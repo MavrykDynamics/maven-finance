@@ -26,12 +26,7 @@ async def update_data(
         # Update data
         if oracle_address in oracle_ledger:
         
-            oracle_reward_xtz_amount        = 0
-            if oracle_address in update_data.storage.oracleRewardXtz:
-                oracle_reward_xtz_amount    = float(update_data.storage.oracleRewardXtz[oracle_address])
-            oracle_reward_smvk_amount       = 0
-            if oracle_address in update_data.storage.oracleRewardStakedMvk:
-                oracle_reward_smvk_amount   = float(update_data.storage.oracleRewardStakedMvk[oracle_address])
+            # Get observations
             oracle_observations             = update_data.parameter.oracleObservations
         
             # Update / create record
@@ -52,13 +47,15 @@ async def update_data(
                 oracle      = oracle,
                 type        = models.RewardType.XTZ
             )
-            oracle_reward_xtz.reward        = oracle_reward_xtz_amount
+            if oracle_address in update_data.storage.oracleRewardXtz:
+                oracle_reward_xtz.reward    = float(update_data.storage.oracleRewardXtz[oracle_address])
             await oracle_reward_xtz.save()
             oracle_reward_smvk, _            = await models.AggregatorOracleReward.get_or_create(
                 oracle      = oracle,
                 type        = models.RewardType.SMVK
             )
-            oracle_reward_smvk.reward       = oracle_reward_smvk_amount
+            if oracle_address in update_data.storage.oracleRewardStakedMvk:
+                oracle_reward_smvk.reward   = float(update_data.storage.oracleRewardStakedMvk[oracle_address])
             await oracle_reward_smvk.save()
         
             # Save history data
