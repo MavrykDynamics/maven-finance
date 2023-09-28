@@ -89,7 +89,7 @@ image:
   pullSecret: docker-pull-credentials
   registry: docker.io
   repository: mavrykdynamics/mavryk-oracle
-  tag: v0.2.7s
+  tag: v0.2.8s
   pullPolicy: Always
 
 aggregatorsAddresses:
