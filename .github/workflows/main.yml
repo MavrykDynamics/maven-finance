@@ -54,25 +54,25 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          version: 2.5.2
+          version: 2.8.0
           command: version
           options: --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
       - name: update-docker-image
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
-          version: 2.5.2
+          version: 2.8.0
           command: app set prod-mavryk-finance-indexer
           options: -p dipdup.${{ github.event.inputs.environment }}.image.tag=${{ github.event.inputs.imageTag }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
       - name: reset-all-env-wipe
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
-          version: 2.5.2
+          version: 2.8.0
           command: app set prod-mavryk-finance-indexer
           options: -p dipdup.dev.initialWipe=False -p dipdup.prod.initialWipe=False -p dipdup.staging.initialWipe=False --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
       - name: create-wipe-database-pod
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
-          version: 2.5.2
+          version: 2.8.0
           command: app set prod-mavryk-finance-indexer
           options: -p dipdup.${{ github.event.inputs.environment }}.initialWipe=${{ github.event.inputs.wipeDatabase }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
   sync:
@@ -88,12 +88,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          version: 2.5.2
+          version: 2.8.0
           command: version
           options: --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }}
       - name: sync
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
-          version: 2.5.2
+          version: 2.8.0
           command: app sync prod-mavryk-finance-indexer
           options: --grpc-web --server ${{ secrets.ARGOCD_URL }} --prune --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
