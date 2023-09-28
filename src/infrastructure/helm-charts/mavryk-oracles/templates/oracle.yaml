@@ -85,6 +85,8 @@ spec:
                 secretKeyRef:
                   name: {{ $value.messari.secretName }}
                   key: {{ $value.messari.key }}
+            - name: COINGECKO_SUPPORTED_PLATFORMS
+              value: 'ethereum'
             - name: LOG_LEVEL
               value: 'debug'
             - name: USE_FAKE_DATA
