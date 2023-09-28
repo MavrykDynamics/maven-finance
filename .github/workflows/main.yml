@@ -50,6 +50,7 @@ jobs:
   setup-app:
     runs-on: ubuntu-latest
     needs: build-docker-image
+    if: always() && (needs.build-docker-image.result == 'success' || needs.build-docker-image.result == 'cancelled')
     steps:
       - name: extract-branch-name
         shell: bash
