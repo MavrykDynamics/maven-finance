@@ -20,9 +20,15 @@ on:
         default: false
         required: false
         description: '(optional) Wipe database (needed when schema changed)'
+      skipBuild:
+        type: boolean
+        default: false
+        required: false
+        description: '(optional) Skip image building job'
 jobs:
   build-docker-image:
     runs-on: ubuntu-latest
+    if: ${{ !github.event.inputs.skipBuild }}
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
