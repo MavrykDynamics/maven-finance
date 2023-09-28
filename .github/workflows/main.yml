@@ -11,21 +11,10 @@ on:
           - dev
           - staging
           - prod
-          - prod2
       imageTag:
         type: string
         required: true
         description: 'Dipdup image tag'
-      prodService:
-        type: choice
-        description: 'Service to link to api.mavryk.io'
-        required: true
-        default: 'hasura-prod'
-        options:
-          - hasura-dev
-          - hasura-staging
-          - hasura-prod
-          - hasura-prod2
       wipeDatabase:
         type: boolean
         default: false
@@ -72,26 +61,20 @@ jobs:
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
-          command: app set prod-mavryk-indexer
-          options: -p instances.${{ github.event.inputs.environment }}.dipdup.image.tag=${{ github.event.inputs.imageTag }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
-      - name: update-ingress
-        uses: clowdhaus/argo-cd-action/@v1.9.0
-        with:
-          version: 2.5.2
-          command: app set prod-mavryk-indexer
-          options: -p instances.prod.hasura.ingress.service.name=${{ github.event.inputs.prodService }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
+          command: app set prod-mavryk-finance-indexer
+          options: -p dipdup.${{ github.event.inputs.environment }}.image.tag=${{ github.event.inputs.imageTag }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
       - name: reset-all-env-wipe
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
-          command: app set prod-mavryk-indexer
-          options: -p instances.dev.dipdup.initialWipe=False -p instances.prod.dipdup.initialWipe=False -p instances.prod2.dipdup.initialWipe=False --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
+          command: app set prod-mavryk-finance-indexer
+          options: -p dipdup.dev.initialWipe=False -p dipdup.prod.initialWipe=False -p dipdup.staging.initialWipe=False --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
       - name: create-wipe-database-pod
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
-          command: app set prod-mavryk-indexer
-          options: -p instances.${{ github.event.inputs.environment }}.dipdup.initialWipe=${{ github.event.inputs.wipeDatabase }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
+          command: app set prod-mavryk-finance-indexer
+          options: -p dipdup.${{ github.event.inputs.environment }}.initialWipe=${{ github.event.inputs.wipeDatabase }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
   sync:
     runs-on: ubuntu-latest
     needs: setup-app
@@ -112,5 +95,5 @@ jobs:
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.5.2
-          command: app sync prod-mavryk-indexer
+          command: app sync prod-mavryk-finance-indexer
           options: --grpc-web --server ${{ secrets.ARGOCD_URL }} --prune --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
