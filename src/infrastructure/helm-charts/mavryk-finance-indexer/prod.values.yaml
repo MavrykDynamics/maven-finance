@@ -5,7 +5,7 @@ hasura:
   image:
     registry: docker.io
     repository: hasura/graphql-engine
-    tag: v2.33.4
+    tag: v2.34.0
   hpa:
     enabled: false
     maxReplicas: 3
