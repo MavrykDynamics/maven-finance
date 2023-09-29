@@ -88,6 +88,5 @@ async def voting_round_vote(
         await proposal_vote.save()
 
     except BaseException as e:
-        breakpoint()
         await save_error_report(e)
 
