@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tezos-rolling-node
+  labels:
+    app: tezos-rolling-node
+spec:
+  clusterIP: None
+  ports:
+    - port: 8732
+      protocol: TCP
+      targetPort: 8732
+  selector:
+    app: tezos-rolling-node
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tezos-rolling-node
+  labels:
+    app: tezos-rolling-node
+spec:
+  podManagementPolicy: Parallel
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tezos-rolling-node
+  serviceName: tezos-rolling-node
+  template:
+    volumeClaimTemplates:
+    - metadata:
+        name: var-volume
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 100Gi
+    metadata:
+      labels:
+        app: tezos-rolling-node
+    spec:
+      volumes:
+      - emptyDir: {}
+        name: config-volume
+      containers:
+        - name: rolling-node
+          image: 'tezos/tezos:v17.3'
+          imagePullPolicy: 'IfNotPresent'
+          volumeMounts:
+          - mountPath: /etc/tezos
+            name: config-volume
+          - mountPath: /var/tezos
+            name: var-volume
+          command:
+          - /bin/sh
+          args:
+          - -c
+          - |
+            set -ex
+            octez-node config init --network ghostnet
+            octez-node run --history-mode rolling
+            octez-node run --rpc-addr 0.0.0.0:8732
+          ports:
+            - containerPort: 8732
+              protocol: TCP

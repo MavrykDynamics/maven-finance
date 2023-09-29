@@ -2,7 +2,3 @@ name: mavryk-oracle
 version: 0.0.1
 apiVersion: v2
 appVersion: 0.0.1
-dependencies:
-  - name: tezos-chain
-    version: 0.0.0
-    repository: "file://./vendors/tezos-k8s/charts/tezos"
