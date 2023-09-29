@@ -61,8 +61,7 @@ spec:
           - |
             set -ex
             octez-node config init --network ghostnet
-            octez-node run --history-mode rolling
-            octez-node run --rpc-addr 0.0.0.0:8732
+            octez-node run --history-mode rolling --rpc-addr 0.0.0.0:8732
           ports:
             - containerPort: 8732
               protocol: TCP
