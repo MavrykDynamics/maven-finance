@@ -53,6 +53,5 @@ async def on_stake_change(
             await satellite_record.save()
 
     except BaseException as e:
-        breakpoint()
         await save_error_report(e)
 
