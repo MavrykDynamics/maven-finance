@@ -18,8 +18,8 @@ async def withdraw_reward_xtz(
         oracle_reward_xtz_storage   = withdraw_reward_xtz.storage.oracleRewardXtz[oracle_address]
     
         # Update record
-        user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
-        aggregator                      = await models.Aggregator.get(network=ctx.datasource.network, address= aggregator_address)
+        user                            = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=oracle_address)
+        aggregator                      = await models.Aggregator.get(network=ctx.datasource.name.replace('tzkt_',''), address= aggregator_address)
         oracle                          = await models.AggregatorOracle.get(
             aggregator  = aggregator,
             user        = user

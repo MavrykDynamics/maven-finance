@@ -55,28 +55,36 @@ async def set_loan_token(
             loan_token_address              = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg"
     
         token_contract_metadata = None
+        # Persist loan Token Metadata
         if loan_token_address != "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":
-            # Persist loan Token Metadata
             token_contract_metadata = await get_contract_token_metadata(
                 ctx=ctx,
                 token_address=loan_token_address,
                 token_id=str(loan_token_id)
             )
+        else:
+            token_contract_metadata = {
+                "name": "Tezos",
+                "symbol": "XTZ",
+                "decimals": "6",
+                "icon": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
+                "thumbnailUri": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
+            }
     
         # Create / Update record
         lending_controller                  = await models.LendingController.get(
-            network         = ctx.datasource.network,
+            network         = ctx.datasource.name.replace('tzkt_',''),
             address         = lending_controller_address,
             mock_time       = True
         )
-        oracle                              = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=loan_token_oracle_address)
+        oracle                              = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=loan_token_oracle_address)
         token                               = await models.Token.get(
-            network         = ctx.datasource.network,
+            network         = ctx.datasource.name.replace('tzkt_',''),
             token_address   = loan_token_m_token_address,
             token_id        = 0
         )
         m_token, _                          = await models.MToken.get_or_create(
-            network         = ctx.datasource.network,
+            network         = ctx.datasource.name.replace('tzkt_',''),
             address         = loan_token_m_token_address,
             token           = token
         )
@@ -91,10 +99,9 @@ async def set_loan_token(
         token, _                                    = await models.Token.get_or_create(
             token_address       = loan_token_address,
             token_id            = loan_token_id,
-            network             = ctx.datasource.network
+            network             = ctx.datasource.name.replace('tzkt_','')
         )
-        if token_contract_metadata:
-            token.metadata          = token_contract_metadata
+        token.metadata          = token_contract_metadata
         token.token_standard    = standard
         await token.save()
     

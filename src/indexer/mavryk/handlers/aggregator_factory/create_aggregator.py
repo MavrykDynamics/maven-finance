@@ -41,7 +41,7 @@ async def create_aggregator(
     
         # Check aggregator does not already exists
         aggregator_exists                           = await models.Aggregator.filter(
-            network     = ctx.datasource.network,
+            network     = ctx.datasource.name.replace('tzkt_',''),
             address     = aggregator_address
         ).exists()
 
@@ -73,14 +73,14 @@ async def create_aggregator(
     
             # Create record
             aggregator_factory          = await models.AggregatorFactory.get(
-                network     = ctx.datasource.network,
+                network     = ctx.datasource.name.replace('tzkt_',''),
                 address     = aggregator_factory_address
             )
             governance                  = await models.Governance.get(
-                network     = ctx.datasource.network
+                network     = ctx.datasource.name.replace('tzkt_','')
             )
             aggregator                  = models.Aggregator(
-                network                                     = ctx.datasource.network,
+                network                                     = ctx.datasource.name.replace('tzkt_',''),
                 address                                     = aggregator_address,
                 metadata                                    = contract_metadata,
                 governance                                  = governance,
@@ -112,7 +112,7 @@ async def create_aggregator(
                 oracle_peer_id          = oracle_storage_record.oraclePeerId
     
                 # Create record
-                oracle                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
+                oracle                  = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=oracle_address)
                 aggregator_oracle       = models.AggregatorOracle(
                     aggregator  = aggregator,
                     user        = oracle,

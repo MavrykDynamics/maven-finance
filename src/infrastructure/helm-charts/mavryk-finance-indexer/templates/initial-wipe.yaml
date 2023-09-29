@@ -13,6 +13,8 @@ spec:
     - name: wipe-dipdup-database
       args: ['schema', 'wipe', '--force']
       env:
+        - name: HASURA_URL
+          value: http://hasura.mavryk-finance-indexer.svc.cluster.local:8080
       {{- range $value.env }}
         - name: {{ .name }}
           {{- if ((.value))}}

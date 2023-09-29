@@ -26,7 +26,7 @@ async def get_token_standard(ctx, contract_address):
 
 # Get contract metadata
 async def get_contract_metadata(ctx, contract_address):
-    network                     = ctx.datasource.network
+    network                     = ctx.datasource.name.replace('tzkt_','')
     metadata_datasource_name    = 'metadata_' + network.lower()
     metadata_datasource         = None
     contract_metadata           = None
@@ -46,7 +46,7 @@ async def get_contract_metadata(ctx, contract_address):
 
 # Get contract token metadata
 async def get_contract_token_metadata(ctx, token_address, token_id='0'):
-    network                     = ctx.datasource.network
+    network                     = ctx.datasource.name.replace('tzkt_','')
     metadata_datasource_name    = 'metadata_' + network.lower()
     token_metadata              = None
 

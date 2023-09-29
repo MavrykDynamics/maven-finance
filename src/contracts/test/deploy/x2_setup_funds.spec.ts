@@ -17,7 +17,7 @@ import contractDeployments from '../contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { bob } from '../../scripts/sandbox/accounts'
+import { isaac, bob } from '../../scripts/sandbox/accounts'
 import { 
     signerFactory, 
     fa12Transfer,
@@ -40,7 +40,7 @@ describe('Setup and deploy funds for relevant contracts', async () => {
         try{
 
             utils = new Utils()
-            await utils.init(bob.sk)
+            await utils.init(isaac.sk)
             tezos = utils.tezos;
 
             const councilAddress            = contractDeployments.council.address;
@@ -50,13 +50,11 @@ describe('Setup and deploy funds for relevant contracts', async () => {
             const treasuryInstance          = await utils.tezos.contract.at(treasuryAddress);
             const mavrykFa12TokenInstance   = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
             const mavrykFa2TokenInstance    = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
-
-            await signerFactory(tezos, bob.sk);
             
             // make transfers if environment is not production
             if (utils.production !== "true"){
 
-                const sender         = bob.pkh;
+                var sender           = isaac.pkh;
                 const mvkTokenAmount = MVK(1000);
                 const tezAmount      = 100;
                 const tokenAmount    = 30000000; 
@@ -66,6 +64,7 @@ describe('Setup and deploy funds for relevant contracts', async () => {
                 // ------------------------------------------------------------------
 
                 // transfer MVK tokens to Treasury and Council contract
+                await signerFactory(tezos, isaac.sk);
                 const transferMvkTokens = await mvkTokenInstance.methods.transfer(
                 [
                     {
@@ -91,6 +90,8 @@ describe('Setup and deploy funds for relevant contracts', async () => {
                 // ------------------------------------------------------------------
 
                 // transfer xtz to Treasury
+                await signerFactory(tezos, bob.sk)
+                sender           = bob.pkh;
                 const transferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress, amount: tezAmount});
                 await transferTezToTreasuryOperation.confirmation();
 
@@ -124,6 +125,7 @@ describe('Setup and deploy funds for relevant contracts', async () => {
             }
 
             // Update operators for treasury
+            await signerFactory(tezos, bob.sk)
             const updateOperatorsTreasury = await treasuryInstance.methods.updateTokenOperators(
                 contractDeployments.mvkToken.address,
                 [

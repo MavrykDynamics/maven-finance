@@ -13,10 +13,10 @@ async def unpause_all(
     try:
         # Get operation info
         farm_address    = unpause_all.data.target_address
-        farm            = await models.Farm.get(network=ctx.datasource.network, address=farm_address)
+        farm            = await models.Farm.get(network=ctx.datasource.name.replace('tzkt_',''), address=farm_address)
     
         # Update record
-        await models.Farm.filter(network=ctx.datasource.network, address=farm_address).update(
+        await models.Farm.filter(network=ctx.datasource.name.replace('tzkt_',''), address=farm_address).update(
             deposit_paused     = unpause_all.storage.breakGlassConfig.depositIsPaused,
             withdraw_paused    = unpause_all.storage.breakGlassConfig.withdrawIsPaused,
             claim_paused       = unpause_all.storage.breakGlassConfig.claimIsPaused

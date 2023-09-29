@@ -34,12 +34,12 @@ async def origination(
         )
         
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.network)
+        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('tzkt_',''))
     
         # Update and create record
         council = models.Council(
             address                             = address,
-            network                             = ctx.datasource.network,
+            network                             = ctx.datasource.name.replace('tzkt_',''),
             metadata                            = contract_metadata,
             admin                               = admin,
             last_updated_at                     = timestamp,
@@ -57,7 +57,7 @@ async def origination(
         await council.save()
     
         for member_address in council_members:
-            user            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=member_address)
+            user            = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=member_address)
             user.council    = council
             await user.save()
     

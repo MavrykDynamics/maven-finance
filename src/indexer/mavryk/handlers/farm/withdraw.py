@@ -35,7 +35,7 @@ async def withdraw(
 
         # Create and update records
         farm                            = await models.Farm.get(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = farm_address
         )
         farm.total_rewards              = total_rewards
@@ -53,7 +53,7 @@ async def withdraw(
             farm.end_timestamp  = farm.start_timestamp + datetime.timedelta(seconds=farm_duration)
         await farm.save()
     
-        user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=depositor_address)
+        user                            = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=depositor_address)
     
         farm_account, _                 = await models.FarmAccount.get_or_create(
             user = user,

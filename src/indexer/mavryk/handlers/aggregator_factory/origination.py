@@ -28,12 +28,12 @@ async def origination(
         )
     
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.network)
+        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('tzkt_',''))
     
         # Create record
         aggregator_factory          = models.AggregatorFactory(
             address                         = aggregator_factory_address,
-            network                         = ctx.datasource.network,
+            network                         = ctx.datasource.name.replace('tzkt_',''),
             metadata                        = contract_metadata,
             admin                           = admin,
             governance                      = governance,

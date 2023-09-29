@@ -25,12 +25,12 @@ async def origination(
         )
         
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.network)
+        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('tzkt_',''))
     
         # Create record
         vesting = models.Vesting(
             address                         = address,
-            network                         = ctx.datasource.network,
+            network                         = ctx.datasource.name.replace('tzkt_',''),
             metadata                        = contract_metadata,
             admin                           = admin,
             last_updated_at                 = timestamp,

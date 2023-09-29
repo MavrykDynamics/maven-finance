@@ -17,7 +17,7 @@ async def on_stake_change(
         user_records            = on_stake_change.parameter.__root__
         satellite_ledger        = on_stake_change.storage.satelliteLedger
         delegation              = await models.Delegation.get(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = delegation_address
         )
 
@@ -28,7 +28,7 @@ async def on_stake_change(
             # Get and update records
             if user_address in on_stake_change.storage.satelliteRewardsLedger:
                 rewards_record          = on_stake_change.storage.satelliteRewardsLedger[user_address]
-                user                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=user_address)
+                user                    = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=user_address)
                 satellite_rewards, _    = await models.SatelliteRewards.get_or_create(
                     user        = user,
                     delegation  = delegation
@@ -44,7 +44,7 @@ async def on_stake_change(
         # Update satellites total delegated amount
         for satellite_address in satellite_ledger:
             satellite_storage                       = satellite_ledger[satellite_address]
-            satellite                               = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=satellite_address)
+            satellite                               = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=satellite_address)
             satellite_record                        = await models.Satellite.get(
                 user        = satellite,
                 delegation  = delegation
@@ -53,6 +53,5 @@ async def on_stake_change(
             await satellite_record.save()
 
     except BaseException as e:
-        breakpoint()
         await save_error_report(e)
 

@@ -171,7 +171,7 @@ describe("Testnet setup helper", async () => {
                     let account = accounts[accountName];
                     if(ledger.has(account.pkh)){
                         let balance = await mvkTokenStorage.ledger.get(account.pkh);
-                        if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== mvkFaucetAddress.address){
+                        if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== mvkFaucetAddress){
                             // Transfer all funds to bob
                             await helperFunctions.signerFactory(tezos, account.sk);
                             console.log("account:", account)
@@ -181,7 +181,7 @@ describe("Testnet setup helper", async () => {
                                     from_: account.pkh,
                                     txs: [
                                     {
-                                        to_: mvkFaucetAddress.address,
+                                        to_: mvkFaucetAddress,
                                         token_id: 0,
                                         amount: balance.toNumber(),
                                     }
@@ -237,12 +237,6 @@ describe("Testnet setup helper", async () => {
                     var contract        = await utils.tezos.contract.at(entry[1]);
                     var storage:any     = await contract.storage();
 
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
-
                     // Check whitelist [Council, Factory]
                     if(storage.hasOwnProperty('whitelistContracts')){
                         if(await storage.whitelistContracts.get(contractDeployments.council.address) === undefined){
@@ -254,6 +248,12 @@ describe("Testnet setup helper", async () => {
                             await operation.confirmation()
                         }
                     }
+
+                    // Check admin
+                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await setAdminOperation.confirmation()
+                    }
                 }
 
                 // Set treasury contracts admin
@@ -263,12 +263,6 @@ describe("Testnet setup helper", async () => {
                     // Get contract storage
                     var contract        = await utils.tezos.contract.at(entry[1]);
                     var storage:any     = await contract.storage();
-
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
 
                     // Check whitelist [Gov proxy, Factory]
                     if(storage.hasOwnProperty('whitelistContracts')){
@@ -281,6 +275,12 @@ describe("Testnet setup helper", async () => {
                             await operation.confirmation()
                         }
                     }
+
+                    // Check admin
+                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await setAdminOperation.confirmation()
+                    }
                 }
 
                 // Set aggregator contracts admin
@@ -290,12 +290,6 @@ describe("Testnet setup helper", async () => {
                     // Get contract storage
                     var contract        = await utils.tezos.contract.at(entry[1]);
                     var storage:any     = await contract.storage();
-
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
 
                     // Check whitelist [Gov satellite, Factory]
                     if(storage.hasOwnProperty('whitelistContracts')){
@@ -307,6 +301,12 @@ describe("Testnet setup helper", async () => {
                             var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address, 'update').send()
                             await operation.confirmation()
                         }
+                    }
+
+                    // Check admin
+                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                        await setAdminOperation.confirmation()
                     }
                 }
 
