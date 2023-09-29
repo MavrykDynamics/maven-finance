@@ -28,16 +28,16 @@ spec:
     matchLabels:
       app: tezos-rolling-node
   serviceName: tezos-rolling-node
+  volumeClaimTemplates:
+  - metadata:
+      name: var-volume
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "do-block-storage"
+      resources:
+        requests:
+          storage: 100Gi
   template:
-    volumeClaimTemplates:
-    - metadata:
-        name: var-volume
-      spec:
-        accessModes:
-        - ReadWriteOnce
-        resources:
-          requests:
-            storage: 100Gi
     metadata:
       labels:
         app: tezos-rolling-node
