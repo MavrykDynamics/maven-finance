@@ -1,3 +1,0 @@
-[submodule "src/infrastructure/helm-charts/mavryk-oracles/vendors/tezos-k8s"]
-	path = src/infrastructure/helm-charts/mavryk-oracles/vendors/tezos-k8s
-	url = https://github.com/oxheadalpha/tezos-k8s
