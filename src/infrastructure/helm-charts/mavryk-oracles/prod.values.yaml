@@ -1,6 +1,6 @@
 oracles:
   susie:
-    rpcUrl: https://ghostnet.ecadinfra.com/
+    rpcUrl: http://tezos-rolling-node.mavryk-oracles.svc.cluster.local:8732
     tezos:
       address: tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7
       publicKey: edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN
@@ -17,7 +17,7 @@ oracles:
       secretName: oracle-keys
       key: MESSARI_API_KEY_1
   eve:
-    rpcUrl: https://ghostnet.ecadinfra.com/
+    rpcUrl: http://tezos-rolling-node.mavryk-oracles.svc.cluster.local:8732
     tezos:
       address: tz1T8S68igxa6uWZbeoWWwbcuRHEDQSzknEX
       publicKey: edpkuX5ihBUVb9nNqLYixvGiVJ5VXxnVk5hnf9ZMkTkvP5UsRsBWX6
@@ -34,7 +34,7 @@ oracles:
       secretName: oracle-keys
       key: MESSARI_API_KEY_2
   trudy:
-    rpcUrl: https://ghostnet.ecadinfra.com/
+    rpcUrl: http://tezos-rolling-node.mavryk-oracles.svc.cluster.local:8732
     tezos:
       address: tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq
       publicKey: edpkubMsp1wdfpARu3ZsHKwrtkR9PQiAN8nsACP2hiksb7oM5aUhpu
@@ -51,7 +51,7 @@ oracles:
       secretName: oracle-keys
       key: MESSARI_API_KEY_3
   alice:
-    rpcUrl: https://ghostnet.ecadinfra.com/
+    rpcUrl: http://tezos-rolling-node.mavryk-oracles.svc.cluster.local:8732
     tezos:
       address: tz1byTGaUKjJqkwSXPnM3dpf9N39pYwRfnTm
       publicKey: edpkuprQbBc5mg8nm1RN2M2mpDmu7b3XNeB9KzCSUFx7nZbqVJj3AM
@@ -68,7 +68,7 @@ oracles:
       secretName: oracle-keys
       key: MESSARI_API_KEY_4
   oscar:
-    rpcUrl: https://ghostnet.ecadinfra.com/
+    rpcUrl: http://tezos-rolling-node.mavryk-oracles.svc.cluster.local:8732
     tezos:
       address: tz1b3BQ8wFyQ9U5Gx8WWXimphY8ER8qorm7m
       publicKey: edpkutgoG8KknR6EFViM33SfALiptofnbBRTthPU28VXzs4mCwjxNU
