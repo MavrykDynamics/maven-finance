@@ -21,7 +21,7 @@ async def update_proposal_data(
         payment_data_storage    = storage_proposal.paymentData
         
         # Update or create record
-        governance      = await models.Governance.get(network=ctx.datasource.network, address= governance_address)
+        governance      = await models.Governance.get(network=ctx.datasource.name.replace('tzkt_',''), address= governance_address)
         proposal        = await models.GovernanceProposal.get(
             internal_id         = proposal_id,
             governance          = governance
@@ -74,13 +74,22 @@ async def update_proposal_data(
                     token_id        = int(token.fa2.tokenId)
                 elif type(token) == tez:
                     token_address   = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg"
-    
-                # Persist Token Metadata
-                token_contract_metadata = await get_contract_token_metadata(
-                    ctx=ctx,
-                    token_address=token_address,
-                    token_id=str(token_id)
-                )
+        
+                # Persist loan Token Metadata
+                if loan_token_address != "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":
+                    token_contract_metadata = await get_contract_token_metadata(
+                        ctx=ctx,
+                        token_address=loan_token_address,
+                        token_id=str(loan_token_id)
+                    )
+                else:
+                    token_contract_metadata = {
+                        "name": "Tezos",
+                        "symbol": "XTZ",
+                        "decimals": "6",
+                        "icon": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
+                        "thumbnailUri": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
+                    }
 
                 # Get the token standard
                 standard = await get_token_standard(
@@ -92,16 +101,15 @@ async def update_proposal_data(
                 token, _            = await models.Token.get_or_create(
                     token_address       = token_address,
                     token_id            = token_id,
-                    network             = ctx.datasource.network
+                    network             = ctx.datasource.name.replace('tzkt_','')
                 )
-                if token_contract_metadata:
-                    token.metadata          = token_contract_metadata
+                token.metadata          = token_contract_metadata
                 token.token_standard    = standard
                 await token.save()
 
                 # Get receiver
                 receiver_address                = payment_single_data.transaction.to_
-                receiver                        = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=receiver_address)
+                receiver                        = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=receiver_address)
 
                 # Save the payment record
                 payment_data.title              = payment_single_data.title

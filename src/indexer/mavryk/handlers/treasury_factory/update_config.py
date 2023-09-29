@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.TreasuryFactory.filter(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = treasury_factory_address
         ).update(
             last_updated_at             = timestamp,

@@ -54,6 +54,8 @@ spec:
           {{- end }}
             - name: TEZOS_POLLING_INTERVAL_MILLISECONDS
               value: '2000'
+            - name: SIGNER_URL
+              value: 'http://signatory.mavryk-oracles.svc.cluster.local:6732'
             - name: RPC_URL
               value: '{{ $value.rpcUrl }}'
             - name: P2P_BOOTSTRAP_PEERS
@@ -71,11 +73,6 @@ spec:
               value: '{{ $value.tezos.address }}'
             - name: TEZOS_PUBLIC_KEY
               value: '{{ $value.tezos.publicKey }}'
-            - name: TEZOS_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $value.tezos.secretKey.secretName }}
-                  key: {{ $value.tezos.secretKey.key }}
             - name: AGGREGATOR_SMART_CONTRACT_ADDRESSES
               value: '{{ join "," $.Values.aggregatorsAddresses }}'
             - name: ALPHAVANTAGE_API_KEY
@@ -88,6 +85,8 @@ spec:
                 secretKeyRef:
                   name: {{ $value.messari.secretName }}
                   key: {{ $value.messari.key }}
+            - name: COINGECKO_SUPPORTED_PLATFORMS
+              value: 'ethereum'
             - name: LOG_LEVEL
               value: 'debug'
             - name: USE_FAKE_DATA

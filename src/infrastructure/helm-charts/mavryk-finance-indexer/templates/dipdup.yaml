@@ -78,8 +78,8 @@ spec:
               protocol: TCP
           volumeMounts:
           - name: hasura-config
-            mountPath: /mavryk/dipdup.hasura.yaml
-            subPath: dipdup.hasura.yaml
+            mountPath: /mavryk/dipdup.hasura.yml
+            subPath: dipdup.hasura.yml
           {{- if eq $.Values.hasura.mainDipdupInstance $key }}
           - name: hasura-metadata-config
             mountPath: /mavryk/mavryk/hasura
@@ -162,7 +162,7 @@ metadata:
   labels:
     app: dipdup-{{ $key }}
 data:
-  dipdup.hasura.yaml: |
+  dipdup.hasura.yml: |
     hasura:
       url: ${HASURA_URL:-changeme}
       admin_secret: ${ADMIN_SECRET:-changeme}

@@ -17,7 +17,7 @@ async def update_vault_name(
     
         # Update record
         await models.Vault.filter(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = vault_address
         ).update(
             name          = updated_name

@@ -19,15 +19,14 @@ async def update_data(
         timestamp                       = update_data.data.timestamp
         last_completed_data             = update_data.storage.lastCompletedData
         aggregator                      = await models.Aggregator.get(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = aggregator_address
         )
         
         # Update data
         if oracle_address in oracle_ledger:
         
-            oracle_reward_xtz_amount        = float(update_data.storage.oracleRewardXtz[oracle_address])
-            oracle_reward_smvk_amount       = float(update_data.storage.oracleRewardStakedMvk[oracle_address])
+            # Get observations
             oracle_observations             = update_data.parameter.oracleObservations
         
             # Update / create record
@@ -38,7 +37,7 @@ async def update_data(
             aggregator.last_completed_data_last_updated_at  = parser.parse(last_completed_data.lastUpdatedAt)
             await aggregator.save()
         
-            user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
+            user                            = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=oracle_address)
             oracle                          = await models.AggregatorOracle.get(
                 aggregator  = aggregator,
                 user        = user
@@ -48,13 +47,15 @@ async def update_data(
                 oracle      = oracle,
                 type        = models.RewardType.XTZ
             )
-            oracle_reward_xtz.reward        = oracle_reward_xtz_amount
+            if oracle_address in update_data.storage.oracleRewardXtz:
+                oracle_reward_xtz.reward    = float(update_data.storage.oracleRewardXtz[oracle_address])
             await oracle_reward_xtz.save()
             oracle_reward_smvk, _            = await models.AggregatorOracleReward.get_or_create(
                 oracle      = oracle,
                 type        = models.RewardType.SMVK
             )
-            oracle_reward_smvk.reward       = oracle_reward_smvk_amount
+            if oracle_address in update_data.storage.oracleRewardStakedMvk:
+                oracle_reward_smvk.reward   = float(update_data.storage.oracleRewardStakedMvk[oracle_address])
             await oracle_reward_smvk.save()
         
             # Save history data
@@ -77,7 +78,7 @@ async def update_data(
                 round                           = int(oracle_observation.round)
         
                 # Create observation records
-                user                            = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=oracle_address)
+                user                            = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=oracle_address)
                 oracle                          = await models.AggregatorOracle.get(
                     aggregator  = aggregator,
                     user        = user

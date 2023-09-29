@@ -92,7 +92,6 @@ git push
 - _Use workflow from_: select the branch where you just pushed your commit
 - _Environment to update_: select **dev**
 - _Dipdup image tag_: go check the [indexer Grafana dashboard](https://grafana.mavryk.io/d/J1QevDF4k/mavryk-indexer). Switch between all three environments and look at the **Docker image** panel. The tag should be like this **vX.Y.Z**. You should take the most updated one and increment it (e.g. if the current tag is v0.25.10, your tag could be v0.25.11. See [this page](../indexer/README.md#build-and-push-an-indexer-image-on-dockerhub) for more details on tags)
-- _Service to link to api.mavryk.io_: go check the [indexer Grafana dashboard](https://grafana.mavryk.io/d/J1QevDF4k/mavryk-indexer). Scroll down and look at **Prod Ingress Redirection** panel. Since you're only updated **dev**, you should use the same in the form. If you want to update **prod** you should select **hasura-prod2**. If you want to update **prod2** you should select **hasura-prod**.
 - _(optional) Wipe database_: since you're working with an entire new set of contracts, you should tick this box.
 
 # Deploy the indexer on Kubernetes manually (advanced)

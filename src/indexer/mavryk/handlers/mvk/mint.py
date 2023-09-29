@@ -22,17 +22,17 @@ async def mint(
         total_supply        = float(mint.storage.totalSupply)
 
         # Get mint account
-        user                = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=mint_address)
+        user                = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=mint_address)
         user.mvk_balance    = new_user_balance
         await user.save()
     
         # Create record
         token               = await models.Token.get(
-            network         = ctx.datasource.network,
+            network         = ctx.datasource.name.replace('tzkt_',''),
             token_address   = mvk_token_address,
             token_id        = 0
         )
-        mvk_token               = await models.MVKToken.get(network=ctx.datasource.network, address= mvk_token_address, token=token)
+        mvk_token               = await models.MVKToken.get(network=ctx.datasource.name.replace('tzkt_',''), address= mvk_token_address, token=token)
         mvk_token.total_supply  = total_supply
         await mvk_token.save()
         
