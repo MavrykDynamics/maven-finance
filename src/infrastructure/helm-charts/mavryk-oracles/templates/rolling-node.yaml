@@ -60,8 +60,7 @@ spec:
           - -c
           - |
             set -ex
-            octez-node config init --network ghostnet
-            octez-node run --history-mode rolling --rpc-addr 0.0.0.0:8732
+            octez-node run --history-mode rolling --rpc-addr 0.0.0.0:8732 --network ghostnet --config-file /etc/tezos/data/config.json -d /var/tezos
           ports:
             - containerPort: 8732
               protocol: TCP
