@@ -25,11 +25,11 @@ async def mark_for_liquidation(
     
         # Update records
         lending_controller          = await models.LendingController.get(
-            network         = ctx.datasource.network,
+            network         = ctx.datasource.name.replace('tzkt_',''),
             address         = lending_controller_address,
             mock_time       = False
         )
-        vault_owner                 = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vault_owner_address)
+        vault_owner                 = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=vault_owner_address)
     
         for vault_storage in vaults_storage:
             if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:
@@ -81,7 +81,7 @@ async def mark_for_liquidation(
                 await loan_token.save()
     
                 # Save history data
-                sender                                  = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=sender_address)
+                sender                                  = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

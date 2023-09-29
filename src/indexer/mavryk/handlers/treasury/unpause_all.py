@@ -16,7 +16,7 @@ async def unpause_all(
         treasury_address    = unpause_all.data.target_address
     
         # Update record
-        await models.Treasury.filter(network=ctx.datasource.network, address=treasury_address).update(
+        await models.Treasury.filter(network=ctx.datasource.name.replace('tzkt_',''), address=treasury_address).update(
             transfer_paused                 = unpause_all.storage.breakGlassConfig.transferIsPaused,
             mint_mvk_and_transfer_paused    = unpause_all.storage.breakGlassConfig.mintMvkAndTransferIsPaused,
             update_token_operators_paused   = unpause_all.storage.breakGlassConfig.updateTokenOperatorsIsPaused,

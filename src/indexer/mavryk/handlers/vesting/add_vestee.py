@@ -36,9 +36,9 @@ async def add_vestee(
             locked    = True
     
         # Create and update records
-        user    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=vestee_address)
+        user    = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=vestee_address)
         vesting = await models.Vesting.get(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = vesting_address
         )
         vestee_record   = models.VestingVestee(

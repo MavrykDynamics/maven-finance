@@ -18,7 +18,7 @@ async def set_name(
     
         # Update contract
         await models.Aggregator.filter(
-            network = ctx.datasource.network,
+            network = ctx.datasource.name.replace('tzkt_',''),
             address = aggregator_address
         ).update(
             name    = name

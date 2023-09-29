@@ -65,7 +65,7 @@ async def origination(
         # Create record
         governance          = models.Governance(
             address                                 = address,
-            network                                 = ctx.datasource.network,
+            network                                 = ctx.datasource.name.replace('tzkt_',''),
             metadata                                = contract_metadata,
             admin                                   = admin,
             last_updated_at                         = timestamp,
@@ -102,7 +102,7 @@ async def origination(
     
         # Add whitelisted developers
         for whitelisted_developer_address in whitelisted_developers:
-            user                                    = await models.mavryk_user_cache.get(network=ctx.datasource.network, address=whitelisted_developer_address)
+            user                                    = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=whitelisted_developer_address)
             whitelist_developer, _                  = await models.WhitelistDeveloper.get_or_create(
                 governance  = governance,
                 developer   = user

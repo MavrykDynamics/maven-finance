@@ -21,7 +21,7 @@ async def pause_all(
         distribute_reward_smvk_paused                       = pause_all.storage.breakGlassConfig.distributeRewardStakedMvkIsPaused
     
         # Update record
-        await models.AggregatorFactory.filter(network=ctx.datasource.network,address    = aggregator_factory_address).update(
+        await models.AggregatorFactory.filter(network=ctx.datasource.name.replace('tzkt_',''),address    = aggregator_factory_address).update(
             create_aggregator_paused         = create_aggregator_paused,
             track_aggregator_paused          = track_aggregator_paused,
             untrack_aggregator_paused        = untrack_aggregator_paused,
