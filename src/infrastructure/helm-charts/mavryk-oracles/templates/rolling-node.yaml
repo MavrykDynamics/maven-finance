@@ -37,14 +37,19 @@ spec:
       resources:
         requests:
           storage: 100Gi
+  - metadata:
+      name: config-volume
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "do-block-storage"
+      resources:
+        requests:
+          storage: 10Mi
   template:
     metadata:
       labels:
         app: tezos-rolling-node
     spec:
-      volumes:
-      - emptyDir: {}
-        name: config-volume
       containers:
         - name: rolling-node
           image: 'tezos/tezos:v17.3'
@@ -60,7 +65,8 @@ spec:
           - -c
           - |
             set -ex
-            octez-node run --history-mode rolling --rpc-addr 0.0.0.0:8732 --network ghostnet --config-file /etc/tezos/data/config.json -d /var/tezos
+            sleep infinity
+            # octez-node run --history-mode rolling --rpc-addr 0.0.0.0:8732 --network ghostnet --config-file /etc/tezos/data/config.json -d /var/tezos
           ports:
             - containerPort: 8732
               protocol: TCP
