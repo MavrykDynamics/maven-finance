@@ -13,7 +13,19 @@
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
 
-## Next
+## 0.47
+
+### What's new
+
+- BreakGlassAction
+  - Column RegisteredThreshold added
+
+- CouncilAction
+  - Column RegisteredThreshold added
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.46</summary>
 
 ### What's new
 
@@ -185,7 +197,7 @@
   - Column StakeMvkPaused renamed to StakeTokensPaused
   - Column UnstakeMvkPaused renamed to UnstakeTokensPaused
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.45</summary>
 
