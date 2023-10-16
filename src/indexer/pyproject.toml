@@ -6,7 +6,7 @@ authors = ["Tristan Allaire <tristan.allaire@alarch.fr>"]
 
 [tool.poetry.dependencies]
 python = "3.11.5"
-dipdup = "7.0.0"
+dipdup = "7.0.2"
 python-dateutil = "^2.8.2"
 PyYAML = "^6.0"
 asyncclick = "^8.1.3"

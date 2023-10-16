@@ -58,7 +58,7 @@ async def origination(
         for member_address in council_members:
             user                = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=member_address)
             memberInfo          = council_members[member_address]
-            council_member      = await models.BreakGlassCouncilMember(
+            council_member      = models.BreakGlassCouncilMember(
                 user        = user,
                 break_glass = break_glass,
                 name        = memberInfo.name,

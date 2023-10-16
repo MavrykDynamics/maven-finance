@@ -65,9 +65,18 @@ class BreakGlassAction(Model):
     executed                                = fields.BooleanField(default=False, index=True)
     signers_count                           = fields.SmallIntField(default=1)
     council_size_snapshot                   = fields.SmallIntField(default=0)
+    registered_threshold                    = fields.SmallIntField(default=0)
 
     class Meta:
         table = 'break_glass_action'
+
+class BreakGlassActionTempMemberParameter(Model):
+    id                                      = fields.BigIntField(pk=True)
+    break_glass_action                      = fields.ForeignKeyField('models.BreakGlassAction', related_name='temp_member_parameters')
+    old_council_member_address              = fields.CharField(max_length=36)
+
+    class Meta:
+        table = 'break_glass_action_temp_parameter'
 
 class BreakGlassActionSigner(Model):
     id                                      = fields.BigIntField(pk=True)
