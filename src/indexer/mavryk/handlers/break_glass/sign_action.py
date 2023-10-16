@@ -21,6 +21,7 @@ async def sign_action(
         action_record_storage   = sign_action.storage.actionsLedger[sign_action.parameter.__root__]
         signer_count            = int(action_record_storage.signersCount)
         status                  = action_record_storage.status
+        action_type             = action_record_storage.actionType
         executed                = action_record_storage.executed
         execution_datetime      = action_record_storage.executedDateTime
         if execution_datetime:
@@ -80,27 +81,60 @@ async def sign_action(
                     status                 = status_type
                 )
     
-        # Delete previous members
-        council_members_records         = await models.BreakGlassCouncilMember.all()
-        for council_members_record in council_members_records:
-            await council_members_record.delete()
-    
-        for council_member_address in council_members:
-            # Change or update records
-            member_info             = council_members[council_member_address]
-            member_user             = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=council_member_address)
-            updated_member, _       = await models.BreakGlassCouncilMember.get_or_create(
-                break_glass = break_glass,
-                user        = member_user
+        # Process action and update council members
+        if action_type == "addCouncilMember":
+            for council_member_address in council_members:
+                # Add record
+                member_info             = council_members[council_member_address]
+                member_user             = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=council_member_address)
+                updated_member, _       = await models.BreakGlassCouncilMember.get_or_create(
+                    break_glass = break_glass,
+                    user        = member_user
+                )
+                updated_member.name     = member_info.name
+                updated_member.website  = member_info.website 
+                updated_member.image    = member_info.image
+                await updated_member.save() 
+        elif action_type == "removeCouncilMember":
+            break_glass_temp_member_parameter   = await models.BreakGlassActionTempMemberParameter.get(
+                break_glass_action          = action_record
             )
-            updated_member.name     = member_info.name
-            updated_member.website  = member_info.website 
-            updated_member.image    = member_info.image
-            await updated_member.save() 
+            old_council_member_address      = break_glass_temp_member_parameter.old_council_member_address
+            old_council_member_user         = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=old_council_member_address)
+            old_council_member              = await models.BreakGlassCouncilMember.get(
+                break_glass = break_glass,
+                user        = old_council_member_user
+            )
+            await old_council_member.delete()
+            await break_glass_temp_member_parameter.delete()
+        elif action_type == "changeCouncilMember":
+            break_glass_temp_member_parameter   = await models.BreakGlassActionTempMemberParameter.get(
+                break_glass_action          = action_record
+            )
+            old_council_member_address      = break_glass_temp_member_parameter.old_council_member_address
+            old_council_member_user         = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=old_council_member_address)
+            old_council_member              = await models.BreakGlassCouncilMember.get(
+                break_glass = break_glass,
+                user        = old_council_member_user
+            )
+            await old_council_member.delete()
+            await break_glass_temp_member_parameter.delete()
+            for council_member_address in council_members:
+                # Change record
+                member_info             = council_members[council_member_address]
+                member_user             = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=council_member_address)
+                updated_member, _       = await models.BreakGlassCouncilMember.get_or_create(
+                    break_glass = break_glass,
+                    user        = member_user
+                )
+                updated_member.name     = member_info.name
+                updated_member.website  = member_info.website 
+                updated_member.image    = member_info.image
+                await updated_member.save() 
         
         # Create signature record
         user                    = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=signer_address)
-        signer_record           = await models.BreakGlassActionSigner(
+        signer_record           = models.BreakGlassActionSigner(
             break_glass_action          = action_record,
             signer                      = user
         )

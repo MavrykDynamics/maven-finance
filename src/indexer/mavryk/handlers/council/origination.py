@@ -62,7 +62,7 @@ async def origination(
             await user.save()
     
             memberInfo          = council_members[member_address]
-            council_member      = await models.CouncilCouncilMember(
+            council_member      = models.CouncilCouncilMember(
                 user        = user,
                 council     = council,
                 name        = memberInfo.name,

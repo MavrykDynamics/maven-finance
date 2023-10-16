@@ -29,6 +29,19 @@ async def update_config(
             council_member_image_max_length     = update_config.storage.config.councilMemberImageMaxLength,
         )
 
+        # Update threshold for current actions
+        break_glass = await models.Council.get(
+            network = ctx.datasource.name.replace('tzkt_',''),
+            address = break_glass_address
+        )
+        await models.BreakGlassAction.filter(
+            break_glass                 = break_glass,
+            status                      = models.ActionStatus.PENDING,
+            expiration_datetime__lte    = timestamp
+        ).update(
+            registered_threshold        = break_glass.threshold
+        )
+
     except BaseException as e:
         await save_error_report(e)
 
