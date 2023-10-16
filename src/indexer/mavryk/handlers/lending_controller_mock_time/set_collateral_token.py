@@ -16,7 +16,7 @@ async def set_collateral_token(
         # Get operation info
         action_class                    = type(set_collateral_token.parameter.action)
         if action_class == createCollateralToken:
-            collateral_token_name       = set_collateral_token.parameterparameter.action.createCollateralToken.tokenName
+            collateral_token_name       = set_collateral_token.parameter.action.createCollateralToken.tokenName
         else:
             collateral_token_name       = set_collateral_token.parameter.action.updateCollateralToken.tokenName
     
