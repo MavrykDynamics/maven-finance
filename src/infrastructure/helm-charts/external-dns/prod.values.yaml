@@ -1093,7 +1093,7 @@ external-dns:
       ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#prometheusspec
       ##
       labels:
-        release: "prod"
+        release: "prod-kube-prometheus-stack"
       ## @param metrics.serviceMonitor.jobLabel The name of the label on the target service to use as the job name in prometheus.
       ##
       jobLabel: ""

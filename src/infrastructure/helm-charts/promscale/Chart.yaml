@@ -1,8 +1,0 @@
-name: promscale-mavryk
-version: 0.0.1
-apiVersion: v2
-appVersion: 0.12.1
-dependencies:
-  - name: promscale
-    version: 0.12.1
-    repository: https://charts.timescale.com

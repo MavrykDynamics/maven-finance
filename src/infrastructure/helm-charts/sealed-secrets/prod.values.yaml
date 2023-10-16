@@ -420,7 +420,7 @@ sealed-secrets:
       ## @param metrics.serviceMonitor.labels Extra labels for the ServiceMonitor
       ##
       labels:
-        release: 'prod'
+        release: 'prod-kube-prometheus-stack'
       ## @param metrics.serviceMonitor.annotations Extra annotations for the ServiceMonitor
       ##
       annotations: {}
