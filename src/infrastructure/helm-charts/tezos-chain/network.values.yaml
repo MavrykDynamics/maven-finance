@@ -521,7 +521,7 @@ serviceMonitor:
   enabled: true
   namespace: kube-prometheus-stack
   labels:
-    release: prod
+    release: prod-kube-prometheus-stack
 # # Signers
 #
 # Define remote signers. Bakers automatically use signers in their namespace

@@ -63,7 +63,8 @@ async def persist_council_action(ctx, action):
                 action_type                     = council_action_type,
                 status                          = record_status,
                 executed                        = council_action_executed,
-                council_size_snapshot           = council_size
+                council_size_snapshot           = council_size,
+                registered_threshold            = council.threshold
             )
             await council_action_record.save()
 
@@ -147,7 +148,8 @@ async def persist_break_glass_action(ctx, action):
                 action_type                     = break_glass_action_type,
                 status                          = record_status,
                 executed                        = break_glass_action_executed,
-                council_size_snapshot           = council_size
+                council_size_snapshot           = council_size,
+                registered_threshold            = break_glass.threshold
             )
             await break_glass_action_record.save()
 

@@ -4,7 +4,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   labels:
-    release: prod
+    release: prod-kube-prometheus-stack
   name: hasura-service-monitor
   namespace: {{ .Values.hasura.metrics.serviceMonitor.namespace }}
 spec:

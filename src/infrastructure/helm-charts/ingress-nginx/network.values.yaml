@@ -670,7 +670,7 @@ ingress-nginx:
       serviceMonitor:
         enabled: true
         additionalLabels:
-          release: 'prod'
+          release: 'prod-kube-prometheus-stack'
         ## The label to use to retrieve the job name from.
         ## jobLabel: "app.kubernetes.io/name"
         namespace: "kube-prometheus-stack"

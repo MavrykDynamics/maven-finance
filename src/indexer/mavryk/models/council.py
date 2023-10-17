@@ -66,9 +66,19 @@ class CouncilAction(Model):
     executed                                = fields.BooleanField(default=False, index=True)
     signers_count                           = fields.SmallIntField(default=1)
     council_size_snapshot                   = fields.SmallIntField(default=0)
+    registered_threshold                    = fields.SmallIntField(default=0)
 
     class Meta:
         table = 'council_action'
+
+class CouncilActionTempMemberParameter(Model):
+    id                                      = fields.BigIntField(pk=True)
+    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='temp_member_parameters')
+    old_council_member_address              = fields.CharField(max_length=36)
+
+    class Meta:
+        table = 'council_action_temp_parameter'
+
 
 class CouncilActionSigner(Model):
     id                                      = fields.BigIntField(pk=True)
