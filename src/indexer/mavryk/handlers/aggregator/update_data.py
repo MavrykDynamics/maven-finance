@@ -94,7 +94,6 @@ async def update_data(
                 await observation.save()
 
         # Update oracle ledger
-        # TODO: Test
         aggregator_oracles  = await models.AggregatorOracle.filter(aggregator   = aggregator).all()
         for aggregator_oracle in aggregator_oracles:
             user            = await aggregator_oracle.user

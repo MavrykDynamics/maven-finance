@@ -262,7 +262,8 @@ promtail:
     # -- ServiceMonitor annotations
     annotations: {}
     # -- Additional ServiceMonitor labels
-    labels: {}
+    labels:
+      release: prod-kube-prometheus-stack
     # -- ServiceMonitor scrape interval
     interval: 30s
     # -- ServiceMonitor scrape timeout in Go duration format (e.g. 15s)
