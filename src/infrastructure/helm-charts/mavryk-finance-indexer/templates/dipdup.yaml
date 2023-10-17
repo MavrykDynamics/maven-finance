@@ -23,7 +23,7 @@ metadata:
   name: {{ include "fullname" $ }}-dipdup-{{ $key }}
   namespace: kube-prometheus-stack
   labels:
-    release: 'prod'
+    release: 'prod-kube-prometheus-stack'
 spec:
   endpoints:
     - honorLabels: true
