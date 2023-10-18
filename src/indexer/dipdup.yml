@@ -39,6 +39,10 @@ templates:
       pattern:
       - destination: <farm_contract>
         entrypoint: setGovernance
+    - callback: farm.set_name
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: setName
     - callback: farm.update_config
       pattern:
       - destination: <farm_contract>
@@ -103,6 +107,10 @@ templates:
       pattern:
       - destination: <m_farm_contract>
         entrypoint: setGovernance
+    - callback: m_farm.set_name
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: setName
     - callback: m_farm.update_config
       pattern:
       - destination: <m_farm_contract>
