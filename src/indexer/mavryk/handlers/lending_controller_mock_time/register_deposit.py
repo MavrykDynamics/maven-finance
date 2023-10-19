@@ -84,6 +84,8 @@ async def register_deposit(
                 loan_token.current_interest_rate        = float(loan_token_storage.currentInterestRate)
                 await loan_token.save()
 
+                # Save collateral balance ledger
+                collateral_token_amount                 = float(vault_collateral_balance_ledger[collateral_token_name])
                 lending_controller_collateral_token     = await models.LendingControllerCollateralToken.get(
                     lending_controller          = lending_controller,
                     token_name                  = collateral_token_name
