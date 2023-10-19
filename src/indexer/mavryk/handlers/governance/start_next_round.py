@@ -124,14 +124,6 @@ async def start_next_round(
                 defeated_datetime       = timestamp
             )
 
-        # Fix for Governance Satellite Snapshot latest field
-        await models.GovernanceSatelliteSnapshot.filter(
-            Q(governance = governance),
-            Q(cycle = cycle_id)
-        ).update(
-            latest  = True
-        )
-
     except BaseException as e:
         await save_error_report(e)
 
