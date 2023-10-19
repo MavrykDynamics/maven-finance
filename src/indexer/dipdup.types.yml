@@ -228,6 +228,7 @@ indexes:
         entrypoint: updateWhitelistContracts
     - callback: aggregator.update_general_contracts
       pattern:
+    - <farm_factory_contract>
       - destination: aggregator
         entrypoint: updateGeneralContracts
     - callback: aggregator.add_oracle
@@ -430,6 +431,7 @@ indexes:
     - governance_financial
     - governance_satellite
     - aggregator_factory
+    - farm_factory
     - treasury_factory
     - vault_factory
     - lending_controller

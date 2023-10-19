@@ -385,6 +385,7 @@ templates:
     - <governance_financial_contract>
     - <governance_satellite_contract>
     - <aggregator_factory_contract>
+    - <farm_factory_contract>
     - <treasury_factory_contract>
     - <vault_factory_contract>
     - <lending_controller_contract>
