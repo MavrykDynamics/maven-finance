@@ -50,6 +50,7 @@ async def snapshot_ledger_update(
             # Reset the latest for the previous records
             await models.GovernanceSatelliteSnapshot.filter(
                 Q(user = user),
+                Q(governance = governance),
                 ~Q(cycle = governance_cycle)
             ).update(
                 latest  = False
