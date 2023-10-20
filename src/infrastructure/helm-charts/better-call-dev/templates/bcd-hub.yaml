@@ -85,7 +85,7 @@ spec:
                   key: POSTGRES_DB
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: {{ .Values.bcdHub.db.image.pullPolicy }}
           ports:
             - containerPort: 5432
           volumeMounts:
@@ -109,13 +109,6 @@ spec:
                 secretKeyRef:
                   name: '{{ .Values.bcdHub.envSecretName }}'
                   key: POSTGRES_PASSWORD
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: '{{ .Values.bcdHub.envSecretName }}'
-                  key: POSTGRES_DB
-            - name: DB_HOSTNAME
-              value: localhost
             - name: SANDBOX_NODE_URI
               value: '{{ .Values.bcdHub.sandboxNodeUri }}'
             - name: SANDBOX_IPFS_GATEWAY
@@ -132,8 +125,6 @@ spec:
           env:
             - name: BCD_ENV
               value: '{{ .Values.bcdHub.bcdEnv }}'
-            - name: GIN_MODE
-              value: debug
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
@@ -144,13 +135,6 @@ spec:
                 secretKeyRef:
                   name: '{{ .Values.bcdHub.envSecretName }}'
                   key: POSTGRES_PASSWORD
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: '{{ .Values.bcdHub.envSecretName }}'
-                  key: POSTGRES_DB
-            - name: DB_HOSTNAME
-              value: localhost
             - name: SANDBOX_NODE_URI
               value: '{{ .Values.bcdHub.sandboxNodeUri }}'
             - name: SANDBOX_IPFS_GATEWAY
