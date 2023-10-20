@@ -109,6 +109,11 @@ spec:
                 secretKeyRef:
                   name: '{{ .Values.bcdHub.envSecretName }}'
                   key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: '{{ .Values.bcdHub.envSecretName }}'
+                  key: POSTGRES_DB
             - name: SANDBOX_NODE_URI
               value: '{{ .Values.bcdHub.sandboxNodeUri }}'
             - name: SANDBOX_IPFS_GATEWAY
@@ -135,6 +140,13 @@ spec:
                 secretKeyRef:
                   name: '{{ .Values.bcdHub.envSecretName }}'
                   key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: '{{ .Values.bcdHub.envSecretName }}'
+                  key: POSTGRES_DB
+            - name: DB_HOSTNAME
+              value: localhost
             - name: SANDBOX_NODE_URI
               value: '{{ .Values.bcdHub.sandboxNodeUri }}'
             - name: SANDBOX_IPFS_GATEWAY
