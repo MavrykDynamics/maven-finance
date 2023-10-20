@@ -23,7 +23,7 @@ bcdHub:
       pullPolicy: Always
       pullSecret: docker-pull-credentials
       repository: mavrykdynamics/bcdhub-indexer
-      tag: v4.7.2m
+      tag: latest
   ingress:
     host: api-better-call.mavryk.io
     tls:
