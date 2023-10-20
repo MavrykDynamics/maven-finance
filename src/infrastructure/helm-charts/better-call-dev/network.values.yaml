@@ -44,7 +44,7 @@ bcd:
     pullPolicy: IfNotPresent
     dockerPullSecret: docker-pull-credentials
     repository: baking-bad/bcdhub-gui
-    tag: 'v4.3.2'
+    tag: '4.7.2'
   env:
     - name: NODE_ENV
       value: production
