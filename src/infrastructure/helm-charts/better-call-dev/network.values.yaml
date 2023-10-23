@@ -36,11 +36,11 @@ bcdHub:
 
 bcd:
   image:
-    registry: ghcr.io
-    pullPolicy: IfNotPresent
+    registry: docker.io
+    pullPolicy: Always
     dockerPullSecret: docker-pull-credentials
-    repository: baking-bad/bcdhub-gui
-    tag: '4.7.2'
+    repository: mavrykdynamics/bcdhub-gui
+    tag: latest
   env:
     - name: NODE_ENV
       value: production
