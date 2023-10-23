@@ -12,11 +12,11 @@ bcdHub:
       tag: '14'
   api:
     image:
-      registry: ghcr.io
-      pullPolicy: IfNotPresent
+      registry: docker.io
+      pullPolicy: Always
       pullSecret: docker-pull-credentials
-      repository: baking-bad/bcdhub-api
-      tag: '4.7.2'
+      repository: mavrykdynamics/bcdhub-indexer
+      tag: latest
   indexer:
     image:
       registry: docker.io
@@ -33,10 +33,6 @@ bcdHub:
       cert-manager.io/cluster-issuer: letsencrypt-prod
       kubernetes.io/ingress.class: nginx
       nginx.ingress.kubernetes.io/ssl-redirect: 'false'
-      nginx.ingress.kubernetes.io/enable-cors: 'true'
-      nginx.ingress.kubernetes.io/cors-expose-headers: '*'
-      nginx.ingress.kubernetes.io/cors-allow-origin: '*'
-      nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
 
 bcd:
   image:
