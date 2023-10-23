@@ -15,7 +15,7 @@ bcdHub:
       registry: docker.io
       pullPolicy: Always
       pullSecret: docker-pull-credentials
-      repository: mavrykdynamics/bcdhub-indexer
+      repository: mavrykdynamics/bcdhub-api
       tag: latest
   indexer:
     image:
