@@ -43,8 +43,8 @@ bcd:
     registry: docker.io
     pullPolicy: Always
     dockerPullSecret: docker-pull-credentials
-    repository: mavrykdynamics/bcd
-    tag: 'v4.3.2'
+    repository: mavrykdynamics/bcdhub-gui
+    tag: 'latest'
   env:
     - name: NODE_ENV
       value: production
