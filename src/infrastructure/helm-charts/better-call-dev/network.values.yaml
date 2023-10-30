@@ -8,22 +8,22 @@ bcdHub:
     image:
       registry: docker.io
       pullPolicy: IfNotPresent
-      repository: postgres
-      tag: '14'
+      repository: timescale/timescaledb
+      tag: latest-pg15
   api:
     image:
       registry: docker.io
-      pullPolicy: Always
+      pullPolicy: IfNotPresent
       pullSecret: docker-pull-credentials
       repository: mavrykdynamics/bcdhub-api
-      tag: latest
+      tag: '4.7.2'
   indexer:
     image:
       registry: docker.io
-      pullPolicy: Always
+      pullPolicy: IfNotPresent
       pullSecret: docker-pull-credentials
       repository: mavrykdynamics/bcdhub-indexer
-      tag: latest
+      tag: '4.7.2'
   ingress:
     host: api-better-call.mavryk.io
     tls:
