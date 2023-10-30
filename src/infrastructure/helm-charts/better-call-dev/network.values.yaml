@@ -8,8 +8,8 @@ bcdHub:
     image:
       registry: docker.io
       pullPolicy: Always
-      repository: postgres
-      tag: '14'
+      repository: timescale/timescaledb
+      tag: latest-pg15
   api:
     image:
       registry: docker.io
