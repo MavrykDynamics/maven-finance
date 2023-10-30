@@ -37,10 +37,10 @@ bcdHub:
 bcd:
   image:
     registry: docker.io
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
     dockerPullSecret: docker-pull-credentials
     repository: mavrykdynamics/bcdhub-gui
-    tag: latest
+    tag: '4.5.2'
   env:
     - name: NODE_ENV
       value: production
