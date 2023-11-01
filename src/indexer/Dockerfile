@@ -12,6 +12,6 @@ RUN poetry config virtualenvs.create false && poetry install --no-dev
 
 ADD mavryk /mavryk/mavryk/
 
-ENTRYPOINT ["poetry", "run", "dipdup", "-c", "dipdup.yml", "-c", "dipdup.contract.yml", "-c", "dipdup.prod.yml"]
+ENTRYPOINT ["poetry", "run", "dipdup", "-c", "dipdup.prod.yml", "-c", "dipdup.contract.yml", "-c", "dipdup.yml"]
 
 EXPOSE 9090/tcp
