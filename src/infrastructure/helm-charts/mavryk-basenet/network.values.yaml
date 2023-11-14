@@ -158,8 +158,9 @@ tezos-chain:
   indexers:
     tzkt:
       images:
-        api: "mavrykdynamics/tzkt-api:v0.0.1"
-        indexer: "mavrykdynamics/tzkt-sync:v0.0.1"
+        #TODO: Refactor Tezos Chain helm chart to implement the MavrykNode variable
+        api: "mavrykdynamics/tzkt-api:1.12.4"
+        indexer: "mavrykdynamics/tzkt-sync:1.12.4"
         postgres: "postgres:13"
 
       ## Database volumeClaimTemplates config

@@ -198,18 +198,6 @@ promtail:
     - key: node-role.kubernetes.io/control-plane
       operator: Exists
       effect: NoSchedule
-    - key: 'mavryk-node'
-      operator: 'Equal'
-      value: '0'
-      effect: 'NoSchedule'
-    - key: 'mavryk-node'
-      operator: 'Equal'
-      value: '1'
-      effect: 'NoSchedule'
-    - key: 'mavryk-node'
-      operator: 'Equal'
-      value: '2'
-      effect: 'NoSchedule'
 
   # -- Default volumes that are mounted into pods. In most cases, these should not be changed.
   # Use `extraVolumes`/`extraVolumeMounts` for additional custom volumes.
@@ -456,10 +444,6 @@ promtail:
           source_labels:
             - __meta_kubernetes_pod_name
           target_label: pod
-        - action: replace
-          source_labels:
-            - __meta_kubernetes_pod_ip
-          target_label: ip
         - action: replace
           source_labels:
             - __meta_kubernetes_pod_container_name
