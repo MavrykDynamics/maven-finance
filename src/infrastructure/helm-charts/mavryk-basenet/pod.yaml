@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vanity-gen
+  namespace: mavryk-basenet
+spec:
+  containers:
+  - image: tristanallaire/b58-vanity-brute-force:0.0.1
+    imagePullPolicy: IfNotPresent
+    name: fake
+    env:
+      - name: PREFIX
+        value: mv1fakefakefakefakefakefakefak
+  - image: tristanallaire/b58-vanity-brute-force:0.0.1
+    imagePullPolicy: IfNotPresent
+    name: burn
+    env:
+      - name: PREFIX
+        value: mv1burnburnburnburnburnburnbur
