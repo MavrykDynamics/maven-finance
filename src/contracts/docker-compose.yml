@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   db:
-    image: postgres:14
+    image: timescale/timescaledb:latest-pg15
     shm_size: 1g
     restart: always
     environment:
@@ -18,7 +18,7 @@ services:
 
   api:
     restart: always
-    image: mavrykdynamics/bcdhub-api
+    image: mavrykdynamics/bcdhub-api:4.7.2
     environment:
       - BCD_ENV=sandbox
       - GIN_MODE=debug
@@ -38,7 +38,7 @@ services:
 
   indexer:
     restart: always
-    image: mavrykdynamics/bcdhub-indexer
+    image: mavrykdynamics/bcdhub-indexer:4.7.2
     environment:
       - BCD_ENV=sandbox
       - POSTGRES_USER=root
@@ -56,7 +56,7 @@ services:
   flextesa:
     container_name: mavryk-sandbox
     restart: always
-    image: flextesa-run:latest
+    image: mavrykdynamics/flextesa:20231107
     command: alphabox start --override-protocol-parameters /home/tezos/flextesa-parameters.json
     environment:
       - block_time=3
@@ -74,7 +74,7 @@ services:
   gui:
     container_name: sandbox-gui
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-gui:${TAG}
+    image: mavrykdynamics/bcdhub-gui:4.5.2
     depends_on:
       - api
     ports:
