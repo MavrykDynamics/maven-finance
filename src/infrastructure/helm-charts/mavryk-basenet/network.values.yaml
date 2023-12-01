@@ -146,7 +146,7 @@ tezos-chain:
     utils: mavrykdynamics/mavryk-k8s-utils:6.22.0
 
   images:
-    octez: mavrykdynamics/mavryk:latest
+    octez: mavrykdynamics/mavryk:v17.3
 
   protocols:
     - command: PtAtLasL
