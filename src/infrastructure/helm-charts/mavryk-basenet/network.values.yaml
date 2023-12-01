@@ -137,6 +137,7 @@ tezos-chain:
     # Overwrite default values.yaml rolling-node
     rolling-node: null
 
+  snapshot_source: null
   full_snapshot_url: null
   rolling_snapshot_url: null
   rolling_tarball_url: null
