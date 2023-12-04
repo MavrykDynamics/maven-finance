@@ -77,7 +77,7 @@ tezos-chain:
       smart_rollup_max_active_outbox_levels: 80640
       smart_rollup_max_outbox_messages_per_level: 100
       smart_rollup_number_of_sections_in_dissection: 32
-      smart_rollup_timeout_period_in_blocks: 40320,
+      smart_rollup_timeout_period_in_blocks: '40320',
       smart_rollup_max_number_of_cemented_commitments: 5,
       smart_rollup_max_number_of_parallel_games: 32,
       smart_rollup_reveal_activation_level:
