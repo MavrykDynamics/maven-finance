@@ -57,8 +57,6 @@ spec:
       labels:
         app: tzstats
     spec:
-      imagePullSecrets:
-        - name: '{{ .Values.tzstats.image.pullSecret }}'
       containers:
         - name: tzstats
           image: '{{ .Values.tzstats.image.registry }}/{{ .Values.tzstats.image.repository }}:{{ .Values.tzstats.image.tag }}'
