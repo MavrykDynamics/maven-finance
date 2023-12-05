@@ -5,7 +5,7 @@ tzindex:
     registry: docker.io
     repository: mavrykdynamics/tzindex
     tag: 2ca737b-alpine
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   ingress:
     host: api-tzindex.mavryk.io
     secretName: api-tzindex-tls
