@@ -59,8 +59,6 @@ spec:
       labels:
         app: tzindex
     spec:
-      imagePullSecrets:
-        - name: '{{ .Values.tzindex.image.pullSecret }}'
       containers:
         - name: tzindex
           env:

@@ -4,15 +4,14 @@ tzindex:
   image:
     registry: docker.io
     repository: mavrykdynamics/tzindex
-    tag: v15.0.1
+    tag: 2ca737b-alpine
     pullPolicy: IfNotPresent
-    pullSecret: docker-pull-credentials
   ingress:
     host: api-tzindex.mavryk.io
     secretName: api-tzindex-tls
   env:
     - name: TZ_RPC_URL
-      value: http://tezos-baking-archive-node-rpc.basenet.svc.cluster.local
+      value: http://mavryk-baking-node.mavryk-basenet.svc.cluster.local
     - name: TZ_SERVER_HOST
       value: '0.0.0.0'
     - name: TZ_SERVER_ADDR
@@ -30,7 +29,6 @@ tzstats:
     repository: mavrykdynamics/tzstats
     tag: v0.0.2
     pullPolicy: IfNotPresent
-    pullSecret: docker-pull-credentials
   ingress:
     host: explorer.mavryk.io
     secretName: explorer-tls
