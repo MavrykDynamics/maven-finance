@@ -11,7 +11,7 @@ tzindex:
     secretName: api-tzindex-tls
   env:
     - name: TZ_RPC_URL
-      value: http://mavryk-baking-node.mavryk-basenet.svc.cluster.local
+      value: http://mavryk-baking-node.mavryk-basenet.svc.cluster.local:8732
     - name: TZ_SERVER_HOST
       value: '0.0.0.0'
     - name: TZ_SERVER_ADDR
