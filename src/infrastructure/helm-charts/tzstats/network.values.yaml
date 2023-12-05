@@ -4,7 +4,7 @@ tzindex:
   image:
     registry: docker.io
     repository: mavrykdynamics/tzindex
-    tag: 2ca737b-alpine
+    tag: 5c1d68a-alpine
     pullPolicy: Always
   ingress:
     host: api-tzindex.mavryk.io
