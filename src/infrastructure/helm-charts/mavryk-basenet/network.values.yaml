@@ -49,6 +49,7 @@ tezos-chain:
       delay_increment_per_round: '8'
       consensus_committee_size: 7000
       consensus_threshold: 4667
+      frozen_deposits_percentage: 10
       minimal_participation_ratio:
         numerator: 2
         denominator: 3
