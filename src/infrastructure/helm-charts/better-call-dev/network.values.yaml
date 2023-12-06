@@ -11,16 +11,16 @@ bcdHub:
       tag: latest-pg15
   api:
     image:
-      registry: docker.io
+      registry: ghcr.io
       pullPolicy: IfNotPresent
-      repository: ghcr.io/mavryk-network/bcdhub-api
+      repository: mavryk-network/bcdhub-api
       tag: pr-1
   indexer:
     image:
-      registry: docker.io
+      registry: ghcr.io
       pullPolicy: IfNotPresent
       pullSecret: docker-pull-credentials
-      repository: ghcr.io/mavryk-network/bcdhub-indexer
+      repository: mavryk-network/bcdhub-indexer
       tag: pr-1
   ingress:
     host: api-better-call.mavryk.io
