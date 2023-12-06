@@ -58,8 +58,6 @@ spec:
       labels:
         app: bcd
     spec:
-      imagePullSecrets:
-        - name: '{{ .Values.bcd.image.dockerPullSecret }}'
       containers:
         - name: frontend
           env:
