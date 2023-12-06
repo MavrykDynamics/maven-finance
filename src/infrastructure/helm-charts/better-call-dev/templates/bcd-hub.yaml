@@ -62,8 +62,6 @@ spec:
       labels:
         app: bcd-hub
     spec:
-      imagePullSecrets:
-        - name: '{{ .Values.bcdHub.dockerPullSecret }}'
       containers:
         - name: db
           image: '{{ .Values.bcdHub.db.image.registry }}/{{ .Values.bcdHub.db.image.repository }}:{{ .Values.bcdHub.db.image.tag }}'

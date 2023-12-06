@@ -1,7 +1,6 @@
 bcdHub:
   envSecretName: bcd-hub-secret
-  dockerPullSecret: docker-pull-credentials
-  bcdEnv: sandbox
+  bcdEnv: production
   sandboxNodeUri: https://basenet-baking-node.mavryk.network
   sandboxIpfsGateway: https://cloudflare-ipfs.com
   db:
@@ -14,16 +13,15 @@ bcdHub:
     image:
       registry: docker.io
       pullPolicy: IfNotPresent
-      pullSecret: docker-pull-credentials
-      repository: mavrykdynamics/bcdhub-api
-      tag: '4.7.2'
+      repository: ghcr.io/mavryk-network/bcdhub-api
+      tag: pr-1
   indexer:
     image:
       registry: docker.io
       pullPolicy: IfNotPresent
       pullSecret: docker-pull-credentials
-      repository: mavrykdynamics/bcdhub-indexer
-      tag: '4.7.2'
+      repository: ghcr.io/mavryk-network/bcdhub-indexer
+      tag: pr-1
   ingress:
     host: api-better-call.mavryk.io
     tls:
@@ -37,8 +35,7 @@ bcdHub:
 bcd:
   image:
     registry: docker.io
-    pullPolicy: IfNotPresent
-    dockerPullSecret: docker-pull-credentials
+    pullPolicy: Always
     repository: mavrykdynamics/bcdhub-gui
     tag: '4.5.2'
   env:
