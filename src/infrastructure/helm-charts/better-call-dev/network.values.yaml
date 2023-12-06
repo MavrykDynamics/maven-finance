@@ -1,6 +1,6 @@
 bcdHub:
   envSecretName: bcd-hub-secret
-  bcdEnv: production
+  bcdEnv: development
   sandboxNodeUri: https://basenet-baking-node.mavryk.network
   sandboxIpfsGateway: https://cloudflare-ipfs.com
   db:
