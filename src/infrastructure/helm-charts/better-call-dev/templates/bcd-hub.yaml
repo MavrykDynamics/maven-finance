@@ -5,7 +5,6 @@ metadata:
   name: bcd-hub
   namespace: '{{ .Release.Namespace }}'
 spec:
-  clusterIP: None
   selector:
     app: bcd-hub
   type: ClusterIP
