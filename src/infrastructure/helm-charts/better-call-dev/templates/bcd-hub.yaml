@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: bcd-hub-headless
+  name: bcd-hub
   namespace: '{{ .Release.Namespace }}'
 spec:
   clusterIP: None
@@ -15,7 +15,7 @@ spec:
       targetPort: 5432
       name: db
     - protocol: TCP
-      port: 80
+      port: 14000
       targetPort: 14000
       name: http
 ---
@@ -41,7 +41,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: bcd-hub-headless
+                name: bcd-hub
                 port:
                   name: http
 ---
@@ -56,7 +56,7 @@ spec:
   selector:
     matchLabels:
       app: bcd-hub
-  serviceName: 'bcd-hub-headless'
+  serviceName: 'bcd-hub'
   template:
     metadata:
       labels:
