@@ -15,7 +15,7 @@ spec:
       targetPort: 5432
       name: db
     - protocol: TCP
-      port: 14000
+      port: 80
       targetPort: 14000
       name: http
 ---
