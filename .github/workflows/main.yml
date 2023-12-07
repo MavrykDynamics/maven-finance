@@ -38,8 +38,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: .
-          file: src/indexer/Dockerfile
+          context: '{{defaultContext}}:src/indexer/'
           push: true
           tags: mavrykdynamics/mavryk-indexer:${{ github.event.inputs.imageTag }}
   setup-app:
