@@ -22,10 +22,10 @@ bcdHub:
       repository: mavryk-network/bcdhub-indexer
       tag: pr-1
   ingress:
-    host: api-better-call.mavryk.io
+    host: better-call-api.mavryk.io
     tls:
       enabled: true
-      secretName: api-better-call-tls
+      secretName: better-call-api-tls
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-prod
       kubernetes.io/ingress.class: nginx
@@ -43,7 +43,7 @@ bcd:
     - name: BASE_URL
       value: https://better-call.mavryk.io/
     - name: VUE_APP_API_URI
-      value: https://api-better-call.mavryk.io/v1
+      value: https://better-call-api.mavryk.io/v1
     - name: VUE_APP_IPFS_NODE
       value: https://ipfs.io
   ingress:
