@@ -219,3 +219,107 @@ tezos-chain:
         rpc_url: http://mavryk-baking-node.mavryk-basenet.svc.cluster.local:8732
         api_log_level: Debug
         indexer_log_level: Debug
+
+tezos-faucet:
+  # Faucet backend: https://github.com/oxheadalpha/tezos-faucet-backend
+  # Faucet frontend: https://github.com/oxheadalpha/tezos-faucet
+
+  images:
+    tezosFaucet: ghcr.io/oxheadalpha/tezos-faucet:2.2.2
+    tezosFaucetBackend: ghcr.io/oxheadalpha/tezos-faucet-backend:2.2.0
+
+  # Frontend app configuration. You can optionally deploy only the faucet backend.
+  enableUI: true
+  config:
+    application:
+      name: "Mavryk Faucet"
+      googleCaptchaSiteKey: "" # 6LefC8QmAAAAAIX...
+      # Default value assumes faucet backend is available on localhost.
+      backendUrl: https://faucet-basenet.mavryk.io
+      githubRepo: https://github.com/mavryk-network/mavryk-faucet
+    network:
+      name: Basenet
+      # Default value assumes node RPC is available on localhost.
+      rpcUrl: http://mavryk-baking-node.mavryk-basenet.svc.cluster.local:8732
+      faucetAddress: "mv1V4h45W3p4e1sjSBvRkK2uYbvkTnSuHg8g" # mv1PW...
+      viewer: "" # https://network.tzstats.com
+
+  # Value the server sets for the "Access-Control-Allow-Origin" header for CORS.
+  authorizedHost: "*"
+  # RPC url for the faucet backend. Default value assumes tezos-k8s created an RPC
+  # service in the same namespace. If not set, defaults to `config.network.rpcUrl`.
+  backendRpcUrl: http://mavryk-baking-node.mavryk-basenet.svc.cluster.local:8732
+  # If the backend requires CAPTCHA tokens to be submitted.
+  enableCaptcha: false
+  # Faucet won't dispense to an address if its balance will exceed this. Not
+  # capped by default.
+  maxBalance: null
+  # The minimum Tez allowed per request.
+  minTez: 1
+  # The maximum Tez allowed per request.
+  maxTez: 6000
+
+  # Set to true to disable the requirement of solving PoW challenges.
+  disableChallenges: false
+  # Minimum number of challenges required for the minimum Tez request.
+  minChallenges: 1
+  # Maximum number of challenges required for the maximum Tez request.
+  maxChallenges: 550
+  # Maximum number of challenges required for the maximum Tez request when a
+  # captcha is used.
+  maxChallengesWithCaptcha: 66
+  # How many bytes the challenge string should be.
+  challengeSize: 2048
+  # Difficulty level for challenges.
+  difficulty: 4
+
+  # Config for the Redis backend for the PoW challenges. Redis is not needed if
+  # challenges are disabled.
+  redis:
+    url: "" # redis://redis-master.redis:6379
+    password: ""
+
+  # Secrets
+  googleCaptchaSecretKey: "" # 6LefC8QmAAAAAPH...
+  faucetPrivateKey: "" # edsk3X...
+
+  ingress:
+    enabled: true
+    className: ""
+    annotations:
+      "kubernetes.io/ingress.class": "nginx"
+      "cert-manager.io/cluster-issuer": "letsencrypt-prod"
+    host: "faucet.mavryk.network" # fill in the faucet hostname
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example-frontend.local
+
+  imagePullPolicy: IfNotPresent
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: mavryk-faucet
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
