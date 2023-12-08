@@ -235,7 +235,7 @@ tezos-faucet:
       name: "Mavryk Faucet"
       googleCaptchaSiteKey: "" # 6LefC8QmAAAAAIX...
       # Default value assumes faucet backend is available on localhost.
-      backendUrl: https://faucet-basenet.mavryk.io
+      backendUrl: https://faucet.mavryk.network
       githubRepo: https://github.com/mavryk-network/mavryk-faucet
     network:
       name: Basenet
@@ -290,10 +290,10 @@ tezos-faucet:
       "kubernetes.io/ingress.class": "nginx"
       "cert-manager.io/cluster-issuer": "letsencrypt-prod"
     host: "faucet.mavryk.network" # fill in the faucet hostname
-    tls: []
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - chart-example-frontend.local
+    tls:
+     - secretName: faucet-tls
+       hosts:
+         - faucet.mavryk.network
 
   imagePullPolicy: IfNotPresent
   imagePullSecrets: []
