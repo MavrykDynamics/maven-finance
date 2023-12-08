@@ -237,16 +237,16 @@ tezos-faucet:
       # Default value assumes faucet backend is available on localhost.
       backendUrl: https://faucet.mavryk.network
       githubRepo: https://github.com/mavryk-network/mavryk-faucet
+      # The minimum Tez allowed per request.
+      minTez: 1
+      # The maximum Tez allowed per request.
+      maxTez: 6000
     network:
       name: Basenet
       # Default value assumes node RPC is available on localhost.
       rpcUrl: http://mavryk-baking-node.mavryk-basenet.svc.cluster.local:8732
       faucetAddress: "mv1V4h45W3p4e1sjSBvRkK2uYbvkTnSuHg8g" # mv1PW...
       viewer: "" # https://network.tzstats.com
-    # The minimum Tez allowed per request.
-    minTez: 1
-    # The maximum Tez allowed per request.
-    maxTez: 6000
 
   # Value the server sets for the "Access-Control-Allow-Origin" header for CORS.
   authorizedHost: "*"
