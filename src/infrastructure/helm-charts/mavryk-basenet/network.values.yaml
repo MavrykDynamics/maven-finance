@@ -243,6 +243,10 @@ tezos-faucet:
       rpcUrl: http://mavryk-baking-node.mavryk-basenet.svc.cluster.local:8732
       faucetAddress: "mv1V4h45W3p4e1sjSBvRkK2uYbvkTnSuHg8g" # mv1PW...
       viewer: "" # https://network.tzstats.com
+    # The minimum Tez allowed per request.
+    minTez: 1
+    # The maximum Tez allowed per request.
+    maxTez: 6000
 
   # Value the server sets for the "Access-Control-Allow-Origin" header for CORS.
   authorizedHost: "*"
@@ -254,11 +258,6 @@ tezos-faucet:
   # Faucet won't dispense to an address if its balance will exceed this. Not
   # capped by default.
   maxBalance: null
-  # The minimum Tez allowed per request.
-  minTez: 1
-  # The maximum Tez allowed per request.
-  maxTez: 6000
-
   # Set to true to disable the requirement of solving PoW challenges.
   disableChallenges: true
   # Minimum number of challenges required for the minimum Tez request.
