@@ -286,9 +286,9 @@ tezos-faucet:
     enabled: true
     className: ""
     annotations:
-      kubernetes.io/ingress.class": "nginx"
-      cert-manager.io/cluster-issuer": "letsencrypt-prod"
-      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      "kubernetes.io/ingress.class": "nginx"
+      "cert-manager.io/cluster-issuer": "letsencrypt-prod"
+      "nginx.ingress.kubernetes.io/ssl-redirect": "false"
     host: "faucet.mavryk.network" # fill in the faucet hostname
     tls:
      - secretName: faucet-tls
