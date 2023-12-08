@@ -244,7 +244,7 @@ tezos-faucet:
     network:
       name: Basenet
       # Default value assumes node RPC is available on localhost.
-      rpcUrl: http://mavryk-baking-node.mavryk-basenet.svc.cluster.local:8732
+      rpcUrl: http://basenet-baking-node.mavryk.network
       faucetAddress: "mv1V4h45W3p4e1sjSBvRkK2uYbvkTnSuHg8g" # mv1PW...
       viewer: "" # https://network.tzstats.com
 
