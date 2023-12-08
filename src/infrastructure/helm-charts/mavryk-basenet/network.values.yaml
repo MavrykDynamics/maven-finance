@@ -233,7 +233,7 @@ tezos-faucet:
   config:
     application:
       name: "Mavryk Faucet"
-      googleCaptchaSiteKey: "" # 6LefC8QmAAAAAIX...
+      googleCaptchaSiteKey: "6LefC8QmAAAAAIXuoOhyI-FtALkYXZm4JK0GBYfb" # 6LefC8QmAAAAAIX...
       # Default value assumes faucet backend is available on localhost.
       backendUrl: https://faucet.mavryk.network
       githubRepo: https://github.com/mavryk-network/mavryk-faucet
