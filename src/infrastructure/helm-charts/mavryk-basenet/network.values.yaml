@@ -260,7 +260,7 @@ tezos-faucet:
   maxTez: 6000
 
   # Set to true to disable the requirement of solving PoW challenges.
-  disableChallenges: false
+  disableChallenges: true
   # Minimum number of challenges required for the minimum Tez request.
   minChallenges: 1
   # Maximum number of challenges required for the maximum Tez request.
