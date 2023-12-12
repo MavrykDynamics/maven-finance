@@ -180,7 +180,6 @@ tezos-chain:
   indexers:
     tzkt:
       images:
-        #TODO: Refactor Tezos Chain helm chart to implement the MavrykNode variable
         api: "ghcr.io/mavryk-network/tzkt-api:pr-1"
         indexer: "ghcr.io/mavryk-network/tzkt-sync:pr-1"
         postgres: "postgres:13"

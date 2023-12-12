@@ -7,7 +7,7 @@ tzindex:
     tag: 5c1d68a-alpine
     pullPolicy: Always
   ingress:
-    host: api-tzindex.mavryk.io
+    host: api-tzindex.mavryk.network
     secretName: api-tzindex-tls
   env:
     - name: TZ_RPC_URL
