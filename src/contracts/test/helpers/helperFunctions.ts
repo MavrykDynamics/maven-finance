@@ -1,4 +1,4 @@
-const { InMemorySigner } = require("@taquito/signer");
+const { InMemorySigner } = require("@mavrykdynamics/taquito-signer");
 import { BigNumber } from "bignumber.js"
 
 // ------------------------------------------------------------------------------

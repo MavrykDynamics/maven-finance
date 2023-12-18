@@ -1,7 +1,7 @@
-import { MichelsonType, packDataBytes } from '@taquito/michel-codec';
-import { Schema } from '@taquito/michelson-encoder';
-import { InMemorySigner } from '@taquito/signer'
-import { MichelsonMap, PollingSubscribeProvider, TezosToolkit, TransactionOperation } from '@taquito/taquito'
+import { MichelsonType, packDataBytes } from '@mavrykdynamics/taquito-michel-codec';
+import { Schema } from '@mavrykdynamics/taquito-michelson-encoder';
+import { InMemorySigner } from '@mavrykdynamics/taquito-signer'
+import { MichelsonMap, PollingSubscribeProvider, TezosToolkit, TransactionOperation } from '@mavrykdynamics/taquito'
 import { BigNumber } from 'bignumber.js'
 
 import env from '../../env'

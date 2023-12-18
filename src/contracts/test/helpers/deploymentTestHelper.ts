@@ -7,12 +7,12 @@ import {
     OriginationOperation,
     TezosToolkit,
     Wallet
-} from "@taquito/taquito"
+} from "@mavrykdynamics/taquito"
 import fs from "fs"
 
 import env from "../../env"
 import { confirmOperation } from "../../scripts/confirmation"
-import { OnChainView } from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view"
+import { OnChainView } from "@mavrykdynamics/taquito/dist/types/contract/contract-methods/contract-on-chain-view"
 
 // Contracts Storage Type
 import { governanceStorageType }                from "../../storage/storageTypes/governanceStorageType"

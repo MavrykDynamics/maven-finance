@@ -18,7 +18,7 @@ services:
 
   api:
     restart: always
-    image: mavrykdynamics/bcdhub-api:4.7.2
+    image: ghcr.io/mavryk-network/bcdhub-api:pr-1
     environment:
       - BCD_ENV=sandbox
       - GIN_MODE=debug
@@ -38,7 +38,7 @@ services:
 
   indexer:
     restart: always
-    image: mavrykdynamics/bcdhub-indexer:4.7.2
+    image: ghcr.io/mavryk-network/bcdhub-indexer:pr-1
     environment:
       - BCD_ENV=sandbox
       - POSTGRES_USER=root
@@ -56,8 +56,8 @@ services:
   flextesa:
     container_name: mavryk-sandbox
     restart: always
-    image: mavrykdynamics/flextesa:20231107
-    command: alphabox start --override-protocol-parameters /home/tezos/flextesa-parameters.json
+    image: registry.gitlab.com/mavryk-network/flextesa:6cab38e5-run
+    command: atlasbox start
     environment:
       - block_time=3
       - flextesa_node_cors_origin=*
@@ -68,13 +68,11 @@ services:
       - 20000/tcp
       - 8732/tcp
     logging: *bcd-logging
-    volumes:
-      - ${PWD}/flextesa-parameters.json:/home/tezos/flextesa-parameters.json
 
   gui:
     container_name: sandbox-gui
     restart: always
-    image: mavrykdynamics/bcdhub-gui:4.5.2
+    image: docker.io/mavrykdynamics/bcdhub-gui:4.5.2
     depends_on:
       - api
     ports:
