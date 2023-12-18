@@ -6,8 +6,8 @@ import {
   OperationContents,
   OperationEntry,
   BlockResponse,
-} from "@taquito/rpc";
-import { TezosToolkit, OpKind } from "@taquito/taquito";
+} from "@mavrykdynamics/taquito-rpc";
+import { TezosToolkit, OpKind } from "@mavrykdynamics/taquito";
 
 export const SYNC_INTERVAL: number = +env.syncInterval;
 export const CONFIRM_TIMEOUT: number = +env.confirmTimeout;

@@ -5,7 +5,7 @@ import { MVK, TEZ, Utils } from "./helpers/Utils";
 import { before } from "mocha";
 
 const chai = require("chai");
-import { MichelsonMap } from "@taquito/taquito";
+import { MichelsonMap } from "@mavrykdynamics/taquito";
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 chai.should();

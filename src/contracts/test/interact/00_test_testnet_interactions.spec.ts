@@ -1,5 +1,5 @@
 import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
-import { MichelsonMap } from "@taquito/taquito"
+import { MichelsonMap } from "@mavrykdynamics/taquito"
 import { BigNumber } from "bignumber.js"
 
 import { MVK, Utils, zeroAddress } from "../helpers/Utils"

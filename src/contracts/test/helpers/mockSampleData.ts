@@ -1,4 +1,4 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
+import { MichelsonMap } from "@mavrykdynamics/taquito-michelson-encoder";
 
 import { alice, bob, eve, ivan, mallory, oscar, susie, trudy } from "../../scripts/sandbox/accounts";
 
