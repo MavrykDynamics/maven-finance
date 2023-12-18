@@ -18,7 +18,7 @@ services:
 
   api:
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-api:pr-1
+    image: ghcr.io/mavryk-network/bcdhub-api:4.7.2
     environment:
       - BCD_ENV=sandbox
       - GIN_MODE=debug
@@ -34,11 +34,13 @@ services:
       - bcdshare:/etc/bcd
     links:
       - 'flextesa:sandbox'
+    expose:
+      - 14000/tcp
     logging: *bcd-logging
 
   indexer:
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-indexer:pr-1
+    image: ghcr.io/mavryk-network/bcdhub-indexer:4.7.2
     environment:
       - BCD_ENV=sandbox
       - POSTGRES_USER=root
@@ -72,11 +74,11 @@ services:
   gui:
     container_name: sandbox-gui
     restart: always
-    image: docker.io/mavrykdynamics/bcdhub-gui:4.5.2
+    image: ghcr.io/mavryk-network/bcdhub-gui:4.7.2
     depends_on:
       - api
     ports:
-      - 127.0.0.1:8000:80
+      - 127.0.0.1:8080:80
     logging: *bcd-logging
 
 volumes:

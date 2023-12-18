@@ -14,13 +14,13 @@ bcdHub:
       registry: ghcr.io
       pullPolicy: Always
       repository: mavryk-network/bcdhub-api
-      tag: pr-1
+      tag: '4.7.2'
   indexer:
     image:
       registry: ghcr.io
       pullPolicy: Always
       repository: mavryk-network/bcdhub-indexer
-      tag: pr-1
+      tag: '4.7.2'
   ingress:
     host: better-call-api.mavryk.io
     tls:
@@ -33,10 +33,10 @@ bcdHub:
 
 bcd:
   image:
-    registry: docker.io
+    registry: ghcr.io
     pullPolicy: Always
-    repository: mavrykdynamics/bcdhub-gui
-    tag: '4.5.2'
+    repository: mavryk-network/bcdhub-gui
+    tag: '4.7.2'
   env:
     - name: NODE_ENV
       value: production
