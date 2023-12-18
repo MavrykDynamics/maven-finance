@@ -1,4 +1,4 @@
-import { MichelsonMap } from "@taquito/taquito";
+import { MichelsonMap } from "@mavrykdynamics/taquito";
 import assert from "assert";
 import { BigNumber } from "bignumber.js";
 

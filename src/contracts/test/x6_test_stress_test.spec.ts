@@ -1,4 +1,4 @@
-import { Estimate, OpKind } from "@taquito/taquito";
+import { Estimate, OpKind } from "@mavrykdynamics/taquito";
 
 import randomUserAccounts from "./helpers/random_accounts.json";
 import { MVK, Utils } from "./helpers/Utils";

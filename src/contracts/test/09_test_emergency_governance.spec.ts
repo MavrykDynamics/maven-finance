@@ -1,4 +1,4 @@
-import { MichelsonMap } from '@taquito/michelson-encoder'
+import { MichelsonMap } from '@mavrykdynamics/taquito-michelson-encoder'
 import assert from "assert";
 import { BigNumber } from 'bignumber.js'
 

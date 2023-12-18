@@ -1,5 +1,5 @@
-import { OriginationOperation, TezosToolkit } from '@taquito/taquito'
-import { char2Bytes } from '@taquito/utils'
+import { OriginationOperation, TezosToolkit } from '@mavrykdynamics/taquito'
+import { char2Bytes } from '@mavrykdynamics/taquito-utils'
 import { execSync } from 'child_process'
 import * as fs from 'fs'
 

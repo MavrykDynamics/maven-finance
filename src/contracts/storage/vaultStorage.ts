@@ -1,4 +1,4 @@
-import { MichelsonMap } from "@taquito/michelson-encoder"
+import { MichelsonMap } from "@mavrykdynamics/taquito-michelson-encoder"
 import { bob } from '../scripts/sandbox/accounts'
 import { vaultStorageType } from "./storageTypes/vaultStorageType"
 
