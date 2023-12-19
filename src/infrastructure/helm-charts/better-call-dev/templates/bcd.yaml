@@ -12,7 +12,7 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8080
+      targetPort: 80
       name: http
 ---
 apiVersion: networking.k8s.io/v1
@@ -65,4 +65,4 @@ spec:
           image: '{{ .Values.bcd.image.registry }}/{{ .Values.bcd.image.repository }}:{{ .Values.bcd.image.tag }}'
           imagePullPolicy: '{{ .Values.bcd.image.pullPolicy }}'
           ports:
-            - containerPort: 8080
+            - containerPort: 80
