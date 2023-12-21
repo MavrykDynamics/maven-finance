@@ -15,9 +15,9 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: 'MAVRYK Governance Satellite Contract',
+        name: 'MAVEN Governance Satellite Contract',
         version: 'v1.0.0',
-        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        authors: ['MAVEN Dev Team <contact@maven.finance>'],
         }),
         'ascii',
     ).toString('hex'),
@@ -29,7 +29,7 @@ export const governanceSatelliteStorage: governanceSatelliteStorageType = {
     config                              : config,
     metadata                            : metadata,
     
-    mvkTokenAddress                     : zeroAddress,
+    mvnTokenAddress                     : zeroAddress,
     governanceAddress                   : zeroAddress,
 
     whitelistContracts                  : MichelsonMap.fromLiteral({}),

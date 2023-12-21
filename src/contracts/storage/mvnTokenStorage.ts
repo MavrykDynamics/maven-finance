@@ -2,18 +2,18 @@ import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 import { Buffer } from 'buffer'
 import { bob, alice, eve, mallory, oscar, trudy, susie, david, isaac, ivan, baker } from '../scripts/sandbox/accounts'
-import { MVK } from '../test/helpers/Utils'
-import { mvkTokenStorageType } from './storageTypes/mvkTokenStorageType'
+import { MVN } from '../test/helpers/Utils'
+import { mvnTokenStorageType } from './storageTypes/mvnTokenStorageType'
 import { mockTokenData } from 'test/helpers/mockSampleData'
 
-export const mvkTokenDecimals = 9
+export const mvnTokenDecimals = 9
 
-const totalSupply       = MVK(2200000)
-const maximumSupply     = MVK(10**9)
-const initialSupply     = new BigNumber(totalSupply)        // 2,200,000 MVK Tokens (1e9)
-const singleUserSupply  = new BigNumber(totalSupply / 11)   // 200,000 MVK Tokens (1e9)
+const totalSupply       = MVN(2200000)
+const maximumSupply     = MVN(10**9)
+const initialSupply     = new BigNumber(totalSupply)        // 2,200,000 MVN Tokens (1e9)
+const singleUserSupply  = new BigNumber(totalSupply / 11)   // 200,000 MVN Tokens (1e9)
 
-const metadata = mockTokenData.mvkToken.metadata
+const metadata = mockTokenData.mvnToken.metadata
 
 export const ledger = MichelsonMap.fromLiteral({
     [bob.pkh]       : singleUserSupply,
@@ -33,12 +33,12 @@ const token_metadata = MichelsonMap.fromLiteral({
     0: {
         token_id: '0',
         token_info: MichelsonMap.fromLiteral({
-            symbol: Buffer.from('MVK').toString('hex'),
-            name: Buffer.from('MAVRYK').toString('hex'),
-            decimals: Buffer.from(mvkTokenDecimals.toString()).toString('hex'),
-            icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
+            symbol: Buffer.from('MVN').toString('hex'),
+            name: Buffer.from('MAVEN').toString('hex'),
+            decimals: Buffer.from(mvnTokenDecimals.toString()).toString('hex'),
+            icon: Buffer.from('https://maven.finance/logo192.png').toString('hex'),
             shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
-            thumbnailUri: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
+            thumbnailUri: Buffer.from('https://maven.finance/logo192.png').toString('hex'),
         }),
     },
 })
@@ -48,7 +48,7 @@ const currentTimestamp        = new Date();
 currentTimestamp.setDate(currentTimestamp.getDate() + 365);
 const nextInflationTimestamp  = Math.round(currentTimestamp.getTime() / 1000);
 
-export const mvkTokenStorage: mvkTokenStorageType = {
+export const mvnTokenStorage: mvnTokenStorageType = {
     
     admin: bob.pkh,
     governanceAddress: bob.pkh,

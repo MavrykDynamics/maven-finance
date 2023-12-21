@@ -1,10 +1,10 @@
-import assert from "assert";
-import { Utils } from "./helpers/Utils";
+import { Utils } from './helpers/Utils'
 
-const chai              = require("chai");
-const chaiAsPromised    = require('chai-as-promised');
-chai.use(chaiAsPromised);   
-chai.should();
+const chai = require('chai')
+const assert = require('chai').assert
+const chaiAsPromised = require('chai-as-promised')
+chai.use(chaiAsPromised)
+chai.should()
 
 // ------------------------------------------------------------------------------
 // Contract Address
@@ -16,28 +16,37 @@ import contractDeployments from './contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { bob, alice, eve, mallory, oscar} from "../scripts/sandbox/accounts";
-import { 
-    signerFactory, 
-    getStorageMapValue,
-    fa12Transfer,
+import { bob, alice, eve, mallory } from '../scripts/sandbox/accounts'
+import { mockTokenData } from './helpers/mockSampleData'
+import {
     fa2Transfer,
-    fa2MultiTransfer,
+    getStorageMapValue,
+    mistakenTransferFa2Token,
+    signerFactory,
     updateOperators,
-    removeOperators,
-    mistakenTransferFa12Token,
+    updateGeneralContracts,
     updateWhitelistContracts,
+    fa2MultiTransfer,
+    randomNumberFromInterval,
+    removeOperators
 } from './helpers/helperFunctions'
+
+// ------------------------------------------------------------------------------
+// Contract Notes
+// ------------------------------------------------------------------------------
+
+// For testing of inflation rate over periods of time, please see test_mvn_token.py
+//   as taquito does not handle time-based tests well
 
 // ------------------------------------------------------------------------------
 // Contract Tests
 // ------------------------------------------------------------------------------
 
+describe('Test: MVN Token Contract', async () => {
 
-describe("Test: Mavryk FA2 Token Contract", async () => {
-
-    var utils: Utils;
-    let tezos 
+    // default
+    let utils: Utils
+    let tezos
 
     // misc defaults
     let tokenId = 0
@@ -47,21 +56,17 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
     // contract instances 
     let tokenAddress
-    let tokenInstance;
-    let tokenStorage;
-    let mavrykFa12TokenAddress
-    let mavrykFa12TokenInstance
-    let mavrykFa12TokenStorage
+    let tokenInstance
+    let tokenStorage
+    let mavenFa2TokenAddress
+    let mavenFa2TokenInstance
+    let mavenFa2TokenStorage
 
     // user accounts
-    let user 
+    let user
     let userSk
     let sender
-    let senderSk
-    let receiver
-    let receiverSk
-    let approver
-    let approverSk
+    let receiver 
 
     // initial token balances
     let initialUserTokenBalance
@@ -102,39 +107,39 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
     let mintOperation
     let burnOperation
     let updateWhitelistContractsOperation
+    let updateGeneralContractsOperation
 
-
-    before("setup", async () => {
-        try{
-
-            utils = new Utils();
-            await utils.init(bob.sk);
-            tezos = utils.tezos
-
-            // mock fa2 token 
-            tokenAddress            = contractDeployments.mavrykFa2Token.address
-            tokenInstance           = await utils.tezos.contract.at(tokenAddress);
-            tokenStorage            = await tokenInstance.storage();
-
-            // for mistaken transfers
-            mavrykFa12TokenAddress   = contractDeployments.mavrykFa12Token.address 
-            mavrykFa12TokenInstance  = await utils.tezos.contract.at(mavrykFa12TokenAddress);
-            mavrykFa12TokenStorage   = await mavrykFa12TokenInstance.storage();
-            
-            console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
-            
-        } catch(e) {
-            console.dir(e, {depth: 5})
-        }
-    });
-
-    describe("%transfer", async () => {
-    
-        beforeEach("Set signer to user", async () => {
-            await signerFactory(tezos, eve.sk)
-        });
+    before('setup', async () => {
         
-        it('user (eve) should be able to send non-zero token amount to another user (mallory)', async () => {
+        utils = new Utils()
+        await utils.init(bob.sk)
+        tezos = utils.tezos;
+
+        // mvn token 
+        tokenAddress            = contractDeployments.mvnToken.address
+        tokenInstance           = await utils.tezos.contract.at(tokenAddress)
+        tokenStorage            = await tokenInstance.storage()
+
+        // for mistaken transfers
+        mavenFa2TokenAddress   = contractDeployments.mavenFa2Token.address
+        mavenFa2TokenInstance  = await utils.tezos.contract.at(mavenFa2TokenAddress);
+        mavenFa2TokenStorage   = await mavenFa2TokenInstance.storage();
+
+        console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
+
+    })
+
+    beforeEach('storage', async () => {
+        tokenStorage            = await tokenInstance.storage()
+    })
+
+    describe('%transfer', function () {
+        
+        beforeEach("Set signer to user (eve)", async () => {
+            await signerFactory(tezos, eve.sk);
+        });
+
+        it('user (eve) should be able to send non-zero MVN amount to another user (mallory)', async () => {
             try {
 
                 // init variables
@@ -165,7 +170,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-        it('user (eve) should be able to send zero tokens to another user (alice)', async () => {
+        it('user (eve) should be able to send zero MVN to another user (alice)', async () => {
             try {
 
                 // init variables
@@ -196,7 +201,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-        it('user (eve) should be able to send non-zero token amount to herself', async () => {
+        it('user (eve) should be able to send non-zero MVN amount to herself', async () => {
             try {
 
                 // init variables
@@ -224,7 +229,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-        it('user (eve) should be able to send zero tokens to herself', async () => {
+        it('user (eve) should be able to send zero MVN to herself', async () => {
             try {
                 
                 // init variables
@@ -252,8 +257,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-        
-        it('user (eve) should be able to send variable amounts of tokens (including zero) to multiple users (alice, mallory, herself) in a single transaction', async () => {
+        it('user (eve) should be able to send variable amounts of MVN (including zero) to multiple users (alice, mallory, herself) in a single transaction', async () => {
             try {
 
                 // init variables
@@ -293,7 +297,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-        it('user (eve) should be able to send variable amounts of tokens (10, 50) to multiple users (mallory, alice) in one transaction', async () => {
+        it('user (eve) should be able to send variable amounts of MVN (10, 50) to multiple users (mallory, alice) in one transaction', async () => {
             try {
 
                 // init variables
@@ -333,7 +337,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-        it('user (eve) should be able to send all her tokens to another user (mallory)', async () => {
+        it('user (eve) should be able to send all her MVN to another user (mallory)', async () => {
             try {
 
                 // init variables
@@ -380,7 +384,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
         })
 
 
-        it('user (eve) should not be able to send more tokens than what she has to herself', async () => {
+        it('user (eve) should not be able to send more MVN than what she has to herself', async () => {
             try {
 
                 // init variables
@@ -408,7 +412,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-        it('user (eve) should not be able to send more tokens than what she has in a single transaction to another user (mallory)', async () => {
+        it('user (eve) should not be able to send more MVN than what she has in a single transaction to another user (mallory)', async () => {
             try {
 
                 // init variables
@@ -440,7 +444,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-        it('user (eve) should not be able to send more tokens than what she has in a multi-transfer transaction to another user (mallory)', async () => {
+        it('user (eve) should not be able to send more MVN than what she has in a multi-transfer transaction to another user (mallory)', async () => {
             try {
 
                 // init variables
@@ -482,7 +486,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
         })
 
 
-        it('user (eve) should not be able to send tokens with the wrong token id to another user (mallory)', async () => {
+        it('user (eve) should not be able to send MVN with the wrong token id to another user (mallory)', async () => {
             try {
 
                 // init variables
@@ -517,7 +521,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-        it('user (eve) should not be able to send negative amounts of tokens to another user (mallory)', async () => {
+        it('user (eve) should not be able to send negative amounts of MVN to another user (mallory)', async () => {
             try {
 
                 // init variables
@@ -548,7 +552,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-    });
+    })
 
     describe('%update_operators', function () {
 
@@ -1029,6 +1033,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 await updateWhitelistContractsOperation.confirmation()
 
                 // init variables and set signer back to user (eve)
+                await signerFactory(tezos, eve.sk);
                 const mintAmount = 20000;
 
                 // initial storage
@@ -1036,9 +1041,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 initialEveTokenBalance      = await tokenStorage.ledger.get(eve.pkh);
                 initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
                 initialTotalSupply          = await tokenStorage.totalSupply;
-                
-                await signerFactory(tezos, eve.sk);
-                mintOperation = await tokenInstance.methods.mintOrBurn(alice.pkh, tokenId, mintAmount).send()
+
+                mintOperation = await tokenInstance.methods.mint(alice.pkh, mintAmount).send()
                 await mintOperation.confirmation()
 
                 // set admin (bob) as signer and remove eve from whitelist contracts
@@ -1072,7 +1076,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
-                mintOperation = await tokenInstance.methods.mintOrBurn(receiver, tokenId, tokenAmount).send()
+                mintOperation = await tokenInstance.methods.mint(receiver, tokenAmount).send()
                 await mintOperation.confirmation()
 
             } catch (e) {
@@ -1090,7 +1094,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-        it("user (eve) should not be able to send Tez and mint tokens to another user (alice) in a single transaction even if she is whitelisted", async () => {
+        it("user (eve) should not be able to send Tez and mint MVN to another user (alice) in a single transaction even if she is whitelisted", async () => {
             try {
                 
                 // init
@@ -1103,7 +1107,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 
                 // set signer back to user (eve)
                 await signerFactory(tezos, eve.sk);
-                await chai.expect(tokenInstance.methods.mintOrBurn(alice.pkh, tokenId, 20000).send({ amount: 5 })).to.be.rejected;
+                await chai.expect(tokenInstance.methods.mint(alice.pkh, 20000).send({ amount: 5 })).to.be.rejected;
 
                 // set admin (bob) as signer and remove eve from whitelist contracts
                 await signerFactory(tezos, bob.sk);
@@ -1112,6 +1116,44 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
 
             } catch (e) {
                 console.dir(e, {depth: 5})
+            }
+        })
+        
+
+        it("user (eve) should not be able to mint more than the maximum total supply set", async () => {
+            try {
+                
+                // init
+                contractMapKey = eve.pkh;
+
+                // Initial values
+                const maximumSupply      = await tokenStorage.maximumSupply;
+                initialTotalSupply       = await tokenStorage.totalSupply;
+                const amountToMint       = maximumSupply.minus(initialTotalSupply).plus(1);
+
+                // set admin (bob) as signer and add eve to whitelist contracts
+                await signerFactory(tezos, bob.sk);
+                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'update');
+                await updateWhitelistContractsOperation.confirmation()
+
+                // Mint token
+                await signerFactory(tezos, eve.sk);
+                mintOperation = await tokenInstance.methods.mint(eve.pkh, amountToMint);
+                await chai.expect(mintOperation.send()).to.be.rejected;
+
+                // set admin (bob) as signer and remove eve from whitelist contracts
+                await signerFactory(tezos, bob.sk);
+                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'remove');
+                await updateWhitelistContractsOperation.confirmation()
+                
+                // Update storage
+                tokenStorage       = await tokenInstance.storage();
+                updatedTotalSupply = await tokenStorage.totalSupply;
+
+                assert.equal(initialTotalSupply.toNumber(), updatedTotalSupply.toNumber());
+
+            } catch (e) {
+                console.log(e)
             }
         })
 
@@ -1130,7 +1172,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 initialAliceTokenBalance    = await tokenStorage.ledger.get(alice.pkh);
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
-                mintOperation = await tokenInstance.methods.mintOrBurn(receiver, tokenId, tokenAmount).send()
+                mintOperation = await tokenInstance.methods.mint(receiver, tokenAmount).send()
                 await mintOperation.confirmation()
 
             } catch (e) {
@@ -1156,24 +1198,18 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             await signerFactory(tezos, eve.sk);
         });
 
-        it("user (eve) should be able to burn a non-zero amount of her token balance but not exceeding what she has, if she is whitelisted", async () => {
+        it("user (eve) should be able to burn a non-zero amount of her MVN balance but not exceeding what she has", async () => {
             try {
                 
                 user        = eve.pkh;
-                tokenAmount = -2000;
-
-                // set admin (bob) as signer and add eve to whitelist contracts
-                await signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, eve.pkh, 'update');
-                await updateWhitelistContractsOperation.confirmation()
+                tokenAmount = 2000;
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
                 initialUserTokenBalance     = await tokenStorage.ledger.get(user);
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
-                await signerFactory(tezos, eve.sk);
-                burnOperation = await tokenInstance.methods.mintOrBurn(user, tokenId, tokenAmount).send()
+                burnOperation = await tokenInstance.methods.burn(tokenAmount).send()
                 await burnOperation.confirmation()
 
                 tokenStorage                = await tokenInstance.storage()
@@ -1181,37 +1217,26 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 updatedTotalSupply          = await tokenStorage.totalSupply;
 
                 // check that user token balance and total supply have decreased by token amount
-                assert.equal(updatedUserTokenBalance.toNumber()   , initialUserTokenBalance.toNumber() + tokenAmount);
-                assert.equal(updatedTotalSupply.toNumber()        , initialTotalSupply.toNumber() + tokenAmount);
+                assert.equal(updatedUserTokenBalance.toNumber()   , initialUserTokenBalance.toNumber() - tokenAmount);
+                assert.equal(updatedTotalSupply.toNumber()        , initialTotalSupply.toNumber() - tokenAmount);
 
-                // set admin (bob) as signer and remove eve from whitelist contracts
-                await signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, eve.pkh, 'remove');
-                await updateWhitelistContractsOperation.confirmation()
-                
             } catch (e) {
                 console.log(e)
             }
         })
 
-        it("user (eve) should be able to burn a zero amount of her token balance, if she is whitelisted", async () => {
+        it("user (eve) should be able to burn a zero amount of her MVN balance", async () => {
             try {
                 
                 user        = eve.pkh;
                 tokenAmount = 0;
-
-                // set admin (bob) as signer and add eve to whitelist contracts
-                await signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, eve.pkh, 'update');
-                await updateWhitelistContractsOperation.confirmation()
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
                 initialUserTokenBalance     = await tokenStorage.ledger.get(user);
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
-                await signerFactory(tezos, eve.sk);
-                burnOperation = await tokenInstance.methods.mintOrBurn(user, tokenId, tokenAmount).send()
+                burnOperation = await tokenInstance.methods.burn(tokenAmount).send()
                 await burnOperation.confirmation()
 
                 tokenStorage                = await tokenInstance.storage()
@@ -1222,25 +1247,15 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 assert.equal(updatedUserTokenBalance.toNumber()   , initialUserTokenBalance.toNumber());
                 assert.equal(updatedTotalSupply.toNumber()        , initialTotalSupply.toNumber());
 
-                // set admin (bob) as signer and remove eve from whitelist contracts
-                await signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, eve.pkh, 'remove');
-                await updateWhitelistContractsOperation.confirmation()
-                
             } catch (e) {
                 console.log(e)
             }
         })
 
-        it("user (eve) should be able to burn all the tokens than she has", async () => {
+        it("user (eve) should be able to burn all the MVN than she has", async () => {
             try {
                 
                 user = eve.pkh;
-
-                // set admin (bob) as signer and add eve to whitelist contracts
-                await signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, eve.pkh, 'update');
-                await updateWhitelistContractsOperation.confirmation()
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
@@ -1248,8 +1263,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 tokenAmount                 = initialUserTokenBalance.toNumber();
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
-                await signerFactory(tezos, eve.sk);
-                burnOperation = await tokenInstance.methods.mintOrBurn(user, tokenId, (-1 * tokenAmount)).send()
+                burnOperation = await tokenInstance.methods.burn(tokenAmount).send()
                 await burnOperation.confirmation()
 
                 tokenStorage                = await tokenInstance.storage()
@@ -1259,11 +1273,6 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 // check that user token balance and total supply have decreased by token amount
                 assert.equal(updatedUserTokenBalance.toNumber()   , +initialUserTokenBalance.toNumber() - +tokenAmount);
                 assert.equal(updatedTotalSupply.toNumber()        , +initialTotalSupply.toNumber() - +tokenAmount);
-
-                // set admin (bob) as signer and remove eve from whitelist contracts
-                await signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, eve.pkh, 'remove');
-                await updateWhitelistContractsOperation.confirmation()
 
                 // --------------------------------------------------------------------------
                 // reset token balance for eve for subsequent retesting if needed
@@ -1279,14 +1288,12 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 await updateWhitelistContractsOperation.confirmation()
 
                 // mint burned tokens back to user (eve)
-                mintOperation = await tokenInstance.methods.mintOrBurn(user, tokenId, tokenAmount).send()
+                mintOperation = await tokenInstance.methods.mint(user, tokenAmount).send()
                 await mintOperation.confirmation()
 
                 // remove admin (bob) as a whitelisted contract
                 updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
-
-                
 
                 // --------------------------------------------------------------------------
                 
@@ -1295,15 +1302,10 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-        it("user (eve) should not be able to burn more tokens than what she has", async () => {
+        it("user (eve) should not be able to burn more MVN than what she has", async () => {
             try {
                 
                 user = eve.pkh;
-
-                // set admin (bob) as signer and add eve to whitelist contracts
-                await signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, eve.pkh, 'update');
-                await updateWhitelistContractsOperation.confirmation()
 
                 // initial storage
                 tokenStorage                = await tokenInstance.storage()
@@ -1311,8 +1313,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 tokenAmount                 = initialUserTokenBalance + 1000;
                 initialTotalSupply          = await tokenStorage.totalSupply;
 
-                await signerFactory(tezos, eve.sk);
-                burnOperation = await tokenInstance.methods.mintOrBurn(user, tokenId, (-1 * tokenAmount))
+                burnOperation = await tokenInstance.methods.burn(tokenAmount)
                 await chai.expect(burnOperation.send()).to.be.rejected;
 
             } catch (e) {
@@ -1322,29 +1323,97 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 updatedTotalSupply          = await tokenStorage.totalSupply;
 
                 // check message
-                assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to burn more tokens than she has")
+                assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to burn more MVN than she has")
 
                 // check that there are no changes to user token balance and total supply 
                 assert.equal(updatedUserTokenBalance.toNumber()   , initialUserTokenBalance.toNumber());
                 assert.equal(updatedTotalSupply.toNumber()        , initialTotalSupply.toNumber());
+            }
+        })
 
-                // set admin (bob) as signer and remove eve from whitelist contracts
-                await signerFactory(tezos, bob.sk);
-                updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, eve.pkh, 'remove');
-                await updateWhitelistContractsOperation.confirmation()
+        it("user (eve) should not be able to burn a negative amount of MVN", async () => {
+            try {
+                
+                user = eve.pkh;
+
+                // initial storage
+                tokenStorage                = await tokenInstance.storage()
+                initialUserTokenBalance     = await tokenStorage.ledger.get(user);
+                tokenAmount                 = -10000;
+                initialTotalSupply          = await tokenStorage.totalSupply;
+
+                burnOperation = await tokenInstance.methods.burn(tokenAmount)
+                await chai.expect(burnOperation.send()).to.be.rejected;
+
+            } catch (e) {
+                
+                tokenStorage                = await tokenInstance.storage()
+                updatedUserTokenBalance     = await tokenStorage.ledger.get(user);
+                updatedTotalSupply          = await tokenStorage.totalSupply;
+
+                // check that there are no changes to user token balance and total supply 
+                assert.equal(updatedUserTokenBalance.toNumber()   , initialUserTokenBalance.toNumber());
+                assert.equal(updatedTotalSupply.toNumber()        , initialTotalSupply.toNumber());
             }
         })
 
     })
 
+    describe('%assertMetadata', function () {
+
+        beforeEach("Set signer to user (eve)", async () => {
+            await signerFactory(tezos, eve.sk);
+        });
+
+        it('user (eve) should be able to call assertMetadata with the correct key and correct hash', async () => {
+            try {
+                
+                const metadata = mockTokenData.mvnToken.metadataHex;
+                const operation = await tokenInstance.methods.assertMetadata('data', metadata).send()
+                await operation.confirmation()
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('user (eve) should not be able to call assertMetadata with the wrong key and hash', async () => {
+            try {
+
+                const metadata = Buffer.from('test', 'ascii').toString('hex')
+                const operation = await tokenInstance.methods.assertMetadata('test', metadata).send()
+                await operation.confirmation()
+
+            } catch (e) {
+
+                assert.strictEqual(e.message, 'METADATA_NOT_FOUND', 'The metadata cannot be found in the contract storage')
+
+            }
+        })
+
+        it('user (eve) should not be able to call assertMetadata with the correct key but wrong hash', async () => {
+            try {
+
+                const metadata = Buffer.from('test', 'ascii').toString('hex')
+                const operation = await tokenInstance.methods.assertMetadata('', metadata).send()
+                await operation.confirmation()
+
+            } catch (e) {
+                assert.strictEqual(e.message, 'METADATA_HAS_A_WRONG_HASH', 'The metadata of the provided key does not match the provided metadata');
+            }
+        })
+
+    })
+
+
     describe("Housekeeping Entrypoints", async () => {
 
         beforeEach("Set signer to admin (bob)", async () => {
+            tokenStorage = await tokenInstance.storage();
             await signerFactory(tezos, bob.sk);
         });
 
         it('%setAdmin                 - admin (bob) should be able to update the contract admin address', async () => {
-            
             try{
                 
                 // Initial Values
@@ -1370,7 +1439,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 await resetAdminOperation.confirmation();
 
             } catch(e){
-                console.dir(e, {depth: 5});
+                console.log(e);
             }
         });
 
@@ -1402,11 +1471,12 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 console.log(e);
             }
         });
-        it('%updateWhitelistContracts - admin (bob) should be able to add user (oscar) to the Whitelisted Contracts map', async () => {
+
+        it('%updateWhitelistContracts - admin (bob) should be able to add user (eve) to the Whitelisted Contracts map', async () => {
             try {
 
                 // init values
-                contractMapKey  = oscar.pkh;
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue           = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
@@ -1414,22 +1484,22 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'update');
                 await updateWhitelistContractsOperation.confirmation()
 
-                tokenStorage            = await tokenInstance.storage()
+                tokenStorage = await tokenInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
-                assert.strictEqual(initialContractMapValue, undefined, 'Oscar (key) should not be in the Whitelist Contracts map before adding her to it')
-                assert.notStrictEqual(updatedContractMapValue, undefined,  'Oscar (key) should be in the Whitelist Contracts map after adding her to it')
+                assert.strictEqual(initialContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map before adding her to it')
+                assert.notStrictEqual(updatedContractMapValue, undefined,  'Eve (key) should be in the Whitelist Contracts map after adding her to it')
 
             } catch (e) {
                 console.log(e)
             }
         })
 
-        it('%updateWhitelistContracts - admin (bob) should be able to remove user (oscar) from the Whitelisted Contracts map', async () => {
+        it('%updateWhitelistContracts - admin (bob) should be able to remove user (eve) from the Whitelisted Contracts map', async () => {
             try {
 
                 // init values
-                contractMapKey  = oscar.pkh;
+                contractMapKey  = eve.pkh;
                 storageMap      = "whitelistContracts";
 
                 initialContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
@@ -1437,19 +1507,64 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 updateWhitelistContractsOperation = await updateWhitelistContracts(tokenInstance, contractMapKey, 'remove');
                 await updateWhitelistContractsOperation.confirmation()
 
-                tokenStorage            = await tokenInstance.storage()
+                tokenStorage = await tokenInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
-                assert.notStrictEqual(initialContractMapValue, undefined, 'Oscar (key) should be in the Whitelist Contracts map before adding her to it');
-                assert.strictEqual(updatedContractMapValue, undefined, 'Oscar (key) should not be in the Whitelist Contracts map after adding her to it');
+                assert.notStrictEqual(initialContractMapValue, undefined, 'Eve (key) should be in the Whitelist Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'Eve (key) should not be in the Whitelist Contracts map after adding her to it');
 
             } catch (e) {
                 console.log(e)
             }
         })
 
+        it('%updateGeneralContracts   - admin (bob) should be able to add user (eve) to the General Contracts map', async () => {
+            try {
 
-        it('%mistakenTransfer         - admin (bob) should be able to call this entrypoint for mock FA12 tokens', async () => {
+                // init values
+                contractMapKey  = "eve";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await updateGeneralContracts(tokenInstance, contractMapKey, eve.pkh, 'update');
+                await updateGeneralContractsOperation.confirmation()
+
+                tokenStorage = await tokenInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'eve (key) should not be in the General Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map after adding her to it');
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%updateGeneralContracts   - admin (bob) should be able to remove user (eve) from the General Contracts map', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "eve";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await updateGeneralContracts(tokenInstance, contractMapKey, eve.pkh, 'remove');
+                await updateGeneralContractsOperation.confirmation()
+
+                tokenStorage = await tokenInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, eve.pkh, 'eve (key) should be in the General Contracts map before adding her to it');
+                assert.strictEqual(updatedContractMapValue, undefined, 'eve (key) should not be in the General Contracts map after adding her to it');
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%mistakenTransfer         - admin (bob) should be able to call this entrypoint', async () => {
             try {
 
                 // Initial values
@@ -1457,20 +1572,20 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 user              = mallory.pkh;
                 userSk            = mallory.sk;
 
-                // Mistaken Operation - user (mallory) send 10 MavrykFa12Tokens to Token Contract
+                // Mistaken Operation - user (mallory) send 10 MavenFa2Tokens to MVN Token Contract
                 await signerFactory(tezos, userSk);
-                transferOperation = await fa12Transfer(mavrykFa12TokenInstance, user, tokenAddress, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, tokenAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa12TokenStorage.ledger.get(user)).balance.toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
-                mistakenTransferOperation = await mistakenTransferFa12Token(tokenInstance, user, mavrykFa12TokenAddress, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(tokenInstance, user, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa12TokenStorage.ledger.get(user)).balance.toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -1480,8 +1595,24 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-    })
-    
+        it('%updateInflationRate      - admin (bob) should be able to call this entrypoint', async () => {
+            try {
+
+                const randomNumber = randomNumberFromInterval(10, 1000);
+                const updateInflationRateOperation = await tokenInstance.methods.updateInflationRate(randomNumber).send();
+                await updateInflationRateOperation.confirmation();
+
+                tokenStorage       = await tokenInstance.storage();
+                const updatedInflationRate = tokenStorage.inflationRate;
+
+                assert.equal(updatedInflationRate.toNumber(), randomNumber);
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+    });
 
     describe('Access Control Checks', function () {
 
@@ -1514,7 +1645,7 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
         it('%setGovernance            - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
-                tokenStorage             = await tokenInstance.storage();
+                tokenStorage        = await tokenInstance.storage();
                 const currentGovernance  = tokenStorage.governanceAddress;
 
                 // Operation
@@ -1522,8 +1653,8 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 await chai.expect(setGovernanceOperation.send()).to.be.rejected;
 
                 // Final values
-                tokenStorage            = await tokenInstance.storage();
-                const updatedGovernance = tokenStorage.governanceAddress;
+                tokenStorage    = await tokenInstance.storage();
+                const updatedGovernance  = tokenStorage.governanceAddress;
 
                 // Assertions
                 assert.strictEqual(updatedGovernance, currentGovernance);
@@ -1545,10 +1676,32 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 updateWhitelistContractsOperation = await tokenInstance.methods.updateWhitelistContracts(contractMapKey, 'update')
                 await chai.expect(updateWhitelistContractsOperation.send()).to.be.rejected;
 
-                tokenStorage            = await tokenInstance.storage()
+                tokenStorage = await tokenInstance.storage()
                 updatedContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
 
                 assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the Whitelist Contracts map');
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%updateGeneralContracts   - non-admin (mallory) should not be able to call this entrypoint', async () => {
+            try {
+
+                // init values
+                contractMapKey  = "mallory";
+                storageMap      = "generalContracts";
+
+                initialContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+
+                updateGeneralContractsOperation = await tokenInstance.methods.updateGeneralContracts(contractMapKey, alice.pkh, 'update')
+                await chai.expect(updateGeneralContractsOperation.send()).to.be.rejected;
+
+                tokenStorage = await tokenInstance.storage()
+                updatedContractMapValue = await getStorageMapValue(tokenStorage, storageMap, contractMapKey);
+
+                assert.strictEqual(initialContractMapValue, undefined, 'mallory (key) should not be in the General Contracts map');
 
             } catch (e) {
                 console.log(e)
@@ -1562,11 +1715,11 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
                 user = mallory.pkh;
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MavrykFa12Tokens to Token Contract
-                transferOperation = await fa12Transfer(mavrykFa12TokenInstance, user, tokenAddress, tokenAmount);
+                // Mistaken Operation - send 10 MVN to MVN Token Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, tokenAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
-                mistakenTransferOperation = await mistakenTransferFa12Token(tokenInstance, user, mavrykFa12TokenAddress, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(tokenInstance, user, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {
@@ -1574,20 +1727,39 @@ describe("Test: Mavryk FA2 Token Contract", async () => {
             }
         })
 
-        it('%mintOrBurn               - non-admin (mallory) should not be able to call this entrypoint', async () => {
+        it('%mint                     - non-admin (mallory) should not be able to call this entrypoint', async () => {
             try {
 
                 tokenAmount = 100;
-                mintOperation = await tokenInstance.methods.mintOrBurn(mallory.pkh, tokenId, tokenAmount);
+                mintOperation = await tokenInstance.methods.mint(mallory.pkh,tokenAmount);
                 await chai.expect(mintOperation.send()).to.be.rejected;
 
             } catch (e) {
                 console.log(e)
             }
         })
-    
+
+        it('%updateInflationRate      - non-admin (mallory) should not be able to call this entrypoint', async () => {
+            try {
+
+                const updateInflationRateOperation = await tokenInstance.methods.updateInflationRate(1000);
+                await chai.expect(updateInflationRateOperation.send()).to.be.rejected;
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
+        it('%triggerInflation         - non-admin (mallory) should not be able to call this entrypoint', async () => {
+            try {
+
+                const triggerInflationOperation = await tokenInstance.methods.triggerInflation();
+                await chai.expect(triggerInflationOperation.send()).to.be.rejected;
+
+            } catch (e) {
+                console.log(e)
+            }
+        })
+
     })
-
-
-
-});
+})

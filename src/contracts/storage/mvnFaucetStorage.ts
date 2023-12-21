@@ -3,27 +3,27 @@ import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 import { Buffer } from 'buffer'
 
-import { MVK, zeroAddress } from '../test/helpers/Utils'
+import { MVN, zeroAddress } from '../test/helpers/Utils'
 
-import { mvkFaucetStorageType } from './storageTypes/mvkFaucetStorageType'
+import { mvnFaucetStorageType } from './storageTypes/mvnFaucetStorageType'
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: 'MAVRYK Faucet Contract',
+        name: 'MAVEN Faucet Contract',
         version: 'v1.0.0',
-        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        authors: ['MAVEN Dev Team <contact@maven.finance>'],
         }),
         'ascii',
     ).toString('hex'),
 })
 
-export const mvkFaucetStorage: mvkFaucetStorageType = {
+export const mvnFaucetStorage: mvnFaucetStorageType = {
     
-    mvkTokenAddress: zeroAddress,
+    mvnTokenAddress: zeroAddress,
     metadata: metadata,
-    amountPerUser: new BigNumber(MVK(1000)),
+    amountPerUser: new BigNumber(MVN(1000)),
     requesters: MichelsonMap.fromLiteral({}),
 
 }

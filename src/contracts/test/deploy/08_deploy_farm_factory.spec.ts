@@ -47,7 +47,7 @@ describe('Farm Factory', async () => {
             //----------------------------
         
             farmFactoryStorage.governanceAddress = contractDeployments.governance.address
-            farmFactoryStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
+            farmFactoryStorage.mvnTokenAddress   = contractDeployments.mvnToken.address
             farmFactory = await GeneralContract.originate(utils.tezos, "farmFactory", farmFactoryStorage);
             await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
 

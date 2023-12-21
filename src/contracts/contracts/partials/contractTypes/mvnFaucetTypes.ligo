@@ -9,8 +9,8 @@ type requestersType is big_map(address, unit);
 // ------------------------------------------------------------------------------
 
 
-type mvkFaucetStorageType is record [
-    mvkTokenAddress         : address;
+type mvnFaucetStorageType is record [
+    mvnTokenAddress         : address;
     metadata                : metadataType;
     amountPerUser           : nat;
     requesters              : requestersType;

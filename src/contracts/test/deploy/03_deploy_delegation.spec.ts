@@ -47,7 +47,7 @@ describe('Delegation', async () => {
             //----------------------------
         
             delegationStorage.governanceAddress = contractDeployments.governance.address
-            delegationStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
+            delegationStorage.mvnTokenAddress   = contractDeployments.mvnToken.address
             delegationStorage.whitelistContracts = MichelsonMap.fromLiteral({
                 [contractDeployments.doorman.address]: null,
             })

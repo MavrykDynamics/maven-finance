@@ -46,7 +46,7 @@ describe('Lending Controller Supporting Contracts', async () => {
     var mockUsdXtzAggregator            
     var mockUsdMockFa12TokenAggregator  
     var mockUsdMockFa2TokenAggregator   
-    var mockUsdMvkAggregator            
+    var mockUsdMvnAggregator            
 
     var tezos
 
@@ -129,11 +129,11 @@ describe('Lending Controller Supporting Contracts', async () => {
                 percentOracleThreshold              : new BigNumber(60),
                 heartbeatSeconds                    : new BigNumber(30),
                 
-                rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
+                rewardAmountStakedMvn               : new BigNumber(10000000), // 0.01 MVN
                 rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
             };
             aggregatorStorage.oracleLedger      = oracleMap;
-            aggregatorStorage.mvkTokenAddress   = contractDeployments.mvkToken.address;
+            aggregatorStorage.mvnTokenAddress   = contractDeployments.mvnToken.address;
             aggregatorStorage.governanceAddress = contractDeployments.governance.address;
 
             // Mock USD/MockFa12Token Aggregator
@@ -177,7 +177,7 @@ describe('Lending Controller Supporting Contracts', async () => {
 
 
             //----------------------------
-            // Mock USD/sMVK Token Aggregator Contract
+            // Mock USD/sMVN Token Aggregator Contract
             // - decimals to 9
             //----------------------------
 
@@ -190,8 +190,8 @@ describe('Lending Controller Supporting Contracts', async () => {
                 lastUpdatedAt           : '1'
             };
 
-            mockUsdMvkAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
-            await saveContractAddress('mockUsdMvkAggregatorAddress', mockUsdMvkAggregator.contract.address)
+            mockUsdMvnAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
+            await saveContractAddress('mockUsdMvnAggregatorAddress', mockUsdMvnAggregator.contract.address)
 
             //----------------------------
             // Set Lambdas
@@ -203,7 +203,7 @@ describe('Lending Controller Supporting Contracts', async () => {
             await setGeneralContractLambdas(tezos, "aggregator", mockUsdMockFa12TokenAggregator.contract);
             await setGeneralContractLambdas(tezos, "aggregator", mockUsdMockFa2TokenAggregator.contract);
             await setGeneralContractLambdas(tezos, "aggregator", mockUsdXtzAggregator.contract);
-            await setGeneralContractLambdas(tezos, "aggregator", mockUsdMvkAggregator.contract);
+            await setGeneralContractLambdas(tezos, "aggregator", mockUsdMvnAggregator.contract);
           
         } catch(e){
             console.dir(e, {depth: 5})

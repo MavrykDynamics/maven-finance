@@ -13,7 +13,7 @@
 // ------------------------------------------------------------------------------
 
 // FA12 Token Types
-#include "../partials/contractTypes/mavrykFa12TokenTypes.ligo"
+#include "../partials/contractTypes/mavenFa12TokenTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ type action is
     |   MintOrBurn                of mintOrBurnType
 
 
-type return is list (operation) * mavrykFa12TokenStorageType
+type return is list (operation) * mavenFa12TokenStorageType
 const noOperations : list (operation) = nil;
 
 // ------------------------------------------------------------------------------
@@ -49,18 +49,18 @@ const noOperations : list (operation) = nil;
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : mavrykFa12TokenStorageType) : unit is
+function checkSenderIsAllowed(var s : mavenFa12TokenStorageType) : unit is
     if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(const s : mavrykFa12TokenStorageType) : unit is
+function checkSenderIsAdmin(const s : mavenFa12TokenStorageType) : unit is
     if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
 
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : mavrykFa12TokenStorageType) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : mavenFa12TokenStorageType) : unit is
 block{
 
   if Tezos.get_sender() = s.admin then skip
@@ -84,7 +84,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (* Helper function to get account *)
-function getAccount (const addr : address; const s : mavrykFa12TokenStorageType) : accountType is
+function getAccount (const addr : address; const s : mavenFa12TokenStorageType) : accountType is
 block {
     var acct : accountType :=
         record [
@@ -100,7 +100,7 @@ block {
 
 
 (* Helper function to get allowance for an account *)
-function getAllowance (const ownerAccount : accountType; const spender : address; const _s : mavrykFa12TokenStorageType) : tokenBalanceType is
+function getAllowance (const ownerAccount : accountType; const spender : address; const _s : mavenFa12TokenStorageType) : tokenBalanceType is
     case ownerAccount.allowances[spender] of [
             Some (tokenBalanceType)  -> tokenBalanceType
         |   None        -> 0n
@@ -123,25 +123,25 @@ function getAllowance (const ownerAccount : accountType; const spender : address
 // ------------------------------------------------------------------------------
 
 (* get: admin View *)
-[@view] function getAdmin(const _: unit; const s : mavrykFa12TokenStorageType) : address is
+[@view] function getAdmin(const _: unit; const s : mavenFa12TokenStorageType) : address is
     s.admin
 
 
 
 (* get: whitelist contracts opt *)
-[@view] function getWhitelistContractOpt(const contractAddress : address; const store : mavrykFa12TokenStorageType) : option(unit) is
+[@view] function getWhitelistContractOpt(const contractAddress : address; const store : mavenFa12TokenStorageType) : option(unit) is
     Big_map.find_opt(contractAddress, store.whitelistContracts)
 
 
 
 (* get: accountType view *)
-[@view] function getLedgerRecordOpt(const userAddress : address; const s : mavrykFa12TokenStorageType) : option(accountType) is
+[@view] function getLedgerRecordOpt(const userAddress : address; const s : mavenFa12TokenStorageType) : option(accountType) is
     s.ledger[userAddress]
 
 
 
 (* get: balance View *)
-[@view] function get_balance(const userAndId: address * nat; const s: mavrykFa12TokenStorageType) : nat is
+[@view] function get_balance(const userAndId: address * nat; const s: mavenFa12TokenStorageType) : nat is
     case Big_map.find_opt(userAndId.0, s.ledger) of [
             Some (_v) -> _v.balance
         |   None      -> 0n
@@ -150,19 +150,19 @@ function getAllowance (const ownerAccount : accountType; const spender : address
 
 
 (* total_supply View *)
-[@view] function total_supply(const _tokenId: nat; const _s: mavrykFa12TokenStorageType) : nat is
+[@view] function total_supply(const _tokenId: nat; const _s: mavenFa12TokenStorageType) : nat is
     _s.totalSupply
 
 
 
 (* all_tokens View *)
-[@view] function all_tokens(const _ : unit; const _s: mavrykFa12TokenStorageType) : list(nat) is
+[@view] function all_tokens(const _ : unit; const _s: mavenFa12TokenStorageType) : list(nat) is
     list[0n]
 
 
 
 (* get: metadata *)
-[@view] function token_metadata(const tokenId: tokenIdType; const s: mavrykFa12TokenStorageType) : option(tokenMetadataInfoType) is
+[@view] function token_metadata(const tokenId: tokenIdType; const s: mavenFa12TokenStorageType) : option(tokenMetadataInfoType) is
     case Big_map.find_opt(tokenId, s.token_metadata) of [
             Some (_metadata)  -> Some(_metadata)
         |   None              -> (None : option(tokenMetadataInfoType))
@@ -185,7 +185,7 @@ function getAllowance (const ownerAccount : accountType; const spender : address
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : mavrykFa12TokenStorageType) : return is
+function setAdmin(const newAdminAddress : address; var s : mavenFa12TokenStorageType) : return is
 block {
 
     checkSenderIsAllowed(s);
@@ -196,7 +196,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : mavrykFa12TokenStorageType) : return is
+function setGovernance(const newGovernanceAddress : address; var s : mavenFa12TokenStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -207,7 +207,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsTypes : updateWhitelistContractsType; var s : mavrykFa12TokenStorageType) : return is
+function updateWhitelistContracts(const updateWhitelistContractsTypes : updateWhitelistContractsType; var s : mavenFa12TokenStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);
@@ -218,7 +218,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationTypes : transferActionType; var s : mavrykFa12TokenStorageType) : return is
+function mistakenTransfer(const destinationTypes : transferActionType; var s : mavenFa12TokenStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -245,10 +245,10 @@ block {
 // ------------------------------------------------------------------------------
 
 (* Transfer token to another account *)
-function transfer (const from_ : address; const to_ : address; const value : tokenBalanceType; var s : mavrykFa12TokenStorageType) : return is
+function transfer (const from_ : address; const to_ : address; const value : tokenBalanceType; var s : mavenFa12TokenStorageType) : return is
 block {
 
-    (* Retrieve sender account from mavrykFa12TokenStorageType *)
+    (* Retrieve sender account from mavenFa12TokenStorageType *)
     var senderAccount : accountType := getAccount(from_, s);
 
     (* Balance check *)
@@ -271,7 +271,7 @@ block {
     (* Update sender balance *)
     senderAccount.balance := abs(senderAccount.balance - value);
 
-    (* Update mavrykFa12TokenStorageType *)
+    (* Update mavenFa12TokenStorageType *)
     s.ledger[from_] := senderAccount;
 
     (* Create or get destination account *)
@@ -280,7 +280,7 @@ block {
     (* Update destination balance *)
     destAccount.balance := destAccount.balance + value;
 
-    (* Update mavrykFa12TokenStorageType *)
+    (* Update mavenFa12TokenStorageType *)
     s.ledger[to_] := destAccount;
 
 } with (noOperations, s)
@@ -288,7 +288,7 @@ block {
 
 
 (* Approve an tokenBalanceType to be spent by another address in the name of the sender *)
-function approve (const spender : address; const value : tokenBalanceType; var s : mavrykFa12TokenStorageType) : return is
+function approve (const spender : address; const value : tokenBalanceType; var s : mavenFa12TokenStorageType) : return is
 block {
 
     (* Create or get sender account *)
@@ -305,7 +305,7 @@ block {
     (* Set spender allowance *)
     senderAccount.allowances[spender] := value;
 
-    (* Update mavrykFa12TokenStorageType *)
+    (* Update mavenFa12TokenStorageType *)
     s.ledger[Tezos.get_sender()] := senderAccount;
 
   } with (noOperations, s)
@@ -313,7 +313,7 @@ block {
 
 
 (* View function that forwards the balance of source to a contract *)
-function getBalance (const owner : address; const contr : contract(tokenBalanceType); var s : mavrykFa12TokenStorageType) : return is
+function getBalance (const owner : address; const contr : contract(tokenBalanceType); var s : mavenFa12TokenStorageType) : return is
 block {
     const ownerAccount : accountType = getAccount(owner, s);
 } with (list [Tezos.transaction(ownerAccount.balance, 0tz, contr)], s)
@@ -321,14 +321,14 @@ block {
 
 
 (* View function that forwards the allowance tokenBalanceType of spender in the name of tokenOwner to a contract *)
-function getAllowance (const owner : address; const spender : address; const contr : contract(tokenBalanceType); var s : mavrykFa12TokenStorageType) : return is
+function getAllowance (const owner : address; const spender : address; const contr : contract(tokenBalanceType); var s : mavenFa12TokenStorageType) : return is
 block {
     const ownerAccount : accountType = getAccount(owner, s);
     const spenderAllowance : tokenBalanceType = getAllowance(ownerAccount, spender, s);
 } with (list [Tezos.transaction(spenderAllowance, 0tz, contr)], s)
 
 (* View function that forwards the totalSupply to a contract *)
-function getTotalSupply (const contr : contract(tokenBalanceType); var s : mavrykFa12TokenStorageType) : return is
+function getTotalSupply (const contr : contract(tokenBalanceType); var s : mavenFa12TokenStorageType) : return is
 block {
     skip
 } with (list [Tezos.transaction(s.totalSupply, 0tz, contr)], s)
@@ -342,7 +342,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* MintOrBurn Entrypoint *)
-function mintOrBurn(const mintOrBurnParams: mintOrBurnType; var s : mavrykFa12TokenStorageType) : return is
+function mintOrBurn(const mintOrBurnParams: mintOrBurnType; var s : mavenFa12TokenStorageType) : return is
 block {
 
     // check sender is whitelisted
@@ -415,7 +415,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* main entrypoint *)
-function main (const action : action; const s : mavrykFa12TokenStorageType) : return is
+function main (const action : action; const s : mavenFa12TokenStorageType) : return is
 block{
 
     verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  

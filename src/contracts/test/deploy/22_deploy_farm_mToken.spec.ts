@@ -48,7 +48,7 @@ describe('Farms mToken', async () => {
       // Deploy Farm mToken
 
       farmMTokenStorage.governanceAddress           = contractDeployments.governance.address;
-      farmMTokenStorage.mvkTokenAddress             = contractDeployments.mvkToken.address;
+      farmMTokenStorage.mvnTokenAddress             = contractDeployments.mvnToken.address;
       farmMTokenStorage.config.loanToken            = "usdt";
       farmMTokenStorage.config.lpToken.tokenAddress = contractDeployments.mTokenUsdt.address;
   

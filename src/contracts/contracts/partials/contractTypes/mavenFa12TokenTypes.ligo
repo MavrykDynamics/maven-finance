@@ -46,7 +46,7 @@ type mintOrBurnType is [@layout:comb] record [
 // Storage
 // ------------------------------------------------------------------------------
 
-type mavrykFa12TokenStorageType is [@layout:comb] record [
+type mavenFa12TokenStorageType is [@layout:comb] record [
     
     admin                   : address;
     metadata                : big_map (string, bytes);

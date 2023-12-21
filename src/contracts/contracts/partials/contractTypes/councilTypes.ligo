@@ -61,7 +61,7 @@ type councilActionRequestTokensType is [@layout:comb] record [
 type councilActionRequestMintType is [@layout:comb] record [
     treasuryAddress             : address;       // treasury address
     receiverAddress             : address;       // address of receiver
-    tokenAmount                 : nat;           // MVK token amount requested
+    tokenAmount                 : nat;           // MVN token amount requested
     purpose                     : string;        // financial request purpose
 ]
 
@@ -146,7 +146,7 @@ type councilStorageType is [@layout:comb] record [
     metadata                    : metadataType;
     config                      : councilConfigType;
 
-    mvkTokenAddress             : address;
+    mvnTokenAddress             : address;
     governanceAddress           : address;
     
     whitelistContracts          : whitelistContractsType;      

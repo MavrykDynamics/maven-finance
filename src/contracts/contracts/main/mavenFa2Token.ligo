@@ -13,7 +13,7 @@
 // ------------------------------------------------------------------------------
 
 // FA2 Token Types
-#include "../partials/contractTypes/mavrykFa2TokenTypes.ligo"
+#include "../partials/contractTypes/mavenFa2TokenTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ type action is
     |   MintOrBurn                of mintOrBurnType
 
 
-type return is list (operation) * mavrykFa2TokenStorageType
+type return is list (operation) * mavenFa2TokenStorageType
 const noOperations : list (operation) = nil;
 
 // ------------------------------------------------------------------------------
@@ -48,19 +48,19 @@ const noOperations : list (operation) = nil;
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : mavrykFa2TokenStorageType) : unit is
+function checkSenderIsAllowed(var s : mavenFa2TokenStorageType) : unit is
     if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(const s : mavrykFa2TokenStorageType) : unit is
+function checkSenderIsAdmin(const s : mavenFa2TokenStorageType) : unit is
     if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : mavrykFa2TokenStorageType) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : mavenFa2TokenStorageType) : unit is
 block{
 
   if Tezos.get_sender() = s.admin then skip
@@ -166,25 +166,25 @@ block{
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _ : unit; var store : mavrykFa2TokenStorageType) : address is
+[@view] function getAdmin(const _ : unit; var store : mavenFa2TokenStorageType) : address is
     store.admin
 
 
 
 (* get: whitelist contracts opt *)
-[@view] function getWhitelistContractOpt(const contractAddress : address; const store : mavrykFa2TokenStorageType) : option(unit) is
+[@view] function getWhitelistContractOpt(const contractAddress : address; const store : mavenFa2TokenStorageType) : option(unit) is
     Big_map.find_opt(contractAddress, store.whitelistContracts)
 
 
 
 (* get: operator *)
-[@view] function getOperatorOpt(const operator : (ownerType * operatorType * nat); const store : mavrykFa2TokenStorageType) : option(unit) is
+[@view] function getOperatorOpt(const operator : (ownerType * operatorType * nat); const store : mavenFa2TokenStorageType) : option(unit) is
     Big_map.find_opt(operator, store.operators)
 
 
 
 (* get: balance View *)
-[@view] function get_balance(const userAndId : ownerType * nat; const store : mavrykFa2TokenStorageType) : tokenBalanceType is
+[@view] function get_balance(const userAndId : ownerType * nat; const store : mavenFa2TokenStorageType) : tokenBalanceType is
     case Big_map.find_opt(userAndId.0, store.ledger) of [
             Some (_v) -> _v
         |   None      -> 0n
@@ -193,25 +193,25 @@ block{
 
 
 (* total_supply View *)
-[@view] function total_supply(const _tokenId : nat; const _store : mavrykFa2TokenStorageType) : tokenBalanceType is
+[@view] function total_supply(const _tokenId : nat; const _store : mavenFa2TokenStorageType) : tokenBalanceType is
     _store.totalSupply
 
 
 
 (* all_tokens View *)
-[@view] function all_tokens(const _ : unit; const _store : mavrykFa2TokenStorageType) : list(nat) is
+[@view] function all_tokens(const _ : unit; const _store : mavenFa2TokenStorageType) : list(nat) is
     list[0n]
 
 
 
 (* check if operator *)
-[@view] function is_operator(const operator : (ownerType * operatorType * nat); const store : mavrykFa2TokenStorageType) : bool is
+[@view] function is_operator(const operator : (ownerType * operatorType * nat); const store : mavenFa2TokenStorageType) : bool is
     Big_map.mem(operator, store.operators)
 
 
 
 (* get: metadata *)
-[@view] function token_metadata(const tokenId : nat; const store : mavrykFa2TokenStorageType) : option(tokenMetadataInfoType) is
+[@view] function token_metadata(const tokenId : nat; const store : mavenFa2TokenStorageType) : option(tokenMetadataInfoType) is
     case Big_map.find_opt(tokenId, store.token_metadata) of [
             Some (_metadata)  -> Some(_metadata)
         |   None              -> (None : option(tokenMetadataInfoType))
@@ -234,7 +234,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : mavrykFa2TokenStorageType) : return is
+function setAdmin(const newAdminAddress : address; var s : mavenFa2TokenStorageType) : return is
 block {
 
     checkSenderIsAllowed(s);
@@ -245,7 +245,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : mavrykFa2TokenStorageType) : return is
+function setGovernance(const newGovernanceAddress : address; var s : mavenFa2TokenStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -256,7 +256,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsTypes : updateWhitelistContractsType; var s : mavrykFa2TokenStorageType) : return is
+function updateWhitelistContracts(const updateWhitelistContractsTypes : updateWhitelistContractsType; var s : mavenFa2TokenStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);
@@ -267,7 +267,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationTypes : transferActionType; var s : mavrykFa2TokenStorageType) : return is
+function mistakenTransfer(const destinationTypes : transferActionType; var s : mavenFa2TokenStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -294,7 +294,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* assertMetadata entrypoint *)
-function assertMetadata(const assertMetadataParams : assertMetadataType; const s : mavrykFa2TokenStorageType) : return is
+function assertMetadata(const assertMetadataParams : assertMetadataType; const s : mavenFa2TokenStorageType) : return is
 block{
 
     const metadataKey  : string  = assertMetadataParams.key;
@@ -309,7 +309,7 @@ block{
 
 
 (* transfer entrypoint *)
-function transfer(const transferParams : fa2TransferType; const s : mavrykFa2TokenStorageType) : return is
+function transfer(const transferParams : fa2TransferType; const s : mavenFa2TokenStorageType) : return is
 block{
 
     function makeTransfer(const account : return; const transferParam : transfer) : return is
@@ -318,7 +318,7 @@ block{
             const owner : ownerType = transferParam.from_;
             const txs : list(transferDestination) = transferParam.txs;
              
-            function transferTokens(const accumulator : mavrykFa2TokenStorageType; const destination : transferDestination) : mavrykFa2TokenStorageType is
+            function transferTokens(const accumulator : mavenFa2TokenStorageType; const destination : transferDestination) : mavenFa2TokenStorageType is
             block {
 
                 const tokenId : tokenIdType = destination.token_id;
@@ -352,7 +352,7 @@ block{
             } with accumulator with record[ledger=updatedLedger];
 
             const updatedOperations : list(operation) = (nil: list(operation));
-            const updatedStorage : mavrykFa2TokenStorageType = List.fold(transferTokens, txs, account.1);
+            const updatedStorage : mavenFa2TokenStorageType = List.fold(transferTokens, txs, account.1);
 
         } with (mergeOperations(updatedOperations,account.0), updatedStorage)
 
@@ -362,7 +362,7 @@ block{
 
 
 (* balance_of entrypoint *)
-function balanceOf(const balanceOfParams : balanceOfType; const s : mavrykFa2TokenStorageType) : return is
+function balanceOf(const balanceOfParams : balanceOfType; const s : mavenFa2TokenStorageType) : return is
 block{
 
     function retrieveBalance(const request : balanceOfRequestType) : balanceOfResponse is
@@ -388,7 +388,7 @@ block{
 
 
 (* update_operators entrypoint *)
-function updateOperators(const updateOperatorsParams : updateOperatorsType; const s : mavrykFa2TokenStorageType) : return is
+function updateOperators(const updateOperatorsParams : updateOperatorsType; const s : mavenFa2TokenStorageType) : return is
 block{
 
     var updatedOperators : operatorsType := List.fold(
@@ -413,7 +413,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (* MintOrBurn Entrypoint *)
-function mintOrBurn(const mintOrBurnParams : mintOrBurnType; var s : mavrykFa2TokenStorageType) : return is
+function mintOrBurn(const mintOrBurnParams : mintOrBurnType; var s : mavenFa2TokenStorageType) : return is
 block {
 
     // check sender is whitelisted
@@ -476,7 +476,7 @@ block {
 
 
 (* main entrypoint *)
-function main (const action : action; const s : mavrykFa2TokenStorageType) : return is
+function main (const action : action; const s : mavenFa2TokenStorageType) : return is
 block{
 
     verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  

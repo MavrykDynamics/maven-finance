@@ -14,16 +14,16 @@ const breakGlassConfig = {
     trackAggregatorIsPaused               : false,
     untrackAggregatorIsPaused             : false,
     distributeRewardXtzIsPaused           : false,
-    distributeRewardStakedMvkIsPaused     : false,
+    distributeRewardStakedMvnIsPaused     : false,
 }
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: 'MAVRYK Aggregator Factory Contract',
+        name: 'MAVEN Aggregator Factory Contract',
         version: 'v1.0.0',
-        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        authors: ['MAVEN Dev Team <contact@maven.finance>'],
         }),
         'ascii',
     ).toString('hex'),
@@ -35,7 +35,7 @@ export const aggregatorFactoryStorage : aggregatorFactoryStorageType = {
     metadata                : metadata,
     config                  : config,
 
-    mvkTokenAddress         : zeroAddress,
+    mvnTokenAddress         : zeroAddress,
     governanceAddress       : zeroAddress,
 
     generalContracts        : MichelsonMap.fromLiteral({}),

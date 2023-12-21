@@ -20,7 +20,7 @@
 // ------------------------------------------------------------------------------
 
 // General Contracts : generalContractsType, updateGeneralContractsParams
-#include "../partials/contractTypes/mvkTokenTypes.ligo"
+#include "../partials/contractTypes/mvnTokenTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ type action is
     |   TriggerInflation          of unit
 
 
-type return is list (operation) * mvkTokenStorageType
+type return is list (operation) * mvnTokenStorageType
 const noOperations : list (operation) = nil;
 
 
@@ -79,24 +79,24 @@ const one_year       : int              = one_day * 365;
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : mvkTokenStorageType) : unit is
+function checkSenderIsAllowed(var s : mvnTokenStorageType) : unit is
     if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(const store : mvkTokenStorageType) : unit is
+function checkSenderIsAdmin(const store : mvnTokenStorageType) : unit is
     if Tezos.get_sender() =/= store.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
 
 
-function checkSenderIsDoormanContract(const store : mvkTokenStorageType) : unit is
+function checkSenderIsDoormanContract(const store : mvnTokenStorageType) : unit is
 if getContractAddressFromGovernanceContract("doorman", store.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND) =/= Tezos.get_sender() then failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED) else unit
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteContract(var store : mvkTokenStorageType) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var store : mvnTokenStorageType) : unit is
 block{
 
   if Tezos.get_sender() = store.admin then skip
@@ -204,31 +204,31 @@ block{
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _ : unit; var store : mvkTokenStorageType) : address is
+[@view] function getAdmin(const _ : unit; var store : mvnTokenStorageType) : address is
     store.admin
 
 
 
 (* View: get Governance address *)
-[@view] function getGovernanceAddress(const _ : unit; const store : mvkTokenStorageType) : address is
+[@view] function getGovernanceAddress(const _ : unit; const store : mvnTokenStorageType) : address is
     store.governanceAddress
 
 
 
 (* get: whitelist contracts opt *)
-[@view] function getWhitelistContractOpt(const contractAddress : address; const store : mvkTokenStorageType) : option(unit) is
+[@view] function getWhitelistContractOpt(const contractAddress : address; const store : mvnTokenStorageType) : option(unit) is
     Big_map.find_opt(contractAddress, store.whitelistContracts)
 
 
 
 (* get: general contracts opt *)
-[@view] function getGeneralContractOpt(const contractName : string; const store : mvkTokenStorageType) : option(address) is
+[@view] function getGeneralContractOpt(const contractName : string; const store : mvnTokenStorageType) : option(address) is
     Big_map.find_opt(contractName, store.generalContracts)
 
 
 
 (* get: balance View *)
-[@view] function get_balance(const userAndId : ownerType * nat; const store : mvkTokenStorageType) : tokenBalanceType is
+[@view] function get_balance(const userAndId : ownerType * nat; const store : mvnTokenStorageType) : tokenBalanceType is
     case Big_map.find_opt(userAndId.0, store.ledger) of [
             Some (_v) -> _v
         |   None      -> 0n
@@ -237,19 +237,19 @@ block{
 
 
 (* all_tokens View *)
-[@view] function all_tokens(const _ : unit; const _store : mvkTokenStorageType) : list(nat) is
+[@view] function all_tokens(const _ : unit; const _store : mvnTokenStorageType) : list(nat) is
     list[0n]
 
 
 
 (* check if operator *)
-[@view] function is_operator(const operator : (ownerType * operatorType * nat); const store : mvkTokenStorageType) : bool is
+[@view] function is_operator(const operator : (ownerType * operatorType * nat); const store : mvnTokenStorageType) : bool is
     Big_map.mem(operator, store.operators)
 
 
 
 (* get: metadata *)
-[@view] function token_metadata(const tokenId : nat; const store : mvkTokenStorageType) : option(tokenMetadataInfoType) is
+[@view] function token_metadata(const tokenId : nat; const store : mvnTokenStorageType) : option(tokenMetadataInfoType) is
     case Big_map.find_opt(tokenId, store.token_metadata) of [
             Some (_metadata)  -> Some(_metadata)
         |   None              -> (None : option(tokenMetadataInfoType))
@@ -258,25 +258,25 @@ block{
     
 
 (* total_supply View *)
-[@view] function total_supply(const _tokenId : nat; const store : mvkTokenStorageType) : tokenBalanceType is
+[@view] function total_supply(const _tokenId : nat; const store : mvnTokenStorageType) : tokenBalanceType is
     store.totalSupply
 
 
 
 (* maximumSupply View *)
-[@view] function getMaximumSupply(const _ : unit; const store : mvkTokenStorageType) : tokenBalanceType is
+[@view] function getMaximumSupply(const _ : unit; const store : mvnTokenStorageType) : tokenBalanceType is
     store.maximumSupply
 
 
 
 (* get: inflation rate *)
-[@view] function getInflationRate(const _ : unit; const store : mvkTokenStorageType) : nat is
+[@view] function getInflationRate(const _ : unit; const store : mvnTokenStorageType) : nat is
     store.inflationRate
 
 
 
 (* get: next inflation timestamp *)
-[@view] function getNextInflationTimestamp(const _ : unit; const store : mvkTokenStorageType) : timestamp is
+[@view] function getNextInflationTimestamp(const _ : unit; const store : mvnTokenStorageType) : timestamp is
     store.nextInflationTimestamp
 
 // ------------------------------------------------------------------------------
@@ -298,7 +298,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var store : mvkTokenStorageType) : return is
+function setAdmin(const newAdminAddress : address; var store : mvnTokenStorageType) : return is
 block {
 
   checkSenderIsAllowed(store);
@@ -309,7 +309,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var store : mvkTokenStorageType) : return is
+function setGovernance(const newGovernanceAddress : address; var store : mvnTokenStorageType) : return is
 block {
     
   checkSenderIsAllowed(store);
@@ -320,7 +320,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : mvkTokenStorageType) : return is
+function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : mvnTokenStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);
@@ -331,7 +331,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : mvkTokenStorageType) : return is
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : mvnTokenStorageType) : return is
 block {
   
     checkSenderIsAdmin(s);
@@ -342,7 +342,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams : transferActionType; var store : mvkTokenStorageType) : return is
+function mistakenTransfer(const destinationParams : transferActionType; var store : mvnTokenStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -371,7 +371,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* assertMetadata entrypoint *)
-function assertMetadata(const assertMetadataParams : assertMetadataType; const store : mvkTokenStorageType) : return is
+function assertMetadata(const assertMetadataParams : assertMetadataType; const store : mvnTokenStorageType) : return is
 block{
 
     const metadataKey  : string  = assertMetadataParams.key;
@@ -386,7 +386,7 @@ block{
 
 
 (* transfer entrypoint *)
-function transfer(const transferParams : fa2TransferType; const store : mvkTokenStorageType) : return is
+function transfer(const transferParams : fa2TransferType; const store : mvnTokenStorageType) : return is
 block{
 
     function makeTransfer(const account : return; const transferParam : transfer) : return is
@@ -395,7 +395,7 @@ block{
             const owner : ownerType = transferParam.from_;
             const txs : list(transferDestination) = transferParam.txs;
             
-            function transferTokens(const accumulator : mvkTokenStorageType; const destination : transferDestination) : mvkTokenStorageType is
+            function transferTokens(const accumulator : mvnTokenStorageType; const destination : transferDestination) : mvnTokenStorageType is
             block {
 
                 const tokenId : tokenIdType = destination.token_id;
@@ -429,7 +429,7 @@ block{
             } with accumulator with record[ledger=updatedLedger];
 
             const updatedOperations : list(operation) = (nil: list(operation));
-            const updatedStorage : mvkTokenStorageType = List.fold(transferTokens, txs, account.1);
+            const updatedStorage : mvnTokenStorageType = List.fold(transferTokens, txs, account.1);
 
         } with (mergeOperations(updatedOperations,account.0), updatedStorage)
 
@@ -438,7 +438,7 @@ block{
 
 
 (* balance_of entrypoint *)
-function balanceOf(const balanceOfParams : balanceOfType; const store : mvkTokenStorageType) : return is
+function balanceOf(const balanceOfParams : balanceOfType; const store : mvnTokenStorageType) : return is
 block{
 
     function retrieveBalance(const request : balanceOfRequestType) : balanceOfResponse is
@@ -464,7 +464,7 @@ block{
 
 
 (* update_operators entrypoint *)
-function updateOperators(const updateOperatorsParams : updateOperatorsType; const store : mvkTokenStorageType) : return is
+function updateOperators(const updateOperatorsParams : updateOperatorsType; const store : mvnTokenStorageType) : return is
 block{
 
     var updatedOperators : operatorsType := List.fold(
@@ -483,7 +483,7 @@ block{
 
 
 (* mint entrypoint *)
-function mint(const mintParams : mintType; var store : mvkTokenStorageType) : return is
+function mint(const mintParams : mintType; var store : mvnTokenStorageType) : return is
 block {
 
     const recipientAddress  : ownerType         = mintParams.0;
@@ -492,7 +492,7 @@ block {
     // Check sender is from doorman contract or vesting contract - may add treasury contract in future
     if checkInWhitelistContracts(Tezos.get_sender(), store.whitelistContracts) or Tezos.get_sender() = Tezos.get_self_address() then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
-    // Check if the minted token exceed the maximumSupply defined in the mvkTokenStorageType
+    // Check if the minted token exceed the maximumSupply defined in the mvnTokenStorageType
     const tempTotalSupply : tokenBalanceType = store.totalSupply + mintedTokens;
     if tempTotalSupply > store.maximumSupply then failwith(error_MAXIMUM_SUPPLY_EXCEEDED) 
     else skip;
@@ -500,7 +500,7 @@ block {
     // Update sender's balance
     const senderNewBalance : tokenBalanceType = get_balance((recipientAddress, 0n), store) + mintedTokens;
 
-    // Update mvkTokenStorageType
+    // Update mvnTokenStorageType
     store.totalSupply := store.totalSupply + mintedTokens;
     store.ledger := Big_map.update(recipientAddress, Some(senderNewBalance), store.ledger);
 
@@ -509,7 +509,7 @@ block {
 
 
 (* burn entrypoint *)
-function burn(const burnTokenAmount : nat; var store : mvkTokenStorageType) : return is
+function burn(const burnTokenAmount : nat; var store : mvnTokenStorageType) : return is
 block {
 
     const senderAddress : ownerType = Tezos.get_sender();
@@ -522,7 +522,7 @@ block {
 
     const senderNewBalance : tokenBalanceType = abs(senderBalance - burnTokenAmount);
 
-    // Update mvkTokenStorageType
+    // Update mvnTokenStorageType
     store.totalSupply           := abs(store.totalSupply - burnTokenAmount);
     store.ledger[senderAddress] := senderNewBalance;
 
@@ -539,7 +539,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* updateInflationRate entrypoint *)
-function updateInflationRate(const newInflationRate : nat; var store : mvkTokenStorageType) : return is
+function updateInflationRate(const newInflationRate : nat; var store : mvnTokenStorageType) : return is
 block {
     
     checkSenderIsAdmin(store);
@@ -553,7 +553,7 @@ block {
 
 
 (* triggerInflation entrypoint *)
-function triggerInflation(var store : mvkTokenStorageType) : return is
+function triggerInflation(var store : mvnTokenStorageType) : return is
 block {
     
     checkSenderIsAdmin(store);
@@ -561,12 +561,12 @@ block {
     // Check inflation rate
     const inflation : tokenBalanceType  = store.maximumSupply * store.inflationRate / 100_00n; // Apply the rate
 
-    // Calculate the percentage of minted MVK
-    const mintedMvkPercentage : nat     = store.totalSupply * 100_00n / store.maximumSupply;
+    // Calculate the percentage of minted MVN
+    const mintedMvnPercentage : nat     = store.totalSupply * 100_00n / store.maximumSupply;
     
     // Apply inflation rate on maximum supply if it has been 360 days since the last time it was updated
     // And at least 90% of the maximum supply has been minted
-    if store.nextInflationTimestamp < Tezos.get_now() and mintedMvkPercentage > 90_00n then {
+    if store.nextInflationTimestamp < Tezos.get_now() and mintedMvnPercentage > 90_00n then {
       
         // Set the new maximumSupply
         store.maximumSupply           := store.maximumSupply + inflation;
@@ -592,7 +592,7 @@ block {
 
 
 (* main entrypoint *)
-function main (const action : action; const store : mvkTokenStorageType) : return is
+function main (const action : action; const store : mvnTokenStorageType) : return is
 block{
 
     verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  

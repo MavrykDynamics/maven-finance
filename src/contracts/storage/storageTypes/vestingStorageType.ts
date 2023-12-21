@@ -5,7 +5,7 @@ export type vestingStorageType = {
 
     admin               : string;
     governanceAddress   : string;
-    mvkTokenAddress     : string;
+    mvnTokenAddress     : string;
     metadata            : MichelsonMap<MichelsonMapKey, unknown>;
 
     whitelistContracts  : MichelsonMap<MichelsonMapKey, unknown>;

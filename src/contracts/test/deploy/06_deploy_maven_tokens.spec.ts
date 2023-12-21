@@ -23,18 +23,18 @@ import { bob } from '../../scripts/sandbox/accounts'
 // Contract Storage
 // ------------------------------------------------------------------------------
 
-import { mavrykFa12TokenStorage } from '../../storage/mavrykFa12TokenStorage'
-import { mavrykFa2TokenStorage } from '../../storage/mavrykFa2TokenStorage'
+import { mavenFa12TokenStorage } from '../../storage/mavenFa12TokenStorage'
+import { mavenFa2TokenStorage } from '../../storage/mavenFa2TokenStorage'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
 // ------------------------------------------------------------------------------
 
-describe('Mavryk Token', async () => {
+describe('Maven Token', async () => {
     
     var utils: Utils
-    var mavrykFa12Token 
-    var mavrykFa2Token 
+    var mavenFa12Token 
+    var mavenFa2Token 
 
     before('setup', async () => {
         try{
@@ -46,13 +46,13 @@ describe('Mavryk Token', async () => {
             // Originate and deploy contracts
             //----------------------------
         
-            mavrykFa12TokenStorage.governanceAddress  = contractDeployments.governance.address;
-            mavrykFa12Token = await GeneralContract.originate(utils.tezos, "mavrykFa12Token", mavrykFa12TokenStorage);
-            await saveContractAddress('mavrykFa12TokenAddress', mavrykFa12Token.contract.address)
+            mavenFa12TokenStorage.governanceAddress  = contractDeployments.governance.address;
+            mavenFa12Token = await GeneralContract.originate(utils.tezos, "mavenFa12Token", mavenFa12TokenStorage);
+            await saveContractAddress('mavenFa12TokenAddress', mavenFa12Token.contract.address)
         
-            mavrykFa2TokenStorage.governanceAddress  = contractDeployments.governance.address;
-            mavrykFa2Token = await GeneralContract.originate(utils.tezos, "mavrykFa2Token", mavrykFa2TokenStorage);
-            await saveContractAddress('mavrykFa2TokenAddress', mavrykFa2Token.contract.address)
+            mavenFa2TokenStorage.governanceAddress  = contractDeployments.governance.address;
+            mavenFa2Token = await GeneralContract.originate(utils.tezos, "mavenFa2Token", mavenFa2TokenStorage);
+            await saveContractAddress('mavenFa2TokenAddress', mavenFa2Token.contract.address)
 
         } catch(e){
             console.dir(e, {depth: 5})
@@ -60,7 +60,7 @@ describe('Mavryk Token', async () => {
 
     })
 
-    it(`mavryk token contracts deployed`, async () => {
+    it(`maven token contracts deployed`, async () => {
         try {
             console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
         } catch (e) {

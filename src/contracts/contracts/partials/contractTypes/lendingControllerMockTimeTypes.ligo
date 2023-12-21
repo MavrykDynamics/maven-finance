@@ -261,7 +261,7 @@ type createCollateralTokenActionType is [@layout:comb] record [
     
     isScaledToken           : bool; // mToken
     
-    // To extend functionality beyond sMVK to other staked tokens in future
+    // To extend functionality beyond sMVN to other staked tokens in future
     isStakedToken           : bool;
     stakingContractAddress  : option(address);
 
@@ -432,7 +432,7 @@ type lendingControllerStorageType is [@layout:comb] record [
     config                      : lendingControllerConfigType;
     breakGlassConfig            : lendingControllerBreakGlassConfigType;
 
-    mvkTokenAddress             : address;
+    mvnTokenAddress             : address;
     governanceAddress           : address;
     
     // vaults and owners

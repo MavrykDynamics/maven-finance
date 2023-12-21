@@ -1,11 +1,11 @@
 import { MichelsonMap } from "@taquito/michelson-encoder"
 import { BigNumber } from "bignumber.js"
 import { bob } from '../scripts/sandbox/accounts'
-import { MVK } from "../test/helpers/Utils"
+import { MVN } from "../test/helpers/Utils"
 import { delegationStorageType } from "./storageTypes/delegationStorageType"
 
 const config = {
-    minimumStakedMvkBalance             : MVK(10), 
+    minimumStakedMvnBalance             : MVN(10), 
     delegationRatio                     : 1000,
     maxSatellites                       : 100,
     satelliteNameMaxLength              : 400,
@@ -26,9 +26,9 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: 'MAVRYK Delegation Contract',
+        name: 'MAVEN Delegation Contract',
         version: 'v1.0.0',
-        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        authors: ['MAVEN Dev Team <contact@maven.finance>'],
         source: {
             tools: ['Ligo', 'Flextesa'],
             location: 'https://ligolang.org/',
@@ -46,7 +46,7 @@ const metadata = MichelsonMap.fromLiteral({
 //   let wallet = eztz.crypto.generateKeys(mnemonic, password);
 //   satelliteLedger.set(wallet.pkh,{
 //     status: new BigNumber(1),
-//     stakedMvkBalance: new BigNumber(100000000000),
+//     stakedMvnBalance: new BigNumber(100000000000),
 //     satelliteFee: new BigNumber(1000),
 //     totalDelegatedAmount: new BigNumber(0),
 //     name: 'Test'+wallet.pkh,
@@ -67,7 +67,7 @@ const metadata = MichelsonMap.fromLiteral({
 export const delegationStorage: delegationStorageType = {
   
     admin               : bob.pkh,
-    mvkTokenAddress     : "",
+    mvnTokenAddress     : "",
     governanceAddress   : "",
     metadata            : metadata,
     

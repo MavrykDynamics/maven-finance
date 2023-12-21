@@ -3,7 +3,7 @@ import { BigNumber } from "bignumber.js"
 import { Buffer } from "buffer"
 import { zeroAddress } from "../test/helpers/Utils"
 import { bob, alice, eve, mallory } from '../scripts/sandbox/accounts'
-import { mavrykFa2TokenStorageType } from "./storageTypes/mavrykFa2TokenStorageType"
+import { mavenLendingLpTokenStorageType } from "./storageTypes/mavenLendingLpTokenStorageType"
 
 const totalSupply      = 20000000000;
 const initialSupply    = new BigNumber(totalSupply); // 20,000 MOCK FA2 Tokens in mu (10^6)
@@ -14,8 +14,8 @@ const metadata = MichelsonMap.fromLiteral({
     data: Buffer.from(
         JSON.stringify({
         version: 'v1.0.0',
-        description: 'MAVRYK FA2',
-        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        description: 'MAVEN FA2',
+        authors: ['MAVEN Dev Team <contact@maven.finance>'],
         source: {
             tools: ['Ligo', 'Flextesa'],
             location: 'https://ligolang.org/',
@@ -26,11 +26,11 @@ const metadata = MichelsonMap.fromLiteral({
         assets: [
             {
             symbol: Buffer.from('FA2').toString('hex'),
-            name: Buffer.from('MAVRYKFA2').toString('hex'),
+            name: Buffer.from('MAVENFA2').toString('hex'),
             decimals: Buffer.from('6').toString('hex'),
-            icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
+            icon: Buffer.from('https://maven.finance/logo192.png').toString('hex'),
             shouldPreferSymbol: true,
-            thumbnailUri: 'https://mavryk.finance/logo192.png'
+            thumbnailUri: 'https://maven.finance/logo192.png'
             }
         ]
         }),
@@ -50,26 +50,29 @@ const token_metadata = MichelsonMap.fromLiteral({
         token_id: '0',
         token_info: MichelsonMap.fromLiteral({
             symbol: Buffer.from('FA2').toString('hex'),
-            name: Buffer.from('MAVRYKFA2').toString('hex'),
+            name: Buffer.from('MAVENFA2').toString('hex'),
             decimals: Buffer.from('6').toString('hex'),
-            icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
+            icon: Buffer.from('https://maven.finance/logo192.png').toString('hex'),
             shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
-            thumbnailUri: Buffer.from('https://mavryk.finance/logo192.png').toString('hex')
+            thumbnailUri: Buffer.from('https://maven.finance/logo192.png').toString('hex')
         }),
     },
 })
 
-export const mavrykFa2TokenStorage: mavrykFa2TokenStorageType = {
+export const mavenLendingLpTokenStorage: mavenLendingLpTokenStorageType = {
     
-    admin: bob.pkh,
-    metadata: metadata,
-    governanceAddress: zeroAddress,
+    admin               : bob.pkh,
+    metadata            : metadata,
 
-    whitelistContracts:  MichelsonMap.fromLiteral({}),
+    loanToken           : 'something',                   // reference to Lending Controller loan token
 
-    token_metadata: token_metadata,
-    totalSupply: initialSupply,
-    ledger: ledger,
-    operators:  MichelsonMap.fromLiteral({})
+    governanceAddress   : zeroAddress,
+
+    whitelistContracts  :  MichelsonMap.fromLiteral({}),
+
+    token_metadata      : token_metadata,
+    totalSupply         : initialSupply,
+    ledger              : ledger,
+    operators           :  MichelsonMap.fromLiteral({})
 
 };

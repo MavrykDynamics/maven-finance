@@ -54,9 +54,9 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-            name: 'MAVRYK Lending Controller Contract',
+            name: 'MAVEN Lending Controller Contract',
             version: 'v1.0.0',
-            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+            authors: ['MAVEN Dev Team <contact@maven.finance>'],
             source: {
                 tools: ['Ligo', 'Flextesa'],
                 location: 'https://ligolang.org/',
@@ -73,7 +73,7 @@ export const lendingControllerStorage : lendingControllerStorageType = {
     config                          : config,
     breakGlassConfig                : breakGlassConfig,
 
-    mvkTokenAddress                 : zeroAddress,
+    mvnTokenAddress                 : zeroAddress,
     governanceAddress               : zeroAddress,
 
     whitelistContracts              : MichelsonMap.fromLiteral({}),

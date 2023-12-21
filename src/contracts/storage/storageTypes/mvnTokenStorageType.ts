@@ -1,7 +1,7 @@
 import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder"
 import { BigNumber } from "bignumber.js"
 
-export type mvkTokenStorageType = {
+export type mvnTokenStorageType = {
   
     admin                     : string;
     governanceAddress         : string;

@@ -7,7 +7,7 @@ export type governanceSatelliteStorageType = {
     metadata                            : MichelsonMap<MichelsonMapKey, unknown>;
     config                              : {};
 
-    mvkTokenAddress                     : string;
+    mvnTokenAddress                     : string;
     governanceAddress                   : string;
 
     whitelistContracts                  : MichelsonMap<MichelsonMapKey, unknown>;

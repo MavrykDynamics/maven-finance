@@ -23,7 +23,7 @@ type governanceProxyStorageType is record[
     admin                       : address;
     metadata                    : metadataType;
 
-    mvkTokenAddress             : address;
+    mvnTokenAddress             : address;
     governanceAddress           : address;
 
     lambdaLedger                : lambdaLedgerType;
