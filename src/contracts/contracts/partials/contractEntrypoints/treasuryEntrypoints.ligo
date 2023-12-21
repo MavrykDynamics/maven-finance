@@ -230,15 +230,15 @@ block {
 
 
 
-(* mintMvkAndTransfer entrypoint *)
-function mintMvkAndTransfer(const mintMvkAndTransferParams : mintMvkAndTransferType ; var s : treasuryStorageType) : return is 
+(* mintMvnAndTransfer entrypoint *)
+function mintMvnAndTransfer(const mintMvnAndTransferParams : mintMvnAndTransferType ; var s : treasuryStorageType) : return is 
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaMintMvkAndTransfer", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaMintMvnAndTransfer", s.lambdaLedger);
 
     // init treasury lambda action
-    const treasuryLambdaAction : treasuryLambdaActionType = LambdaMintMvkAndTransfer(mintMvkAndTransferParams);
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaMintMvnAndTransfer(mintMvnAndTransferParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  

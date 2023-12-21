@@ -5,7 +5,7 @@ import { MichelsonMap, PollingSubscribeProvider, TezosToolkit, TransactionOperat
 import { BigNumber } from 'bignumber.js'
 
 import env from '../../env'
-import mvkTokenDecimals from '../../helpers/mvkTokenDecimals.json';
+import mvnTokenDecimals from '../../helpers/mvnTokenDecimals.json';
 import { confirmOperation } from '../../scripts/confirmation'
 
 const defaultNetwork = 'development'
@@ -67,9 +67,9 @@ export class Utils {
 
 export const zeroAddress: string = 'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg'
 
-// MVK Formatter
-export const MVK = (value : number = 1) => {
-  return value * 10**parseInt(mvkTokenDecimals.decimals)
+// MVN Formatter
+export const MVN = (value : number = 1) => {
+  return value * 10**parseInt(mvnTokenDecimals.decimals)
 }
 
 

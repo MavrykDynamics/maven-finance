@@ -4,7 +4,7 @@ import { BigNumber } from 'bignumber.js'
 export type treasuryFactoryStorageType = {
   
     admin                     : string;
-    mvkTokenAddress           : string;
+    mvnTokenAddress           : string;
     governanceAddress         : string;
     config                : {
         treasuryNameMaxLength : BigNumber

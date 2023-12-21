@@ -1,6 +1,6 @@
 import { Utils } from "../helpers/Utils"
 const saveContractAddress = require("../helpers/saveContractAddress")
-const saveMVKDecimals     = require('../../helpers/saveMVKDecimals')
+const saveMVNDecimals     = require('../../helpers/saveMVNDecimals')
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -18,16 +18,16 @@ import { bob } from '../../scripts/sandbox/accounts'
 // Contract Storage
 // ------------------------------------------------------------------------------
 
-import { mvkTokenStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
+import { mvnTokenStorage, mvnTokenDecimals } from '../../storage/mvnTokenStorage'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
 // ------------------------------------------------------------------------------
 
-describe('MVK Token', async () => {
+describe('MVN Token', async () => {
   
     var utils: Utils
-    var mvkToken
+    var mvnToken
 
   before('setup', async () => {
         try{
@@ -39,14 +39,14 @@ describe('MVK Token', async () => {
             // Originate and deploy contracts
             //----------------------------
         
-            mvkToken = await GeneralContract.originate(utils.tezos, "mvkToken", mvkTokenStorage);
-            await saveContractAddress('mvkTokenAddress', mvkToken.contract.address)
+            mvnToken = await GeneralContract.originate(utils.tezos, "mvnToken", mvnTokenStorage);
+            await saveContractAddress('mvnTokenAddress', mvnToken.contract.address)
 
             //----------------------------
-            // Save MVK Decimals to JSON (for reuse in JS / PyTezos Tests)
+            // Save MVN Decimals to JSON (for reuse in JS / PyTezos Tests)
             //----------------------------
 
-            await saveMVKDecimals(mvkTokenDecimals)
+            await saveMVNDecimals(mvnTokenDecimals)
 
         } catch(e){
             console.dir(e, {depth: 5})
@@ -54,7 +54,7 @@ describe('MVK Token', async () => {
 
     })
 
-    it(`mvk token contract deployment`, async () => {
+    it(`mvn token contract deployment`, async () => {
         try {
             console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
         } catch (e) {

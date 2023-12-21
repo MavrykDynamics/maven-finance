@@ -85,7 +85,7 @@ type vaultFactoryStorageType is [@layout:comb] record[
     vaultMetadata          : metadataType;
     config                 : vaultFactoryConfigType;
 
-    mvkTokenAddress        : address;
+    mvnTokenAddress        : address;
     governanceAddress      : address;
 
     whitelistContracts     : whitelistContractsType;      

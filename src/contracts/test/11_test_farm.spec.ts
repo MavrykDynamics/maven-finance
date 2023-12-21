@@ -51,13 +51,13 @@ describe("Test: Farm Contract", async () => {
     let adminSk;
     let tokenId = 0;
 
-    let mavrykFa2TokenAddress;
-    let mavrykFa2TokenInstance;
-    let mavrykFa2TokenStorage;
+    let mavenFa2TokenAddress;
+    let mavenFa2TokenInstance;
+    let mavenFa2TokenStorage;
 
     let farmAddress;
     let farmFactoryAddress;
-    let mvkTokenAddress;
+    let mvnTokenAddress;
     let lpTokenAddress ;
     let doormanAddress;
     let treasuryAddress;
@@ -65,8 +65,8 @@ describe("Test: Farm Contract", async () => {
     let farmInstance;
     let farmStorage;
 
-    let mvkTokenInstance;
-    let mvkTokenStorage;
+    let mvnTokenInstance;
+    let mvnTokenStorage;
 
     let lpTokenInstance;
     let lpTokenStorage;
@@ -119,29 +119,29 @@ describe("Test: Farm Contract", async () => {
 
         farmAddress             = contractDeployments.farm.address;
         farmFactoryAddress      = contractDeployments.farmFactory.address;
-        mvkTokenAddress         = contractDeployments.mvkToken.address;
-        lpTokenAddress          = contractDeployments.mavrykFa12Token.address;
+        mvnTokenAddress         = contractDeployments.mvnToken.address;
+        lpTokenAddress          = contractDeployments.mavenFa12Token.address;
         treasuryAddress         = contractDeployments.treasury.address;
         doormanAddress          = contractDeployments.doorman.address;
         
         farmInstance            = await utils.tezos.contract.at(farmAddress);
         farmFactoryInstance     = await utils.tezos.contract.at(farmFactoryAddress);
-        mvkTokenInstance        = await utils.tezos.contract.at(mvkTokenAddress);
+        mvnTokenInstance        = await utils.tezos.contract.at(mvnTokenAddress);
         lpTokenInstance         = await utils.tezos.contract.at(lpTokenAddress);
         treasuryInstance        = await utils.tezos.contract.at(treasuryAddress);
         doormanInstance         = await utils.tezos.contract.at(doormanAddress);
 
         farmStorage             = await farmInstance.storage();
         farmFactoryStorage      = await farmFactoryInstance.storage();
-        mvkTokenStorage         = await mvkTokenInstance.storage();
+        mvnTokenStorage         = await mvnTokenInstance.storage();
         lpTokenStorage          = await lpTokenInstance.storage();
         treasuryStorage         = await treasuryInstance.storage();
         doormanStorage          = await doormanInstance.storage();
 
         // for mistaken transfers
-        mavrykFa2TokenAddress   = contractDeployments.mavrykFa2Token.address 
-        mavrykFa2TokenInstance  = await utils.tezos.contract.at(mavrykFa2TokenAddress);
-        mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
+        mavenFa2TokenAddress   = contractDeployments.mavenFa2Token.address 
+        mavenFa2TokenInstance  = await utils.tezos.contract.at(mavenFa2TokenAddress);
+        mavenFa2TokenStorage   = await mavenFa2TokenInstance.storage();
 
         // Make farm factory track the farm
         if(!farmFactoryStorage.trackedFarms.includes(farmAddress)){
@@ -155,7 +155,7 @@ describe("Test: Farm Contract", async () => {
         beforeEach("Set signer to userOne (eve)", async () => {
             farmStorage = await farmInstance.storage();
             farmFactoryStorage = await farmFactoryInstance.storage();
-            mvkTokenStorage = await mvkTokenInstance.storage();
+            mvnTokenStorage = await mvnTokenInstance.storage();
             lpTokenStorage = await lpTokenInstance.storage();
             await signerFactory(tezos, userOneSk);
         });
@@ -247,7 +247,7 @@ describe("Test: Farm Contract", async () => {
             beforeEach("Set signer to admin (bob)", async () => {
                 farmStorage = await farmInstance.storage();
                 farmFactoryStorage = await farmFactoryInstance.storage();
-                mvkTokenStorage = await mvkTokenInstance.storage();
+                mvnTokenStorage = await mvnTokenInstance.storage();
                 lpTokenStorage = await lpTokenInstance.storage();
                 await signerFactory(tezos, adminSk);
             });
@@ -337,7 +337,7 @@ describe("Test: Farm Contract", async () => {
             beforeEach("Set signer to user (eve)", async () => {
                 farmStorage = await farmInstance.storage();
                 farmFactoryStorage = await farmFactoryInstance.storage();
-                mvkTokenStorage = await mvkTokenInstance.storage();
+                mvnTokenStorage = await mvnTokenInstance.storage();
                 lpTokenStorage = await lpTokenInstance.storage();
                 await signerFactory(tezos, userOneSk);
             });
@@ -476,7 +476,7 @@ describe("Test: Farm Contract", async () => {
             beforeEach("Set signer to user (eve)", async () => {
                 farmStorage = await farmInstance.storage();
                 farmFactoryStorage = await farmFactoryInstance.storage();
-                mvkTokenStorage = await mvkTokenInstance.storage();
+                mvnTokenStorage = await mvnTokenInstance.storage();
                 lpTokenStorage = await lpTokenInstance.storage();
                 await signerFactory(tezos, userOneSk);
             });
@@ -639,7 +639,7 @@ describe("Test: Farm Contract", async () => {
             beforeEach("Set signer to user (eve)", async () => {
                 farmStorage = await farmInstance.storage();
                 farmFactoryStorage = await farmFactoryInstance.storage();
-                mvkTokenStorage = await mvkTokenInstance.storage();
+                mvnTokenStorage = await mvnTokenInstance.storage();
                 lpTokenStorage = await lpTokenInstance.storage();
                 await signerFactory(tezos, userOneSk);
             });
@@ -662,8 +662,8 @@ describe("Test: Farm Contract", async () => {
                     await signerFactory(tezos, userOneSk);
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
-                    const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(userOne);
-                    const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber()
+                    const userSMVNLedger        = await doormanStorage.userStakeBalanceLedger.get(userOne);
+                    const userSMVNBalance       = userSMVNLedger === undefined ? 0 : userSMVNLedger.balance.toNumber()
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
 
                     // Operations
@@ -674,11 +674,11 @@ describe("Test: Farm Contract", async () => {
                     // Final values
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
-                    const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(userOne);
-                    const userSMVKBalanceEnd    = userSMVKLedgerEnd === undefined ? 0 : userSMVKLedgerEnd.balance.toNumber()
+                    const userSMVNLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(userOne);
+                    const userSMVNBalanceEnd    = userSMVNLedgerEnd === undefined ? 0 : userSMVNLedgerEnd.balance.toNumber()
 
                     // Assertions
-                    assert.notEqual(userSMVKBalanceEnd, userSMVKBalance)
+                    assert.notEqual(userSMVNBalanceEnd, userSMVNBalance)
                     
                 } catch(e) {
                     console.dir(e, {depth: 5})
@@ -696,8 +696,8 @@ describe("Test: Farm Contract", async () => {
                     const userLpLedgerStart     = await lpTokenStorage.ledger.get(userTwo);
                     const userLpBalance         = userLpLedgerStart.balance.toNumber();
                     
-                    const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(userTwo);
-                    const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber()
+                    const userSMVNLedger        = await doormanStorage.userStakeBalanceLedger.get(userTwo);
+                    const userSMVNBalance       = userSMVNLedger === undefined ? 0 : userSMVNLedger.balance.toNumber()
 
                     const userDepositRecord     = await farmStorage.depositorLedger.get(userTwo);
                     const userDepositBalance    = userDepositRecord === undefined ? 0 : userDepositRecord.balance.toNumber();
@@ -730,11 +730,11 @@ describe("Test: Farm Contract", async () => {
                     const userLpLedgerEnd       = await lpTokenStorage.ledger.get(userTwo);
                     const userLpBalanceEnd      = userLpLedgerEnd.balance.toNumber();
                     
-                    const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(userTwo);
-                    const userSMVKBalanceEnd    = userSMVKLedgerEnd.balance.toNumber()
+                    const userSMVNLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(userTwo);
+                    const userSMVNBalanceEnd    = userSMVNLedgerEnd.balance.toNumber()
 
                     // Assertions
-                    assert.notEqual(userSMVKBalanceEnd, userSMVKBalance)
+                    assert.notEqual(userSMVNBalanceEnd, userSMVNBalance)
                     assert.notEqual(userLpBalanceEnd, userLpBalance)
                     
                 } catch(e) {
@@ -750,10 +750,10 @@ describe("Test: Farm Contract", async () => {
                     // Initial values
                     lpTokenStorage          = await lpTokenInstance.storage();
                     farmStorage             = await farmInstance.storage();
-                    mvkTokenStorage         = await mvkTokenInstance.storage();
+                    mvnTokenStorage         = await mvnTokenInstance.storage();
                     
-                    const mvkTotalSupply    = mvkTokenStorage.totalSupply.toNumber();
-                    const smvkTotalSupply   = await mvkTokenStorage.ledger.get(doormanAddress);
+                    const mvnTotalSupply    = mvnTokenStorage.totalSupply.toNumber();
+                    const smvnTotalSupply   = await mvnTokenStorage.ledger.get(doormanAddress);
 
                     const userDepositRecord     = await farmStorage.depositorLedger.get(admin);
                     
@@ -777,16 +777,16 @@ describe("Test: Farm Contract", async () => {
 
                     farmStorage                    = await farmInstance.storage();
 
-                    // First claim operation - sMVK rewards should be minted (hence increase in sMVK total supply)
+                    // First claim operation - sMVN rewards should be minted (hence increase in sMVN total supply)
                     var claimOperation  = await farmInstance.methods.claim([admin]).send();
                     await claimOperation.confirmation();
 
                     farmStorage                    = await farmInstance.storage();
 
                     // Updated values
-                    mvkTokenStorage                     = await mvkTokenInstance.storage();
-                    const mvkTotalSupplyFirstUpdate     = mvkTokenStorage.totalSupply.toNumber();
-                    const smvkTotalSupplyFirstUpdate    = (await mvkTokenStorage.ledger.get(doormanAddress)).toNumber();
+                    mvnTokenStorage                     = await mvnTokenInstance.storage();
+                    const mvnTotalSupplyFirstUpdate     = mvnTokenStorage.totalSupply.toNumber();
+                    const smvnTotalSupplyFirstUpdate    = (await mvnTokenStorage.ledger.get(doormanAddress)).toNumber();
 
                     // Operation - set forceRewardFromTransfer to TRUE
                     const firstToggleOperation      = await farmInstance.methods.updateConfig(1, "configForceRewardFromTransfer").send();
@@ -796,15 +796,15 @@ describe("Test: Farm Contract", async () => {
                     farmStorage                     = await farmInstance.storage();
                     const toggleTransferFirstUpdate = farmStorage.config.forceRewardFromTransfer;
 
-                    // Do another claim - sMVK rewards should be transferred from Farm Treasury
+                    // Do another claim - sMVN rewards should be transferred from Farm Treasury
                     await wait(12 * blockTime * 1000);
                     claimOperation = await farmInstance.methods.claim([admin]).send();
                     await claimOperation.confirmation();
 
                     // Updated values
-                    mvkTokenStorage                     = await mvkTokenInstance.storage();
-                    const mvkTotalSupplySecondUpdate    = mvkTokenStorage.totalSupply.toNumber();
-                    const smvkTotalSupplySecondUpdate   = (await mvkTokenStorage.ledger.get(doormanAddress)).toNumber();
+                    mvnTokenStorage                     = await mvnTokenInstance.storage();
+                    const mvnTotalSupplySecondUpdate    = mvnTokenStorage.totalSupply.toNumber();
+                    const smvnTotalSupplySecondUpdate   = (await mvnTokenStorage.ledger.get(doormanAddress)).toNumber();
 
                     // Toggle back to mint  
                     const secondToggleOperation = await farmInstance.methods.updateConfig(0, "configForceRewardFromTransfer").send();
@@ -820,22 +820,22 @@ describe("Test: Farm Contract", async () => {
                     await claimOperation.confirmation();
 
                     // Updated values
-                    mvkTokenStorage                     = await mvkTokenInstance.storage();
-                    const mvkTotalSupplyThirdUpdate     = mvkTokenStorage.totalSupply.toNumber();
-                    const smvkTotalSupplyThirdUpdate    = (await mvkTokenStorage.ledger.get(doormanAddress)).toNumber();
+                    mvnTokenStorage                     = await mvnTokenInstance.storage();
+                    const mvnTotalSupplyThirdUpdate     = mvnTokenStorage.totalSupply.toNumber();
+                    const smvnTotalSupplyThirdUpdate    = (await mvnTokenStorage.ledger.get(doormanAddress)).toNumber();
 
                     // Assertions
-                    assert.notEqual(mvkTotalSupply,mvkTotalSupplyFirstUpdate);
-                    assert.equal(mvkTotalSupplySecondUpdate,mvkTotalSupplyFirstUpdate);
-                    assert.notEqual(mvkTotalSupplySecondUpdate,mvkTotalSupplyThirdUpdate);
+                    assert.notEqual(mvnTotalSupply,mvnTotalSupplyFirstUpdate);
+                    assert.equal(mvnTotalSupplySecondUpdate,mvnTotalSupplyFirstUpdate);
+                    assert.notEqual(mvnTotalSupplySecondUpdate,mvnTotalSupplyThirdUpdate);
 
                     assert.notEqual(toggleTransferFirstUpdate,toggleTransfer);
                     assert.equal(toggleTransfer,toggleTransferSecondUpdate);
 
-                    assert.notEqual(smvkTotalSupply,smvkTotalSupplyFirstUpdate);
-                    assert.notEqual(smvkTotalSupply,smvkTotalSupplySecondUpdate);
-                    assert.notEqual(smvkTotalSupplyFirstUpdate,smvkTotalSupplySecondUpdate);
-                    assert.notEqual(smvkTotalSupplySecondUpdate,smvkTotalSupplyThirdUpdate);
+                    assert.notEqual(smvnTotalSupply,smvnTotalSupplyFirstUpdate);
+                    assert.notEqual(smvnTotalSupply,smvnTotalSupplySecondUpdate);
+                    assert.notEqual(smvnTotalSupplyFirstUpdate,smvnTotalSupplySecondUpdate);
+                    assert.notEqual(smvnTotalSupplySecondUpdate,smvnTotalSupplyThirdUpdate);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -914,9 +914,9 @@ describe("Test: Farm Contract", async () => {
                     await signerFactory(tezos, userOneSk);
                     farmStorage                 = await farmInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
-                    const userSMVKLedger        = await doormanStorage.userStakeBalanceLedger.get(userOne);
+                    const userSMVNLedger        = await doormanStorage.userStakeBalanceLedger.get(userOne);
                     const blockTime             = farmStorage.minBlockTimeSnapshot.toNumber();
-                    const userSMVKBalance       = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber()
+                    const userSMVNBalance       = userSMVNLedger === undefined ? 0 : userSMVNLedger.balance.toNumber()
                     const farmOpen              = farmStorage.open;
                     
                     // Operation
@@ -926,12 +926,12 @@ describe("Test: Farm Contract", async () => {
 
                     // Final values
                     doormanStorage              = await doormanInstance.storage();
-                    const userSMVKLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(userOne);
-                    const userSMVKBalanceEnd    = userSMVKLedgerEnd.balance.toNumber()
+                    const userSMVNLedgerEnd     = await doormanStorage.userStakeBalanceLedger.get(userOne);
+                    const userSMVNBalanceEnd    = userSMVNLedgerEnd.balance.toNumber()
 
                     // Assertions
                     assert.equal(farmOpen, false);
-                    assert.notEqual(userSMVKBalanceEnd, userSMVKBalance)
+                    assert.notEqual(userSMVNBalanceEnd, userSMVNBalance)
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -963,8 +963,8 @@ describe("Test: Farm Contract", async () => {
 
                     var updatedAccRewardsPerShare = farmStorage.accumulatedRewardsPerShare; 
 
-                    const userSMVKLedger          = await doormanStorage.userStakeBalanceLedger.get(userOne);
-                    const userSMVKBalance         = userSMVKLedger === undefined ? 0 : userSMVKLedger.balance.toNumber();
+                    const userSMVNLedger          = await doormanStorage.userStakeBalanceLedger.get(userOne);
+                    const userSMVNBalance         = userSMVNLedger === undefined ? 0 : userSMVNLedger.balance.toNumber();
 
                     var userDepositRecord     = await farmStorage.depositorLedger.get(userOne);
 
@@ -972,7 +972,7 @@ describe("Test: Farm Contract", async () => {
                     assert.equal(farmOpen, false);
                     assert.equal(initialAccRewardsPerShare.toNumber(), updatedAccRewardsPerShare.toNumber());
 
-                    // Second operation to check no change in sMVK balance
+                    // Second operation to check no change in sMVN balance
                     await wait(4 * blockTime * 1000);
                     const secondClaimOperation = await farmInstance.methods.claim([userOne]).send();
                     await secondClaimOperation.confirmation();
@@ -983,12 +983,12 @@ describe("Test: Farm Contract", async () => {
 
                     const userDepositRecordEnd    = await farmStorage.depositorLedger.get(userOne);
 
-                    const userSMVKLedgerEnd       = await doormanStorage.userStakeBalanceLedger.get(userOne);
-                    const userSMVKBalanceEnd      = userSMVKLedgerEnd === undefined ? 0 : userSMVKLedgerEnd.balance.toNumber()
+                    const userSMVNLedgerEnd       = await doormanStorage.userStakeBalanceLedger.get(userOne);
+                    const userSMVNBalanceEnd      = userSMVNLedgerEnd === undefined ? 0 : userSMVNLedgerEnd.balance.toNumber()
 
                     // Assertions - userOne should have no change in unclaimed rewards, claimed rewards and participation rewards per share
                     assert.equal(farmOpen, false);
-                    assert.equal(userSMVKBalanceEnd, userSMVKBalance);
+                    assert.equal(userSMVNBalanceEnd, userSMVNBalance);
                     
                     assert.equal(userDepositRecordEnd.unclaimedRewards.toNumber(), userDepositRecord.unclaimedRewards.toNumber());
                     assert.equal(userDepositRecordEnd.claimedRewards.toNumber(), userDepositRecord.claimedRewards.toNumber());
@@ -1296,20 +1296,20 @@ describe("Test: Farm Contract", async () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - userOne (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
+                // Mistaken Operation - userOne (mallory) send 10 MavenFa2Tokens to MVN Token Contract
                 await signerFactory(tezos, userThreeSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userThree, farmAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, userThree, farmAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userThree)).toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(userThree)).toNumber()
 
                 await signerFactory(tezos, adminSk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, userThree, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, userThree, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userThree)).toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(userThree)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -1325,7 +1325,7 @@ describe("Test: Farm Contract", async () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - userOne (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
+                // Mistaken Operation - userOne (mallory) send 10 MavenFa2Tokens to MVN Token Contract
                 await signerFactory(tezos, userThreeSk);
                 transferOperation = await fa12Transfer(lpTokenInstance, userThree, farmAddress, tokenAmount);
                 await transferOperation.confirmation();
@@ -1571,12 +1571,12 @@ describe("Test: Farm Contract", async () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MavrykFa2Tokens to MVK Token Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userThree, farmAddress, tokenId, tokenAmount);
+                // Mistaken Operation - send 10 MavenFa2Tokens to MVN Token Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, userThree, farmAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, userThree, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, userThree, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {

@@ -1,6 +1,6 @@
 import { TransactionOperation } from "@taquito/taquito"
 
-import { MVK, TEZ, Utils } from "../helpers/Utils"
+import { MVN, TEZ, Utils } from "../helpers/Utils"
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -46,26 +46,26 @@ describe('Setup and deploy funds for relevant contracts', async () => {
             const councilAddress            = contractDeployments.council.address;
             const treasuryAddress           = contractDeployments.treasury.address;
 
-            const mvkTokenInstance          = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+            const mvnTokenInstance          = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
             const treasuryInstance          = await utils.tezos.contract.at(treasuryAddress);
-            const mavrykFa12TokenInstance   = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
-            const mavrykFa2TokenInstance    = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
+            const mavenFa12TokenInstance   = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
+            const mavenFa2TokenInstance    = await utils.tezos.contract.at(contractDeployments.mavenFa2Token.address);
             
             // make transfers if environment is not production
             if (utils.production !== "true"){
 
                 var sender           = isaac.pkh;
-                const mvkTokenAmount = MVK(1000);
+                const mvnTokenAmount = MVN(1000);
                 const tezAmount      = 100;
                 const tokenAmount    = 30000000; 
 
                 // ------------------------------------------------------------------
-                // MVK Token Transfer
+                // MVN Token Transfer
                 // ------------------------------------------------------------------
 
-                // transfer MVK tokens to Treasury and Council contract
+                // transfer MVN tokens to Treasury and Council contract
                 await signerFactory(tezos, isaac.sk);
-                const transferMvkTokens = await mvkTokenInstance.methods.transfer(
+                const transferMvnTokens = await mvnTokenInstance.methods.transfer(
                 [
                     {
                         from_: sender,
@@ -73,17 +73,17 @@ describe('Setup and deploy funds for relevant contracts', async () => {
                             {
                                 to_: treasuryAddress,
                                 token_id: 0,
-                                amount: mvkTokenAmount,
+                                amount: mvnTokenAmount,
                             },
                             {
                                 to_: councilAddress,
                                 token_id: 0,
-                                amount: mvkTokenAmount,
+                                amount: mvnTokenAmount,
                             }
                         ],
                     },
                 ]).send()
-                await transferMvkTokens.confirmation();
+                await transferMvnTokens.confirmation();
 
                 // ------------------------------------------------------------------
                 // XTZ Transfer
@@ -103,31 +103,31 @@ describe('Setup and deploy funds for relevant contracts', async () => {
                 // Mock FA12 Token Transfer
                 // ------------------------------------------------------------------
 
-                // transfer 30 Mavryk FA12 Tokens to Council
-                transferOperation = await fa12Transfer(mavrykFa12TokenInstance, sender, councilAddress, tokenAmount);
+                // transfer 30 Maven FA12 Tokens to Council
+                transferOperation = await fa12Transfer(mavenFa12TokenInstance, sender, councilAddress, tokenAmount);
                 await transferOperation.confirmation();
 
-                // transfer 30 Mavryk FA12 Tokens to Treasury
-                transferOperation = await fa12Transfer(mavrykFa12TokenInstance, sender, treasuryAddress, tokenAmount);
+                // transfer 30 Maven FA12 Tokens to Treasury
+                transferOperation = await fa12Transfer(mavenFa12TokenInstance, sender, treasuryAddress, tokenAmount);
                 await transferOperation.confirmation();
 
                 // ------------------------------------------------------------------
                 // Mock FA2 Token Transfer
                 // ------------------------------------------------------------------
 
-                // transfer 30 Mavryk FA2 Tokens to Council
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, sender, councilAddress, tokenId, tokenAmount);
+                // transfer 30 Maven FA2 Tokens to Council
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, sender, councilAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                // transfer 30 Mavryk FA2 Tokens to Treasury
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, sender, treasuryAddress, tokenId, tokenAmount);
+                // transfer 30 Maven FA2 Tokens to Treasury
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, sender, treasuryAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
             }
 
             // Update operators for treasury
             await signerFactory(tezos, bob.sk)
             const updateOperatorsTreasury = await treasuryInstance.methods.updateTokenOperators(
-                contractDeployments.mvkToken.address,
+                contractDeployments.mvnToken.address,
                 [
                     {
                         add_operator: {

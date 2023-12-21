@@ -1,6 +1,6 @@
 import assert from "assert";
 
-import { MVK, Utils } from "./helpers/Utils";
+import { MVN, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -26,7 +26,7 @@ import {
     updateWhitelistContracts,
     updateGeneralContracts,
     updateWhitelistTokenContracts,
-    calcStakedMvkRequiredForActionApproval, 
+    calcStakedMvnRequiredForActionApproval, 
     calcTotalVotingPower 
 } from './helpers/helperFunctions'
 
@@ -41,7 +41,7 @@ describe("Test: Governance Financial Contract", async () => {
 
     let doormanAddress
     let treasuryAddress 
-    let mvkTokenAddress
+    let mvnTokenAddress
     let councilAddress
     let governanceFinancialAddress
     let tokenId = 0
@@ -94,23 +94,23 @@ describe("Test: Governance Financial Contract", async () => {
 
     let doormanInstance;
     let delegationInstance;
-    let mvkTokenInstance;
+    let mvnTokenInstance;
     let governanceInstance;
     let governanceFinancialInstance;
     let councilInstance;
     let treasuryInstance;
-    let mavrykFa12TokenInstance;
-    let mavrykFa2TokenInstance;
+    let mavenFa12TokenInstance;
+    let mavenFa2TokenInstance;
 
     let doormanStorage;
     let delegationStorage;
-    let mvkTokenStorage;
+    let mvnTokenStorage;
     let governanceStorage;
     let governanceFinancialStorage;
     let councilStorage;
     let treasuryStorage;
-    let mavrykFa12TokenStorage;
-    let mavrykFa2TokenStorage;
+    let mavenFa12TokenStorage;
+    let mavenFa2TokenStorage;
 
     let currentCycle
     let approvalPercentage
@@ -163,28 +163,28 @@ describe("Test: Governance Financial Contract", async () => {
             doormanAddress                  = contractDeployments.doorman.address
             councilAddress                  = contractDeployments.council.address
             treasuryAddress                 = contractDeployments.treasury.address
-            mvkTokenAddress                 = contractDeployments.mvkToken.address
+            mvnTokenAddress                 = contractDeployments.mvnToken.address
             governanceFinancialAddress      = contractDeployments.governanceFinancial.address;
             
             doormanInstance                 = await utils.tezos.contract.at(doormanAddress);
             delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
-            mvkTokenInstance                = await utils.tezos.contract.at(mvkTokenAddress);
+            mvnTokenInstance                = await utils.tezos.contract.at(mvnTokenAddress);
             governanceInstance              = await utils.tezos.contract.at(contractDeployments.governance.address);
             governanceFinancialInstance     = await utils.tezos.contract.at(governanceFinancialAddress);
             councilInstance                 = await utils.tezos.contract.at(councilAddress);
             treasuryInstance                = await utils.tezos.contract.at(treasuryAddress);
-            mavrykFa12TokenInstance         = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
-            mavrykFa2TokenInstance          = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
+            mavenFa12TokenInstance         = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
+            mavenFa2TokenInstance          = await utils.tezos.contract.at(contractDeployments.mavenFa2Token.address);
     
             doormanStorage                  = await doormanInstance.storage();
             delegationStorage               = await delegationInstance.storage();
-            mvkTokenStorage                 = await mvkTokenInstance.storage();
+            mvnTokenStorage                 = await mvnTokenInstance.storage();
             governanceStorage               = await governanceFinancialInstance.storage();
             governanceFinancialStorage      = await governanceFinancialInstance.storage();
             councilStorage                  = await councilInstance.storage();
             treasuryStorage                 = await treasuryInstance.storage();
-            mavrykFa12TokenStorage          = await mavrykFa12TokenInstance.storage();
-            mavrykFa2TokenStorage           = await mavrykFa2TokenInstance.storage();
+            mavenFa12TokenStorage          = await mavenFa12TokenInstance.storage();
+            mavenFa2TokenStorage           = await mavenFa2TokenInstance.storage();
     
             console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
@@ -283,14 +283,14 @@ describe("Test: Governance Financial Contract", async () => {
                 doormanStorage              = await doormanInstance.storage();
 
                 // request tokens params
-                const tokenAmount                   = 5000000; // 5 Mavryk FA12 Tokens
+                const tokenAmount                   = 5000000; // 5 Maven FA12 Tokens
                 const treasury                      = contractDeployments.treasury.address;
                 const receiverAddress               = councilAddress;
-                let tokenContractAddress            = mavrykFa12TokenInstance.address; 
-                const tokenName                     = "MAVRYKFA12";
+                let tokenContractAddress            = mavenFa12TokenInstance.address; 
+                const tokenName                     = "MAVENFA12";
                 const tokenType                     = "FA12";
                 const tokenId                       = 0;
-                let purpose                         = "Should Fail: Test Council Request Transfer of 5 Mavryk FA12 Tokens";            
+                let purpose                         = "Should Fail: Test Council Request Transfer of 5 Maven FA12 Tokens";            
 
                 // satellite tries to create a financial request for tokens
                 await signerFactory(tezos, satelliteOneSk)
@@ -325,8 +325,8 @@ describe("Test: Governance Financial Contract", async () => {
                 const financialRequestCounter   = governanceFinancialStorage.financialRequestCounter;
                 currentCycle                    = governanceStorage.cycleId;
 
-                // get initial council balance of Mavryk FA12 tokens
-                const initialCouncilMavrykFa12Balance           = (await mavrykFa12TokenStorage.ledger.get(councilAddress)) == undefined ? 0 : (await mavrykFa12TokenStorage.ledger.get(councilAddress)).balance.toNumber();
+                // get initial council balance of Maven FA12 tokens
+                const initialCouncilMavenFa12Balance           = (await mavenFa12TokenStorage.ledger.get(councilAddress)) == undefined ? 0 : (await mavenFa12TokenStorage.ledger.get(councilAddress)).balance.toNumber();
 
                 // get initial values of satellites
                 const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
@@ -348,20 +348,20 @@ describe("Test: Governance Financial Contract", async () => {
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
                 // request tokens params
-                const tokenAmount                       = 5000000; // 5 Mavryk FA12 Tokens
+                const tokenAmount                       = 5000000; // 5 Maven FA12 Tokens
                 const treasury                          = contractDeployments.treasury.address;
                 const receiverAddress                   = councilAddress;
-                const mavrykFa12TokenContractAddress    = mavrykFa12TokenInstance.address; 
-                const tokenName                         = "MAVRYKFA12";
+                const mavenFa12TokenContractAddress    = mavenFa12TokenInstance.address; 
+                const tokenName                         = "MAVENFA12";
                 const tokenType                         = "FA12";
                 const tokenId                           = 0;
-                const purpose                           = "Test Council Request Transfer of 5 Mavryk FA12 Tokens";            
+                const purpose                           = "Test Council Request Transfer of 5 Maven FA12 Tokens";            
 
-                // Council member (eve) requests for mavryk FA12 token to be transferred from the Treasury
+                // Council member (eve) requests for maven FA12 token to be transferred from the Treasury
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
                         treasury, 
                         receiverAddress,
-                        mavrykFa12TokenContractAddress,
+                        mavenFa12TokenContractAddress,
                         tokenName, 
                         tokenAmount, 
                         tokenType, 
@@ -380,7 +380,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const dataMap                       = councilActionRequestTokens.dataMap
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
                 const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
-                const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: mavrykFa12TokenContractAddress }, type: { prim: 'address' } })).packed
+                const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: mavenFa12TokenContractAddress }, type: { prim: 'address' } })).packed
                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -420,10 +420,10 @@ describe("Test: Governance Financial Contract", async () => {
                 const updatedCouncilAction         = await councilStorage.councilActionsLedger.get(councilActionId);
                 const governanceFinancialRequest   = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                // calculate staked MVK required for approval
-                const totalStakedMvkSupply                     = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval             = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                // calculate staked MVN required for approval
+                const totalStakedMvnSupply                     = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvnRequiredForApproval             = calcStakedMvnRequiredForActionApproval(totalStakedMvnSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -437,16 +437,16 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
                 assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
-                assert.equal(governanceFinancialRequest.tokenContractAddress,           mavrykFa12TokenContractAddress);
+                assert.equal(governanceFinancialRequest.tokenContractAddress,           mavenFa12TokenContractAddress);
                 assert.equal(governanceFinancialRequest.tokenName,                      tokenName);
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);
                 assert.equal(governanceFinancialRequest.tokenType,                      tokenType);
                 assert.equal(governanceFinancialRequest.tokenId,                        tokenId);
                 assert.equal(governanceFinancialRequest.requestPurpose,                 purpose);
-                assert.equal(governanceFinancialRequest.yayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.nayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.stakedMvkPercentageForApproval, 6700);
-                assert.equal(governanceFinancialRequest.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
+                assert.equal(governanceFinancialRequest.yayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.nayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.stakedMvnPercentageForApproval, 6700);
+                assert.equal(governanceFinancialRequest.stakedMvnRequiredForApproval,   stakedMvnRequiredForApproval);
 
                 // satellites vote and yay financial request
                 await signerFactory(tezos, satelliteOneSk);
@@ -463,36 +463,36 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get updated storage
                 governanceFinancialStorage                         = await governanceFinancialInstance.storage();        
-                mavrykFa12TokenStorage                             = await mavrykFa12TokenInstance.storage();
+                mavenFa12TokenStorage                             = await mavenFa12TokenInstance.storage();
 
-                // get updated governance financial request and updated council mavryk FA12 token balance   
+                // get updated governance financial request and updated council maven FA12 token balance   
                 const updatedGovernanceFinancialRequest            = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
-                const updatedCouncilMavrykFa12Balance              = (await mavrykFa12TokenStorage.ledger.get(councilAddress)) == undefined ? 0 : (await mavrykFa12TokenStorage.ledger.get(councilAddress)).balance.toNumber();
+                const updatedCouncilMavenFa12Balance              = (await mavenFa12TokenStorage.ledger.get(councilAddress)) == undefined ? 0 : (await mavenFa12TokenStorage.ledger.get(councilAddress)).balance.toNumber();
 
                 // check details of financial request snapshot ledger
                 const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
                 const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
                 const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvnBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
                 // check that financial request has been executed
-                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
-                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal.toNumber(),     0);
+                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvnTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvnTotal.toNumber(),     0);
                 assert.equal(updatedGovernanceFinancialRequest.status,                               true);
                 assert.equal(updatedGovernanceFinancialRequest.executed,                             true);
 
-                // check that council now has 100 Mavryk FA12 Tokens in its account
-                assert.equal(updatedCouncilMavrykFa12Balance, initialCouncilMavrykFa12Balance + tokenAmount);
+                // check that council now has 100 Maven FA12 Tokens in its account
+                assert.equal(updatedCouncilMavenFa12Balance, initialCouncilMavenFa12Balance + tokenAmount);
 
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -513,8 +513,8 @@ describe("Test: Governance Financial Contract", async () => {
                 const financialRequestCounter   = governanceFinancialStorage.financialRequestCounter;
                 currentCycle                    = governanceStorage.cycleId;
 
-                // get initial council balance of Mavryk FA2 tokens
-                const initialCouncilMavrykFa2Balance            = (await mavrykFa2TokenStorage.ledger.get(councilAddress)) == undefined ? 0 : (await mavrykFa2TokenStorage.ledger.get(councilAddress)).toNumber();
+                // get initial council balance of Maven FA2 tokens
+                const initialCouncilMavenFa2Balance            = (await mavenFa2TokenStorage.ledger.get(councilAddress)) == undefined ? 0 : (await mavenFa2TokenStorage.ledger.get(councilAddress)).toNumber();
 
                 // get initial values of satellites
                 const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
@@ -536,20 +536,20 @@ describe("Test: Governance Financial Contract", async () => {
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
                 // request tokens params
-                const tokenAmount                   = 5000000; // 5 Mavryk FA2 Tokens
+                const tokenAmount                   = 5000000; // 5 Maven FA2 Tokens
                 const treasury                      = contractDeployments.treasury.address;
                 const receiverAddress               = councilAddress;
-                const mavrykFa2TokenContractAddress = mavrykFa2TokenInstance.address; 
-                const tokenName                     = "MAVRYKFA2";
+                const mavenFa2TokenContractAddress = mavenFa2TokenInstance.address; 
+                const tokenName                     = "MAVENFA2";
                 const tokenType                     = "FA2";
                 const tokenId                       = 0;
-                const purpose                       = "Test Council Request Transfer of 5 Mavryk FA2 Tokens";            
+                const purpose                       = "Test Council Request Transfer of 5 Maven FA2 Tokens";            
 
-                // Council member (eve) requests for mavryk FA2 token to be transferred from the Treasury
+                // Council member (eve) requests for maven FA2 token to be transferred from the Treasury
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
                         treasury, 
                         receiverAddress,
-                        mavrykFa2TokenContractAddress,
+                        mavenFa2TokenContractAddress,
                         tokenName, 
                         tokenAmount, 
                         tokenType, 
@@ -568,7 +568,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const dataMap                       = councilActionRequestTokens.dataMap
                 const packedTreasuryAddress         = (await utils.tezos.rpc.packData({ data: { string: treasury }, type: { prim: 'address' } })).packed
                 const packedReceiverAddress         = (await utils.tezos.rpc.packData({ data: { string: receiverAddress }, type: { prim: 'address' } })).packed
-                const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: mavrykFa2TokenContractAddress }, type: { prim: 'address' } })).packed
+                const packedTokenContractAddress    = (await utils.tezos.rpc.packData({ data: { string: mavenFa2TokenContractAddress }, type: { prim: 'address' } })).packed
                 const packedTokenName               = (await utils.tezos.rpc.packData({ data: { string: tokenName }, type: { prim: 'string' } })).packed
                 const packedTokenType               = (await utils.tezos.rpc.packData({ data: { string: tokenType }, type: { prim: 'string' } })).packed
                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
@@ -608,10 +608,10 @@ describe("Test: Governance Financial Contract", async () => {
                 const updatedCouncilAction            = await councilStorage.councilActionsLedger.get(councilActionId);
                 const governanceFinancialRequest      = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                // calculate staked MVK required for approval
-                const totalStakedMvkSupply            = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval    = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                // calculate staked MVN required for approval
+                const totalStakedMvnSupply            = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvnRequiredForApproval    = calcStakedMvnRequiredForActionApproval(totalStakedMvnSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -625,16 +625,16 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
                 assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
-                assert.equal(governanceFinancialRequest.tokenContractAddress,           mavrykFa2TokenContractAddress);
+                assert.equal(governanceFinancialRequest.tokenContractAddress,           mavenFa2TokenContractAddress);
                 assert.equal(governanceFinancialRequest.tokenName,                      tokenName);
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);
                 assert.equal(governanceFinancialRequest.tokenType,                      tokenType);
                 assert.equal(governanceFinancialRequest.tokenId,                        tokenId);
                 assert.equal(governanceFinancialRequest.requestPurpose,                 purpose);
-                assert.equal(governanceFinancialRequest.yayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.nayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.stakedMvkPercentageForApproval, 6700);
-                assert.equal(governanceFinancialRequest.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
+                assert.equal(governanceFinancialRequest.yayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.nayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.stakedMvnPercentageForApproval, 6700);
+                assert.equal(governanceFinancialRequest.stakedMvnRequiredForApproval,   stakedMvnRequiredForApproval);
 
                 // satellites vote and yay financial request
                 await signerFactory(tezos, satelliteOneSk);
@@ -651,35 +651,35 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get updated storage
                 governanceFinancialStorage               = await governanceFinancialInstance.storage();        
-                mavrykFa2TokenStorage                    = await mavrykFa2TokenInstance.storage();
+                mavenFa2TokenStorage                    = await mavenFa2TokenInstance.storage();
                 
                 const updatedGovernanceFinancialRequest  = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
-                const updatedCouncilMavrykFa2Balance     = (await mavrykFa2TokenStorage.ledger.get(councilAddress)) == undefined ? 0 : (await mavrykFa2TokenStorage.ledger.get(councilAddress)).toNumber();
+                const updatedCouncilMavenFa2Balance     = (await mavenFa2TokenStorage.ledger.get(councilAddress)) == undefined ? 0 : (await mavenFa2TokenStorage.ledger.get(councilAddress)).toNumber();
     
                 // check details of financial request snapshot ledger
                 const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
                 const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
                 const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvnBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
                 // check that financial request has been executed
-                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
-                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal.toNumber(),     0);
+                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvnTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvnTotal.toNumber(),     0);
                 assert.equal(updatedGovernanceFinancialRequest.status,                               true);
                 assert.equal(updatedGovernanceFinancialRequest.executed,                             true);
             
                 // check that council now has the correct updated balance
-                assert.equal(updatedCouncilMavrykFa2Balance, initialCouncilMavrykFa2Balance + tokenAmount);
+                assert.equal(updatedCouncilMavenFa2Balance, initialCouncilMavenFa2Balance + tokenAmount);
 
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -733,7 +733,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const tokenId                       = 0;
                 const purpose                       = "Test Council Request Transfer of 5 XTZ";            
 
-                // Council member (eve) requests for MVK to be minted
+                // Council member (eve) requests for MVN to be minted
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
                         treasury, 
                         receiverAddress,
@@ -796,10 +796,10 @@ describe("Test: Governance Financial Contract", async () => {
                 const updatedCouncilAction            = await councilStorage.councilActionsLedger.get(councilActionId);
                 const governanceFinancialRequest      = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                // calculate staked MVK required for approval
-                const totalStakedMvkSupply            = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval    = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                // calculate staked MVN required for approval
+                const totalStakedMvnSupply            = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvnRequiredForApproval    = calcStakedMvnRequiredForActionApproval(totalStakedMvnSupply, approvalPercentage, financialRequestPercentageDecimals);
                 
                 // check that council action is yayd and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -819,10 +819,10 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.tokenType,                      tokenType);
                 assert.equal(governanceFinancialRequest.tokenId,                        tokenId);
                 assert.equal(governanceFinancialRequest.requestPurpose,                 purpose);
-                assert.equal(governanceFinancialRequest.yayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.nayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.stakedMvkPercentageForApproval, 6700);
-                assert.equal(governanceFinancialRequest.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
+                assert.equal(governanceFinancialRequest.yayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.nayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.stakedMvnPercentageForApproval, 6700);
+                assert.equal(governanceFinancialRequest.stakedMvnRequiredForApproval,   stakedMvnRequiredForApproval);
 
                 // satellites vote and yay financial request
                 await signerFactory(tezos, satelliteOneSk);
@@ -847,22 +847,22 @@ describe("Test: Governance Financial Contract", async () => {
                 // check details of financial request snapshot ledger
                 const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
                 const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
                 const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvnBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
                 // check that financial request has been executed
-                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
-                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal.toNumber(),     0);
+                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvnTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvnTotal.toNumber(),     0);
                 assert.equal(updatedGovernanceFinancialRequest.status,                               true);
                 assert.equal(updatedGovernanceFinancialRequest.executed,                             true);
 
@@ -875,7 +875,7 @@ describe("Test: Governance Financial Contract", async () => {
         });
 
 
-        it('%requestMint                        - satellite (eve) should not be able to create a financial request for minting new MVK Tokens', async () => {
+        it('%requestMint                        - satellite (eve) should not be able to create a financial request for minting new MVN Tokens', async () => {
             try{
                 
                 // initial storage
@@ -887,10 +887,10 @@ describe("Test: Governance Financial Contract", async () => {
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
-                const tokenAmount           = MVK(100);
-                const purpose               = "Should Fail: Test Council Request Mint 100 MVK";            
+                const tokenAmount           = MVN(100);
+                const purpose               = "Should Fail: Test Council Request Mint 100 MVN";            
 
-                // satellite tries to create a financial request for minting MVK
+                // satellite tries to create a financial request for minting MVN
                 await signerFactory(tezos, satelliteOneSk)
                 createFinancialGovernanceRequestOperation = await governanceFinancialInstance.methods.requestMint(
                     treasury, 
@@ -906,7 +906,7 @@ describe("Test: Governance Financial Contract", async () => {
         });
 
 
-        it('%requestMint                        - satellites should be able to approve a financial request to mint new MVK Tokens to the Council', async () => {
+        it('%requestMint                        - satellites should be able to approve a financial request to mint new MVN Tokens to the Council', async () => {
             try{
 
                 // initial storage
@@ -914,15 +914,15 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceStorage           = await governanceInstance.storage();
                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
                 doormanStorage              = await doormanInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
 
                 // get initial action ids and counters
                 const councilActionId           = councilStorage.actionCounter;
                 const financialRequestCounter   = governanceFinancialStorage.financialRequestCounter;
                 currentCycle                    = governanceStorage.cycleId;
 
-                // get council initial mvk balance
-                const initialCouncilMvkBalance  = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                // get council initial mvn balance
+                const initialCouncilMvnBalance  = (await mvnTokenStorage.ledger.get(councilAddress)).toNumber();
 
                 // get initial values of satellites
                 const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
@@ -946,11 +946,11 @@ describe("Test: Governance Financial Contract", async () => {
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = contractDeployments.mvkToken.address; 
-                const tokenAmount           = MVK(100); // 100 MVK
-                const purpose               = "Test Council Request Mint 100 MVK";            
+                const tokenContractAddress  = contractDeployments.mvnToken.address; 
+                const tokenAmount           = MVN(100); // 100 MVN
+                const purpose               = "Test Council Request Mint 100 MVN";            
 
-                // Council member (eve) requests for MVK to be minted and transferred from the Treasury
+                // Council member (eve) requests for MVN to be minted and transferred from the Treasury
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
                         receiverAddress,
@@ -1000,10 +1000,10 @@ describe("Test: Governance Financial Contract", async () => {
                 const councilActionRequestMintSigned    = await councilStorage.councilActionsLedger.get(councilActionId);
                 const governanceFinancialRequest        = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                // calculate staked MVK required for approval
-                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                // calculate staked MVN required for approval
+                const totalStakedMvnSupply              = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvnRequiredForApproval      = calcStakedMvnRequiredForActionApproval(totalStakedMvnSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(councilActionRequestMintSigned.signersCount,  3);
@@ -1018,15 +1018,15 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
                 assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
-                assert.equal(governanceFinancialRequest.tokenName,                      "MVK");
+                assert.equal(governanceFinancialRequest.tokenName,                      "MVN");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);            
                 assert.equal(governanceFinancialRequest.tokenType,                      "FA2");
                 assert.equal(governanceFinancialRequest.tokenId,                        0);
                 assert.equal(governanceFinancialRequest.requestPurpose,                 purpose);
-                assert.equal(governanceFinancialRequest.yayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.nayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.stakedMvkPercentageForApproval, 6700);
-                assert.equal(governanceFinancialRequest.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
+                assert.equal(governanceFinancialRequest.yayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.nayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.stakedMvnPercentageForApproval, 6700);
+                assert.equal(governanceFinancialRequest.stakedMvnRequiredForApproval,   stakedMvnRequiredForApproval);
 
                 // satellites vote and yay financial request
                 await signerFactory(tezos, satelliteOneSk);
@@ -1041,44 +1041,44 @@ describe("Test: Governance Financial Contract", async () => {
                 satelliteVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestCounter, "yay").send();
                 await satelliteVotesForFinancialRequestOperation.confirmation();
 
-                // get updated storage (governance financial request ledger and council account in mvk token contract)
+                // get updated storage (governance financial request ledger and council account in mvn token contract)
                 governanceFinancialStorage                    = await governanceFinancialInstance.storage();        
-                mvkTokenStorage                               = await mvkTokenInstance.storage();
+                mvnTokenStorage                               = await mvnTokenInstance.storage();
 
                 const updatedGovernanceFinancialRequest       = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
-                const updatedCouncilMvkBalance                = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                const updatedCouncilMvnBalance                = (await mvnTokenStorage.ledger.get(councilAddress)).toNumber();
                 
                 // check details of financial request snapshot ledger
                 const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
                 const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
                 const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvnBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
                 // check that financial request has been executed
-                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
-                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal.toNumber(),     0);
+                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvnTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvnTotal.toNumber(),     0);
                 assert.equal(updatedGovernanceFinancialRequest.status,                               true);
                 assert.equal(updatedGovernanceFinancialRequest.executed,                             true);
 
                 // check that council now has the correct updated balance
-                assert.equal(updatedCouncilMvkBalance, initialCouncilMvkBalance + tokenAmount);
+                assert.equal(updatedCouncilMvnBalance, initialCouncilMvnBalance + tokenAmount);
 
             } catch(e){
                 console.dir(e, {depth: 5})
             } 
         });
 
-        it('%requestMint                        - council should not be able to mint more than the MVK maximum supply', async () => {
+        it('%requestMint                        - council should not be able to mint more than the MVN maximum supply', async () => {
             try{
 
                 // initial storage
@@ -1086,15 +1086,15 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceStorage           = await governanceInstance.storage();
                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
                 doormanStorage              = await doormanInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
 
                 // get initial action ids and counters
                 const councilActionId           = councilStorage.actionCounter;
                 const financialRequestCounter   = governanceFinancialStorage.financialRequestCounter;
                 currentCycle                    = governanceStorage.cycleId;
 
-                // get council initial mvk balance
-                const initialCouncilMvkBalance  = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                // get council initial mvn balance
+                const initialCouncilMvnBalance  = (await mvnTokenStorage.ledger.get(councilAddress)).toNumber();
 
                 // get initial values of satellites
                 const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
@@ -1116,14 +1116,14 @@ describe("Test: Governance Financial Contract", async () => {
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
                 // request mint params
-                const mvkMaximumSupply      = mvkTokenStorage.maximumSupply.toNumber();
+                const mvnMaximumSupply      = mvnTokenStorage.maximumSupply.toNumber();
                 const treasury              = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = contractDeployments.mvkToken.address; 
-                const tokenAmount           = mvkMaximumSupply;
-                const purpose               = "Test Council Request Mint MVK Max Supply";            
+                const tokenContractAddress  = contractDeployments.mvnToken.address; 
+                const tokenAmount           = mvnMaximumSupply;
+                const purpose               = "Test Council Request Mint MVN Max Supply";            
 
-                // Council member (eve) requests for MVK to be minted and transferred from the Treasury
+                // Council member (eve) requests for MVN to be minted and transferred from the Treasury
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
                         receiverAddress,
@@ -1173,10 +1173,10 @@ describe("Test: Governance Financial Contract", async () => {
                 const councilActionRequestMintSigned    = await councilStorage.councilActionsLedger.get(councilActionId);
                 const governanceFinancialRequest        = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                // calculate staked MVK required for approval
-                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                // calculate staked MVN required for approval
+                const totalStakedMvnSupply              = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvnRequiredForApproval      = calcStakedMvnRequiredForActionApproval(totalStakedMvnSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(councilActionRequestMintSigned.signersCount,  3);
@@ -1191,15 +1191,15 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
                 assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
-                assert.equal(governanceFinancialRequest.tokenName,                      "MVK");
+                assert.equal(governanceFinancialRequest.tokenName,                      "MVN");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);            
                 assert.equal(governanceFinancialRequest.tokenType,                      "FA2");
                 assert.equal(governanceFinancialRequest.tokenId,                        0);
                 assert.equal(governanceFinancialRequest.requestPurpose,                 purpose);
-                assert.equal(governanceFinancialRequest.yayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.nayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.stakedMvkPercentageForApproval, 6700);
-                assert.equal(governanceFinancialRequest.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
+                assert.equal(governanceFinancialRequest.yayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.nayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.stakedMvnPercentageForApproval, 6700);
+                assert.equal(governanceFinancialRequest.stakedMvnRequiredForApproval,   stakedMvnRequiredForApproval);
 
                 // satellites vote and yay financial request
                 await signerFactory(tezos, satelliteOneSk);
@@ -1210,43 +1210,43 @@ describe("Test: Governance Financial Contract", async () => {
                 satelliteVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestCounter, "yay").send();
                 await satelliteVotesForFinancialRequestOperation.confirmation();
 
-                // financial request should not be able to be executed as treasury should not be able to mint more than max supply of MVK 
+                // financial request should not be able to be executed as treasury should not be able to mint more than max supply of MVN 
                 await signerFactory(tezos, satelliteThreeSk);
                 satelliteVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestCounter, "yay");
                 chai.expect(satelliteVotesForFinancialRequestOperation.send()).to.be.rejected;
 
-                // get updated storage (governance financial request ledger and council account in mvk token contract)
+                // get updated storage (governance financial request ledger and council account in mvn token contract)
                 governanceFinancialStorage                    = await governanceFinancialInstance.storage();        
-                mvkTokenStorage                               = await mvkTokenInstance.storage();
+                mvnTokenStorage                               = await mvnTokenInstance.storage();
 
                 const updatedGovernanceFinancialRequest       = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
-                const updatedCouncilMvkBalance                = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                const updatedCouncilMvnBalance                = (await mvnTokenStorage.ledger.get(councilAddress)).toNumber();
                 
                 // check details of financial request snapshot ledger
                 const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
                 const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
                 const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvnBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
                 // check that financial request has not been executed 
                 // only satellite one and two votes are counted, as last satellite vote will not go through as request should not be executable
-                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower);
-                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal.toNumber(),     0);
+                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvnTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower);
+                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvnTotal.toNumber(),     0);
                 assert.equal(updatedGovernanceFinancialRequest.status,                               true);
                 assert.equal(updatedGovernanceFinancialRequest.executed,                             false);
 
                 // check that council now has the correct updated balance
-                assert.equal(updatedCouncilMvkBalance, initialCouncilMvkBalance);
+                assert.equal(updatedCouncilMvnBalance, initialCouncilMvnBalance);
 
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1287,7 +1287,7 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceStorage           = await governanceInstance.storage();
                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
                 doormanStorage              = await doormanInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
 
                 // get initial action ids and counters
                 const councilActionId           = councilStorage.actionCounter;
@@ -1359,10 +1359,10 @@ describe("Test: Governance Financial Contract", async () => {
                 const councilActionSetContractBakerSigned   = await councilStorage.councilActionsLedger.get(councilActionId);
                 const governanceFinancialRequest            = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                // calculate staked MVK required for approval
-                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                // calculate staked MVN required for approval
+                const totalStakedMvnSupply              = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvnRequiredForApproval      = calcStakedMvnRequiredForActionApproval(totalStakedMvnSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(councilActionSetContractBakerSigned.signersCount,  3);
@@ -1383,10 +1383,10 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.tokenType,                      "NIL");
                 assert.equal(governanceFinancialRequest.tokenId,                        0);
                 assert.equal(governanceFinancialRequest.requestPurpose,                 "Set Contract Baker");
-                assert.equal(governanceFinancialRequest.yayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.nayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.stakedMvkPercentageForApproval, 6700);
-                assert.equal(governanceFinancialRequest.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
+                assert.equal(governanceFinancialRequest.yayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.nayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.stakedMvnPercentageForApproval, 6700);
+                assert.equal(governanceFinancialRequest.stakedMvnRequiredForApproval,   stakedMvnRequiredForApproval);
 
                 // satellites vote and yay financial request
                 await signerFactory(tezos, satelliteOneSk);
@@ -1401,31 +1401,31 @@ describe("Test: Governance Financial Contract", async () => {
                 satelliteVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestCounter, "yay").send();
                 await satelliteVotesForFinancialRequestOperation.confirmation();
 
-                // get updated storage (governance financial request ledger and council account in mvk token contract)
+                // get updated storage (governance financial request ledger and council account in mvn token contract)
                 governanceFinancialStorage                    = await governanceFinancialInstance.storage();        
-                mvkTokenStorage                               = await mvkTokenInstance.storage();
+                mvnTokenStorage                               = await mvnTokenInstance.storage();
 
                 const updatedGovernanceFinancialRequest       = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
                 
                 // check details of financial request snapshot ledger
                 const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
                 const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
                 const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvnBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
                 // check that financial request has been executed
-                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
-                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal.toNumber(),     0);
+                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvnTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvnTotal.toNumber(),     0);
                 assert.equal(updatedGovernanceFinancialRequest.status,                               true);
                 assert.equal(updatedGovernanceFinancialRequest.executed,                             true);
 
@@ -1443,7 +1443,7 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceStorage           = await governanceInstance.storage();
                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
                 doormanStorage              = await doormanInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
 
                 // get initial action ids and counters
                 const councilActionId           = councilStorage.actionCounter;
@@ -1515,10 +1515,10 @@ describe("Test: Governance Financial Contract", async () => {
                 const councilActionSetContractBakerSigned   = await councilStorage.councilActionsLedger.get(councilActionId);
                 const governanceFinancialRequest            = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                // calculate staked MVK required for approval
-                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                // calculate staked MVN required for approval
+                const totalStakedMvnSupply              = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvnRequiredForApproval      = calcStakedMvnRequiredForActionApproval(totalStakedMvnSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(councilActionSetContractBakerSigned.signersCount,  3);
@@ -1539,10 +1539,10 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.tokenType,                      "NIL");
                 assert.equal(governanceFinancialRequest.tokenId,                        0);
                 assert.equal(governanceFinancialRequest.requestPurpose,                 "Set Contract Baker");
-                assert.equal(governanceFinancialRequest.yayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.nayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.stakedMvkPercentageForApproval, 6700);
-                assert.equal(governanceFinancialRequest.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
+                assert.equal(governanceFinancialRequest.yayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.nayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.stakedMvnPercentageForApproval, 6700);
+                assert.equal(governanceFinancialRequest.stakedMvnRequiredForApproval,   stakedMvnRequiredForApproval);
 
                 // satellites vote and yay financial request
                 await signerFactory(tezos, satelliteOneSk);
@@ -1557,31 +1557,31 @@ describe("Test: Governance Financial Contract", async () => {
                 satelliteVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestCounter, "yay").send();
                 await satelliteVotesForFinancialRequestOperation.confirmation();
 
-                // get updated storage (governance financial request ledger and council account in mvk token contract)
+                // get updated storage (governance financial request ledger and council account in mvn token contract)
                 governanceFinancialStorage                    = await governanceFinancialInstance.storage();        
-                mvkTokenStorage                               = await mvkTokenInstance.storage();
+                mvnTokenStorage                               = await mvnTokenInstance.storage();
 
                 const updatedGovernanceFinancialRequest       = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
                 
                 // check details of financial request snapshot ledger
                 const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
                 const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
                 const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvnBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
                 // check that financial request has been executed
-                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
-                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal.toNumber(),     0);
+                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvnTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvnTotal.toNumber(),     0);
                 assert.equal(updatedGovernanceFinancialRequest.status,                               true);
                 assert.equal(updatedGovernanceFinancialRequest.executed,                             true);
 
@@ -1621,7 +1621,7 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceStorage           = await governanceInstance.storage();
                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
                 doormanStorage              = await doormanInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
 
                 // get initial action ids and counters
                 const councilActionId           = councilStorage.actionCounter;
@@ -1629,16 +1629,16 @@ describe("Test: Governance Financial Contract", async () => {
                 currentCycle                    = governanceStorage.cycleId;
     
                 // request tokens params
-                const tokenAmount              = MVK(10); // 10 MVK
+                const tokenAmount              = MVN(10); // 10 MVN
                 const treasury                 = contractDeployments.treasury.address;
                 const receiverAddress          = councilAddress;
-                const tokenContractAddress     = contractDeployments.mvkToken.address; 
-                const tokenName                = "MVK";
+                const tokenContractAddress     = contractDeployments.mvnToken.address; 
+                const tokenName                = "MVN";
                 const tokenType                = "FA2";
                 const tokenId                  = 0;
-                const purpose                  = "Test Council Request Transfer of 100 MVK Tokens";            
+                const purpose                  = "Test Council Request Transfer of 100 MVN Tokens";            
     
-                // Council member (eve) requests for MVK to be transferred from the Treasury
+                // Council member (eve) requests for MVN to be transferred from the Treasury
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
                         treasury, 
                         receiverAddress,
@@ -1749,15 +1749,15 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceStorage           = await governanceInstance.storage();
                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
                 doormanStorage              = await doormanInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
 
                 // get initial action ids and counters
                 const councilActionId           = councilStorage.actionCounter;
                 const financialRequestCounter   = governanceFinancialStorage.financialRequestCounter;
                 currentCycle                    = governanceStorage.cycleId;
 
-                // get council initial mvk balance
-                const initialCouncilMvkBalance  = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                // get council initial mvn balance
+                const initialCouncilMvnBalance  = (await mvnTokenStorage.ledger.get(councilAddress)).toNumber();
 
                 // get initial values of satellites
                 const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
@@ -1781,11 +1781,11 @@ describe("Test: Governance Financial Contract", async () => {
                 // request mint params
                 const treasury                  = contractDeployments.treasury.address;
                 const receiverAddress           = councilAddress;
-                const tokenContractAddress      = contractDeployments.mvkToken.address; 
-                const tokenAmount               = MVK(100); // 100 MVK
-                const purpose                   = "Test Council Request Mint 100 MVK";            
+                const tokenContractAddress      = contractDeployments.mvnToken.address; 
+                const tokenAmount               = MVN(100); // 100 MVN
+                const purpose                   = "Test Council Request Mint 100 MVN";            
 
-                // Council member (eve) requests for MVK to be minted and transferred from the Treasury
+                // Council member (eve) requests for MVN to be minted and transferred from the Treasury
                 await signerFactory(tezos, councilMemberOneSk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                     treasury, 
@@ -1836,10 +1836,10 @@ describe("Test: Governance Financial Contract", async () => {
                 const councilActionRequestMintSigned   = await councilStorage.councilActionsLedger.get(councilActionId);
                 const governanceFinancialRequest        = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                // calculate staked MVK required for approval
-                const totalStakedMvkSupply                     = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval             = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                // calculate staked MVN required for approval
+                const totalStakedMvnSupply                     = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvnRequiredForApproval             = calcStakedMvnRequiredForActionApproval(totalStakedMvnSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(councilActionRequestMintSigned.signersCount,  3);
@@ -1854,15 +1854,15 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
                 assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
-                assert.equal(governanceFinancialRequest.tokenName,                      "MVK");
+                assert.equal(governanceFinancialRequest.tokenName,                      "MVN");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);            
                 assert.equal(governanceFinancialRequest.tokenType,                      "FA2");
                 assert.equal(governanceFinancialRequest.tokenId,                        0);
                 assert.equal(governanceFinancialRequest.requestPurpose,                 purpose);
-                assert.equal(governanceFinancialRequest.yayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.nayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.stakedMvkPercentageForApproval, 6700);
-                assert.equal(governanceFinancialRequest.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
+                assert.equal(governanceFinancialRequest.yayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.nayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.stakedMvnPercentageForApproval, 6700);
+                assert.equal(governanceFinancialRequest.stakedMvnRequiredForApproval,   stakedMvnRequiredForApproval);
 
                 // satellites vote and yay financial request
                 await signerFactory(tezos, satelliteOneSk);
@@ -1879,35 +1879,35 @@ describe("Test: Governance Financial Contract", async () => {
 
                 // get updated storage (governance financial request)
                 governanceFinancialStorage                    = await governanceFinancialInstance.storage();        
-                mvkTokenStorage                               = await mvkTokenInstance.storage();
+                mvnTokenStorage                               = await mvnTokenInstance.storage();
 
                 const updatedGovernanceFinancialRequest       = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
-                const updatedCouncilMvkBalance                = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                const updatedCouncilMvnBalance                = (await mvnTokenStorage.ledger.get(councilAddress)).toNumber();
                 
                 // check details of financial request snapshot ledger
                 const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
                 const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
                 const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvnBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
                 // check that financial request has been executed
-                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
-                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal.toNumber(),     0);
+                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvnTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvnTotal.toNumber(),     0);
                 assert.equal(updatedGovernanceFinancialRequest.status,                               true);
                 assert.equal(updatedGovernanceFinancialRequest.executed,                             true);
 
                 // check that council now has the correct updated balance
-                assert.equal(updatedCouncilMvkBalance, initialCouncilMvkBalance + tokenAmount);
+                assert.equal(updatedCouncilMvnBalance, initialCouncilMvnBalance + tokenAmount);
 
                 // Try to vote for the request again
                 await signerFactory(tezos, satelliteOneSk);
@@ -1956,11 +1956,11 @@ describe("Test: Governance Financial Contract", async () => {
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = contractDeployments.mvkToken.address; 
-                const tokenAmount           = MVK(100); // 100 MVK
-                const purpose               = "Test Council Request Mint 100 MVK";            
+                const tokenContractAddress  = contractDeployments.mvnToken.address; 
+                const tokenAmount           = MVN(100); // 100 MVN
+                const purpose               = "Test Council Request Mint 100 MVN";            
 
-                // Council member (eve) requests for MVK to be minted and transferred from the Treasury
+                // Council member (eve) requests for MVN to be minted and transferred from the Treasury
                 await signerFactory(tezos, councilMemberOneSk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
@@ -2011,10 +2011,10 @@ describe("Test: Governance Financial Contract", async () => {
                 const updatedCouncilAction              = await councilStorage.councilActionsLedger.get(councilActionId);
                 const governanceFinancialRequest        = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                // calculate staked MVK required for approval
-                const totalStakedMvkSupply              = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval      = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                // calculate staked MVN required for approval
+                const totalStakedMvnSupply              = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvnRequiredForApproval      = calcStakedMvnRequiredForActionApproval(totalStakedMvnSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -2029,15 +2029,15 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
                 assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
-                assert.equal(governanceFinancialRequest.tokenName,                      "MVK");
+                assert.equal(governanceFinancialRequest.tokenName,                      "MVN");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);            
                 assert.equal(governanceFinancialRequest.tokenType,                      "FA2");
                 assert.equal(governanceFinancialRequest.tokenId,                        0);
                 assert.equal(governanceFinancialRequest.requestPurpose,                 purpose);
-                assert.equal(governanceFinancialRequest.yayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.nayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.stakedMvkPercentageForApproval, 6700);
-                assert.equal(governanceFinancialRequest.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
+                assert.equal(governanceFinancialRequest.yayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.nayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.stakedMvnPercentageForApproval, 6700);
+                assert.equal(governanceFinancialRequest.stakedMvnRequiredForApproval,   stakedMvnRequiredForApproval);
 
                 // one satellite vote yay for financial request
                 await signerFactory(tezos, satelliteOneSk);
@@ -2048,8 +2048,8 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage                    = await governanceFinancialInstance.storage();        
                 var updatedGovernanceFinancialRequest         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
                 
-                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal, initialSatelliteOneTotalVotingPower)
-                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal, 0)
+                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvnTotal, initialSatelliteOneTotalVotingPower)
+                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvnTotal, 0)
 
                 // change vote and nay financial request
                 satelliteVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestCounter, "nay").send();
@@ -2058,8 +2058,8 @@ describe("Test: Governance Financial Contract", async () => {
                 // get updated storage (governance financial request)
                 governanceFinancialStorage                       = await governanceFinancialInstance.storage();        
                 updatedGovernanceFinancialRequest                = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
-                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal, 0)
-                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal, initialSatelliteOneTotalVotingPower)
+                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvnTotal, 0)
+                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvnTotal, initialSatelliteOneTotalVotingPower)
 
                 // vote for nay financial request again
                 satelliteVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestCounter, "nay").send();
@@ -2068,23 +2068,23 @@ describe("Test: Governance Financial Contract", async () => {
                 // get updated storage (governance financial request)
                 governanceFinancialStorage                 = await governanceFinancialInstance.storage();        
                 updatedGovernanceFinancialRequest          = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
-                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal, 0)
-                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal, initialSatelliteOneTotalVotingPower)
+                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvnTotal, 0)
+                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvnTotal, initialSatelliteOneTotalVotingPower)
 
                 // check details of financial request snapshot
                 const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
                 const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
                 const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvnBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
             } catch(e){
@@ -2121,11 +2121,11 @@ describe("Test: Governance Financial Contract", async () => {
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = contractDeployments.mvkToken.address; 
-                const tokenAmount           = MVK(100); // 100 MVK
-                const purpose               = "Test Council Request Mint 100 MVK";            
+                const tokenContractAddress  = contractDeployments.mvnToken.address; 
+                const tokenAmount           = MVN(100); // 100 MVN
+                const purpose               = "Test Council Request Mint 100 MVN";            
 
-                // Council member (eve) requests for MVK to be minted and transferred from the Treasury
+                // Council member (eve) requests for MVN to be minted and transferred from the Treasury
                 await signerFactory(tezos, councilMemberOneSk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
@@ -2176,10 +2176,10 @@ describe("Test: Governance Financial Contract", async () => {
                 const updatedCouncilAction          = await councilStorage.councilActionsLedger.get(councilActionId);
                 const governanceFinancialRequest    = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                // calculate staked MVK required for approval
-                const totalStakedMvkSupply                     = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval             = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                // calculate staked MVN required for approval
+                const totalStakedMvnSupply                     = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvnRequiredForApproval             = calcStakedMvnRequiredForActionApproval(totalStakedMvnSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -2194,15 +2194,15 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
                 assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
-                assert.equal(governanceFinancialRequest.tokenName,                      "MVK");
+                assert.equal(governanceFinancialRequest.tokenName,                      "MVN");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);            
                 assert.equal(governanceFinancialRequest.tokenType,                      "FA2");
                 assert.equal(governanceFinancialRequest.tokenId,                        0);
                 assert.equal(governanceFinancialRequest.requestPurpose,                 purpose);
-                assert.equal(governanceFinancialRequest.yayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.nayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.stakedMvkPercentageForApproval, 6700);
-                assert.equal(governanceFinancialRequest.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
+                assert.equal(governanceFinancialRequest.yayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.nayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.stakedMvnPercentageForApproval, 6700);
+                assert.equal(governanceFinancialRequest.stakedMvnRequiredForApproval,   stakedMvnRequiredForApproval);
 
                 // satellites vote and yay financial request
                 await signerFactory(tezos, satelliteOneSk);
@@ -2212,7 +2212,7 @@ describe("Test: Governance Financial Contract", async () => {
                 // check details of financial request snapshot ledger
                 const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
                 // reset financial request expiry date back to initial value
@@ -2242,11 +2242,11 @@ describe("Test: Governance Financial Contract", async () => {
                 // prepare sample council action to request tokens
                 const fromTreasury          = treasuryAddress;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = mvkTokenAddress;
-                const tokenName             = "MVK";
+                const tokenContractAddress  = mvnTokenAddress;
+                const tokenName             = "MVN";
                 const tokenType             = "FA2";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
                 const nextActionId          = councilStorage.actionCounter;
 
@@ -2356,11 +2356,11 @@ describe("Test: Governance Financial Contract", async () => {
                 // prepare sample council action to request tokens
                 const fromTreasury          = treasuryAddress;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = mvkTokenAddress;
-                const tokenName             = "MVK";
+                const tokenContractAddress  = mvnTokenAddress;
+                const tokenName             = "MVN";
                 const tokenType             = "FA2";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
                 const nextActionId          = councilStorage.actionCounter;
 
@@ -2485,15 +2485,15 @@ describe("Test: Governance Financial Contract", async () => {
                 councilStorage                  = await councilInstance.storage();
                 governanceStorage               = await governanceInstance.storage();
                 governanceFinancialStorage      = await governanceFinancialInstance.storage();
-                mvkTokenStorage                 = await mvkTokenInstance.storage();
+                mvnTokenStorage                 = await mvnTokenInstance.storage();
                 
                 // get initial action ids and counters
                 const councilActionId           = councilStorage.actionCounter;
                 const financialRequestCounter   = governanceFinancialStorage.financialRequestCounter;
                 currentCycle                    = governanceStorage.cycleId;
                 
-                // get initial MVK balance of council
-                const initialCouncilMvkBalance                  = (await mvkTokenStorage.ledger.get(councilAddress)).toNumber();
+                // get initial MVN balance of council
+                const initialCouncilMvnBalance                  = (await mvnTokenStorage.ledger.get(councilAddress)).toNumber();
 
                 // get initial values of satellites
                 const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
@@ -2517,11 +2517,11 @@ describe("Test: Governance Financial Contract", async () => {
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = contractDeployments.mvkToken.address; 
-                const tokenAmount           = MVK(100); // 100 MVK
-                const purpose               = "Test Council Request Mint 100 MVK";            
+                const tokenContractAddress  = contractDeployments.mvnToken.address; 
+                const tokenAmount           = MVN(100); // 100 MVN
+                const purpose               = "Test Council Request Mint 100 MVN";            
 
-                // Council member (eve) requests for MVK to be minted and transferred from the Treasury
+                // Council member (eve) requests for MVN to be minted and transferred from the Treasury
                 await signerFactory(tezos, councilMemberOneSk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
@@ -2577,10 +2577,10 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(updatedCouncilAction.executed,      true);
                 assert.equal(updatedCouncilAction.status,        "EXECUTED");
                 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                // calculate staked MVK required for approval
-                const totalStakedMvkSupply                     = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval             = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                // calculate staked MVN required for approval
+                const totalStakedMvnSupply                     = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvnRequiredForApproval             = calcStakedMvnRequiredForActionApproval(totalStakedMvnSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check details of financial request
                 assert.equal(governanceFinancialRequest.requesterAddress,               councilAddress);
@@ -2589,15 +2589,15 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.executed,                       false);
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
-                assert.equal(governanceFinancialRequest.tokenName,                      "MVK");
+                assert.equal(governanceFinancialRequest.tokenName,                      "MVN");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);            
                 assert.equal(governanceFinancialRequest.tokenType,                      "FA2");
                 assert.equal(governanceFinancialRequest.tokenId,                        0);
                 assert.equal(governanceFinancialRequest.requestPurpose,                 purpose);
-                assert.equal(governanceFinancialRequest.yayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.nayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.stakedMvkPercentageForApproval, 6700);
-                assert.equal(governanceFinancialRequest.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
+                assert.equal(governanceFinancialRequest.yayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.nayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.stakedMvnPercentageForApproval, 6700);
+                assert.equal(governanceFinancialRequest.stakedMvnRequiredForApproval,   stakedMvnRequiredForApproval);
 
                 // satellites vote and yay financial request
                 await signerFactory(tezos, satelliteOneSk);
@@ -2612,38 +2612,38 @@ describe("Test: Governance Financial Contract", async () => {
                 satelliteVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestCounter, "yay").send();
                 await satelliteVotesForFinancialRequestOperation.confirmation();
 
-                // get updated storage (governance financial request ledger and council account in mvk token contract)
+                // get updated storage (governance financial request ledger and council account in mvn token contract)
                 governanceFinancialStorage                  = await governanceFinancialInstance.storage();        
                 const updatedGovernanceFinancialRequest     = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
     
                 // check details of financial request snapshot ledger
                 const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
                 const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
                 const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvnBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
                 // check that financial request has been executed
-                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvkTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
-                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvkTotal.toNumber(),     0);
+                assert.equal(updatedGovernanceFinancialRequest.yayVoteStakedMvnTotal.toNumber(),     initialSatelliteOneTotalVotingPower + initialSatelliteTwoTotalVotingPower + initialSatelliteThreeTotalVotingPower);
+                assert.equal(updatedGovernanceFinancialRequest.nayVoteStakedMvnTotal.toNumber(),     0);
                 assert.equal(updatedGovernanceFinancialRequest.status,                               true);
                 assert.equal(updatedGovernanceFinancialRequest.executed,                             true);
             
-                // update mvk token storage
-                mvkTokenStorage                  = await mvkTokenInstance.storage();
-                const updatedCouncilMvkBalance   = await mvkTokenStorage.ledger.get(councilAddress);
+                // update mvn token storage
+                mvnTokenStorage                  = await mvnTokenInstance.storage();
+                const updatedCouncilMvnBalance   = await mvnTokenStorage.ledger.get(councilAddress);
 
                 // check that council now has the correct updated balance
-                assert.equal(updatedCouncilMvkBalance, initialCouncilMvkBalance + tokenAmount);
+                assert.equal(updatedCouncilMvnBalance, initialCouncilMvnBalance + tokenAmount);
 
                 // DROP PREVIOUSLY EXECUTED REQUEST
                 await signerFactory(tezos, councilMemberOneSk);
@@ -2708,11 +2708,11 @@ describe("Test: Governance Financial Contract", async () => {
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = contractDeployments.mvkToken.address; 
-                const tokenAmount           = MVK(100); // 100 MVK
-                const purpose               = "Test Council Request Mint 100 MVK";            
+                const tokenContractAddress  = contractDeployments.mvnToken.address; 
+                const tokenAmount           = MVN(100); // 100 MVN
+                const purpose               = "Test Council Request Mint 100 MVN";            
 
-                // Council member (eve) requests for MVK to be minted and transferred from the Treasury
+                // Council member (eve) requests for MVN to be minted and transferred from the Treasury
                 await signerFactory(tezos, councilMemberOneSk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
@@ -2763,10 +2763,10 @@ describe("Test: Governance Financial Contract", async () => {
                 const updatedCouncilAction          = await councilStorage.councilActionsLedger.get(councilActionId);
                 const governanceFinancialRequest    = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                // calculate staked MVK required for approval
-                const totalStakedMvkSupply          = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
-                const stakedMvkRequiredForApproval  = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, approvalPercentage, financialRequestPercentageDecimals);
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                // calculate staked MVN required for approval
+                const totalStakedMvnSupply          = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                const stakedMvnRequiredForApproval  = calcStakedMvnRequiredForActionApproval(totalStakedMvnSupply, approvalPercentage, financialRequestPercentageDecimals);
 
                 // check that council action is yayd and has been executed
                 assert.equal(updatedCouncilAction.signersCount,  3);
@@ -2781,15 +2781,15 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(governanceFinancialRequest.treasuryAddress,                treasury);
                 assert.equal(governanceFinancialRequest.receiverAddress,                receiverAddress);
                 assert.equal(governanceFinancialRequest.tokenContractAddress,           tokenContractAddress);
-                assert.equal(governanceFinancialRequest.tokenName,                      "MVK");
+                assert.equal(governanceFinancialRequest.tokenName,                      "MVN");
                 assert.equal(governanceFinancialRequest.tokenAmount,                    tokenAmount);            
                 assert.equal(governanceFinancialRequest.tokenType,                      "FA2");
                 assert.equal(governanceFinancialRequest.tokenId,                        0);
                 assert.equal(governanceFinancialRequest.requestPurpose,                 purpose);
-                assert.equal(governanceFinancialRequest.yayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.nayVoteStakedMvkTotal,          0);
-                assert.equal(governanceFinancialRequest.stakedMvkPercentageForApproval, 6700);
-                assert.equal(governanceFinancialRequest.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
+                assert.equal(governanceFinancialRequest.yayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.nayVoteStakedMvnTotal,          0);
+                assert.equal(governanceFinancialRequest.stakedMvnPercentageForApproval, 6700);
+                assert.equal(governanceFinancialRequest.stakedMvnRequiredForApproval,   stakedMvnRequiredForApproval);
 
                 // DROP PREVIOUSLY EXECUTED REQUEST
                 await signerFactory(tezos, councilMemberOneSk);
@@ -2810,17 +2810,17 @@ describe("Test: Governance Financial Contract", async () => {
                 // check details of financial request snapshot
                 const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteOneTotalDelegatedAmount);
-                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteOneStakedBalance);
+                assert.equal(satelliteOneFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteOneStakedBalance);
                 assert.equal(satelliteOneFinancialRequestSnapshot.totalVotingPower,         initialSatelliteOneTotalVotingPower);
 
                 const satelliteTwoFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalDelegatedAmount,     initialSatelliteTwoTotalDelegatedAmount);
-                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvkBalance,    initialSatelliteTwoStakedBalance);
+                assert.equal(satelliteTwoFinancialRequestSnapshot.totalStakedMvnBalance,    initialSatelliteTwoStakedBalance);
                 assert.equal(satelliteTwoFinancialRequestSnapshot.totalVotingPower,         initialSatelliteTwoTotalVotingPower);
 
                 const satelliteThreeFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalDelegatedAmount,   initialSatelliteThreeTotalDelegatedAmount);
-                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvkBalance,  initialSatelliteThreeStakedBalance);
+                assert.equal(satelliteThreeFinancialRequestSnapshot.totalStakedMvnBalance,  initialSatelliteThreeStakedBalance);
                 assert.equal(satelliteThreeFinancialRequestSnapshot.totalVotingPower,       initialSatelliteThreeTotalVotingPower);
 
                 // reset financial request expiry date back to initial value
@@ -3143,20 +3143,20 @@ describe("Test: Governance Financial Contract", async () => {
                 user              = mallory.pkh;
                 userSk            = mallory.sk;
 
-                // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
+                // Mistaken Operation - user (mallory) send 10 MavenFa2Tokens to MVN Token Contract
                 await signerFactory(tezos, userSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, governanceFinancialAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, governanceFinancialAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(governanceFinancialInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(governanceFinancialInstance, user, contractDeployments.mavenFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -3170,14 +3170,14 @@ describe("Test: Governance Financial Contract", async () => {
             try{
 
                 // request tokens params
-                const tokenAmount                   = 10000000; // 10 Mavryk FA12 Tokens
+                const tokenAmount                   = 10000000; // 10 Maven FA12 Tokens
                 const treasury                      = contractDeployments.treasury.address;
                 const receiverAddress               = councilAddress;
-                let tokenContractAddress            = mavrykFa12TokenInstance.address; 
-                const tokenName                     = "MAVRYKFA12";
+                let tokenContractAddress            = mavenFa12TokenInstance.address; 
+                const tokenName                     = "MAVENFA12";
                 const tokenType                     = "FA12";
                 const tokenId                       = 0;
-                let purpose                         = "Test Council Request Transfer of 100 Mavryk FA12 Tokens";            
+                let purpose                         = "Test Council Request Transfer of 100 Maven FA12 Tokens";            
 
                 // admin tries to create a financial request for tokens
                 createFinancialGovernanceRequestOperation = await governanceFinancialInstance.methods.requestTokens(
@@ -3197,16 +3197,16 @@ describe("Test: Governance Financial Contract", async () => {
             } 
         });
 
-        it('%requestMint                        - admin (bob) should not be able to create a financial request for minting new MVK Tokens', async () => {
+        it('%requestMint                        - admin (bob) should not be able to create a financial request for minting new MVN Tokens', async () => {
             try{
 
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
-                const tokenAmount           = MVK(100);
-                const purpose               = "Test Council Request Mint 100 MVK";            
+                const tokenAmount           = MVN(100);
+                const purpose               = "Test Council Request Mint 100 MVN";            
 
-                // admin tries to create a financial request for minting MVK
+                // admin tries to create a financial request for minting MVN
                 createFinancialGovernanceRequestOperation = await governanceFinancialInstance.methods.requestMint(
                     treasury, 
                     receiverAddress,
@@ -3256,11 +3256,11 @@ describe("Test: Governance Financial Contract", async () => {
                 // prepare sample council action to request tokens
                 const fromTreasury          = treasuryAddress;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = mvkTokenAddress;
-                const tokenName             = "MVK";
+                const tokenContractAddress  = mvnTokenAddress;
+                const tokenName             = "MVN";
                 const tokenType             = "FA2";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
 
                 // council operation
@@ -3365,11 +3365,11 @@ describe("Test: Governance Financial Contract", async () => {
                 // prepare sample council action to request tokens
                 const fromTreasury          = treasuryAddress;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = mvkTokenAddress;
-                const tokenName             = "MVK";
+                const tokenContractAddress  = mvnTokenAddress;
+                const tokenName             = "MVN";
                 const tokenType             = "FA2";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
 
                 // council operation
@@ -3683,12 +3683,12 @@ describe("Test: Governance Financial Contract", async () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MavrykFa2Tokens to Delegation Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, governanceFinancialAddress, tokenId, tokenAmount);
+                // Mistaken Operation - send 10 MavenFa2Tokens to Delegation Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, mallory.pkh, governanceFinancialAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await mistakenTransferFa2Token(governanceFinancialInstance, mallory.pkh, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(governanceFinancialInstance, mallory.pkh, contractDeployments.mavenFa2Token.address, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {
@@ -3700,14 +3700,14 @@ describe("Test: Governance Financial Contract", async () => {
             try{
 
                 // request tokens params
-                const tokenAmount                   = 10000000; // 10 Mavryk FA12 Tokens
+                const tokenAmount                   = 10000000; // 10 Maven FA12 Tokens
                 const treasury                      = contractDeployments.treasury.address;
                 const receiverAddress               = councilAddress;
-                let tokenContractAddress            = mavrykFa12TokenInstance.address; 
-                const tokenName                     = "MAVRYKFA12";
+                let tokenContractAddress            = mavenFa12TokenInstance.address; 
+                const tokenName                     = "MAVENFA12";
                 const tokenType                     = "FA12";
                 const tokenId                       = 0;
-                let purpose                         = "Test Council Request Transfer of 100 Mavryk FA12 Tokens";            
+                let purpose                         = "Test Council Request Transfer of 100 Maven FA12 Tokens";            
 
                 // user (mallory) tries to create a financial request for tokens
                 createFinancialGovernanceRequestOperation = await governanceFinancialInstance.methods.requestTokens(
@@ -3727,16 +3727,16 @@ describe("Test: Governance Financial Contract", async () => {
             } 
         });
 
-        it('%requestMint                        - non-admin and non-satellite user (mallory) should not be able to create a financial request for minting new MVK Tokens', async () => {
+        it('%requestMint                        - non-admin and non-satellite user (mallory) should not be able to create a financial request for minting new MVN Tokens', async () => {
             try{
 
                 // request mint params
                 const treasury              = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
-                const tokenAmount           = MVK(100);
-                const purpose               = "Test Council Request Mint 100 MVK";            
+                const tokenAmount           = MVN(100);
+                const purpose               = "Test Council Request Mint 100 MVN";            
 
-                // user (mallory) tries to create a financial request for minting MVK
+                // user (mallory) tries to create a financial request for minting MVN
                 createFinancialGovernanceRequestOperation = await governanceFinancialInstance.methods.requestMint(
                     treasury, 
                     receiverAddress,
@@ -3786,11 +3786,11 @@ describe("Test: Governance Financial Contract", async () => {
                 // prepare sample council action to request tokens
                 const fromTreasury          = treasuryAddress;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = mvkTokenAddress;
-                const tokenName             = "MVK";
+                const tokenContractAddress  = mvnTokenAddress;
+                const tokenName             = "MVN";
                 const tokenType             = "FA2";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
 
                 // council operation
@@ -3895,11 +3895,11 @@ describe("Test: Governance Financial Contract", async () => {
                 // prepare sample council action to request tokens
                 const fromTreasury          = treasuryAddress;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = mvkTokenAddress;
-                const tokenName             = "MVK";
+                const tokenContractAddress  = mvnTokenAddress;
+                const tokenName             = "MVN";
                 const tokenType             = "FA2";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
 
                 // council operation

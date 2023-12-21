@@ -113,9 +113,9 @@ export const getLigo = (
 
     if (isDockerizedLigo) {
         if (isAppleM1) {
-            path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
+            path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
         } else {
-            path = `docker run -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
+            path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
         }
 
         try {
@@ -132,9 +132,9 @@ export const getLigo = (
         } catch (err) {
 
             if (isAppleM1) {
-                path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
+                path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
             } else {
-                path = `docker run -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
+                path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
             }
 
             execSync(`${path}  --help`)

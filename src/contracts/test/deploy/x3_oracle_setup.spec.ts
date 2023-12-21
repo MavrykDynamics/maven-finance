@@ -77,7 +77,7 @@ describe('Oracle Setup', async () => {
                         name: 'BTC/USD Aggregator Contract',
                         icon: 'https://infura-ipfs.io/ipfs/QmNyMFPuh43K9wkYHV6shtLYMusqXf3YCkes9aWAgird6u',
                         version: 'v1.0.0',
-                        authors: ['Mavryk Dev Team <info@mavryk.io>'],
+                        authors: ['Maven Dev Team <info@mavryk.io>'],
                                     category: 'cryptocurrency'
                     }),
                     'ascii',
@@ -88,7 +88,7 @@ describe('Oracle Setup', async () => {
                         name: 'XTZ/USD Aggregator Contract',
                         icon: 'https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW',
                         version: 'v1.0.0',
-                        authors: ['Mavryk Dev Team <info@mavryk.io>'],
+                        authors: ['Maven Dev Team <info@mavryk.io>'],
                         category: 'cryptocurrency'
                     }),
                     'ascii',
@@ -99,19 +99,19 @@ describe('Oracle Setup', async () => {
                         name: 'USDT/USD Aggregator Contract',
                         icon: 'https://infura-ipfs.io/ipfs/QmVvUnYu7jfKFR6KDVhPbPXC89tYCCajDvDHuYgPdH6unK',
                         version: 'v1.0.0',
-                        authors: ['Mavryk Dev Team <info@mavryk.io>'],
-                                    category: 'stablecoin'
+                        authors: ['Maven Dev Team <info@mavryk.io>'],
+                        category: 'stablecoin'
                     }),
                     'ascii',
                 ).toString('hex')
 
-                const eurcUsdMetadata = Buffer.from(
+                const eurtUsdMetadata = Buffer.from(
                     JSON.stringify({
-                        name: 'EURC/USD Aggregator Contract',
+                        name: 'EURT/USD Aggregator Contract',
                         icon: 'https://www.circle.com/hubfs/euro-coin-lockup-sm.svg',
                         version: 'v1.0.0',
-                        authors: ['Mavryk Dev Team <info@mavryk.io>'],
-                                    category: 'stablecoin'
+                        authors: ['Maven Dev Team <info@mavryk.io>'],
+                        category: 'stablecoin'
                     }),
                     'ascii',
                 ).toString('hex')
@@ -131,7 +131,7 @@ describe('Oracle Setup', async () => {
                         new BigNumber(60),            // percentOracleThreshold
                         new BigNumber(300),            // heartbeatSeconds
 
-                        new BigNumber(10000000),      // rewardAmountStakedMvk
+                        new BigNumber(10000000),      // rewardAmountStakedMvn
                         new BigNumber(1300),          // rewardAmountXtz
                         
                         btcUsdMetadata                // metadata
@@ -150,7 +150,7 @@ describe('Oracle Setup', async () => {
                         new BigNumber(60),            // percentOracleThreshold
                         new BigNumber(300),           // heartbeatSeconds
 
-                        new BigNumber(10000000),      // rewardAmountStakedMvk
+                        new BigNumber(10000000),      // rewardAmountStakedMvn
                         new BigNumber(1300),          // rewardAmountXtz
                         
                         xtzUsdMetadata                // metadata
@@ -169,7 +169,7 @@ describe('Oracle Setup', async () => {
                         new BigNumber(60),            // percentOracleThreshold
                         new BigNumber(300),           // heartbeatSeconds
 
-                        new BigNumber(10000000),      // rewardAmountStakedMvk
+                        new BigNumber(10000000),      // rewardAmountStakedMvn
                         new BigNumber(1300),          // rewardAmountXtz
                         
                         usdtUsdMetadata               // metadata bytes
@@ -177,7 +177,7 @@ describe('Oracle Setup', async () => {
                     ))
                     .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
         
-                        'EURC/USD',
+                        'EURT/USD',
                         true,
                         
                         oracleMap,
@@ -188,10 +188,10 @@ describe('Oracle Setup', async () => {
                         new BigNumber(60),            // percentOracleThreshold
                         new BigNumber(300),           // heartbeatSeconds
 
-                        new BigNumber(10000000),      // rewardAmountStakedMvk
+                        new BigNumber(10000000),      // rewardAmountStakedMvn
                         new BigNumber(1300),          // rewardAmountXtz
                         
-                        eurcUsdMetadata              // metadata
+                        eurtUsdMetadata              // metadata
                         
                     ))
         

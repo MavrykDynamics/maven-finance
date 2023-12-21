@@ -314,12 +314,12 @@ block {
 
 
 
-// helper function to verify satellite has sufficient staked MVK balance
-function verifySatelliteHasSufficientStakedMvk(const totalStakedMvkBalance : nat; const minimumStakedMvkRequirement : nat) : unit is
+// helper function to verify satellite has sufficient staked MVN balance
+function verifySatelliteHasSufficientStakedMvn(const totalStakedMvnBalance : nat; const minimumStakedMvnRequirement : nat) : unit is
 block {
 
-    if totalStakedMvkBalance < minimumStakedMvkRequirement 
-    then failwith(error_MIN_STAKED_MVK_AMOUNT_NOT_REACHED)
+    if totalStakedMvnBalance < minimumStakedMvnRequirement 
+    then failwith(error_MIN_STAKED_MVN_AMOUNT_NOT_REACHED)
     else skip;                 
 
 } with unit
@@ -660,20 +660,20 @@ block {
 
 
 
-// helper function to get staked mvk total supply (equivalent to balance of the Doorman contract on the MVK Token contract)
-function getStakedMvkTotalSupply(const s : governanceStorageType) : nat is 
+// helper function to get staked mvn total supply (equivalent to balance of the Doorman contract on the MVN Token contract)
+function getStakedMvnTotalSupply(const s : governanceStorageType) : nat is 
 block {
 
     // Get Doorman Contract from General Contracts Map
     const doormanAddress : address = getAddressFromGeneralContracts("doorman", s, error_DOORMAN_CONTRACT_NOT_FOUND);
 
-    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-    const stakedMvkTotalSupply: nat = case getBalanceView of [
+    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvnTokenAddress);
+    const stakedMvnTotalSupply: nat = case getBalanceView of [
             Some (value) -> value
-        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND) : nat)
     ];
 
-} with stakedMvkTotalSupply 
+} with stakedMvnTotalSupply 
 
 
 
@@ -690,8 +690,8 @@ block {
 
 
 
-// helper function to get minimum staked MVK requirement
-function getMinimumStakedMvkRequirement(const s : governanceStorageType) : nat is
+// helper function to get minimum staked MVN requirement
+function getMinimumStakedMvnRequirement(const s : governanceStorageType) : nat is
 block {
 
     // Get Delegation Contract from General Contracts Map
@@ -704,10 +704,10 @@ block {
         |   None           -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
 
-    // Get minimumStakedMvkBalance from Delegation Contract Config
-    const minimumStakedMvkRequirement = delegationConfig.minimumStakedMvkBalance;
+    // Get minimumStakedMvnBalance from Delegation Contract Config
+    const minimumStakedMvnRequirement = delegationConfig.minimumStakedMvnBalance;
 
-} with minimumStakedMvkRequirement 
+} with minimumStakedMvnRequirement 
 
 
 
@@ -781,13 +781,13 @@ block {
     // Calculate minProposalRoundVotesRequired
     // ------------------------------------------------------------------
 
-    const stakedMvkTotalSupply : nat = case s.stakedMvkSnapshotLedger[s.cycleId] of [
+    const stakedMvnTotalSupply : nat = case s.stakedMvnSnapshotLedger[s.cycleId] of [
             Some(_v) -> _v
-        |   None     -> failwith(error_STAKED_MVK_SNAPSHOT_FOR_CYCLE_NOT_FOUND)
+        |   None     -> failwith(error_STAKED_MVN_SNAPSHOT_FOR_CYCLE_NOT_FOUND)
     ];
 
-    // Calculate minimum required staked MVK for proposal round votes
-    const minProposalRoundVotesRequired : nat  = (stakedMvkTotalSupply * s.config.minProposalRoundVotePercentage) / 10000n ;
+    // Calculate minimum required staked MVN for proposal round votes
+    const minProposalRoundVotesRequired : nat  = (stakedMvnTotalSupply * s.config.minProposalRoundVotePercentage) / 10000n ;
 
     // ------------------------------------------------------------------
 
@@ -814,23 +814,23 @@ block {
         executionReady                      = False;                                        // boolean: set to true if the proposal can be executed
 
         proposalVoteCount                   = 0n;                                           // proposal round: pass votes count (to proceed to voting round)
-        proposalVoteStakedMvkTotal          = 0n;                                           // proposal round pass vote total mvk from satellites who voted pass
+        proposalVoteStakedMvnTotal          = 0n;                                           // proposal round pass vote total mvn from satellites who voted pass
 
-        minProposalRoundVotePercentage      = s.config.minProposalRoundVotePercentage;      // min vote percentage of total MVK supply required to pass proposal round
-        minProposalRoundVotesRequired       = minProposalRoundVotesRequired;                // min staked MVK votes required for proposal round to pass
+        minProposalRoundVotePercentage      = s.config.minProposalRoundVotePercentage;      // min vote percentage of total MVN supply required to pass proposal round
+        minProposalRoundVotesRequired       = minProposalRoundVotesRequired;                // min staked MVN votes required for proposal round to pass
 
         yayVoteCount                        = 0n;                                           // voting round: yay count
-        yayVoteStakedMvkTotal               = 0n;                                           // voting round: yay MVK total 
+        yayVoteStakedMvnTotal               = 0n;                                           // voting round: yay MVN total 
         nayVoteCount                        = 0n;                                           // voting round: nay count
-        nayVoteStakedMvkTotal               = 0n;                                           // voting round: nay MVK total 
+        nayVoteStakedMvnTotal               = 0n;                                           // voting round: nay MVN total 
         passVoteCount                       = 0n;                                           // voting round: pass count
-        passVoteStakedMvkTotal              = 0n;                                           // voting round: pass MVK total 
+        passVoteStakedMvnTotal              = 0n;                                           // voting round: pass MVN total 
 
         minQuorumPercentage                 = s.config.minQuorumPercentage;                 // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
-        minQuorumStakedMvkTotal             = s.currentCycleInfo.minQuorumStakedMvkTotal;   // log of min quorum in MVK
+        minQuorumStakedMvnTotal             = s.currentCycleInfo.minQuorumStakedMvnTotal;   // log of min quorum in MVN
         minYayVotePercentage                = s.config.minYayVotePercentage;                // log of min yay votes percentage - capture state at this point
         quorumCount                         = 0n;                                           // log of turnout for voting round - number of satellites who voted
-        quorumStakedMvkTotal                = 0n;                                           // log of total positive votes in MVK  
+        quorumStakedMvnTotal                = 0n;                                           // log of total positive votes in MVN  
         startDateTime                       = Tezos.get_now();                              // log of when the proposal was proposed
         executedDateTime                    = None;                                         // log of when the proposal was executed
 
@@ -975,17 +975,17 @@ block {
 
     // Get variables from parameter
     const satelliteAddress : address                = updateSatelliteSnapshotParams.satelliteAddress;
-    const totalStakedMvkBalance : nat               = updateSatelliteSnapshotParams.totalStakedMvkBalance;
+    const totalStakedMvnBalance : nat               = updateSatelliteSnapshotParams.totalStakedMvnBalance;
     const totalDelegatedAmount : nat                = updateSatelliteSnapshotParams.totalDelegatedAmount;
     const ready : bool                              = updateSatelliteSnapshotParams.ready;
     const delegationRatio : nat                     = updateSatelliteSnapshotParams.delegationRatio;
     const accumulatedRewardsPerShare : nat          = updateSatelliteSnapshotParams.accumulatedRewardsPerShare;
 
     // calculate total voting power
-    const totalVotingPower : nat = voteHelperCalculateVotingPower(delegationRatio, totalStakedMvkBalance, totalDelegatedAmount);
+    const totalVotingPower : nat = voteHelperCalculateVotingPower(delegationRatio, totalStakedMvnBalance, totalDelegatedAmount);
 
     const satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType = record [
-        totalStakedMvkBalance       = totalStakedMvkBalance;
+        totalStakedMvnBalance       = totalStakedMvnBalance;
         totalDelegatedAmount        = totalDelegatedAmount;
         totalVotingPower            = totalVotingPower;
         accumulatedRewardsPerShare  = accumulatedRewardsPerShare;
@@ -1053,7 +1053,7 @@ block {
         // Prepare the record to create the snapshot
         const satelliteSnapshotParams : updateSatelliteSingleSnapshotType = record[
             satelliteAddress            = satelliteAddress;
-            totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
+            totalStakedMvnBalance       = satelliteRecord.stakedMvnBalance;
             totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
             ready                       = True;
             delegationRatio             = delegationRatio;
@@ -1084,31 +1084,31 @@ block {
 
             Yay -> block {
                 
-                // Increment YAY vote count and YAY vote staked MVK total
+                // Increment YAY vote count and YAY vote staked MVN total
                 _proposal.yayVoteCount            := _proposal.yayVoteCount + 1n;    
-                _proposal.yayVoteStakedMvkTotal   := _proposal.yayVoteStakedMvkTotal + totalVotingPower;
+                _proposal.yayVoteStakedMvnTotal   := _proposal.yayVoteStakedMvnTotal + totalVotingPower;
 
             }
 
         |   Nay -> block {
 
-                // Increment NAY vote count and NAY vote staked MVK total
+                // Increment NAY vote count and NAY vote staked MVN total
                 _proposal.nayVoteCount            := _proposal.nayVoteCount + 1n;    
-                _proposal.nayVoteStakedMvkTotal   := _proposal.nayVoteStakedMvkTotal + totalVotingPower;
+                _proposal.nayVoteStakedMvnTotal   := _proposal.nayVoteStakedMvnTotal + totalVotingPower;
 
             }
 
         |   Pass -> block {
 
-                // Increment PASS vote count and PASS vote staked MVK total
+                // Increment PASS vote count and PASS vote staked MVN total
                 _proposal.passVoteCount           := _proposal.passVoteCount + 1n;    
-                _proposal.passVoteStakedMvkTotal  := _proposal.passVoteStakedMvkTotal + totalVotingPower;
+                _proposal.passVoteStakedMvnTotal  := _proposal.passVoteStakedMvnTotal + totalVotingPower;
 
             }
     ];
 
-    // Increment Quorum vote count and Quorum vote staked MVK total
-    _proposal.quorumStakedMvkTotal    := _proposal.quorumStakedMvkTotal + totalVotingPower;
+    // Increment Quorum vote count and Quorum vote staked MVN total
+    _proposal.quorumStakedMvnTotal    := _proposal.quorumStakedMvnTotal + totalVotingPower;
     _proposal.quorumCount             := _proposal.quorumCount + 1n;
 
 } with _proposal
@@ -1122,72 +1122,72 @@ block {
 
             Yay -> block {
 
-                // Decrement YAY vote count and YAY vote staked MVK total
+                // Decrement YAY vote count and YAY vote staked MVN total
 
                 var yayVoteCount            : nat := 0n;
-                var yayVoteStakedMvkTotal   : nat := 0n;
+                var yayVoteStakedMvnTotal   : nat := 0n;
 
                 if _proposal.yayVoteCount < 1n then yayVoteCount := 0n
                 else yayVoteCount := abs(_proposal.yayVoteCount - 1n);
 
-                if _proposal.yayVoteStakedMvkTotal < totalVotingPower then yayVoteStakedMvkTotal := 0n
-                else yayVoteStakedMvkTotal := abs(_proposal.yayVoteStakedMvkTotal - totalVotingPower);          
+                if _proposal.yayVoteStakedMvnTotal < totalVotingPower then yayVoteStakedMvnTotal := 0n
+                else yayVoteStakedMvnTotal := abs(_proposal.yayVoteStakedMvnTotal - totalVotingPower);          
 
                 _proposal.yayVoteCount          := yayVoteCount;
-                _proposal.yayVoteStakedMvkTotal := yayVoteStakedMvkTotal;
+                _proposal.yayVoteStakedMvnTotal := yayVoteStakedMvnTotal;
 
             }
 
         |   Nay -> block {
 
-                // Decrement NAY vote count and NAY vote staked MVK total
+                // Decrement NAY vote count and NAY vote staked MVN total
 
                 var nayVoteCount            : nat := 0n;
-                var nayVoteStakedMvkTotal   : nat := 0n;
+                var nayVoteStakedMvnTotal   : nat := 0n;
 
                 if _proposal.nayVoteCount < 1n then nayVoteCount := 0n
                 else nayVoteCount := abs(_proposal.nayVoteCount - 1n);
 
-                if _proposal.nayVoteStakedMvkTotal < totalVotingPower then nayVoteStakedMvkTotal := 0n
-                else nayVoteStakedMvkTotal := abs(_proposal.nayVoteStakedMvkTotal - totalVotingPower);
+                if _proposal.nayVoteStakedMvnTotal < totalVotingPower then nayVoteStakedMvnTotal := 0n
+                else nayVoteStakedMvnTotal := abs(_proposal.nayVoteStakedMvnTotal - totalVotingPower);
 
                 _proposal.nayVoteCount            := nayVoteCount;
-                _proposal.nayVoteStakedMvkTotal   := nayVoteStakedMvkTotal;
+                _proposal.nayVoteStakedMvnTotal   := nayVoteStakedMvnTotal;
 
             }
 
         |   Pass -> block {
 
-                // Decrement PASS vote count and PASS vote staked MVK total
+                // Decrement PASS vote count and PASS vote staked MVN total
 
                 var passVoteCount           : nat := 0n;
-                var passVoteStakedMvkTotal  : nat := 0n;
+                var passVoteStakedMvnTotal  : nat := 0n;
 
                 if _proposal.passVoteCount < 1n then passVoteCount := 0n
                 else passVoteCount := abs(_proposal.passVoteCount - 1n);
 
-                if _proposal.passVoteStakedMvkTotal < totalVotingPower then passVoteStakedMvkTotal := 0n
-                else passVoteStakedMvkTotal := abs(_proposal.passVoteStakedMvkTotal - totalVotingPower);
+                if _proposal.passVoteStakedMvnTotal < totalVotingPower then passVoteStakedMvnTotal := 0n
+                else passVoteStakedMvnTotal := abs(_proposal.passVoteStakedMvnTotal - totalVotingPower);
 
                 _proposal.passVoteCount           := passVoteCount;
-                _proposal.passVoteStakedMvkTotal  := passVoteStakedMvkTotal;
+                _proposal.passVoteStakedMvnTotal  := passVoteStakedMvnTotal;
 
             }
     ];
 
-    // Decrement Quorum vote count and Quorum vote staked MVK total
+    // Decrement Quorum vote count and Quorum vote staked MVN total
 
     var quorumCount             : nat := 0n;
-    var quorumStakedMvkTotal    : nat := 0n;
+    var quorumStakedMvnTotal    : nat := 0n;
 
     if _proposal.quorumCount < 1n then quorumCount := 0n
     else quorumCount := abs(_proposal.quorumCount - 1n);
 
-    if _proposal.quorumStakedMvkTotal < totalVotingPower then quorumStakedMvkTotal := 0n
-    else quorumStakedMvkTotal := abs(_proposal.quorumStakedMvkTotal - totalVotingPower);          
+    if _proposal.quorumStakedMvnTotal < totalVotingPower then quorumStakedMvnTotal := 0n
+    else quorumStakedMvnTotal := abs(_proposal.quorumStakedMvnTotal - totalVotingPower);          
 
     _proposal.quorumCount           := quorumCount;
-    _proposal.quorumStakedMvkTotal  := quorumStakedMvkTotal;  
+    _proposal.quorumStakedMvnTotal  := quorumStakedMvnTotal;  
 
 } with _proposal
 
@@ -1219,13 +1219,13 @@ block {
     const emptyProposalMap : map(actionIdType, nat) = map [];
 
     // ------------------------------------------------------------------
-    // Get staked MVK Total Supply and calculate quorum
+    // Get staked MVN Total Supply and calculate quorum
     // ------------------------------------------------------------------
 
-    const stakedMvkTotalSupply : nat = getStakedMvkTotalSupply(s);
+    const stakedMvnTotalSupply : nat = getStakedMvnTotalSupply(s);
 
-    // Calculate minimum required staked MVK for quorum
-    const minQuorumStakedMvkTotal : nat  = (stakedMvkTotalSupply * s.config.minQuorumPercentage) / 10000n ;
+    // Calculate minimum required staked MVN for quorum
+    const minQuorumStakedMvnTotal : nat  = (stakedMvnTotalSupply * s.config.minQuorumPercentage) / 10000n ;
 
     // ------------------------------------------------------------------
     // Set up new round info
@@ -1240,7 +1240,7 @@ block {
     s.currentCycleInfo.roundEndLevel                 := Tezos.get_level() + s.config.blocksPerProposalRound;
     s.currentCycleInfo.cycleEndLevel                 := Tezos.get_level() + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
     s.currentCycleInfo.cycleTotalVotersReward        := s.config.cycleVotersReward;
-    s.currentCycleInfo.minQuorumStakedMvkTotal       := minQuorumStakedMvkTotal;
+    s.currentCycleInfo.minQuorumStakedMvnTotal       := minQuorumStakedMvnTotal;
     s.cycleProposals                                 := emptyProposalMap;    // flush proposals
     s.cycleHighestVotedProposalId                    := 0n;                  // flush proposal id voted through - reset to 0 
 
@@ -1248,10 +1248,10 @@ block {
     s.cycleId      := s.cycleId + 1n;
 
     // ------------------------------------------------------------------
-    // Save staked MVK Total supply to governance cycle counter
+    // Save staked MVN Total supply to governance cycle counter
     // ------------------------------------------------------------------
 
-    s.stakedMvkSnapshotLedger[s.cycleId] := stakedMvkTotalSupply;
+    s.stakedMvnSnapshotLedger[s.cycleId] := stakedMvnTotalSupply;
 
 } with (s)
 

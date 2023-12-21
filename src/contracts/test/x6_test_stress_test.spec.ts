@@ -1,7 +1,7 @@
 import { Estimate, OpKind } from "@taquito/taquito";
 
 import randomUserAccounts from "./helpers/random_accounts.json";
-import { MVK, Utils } from "./helpers/Utils";
+import { MVN, Utils } from "./helpers/Utils";
 
 const chai              = require("chai");
 const chaiAsPromised    = require('chai-as-promised');
@@ -21,7 +21,7 @@ import contractDeployments from './contractDeployments.json'
 import { bob, alice, eve, mallory, trudy, oscar } from "../scripts/sandbox/accounts";
 import accounts from "../scripts/sandbox/accounts";
 import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
-import { ledger } from "../storage/mvkTokenStorage";
+import { ledger } from "../storage/mvnTokenStorage";
 
 import { 
     signerFactory
@@ -41,7 +41,7 @@ describe("Stress tests", async () => {
 
     let doormanInstance;
     let delegationInstance;
-    let mvkTokenInstance;
+    let mvnTokenInstance;
     let governanceInstance;
     let governanceSatelliteInstance;
     let governanceFinancialInstance;
@@ -55,7 +55,7 @@ describe("Stress tests", async () => {
     
     let doormanStorage;
     let delegationStorage;
-    let mvkTokenStorage;
+    let mvnTokenStorage;
     let governanceStorage;
     let governanceSatelliteStorage;
     let governanceFinancialStorage;
@@ -79,7 +79,7 @@ describe("Stress tests", async () => {
             
             doormanInstance                 = await utils.tezos.contract.at(contractDeployments.doorman.address);
             delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
-            mvkTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+            mvnTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
             governanceInstance              = await utils.tezos.contract.at(contractDeployments.governance.address);
             governanceSatelliteInstance     = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
             aggregatorInstance              = await utils.tezos.contract.at(contractDeployments.aggregator.address);
@@ -89,11 +89,11 @@ describe("Stress tests", async () => {
             governanceProxyInstance         = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
             farmFactoryInstance             = await utils.tezos.contract.at(contractDeployments.farmFactory.address);
             farmInstance                    = await utils.tezos.contract.at(contractDeployments.farm.address);
-            lpTokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
+            lpTokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
     
             doormanStorage                  = await doormanInstance.storage();
             delegationStorage               = await delegationInstance.storage();
-            mvkTokenStorage                 = await mvkTokenInstance.storage();
+            mvnTokenStorage                 = await mvnTokenInstance.storage();
             governanceStorage               = await governanceInstance.storage();
             governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
             aggregatorStorage               = await aggregatorInstance.storage();
@@ -105,18 +105,18 @@ describe("Stress tests", async () => {
             farmStorage                     = await farmInstance.storage();
             lpTokenStorage                  = await lpTokenInstance.storage();
 
-            // Send all MVK to a single address (bob)
-            mvkTokenStorage             = await mvkTokenInstance.storage();
+            // Send all MVN to a single address (bob)
+            mvnTokenStorage             = await mvnTokenInstance.storage();
             for(let accountName in accounts){
                 let account = accounts[accountName];
                 if(ledger.has(account.pkh)){
-                    let balance = await mvkTokenStorage.ledger.get(account.pkh);
+                    let balance = await mvnTokenStorage.ledger.get(account.pkh);
                     if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== admin){
                         // Transfer all funds to bob
                         await signerFactory(tezos, account.sk);
                         console.log("account:", account)
                         console.log("balance:", balance)
-                        let operation = await mvkTokenInstance.methods.transfer([
+                        let operation = await mvnTokenInstance.methods.transfer([
                             {
                                 from_: account.pkh,
                                 txs: [
@@ -134,14 +134,14 @@ describe("Stress tests", async () => {
                 }
             }
 
-            // Transfer TEZ and MVK for each user
+            // Transfer TEZ and MVN for each user
             await signerFactory(tezos, adminSk);
-            mvkTokenStorage             = await mvkTokenInstance.storage();
-            const mainUserMVKBalance    = await mvkTokenStorage.ledger.get(admin);
+            mvnTokenStorage             = await mvnTokenInstance.storage();
+            const mainUserMVNBalance    = await mvnTokenStorage.ledger.get(admin);
             const batchSize             = 50
             const tezAmount             = 50
             const userAmount            = randomUserAccounts.length;
-            const mvkAmount             = Math.trunc((mainUserMVKBalance.div(userAmount + 1)).div(MVK()).toNumber());
+            const mvnAmount             = Math.trunc((mainUserMVNBalance.div(userAmount + 1)).div(MVN()).toNumber());
             const batchesCount          = Math.ceil(userAmount / batchSize);
             var txsTransferList         = []
 
@@ -155,11 +155,11 @@ describe("Stress tests", async () => {
                     const account: any  = randomUserAccounts[index];
 
                     if ((index) < (batchSize * (i + 1)) && ((index) >= batchSize * i)){
-                        // Prepare a transfer of MVK
+                        // Prepare a transfer of MVN
                         txsTransferList.push({
                             to_: account.pkh,
                             token_id: 0,
-                            amount: MVK(mvkAmount),
+                            amount: MVN(mvnAmount),
                         })
                         // Transfer only if receiver has less than 1XTZ
                         const userBalance   = await utils.tezos.tz.getBalance(account.pkh);
@@ -176,7 +176,7 @@ describe("Stress tests", async () => {
                 }
             }
             
-            const transferOperation = await mvkTokenInstance.methods.transfer([
+            const transferOperation = await mvnTokenInstance.methods.transfer([
                 {
                     from_: admin,
                     txs: txsTransferList
@@ -195,13 +195,13 @@ describe("Stress tests", async () => {
 
     describe("registering as satellite", async () => {
 
-        it('%update_operators / %stake / %registerAsSatellite', async () => {
+        it('%update_operators / %stakeMvn / %registerAsSatellite', async () => {
             try{
                 // Initial values
-                mvkTokenStorage         = await mvkTokenInstance.storage();
+                mvnTokenStorage         = await mvnTokenInstance.storage();
                 var minimalCost         = {
                     batchIndex: 0,
-                    totalCostMutez: MVK(999999),
+                    totalCostMutez: MVN(999999),
                     estimations: []
                 }
                 var maximalCost         = {
@@ -216,7 +216,7 @@ describe("Stress tests", async () => {
                     const index: number         = parseInt(indexStr);
                     delegationStorage           = await delegationInstance.storage();
                     doormanStorage              = await doormanInstance.storage();
-                    const accessAmount          = delegationStorage.config.minimumStakedMvkBalance.toNumber() > doormanStorage.config.minMvkAmount.toNumber() ? delegationStorage.config.minimumStakedMvkBalance.toNumber() : doormanStorage.config.minMvkAmount.toNumber();
+                    const accessAmount          = delegationStorage.config.minimumStakedMvnBalance.toNumber() > doormanStorage.config.minMvnAmount.toNumber() ? delegationStorage.config.minimumStakedMvnBalance.toNumber() : doormanStorage.config.minMvnAmount.toNumber();
                     const account: any          = randomUserAccounts[index];
                     var satelliteRecord         = await delegationStorage.satelliteLedger.get(account.pkh);
                     const satelliteName         = account.pkh;
@@ -226,13 +226,13 @@ describe("Stress tests", async () => {
                     const satelliteFee          = Math.trunc(Math.random() * 1000);
                     const satellitePublicKey    = account.pk
                     const satellitePeerId       = account.peerId
-                    const stakeAmount           = MVK(Math.trunc(15 * Math.random())) + accessAmount + 1;
+                    const stakeAmount           = MVN(Math.trunc(15 * Math.random())) + accessAmount + 1;
                     await signerFactory(tezos, account.sk);
 
                     if(satelliteRecord===undefined){
 
                         // Calculate each operation gas cost estimation
-                        const operatorsParams       = await mvkTokenInstance.methods.update_operators([
+                        const operatorsParams       = await mvnTokenInstance.methods.update_operators([
                         {
                             add_operator: {
                             owner: account.pkh,
@@ -240,7 +240,7 @@ describe("Stress tests", async () => {
                             token_id: 0,
                             },
                         }]).toTransferParams({})
-                        const stakeParams           = await doormanInstance.methods.stake(stakeAmount).toTransferParams({})
+                        const stakeParams           = await doormanInstance.methods.stakeMvn(stakeAmount).toTransferParams({})
                         const registerParams        = await delegationInstance.methods.registerAsSatellite(
                             satelliteName, 
                             satelliteDescription, 
@@ -252,14 +252,14 @@ describe("Stress tests", async () => {
                         ).toTransferParams({})
                         const batchOpEstimate = await utils.tezos.estimate
                         .batch([
-                            { kind: OpKind.TRANSACTION, to: contractDeployments.mvkToken.address, parameter: operatorsParams.parameter, amount: 0},
+                            { kind: OpKind.TRANSACTION, to: contractDeployments.mvnToken.address, parameter: operatorsParams.parameter, amount: 0},
                             { kind: OpKind.TRANSACTION, to: contractDeployments.doorman.address, parameter: stakeParams.parameter, amount: 0},
                             { kind: OpKind.TRANSACTION, to: contractDeployments.delegation.address, parameter: registerParams.parameter, amount: 0},
                         ])
 
                         // Create a complete operation batch
                         const userBatch = utils.tezos.wallet.batch()
-                        .withContractCall(mvkTokenInstance.methods.update_operators([
+                        .withContractCall(mvnTokenInstance.methods.update_operators([
                         {
                             add_operator: {
                             owner: account.pkh,
@@ -267,7 +267,7 @@ describe("Stress tests", async () => {
                             token_id: 0,
                             },
                         }]))
-                        .withContractCall(doormanInstance.methods.stake(stakeAmount))
+                        .withContractCall(doormanInstance.methods.stakeMvn(stakeAmount))
                         .withContractCall(delegationInstance.methods.registerAsSatellite(
                             satelliteName, 
                             satelliteDescription, 
@@ -294,7 +294,7 @@ describe("Stress tests", async () => {
 
                         // Calculate difference between min and max for the registering operation
                         const registeringCost           = batchOpEstimate[batchOpEstimate.length-1].totalCost;
-                        const minimalRegisteringCost    = minimalCost.estimations.length > 0 ? minimalCost.estimations[minimalCost.estimations.length-1].totalCost : MVK(999999);
+                        const minimalRegisteringCost    = minimalCost.estimations.length > 0 ? minimalCost.estimations[minimalCost.estimations.length-1].totalCost : MVN(999999);
                         const maximalRegisteringCost    = maximalCost.estimations.length > 0 ? maximalCost.estimations[maximalCost.estimations.length-1].totalCost : 0;
                         minimalCost         = {
                             batchIndex: minimalRegisteringCost > registeringCost ? index : minimalCost.batchIndex,
@@ -417,7 +417,7 @@ describe("Stress tests", async () => {
 
     describe("creating a governance financial action", async () => {
 
-        it('council contract should be able to call this entrypoint and mint MVK', async () => {
+        it('council contract should be able to call this entrypoint and mint MVN', async () => {
             try{
 
                 // some init constants
@@ -429,10 +429,10 @@ describe("Stress tests", async () => {
 
                 // request mint params
                 const treasury                  = contractDeployments.treasury.address;
-                const tokenAmount               = MVK(1000); // 1000 MVK
-                const purpose                   = "Test Council Request Mint 1000 MVK";            
+                const tokenAmount               = MVN(1000); // 1000 MVN
+                const purpose                   = "Test Council Request Mint 1000 MVN";            
 
-                // Council member (bob) requests for MVK to be minted and transferred from the Treasury
+                // Council member (bob) requests for MVN to be minted and transferred from the Treasury
                 await signerFactory(tezos, trudy.sk);
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
@@ -483,7 +483,7 @@ describe("Stress tests", async () => {
         });
     });
 
-    describe("distribute SMVK rewards to all satellite", async () => {
+    describe("distribute SMVN rewards to all satellite", async () => {
 
         before("add admin to delegation whitelist contracts", async () => {
             try{
@@ -506,7 +506,7 @@ describe("Stress tests", async () => {
                 }
 
                 // Estimation
-                const distributeRewardParams        = await delegationInstance.methods.distributeReward(satellitesSet,MVK(50)).toTransferParams({})
+                const distributeRewardParams        = await delegationInstance.methods.distributeReward(satellitesSet,MVN(50)).toTransferParams({})
                 const distributeRewardEstimation    = await utils.tezos.estimate.transfer(distributeRewardParams);
                 const distributeRewardTotalCost     = {
                     estimate: distributeRewardEstimation,
@@ -515,7 +515,7 @@ describe("Stress tests", async () => {
                 console.log("Estimate: ", distributeRewardTotalCost)
 
                 // Operation
-                const distributeRewardOperation     = await delegationInstance.methods.distributeReward(satellitesSet,MVK(50)).send();
+                const distributeRewardOperation     = await delegationInstance.methods.distributeReward(satellitesSet,MVN(50)).send();
                 await distributeRewardOperation.confirmation();
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -613,7 +613,7 @@ describe("Stress tests", async () => {
                     const approveParams     = await lpTokenInstance.methods.approve(contractDeployments.farm.address, approvals).toTransferParams({})
                     const depositParams     = await farmInstance.methods.deposit(amountToDeposit).toTransferParams({})
                     const batchOpEstimate   = await utils.tezos.estimate.batch([
-                        { kind: OpKind.TRANSACTION, to: contractDeployments.mavrykFa12Token.address, parameter: approveParams.parameter, amount: 0},
+                        { kind: OpKind.TRANSACTION, to: contractDeployments.mavenFa12Token.address, parameter: approveParams.parameter, amount: 0},
                         { kind: OpKind.TRANSACTION, to: contractDeployments.farm.address, parameter: depositParams.parameter, amount: 0},
                     ])
 
@@ -714,8 +714,8 @@ describe("Stress tests", async () => {
                     doormanStorage          = await doormanInstance.storage();
                     farmFactoryStorage      = await farmFactoryInstance.storage();
                     const account: any      = randomUserAccounts[index];
-                    const initSMVKRecord    = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
-                    const initSMVKBalance   = initSMVKRecord !== undefined ? initSMVKRecord.balance.toNumber() : 0;
+                    const initSMVNRecord    = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                    const initSMVNBalance   = initSMVNRecord !== undefined ? initSMVNRecord.balance.toNumber() : 0;
                     var depositRecord       = await farmStorage.depositorLedger.get(account.pkh);
                     const depositorBalance  = depositRecord !== undefined ? depositRecord.balance.toNumber() : 0;
 
@@ -733,14 +733,14 @@ describe("Stress tests", async () => {
                         // Print Estimation
                         farmStorage             = await farmInstance.storage();
                         doormanStorage          = await doormanInstance.storage();
-                        const finalSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
-                        const finalSMVKBalance  = finalSMVKRecord !== undefined ? finalSMVKRecord.balance.toNumber() : 0;
+                        const finalSMVNRecord   = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                        const finalSMVNBalance  = finalSMVNRecord !== undefined ? finalSMVNRecord.balance.toNumber() : 0;
                         depositRecord           = await farmStorage.depositorLedger.get(account.pkh)
         
                         console.log("USER", account.pkh, "CLAIM REWARDS FROM THE FARM");
                         console.log("ESTIMATE:", claimEstimate, 
                         "\nTotal cost mutez:", claimEstimate.totalCost);
-                        console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n End:", finalSMVKBalance);
+                        console.log("USER SMVN BALANCE:\n   Start:", initSMVNBalance, "\n End:", finalSMVNBalance);
                         console.log("FARM STATE:",
                         "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
                         "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
@@ -774,7 +774,7 @@ describe("Stress tests", async () => {
             }
         })
 
-        it('council contract should be able to call this entrypoint and mint MVK', async () => {
+        it('council contract should be able to call this entrypoint and mint MVN', async () => {
             try{
                 // Initial values
                 await signerFactory(tezos, randomUserAccounts[0].sk);
@@ -788,8 +788,8 @@ describe("Stress tests", async () => {
 
                 const farmMetadataBase = Buffer.from(
                     JSON.stringify({
-                    name: 'MAVRYK PLENTY-USDTz Farm',
-                    description: 'MAVRYK Farm Contract',
+                    name: 'MAVEN PLENTY-USDTz Farm',
+                    description: 'MAVEN Farm Contract',
                     version: 'v1.0.0',
                     liquidityPairToken: {
                         tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
@@ -803,7 +803,7 @@ describe("Stress tests", async () => {
                             tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
                         }
                     },
-                    authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                    authors: ['MAVEN Dev Team <contact@maven.finance>'],
                     }),
                     'ascii',
                 ).toString('hex')
@@ -823,7 +823,7 @@ describe("Stress tests", async () => {
                         12000,
                         100,
                         farmMetadataBase,
-                        contractDeployments.mavrykFa12Token.address,
+                        contractDeployments.mavenFa12Token.address,
                         0,
                         "FA12"
                     ]
@@ -915,47 +915,47 @@ describe("Stress tests", async () => {
     });
 
     describe("staking on the Doorman contract", async () => {
-        it("all users stake SMVK", async() => {
+        it("all users stake SMVN", async() => {
             try{
                 for (const index in randomUserAccounts){
                     
                     // Initial values
                     lpTokenStorage          = await lpTokenInstance.storage();
                     doormanStorage          = await doormanInstance.storage();
-                    mvkTokenStorage         = await mvkTokenInstance.storage();
+                    mvnTokenStorage         = await mvnTokenInstance.storage();
                     const account: any      = randomUserAccounts[index];
-                    const initSMVKRecord    = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
-                    const initSMVKBalance   = initSMVKRecord !== undefined ? initSMVKRecord.balance.toNumber() : 0;
-                    const mvkBalance        = (await mvkTokenStorage.ledger.get(account.pkh)).toNumber();
-                    const amountToStake     = Math.floor(Math.random() * (mvkBalance - doormanStorage.config.minMvkAmount.toNumber())) + doormanStorage.config.minMvkAmount.toNumber();
+                    const initSMVNRecord    = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                    const initSMVNBalance   = initSMVNRecord !== undefined ? initSMVNRecord.balance.toNumber() : 0;
+                    const mvnBalance        = (await mvnTokenStorage.ledger.get(account.pkh)).toNumber();
+                    const amountToStake     = Math.floor(Math.random() * (mvnBalance - doormanStorage.config.minMvnAmount.toNumber())) + doormanStorage.config.minMvnAmount.toNumber();
 
                     if(amountToStake > 0){
 
                         // Estimate
                         await signerFactory(tezos, account.sk)
-                        const updateOperatorsParams = await mvkTokenInstance.methods.update_operators([{
+                        const updateOperatorsParams = await mvnTokenInstance.methods.update_operators([{
                             add_operator: {
                                 owner: account.pkh,
                                 operator: contractDeployments.doorman.address,
                                 token_id: 0,
                             }
                         }]).toTransferParams({});
-                        const stakeParams           = await doormanInstance.methods.stake(amountToStake).toTransferParams({});
+                        const stakeParams           = await doormanInstance.methods.stakeMvn(amountToStake).toTransferParams({});
                         const batchOpEstimate       = await utils.tezos.estimate.batch([
-                            { kind: OpKind.TRANSACTION, to: contractDeployments.mvkToken.address, parameter: updateOperatorsParams.parameter, amount: 0},
+                            { kind: OpKind.TRANSACTION, to: contractDeployments.mvnToken.address, parameter: updateOperatorsParams.parameter, amount: 0},
                             { kind: OpKind.TRANSACTION, to: contractDeployments.doorman.address, parameter: stakeParams.parameter, amount: 0},
                         ])
 
                         // Send operation
                         const stakeBatch            = utils.tezos.wallet.batch()
-                            .withContractCall(mvkTokenInstance.methods.update_operators([{
+                            .withContractCall(mvnTokenInstance.methods.update_operators([{
                                 add_operator: {
                                     owner: account.pkh,
                                     operator: contractDeployments.doorman.address,
                                     token_id: 0,
                                 }
                             }]))
-                            .withContractCall(doormanInstance.methods.stake(amountToStake));
+                            .withContractCall(doormanInstance.methods.stakeMvn(amountToStake));
                         const stakeBatchOperation   = await stakeBatch.send()
                         await stakeBatchOperation.confirmation()
 
@@ -969,14 +969,14 @@ describe("Stress tests", async () => {
         
                         // Print Estimation
                         doormanStorage          = await doormanInstance.storage();
-                        const finalSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
-                        const finalSMVKBalance  = finalSMVKRecord !== undefined ? finalSMVKRecord.balance.toNumber() : 0;
+                        const finalSMVNRecord   = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                        const finalSMVNBalance  = finalSMVNRecord !== undefined ? finalSMVNRecord.balance.toNumber() : 0;
         
-                        console.log("USER", account.pkh, "STAKE", amountToStake, "MVK IN THE DOORMAN CONTRACT");
+                        console.log("USER", account.pkh, "STAKE", amountToStake, "MVN IN THE DOORMAN CONTRACT");
                         for(const i in batchTotalCost){
                             console.log(batchTotalCost[i])
                         }
-                        console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n   End:", finalSMVKBalance);
+                        console.log("USER SMVN BALANCE:\n   Start:", initSMVNBalance, "\n   End:", finalSMVNBalance);
 
                     }
                 }
@@ -984,22 +984,22 @@ describe("Stress tests", async () => {
                 console.dir(e, {depth: 5})
             }
         })
-        it("all users unstake SMVK", async() => {
+        it("all users unstake SMVN", async() => {
             try{
                 for (const index in randomUserAccounts){
                     
                     // Initial values
                     lpTokenStorage          = await lpTokenInstance.storage();
                     doormanStorage          = await doormanInstance.storage();
-                    mvkTokenStorage         = await mvkTokenInstance.storage();
+                    mvnTokenStorage         = await mvnTokenInstance.storage();
                     const account: any      = randomUserAccounts[index];
-                    const initSMVKRecord    = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
-                    const initSMVKBalance   = initSMVKRecord !== undefined ? initSMVKRecord.balance.toNumber() : 0;
-                    const amountToUnstake   = Math.floor(Math.random() * (initSMVKBalance - doormanStorage.config.minMvkAmount.toNumber())) + doormanStorage.config.minMvkAmount.toNumber();
-                    const initMVKBalance    = (await mvkTokenStorage.ledger.get(account.pkh)).toNumber();
-                    const smvkTotalSupply   = (await mvkTokenStorage.ledger.get(contractDeployments.doorman.address)).toNumber();
-                    const mvkTotalSupply    = mvkTokenStorage.totalSupply.toNumber();
-                    const mli               = smvkTotalSupply * 100 / mvkTotalSupply;
+                    const initSMVNRecord    = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                    const initSMVNBalance   = initSMVNRecord !== undefined ? initSMVNRecord.balance.toNumber() : 0;
+                    const amountToUnstake   = Math.floor(Math.random() * (initSMVNBalance - doormanStorage.config.minMvnAmount.toNumber())) + doormanStorage.config.minMvnAmount.toNumber();
+                    const initMVNBalance    = (await mvnTokenStorage.ledger.get(account.pkh)).toNumber();
+                    const smvnTotalSupply   = (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)).toNumber();
+                    const mvnTotalSupply    = mvnTokenStorage.totalSupply.toNumber();
+                    const mli               = smvnTotalSupply * 100 / mvnTotalSupply;
                     const exitFee           = 30 - 0.525 * mli + 0.0025 * mli *mli;
                     const paidFee           = Math.floor(amountToUnstake * exitFee / 100);
 
@@ -1007,32 +1007,32 @@ describe("Stress tests", async () => {
 
                         // Estimate
                         await signerFactory(tezos, account.sk)
-                        const unstakeParams     = await doormanInstance.methods.unstake(amountToUnstake).toTransferParams({})
+                        const unstakeParams     = await doormanInstance.methods.unstakeMvn(amountToUnstake).toTransferParams({})
                         const unstakeEstimate   = await utils.tezos.estimate.transfer(unstakeParams);
         
                         // Send operation
-                        const unstakeOperation  = await doormanInstance.methods.unstake(amountToUnstake).send();
+                        const unstakeOperation  = await doormanInstance.methods.unstakeMvn(amountToUnstake).send();
                         await unstakeOperation.confirmation(),
         
                         // Print Estimation
                         doormanStorage          = await doormanInstance.storage();
-                        mvkTokenStorage         = await mvkTokenInstance.storage();
-                        const finalMVKBalance   = (await mvkTokenStorage.ledger.get(account.pkh)).toNumber();
-                        const finalSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
-                        const finalSMVKBalance  = finalSMVKRecord !== undefined ? finalSMVKRecord.balance.toNumber() : 0;
-                        const finalAmount       = finalMVKBalance - initMVKBalance;
+                        mvnTokenStorage         = await mvnTokenInstance.storage();
+                        const finalMVNBalance   = (await mvnTokenStorage.ledger.get(account.pkh)).toNumber();
+                        const finalSMVNRecord   = await doormanStorage.userStakeBalanceLedger.get(account.pkh);
+                        const finalSMVNBalance  = finalSMVNRecord !== undefined ? finalSMVNRecord.balance.toNumber() : 0;
+                        const finalAmount       = finalMVNBalance - initMVNBalance;
         
-                        console.log("USER", account.pkh, "UNSTAKES", amountToUnstake, "MVK FROM THE DOORMAN CONTRACT, PAYS:", paidFee,"AND GETS:", finalAmount);
+                        console.log("USER", account.pkh, "UNSTAKES", amountToUnstake, "MVN FROM THE DOORMAN CONTRACT, PAYS:", paidFee,"AND GETS:", finalAmount);
                         console.log("ESTIMATE:", unstakeEstimate, 
                         "\nTotal cost mutez:", unstakeEstimate.totalCost);
-                        console.log("USER SMVK BALANCE:\n   Start:", initSMVKBalance, "\n   End:", finalSMVKBalance);
-                        console.log("MVK TOTAL SUPPLY:", mvkTotalSupply, ", SMVK TOTAL SUPPLY:", smvkTotalSupply)
+                        console.log("USER SMVN BALANCE:\n   Start:", initSMVNBalance, "\n   End:", finalSMVNBalance);
+                        console.log("MVN TOTAL SUPPLY:", mvnTotalSupply, ", SMVN TOTAL SUPPLY:", smvnTotalSupply)
                         console.log("MLI:", mli, ", EXIT FEE:", exitFee);
                         console.log("DOORMAN STATE:",
                         "\n     - Unclaimed rewards:", doormanStorage.unclaimedRewards.toNumber(),
                         "\n     - AccumulatedFeesPerShare:", doormanStorage.accumulatedFeesPerShare.toNumber(),
-                        "\n     - Init record:", initSMVKRecord,
-                        "\n     - Final record:", finalSMVKRecord);
+                        "\n     - Init record:", initSMVNRecord,
+                        "\n     - Final record:", finalSMVNRecord);
 
                     }
                 }

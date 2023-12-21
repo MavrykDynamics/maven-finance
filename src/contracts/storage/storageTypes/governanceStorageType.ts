@@ -3,7 +3,7 @@ import { BigNumber } from "bignumber.js"
 
 export type governanceStorageType = {
     admin: string;
-    mvkTokenAddress: string;
+    mvnTokenAddress: string;
     governanceProxyAddress: string;
     metadata: MichelsonMap<MichelsonMapKey, unknown>;
 
@@ -16,7 +16,7 @@ export type governanceStorageType = {
     proposalLedger                  : MichelsonMap<MichelsonMapKey, unknown>;
     proposalVoters                  : MichelsonMap<MichelsonMapKey, unknown>;
     proposalRewards                 : MichelsonMap<MichelsonMapKey, unknown>;
-    stakedMvkSnapshotLedger         : MichelsonMap<MichelsonMapKey, unknown>;
+    stakedMvnSnapshotLedger         : MichelsonMap<MichelsonMapKey, unknown>;
     snapshotLedger                  : MichelsonMap<MichelsonMapKey, unknown>;
     satelliteLastSnapshotLedger     : MichelsonMap<MichelsonMapKey, unknown>;
 
@@ -33,7 +33,7 @@ export type governanceStorageType = {
         roundEndLevel              : BigNumber;
         cycleEndLevel              : BigNumber;
         cycleTotalVotersReward     : BigNumber;
-        minQuorumStakedMvkTotal    : BigNumber;
+        minQuorumStakedMvnTotal    : BigNumber;
     };
 
     cycleProposals                     : MichelsonMap<MichelsonMapKey, unknown>;

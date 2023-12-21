@@ -19,8 +19,8 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// MVKFaucet types 
-#include "../partials/contractTypes/mvkFaucetTypes.ligo"
+// MVNFaucet types 
+#include "../partials/contractTypes/mvnFaucetTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -30,10 +30,10 @@ type action is
         Default     of unit
 
         // Housekeeping Entrypoints
-    |   RequestMvk  of unit
+    |   RequestMvn  of unit
 
 
-type return is list (operation) * mvkFaucetStorageType
+type return is list (operation) * mvnFaucetStorageType
 const noOperations : list (operation) = nil;
 
 // ------------------------------------------------------------------------------
@@ -54,15 +54,15 @@ const noOperations : list (operation) = nil;
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function verifyUserPreviousMvkRequest(var s : mvkFaucetStorageType) : unit is
+function verifyUserPreviousMvnRequest(var s : mvnFaucetStorageType) : unit is
 block {
 
     if Big_map.mem(Tezos.get_sender(), s.requesters) 
-    then failwith("MVK_REQUEST_LIMIT_REACHED")
+    then failwith("MVN_REQUEST_LIMIT_REACHED")
 
 } with unit
 
-function saveUserMvkRequest(var s : mvkFaucetStorageType) : mvkFaucetStorageType is
+function saveUserMvnRequest(var s : mvnFaucetStorageType) : mvnFaucetStorageType is
 block {
 
     s.requesters    := Big_map.update(Tezos.get_sender(), Some(unit), s.requesters);
@@ -85,22 +85,22 @@ block {
 //
 // ------------------------------------------------------------------------------
 
-(* requestMvk entrypoint *)
-function requestMvk(var s : mvkFaucetStorageType) : return is
+(* requestMvn entrypoint *)
+function requestMvn(var s : mvnFaucetStorageType) : return is
 block {
 
     // verify user didn't already make a request
-    verifyUserPreviousMvkRequest(s);
+    verifyUserPreviousMvnRequest(s);
 
     // save user request in the storage
-    s   := saveUserMvkRequest(s);
+    s   := saveUserMvnRequest(s);
 
     // assign params to constants for better code readability
     const from_: address                = Tezos.get_self_address();
     const to_: address                  = Tezos.get_sender();
     const amountPerUser: nat            = s.amountPerUser;
     const tokenId: nat                  = 0n;
-    const tokenContractAddress: address = s.mvkTokenAddress;
+    const tokenContractAddress: address = s.mvnTokenAddress;
 
     // create the transfer operation
     const operations: list(operation)   = list[
@@ -124,7 +124,7 @@ block {
 
 
 (* main entrypoint *)
-function main (const action : action; const s : mvkFaucetStorageType) : return is
+function main (const action : action; const s : mvnFaucetStorageType) : return is
 block{
 
     verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  
@@ -137,7 +137,7 @@ block{
             Default(_parameters)                -> ((nil : list(operation)), s)
             
             // Housekeeping Entrypoints
-        |   RequestMvk (_params)                -> requestMvk(s)
+        |   RequestMvn (_params)                -> requestMvn(s)
 
     ]
 

@@ -186,8 +186,8 @@ block {
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
     //      -   Get delegation ratio (i.e. voting power ratio) from Delegation Contract Config
-    // 3. Take snapshot of current total staked MVK supply 
-    // 4. Calculate staked MVK votes required for approval based on config's financial request approval percentage
+    // 3. Take snapshot of current total staked MVN supply 
+    // 4. Calculate staked MVN votes required for approval based on config's financial request approval percentage
     // 5. Validation checks
     //      -   Check if token type provided matches the standard (FA12, FA2, TEZ)
     //      -   If tokens are requested, check if token contract is whitelisted (security measure to prevent interacting with potentially malicious contracts)
@@ -227,12 +227,12 @@ block {
     // Steps Overview:    
     // 1. Check that sender is from the Council Contract
     // 2. Get necessary contracts and config info
-    //      -   Get MVK Token Contract from storage
+    //      -   Get MVN Token Contract from storage
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
     //      -   Get delegation ratio (i.e. voting power ratio) from Delegation Contract Config
-    // 3. Take snapshot of current total staked MVK supply 
-    // 4. Calculate staked MVK votes required for approval based on config's financial request approval percentage
+    // 3. Take snapshot of current total staked MVN supply 
+    // 4. Calculate staked MVN votes required for approval based on config's financial request approval percentage
     // 5. Create new financial request record - "MINT"
     // 6. Update storage with new records 
   
@@ -245,9 +245,9 @@ block {
                     "MINT",                                 // requestType
                     requestMintParams.treasuryAddress,      // treasuryAddress
                     requestMintParams.receiverAddress,      // receiverAddress
-                    s.mvkTokenAddress,                      // tokenContractAddress
+                    s.mvnTokenAddress,                      // tokenContractAddress
                     requestMintParams.tokenAmount,          // tokenAmount
-                    "MVK",                                  // tokenName
+                    "MVN",                                  // tokenName
                     "FA2",                                  // tokenType
                     0n,                                     // tokenId
                     (None : option(key_hash)),              // keyHash
@@ -269,12 +269,12 @@ block {
     // Steps Overview:    
     // 1. Check that sender is from the Council Contract
     // 2. Get necessary contracts and config info
-    //      -   Get MVK Token Contract from storage - used as placeholder here
+    //      -   Get MVN Token Contract from storage - used as placeholder here
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
     //      -   Get delegation ratio (i.e. voting power ratio) from Delegation Contract Config
-    // 3. Take snapshot of current total staked MVK supply 
-    // 4. Calculate staked MVK votes required for approval based on config's financial request approval percentage
+    // 3. Take snapshot of current total staked MVN supply 
+    // 4. Calculate staked MVN votes required for approval based on config's financial request approval percentage
     // 5. Create new financial request record - "SET_CONTRACT_BAKER"
     // 6. Update storage with new records 
   
@@ -287,7 +287,7 @@ block {
                     "SET_CONTRACT_BAKER",                           // requestType
                     setContractBakerParams.targetContractAddress,   // treasury address
                     zeroAddress,                                    // no receiver address
-                    s.mvkTokenAddress,                              // tokenContractAddress
+                    s.mvnTokenAddress,                              // tokenContractAddress
                     0n,                                             // tokenAmount
                     "NIL",                                          // tokenName
                     "NIL",                                          // tokenType
@@ -407,7 +407,7 @@ block {
                 // Compute financial request new vote totals 
                 financialRequestRecord := computeNewVote(financialRequestRecord, newVote, totalVotingPower);
 
-                // Execute financial request if sufficient yay votes gathered (i.e. total yay votes exceed staked MVK required for approval)
+                // Execute financial request if sufficient yay votes gathered (i.e. total yay votes exceed staked MVN required for approval)
                 if sufficientYayVotesGathered(financialRequestRecord) then block {
 
                     // Execute financial request, and set executed boolean to true

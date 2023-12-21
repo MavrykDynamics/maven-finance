@@ -428,7 +428,7 @@ type lendingControllerStorageType is [@layout:comb] record [
     config                      : lendingControllerConfigType;
     breakGlassConfig            : lendingControllerBreakGlassConfigType;
 
-    mvkTokenAddress             : address;
+    mvnTokenAddress             : address;
     governanceAddress           : address;
     
     // vaults and owners

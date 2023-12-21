@@ -19,13 +19,13 @@ type delegateRecordType is [@layout:comb] record [
     satelliteAddress                : address;
     satelliteRegisteredDateTime     : timestamp;
     delegatedDateTime               : timestamp;
-    delegatedStakedMvkBalance       : nat;
+    delegatedStakedMvnBalance       : nat;
 ]
 type delegateLedgerType is big_map (address, delegateRecordType)
 
 type satelliteRecordType is [@layout:comb] record [
     status                : string;     // ACTIVE / INACTIVE / SUSPENDED / BANNED
-    stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
+    stakedMvnBalance      : nat;        // bondAmount -> staked MVN Balance
     satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
     totalDelegatedAmount  : nat;        // record of total delegated amount from delegates
     
@@ -42,7 +42,7 @@ type satelliteRecordType is [@layout:comb] record [
 type satelliteLedgerType is big_map (address, satelliteRecordType)
 
 type satelliteSnapshotRecordType is [@layout:comb] record [
-    totalStakedMvkBalance     : nat;      // log of satellite's total mvk balance for this cycle
+    totalStakedMvnBalance     : nat;      // log of satellite's total mvn balance for this cycle
     totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
     totalVotingPower          : nat;      // log calculated total voting power 
 ]
@@ -50,8 +50,8 @@ type satelliteSnapshotRecordType is [@layout:comb] record [
 
 
 type delegationConfigType is [@layout:comb] record [
-    minimumStakedMvkBalance             : nat;   // minimumStakedMvkBalance - minimum amount of staked MVK required to register as delegate (in muMVK)
-    delegationRatio                     : nat;   // delegationRatio (tbd) -   percentage to determine if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated    
+    minimumStakedMvnBalance             : nat;   // minimumStakedMvnBalance - minimum amount of staked MVN required to register as delegate (in muMVN)
+    delegationRatio                     : nat;   // delegationRatio (tbd) -   percentage to determine if satellite is overdelegated (requires more staked MVN to be staked) or underdelegated    
     maxSatellites                       : nat;   // 100 -> prevent any gaming of system with mass registration of satellites - can be changed through governance
     
     satelliteNameMaxLength              : nat;
@@ -81,7 +81,7 @@ type delegationBreakGlassConfigType is record [
 
 type delegationUpdateConfigNewValueType is nat
 type delegationUpdateConfigActionType is 
-        ConfigMinimumStakedMvkBalance of unit
+        ConfigMinimumStakedMvnBalance of unit
     |   ConfigDelegationRatio         of unit
     |   ConfigMaxSatellites           of unit
     |   ConfigSatNameMaxLength        of unit
@@ -99,9 +99,9 @@ type delegateToSatelliteType is [@layout:comb] record [
     satelliteAddress        : address;
 ]
 
-type distributeRewardStakedMvkType is [@layout:comb] record [
+type distributeRewardStakedMvnType is [@layout:comb] record [
     eligibleSatellites      : set(address);
-    totalStakedMvkReward    : nat;
+    totalStakedMvnReward    : nat;
 ]
 
 type takeSatellitesSnapshotType is set(address)
@@ -148,7 +148,7 @@ type delegationTogglePauseEntrypointType is [@layout:comb] record [
     empty             : unit
 ];
 
-type onStakeChangeType is set((address * nat)) // 0: user address, 1: reference smvk balance
+type onStakeChangeType is set((address * nat)) // 0: user address, 1: reference smvn balance
 
 
 // ------------------------------------------------------------------------------
@@ -180,7 +180,7 @@ type delegationLambdaActionType is
     |   LambdaRegisterAsSatellite                   of registerAsSatelliteParamsType
     |   LambdaUnregisterAsSatellite                 of (address)
     |   LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
-    |   LambdaDistributeReward                      of distributeRewardStakedMvkType
+    |   LambdaDistributeReward                      of distributeRewardStakedMvnType
     |   LambdaTakeSatelliteSnapshot                 of takeSatellitesSnapshotType
 
         // General Lambdas
@@ -198,7 +198,7 @@ type delegationStorageType is [@layout:comb] record [
     metadata                : metadataType;
     config                  : delegationConfigType;
 
-    mvkTokenAddress         : address;
+    mvnTokenAddress         : address;
     governanceAddress       : address;
 
     whitelistContracts      : whitelistContractsType;      

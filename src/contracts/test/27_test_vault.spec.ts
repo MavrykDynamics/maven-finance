@@ -1,7 +1,7 @@
 import assert from "assert";
 import { BigNumber } from 'bignumber.js'
 
-import { MVK, TEZ, Utils, zeroAddress } from "./helpers/Utils";
+import { MVN, TEZ, Utils, zeroAddress } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -56,7 +56,7 @@ describe("Vault tests", async () => {
 
     let doormanInstance
     let delegationInstance
-    let mvkTokenInstance
+    let mvnTokenInstance
 
     // contract addresses
     let lendingControllerAddress
@@ -67,7 +67,7 @@ describe("Vault tests", async () => {
     let mockUsdMockFa12TokenAggregatorInstance
     let mockUsdMockFa2TokenAggregatorInstance
     let mockUsdXtzAggregatorInstance
-    let mockUsdMvkAggregatorInstance
+    let mockUsdMvnAggregatorInstance
 
     let mTokenUsdtInstance
     let mTokenEurlInstance
@@ -81,7 +81,7 @@ describe("Vault tests", async () => {
 
     let doormanStorage
     let delegationStorage
-    let mvkTokenStorage
+    let mvnTokenStorage
     let mockFa12TokenStorage
     let mockFa2TokenStorage
     let governanceStorage
@@ -105,9 +105,9 @@ describe("Vault tests", async () => {
         
         doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
         delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
-        mvkTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
-        mockFa12TokenInstance                   = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
-        mockFa2TokenInstance                    = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
+        mvnTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
+        mockFa12TokenInstance                   = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
+        mockFa2TokenInstance                    = await utils.tezos.contract.at(contractDeployments.mavenFa2Token.address);
         governanceInstance                      = await utils.tezos.contract.at(contractDeployments.governance.address);
         governanceProxyInstance                 = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
 
@@ -118,14 +118,14 @@ describe("Vault tests", async () => {
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
         mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdXtzAggregator.address);
-        mockUsdMvkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvkAggregator.address);
+        mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress);
         vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
 
         doormanStorage                          = await doormanInstance.storage();
         delegationStorage                       = await delegationInstance.storage();
-        mvkTokenStorage                         = await mvkTokenInstance.storage();
+        mvnTokenStorage                         = await mvnTokenInstance.storage();
         mockFa12TokenStorage                    = await mockFa12TokenInstance.storage();
         mockFa2TokenStorage                     = await mockFa2TokenInstance.storage();
         governanceStorage                       = await governanceInstance.storage();
@@ -189,7 +189,7 @@ describe("Vault tests", async () => {
 
                 const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "usdt";
-                const tokenContractAddress                  = contractDeployments.mavrykFa12Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa12Token.address;
                 const tokenType                             = "fa12";
                 const tokenDecimals                         = 6;
 
@@ -287,7 +287,7 @@ describe("Vault tests", async () => {
 
                 const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "eurl";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
                 const tokenDecimals                         = 6;
 
@@ -491,7 +491,7 @@ describe("Vault tests", async () => {
 
                 const setCollateralTokenActionType      = "createCollateralToken";
                 const tokenName                         = "mockFa12";
-                const tokenContractAddress              = contractDeployments.mavrykFa12Token.address;
+                const tokenContractAddress              = contractDeployments.mavenFa12Token.address;
                 const tokenType                         = "fa12";
 
                 const tokenDecimals                     = 6;
@@ -558,7 +558,7 @@ describe("Vault tests", async () => {
 
                 const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "mockFa2";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
 
                 const tokenDecimals                         = 6;
@@ -690,7 +690,7 @@ describe("Vault tests", async () => {
         });
 
 
-        it('admin can set staked MVK as a collateral token', async () => {
+        it('admin can set staked MVN as a collateral token', async () => {
 
             try{        
                 
@@ -698,13 +698,13 @@ describe("Vault tests", async () => {
                 await signerFactory(tezos, adminSk);
 
                 const setCollateralTokenActionType      = "createCollateralToken";
-                const tokenName                         = "smvk";
-                const tokenContractAddress              = contractDeployments.mvkToken.address;
+                const tokenName                         = "smvn";
+                const tokenContractAddress              = contractDeployments.mvnToken.address;
                 const tokenType                         = "fa2";
 
                 const tokenDecimals                     = 9;
-                const oracleAddress                     = contractDeployments.mockUsdMvkAggregator.address;
-                const tokenProtected                    = true; // sMVK is protected
+                const oracleAddress                     = contractDeployments.mockUsdMvnAggregator.address;
+                const tokenProtected                    = true; // sMVN is protected
 
                 const isScaledToken                     = false;
                 const isStakedToken                     = true;
@@ -746,12 +746,12 @@ describe("Vault tests", async () => {
                 }
 
                 lendingControllerStorage   = await lendingControllerInstance.storage();
-                const stakedMvkCollateralTokenRecord       = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+                const stakedMvnCollateralTokenRecord       = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
             
-                assert.equal(stakedMvkCollateralTokenRecord.tokenName              , tokenName);
-                assert.equal(stakedMvkCollateralTokenRecord.tokenDecimals          , tokenDecimals);
-                assert.equal(stakedMvkCollateralTokenRecord.oracleAddress          , oracleAddress);
-                assert.equal(stakedMvkCollateralTokenRecord.protected              , tokenProtected);
+                assert.equal(stakedMvnCollateralTokenRecord.tokenName              , tokenName);
+                assert.equal(stakedMvnCollateralTokenRecord.tokenDecimals          , tokenDecimals);
+                assert.equal(stakedMvnCollateralTokenRecord.oracleAddress          , oracleAddress);
+                assert.equal(stakedMvnCollateralTokenRecord.protected              , tokenProtected);
                 
 
             } catch(e){
@@ -1769,20 +1769,20 @@ describe("Vault tests", async () => {
     });
 
     // 
-    // Test: Delegate Mvk To Satellite
+    // Test: Delegate Mvn To Satellite
     //
     describe('%delegateToSatellite', function () {
 
-        it('user (eve) delegates MVK to oscar\'s satellite', async () => {
+        it('user (eve) delegates MVN to oscar\'s satellite', async () => {
             
             // init variables
             await signerFactory(tezos, eve.sk);
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
 
-            const mvkDepositAmount   = 10000000000;   
+            const mvnDepositAmount   = 10000000000;   
             const satelliteAddress   = oscar.pkh;
-            const tokenName          = "smvk";
+            const tokenName          = "smvn";
 
             const vaultHandle = {
                 "id"    : vaultId,
@@ -1797,53 +1797,53 @@ describe("Vault tests", async () => {
             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
             // get initial balance for Eve and Vault
-            const userMVKBalance = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const userMVNBalance = (await mvnTokenStorage.ledger.get(eve.pkh)).toNumber();
                 
             const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
     
-            const doormanSMVKTotalSupply = ((await mvkTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
+            const doormanSMVNTotalSupply = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
 
             // get initial vault staked balance on the doorman contract
             doormanStorage                              = await doormanInstance.storage();
-            const vaultOwnerStakedMvkAccount            = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
-            const initialVaultOwnerStakedMvkBalance     = vaultOwnerStakedMvkAccount == undefined ? 0 : vaultOwnerStakedMvkAccount.balance.toNumber();
+            const vaultOwnerStakedMvnAccount            = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
+            const initialVaultOwnerStakedMvnBalance     = vaultOwnerStakedMvnAccount == undefined ? 0 : vaultOwnerStakedMvnAccount.balance.toNumber();
 
-            const vaultStakedMvkAccount                 = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
-            const initialVaultStakedMvkBalance          = vaultStakedMvkAccount == undefined ? 0 : vaultStakedMvkAccount.balance.toNumber();
+            const vaultStakedMvnAccount                 = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const initialVaultStakedMvnBalance          = vaultStakedMvnAccount == undefined ? 0 : vaultStakedMvnAccount.balance.toNumber();
 
             const initialSatelliteRecord                = await delegationStorage.satelliteLedger.get(satelliteAddress);
             const initialSatelliteTotalDelegatedAmount  = initialSatelliteRecord.totalDelegatedAmount.toNumber();
 
             // ----------------------------------------------------------------------------------------------
-            // Eve staked some MVK to Doorman Contract
+            // Eve staked some MVN to Doorman Contract
             // ----------------------------------------------------------------------------------------------
 
             // Operator set
-            updateOperatorsOperation = await updateOperators(mvkTokenInstance, eve.pkh, contractDeployments.doorman.address, tokenId);
+            updateOperatorsOperation = await updateOperators(mvnTokenInstance, eve.pkh, contractDeployments.doorman.address, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // Operation
-            const stakeOperation = await doormanInstance.methods.stake(mvkDepositAmount).send();
+            const stakeOperation = await doormanInstance.methods.stakeMvn(mvnDepositAmount).send();
             await stakeOperation.confirmation();
 
             // Update storage
             doormanStorage = await doormanInstance.storage();
-            mvkTokenStorage = await mvkTokenInstance.storage();
+            mvnTokenStorage = await mvnTokenInstance.storage();
 
             // Final Values
-            const userMVKBalanceEnd = (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const userMVNBalanceEnd = (await mvnTokenStorage.ledger.get(eve.pkh)).toNumber();
             const userStakeLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const userStakeBalanceEnd = userStakeLedgerEnd.balance.toNumber()
-            const doormanSMVKTotalSupplyEnd = ((await mvkTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
+            const doormanSMVNTotalSupplyEnd = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
 
             // Assertion
-            assert.equal(doormanSMVKTotalSupply + mvkDepositAmount, doormanSMVKTotalSupplyEnd);
-            assert.equal(userMVKBalance - mvkDepositAmount, userMVKBalanceEnd);
-            assert.equal(userStakeBalance + mvkDepositAmount, userStakeBalanceEnd);
+            assert.equal(doormanSMVNTotalSupply + mvnDepositAmount, doormanSMVNTotalSupplyEnd);
+            assert.equal(userMVNBalance - mvnDepositAmount, userMVNBalanceEnd);
+            assert.equal(userStakeBalance + mvnDepositAmount, userStakeBalanceEnd);
 
             // ----------------------------------------------------------------------------------------------
-            // Eve's vault stake some MVK to Doorman Contract
+            // Eve's vault stake some MVN to Doorman Contract
             // ----------------------------------------------------------------------------------------------
     
             // eve set doorman as operator for vault
@@ -1862,29 +1862,29 @@ describe("Vault tests", async () => {
             ).send();
             await vaultUpdateOperatorsOperation.confirmation();
             
-            // vault staked mvk operation
+            // vault staked mvn operation
             const eveVaultDepositStakedTokenOperation  = await lendingControllerInstance.methods.vaultDepositStakedToken(
                 tokenName,
                 vaultId,                 
-                mvkDepositAmount                            
+                mvnDepositAmount                            
             ).send();
             await eveVaultDepositStakedTokenOperation.confirmation();
             
             // get vault staked balance on the doorman contract
             doormanStorage                           = await doormanInstance.storage();
-            const updatedVaultOwnerStakedMvkAccount  = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
-            const updatedVaultOwnerStakedMvkBalance  = updatedVaultOwnerStakedMvkAccount == undefined ? 0 : updatedVaultOwnerStakedMvkAccount.balance.toNumber();
+            const updatedVaultOwnerStakedMvnAccount  = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
+            const updatedVaultOwnerStakedMvnBalance  = updatedVaultOwnerStakedMvnAccount == undefined ? 0 : updatedVaultOwnerStakedMvnAccount.balance.toNumber();
 
-            const updatedVaultStakedMvkAccount       = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
-            const updatedVaultStakedMvkBalance       = updatedVaultStakedMvkAccount == undefined ? 0 : updatedVaultStakedMvkAccount.balance.toNumber();
+            const updatedVaultStakedMvnAccount       = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const updatedVaultStakedMvnBalance       = updatedVaultStakedMvnAccount == undefined ? 0 : updatedVaultStakedMvnAccount.balance.toNumber();
 
-            // assert decrease in staked mvk balance for vault owner
-            assert.equal(updatedVaultOwnerStakedMvkBalance, initialVaultOwnerStakedMvkBalance);
+            // assert decrease in staked mvn balance for vault owner
+            assert.equal(updatedVaultOwnerStakedMvnBalance, initialVaultOwnerStakedMvnBalance);
 
-            // assert increase in staked mvk balance for vault 
-            assert.equal(updatedVaultStakedMvkBalance, initialVaultStakedMvkBalance + mvkDepositAmount);
+            // assert increase in staked mvn balance for vault 
+            assert.equal(updatedVaultStakedMvnBalance, initialVaultStakedMvnBalance + mvnDepositAmount);
             
-            // delegate vault staked mvk to oscar's satellite
+            // delegate vault staked mvn to oscar's satellite
             const delegationOperation   = await eveVaultInstance.methods.initVaultAction(
                 "delegateToSatellite",
                 satelliteAddress
@@ -1895,7 +1895,7 @@ describe("Vault tests", async () => {
             const updatedSatelliteTotalDelegatedAmount = updatedSatelliteRecord.totalDelegatedAmount.toNumber();
 
             // assert correct increase in satellite's total delegated amount
-            assert.equal(updatedSatelliteTotalDelegatedAmount, initialSatelliteTotalDelegatedAmount + mvkDepositAmount);
+            assert.equal(updatedSatelliteTotalDelegatedAmount, initialSatelliteTotalDelegatedAmount + mvnDepositAmount);
 
         });
 
@@ -1907,7 +1907,7 @@ describe("Vault tests", async () => {
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
 
-            const mvkDepositAmount    = 10000000000;   
+            const mvnDepositAmount    = 10000000000;   
             const satelliteAddress    = oscar.pkh;
             const newSatelliteAddress = alice.pkh;
 
@@ -1923,8 +1923,8 @@ describe("Vault tests", async () => {
             const vaultAddress             = vault.address;
             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
-            const vaultStakedMvkAccount                      = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
-            const vaultStakedMvkBalance                      = vaultStakedMvkAccount == undefined ? 0 : vaultStakedMvkAccount.balance.toNumber();
+            const vaultStakedMvnAccount                      = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
+            const vaultStakedMvnBalance                      = vaultStakedMvnAccount == undefined ? 0 : vaultStakedMvnAccount.balance.toNumber();
 
             const initialOscarSatelliteRecord                = await delegationStorage.satelliteLedger.get(satelliteAddress);
             const initialOscarSatelliteTotalDelegatedAmount  = initialOscarSatelliteRecord.totalDelegatedAmount.toNumber();
@@ -1946,8 +1946,8 @@ describe("Vault tests", async () => {
             const updatedAliceSatelliteTotalDelegatedAmount = updatedAliceSatelliteRecord.totalDelegatedAmount.toNumber();
 
             // assert correct changes in both satellite's total delegated amount
-            assert.equal(updatedAliceSatelliteTotalDelegatedAmount, initialAliceSatelliteTotalDelegatedAmount + vaultStakedMvkBalance);
-            assert.equal(updatedOscarSatelliteTotalDelegatedAmount, initialOscarSatelliteTotalDelegatedAmount - vaultStakedMvkBalance);
+            assert.equal(updatedAliceSatelliteTotalDelegatedAmount, initialAliceSatelliteTotalDelegatedAmount + vaultStakedMvnBalance);
+            assert.equal(updatedOscarSatelliteTotalDelegatedAmount, initialOscarSatelliteTotalDelegatedAmount - vaultStakedMvnBalance);
 
         });
 

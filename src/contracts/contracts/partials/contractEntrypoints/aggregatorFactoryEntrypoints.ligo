@@ -272,15 +272,15 @@ block {
 
 
 
-(*  distributeRewardStakedMvk entrypoint  *)
-function distributeRewardStakedMvk(const distributeRewardStakedMvkParams : distributeRewardStakedMvkType; var s: aggregatorFactoryStorageType) : return is
+(*  distributeRewardStakedMvn entrypoint  *)
+function distributeRewardStakedMvn(const distributeRewardStakedMvnParams : distributeRewardStakedMvnType; var s: aggregatorFactoryStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDistributeRewardStakedMvk", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDistributeRewardStakedMvn", s.lambdaLedger);
 
     // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaDistributeRewardStakedMvk(distributeRewardStakedMvkParams);
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaDistributeRewardStakedMvn(distributeRewardStakedMvnParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);

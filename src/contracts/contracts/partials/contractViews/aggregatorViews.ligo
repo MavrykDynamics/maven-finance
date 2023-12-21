@@ -58,9 +58,9 @@
 
 
 
-(* View: get oracle reward staked MVK opt *)
-[@view] function getOracleRewardStakedMvkOpt(const oracleAddress : address; const s : aggregatorStorageType) : option(nat) is
-    Big_map.find_opt(oracleAddress, s.oracleRewardStakedMvk)
+(* View: get oracle reward staked MVN opt *)
+[@view] function getOracleRewardStakedMvnOpt(const oracleAddress : address; const s : aggregatorStorageType) : option(nat) is
+    Big_map.find_opt(oracleAddress, s.oracleRewardStakedMvn)
 
 
 
