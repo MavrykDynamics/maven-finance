@@ -6,12 +6,12 @@ dependency "prod" {
   config_path = "../do-kubernetes-prod"
 }
 
-dependency "timescaledb-mavryk-finance-indexer" {
-  config_path = "../do-droplet-timescaledb-mavryk-finance-indexer"
+dependency "timescaledb-maven-finance-indexer" {
+  config_path = "../do-droplet-timescaledb-maven-finance-indexer"
 }
 
-dependency "timescaledb-mavryk-finance-indexer-2" {
-  config_path = "../do-droplet-timescaledb-mavryk-finance-indexer-2"
+dependency "timescaledb-maven-finance-indexer-2" {
+  config_path = "../do-droplet-timescaledb-maven-finance-indexer-2"
 }
 
 terraform {
@@ -21,8 +21,8 @@ terraform {
 inputs = {
   name                        = "timescaledb"
   droplet_ids                 = [
-    dependency.timescaledb-mavryk-finance-indexer.outputs.id,
-    dependency.timescaledb-mavryk-finance-indexer-2.outputs.id,
+    dependency.timescaledb-maven-finance-indexer.outputs.id,
+    dependency.timescaledb-maven-finance-indexer-2.outputs.id,
   ]
   inbound_rules               = [
     {
@@ -65,7 +65,7 @@ inputs = {
     }
   ]
   tags                        = [
-    "mavryk",
+    "maven",
     "indexer",
     "timescaledb"
   ]
