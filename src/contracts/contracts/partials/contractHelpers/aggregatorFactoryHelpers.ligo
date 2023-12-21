@@ -38,12 +38,12 @@ block {
 // ------------------------------------------------------------------------------
 
 // helper function to get distributeReward entrypoint in delegation contract
-function getDistributeRewardInDelegationEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvkType) is
+function getDistributeRewardInDelegationEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvnType) is
     case (Tezos.get_entrypoint_opt(
         "%distributeReward",
-        contractAddress) : option(contract(distributeRewardStakedMvkType))) of [
+        contractAddress) : option(contract(distributeRewardStakedMvnType))) of [
                 Some(contr) -> contr
-            |   None        -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(distributeRewardStakedMvkType))
+            |   None        -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(distributeRewardStakedMvnType))
         ];
 
 
@@ -142,26 +142,26 @@ block {
 
 
 
-// helper function to distribute reward staked MVK
-function distributeRewardStakedMvkOperation(const eligibleSatellites : set(address); const rewardAmount : nat; const s : aggregatorFactoryStorageType) : operation is 
+// helper function to distribute reward staked MVN
+function distributeRewardStakedMvnOperation(const eligibleSatellites : set(address); const rewardAmount : nat; const s : aggregatorFactoryStorageType) : operation is 
 block {
 
     // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
     const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
-    // Create operation to distribute staked MVK reward to oracle recipient through the %distributeReward entrypoint on the Delegation Contract
-    const rewardParams : distributeRewardStakedMvkType = record [
+    // Create operation to distribute staked MVN reward to oracle recipient through the %distributeReward entrypoint on the Delegation Contract
+    const rewardParams : distributeRewardStakedMvnType = record [
         eligibleSatellites   = eligibleSatellites;
-        totalStakedMvkReward = rewardAmount;
+        totalStakedMvnReward = rewardAmount;
     ];
 
-    const distributeRewardStakedMvkOperation : operation = Tezos.transaction(
+    const distributeRewardStakedMvnOperation : operation = Tezos.transaction(
         rewardParams,
         0tez,
         getDistributeRewardInDelegationEntrypoint(delegationAddress)
     );
 
-} with distributeRewardStakedMvkOperation
+} with distributeRewardStakedMvnOperation
 
 // ------------------------------------------------------------------------------
 // Operation Helper Functions End
@@ -199,7 +199,7 @@ block {
         lastUpdatedAt             = Tezos.get_now();
     ];
     const oracleRewardXtz        : oracleRewardXtzType        = Big_map.empty;
-    const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = Big_map.empty;
+    const oracleRewardStakedMvn  : oracleRewardStakedMvnType  = Big_map.empty;
 
     // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
     const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
@@ -217,7 +217,7 @@ block {
     const aggregatorBreakGlassConfig : aggregatorBreakGlassConfigType = record[
         updateDataIsPaused                  = False;
         withdrawRewardXtzIsPaused           = False;
-        withdrawRewardStakedMvkIsPaused     = False;
+        withdrawRewardStakedMvnIsPaused     = False;
     ];
 
     // Prepare Aggregator Metadata
@@ -239,7 +239,7 @@ block {
         config                    = createAggregatorParams.aggregatorConfig;
         breakGlassConfig          = aggregatorBreakGlassConfig;
 
-        mvkTokenAddress           = s.mvkTokenAddress;
+        mvnTokenAddress           = s.mvnTokenAddress;
         governanceAddress         = s.governanceAddress;
 
         whitelistContracts        = aggregatorWhitelistContracts;      
@@ -250,7 +250,7 @@ block {
         lastCompletedData         = lastCompletedData;
                             
         oracleRewardXtz           = oracleRewardXtz;
-        oracleRewardStakedMvk     = oracleRewardStakedMvk;      
+        oracleRewardStakedMvn     = oracleRewardStakedMvn;      
 
         lambdaLedger              = aggregatorLambdaLedger;
     ];

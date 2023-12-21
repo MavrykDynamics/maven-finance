@@ -36,12 +36,12 @@ import { vaultStorageType }                     from "../../storage/storageTypes
 import { vaultFactoryStorageType }              from "../../storage/storageTypes/vaultFactoryStorageType"
 import { lendingControllerStorageType }         from "../../storage/storageTypes/lendingControllerStorageType"
 import { lendingControllerMockTimeStorageType } from "../../storage/storageTypes/lendingControllerMockTimeStorageType"
-import { mvkFaucetStorageType }                 from "../../storage/storageTypes/mvkFaucetStorageType"
+import { mvnFaucetStorageType }                 from "../../storage/storageTypes/mvnFaucetStorageType"
 
 // Token Storage Type
-import { mvkTokenStorageType }                  from "../../storage/storageTypes/mvkTokenStorageType"
-import { mavrykFa2TokenStorageType }            from "../../storage/storageTypes/mavrykFa2TokenStorageType";
-import { mavrykFa12TokenStorageType }           from "../../storage/storageTypes/mavrykFa12TokenStorageType";
+import { mvnTokenStorageType }                  from "../../storage/storageTypes/mvnTokenStorageType"
+import { mavenFa2TokenStorageType }            from "../../storage/storageTypes/mavenFa2TokenStorageType";
+import { mavenFa12TokenStorageType }           from "../../storage/storageTypes/mavenFa12TokenStorageType";
 import { mTokenStorageType }                    from "../../storage/storageTypes/mTokenStorageType";
 
 // Contract Lambdas
@@ -116,12 +116,12 @@ type generalContractStorageType =
     vaultFactoryStorageType |
     lendingControllerStorageType | 
     lendingControllerMockTimeStorageType |
-    mvkFaucetStorageType |
+    mvnFaucetStorageType |
     
     // tokens
-    mvkTokenStorageType | 
-    mavrykFa12TokenStorageType | 
-    mavrykFa2TokenStorageType | 
+    mvnTokenStorageType | 
+    mavenFa12TokenStorageType | 
+    mavenFa2TokenStorageType | 
     mTokenStorageType    
 
 

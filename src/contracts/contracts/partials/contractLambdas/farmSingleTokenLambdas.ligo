@@ -202,7 +202,7 @@ block {
                 // Create transfer operations
                 function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
                   block{
-                    // Check if token is not MVK (it would break SMVK) before creating the transfer operation
+                    // Check if token is not MVN (it would break SMVN) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
                         | Fa12(token) -> if token = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
@@ -594,7 +594,7 @@ block{
                 depositorRecord.unclaimedRewards    := 0n;
                 s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
-                // Transfer sMVK rewards
+                // Transfer sMVN rewards
                 const transferRewardOperation: operation = transferReward(depositor, claimedRewards, s);
 
                 operations := transferRewardOperation # operations;

@@ -57,8 +57,8 @@ block {
     if s.breakGlassConfig.transferIsPaused then skip
     else s.breakGlassConfig.transferIsPaused := True;
 
-    if s.breakGlassConfig.mintMvkAndTransferIsPaused then skip
-    else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
+    if s.breakGlassConfig.mintMvnAndTransferIsPaused then skip
+    else s.breakGlassConfig.mintMvnAndTransferIsPaused := True;
 
     if s.breakGlassConfig.updateTokenOperatorsIsPaused then skip
     else s.breakGlassConfig.updateTokenOperatorsIsPaused := True;
@@ -81,7 +81,7 @@ block {
     if s.breakGlassConfig.transferIsPaused then s.breakGlassConfig.transferIsPaused := False
     else skip;
 
-    if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
+    if s.breakGlassConfig.mintMvnAndTransferIsPaused then s.breakGlassConfig.mintMvnAndTransferIsPaused := False
     else skip;
 
     if s.breakGlassConfig.updateTokenOperatorsIsPaused then s.breakGlassConfig.updateTokenOperatorsIsPaused := False
@@ -105,10 +105,10 @@ block {
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to %stake entrypoint
+// helper function to %stakeMvn entrypoint
 function getStakeEntrypoint(const contractAddress : address) : contract(nat) is
     case (Tezos.get_entrypoint_opt(
-        "%stake",
+        "%stakeMvn",
         contractAddress) : option(contract(nat))) of [
                 Some(contr) -> contr
             |   None        -> (failwith(error_STAKE_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND) : contract(nat))
@@ -116,10 +116,10 @@ function getStakeEntrypoint(const contractAddress : address) : contract(nat) is
 
 
 
-// helper function to %unstake entrypoint
+// helper function to %unstakeMvn entrypoint
 function getUnstakeEntrypoint(const contractAddress : address) : contract(nat) is
     case (Tezos.get_entrypoint_opt(
-        "%unstake",
+        "%unstakeMvn",
         contractAddress) : option(contract(nat))) of [
                 Some(contr) -> contr
             |   None        -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND) : contract(nat))
@@ -188,7 +188,7 @@ block {
     const tokenContractAddress   : address               = updateTokenOperatorsParams.tokenContractAddress;
     const updateOperatorsParams  : updateOperatorsType   = updateTokenOperatorsParams.updateOperators;
 
-    // Create and send update MVK operators operation
+    // Create and send update MVN operators operation
     const updateTokenOperatorsOperation : operation = Tezos.transaction(
         (updateOperatorsParams),
         0tez, 
@@ -207,16 +207,16 @@ block {
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to mint mvk tokens 
+// helper function to mint mvn tokens 
 function mintTokens(const to_ : address; const amount_ : nat; const s : treasuryStorageType) : operation is
 block {
 
-    const mvkTokenAddress : address = s.mvkTokenAddress;
+    const mvnTokenAddress : address = s.mvnTokenAddress;
     
     const mintTokenOperation : operation = Tezos.transaction(
         (to_, amount_),
         0tez,
-        getMintEntrypointFromTokenAddress(mvkTokenAddress)
+        getMintEntrypointFromTokenAddress(mvnTokenAddress)
     );
 
 } with mintTokenOperation

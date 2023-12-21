@@ -29,15 +29,15 @@ print('two up: '+ twoUp)
 print('one up: '+ oneUp)
 
 helpersDir          = os.path.join(fileDir, 'helpers')
-mvkTokenDecimals = os.path.join(helpersDir, 'mvkTokenDecimals.json')
-mvkTokenDecimals = open(mvkTokenDecimals)
-mvkTokenDecimals = json.load(mvkTokenDecimals)
-mvkTokenDecimals = mvkTokenDecimals['decimals']
+mvnTokenDecimals = os.path.join(helpersDir, 'mvnTokenDecimals.json')
+mvnTokenDecimals = open(mvnTokenDecimals)
+mvnTokenDecimals = json.load(mvnTokenDecimals)
+mvnTokenDecimals = mvnTokenDecimals['decimals']
 
 deploymentsDir          = os.path.join(fileDir, 'deployments')
 lambdaDir               = os.path.join(oneUp, 'build/lambdas')
 deployedDoormanContract = os.path.join(deploymentsDir, 'doormanAddress.json')
-deployedMvkTokenContract = os.path.join(deploymentsDir, 'mvkTokenAddress.json')
+deployedMvnTokenContract = os.path.join(deploymentsDir, 'mvnTokenAddress.json')
 deployedFarmFactoryContract = os.path.join(deploymentsDir, 'farmFactoryAddress.json')
 deployedDelegationContract = os.path.join(deploymentsDir, 'delegationAddress.json')
 deployedGovernanceContract = os.path.join(deploymentsDir, 'governanceAddress.json')
@@ -50,9 +50,9 @@ lambdaDoormanContract   = os.path.join(lambdaDir, 'doormanLambdas.json')
 lambdaDoorman = open(lambdaDoormanContract)
 doormanLambdas = json.load(lambdaDoorman)
 
-deployedMvkToken = open(deployedMvkTokenContract)
-mvkTokenAddress = json.load(deployedMvkToken)
-mvkTokenAddress = mvkTokenAddress['address']
+deployedMvnToken = open(deployedMvnTokenContract)
+mvnTokenAddress = json.load(deployedMvnToken)
+mvnTokenAddress = mvnTokenAddress['address']
 
 deployedDelegation = open(deployedDelegationContract)
 delegationAddress = json.load(deployedDelegation)
@@ -70,7 +70,7 @@ lambdaFarmFactory = open(lambdaFarmFactoryContract)
 farmFactoryLambdas = json.load(lambdaFarmFactory)
 
 print('Doorman Contract Deployed at: ' + doormanContractAddress)
-print('MVK Token Contract Deployed at: ' + mvkTokenAddress)
+print('MVN Token Contract Deployed at: ' + mvnTokenAddress)
 print('Delegation Contract Deployed at: ' + delegationAddress)
 print('Farm Factory Contract Deployed at: ' + farmFactoryAddress)
 
@@ -90,9 +90,9 @@ class DoormanContract(TestCase):
         cls.doormanContract = pytezos.contract(doormanContractAddress)
         cls.doormanStorage  = cls.doormanContract.storage()
 
-        # Setup MVK Token 
-        cls.mvkTokenContract = pytezos.contract(mvkTokenAddress)
-        cls.mvkTokenStorage  = cls.mvkTokenContract.storage()
+        # Setup MVN Token 
+        cls.mvnTokenContract = pytezos.contract(mvnTokenAddress)
+        cls.mvnTokenStorage  = cls.mvnTokenContract.storage()
 
         # Setup farm factory
         cls.farmFactoryContract = pytezos.contract(farmFactoryAddress)
@@ -109,9 +109,9 @@ class DoormanContract(TestCase):
         else:
             self.assertEqual(f"'{error_message}': ", r.exception.format_stdout())
 
-    # MVK Formatter
-    def MVK(self, value: float = 1.0):
-        return int(value * 10**int(mvkTokenDecimals))
+    # MVN Formatter
+    def MVN(self, value: float = 1.0):
+        return int(value * 10**int(mvnTokenDecimals))
 
 #     ######################
 #     # Tests for doorman contract #
@@ -172,38 +172,38 @@ class DoormanContract(TestCase):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
-        stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
-        unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
+        stakeMvnIsPaused = init_doorman_storage['breakGlassConfig']['stakeMvnIsPaused']
+        unstakeMvnIsPaused = init_doorman_storage['breakGlassConfig']['unstakeMvnIsPaused']
         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
         farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
-        stakeAmount = self.MVK(2)
-        unstakeAmount = self.MVK()
+        stakeAmount = self.MVN(2)
+        unstakeAmount = self.MVN()
         recipientAddress = alice
-        mintedTokens = self.MVK(2)
+        mintedTokens = self.MVN(2)
         forceTransfer = False
-        mvkTotalSupply = self.MVK(100)
-        mvkMaximumSupply = self.MVK(1000)
+        mvnTotalSupply = self.MVN(100)
+        mvnMaximumSupply = self.MVN(1000)
 
         # Operation
         res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=bob)
 
         # Final values
-        finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
-        finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
+        finalStakeIsPaused = res.storage['breakGlassConfig']['stakeMvnIsPaused']
+        finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeMvnIsPaused']
         finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
         finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
         # Tests operations
         with self.raisesMichelsonError(error_codes.error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+            res = self.doormanContract.stakeMvn(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
         
         with self.raisesMichelsonError(error_codes.error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%total_supply": mvkTotalSupply,
-                mvkTokenAddress+"%get_balance": self.MVK(2),
+            res = self.doormanContract.unstakeMvn(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                mvnTokenAddress+"%total_supply": mvnTotalSupply,
+                mvnTokenAddress+"%get_balance": self.MVN(2),
             });
         
 #         with self.raisesMichelsonError(error_codes.error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
@@ -211,15 +211,15 @@ class DoormanContract(TestCase):
         
         with self.raisesMichelsonError(error_codes.error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
-                mvkTokenAddress+"%total_supply": mvkTotalSupply,
-                mvkTokenAddress+"%getMaximumSupply": mvkMaximumSupply,
+                mvnTokenAddress+"%total_supply": mvnTotalSupply,
+                mvnTokenAddress+"%getMaximumSupply": mvnMaximumSupply,
                 governanceAddress+"%getGeneralContractOpt": farmFactoryAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 farmFactoryAddress+"%checkFarmExists": True
             });
 
-        self.assertNotEqual(stakeIsPaused, finalStakeIsPaused)
-        self.assertNotEqual(unstakeIsPaused, finalUnstakeIsPaused)
+        self.assertNotEqual(stakeMvnIsPaused, finalStakeIsPaused)
+        self.assertNotEqual(unstakeMvnIsPaused, finalUnstakeIsPaused)
         self.assertNotEqual(compoundIsPaused, finalCompoundIsPaused)
         self.assertNotEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
@@ -227,7 +227,7 @@ class DoormanContract(TestCase):
         print('✅ Admin tries to pause all entrypoints')
         print('stake is paused:')
         print(finalStakeIsPaused)
-        print('unstake is paused:')
+        print('unstakeMvn is paused:')
         print(finalUnstakeIsPaused)
         print('compound is paused:')
         print(finalCompoundIsPaused)
@@ -238,12 +238,12 @@ class DoormanContract(TestCase):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
-        stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
-        unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
+        stakeMvnIsPaused = init_doorman_storage['breakGlassConfig']['stakeMvnIsPaused']
+        unstakeMvnIsPaused = init_doorman_storage['breakGlassConfig']['unstakeMvnIsPaused']
         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
         farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
-        finalStakeIsPaused = stakeIsPaused
-        finalUnstakeIsPaused = unstakeIsPaused
+        finalStakeIsPaused = stakeMvnIsPaused
+        finalUnstakeIsPaused = unstakeMvnIsPaused
         finalCompoundIsPaused = compoundIsPaused
         finalFarmClaimIsPaused = farmClaimIsPaused
 
@@ -252,13 +252,13 @@ class DoormanContract(TestCase):
             res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=alice)
 
             # Final values
-            finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
-            finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
+            finalStakeIsPaused = res.storage['breakGlassConfig']['stakeMvnIsPaused']
+            finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeMvnIsPaused']
             finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
             finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
-        self.assertEqual(stakeIsPaused, finalStakeIsPaused)
-        self.assertEqual(unstakeIsPaused, finalUnstakeIsPaused)
+        self.assertEqual(stakeMvnIsPaused, finalStakeIsPaused)
+        self.assertEqual(unstakeMvnIsPaused, finalUnstakeIsPaused)
         self.assertEqual(compoundIsPaused, finalCompoundIsPaused)
         self.assertEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
@@ -266,7 +266,7 @@ class DoormanContract(TestCase):
         print('✅ Non-admin tries to pause all entrypoints')
         print('stake is paused:')
         print(finalStakeIsPaused)
-        print('unstake is paused:')
+        print('unstakeMvn is paused:')
         print(finalUnstakeIsPaused)
         print('compound is paused:')
         print(finalCompoundIsPaused)
@@ -278,20 +278,20 @@ class DoormanContract(TestCase):
     ##
     def test_22_admin_call_entrypoint(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
-        init_mvk_storage = deepcopy(self.mvkTokenStorage)
+        init_mvn_storage = deepcopy(self.mvnTokenStorage)
 
         # Initial values
-        stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
-        unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
+        stakeMvnIsPaused = init_doorman_storage['breakGlassConfig']['stakeMvnIsPaused']
+        unstakeMvnIsPaused = init_doorman_storage['breakGlassConfig']['unstakeMvnIsPaused']
         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
         farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
-        stakeAmount = self.MVK(2)
-        unstakeAmount = self.MVK()
+        stakeAmount = self.MVN(2)
+        unstakeAmount = self.MVN()
         res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=bob)
 
         # Paused values
-        pauseStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
-        pauseUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
+        pauseStakeIsPaused = res.storage['breakGlassConfig']['stakeMvnIsPaused']
+        pauseUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeMvnIsPaused']
         pauseCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
         pauseFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
@@ -299,28 +299,28 @@ class DoormanContract(TestCase):
         res = self.doormanContract.unpauseAll().interpret(storage=res.storage, sender=bob)
 
         # Tests operations
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+        res = self.doormanContract.stakeMvn(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
-        res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%total_supply": mvkTotalSupply,
-                mvkTokenAddress+"%get_balance": self.MVK(2),
+        res = self.doormanContract.unstakeMvn(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                mvnTokenAddress+"%total_supply": mvnTotalSupply,
+                mvnTokenAddress+"%get_balance": self.MVN(2),
             });
         res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
         
         # Final values
-        finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
-        finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
+        finalStakeIsPaused = res.storage['breakGlassConfig']['stakeMvnIsPaused']
+        finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeMvnIsPaused']
         finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
         finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
-        self.assertNotEqual(stakeIsPaused, pauseStakeIsPaused)
-        self.assertNotEqual(unstakeIsPaused, pauseUnstakeIsPaused)
+        self.assertNotEqual(stakeMvnIsPaused, pauseStakeIsPaused)
+        self.assertNotEqual(unstakeMvnIsPaused, pauseUnstakeIsPaused)
         self.assertNotEqual(compoundIsPaused, pauseCompoundIsPaused)
         self.assertNotEqual(farmClaimIsPaused, pauseFarmClaimIsPaused)
-        self.assertEqual(stakeIsPaused, finalStakeIsPaused)
-        self.assertEqual(unstakeIsPaused, finalUnstakeIsPaused)
+        self.assertEqual(stakeMvnIsPaused, finalStakeIsPaused)
+        self.assertEqual(unstakeMvnIsPaused, finalUnstakeIsPaused)
         self.assertEqual(compoundIsPaused, finalCompoundIsPaused)
         self.assertEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
@@ -328,7 +328,7 @@ class DoormanContract(TestCase):
         print('✅ Admin tries to unpause all entrypoints')
         print('stake is paused:')
         print(finalStakeIsPaused)
-        print('unstake is paused:')
+        print('unstakeMvn is paused:')
         print(finalUnstakeIsPaused)
         print('compound is paused:')
         print(finalCompoundIsPaused)
@@ -337,27 +337,27 @@ class DoormanContract(TestCase):
 
     def test_23_non_admin_call_entrypoint(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
-        init_mvk_storage = deepcopy(self.mvkTokenStorage)
+        init_mvn_storage = deepcopy(self.mvnTokenStorage)
 
         # Initial values
-        stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
-        unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
+        stakeMvnIsPaused = init_doorman_storage['breakGlassConfig']['stakeMvnIsPaused']
+        unstakeMvnIsPaused = init_doorman_storage['breakGlassConfig']['unstakeMvnIsPaused']
         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
         farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
-        stakeAmount = self.MVK(2)
-        unstakeAmount = self.MVK()
+        stakeAmount = self.MVN(2)
+        unstakeAmount = self.MVN()
         recipientAddress = alice
-        mintedTokens = self.MVK(2)
+        mintedTokens = self.MVN(2)
         forceTransfer = False
-        mvkTotalSupply = self.MVK(100)
-        mvkMaximumSupply = self.MVK(1000)
+        mvnTotalSupply = self.MVN(100)
+        mvnMaximumSupply = self.MVN(1000)
 
         # First operation
         res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=bob)
 
         # Paused values
-        pauseStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
-        pauseUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
+        pauseStakeIsPaused = res.storage['breakGlassConfig']['stakeMvnIsPaused']
+        pauseUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeMvnIsPaused']
         pauseCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
         pauseFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
@@ -367,15 +367,15 @@ class DoormanContract(TestCase):
 
         # Tests operations
         with self.raisesMichelsonError(error_codes.error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+            res = self.doormanContract.stakeMvn(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
         
         with self.raisesMichelsonError(error_codes.error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%total_supply": mvkTotalSupply,
-                mvkTokenAddress+"%get_balance": self.MVK(2),
+            res = self.doormanContract.unstakeMvn(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                mvnTokenAddress+"%total_supply": mvnTotalSupply,
+                mvnTokenAddress+"%get_balance": self.MVN(2),
             });
         
 #         with self.raisesMichelsonError(error_codes.error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
@@ -384,28 +384,28 @@ class DoormanContract(TestCase):
 #         with self.raisesMichelsonError(error_codes.error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
 #             res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
 #                 farmFactoryAddress+"%checkFarmExists": True,
-#                 mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+#                 mvnTokenAddress+"%getTotalAndMaximumSupply": (mvnTotalSupply, mvnMaximumSupply)
 #             });
         
         # Final values
-        finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
-        finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
+        finalStakeIsPaused = res.storage['breakGlassConfig']['stakeMvnIsPaused']
+        finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeMvnIsPaused']
         finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
         finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
-        self.assertNotEqual(stakeIsPaused, pauseStakeIsPaused)
-        self.assertNotEqual(unstakeIsPaused, pauseUnstakeIsPaused)
+        self.assertNotEqual(stakeMvnIsPaused, pauseStakeIsPaused)
+        self.assertNotEqual(unstakeMvnIsPaused, pauseUnstakeIsPaused)
         self.assertNotEqual(compoundIsPaused, pauseCompoundIsPaused)
         self.assertNotEqual(farmClaimIsPaused, pauseFarmClaimIsPaused)
-        self.assertNotEqual(stakeIsPaused, finalStakeIsPaused)
-        self.assertNotEqual(unstakeIsPaused, finalUnstakeIsPaused)
+        self.assertNotEqual(stakeMvnIsPaused, finalStakeIsPaused)
+        self.assertNotEqual(unstakeMvnIsPaused, finalUnstakeIsPaused)
         self.assertNotEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
         print('----')
         print('✅ Non-admin tries to unpause all entrypoints')
         print('stake is paused:')
         print(finalStakeIsPaused)
-        print('unstake is paused:')
+        print('unstakeMvn is paused:')
         print(finalUnstakeIsPaused)
         print('compound is paused:')
         print(finalCompoundIsPaused)
@@ -419,8 +419,8 @@ class DoormanContract(TestCase):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
-        stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
-        stakeAmount = self.MVK(2)
+        stakeMvnIsPaused = init_doorman_storage['breakGlassConfig']['stakeMvnIsPaused']
+        stakeAmount = self.MVN(2)
 
         # Operation
         res = self.doormanContract.togglePauseEntrypoint({
@@ -428,16 +428,16 @@ class DoormanContract(TestCase):
         }).interpret(storage=init_doorman_storage, sender=bob)
 
         # Final values
-        finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
+        finalStakeIsPaused = res.storage['breakGlassConfig']['stakeMvnIsPaused']
 
         # Tests operations
         with self.raisesMichelsonError(error_codes.error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+            res = self.doormanContract.stakeMvn(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
 
-        self.assertNotEqual(stakeIsPaused, finalStakeIsPaused)
+        self.assertNotEqual(stakeMvnIsPaused, finalStakeIsPaused)
 
         print('----')
         print('✅ Admin tries to pause stake entrypoint')
@@ -446,12 +446,12 @@ class DoormanContract(TestCase):
 
     def test_25_admin_pause_unstake(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
-        init_mvk_storage = deepcopy(self.mvkTokenStorage)
+        init_mvn_storage = deepcopy(self.mvnTokenStorage)
 
         # Initial values
-        unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
-        stakeAmount = self.MVK(2)
-        unstakeAmount = self.MVK()
+        unstakeMvnIsPaused = init_doorman_storage['breakGlassConfig']['unstakeMvnIsPaused']
+        stakeAmount = self.MVN(2)
+        unstakeAmount = self.MVN()
 
         # Operation
         res = self.doormanContract.togglePauseEntrypoint({
@@ -459,24 +459,24 @@ class DoormanContract(TestCase):
         }).interpret(storage=init_doorman_storage, sender=bob)
 
         # Final values
-        finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
+        finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeMvnIsPaused']
 
         # Tests operations
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+        res = self.doormanContract.stakeMvn(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
         with self.raisesMichelsonError(error_codes.error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%total_supply": mvkTotalSupply,
-                mvkTokenAddress+"%get_balance": self.MVK(2),
+            res = self.doormanContract.unstakeMvn(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                mvnTokenAddress+"%total_supply": mvnTotalSupply,
+                mvnTokenAddress+"%get_balance": self.MVN(2),
             });
 
-        self.assertNotEqual(unstakeIsPaused, finalUnstakeIsPaused)
+        self.assertNotEqual(unstakeMvnIsPaused, finalUnstakeIsPaused)
 
         print('----')
         print('✅ Admin tries to pause stake entrypoint')
-        print('unstake is paused:')
+        print('unstakeMvn is paused:')
         print(finalUnstakeIsPaused)
 
     def test_27_admin_pause_compound(self):
@@ -521,7 +521,7 @@ class DoormanContract(TestCase):
 #             # Tests operations
 #             res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
 
-#             self.assertNotEqual(0, res.storage['stakedMvkTotalSupply'])
+#             self.assertNotEqual(0, res.storage['stakedMvnTotalSupply'])
 #             self.assertEqual(compoundIsPaused, finalCompoundIsPaused)
 
 #         print('----')
@@ -538,10 +538,10 @@ class DoormanContract(TestCase):
 #         # Initial values
 #         farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
 #         recipientAddress = alice
-#         mintedTokens = self.MVK(2)
+#         mintedTokens = self.MVN(2)
 #         forceTransfer = False
-#         mvkTotalSupply = self.MVK(100)
-#         mvkMaximumSupply = self.MVK(1000)
+#         mvnTotalSupply = self.MVN(100)
+#         mvnMaximumSupply = self.MVN(1000)
 
 #         # Operation
 #         res = self.doormanContract.togglePauseFarmClaim().interpret(storage=init_doorman_storage, sender=bob)
@@ -553,10 +553,10 @@ class DoormanContract(TestCase):
 #         with self.raisesMichelsonError(error_codes.error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
 #             res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
 #                 farmFactoryAddress+"%checkFarmExists": True,
-#                 mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+#                 mvnTokenAddress+"%getTotalAndMaximumSupply": (mvnTotalSupply, mvnMaximumSupply)
 #             });
 
-#         self.assertEqual(0, res.storage['stakedMvkTotalSupply'])
+#         self.assertEqual(0, res.storage['stakedMvnTotalSupply'])
 #         self.assertNotEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
 #         print('----')
@@ -571,10 +571,10 @@ class DoormanContract(TestCase):
 #         farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
 #         finalFarmClaimIsPaused = farmClaimIsPaused;
 #         recipientAddress = alice
-#         mintedTokens = self.MVK(2)
+#         mintedTokens = self.MVN(2)
 #         forceTransfer = False
-#         mvkTotalSupply = self.MVK(100)
-#         mvkMaximumSupply = self.MVK(1000)
+#         mvnTotalSupply = self.MVN(100)
+#         mvnMaximumSupply = self.MVN(1000)
 
 #         # Operation
 #         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
@@ -586,10 +586,10 @@ class DoormanContract(TestCase):
 #             # Tests operations
 #             res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
 #                 farmFactoryAddress+"%checkFarmExists": True,
-#                 mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+#                 mvnTokenAddress+"%getTotalAndMaximumSupply": (mvnTotalSupply, mvnMaximumSupply)
 #             });
 
-#             self.assertNotEqual(0, res.storage['stakedMvkTotalSupply'])
+#             self.assertNotEqual(0, res.storage['stakedMvnTotalSupply'])
 #             self.assertEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
 #         print('----')
@@ -598,17 +598,17 @@ class DoormanContract(TestCase):
 #         print(finalFarmClaimIsPaused)
     
     ###
-    # %stake
+    # %stakeMvn
     ##
     def test_40_stake_delegation_contract_unknown_to_doorman(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
-        stakeAmount = self.MVK(2)
+        stakeAmount = self.MVN(2)
 
         # Operations
         with self.raisesMichelsonError(error_codes.error_DELEGATION_CONTRACT_NOT_FOUND):
-            self.doormanContract.stake( stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+            self.doormanContract.stakeMvn( stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
@@ -617,75 +617,75 @@ class DoormanContract(TestCase):
         print('✅ User tries to stake while doorman does not have delegation contract in generalContracts')
 
     ###
-    # %unstake
+    # %unstakeMvn
     ##
-    def test_51_mvk_contract_call_unstake(self):
+    def test_51_mvn_contract_call_unstake(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
-        init_mvk_storage = deepcopy(self.mvkTokenStorage)
+        init_mvn_storage = deepcopy(self.mvnTokenStorage)
 
         # Initial values
-        stakeAmount = self.MVK(2)
-        unstakeAmount = self.MVK(2)
-        mvkTotalSupply = self.MVK(100)
+        stakeAmount = self.MVN(2)
+        unstakeAmount = self.MVN(2)
+        mvnTotalSupply = self.MVN(100)
 
         # Operations
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+        res = self.doormanContract.stakeMvn(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
-        res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%total_supply": mvkTotalSupply,
-                mvkTokenAddress+"%get_balance": self.MVK(2),
+        res = self.doormanContract.unstakeMvn(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                mvnTokenAddress+"%total_supply": mvnTotalSupply,
+                mvnTokenAddress+"%get_balance": self.MVN(2),
             });
 
         print('----')
-        print('✅ MVK Token contract tries to call unstake')
+        print('✅ MVN Token contract tries to call unstakeMvn')
 
     def test_52_unstake_delegation_contract_unknown_to_doorman(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
-        init_mvk_storage = deepcopy(self.mvkTokenStorage)
+        init_mvn_storage = deepcopy(self.mvnTokenStorage)
 
         # Initial values
-        stakeAmount = self.MVK(2)
-        unstakeAmount = self.MVK(2)
-        mvkTotalSupply = self.MVK(100)
+        stakeAmount = self.MVN(2)
+        unstakeAmount = self.MVN(2)
+        mvnTotalSupply = self.MVN(100)
 
         # Operations
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+        res = self.doormanContract.stakeMvn(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
         res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=res.storage, sender=bob);
         with self.raisesMichelsonError(error_codes.error_DELEGATION_CONTRACT_NOT_FOUND):
-            self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%total_supply": mvkTotalSupply,
-                mvkTokenAddress+"%get_balance": self.MVK(2),
+            self.doormanContract.unstakeMvn(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                mvnTokenAddress+"%total_supply": mvnTotalSupply,
+                mvnTokenAddress+"%get_balance": self.MVN(2),
             });
 
         print('----')
-        print('✅ MVK Token contract tries to call unstake while doorman does not have delegation contract in generalContracts')
+        print('✅ MVN Token contract tries to call unstakeMvn while doorman does not have delegation contract in generalContracts')
 
-    def test_53_non_mvk_contract_call_unstake(self):
+    def test_53_non_mvn_contract_call_unstake(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
-        init_mvk_storage = deepcopy(self.mvkTokenStorage)
+        init_mvn_storage = deepcopy(self.mvnTokenStorage)
 
         # Initial values
-        stakeAmount = self.MVK(2)
-        unstakeAmount = self.MVK(2)
+        stakeAmount = self.MVN(2)
+        unstakeAmount = self.MVN(2)
 
         # Operations
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+        res = self.doormanContract.stakeMvn(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
-        with self.raisesMichelsonError(error_codes.error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED):
-            self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, source=bob, view_results={
-                mvkTokenAddress+"%total_supply": init_mvk_storage['totalSupply'],
+        with self.raisesMichelsonError(error_codes.error_ONLY_MVN_TOKEN_CONTRACT_ALLOWED):
+            self.doormanContract.unstakeMvn(unstakeAmount).interpret(storage=res.storage, sender=bob, source=bob, view_results={
+                mvnTokenAddress+"%total_supply": init_mvn_storage['totalSupply'],
                 delegationAddress+"%getSatelliteRewardsOpt": None,
             })
 
         print('----')
-        print('✅ Non-MVK Token contract tries to call unstake')
+        print('✅ Non-MVN Token contract tries to call unstakeMvn')
 
     ###
     # %compound
@@ -694,10 +694,10 @@ class DoormanContract(TestCase):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
-        stakeAmount = self.MVK(2)
+        stakeAmount = self.MVN(2)
 
         # Operations
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+        res = self.doormanContract.stakeMvn(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
@@ -709,174 +709,174 @@ class DoormanContract(TestCase):
         print('✅ User tries to compound while doorman does not have delegation contract in generalContracts')
 
     ###
-    # %updateMinMvkAmount
+    # %updateMinMvnAmount
     ##
-    def test_70_admin_can_increase_min_mvk(self):
+    def test_70_admin_can_increase_min_mvn(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
-        init_mvk_storage = deepcopy(self.mvkTokenStorage)
+        init_mvn_storage = deepcopy(self.mvnTokenStorage)
 
         # Initial values
-        stakeAmount = self.MVK(1)
-        minAmount = init_doorman_storage['minMvkAmount']
-        desiredMinAmount = self.MVK(2)
+        stakeAmount = self.MVN(1)
+        minAmount = init_doorman_storage['minMvnAmount']
+        desiredMinAmount = self.MVN(2)
 
         # Operation
-        res = self.doormanContract.updateMinMvkAmount(desiredMinAmount).interpret(storage=init_doorman_storage, sender=bob);
+        res = self.doormanContract.updateMinMvnAmount(desiredMinAmount).interpret(storage=init_doorman_storage, sender=bob);
 
         # Test operation
-        with self.raisesMichelsonError(error_codes.error_MVK_ACCESS_AMOUNT_NOT_REACHED):
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+        with self.raisesMichelsonError(error_codes.error_MVN_ACCESS_AMOUNT_NOT_REACHED):
+            res = self.doormanContract.stakeMvn(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
         
-        with self.raisesMichelsonError(error_codes.error_MVK_ACCESS_AMOUNT_NOT_REACHED):
-            res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%total_supply": self.MVK(100),
-                mvkTokenAddress+"%get_balance": self.MVK(2),
+        with self.raisesMichelsonError(error_codes.error_MVN_ACCESS_AMOUNT_NOT_REACHED):
+            res = self.doormanContract.unstakeMvn(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                mvnTokenAddress+"%total_supply": self.MVN(100),
+                mvnTokenAddress+"%get_balance": self.MVN(2),
             });
 
-#         newAmount = res.storage['minMvkAmount']
+#         newAmount = res.storage['minMvnAmount']
 
 #         self.assertNotEqual(minAmount, newAmount)
 
 #         print('----')
-#         print('✅ Admin should be able to increase the minimum amount of MVK to interact with the contract')
+#         print('✅ Admin should be able to increase the minimum amount of MVN to interact with the contract')
 #         print('minimum amount:')
-#         print(res.storage['minMvkAmount'])
+#         print(res.storage['minMvnAmount'])
 
-#     def test_71_admin_can_decrease_min_mvk(self):
+#     def test_71_admin_can_decrease_min_mvn(self):
 #         init_doorman_storage = deepcopy(self.doormanStorage)
-#         init_mvk_storage = deepcopy(self.mvkTokenStorage)
+#         init_mvn_storage = deepcopy(self.mvnTokenStorage)
 
 #         # Initial values
-#         stakeAmount = self.MVK(1)
-#         minAmount = init_doorman_storage['minMvkAmount']
-#         firstDesiredMinAmount = self.MVK(3)
-#         secondDesiredMinAmount = self.MVK(2)
+#         stakeAmount = self.MVN(1)
+#         minAmount = init_doorman_storage['minMvnAmount']
+#         firstDesiredMinAmount = self.MVN(3)
+#         secondDesiredMinAmount = self.MVN(2)
 
 #         # Operation
-#         res = self.doormanContract.updateMinMvkAmount(firstDesiredMinAmount).interpret(storage=init_doorman_storage, sender=bob);
-#         res = self.doormanContract.updateMinMvkAmount(secondDesiredMinAmount).interpret(storage=res.storage, sender=bob);
+#         res = self.doormanContract.updateMinMvnAmount(firstDesiredMinAmount).interpret(storage=init_doorman_storage, sender=bob);
+#         res = self.doormanContract.updateMinMvnAmount(secondDesiredMinAmount).interpret(storage=res.storage, sender=bob);
 
         # Test operation
-        with self.raisesMichelsonError(error_codes.error_MVK_ACCESS_AMOUNT_NOT_REACHED):
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+        with self.raisesMichelsonError(error_codes.error_MVN_ACCESS_AMOUNT_NOT_REACHED):
+            res = self.doormanContract.stakeMvn(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
         
-        with self.raisesMichelsonError(error_codes.error_MVK_ACCESS_AMOUNT_NOT_REACHED):
-            res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%total_supply": self.MVK(100),
-                mvkTokenAddress+"%get_balance": self.MVK(2),
+        with self.raisesMichelsonError(error_codes.error_MVN_ACCESS_AMOUNT_NOT_REACHED):
+            res = self.doormanContract.unstakeMvn(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                mvnTokenAddress+"%total_supply": self.MVN(100),
+                mvnTokenAddress+"%get_balance": self.MVN(2),
             });
 
-        newAmount = res.storage['minMvkAmount']
+        newAmount = res.storage['minMvnAmount']
 
         self.assertNotEqual(minAmount, newAmount)
 
         print('----')
-        print('✅ Admin should be able to decrease the minimum amount of MVK to interact with the contract')
+        print('✅ Admin should be able to decrease the minimum amount of MVN to interact with the contract')
         print('minimum amount:')
-        print(res.storage['minMvkAmount'])
+        print(res.storage['minMvnAmount'])
 
-    def test_72_admin_cant_decrease_min_mvk_too_much(self):
+    def test_72_admin_cant_decrease_min_mvn_too_much(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
-        init_mvk_storage = deepcopy(self.mvkTokenStorage)
+        init_mvn_storage = deepcopy(self.mvnTokenStorage)
 
         # Initial values
-        stakeAmount = self.MVK(1)
-        minAmount = init_doorman_storage['minMvkAmount']
-        desiredMinAmount = self.MVK(0.001)
+        stakeAmount = self.MVN(1)
+        minAmount = init_doorman_storage['minMvnAmount']
+        desiredMinAmount = self.MVN(0.001)
 
         # Operation
         with self.raisesMichelsonError(error_codes.error_CONFIG_VALUE_TOO_LOW):
-            res = self.doormanContract.updateMinMvkAmount(desiredMinAmount).interpret(storage=init_doorman_storage, sender=bob);
+            res = self.doormanContract.updateMinMvnAmount(desiredMinAmount).interpret(storage=init_doorman_storage, sender=bob);
 
         # Test operation
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+        res = self.doormanContract.stakeMvn(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
-        res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%total_supply": self.MVK(100),
-                mvkTokenAddress+"%get_balance": self.MVK(2),
+        res = self.doormanContract.unstakeMvn(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                mvnTokenAddress+"%total_supply": self.MVN(100),
+                mvnTokenAddress+"%get_balance": self.MVN(2),
             });
 
-        newAmount = res.storage['minMvkAmount']
+        newAmount = res.storage['minMvnAmount']
 
         self.assertEqual(minAmount, newAmount)
 
         print('----')
-        print('✅ Admin should not be able to decrease the minimum amount of MVK below 1MVK')
+        print('✅ Admin should not be able to decrease the minimum amount of MVN below 1MVN')
         print('minimum amount:')
-        print(init_doorman_storage['minMvkAmount'])
+        print(init_doorman_storage['minMvnAmount'])
 
-    def test_73_non_admin_cant_update_min_mvk(self):
+    def test_73_non_admin_cant_update_min_mvn(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
-        init_mvk_storage = deepcopy(self.mvkTokenStorage)
+        init_mvn_storage = deepcopy(self.mvnTokenStorage)
 
         # Initial values
-        stakeAmount = self.MVK(2)
-        minAmount = init_doorman_storage['minMvkAmount']
-        desiredMinAmount = self.MVK(2)
+        stakeAmount = self.MVN(2)
+        minAmount = init_doorman_storage['minMvnAmount']
+        desiredMinAmount = self.MVN(2)
 
         # Operation
         newAmount = 0
         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
-            res = self.doormanContract.updateMinMvkAmount(desiredMinAmount).interpret(storage=init_doorman_storage, sender=alice);
+            res = self.doormanContract.updateMinMvnAmount(desiredMinAmount).interpret(storage=init_doorman_storage, sender=alice);
 
         # Test operation
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+        res = self.doormanContract.stakeMvn(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
             governanceAddress+"%getGeneralContractOpt": delegationAddress,
             governanceAddress+"%getGeneralContractOpt": delegationAddress
         });
-        res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, source=bob, view_results={
-                mvkTokenAddress+"%total_supply": init_mvk_storage['totalSupply'],
-                mvkTokenAddress+"%get_balance": self.MVK(2),
+        res = self.doormanContract.unstakeMvn(stakeAmount).interpret(storage=res.storage, source=bob, view_results={
+                mvnTokenAddress+"%total_supply": init_mvn_storage['totalSupply'],
+                mvnTokenAddress+"%get_balance": self.MVN(2),
             });
 
-        newAmount = res.storage['minMvkAmount']
+        newAmount = res.storage['minMvnAmount']
 
         self.assertEqual(minAmount, newAmount)
 
         print('----')
-        print('✅ Non-admin should not be able to update the minimum amount of MVK')
+        print('✅ Non-admin should not be able to update the minimum amount of MVN')
         print('minimum amount:')
-        print(init_doorman_storage['minMvkAmount'])
+        print(init_doorman_storage['minMvnAmount'])
 
     ###
     # %farmClaim
     ##
-    def test_80_mvk_contract_call_farmclaim(self):
+    def test_80_mvn_contract_call_farmclaim(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
         recipientAddress = alice
-        mintedTokens = self.MVK(2)
+        mintedTokens = self.MVN(2)
         forceTransfer = False
-        mvkTotalSupply = self.MVK(100)
-        mvkMaximumSupply = self.MVK(1000)
+        mvnTotalSupply = self.MVN(100)
+        mvnMaximumSupply = self.MVN(1000)
 
         # Operations
         self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
             farmFactoryAddress+"%checkFarmExists": True,
-            mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+            mvnTokenAddress+"%getTotalAndMaximumSupply": (mvnTotalSupply, mvnMaximumSupply)
         });
 
         print('----')
-        print('✅ MVK Token contract tries to call farmClaim')
+        print('✅ MVN Token contract tries to call farmClaim')
 
     def test_81_farmclaim_treasury_contract_unknown_to_doorman(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
         recipientAddress = alice
-        mintedTokens = self.MVK(2)
+        mintedTokens = self.MVN(2)
         forceTransfer = False
-        mvkTotalSupply = self.MVK(100)
-        mvkMaximumSupply = self.MVK(1000)
+        mvnTotalSupply = self.MVN(100)
+        mvnMaximumSupply = self.MVN(1000)
 
         # Operations
         res = self.doormanContract.updateGeneralContracts("farmTreasury",eve).interpret(storage=init_doorman_storage, sender=bob); # update map
@@ -884,46 +884,46 @@ class DoormanContract(TestCase):
         with self.raisesMichelsonError(error_codes.error_FARM_TREASURY_CONTRACT_NOT_FOUND):
             self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=res.storage, sender=bob, view_results={
                 farmFactoryAddress+"%checkFarmExists": True,
-                mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+                mvnTokenAddress+"%getTotalAndMaximumSupply": (mvnTotalSupply, mvnMaximumSupply)
             });
 
         print('----')
-        print('✅ MVK Token contract tries to call farmClaim while doorman does not have farmTreasury contract in generalContracts')
+        print('✅ MVN Token contract tries to call farmClaim while doorman does not have farmTreasury contract in generalContracts')
 
     def test_82_farmclaim_complete_delegation_contract_unknown_to_doorman(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
         recipientAddress = alice
-        mintedTokens = self.MVK(2)
+        mintedTokens = self.MVN(2)
         forceTransfer = False
-        mvkTotalSupply = self.MVK(100)
-        mvkMaximumSupply = self.MVK(1000)
+        mvnTotalSupply = self.MVN(100)
+        mvnMaximumSupply = self.MVN(1000)
 
         # Operations
         res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=init_doorman_storage, sender=bob);
         with self.raisesMichelsonError(error_codes.error_DELEGATION_CONTRACT_NOT_FOUND):
             self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=res.storage, sender=bob, view_results={
                 farmFactoryAddress+"%checkFarmExists": True,
-                mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+                mvnTokenAddress+"%getTotalAndMaximumSupply": (mvnTotalSupply, mvnMaximumSupply)
             });
 
         print('----')
-        print('✅ MVK Token contract tries to call farmClaim while doorman does not have delegation contract in generalContracts')
+        print('✅ MVN Token contract tries to call farmClaim while doorman does not have delegation contract in generalContracts')
 
     def test_83_claim_should_be_split_between_mint_transfer(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
         recipientAddress = alice
-        fakeTotalSupply = self.MVK(100)
-        fakemaximumSupply = self.MVK(1000)
-        mintedTokens = self.MVK(910)
+        fakeTotalSupply = self.MVN(100)
+        fakemaximumSupply = self.MVN(1000)
+        mintedTokens = self.MVN(910)
         forceTransfer = False
 
         res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
             farmFactoryAddress+"%checkFarmExists": True,
-            mvkTokenAddress+"%getTotalAndMaximumSupply": (fakeTotalSupply, fakemaximumSupply)
+            mvnTokenAddress+"%getTotalAndMaximumSupply": (fakeTotalSupply, fakemaximumSupply)
         });
         mintedAmount = int(res.operations[3]['parameters']['value']['args'][-1]['int'])
         transferedAmount = int(res.operations[2]['parameters']['value'][-1]['args'][-1]['int'])
@@ -932,4 +932,4 @@ class DoormanContract(TestCase):
         self.assertEqual(fakeTotalSupply+mintedAmount,fakemaximumSupply)
 
         print('----')
-        print('✅ Claim should be split between mint and transfer if the reward exceed the MVK maximumSupply')
+        print('✅ Claim should be split between mint and transfer if the reward exceed the MVN maximumSupply')

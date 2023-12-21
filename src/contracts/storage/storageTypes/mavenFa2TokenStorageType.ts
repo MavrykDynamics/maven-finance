@@ -1,12 +1,10 @@
 import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder"
 import { BigNumber } from "bignumber.js"
 
-export type mavrykLendingLpTokenStorageType = {
+export type mavenFa2TokenStorageType = {
 
     admin               : string;
     metadata            : MichelsonMap<MichelsonMapKey, unknown>;
-
-    loanToken           : string;
     governanceAddress   : string;
 
     whitelistContracts  : MichelsonMap<MichelsonMapKey, unknown>;

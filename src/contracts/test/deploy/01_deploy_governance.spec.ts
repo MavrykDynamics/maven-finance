@@ -47,7 +47,7 @@ describe('Governance', async () => {
             //----------------------------
         
             governanceStorage.whitelistDevelopers = [alice.pkh, bob.pkh]
-            governanceStorage.mvkTokenAddress     = contractDeployments.mvkToken.address
+            governanceStorage.mvnTokenAddress     = contractDeployments.mvnToken.address
             governance = await GeneralContract.originate(utils.tezos, "governance", governanceStorage);
             await saveContractAddress('governanceAddress', governance.contract.address)
         

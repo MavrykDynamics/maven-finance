@@ -38,16 +38,16 @@ block{
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to mint mvk tokens 
+// helper function to mint mvn tokens 
 function mintTokens(const to_ : address; const amount_ : nat; const s : vestingStorageType) : operation is
 block {
 
-    const mvkTokenAddress : address = s.mvkTokenAddress;
+    const mvnTokenAddress : address = s.mvnTokenAddress;
     
     const mintTokenOperation : operation = Tezos.transaction(
         (to_, amount_),
         0tez,
-        getMintEntrypointFromTokenAddress(mvkTokenAddress)
+        getMintEntrypointFromTokenAddress(mvnTokenAddress)
     );
 
 } with mintTokenOperation
@@ -85,8 +85,8 @@ block {
             
             // static variables initiated at start ----
 
-            totalAllocatedAmount = totalAllocatedAmount;                          // totalAllocatedAmount should be in (10^9) - MVK Token decimals
-            claimAmountPerMonth  = totalAllocatedAmount / vestingInMonths;        // totalAllocatedAmount should be in (10^9) - MVK Token decimals
+            totalAllocatedAmount = totalAllocatedAmount;                          // totalAllocatedAmount should be in (10^9) - MVN Token decimals
+            claimAmountPerMonth  = totalAllocatedAmount / vestingInMonths;        // totalAllocatedAmount should be in (10^9) - MVN Token decimals
             
             startTimestamp       = Tezos.get_now();                                     // date/time start of when 
 

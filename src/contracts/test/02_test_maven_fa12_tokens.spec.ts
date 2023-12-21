@@ -32,7 +32,7 @@ import {
 // ------------------------------------------------------------------------------
 
 
-describe("Test: Mavryk FA12 Token Contract", async () => {
+describe("Test: Maven FA12 Token Contract", async () => {
 
     var utils: Utils;
     let tezos 
@@ -46,9 +46,9 @@ describe("Test: Mavryk FA12 Token Contract", async () => {
     let tokenAddress
     let tokenInstance;
     let tokenStorage;
-    let mavrykFa2TokenAddress
-    let mavrykFa2TokenInstance
-    let mavrykFa2TokenStorage
+    let mavenFa2TokenAddress
+    let mavenFa2TokenInstance
+    let mavenFa2TokenStorage
 
     // user accounts
     let user 
@@ -99,14 +99,14 @@ describe("Test: Mavryk FA12 Token Contract", async () => {
             tezos = utils.tezos
             
             // mock fa12 token
-            tokenAddress            = contractDeployments.mavrykFa12Token.address
+            tokenAddress            = contractDeployments.mavenFa12Token.address
             tokenInstance           = await utils.tezos.contract.at(tokenAddress);
             tokenStorage            = await tokenInstance.storage();
 
             // for mistaken transfers
-            mavrykFa2TokenAddress   = contractDeployments.mavrykFa2Token.address 
-            mavrykFa2TokenInstance  = await utils.tezos.contract.at(mavrykFa2TokenAddress);
-            mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
+            mavenFa2TokenAddress   = contractDeployments.mavenFa2Token.address 
+            mavenFa2TokenInstance  = await utils.tezos.contract.at(mavenFa2TokenAddress);
+            mavenFa2TokenStorage   = await mavenFa2TokenInstance.storage();
             
             console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
             
@@ -699,20 +699,20 @@ describe("Test: Mavryk FA12 Token Contract", async () => {
                 user              = mallory.pkh;
                 userSk            = mallory.sk;
 
-                // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
+                // Mistaken Operation - user (mallory) send 10 MavenFa2Tokens to MVN Token Contract
                 await signerFactory(tezos, userSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, tokenAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, tokenAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(tokenInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(tokenInstance, user, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -803,11 +803,11 @@ describe("Test: Mavryk FA12 Token Contract", async () => {
                 user = mallory.pkh;
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MVK to MVK Token Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, tokenAddress, tokenId, tokenAmount);
+                // Mistaken Operation - send 10 MVN to MVN Token Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, tokenAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
-                mistakenTransferOperation = await mistakenTransferFa2Token(tokenInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(tokenInstance, user, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {

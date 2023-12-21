@@ -81,9 +81,9 @@ block {
                 case updateConfigAction of [
                         ConfigDurationInMinutes (_v)                  -> s.config.durationInMinutes               := updateConfigNewValue
                     |   ConfigRequiredFeeMutez (_v)                   -> s.config.requiredFeeMutez                := updateConfigNewValue * 1mutez
-                    |   ConfigStakedMvkPercentRequired (_v)           -> if updateConfigNewValue > 10_000n     then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.stakedMvkPercentageRequired     := updateConfigNewValue  
-                    |   ConfigMinStakedMvkForVoting (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvkRequiredToVote      := updateConfigNewValue
-                    |   ConfigMinStakedMvkToTrigger (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
+                    |   ConfigStakedMvnPercentRequired (_v)           -> if updateConfigNewValue > 10_000n     then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.stakedMvnPercentageRequired     := updateConfigNewValue  
+                    |   ConfigMinStakedMvnForVoting (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvnRequiredToVote      := updateConfigNewValue
+                    |   ConfigMinStakedMvnToTrigger (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvnRequiredToTrigger   := updateConfigNewValue
                     |   ConfigProposalTitleMaxLength (_v)             -> s.config.proposalTitleMaxLength          := updateConfigNewValue
                     |   ConfigProposalDescMaxLength (_v)              -> s.config.proposalDescMaxLength           := updateConfigNewValue
                 ];
@@ -173,11 +173,11 @@ block {
     // 2. Check if tez sent is equal to the required fee
     // 3. Transfer required fee to the Tax Treasury
     //    - Get Tax Treasury Contract Address from the General Contracts Map on the Governance Contract
-    // 4. Check if user has sufficient staked MVK to trigger emergency control
+    // 4. Check if user has sufficient staked MVN to trigger emergency control
     //    - Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-    //    - Get user's staked MVK balance from the Doorman Contract
-    // 5. Get Total Staked MVK supply and calculate min staked MVK required for break glass to be triggered
-    //    - N.B. Total Staked MVK Supply is equivalent to the Doorman Contract's balance on the MVK Token Contract
+    //    - Get user's staked MVN balance from the Doorman Contract
+    // 5. Get Total Staked MVN supply and calculate min staked MVN required for break glass to be triggered
+    //    - N.B. Total Staked MVN Supply is equivalent to the Doorman Contract's balance on the MVN Token Contract
     // 6. Validate inputs of emergency control (name and description should not exceed max length)
     // 7. Create new emergency governance record
     // 8. Update storage (counters and new emergency governance)
@@ -198,17 +198,17 @@ block {
                 // Transfer fee to Treasury
                 const transferFeeToTreasuryOperation : operation = transferFeeToTreasuryOperation(s);
 
-                // Get user's staked MVK balance from the Doorman Contract
-                const stakedMvkBalance : nat = getUserStakedMvkBalance(userAddress, s);
+                // Get user's staked MVN balance from the Doorman Contract
+                const stakedMvnBalance : nat = getUserStakedMvnBalance(userAddress, s);
                 
-                // Verify that user has sufficient staked MVK to trigger emergency control
-                verifySufficientBalanceToTrigger(stakedMvkBalance, s);
+                // Verify that user has sufficient staked MVN to trigger emergency control
+                verifySufficientBalanceToTrigger(stakedMvnBalance, s);
 
-                // Get staked MVK total supply 
-                const stakedMvkTotalSupply : nat = getStakedMvkTotalSupply(s);
+                // Get staked MVN total supply 
+                const stakedMvnTotalSupply : nat = getStakedMvnTotalSupply(s);
 
-                // Calculate min staked MVK required for break glass to be triggered
-                var stakedMvkRequiredForBreakGlass : nat := abs(s.config.stakedMvkPercentageRequired * stakedMvkTotalSupply / 10000);
+                // Calculate min staked MVN required for break glass to be triggered
+                var stakedMvnRequiredForBreakGlass : nat := abs(s.config.stakedMvnPercentageRequired * stakedMvnTotalSupply / 10000);
 
                 // Init emergency control parameters
                 const title        : string  =  triggerEmergencyControlParams.title;
@@ -223,7 +223,7 @@ block {
                     userAddress,
                     title,
                     description,
-                    stakedMvkRequiredForBreakGlass,
+                    stakedMvnRequiredForBreakGlass,
                     s    
                 );
 
@@ -254,11 +254,11 @@ block {
     //    - Check that emergency governance has not been dropped
     //    - Check that emergency governance has not been executed
     // 3. Check if user has already voted for this Emergency Governance
-    // 4. Check if user has min required staked MVK to vote for emergency governance
+    // 4. Check if user has min required staked MVN to vote for emergency governance
     //    - Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-    //    - Get user's staked MVK balance from the Doorman Contract
+    //    - Get user's staked MVN balance from the Doorman Contract
     // 5. Update emergency governance record with new votes
-    //    - Increment emergency governance total staked MVK votes with user's staked MVK balance amount
+    //    - Increment emergency governance total staked MVN votes with user's staked MVN balance amount
     // 6. Check if total votes has exceed threshold - if yes, trigger operation to break glass contract
     //    - Get Break Glass Contract Address from the General Contracts Map on the Governance Contract
     //    - Trigger break glass in Break Glass contract - set glassbroken boolean to true in Break Glass contract to give council members access to protected entrypoints
@@ -286,22 +286,22 @@ block {
                 // Verify that user has not voted for the current Emergency Governance
                 verifyUserHasNotVoted(userAddress, s.currentEmergencyGovernanceId, s);
 
-                // Get user's staked MVK balance from the Doorman Contract
-                const stakedMvkBalance : nat = getUserStakedMvkBalance(userAddress, s);
+                // Get user's staked MVN balance from the Doorman Contract
+                const stakedMvnBalance : nat = getUserStakedMvnBalance(userAddress, s);
 
-                // Verify that user has min required staked MVK to vote for emergency governance
-                verifySufficientBalanceToVote(stakedMvkBalance, s);
+                // Verify that user has min required staked MVN to vote for emergency governance
+                verifySufficientBalanceToVote(stakedMvnBalance, s);
 
-                // Increment emergency governance total staked MVK votes with user's staked MVK balance amount
-                const totalStakedMvkVotes : nat = _emergencyGovernance.totalStakedMvkVotes + stakedMvkBalance;
+                // Increment emergency governance total staked MVN votes with user's staked MVN balance amount
+                const totalStakedMvnVotes : nat = _emergencyGovernance.totalStakedMvnVotes + stakedMvnBalance;
 
                 // Update emergency governance record with new votes
-                _emergencyGovernance.totalStakedMvkVotes := totalStakedMvkVotes;
+                _emergencyGovernance.totalStakedMvnVotes := totalStakedMvnVotes;
                 s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
-                s.emergencyGovernanceVoters := Big_map.add((s.currentEmergencyGovernanceId, userAddress), (stakedMvkBalance, Tezos.get_now()), s.emergencyGovernanceVoters);
+                s.emergencyGovernanceVoters := Big_map.add((s.currentEmergencyGovernanceId, userAddress), (stakedMvnBalance, Tezos.get_now()), s.emergencyGovernanceVoters);
 
                 // Check if total votes has exceed threshold - if yes, trigger operation to break glass contract
-                if totalStakedMvkVotes > _emergencyGovernance.stakedMvkRequiredForBreakGlass then block {
+                if totalStakedMvnVotes > _emergencyGovernance.stakedMvnRequiredForBreakGlass then block {
 
                     // Trigger break glass operation in the break glass and governance contract
                     const triggerBreakGlassOperation            : operation = triggerBreakGlassOperation(s);

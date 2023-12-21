@@ -3,7 +3,7 @@ import { BigNumber } from "bignumber.js"
 import { Buffer } from "buffer"
 import { bob, alice, eve, mallory } from '../scripts/sandbox/accounts'
 import { zeroAddress } from "../test/helpers/Utils"
-import { mavrykFa12TokenStorageType } from "./storageTypes/mavrykFa12TokenStorageType"
+import { mavenFa12TokenStorageType } from "./storageTypes/mavenFa12TokenStorageType"
 
 const totalSupply      = 20000000000;
 const initialSupply    = new BigNumber(totalSupply); // 20,000 MOCK FA12 Tokens in mu (10^6)
@@ -14,8 +14,8 @@ const metadata = MichelsonMap.fromLiteral({
     data: Buffer.from(
         JSON.stringify({
             version: 'v1.0.0',
-            description: 'MAVRYK FA12 TOKEN',
-            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+            description: 'MAVEN FA12 TOKEN',
+            authors: ['MAVEN Dev Team <contact@maven.finance>'],
             source: {
                 tools: ['Ligo', 'Flextesa'],
                 location: 'https://ligolang.org/',
@@ -26,11 +26,11 @@ const metadata = MichelsonMap.fromLiteral({
             assets: [
                 {
                 symbol: Buffer.from('FA12').toString('hex'),
-                name: Buffer.from('MAVRYK FA12 TOKEN').toString('hex'),
+                name: Buffer.from('MAVEN FA12 TOKEN').toString('hex'),
                 decimals: Buffer.from('6').toString('hex'),
-                icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
+                icon: Buffer.from('https://maven.finance/logo192.png').toString('hex'),
                 shouldPreferSymbol: true,
-                thumbnailUri: 'https://mavryk.finance/logo192.png'
+                thumbnailUri: 'https://maven.finance/logo192.png'
                 }
             ]
         }),
@@ -62,16 +62,16 @@ const token_metadata = MichelsonMap.fromLiteral({
         token_id: '0',
         token_info: MichelsonMap.fromLiteral({
             symbol: Buffer.from('FA12').toString('hex'),
-            name: Buffer.from('MAVRYKFA12').toString('hex'),
+            name: Buffer.from('MAVENFA12').toString('hex'),
             decimals: Buffer.from('6').toString('hex'),
-            icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
+            icon: Buffer.from('https://maven.finance/logo192.png').toString('hex'),
             shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
-            thumbnailUri: Buffer.from('https://mavryk.finance/logo192.png').toString('hex')
+            thumbnailUri: Buffer.from('https://maven.finance/logo192.png').toString('hex')
         }),
     },
   })
 
-export const mavrykFa12TokenStorage: mavrykFa12TokenStorageType = {
+export const mavenFa12TokenStorage: mavenFa12TokenStorageType = {
     admin:                  bob.pkh,
     metadata:               metadata,
     governanceAddress:      zeroAddress,

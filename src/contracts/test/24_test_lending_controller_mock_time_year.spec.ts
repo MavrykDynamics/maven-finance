@@ -61,7 +61,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
     
     let doormanInstance
     let delegationInstance
-    let mvkTokenInstance
+    let mvnTokenInstance
     let treasuryInstance
     
     let mockFa12TokenInstance
@@ -70,12 +70,12 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
     let mockUsdMockFa12TokenAggregatorInstance
     let mockUsdMockFa2TokenAggregatorInstance
     let mockUsdXtzAggregatorInstance
-    let mockUsdMvkAggregatorInstance
+    let mockUsdMvnAggregatorInstance
 
     let mockUsdMockFa12TokenAggregatorStorage
     let mockUsdMockFa2TokenAggregatorStorage
     let mockUsdXtzAggregatorStorage
-    let mockUsdMvkAggregatorStorage
+    let mockUsdMvnAggregatorStorage
 
     let mTokenUsdtInstance
     let mTokenEurlInstance
@@ -89,7 +89,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
     let doormanStorage
     let delegationStorage
-    let mvkTokenStorage
+    let mvnTokenStorage
     let treasuryStorage
 
     let mockFa12TokenStorage
@@ -117,11 +117,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
         
         doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
         delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
-        mvkTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+        mvnTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
         treasuryInstance                        = await utils.tezos.contract.at(contractDeployments.treasury.address);
 
-        mockFa12TokenInstance                   = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
-        mockFa2TokenInstance                    = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
+        mockFa12TokenInstance                   = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
+        mockFa2TokenInstance                    = await utils.tezos.contract.at(contractDeployments.mavenFa2Token.address);
         governanceInstance                      = await utils.tezos.contract.at(contractDeployments.governance.address);
         governanceProxyInstance                 = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
 
@@ -132,14 +132,14 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
         mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdXtzAggregator.address);
-        mockUsdMvkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvkAggregator.address);
+        mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress);
         vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
 
         doormanStorage                          = await doormanInstance.storage();
         delegationStorage                       = await delegationInstance.storage();
-        mvkTokenStorage                         = await mvkTokenInstance.storage();
+        mvnTokenStorage                         = await mvnTokenInstance.storage();
         treasuryStorage                         = await treasuryInstance.storage();
 
         mockFa12TokenStorage                    = await mockFa12TokenInstance.storage();
@@ -153,7 +153,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
         mockUsdMockFa12TokenAggregatorStorage   = await mockUsdMockFa12TokenAggregatorInstance.storage();
         mockUsdMockFa2TokenAggregatorStorage    = await mockUsdMockFa2TokenAggregatorInstance.storage();
         mockUsdXtzAggregatorStorage             = await mockUsdXtzAggregatorInstance.storage();
-        mockUsdMvkAggregatorStorage             = await mockUsdMvkAggregatorInstance.storage();
+        mockUsdMvnAggregatorStorage             = await mockUsdMvnAggregatorInstance.storage();
 
         // ------------------------------------------------------------------
         //
@@ -195,9 +195,9 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
         })
 
         tokenOracles.push({
-            'name': "smvk", 
-            'price': mockUsdMvkAggregatorStorage.lastCompletedData.data.toNumber(),
-            'priceDecimals': mockUsdMvkAggregatorStorage.config.decimals.toNumber(),
+            'name': "smvn", 
+            'price': mockUsdMvnAggregatorStorage.lastCompletedData.data.toNumber(),
+            'priceDecimals': mockUsdMvnAggregatorStorage.config.decimals.toNumber(),
             'tokenDecimals': 9
         })
 
@@ -247,7 +247,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                 const setLoanTokenActionType                = "createLoanToken";
 
                 const tokenName                             = "usdt";
-                const tokenContractAddress                  = contractDeployments.mavrykFa12Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa12Token.address;
                 const tokenType                             = "fa12";
                 const tokenDecimals                         = 6;
 
@@ -346,7 +346,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                 const setLoanTokenActionType                = "createLoanToken";
 
                 const tokenName                             = "eurl";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
                 const tokenDecimals                         = 6;
 
@@ -546,7 +546,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                 const setLoanTokenActionType                = "createLoanToken";
 
                 const tokenName                             = "failTestLoanToken";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
                 const tokenDecimals                         = 6;
 
@@ -622,7 +622,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                 const setCollateralTokenActionType      = "createCollateralToken";
 
                 const tokenName                         = "usdt";
-                const tokenContractAddress              = contractDeployments.mavrykFa12Token.address;
+                const tokenContractAddress              = contractDeployments.mavenFa12Token.address;
                 const tokenType                         = "fa12";
 
                 const tokenDecimals                     = 6;
@@ -690,7 +690,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                 const setCollateralTokenActionType          = "createCollateralToken";
 
                 const tokenName                             = "eurl";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
 
                 const tokenDecimals                         = 6;
@@ -828,7 +828,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
                 const setCollateralTokenActionType          = "createCollateralToken";
 
                 const tokenName                             = "failTestCollateralToken";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
 
                 const tokenDecimals                         = 6;

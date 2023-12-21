@@ -18,9 +18,9 @@ type emergencyGovernanceRecordType is [@layout:comb] record [
 
     title                            : string;
     description                      : string;   
-    totalStakedMvkVotes              : nat;              
-    stakedMvkPercentageRequired      : nat;              // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
-    stakedMvkRequiredForBreakGlass   : nat;              // capture state of min staked MVK vote required
+    totalStakedMvnVotes              : nat;              
+    stakedMvnPercentageRequired      : nat;              // capture state of min required staked MVN vote percentage (e.g. 5% - as min required votes may change over time)
+    stakedMvnRequiredForBreakGlass   : nat;              // capture state of min staked MVN vote required
     
     startDateTime                    : timestamp;
     startLevel                       : nat;              // block level of submission, used to order proposals
@@ -29,16 +29,16 @@ type emergencyGovernanceRecordType is [@layout:comb] record [
     expirationDateTime               : timestamp;
 ]
 
-type emergencyGovernanceVotersType is big_map(voterIdentifierType, (nat * timestamp)) // mvk amount, timestamp
+type emergencyGovernanceVotersType is big_map(voterIdentifierType, (nat * timestamp)) // mvn amount, timestamp
 type emergencyGovernanceLedgerType is big_map(nat, emergencyGovernanceRecordType)
 
 type emergencyConfigType is record [
     decimals                          : nat;        // decimals used for percentages
     durationInMinutes                 : nat;        // duration of emergency governance before expiry
-    requiredFeeMutez                  : tez;        // fee for triggering emergency control - e.g. 100 tez -> change to MVK 
-    stakedMvkPercentageRequired       : nat;        // minimum staked MVK percentage amount required to activate break glass 
-    minStakedMvkRequiredToVote        : nat;        // minimum staked MVK balance of user required to vote for emergency governance
-    minStakedMvkRequiredToTrigger     : nat;        // minimum staked MVK balance of user to trigger emergency governance
+    requiredFeeMutez                  : tez;        // fee for triggering emergency control - e.g. 100 tez -> change to MVN 
+    stakedMvnPercentageRequired       : nat;        // minimum staked MVN percentage amount required to activate break glass 
+    minStakedMvnRequiredToVote        : nat;        // minimum staked MVN balance of user required to vote for emergency governance
+    minStakedMvnRequiredToTrigger     : nat;        // minimum staked MVN balance of user to trigger emergency governance
 
     proposalTitleMaxLength            : nat;
     proposalDescMaxLength             : nat;
@@ -54,9 +54,9 @@ type emergencyUpdateConfigNewValueType is nat
 type emergencyUpdateConfigActionType is 
         ConfigDurationInMinutes         of unit
     |   ConfigRequiredFeeMutez          of unit
-    |   ConfigStakedMvkPercentRequired  of unit
-    |   ConfigMinStakedMvkForVoting     of unit
-    |   ConfigMinStakedMvkToTrigger     of unit
+    |   ConfigStakedMvnPercentRequired  of unit
+    |   ConfigMinStakedMvnForVoting     of unit
+    |   ConfigMinStakedMvnToTrigger     of unit
     |   ConfigProposalTitleMaxLength    of unit
     |   ConfigProposalDescMaxLength     of unit
 
@@ -102,7 +102,7 @@ type emergencyGovernanceStorageType is [@layout:comb] record [
     metadata                            : metadataType;
     config                              : emergencyConfigType;
 
-    mvkTokenAddress                     : address;
+    mvnTokenAddress                     : address;
     governanceAddress                   : address;
     
     whitelistContracts                  : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints

@@ -24,17 +24,17 @@ import * as helperFunctions from '../helpers/helperFunctions'
 // Contract Storage
 // ------------------------------------------------------------------------------
 
-import { mvkFaucetStorage } from '../../storage/mvkFaucetStorage'
+import { mvnFaucetStorage } from '../../storage/mvnFaucetStorage'
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
 // ------------------------------------------------------------------------------
 
-describe('MVK Faucet', async () => {
+describe('MVN Faucet', async () => {
   
   var tezos
   var utils: Utils
-  var mvkFaucet
+  var mvnFaucet
 
   before('setup', async () => {
     try{
@@ -46,10 +46,10 @@ describe('MVK Faucet', async () => {
       // Originate and deploy contracts
       //----------------------------
   
-      mvkFaucetStorage.mvkTokenAddress  = contractDeployments.mvkToken.address
-      mvkFaucet = await GeneralContract.originate(utils.tezos, "mvkFaucet", mvkFaucetStorage);
+      mvnFaucetStorage.mvnTokenAddress  = contractDeployments.mvnToken.address
+      mvnFaucet = await GeneralContract.originate(utils.tezos, "mvnFaucet", mvnFaucetStorage);
   
-      await saveContractAddress('mvkFaucetAddress', mvkFaucet.contract.address)
+      await saveContractAddress('mvnFaucetAddress', mvnFaucet.contract.address)
 
     } catch(e){
 
@@ -59,7 +59,7 @@ describe('MVK Faucet', async () => {
 
   })
 
-  it(`mvkFaucet contract deployed`, async () => {
+  it(`mvnFaucet contract deployed`, async () => {
     try {
 
       console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')

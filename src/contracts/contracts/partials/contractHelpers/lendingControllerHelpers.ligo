@@ -140,18 +140,18 @@ function checkZeroLoanOutstanding(const vault : vaultRecordType) : unit is
 
 
 
-// helper function to get user staked mvk balance from staking contract (e.g. Doorman)
+// helper function to get user staked mvn balance from staking contract (e.g. Doorman)
 function getBalanceFromStakingContract(const userAddress : address; const contractAddress : address) : nat is 
 block {
 
-    // get staked MVK balance of user from Doorman contract
+    // get staked MVN balance of user from Doorman contract
     const getStakedBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, contractAddress);
-    const userStakedMvkBalance : nat = case getStakedBalanceView of [
+    const userStakedMvnBalance : nat = case getStakedBalanceView of [
             Some (_value) -> _value
         |   None          -> failwith(error_GET_STAKED_BALANCE_VIEW_IN_CONTRACT_NOT_FOUND)
     ];
 
-} with userStakedMvkBalance
+} with userStakedMvnBalance
 
 
 
@@ -290,7 +290,7 @@ block {
 
     const isScaledToken         : bool         = createCollateralTokenParams.isScaledToken;
 
-    // To extend functionality beyond sMVK to other staked tokens in future
+    // To extend functionality beyond sMVN to other staked tokens in future
     const isStakedToken             : bool              = createCollateralTokenParams.isStakedToken;
     const stakingContractAddress    : option(address)   = createCollateralTokenParams.stakingContractAddress;
 
@@ -589,11 +589,11 @@ block {
 
 
 
-// helper function withdraw staked token (e.g. sMVK) from vault through the staking contract (e.g. Doorman Contract) - call %onVaultWithdrawStake in Doorman Contract
+// helper function withdraw staked token (e.g. sMVN) from vault through the staking contract (e.g. Doorman Contract) - call %onVaultWithdrawStake in Doorman Contract
 function onWithdrawStakedTokenFromVaultOperation(const vaultOwner : address; const vaultAddress : address; const withdrawAmount : nat; const stakingContractAddress : address) : operation is
 block {
 
-    // Create operation to staking contract to withdraw staked token (e.g. sMVK) from vault to user
+    // Create operation to staking contract to withdraw staked token (e.g. sMVN) from vault to user
     const onVaultWithdrawStakeParams : onVaultWithdrawStakeType = record [
         vaultOwner      = vaultOwner;
         vaultAddress    = vaultAddress;
@@ -610,11 +610,11 @@ block {
 
 
 
-// helper function deposit staked token (e.g. sMVK) from vault through the staking contract (e.g. Doorman Contract) - call %onVaultDepositStake in Doorman Contract
+// helper function deposit staked token (e.g. sMVN) from vault through the staking contract (e.g. Doorman Contract) - call %onVaultDepositStake in Doorman Contract
 function onDepositStakedTokenToVaultOperation(const vaultOwner : address; const vaultAddress : address; const depositAmount : nat; const stakingContractAddress : address) : operation is
 block {
 
-    // Create operation to staking contract to deposit staked token (e.g. sMVK) from user to vault
+    // Create operation to staking contract to deposit staked token (e.g. sMVN) from user to vault
     const onVaultDepositStakeParams : onVaultDepositStakeType = record [
         vaultOwner      = vaultOwner;
         vaultAddress    = vaultAddress;
@@ -631,11 +631,11 @@ block {
 
 
 
-// helper function liquidate staked token (e.g. sMVK) from vault through the staking contract (e.g. Doorman Contract) - call %onVaultLiquidateStake in Doorman Contract
+// helper function liquidate staked token (e.g. sMVN) from vault through the staking contract (e.g. Doorman Contract) - call %onVaultLiquidateStake in Doorman Contract
 function onLiquidateStakedTokenFromVaultOperation(const vaultAddress : address; const liquidator : address; const liquidatedAmount : nat; const stakingContractAddress : address) : operation is
 block {
 
-    // Create operation to staking contract to liquidate staked token (e.g. sMVK) from vault to liquidator
+    // Create operation to staking contract to liquidate staked token (e.g. sMVN) from vault to liquidator
     const onVaultLiquidateStakeParams : onVaultLiquidateStakeType = record [
         vaultAddress        = vaultAddress;
         liquidator          = liquidator;
@@ -868,7 +868,7 @@ block {
         // get collateral token reference using on-chain views
         const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(collateralTokenName, s);
 
-        // check if collateral token is a staked token (e.g. sMVK) or a scaled token (e.g. mToken) - get balance from doorman contract and token contract address respectively
+        // check if collateral token is a staked token (e.g. sMVN) or a scaled token (e.g. mToken) - get balance from doorman contract and token contract address respectively
         if collateralTokenRecord.isStakedToken then {
 
             const stakingContractAddress : address = case collateralTokenRecord.stakingContractAddress of [
@@ -1221,7 +1221,7 @@ block {
     // Transfer operations
     if collateralToken.isStakedToken then {
 
-        // use %onVaultLiquidateStake entrypoint in Staking Contract (e.g. Doorman) to transfer staked token (e.g. smVK) balances
+        // use %onVaultLiquidateStake entrypoint in Staking Contract (e.g. Doorman) to transfer staked token (e.g. sMvn) balances
         
         // get staking contract address
         const stakingContractAddress : address = case collateralToken.stakingContractAddress of [
@@ -1294,7 +1294,7 @@ block {
     const tokenPrice                : nat = collateralTokenLastCompletedData.data;
     const priceDecimals             : nat = collateralTokenLastCompletedData.decimals;
 
-    // if token is sMVK, get latest balance from Doorman Contract through on-chain views
+    // if token is sMVN, get latest balance from Doorman Contract through on-chain views
     // - may differ from token balance if rewards have been claimed 
     // - requires a call to %compound on staking contract (i.e. doorman contract) to compound rewards for the vault and get the latest balance
     var collateralTokenBalance : nat := 

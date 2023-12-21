@@ -22,8 +22,8 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// MvkToken types for transfer
-#include "../partials/contractTypes/mvkTokenTypes.ligo"
+// MvnToken types for transfer
+#include "../partials/contractTypes/mvnTokenTypes.ligo"
 
 // Vesting types for vesting council actions
 #include "../partials/contractTypes/vestingTypes.ligo"

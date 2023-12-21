@@ -44,37 +44,37 @@ function triggerBreakGlass(const contractAddress : address) : contract(unit) is
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get staked mvk balance of user
-function getUserStakedMvkBalance(const userAddress : address; const s : emergencyGovernanceStorageType) : nat is 
+// helper function to get staked mvn balance of user
+function getUserStakedMvnBalance(const userAddress : address; const s : emergencyGovernanceStorageType) : nat is 
 block {
 
     // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
     const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
-    const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
-    const stakedMvkBalance: nat = case stakedMvkBalanceView of [
+    const stakedMvnBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
+    const stakedMvnBalance: nat = case stakedMvnBalanceView of [
             Some (value) -> value
         |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
     ];
 
-} with stakedMvkBalance 
+} with stakedMvnBalance 
 
 
 
-// helper function to get staked mvk total supply (equivalent to balance of the Doorman contract on the MVK Token contract)
-function getStakedMvkTotalSupply(const s : emergencyGovernanceStorageType) : nat is 
+// helper function to get staked mvn total supply (equivalent to balance of the Doorman contract on the MVN Token contract)
+function getStakedMvnTotalSupply(const s : emergencyGovernanceStorageType) : nat is 
 block {
 
     // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
     const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
-    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-    const stakedMvkTotalSupply: nat = case getBalanceView of [
+    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvnTokenAddress);
+    const stakedMvnTotalSupply: nat = case getBalanceView of [
             Some (value) -> value
-        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND) : nat)
     ];
 
-} with stakedMvkTotalSupply 
+} with stakedMvnTotalSupply 
 
 
 
@@ -159,21 +159,21 @@ block {
 
 
 
-// helper function to verify staked mvk is sufficient to trigger emergency governance
-function verifySufficientBalanceToTrigger(const stakedMvkBalance : nat; const s : emergencyGovernanceStorageType) : unit is 
+// helper function to verify staked mvn is sufficient to trigger emergency governance
+function verifySufficientBalanceToTrigger(const stakedMvnBalance : nat; const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    verifyGreaterThanOrEqual(stakedMvkBalance, s.config.minStakedMvkRequiredToTrigger, error_MIN_STAKED_MVK_AMOUNT_NOT_REACHED);
+    verifyGreaterThanOrEqual(stakedMvnBalance, s.config.minStakedMvnRequiredToTrigger, error_MIN_STAKED_MVN_AMOUNT_NOT_REACHED);
 
 } with unit
 
 
 
-// helper function to verify staked mvk is sufficient to vote for emergency governance
-function verifySufficientBalanceToVote(const stakedMvkBalance : nat; const s : emergencyGovernanceStorageType) : unit is 
+// helper function to verify staked mvn is sufficient to vote for emergency governance
+function verifySufficientBalanceToVote(const stakedMvnBalance : nat; const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    verifyGreaterThanOrEqual(stakedMvkBalance, s.config.minStakedMvkRequiredToVote, error_MIN_STAKED_MVK_AMOUNT_NOT_REACHED);
+    verifyGreaterThanOrEqual(stakedMvnBalance, s.config.minStakedMvnRequiredToVote, error_MIN_STAKED_MVN_AMOUNT_NOT_REACHED);
 
 } with unit
 
@@ -190,7 +190,7 @@ block {
 
 
 // helper function to create new emergency governance
-function createEmergencyGovernance(const userAddress : address; const title : string; const description : string; const stakedMvkRequiredForBreakGlass : nat; const s : emergencyGovernanceStorageType) : emergencyGovernanceRecordType is
+function createEmergencyGovernance(const userAddress : address; const title : string; const description : string; const stakedMvnRequiredForBreakGlass : nat; const s : emergencyGovernanceStorageType) : emergencyGovernanceRecordType is
 block {
 
     // Create new emergency governance record
@@ -200,9 +200,9 @@ block {
 
         title                            = title;
         description                      = description; 
-        totalStakedMvkVotes              = 0n;
-        stakedMvkPercentageRequired      = s.config.stakedMvkPercentageRequired;  // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
-        stakedMvkRequiredForBreakGlass   = stakedMvkRequiredForBreakGlass;
+        totalStakedMvnVotes              = 0n;
+        stakedMvnPercentageRequired      = s.config.stakedMvnPercentageRequired;  // capture state of min required staked MVN vote percentage (e.g. 5% - as min required votes may change over time)
+        stakedMvnRequiredForBreakGlass   = stakedMvnRequiredForBreakGlass;
 
         startDateTime                    = Tezos.get_now();
         startLevel                       = Tezos.get_level();             
