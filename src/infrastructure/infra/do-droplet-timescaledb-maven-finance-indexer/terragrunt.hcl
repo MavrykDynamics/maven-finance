@@ -16,14 +16,14 @@ terraform {
 }
 
 inputs = {
-  name                        = "timescaledb-mavryk-finance-indexer-2"
+  name                        = "timescaledb-maven-finance-indexer"
   region                      = local.do_region
   ssh_keys_names              = ["Tristan"]
   vpc_id                      = dependency.vpc.outputs.vpc_id
   image                       = "ubuntu-20-04-x64"
   size                        = "s-1vcpu-2gb-intel"
   tags                        = [
-    "mavryk",
+    "maven",
     "indexer",
     "timescaledb",
     "dipdup"
