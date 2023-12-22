@@ -4,14 +4,123 @@
 
 ### Deployment
 
-- DEV: 0.43
-- STAGING: 0.42
-- PROD: 0.42
-- PROD2: 0.42
+- DEV: 0.47
+- STAGING: 0.47
+- PROD: 0.47
+- PROD2: 0.47
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
+
+## 0.48
+
+### Breaking changes
+
+- Aggregator
+  - Column RewardAmountSMvk renamed to RewardAmountSMvn
+  - Column WithdrawRewardSMvk renamed to WithdrawRewardSMvn
+
+- AggregatorFactory
+  - Column DistributeRewardSmvkPaused renamed to DistributeRewardSmvnPaused
+
+- Delegation
+  - Column MinimumSMvkBalance renamed to MinimumSMvnBalance
+
+- Doorman
+  - Column MinMvkAmount renamed to MinMvnAmount
+
+- DoormanStakeAccount
+  - Column SMvkBalance renamed to SMvnBalance
+
+- SMVKHistoryData
+  - Table renamed to SMVNHistoryData
+  - Column SMvkTotalSupply renamed to SMvnTotalSupply
+  - Column MvkTotalSupply renamed to MvnTotalSupply
+  - Column AvgSMvkbyUser renamed to AvgSMvnPerUser
+
+- EmergencyGovernance
+  - Column MinSMvkRequiredToTrigger renamed to MinSMvnRequiredToTrigger
+  - Column MinSMvkRequiredToVote renamed to MinSMvnRequiredToVote
+  - Column SMvkPercentageRequired renamed to SMvnPercentageRequired
+
+- EmergencyGovernanceRecord
+  - Column TotalSMvkVotes renamed to TotalSMvnVotes
+  - Column SMvkPercentageRequired renamed to SMvnPercentageRequired
+  - Column SMvkRequiredForTrigger renamed to SMvnRequiredForTrigger
+
+- EmergencyGovernanceVote
+  - Column SMvkAmount renamed to SMvnAmount
+
+- GovernanceProposal
+  - Column ProposalVoteSMvkTotal renamed to ProposalVoteSMvnTotal
+  - Column YayVoteSMvkTotal renamed to YayVoteSMvnTotal
+  - Column NayVoteSMvkTotal renamed to NayVoteSMvnTotal
+  - Column PassVoteSMvkTotal renamed to PassVoteSMvnTotal
+  - Column QuorumSMvkTotal renamed to QuorumSMvnTotal
+
+- GovernanceSatelliteSnapshot
+  - Column TotalSMvkBalance renamed to TotalSMvnBalance
+
+- GovernanceSMVKSnapshot
+  - Table renamed to GovernanceSMVNSnapshot
+  - Column SMvkTotalSupply renamed to SMvnTotalSupply
+
+- GovernanceFinancialRequest
+  - Column YayVoteSMvkTotal renamed to YayVoteSMvnTotal
+  - Column NayVoteSMvkTotal renamed to NayVoteSMvnTotal
+  - Column PassVoteSMvkTotal renamed to PassVoteSMvnTotal
+  - Column SMvkPercentageForApproval renamed to SMvnPercentageForApproval
+  - Column SnapshotSMvkTotalSupply renamed to SnapshotSMvnTotalSupply
+  - Column SMvkRequiredForApproval renamed to SMvnRequiredForApproval
+
+- GovernanceSatelliteAction
+  - Column YayVoteSMvkTotal renamed to YayVoteSMvnTotal
+  - Column NayVoteSMvkTotal renamed to NayVoteSMvnTotal
+  - Column PassVoteSMvkTotal renamed to PassVoteSMvnTotal
+  - Column SMvkPercentageForApproval renamed to SMvnPercentageForApproval
+  - Column SnapshotSMvkTotalSupply renamed to SnapshotSMvnTotalSupply
+  - Column SMvkRequiredForApproval renamed to SMvnRequiredForApproval
+
+- MVKFaucet
+  - Table renamed to MVNFaucet
+  - Column MvkTokenAddress renamed to MvnTokenAddress
+
+- MVKFaucetRequester
+  - Table renamed to MVNFaucetRequester
+  - Column MvkFaucet renamed to MvnFaucet
+
+- MVKToken
+  - Table renamed to MVNToken
+
+- MVKTokenGeneralContract
+  - Table renamed to MVNTokenGeneralContract
+
+- MVKTokenWhitelistContract
+  - Table renamed to MVNTokenWhitelistContract
+
+- MVKTokenOperator
+  - Table renamed to MVNTokenOperator
+
+- MVKTokenTransferHistoryData
+  - Table renamed to MVNTokenTransferHistoryData
+  - Column MvkToken renamed to MvnToken
+
+- MVKTokenMintOrBurnHistoryData
+  - Table renamed to MVNTokenMintOrBurnHistoryData
+  - Column MvkToken renamed to MvnToken
+  - Column MvkTotalSupply renamed to MvnTotalSupply
+
+- MavrykUser
+  - Column MvkBalance renamed to MvnBalance
+  - Column SMvkBalance renamed to SMvnBalance
+
+- Treasury
+  - Column MinMvkAndTranferPaused renamed to MinMvnAndTranferPaused
+
+<details><summary>Previous versions</summary>
+
+<details><summary>0.46</summary>
 
 ## 0.47
 
@@ -23,7 +132,7 @@
 - CouncilAction
   - Column RegisteredThreshold added
 
-<details><summary>Previous versions</summary>
+</details>
 
 <details><summary>0.46</summary>
 
@@ -54,7 +163,7 @@
   - Column NextSnapshotCycleId added
   - Column Latest added
 
-- GovernanceSMVKSnapshot
+- GovernanceSMVNSnapshot
   - Table added
 
 - GovernanceFinancialRequest
@@ -132,7 +241,7 @@
 - MTokenWhitelistContract
   - Column ContractName removed
 
-- MVKTokenWhitelistContract
+- MVNTokenWhitelistContract
   - Column ContractName removed
 
 - TreasuryFactoryWhitelistContract
@@ -188,14 +297,14 @@
   - Column MTokensTotal renamed to RawMTokensTotalSupply
   - Column AccumulatedRewardsPerShare renamed to TokenRewardIndex
 
-- MVKTokenMintHistoryData
-  - Table renamed to MVKTokenMintOrBurnHistoryData
+- MVNTokenMintHistoryData
+  - Table renamed to MVNTokenMintOrBurnHistoryData
   - Column MintedAmount renamed to Amount
   - Column Type added
 
 - Treasury
-  - Column StakeMvkPaused renamed to StakeTokensPaused
-  - Column UnstakeMvkPaused renamed to UnstakeTokensPaused
+  - Column StakeMvnPaused renamed to StakeTokensPaused
+  - Column UnstakeMvnPaused renamed to UnstakeTokensPaused
 
 </details>
 
@@ -439,7 +548,7 @@
   - Column Token now non-nullable
   - Column LastUpdatedAt now non-nullable
 
-- MVKToken
+- MVNToken
   - Column Token now non-nullable
   - Column NextInflationTimestamp now non-nullable
   - Column LastUpdatedAt now non-nullable
@@ -559,7 +668,7 @@
   - Column Address is not a Primary Key anymore. The new Primary Key is the column ID
   - Column Network added
 
-- MVKFaucet
+- MVNFaucet
   - Column ID added
   - Column Address is not a Primary Key anymore. The new Primary Key is the column ID
   - Column Network added
@@ -624,7 +733,7 @@
 - MToken
   - Column Token added
 
-- MVKToken
+- MVNToken
   - Column Token added
 
 - TreasuryWhitelistTokenContract
@@ -699,16 +808,16 @@
   - Column TotalSatelliteRewardsClaimed added
   - Column TotalFarmRewardsClaimed added
 
-- MVKFaucet
+- MVNFaucet
   - Table added
 
-- MVKFaucetRequester
+- MVNFaucetRequester
   - Table added
 
-- SMVKHistoryData
+- SMVNHistoryData
   - Column Level added
 
-- MVKTokenMintHistoryData
+- MVNTokenMintHistoryData
   - Column Level added
 
 </details>
@@ -739,8 +848,8 @@
 
 ### What's new
 
-- SMVKHistoryData
-  - Column MVKTotalSupply added
+- SMVNHistoryData
+  - Column MVNTotalSupply added
 
 </details>
 
@@ -914,12 +1023,12 @@
 ### Breaking changes
 
 - Doorman
-  - Column on_vault_deposit_smvk_paused renamed to on_vault_deposit_stake_paused
-  - Column on_vault_withdraw_smvk_paused renamed to on_vault_withdraw_stake_paused
-  - Column on_vault_liquidate_smvk_paused renamed to on_vault_liquidate_stake_paused
+  - Column on_vault_deposit_smvn_paused renamed to on_vault_deposit_stake_paused
+  - Column on_vault_withdraw_smvn_paused renamed to on_vault_withdraw_stake_paused
+  - Column on_vault_liquidate_smvn_paused renamed to on_vault_liquidate_stake_paused
 - LendingController
-  - Column vault_deposit_smvk_paused renamed to vault_deposit_staked_token_paused
-  - Column vault_withdraw_smvk_paused renamed to vault_withdraw_staked_token_paused
+  - Column vault_deposit_smvn_paused renamed to vault_deposit_staked_token_paused
+  - Column vault_withdraw_smvn_paused renamed to vault_withdraw_staked_token_paused
 
 ### What's new
 
@@ -984,13 +1093,13 @@
 ### Breaking changes
 
 - MavrykUserOperator:
-  - Table renamed to MVKTokenOperator
-  - Owner column related name renamed from UsersOwner to MvkTokenUserOwners
-  - Operator column related name renamed from UserOperator to MvkTokenUserOperators
-- MVKTransferHistoryData:
-  - Table renamed to MVKTokenTransferHistoryData
-- MVKMintHistoryData:
-  - Table renamed to MVKTokenMintHistoryData
+  - Table renamed to MVNTokenOperator
+  - Owner column related name renamed from UsersOwner to MvnTokenUserOwners
+  - Operator column related name renamed from UserOperator to MvnTokenUserOperators
+- MVNTransferHistoryData:
+  - Table renamed to MVNTokenTransferHistoryData
+- MVNMintHistoryData:
+  - Table renamed to MVNTokenMintHistoryData
 
 ### What's new
 
@@ -1171,13 +1280,13 @@
 ### What's new
 
 - Doorman
-  - OnVaultDepositSMvkPaused
-  - OnVaultWithdrawSMvkPaused
-  - OnVaultLiquidateSMvkPaused
+  - OnVaultDepositSMvnPaused
+  - OnVaultWithdrawSMvnPaused
+  - OnVaultLiquidateSMvnPaused
 - StakeHistoryData
-  - VAULT_DEPOSIT_SMVK = 5
-  - VAULT_WITHDRAW_SMVK = 6
-  - VAULT_LIQUIDATE_SMVK = 6
+  - VAULT_DEPOSIT_SMVN = 5
+  - VAULT_WITHDRAW_SMVN = 6
+  - VAULT_LIQUIDATE_SMVN = 6
 - LendingControllerVault
   - LiquidationEndLevel
 - LendingControllerCollateralToken
@@ -1189,7 +1298,7 @@
   - LastCompletedPrice* columns refactored to LastCompletedData*
 - LendingController
   - UpdateCollateralTokenPaused renamed to SetCollateralTokenPaused
-  - VaultLiquidateSMvkPaused renamed to VaultOnLiquidateSMvkPaused
+  - VaultLiquidateSMvnPaused renamed to VaultOnLiquidateSMvnPaused
 - LendingControllerVault
   - MarkedForLiquidationTimestamp renamed to MarkedForLiquidationLevel
 - LendingControllerLoanToken
@@ -1246,7 +1355,7 @@
 
 | Old                                                    | New                                              |
 | ------------------------------------------------------ | ------------------------------------------------ |
-| MintHistoryData                                        | MVKMintHistoryData                               |
+| MintHistoryData                                        | MVNMintHistoryData                               |
 | AggregatorOracleRecord                                 | AggregatorOracle                                 |
 | BreakGlassActionRecord                                 | BreakGlassAction                                 |
 | BreakGlassActionRecordSigner                           | BreakGlassActionSigner                           |
@@ -1304,7 +1413,7 @@
   lending_controller_vault_record | lending_controller_vault | | LendingControllerVaultCollateralBalance |
   lending_controller_vault_record | lending_controller_vault | | TokenSaleBuyerOption | buyer_record | buyer |
 - Foreign key name refactoring :
-  | Relation | Old | New | | ----- | --- | --- | | MVKToken &rarr; Governance | mvk_token | mvk_tokens | | Doorman
+  | Relation | Old | New | | ----- | --- | --- | | MVNToken &rarr; Governance | mvn_token | mvn_tokens | | Doorman
   &rarr; MavrykUser | doorman_stake_account | doorman_stake_accounts | | Delegation &rarr; MavrykUser | satellite_record
   | satellite | | Council &rarr; MavrykUser | council_council_member | council_council_members | |
   CouncilActionParameter &rarr; CouncilAction | council_action_record_parameters | parameters | | CouncilCouncilMember
@@ -1327,8 +1436,8 @@
   GovernanceSatellite | governance_satellite_aggregator_records | aggregators | | GovernanceSatelliteAggregatorOracle
   &rarr; GovernanceSatelliteAggregator | governance_satellite_satellite_oracle_records | oracles | |
   GovernanceSatelliteSatelliteOracle &rarr; GovernanceSatellite | governance_satellite_satellite_oracle_records |
-  oracles | | MVKTransferHistoryData &rarr; MVKToken | mvk_transfer_history_data | transfer_history_data | |
-  SMVKHistoryData &rarr; Doorman | smvk_history_data | staked_mvk_history_data | | StakeHistoryData &rarr; Doorman |
+  oracles | | MVNTransferHistoryData &rarr; MVNToken | mvn_transfer_history_data | transfer_history_data | |
+  SMVNHistoryData &rarr; Doorman | smvn_history_data | staked_mvn_history_data | | StakeHistoryData &rarr; Doorman |
   stake_record | stake_history_data | | StakeHistoryData &rarr; MavrykUser | stake_record | stake_history_data | |
   LendingControllerReward &rarr; LendingController | reward_records | rewards | | LendingControllerLoanToken &rarr;
   LendingController | loan_token_records | loan_tokens | | LendingControllerLoanToken &rarr; Token #1 |
