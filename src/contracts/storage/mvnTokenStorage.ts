@@ -36,9 +36,9 @@ const token_metadata = MichelsonMap.fromLiteral({
             symbol: Buffer.from('MVN').toString('hex'),
             name: Buffer.from('MAVEN').toString('hex'),
             decimals: Buffer.from(mvnTokenDecimals.toString()).toString('hex'),
-            icon: Buffer.from('https://maven.finance/logo192.png').toString('hex'),
+            icon: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex'),
             shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
-            thumbnailUri: Buffer.from('https://maven.finance/logo192.png').toString('hex'),
+            thumbnailUri: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex'),
         }),
     },
 })

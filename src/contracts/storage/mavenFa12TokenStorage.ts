@@ -15,7 +15,7 @@ const metadata = MichelsonMap.fromLiteral({
         JSON.stringify({
             version: 'v1.0.0',
             description: 'MAVEN FA12 TOKEN',
-            authors: ['MAVEN Dev Team <contact@maven.finance>'],
+            authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
             source: {
                 tools: ['Ligo', 'Flextesa'],
                 location: 'https://ligolang.org/',
@@ -28,9 +28,9 @@ const metadata = MichelsonMap.fromLiteral({
                 symbol: Buffer.from('FA12').toString('hex'),
                 name: Buffer.from('MAVEN FA12 TOKEN').toString('hex'),
                 decimals: Buffer.from('6').toString('hex'),
-                icon: Buffer.from('https://maven.finance/logo192.png').toString('hex'),
+                icon: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex'),
                 shouldPreferSymbol: true,
-                thumbnailUri: 'https://maven.finance/logo192.png'
+                thumbnailUri: 'https://mavenfinance.io/logo192.png'
                 }
             ]
         }),
@@ -64,9 +64,9 @@ const token_metadata = MichelsonMap.fromLiteral({
             symbol: Buffer.from('FA12').toString('hex'),
             name: Buffer.from('MAVENFA12').toString('hex'),
             decimals: Buffer.from('6').toString('hex'),
-            icon: Buffer.from('https://maven.finance/logo192.png').toString('hex'),
+            icon: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex'),
             shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
-            thumbnailUri: Buffer.from('https://maven.finance/logo192.png').toString('hex')
+            thumbnailUri: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex')
         }),
     },
   })

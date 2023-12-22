@@ -104,7 +104,7 @@ describe("Testnet interactions helper", async () => {
           name: 'MAVEN Farm Treasury',
           description: 'MAVEN Treasury Contract',
           version: 'v1.0.0',
-          authors: ['MAVEN Dev Team <contact@maven.finance>'],
+          authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
         }),
         'ascii',
       ).toString('hex')
@@ -127,7 +127,7 @@ describe("Testnet interactions helper", async () => {
                 tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
                 }
             },
-            authors: ['MAVEN Dev Team <contact@maven.finance>'],
+            authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
             }),
             'ascii',
         ).toString('hex')
@@ -496,10 +496,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin pauses stake', async () => {
+        it('Admin pauses stakeMvn', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.togglePauseEntrypoint("stake", true).send();
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("stakeMvn", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -833,7 +833,7 @@ describe("Testnet interactions helper", async () => {
                     "Astronaut Satellite", 
                     "This is the description", 
                     "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
-                    "https://maven.finance/", 
+                    "https://mavenfinance.io/", 
                     1000
                 ).send();
                 await operation.confirmation();
@@ -1035,7 +1035,7 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 await helperFunctions.signerFactory(tezos, eve.sk)
-                const operation = await councilInstance.methods.updateCouncilMemberInfo("Bob", "https://maven.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                const operation = await councilInstance.methods.updateCouncilMemberInfo("Bob", "https://mavenfinance.io/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1046,7 +1046,7 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 await helperFunctions.signerFactory(tezos, eve.sk)
-                const operation = await councilInstance.methods.councilActionAddMember(bob.pkh, "Trudy", "https://maven.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                const operation = await councilInstance.methods.councilActionAddMember(bob.pkh, "Trudy", "https://mavenfinance.io/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1910,7 +1910,7 @@ describe("Testnet interactions helper", async () => {
                             thumbnailUri: "https://www.plentydefi.com/static/media/usdc_icon.771d659c.svg"
                         }
                     },
-                    authors: ["MAVEN Dev Team <contact@maven.finance>"]
+                    authors: ["MAVEN Dev Team <contact@mavenfinance.io>"]
                     }),
                     'ascii',
                 ).toString('hex')
@@ -2280,7 +2280,7 @@ describe("Testnet interactions helper", async () => {
                         name: 'MAVEN Aggregator Contract',
                         icon: 'https://logo.chainbit.xyz/btc',
                         version: 'v1.0.0',
-                        authors: ['MAVEN Dev Team <contact@maven.finance>'],
+                        authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
                         category: 'cryptocurrency'
                     }),
                     'ascii',
@@ -2311,7 +2311,7 @@ describe("Testnet interactions helper", async () => {
                         name: 'MAVEN Aggregator Contract',
                         icon: 'https://logo.chainbit.xyz/usdt',
                         version: 'v1.0.0',
-                        authors: ['MAVEN Dev Team <contact@maven.finance>'],
+                        authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
                         category: 'stablecoin'
                     }),
                     'ascii',
@@ -2342,7 +2342,7 @@ describe("Testnet interactions helper", async () => {
                         name: 'MAVEN Aggregator Contract',
                         icon: 'https://logo.chainbit.xyz/link',
                         version: 'v1.0.0',
-                        authors: ['MAVEN Dev Team <contact@maven.finance>'],
+                        authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
                         category: 'commodities'
                     }),
                     'ascii',

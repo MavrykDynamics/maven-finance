@@ -837,7 +837,7 @@ describe('Governance proxy lambdas tests', async () => {
                                 tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
                             }
                         },
-                        authors: ['MAVEN Dev Team <contact@maven.finance>'],
+                        authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
                         }),
                         'ascii',
                     ).toString('hex');
@@ -1466,7 +1466,7 @@ describe('Governance proxy lambdas tests', async () => {
                                 tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
                             }
                             },
-                            authors: ['MAVEN Dev Team <contact@maven.finance>'],
+                            authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
                         }),
                         'ascii',
                         ).toString('hex')
@@ -1957,7 +1957,7 @@ describe('Governance proxy lambdas tests', async () => {
                                 name: 'MAVEN Aggregator Contract',
                                 icon: 'https://logo.chainbit.xyz/xtz',
                                 version: 'v1.0.0',
-                                authors: ['MAVEN Dev Team <contact@maven.finance>'],
+                                authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
                             }),
                             'ascii',
                         ).toString('hex');
@@ -3147,7 +3147,7 @@ describe('Governance proxy lambdas tests', async () => {
                                 tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
                             }
                         },
-                        authors: ['MAVEN Dev Team <contact@maven.finance>'],
+                        authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
                         }),
                         'ascii',
                     ).toString('hex');
