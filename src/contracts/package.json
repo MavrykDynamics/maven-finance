@@ -43,7 +43,7 @@
     "pytest-only": "pytest -s",
     "setup-prod-environment": "yarn test-net-deploy-prod && yarn test-net-setup"
   },
-  "author": "devteam@maven.finance",
+  "author": "devteam@mavenfinance.io",
   "license": "MIT",
   "dependencies": {
     "@mavrykdynamics/create-lambda-bytes": "^0.3.0",
