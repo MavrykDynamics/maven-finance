@@ -6,7 +6,7 @@ export const mockSatelliteData = {
         name            : "Maven Dynamics",
         desc            : "The Maven Dynamics belongs to one of the core teams contributing to Maven Finance. The team as Maven Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
         image           : "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
-        website         : "https://maven.finance/", 
+        website         : "https://mavenfinance.io/", 
         satelliteFee    : 500,
         oraclePublicKey : susie.pk,
         oraclePeerId    : susie.peerId
@@ -36,7 +36,7 @@ export const mockSatelliteData = {
         name            : "Bender Bending Rodriguez",
         desc            : "Bender Bending Rodriguez, the rebellious robot with a heart of gold, has found a new passion in the decentralized finance (DeFi) ecosystem. With his sharp wit and cunning, Bender has become a maverick in the blockchain and crypto space, always on the lookout for the latest trends and opportunities.\n\nNow, Bender uses his unique skills to navigate the DeFi world, taking risks and reaping the rewards. With his sharp mind and quick reflexes, Bender is a force to be reckoned with in the crypto space.\n\nBender frequently shouts \"Bite my shiny metal node!\" but don't be startled, despite his rough exterior, Bender has a soft spot for his fellow robots and Mavens, he is fiercely loyal to the Maven Ecosystem.\n\nIn DeFi, Bender is a true original, pushing the boundaries and exploring new frontiers. With his wit, charm, and unyielding determination, Bender is a force to be reckoned with in the crypto world.",
         image           : "https://cloudflare-ipfs.com/ipfs/QmNyw2PJEovUs9WgWHbZcKzzjxJdWL2qqAfEnZv1WkfGst",
-        website         : "https://maven.finance/",
+        website         : "https://mavenfinance.io/",
         satelliteFee    : 810,
         oraclePublicKey : alice.pk,
         oraclePeerId    : alice.peerId
@@ -46,7 +46,7 @@ export const mockSatelliteData = {
         name            : "R2-D2",
         desc            : "R2-D2 run's his Maven Satellite with unparalleled technical expertise and has a talent for solving complex problems. As an astromech droid, he's uniquely equipped to navigate the challenging terrain of DeFi and identify new opportunities for growth. R2-D2 is a natural leader with a deep sense of loyalty and compassion, always willing to lend a helping hand to his fellow maintainers and platform users. His adaptability and innovative spirit make him an invaluable asset to the DeFi ecosystem, and he's thrilled to be contributing to the future of finance through his work on the platform. In short, R2-D2 is a DeFi pioneer, leading the charge towards a more decentralized and equitable financial future.",
         image           : "https://cloudflare-ipfs.com/ipfs/Qmf5UC3iLco9y3CUQpWXmzDdZwDCtZLFS8WL9oe85fKX9k",
-        website         : "https://maven.finance/",
+        website         : "https://mavenfinance.io/",
         satelliteFee    : 350,
         oraclePublicKey : oscar.pk,
         oraclePeerId    : oscar.peerId

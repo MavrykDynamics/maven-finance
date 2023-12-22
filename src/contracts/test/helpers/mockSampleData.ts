@@ -18,7 +18,7 @@ export const mockTokenData = {
                 JSON.stringify({
                     name: 'MAVEN',
                     description: 'MAVEN Token',
-                    authors: ['MAVEN Dev Team <contact@maven.finance>'],
+                    authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
                     source: {
                         tools: ['Ligo', 'Flextesa'],
                         location: 'https://ligolang.org/',
@@ -31,9 +31,9 @@ export const mockTokenData = {
                         symbol: Buffer.from('MVN').toString('hex'),
                         name: Buffer.from('MAVEN').toString('hex'),
                         decimals: Buffer.from(mvnTokenDecimals.toString()).toString('hex'),
-                        icon: Buffer.from('https://maven.finance/logo192.png').toString('hex'),
+                        icon: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex'),
                         shouldPreferSymbol: true,
-                        thumbnailUri: 'https://maven.finance/logo192.png',
+                        thumbnailUri: 'https://mavenfinance.io/logo192.png',
                         },
                     ],
                 }),
@@ -45,7 +45,7 @@ export const mockTokenData = {
             JSON.stringify({
                 name: 'MAVEN',
                 description: 'MAVEN Token',
-                authors: ['MAVEN Dev Team <contact@maven.finance>'],
+                authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
                 source: {
                 tools: ['Ligo', 'Flextesa'],
                 location: 'https://ligolang.org/',
@@ -58,9 +58,9 @@ export const mockTokenData = {
                     symbol: Buffer.from('MVN').toString('hex'),
                     name: Buffer.from('MAVEN').toString('hex'),
                     decimals: Buffer.from("9").toString('hex'),
-                    icon: Buffer.from('https://maven.finance/logo192.png').toString('hex'),
+                    icon: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex'),
                     shouldPreferSymbol: true,
-                    thumbnailUri: 'https://maven.finance/logo192.png',
+                    thumbnailUri: 'https://mavenfinance.io/logo192.png',
                 },
                 ],
             }),
@@ -270,7 +270,7 @@ export const mockMetadata = {
             name: 'MAVEN Aggregator Contract',
             icon: 'https://logo.chainbit.xyz/xtz',
             version: 'v1.0.0',
-            authors: ['MAVEN Dev Team <contact@maven.finance>'],
+            authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
         }),
         'ascii',
     ).toString('hex'),
@@ -280,7 +280,7 @@ export const mockMetadata = {
             name: 'MAVEN PLENTY-USDTz Treasury',
             description: 'MAVEN Treasury Contract',
             version: 'v1.0.0',
-            authors: ['MAVEN Dev Team <contact@maven.finance>'],
+            authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
         }),
         'ascii',
     ).toString('hex'),
@@ -302,7 +302,7 @@ export const mockMetadata = {
               tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
             }
           },
-          authors: ['MAVEN Dev Team <contact@maven.finance>'],
+          authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
         }),
         'ascii',
       ).toString('hex'),
@@ -324,7 +324,7 @@ export const mockMetadata = {
             tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
           }
         },
-        authors: ['MAVEN Dev Team <contact@maven.finance>'],
+        authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
       }),
       'ascii',
     ).toString('hex')
@@ -339,7 +339,7 @@ export const aggregatorMockData = {
                 name: 'MAVEN Aggregator Contract',
                 icon: 'https://logo.chainbit.xyz/xtz',
                 version: 'v1.0.0',
-                authors: ['MAVEN Dev Team <contact@maven.finance>'],
+                authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
             }),
             'ascii',
         ).toString('hex')
@@ -354,7 +354,7 @@ export const mockSatelliteData = {
         name            : "Alice Dynamics",
         desc            : "The Alice Dynamics belongs to one of the core teams contributing to Maven Finance. The team as Maven Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
         image           : "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
-        website         : "https://maven.finance/", 
+        website         : "https://mavenfinance.io/", 
         satelliteFee    : 500,
         oraclePublicKey : alice.pk,
         oraclePeerId    : alice.peerId
@@ -364,7 +364,7 @@ export const mockSatelliteData = {
         name            : "Maven Dynamics",
         desc            : "The Maven Dynamics belongs to one of the core teams contributing to Maven Finance. The team as Maven Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
         image           : "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
-        website         : "https://maven.finance/", 
+        website         : "https://mavenfinance.io/", 
         satelliteFee    : 500,
         oraclePublicKey : bob.pk,
         oraclePeerId    : bob.peerId
