@@ -11,14 +11,14 @@ contracts:
     kind: tezos
     address: KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn
     typename: tzbtc
-  mvk_token:
+  mvn_token:
     kind: tezos
     address: KT1VthUv94cNnJp6Cx43JdxiVhdZ8zLnrFom
-    typename: mvk_token
-  mvk_faucet:
+    typename: mvn_token
+  mvn_faucet:
     kind: tezos
     address: KT19Jtb5QfL5Xp71SCQWck66yg7aF97Nrpn4
-    typename: mvk_faucet
+    typename: mvn_faucet
   governance_proxy:
     kind: tezos
     address: KT1RvKjoosPx5gBTg56btVjwCmPbwf4x4mNH
