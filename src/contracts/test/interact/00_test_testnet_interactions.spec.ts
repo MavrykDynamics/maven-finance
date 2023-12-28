@@ -104,7 +104,7 @@ describe("Testnet interactions helper", async () => {
           name: 'MAVEN Farm Treasury',
           description: 'MAVEN Treasury Contract',
           version: 'v1.0.0',
-          authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+          authors: ['MAVEN Dev Team <info@mavryk.io>'],
         }),
         'ascii',
       ).toString('hex')
@@ -127,7 +127,7 @@ describe("Testnet interactions helper", async () => {
                 tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
                 }
             },
-            authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+            authors: ['MAVEN Dev Team <info@mavryk.io>'],
             }),
             'ascii',
         ).toString('hex')
@@ -1910,7 +1910,7 @@ describe("Testnet interactions helper", async () => {
                             thumbnailUri: "https://www.plentydefi.com/static/media/usdc_icon.771d659c.svg"
                         }
                     },
-                    authors: ["MAVEN Dev Team <contact@mavenfinance.io>"]
+                    authors: ["MAVEN Dev Team <info@mavryk.io>"]
                     }),
                     'ascii',
                 ).toString('hex')
@@ -2280,7 +2280,7 @@ describe("Testnet interactions helper", async () => {
                         name: 'MAVEN Aggregator Contract',
                         icon: 'https://logo.chainbit.xyz/btc',
                         version: 'v1.0.0',
-                        authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
                         category: 'cryptocurrency'
                     }),
                     'ascii',
@@ -2311,7 +2311,7 @@ describe("Testnet interactions helper", async () => {
                         name: 'MAVEN Aggregator Contract',
                         icon: 'https://logo.chainbit.xyz/usdt',
                         version: 'v1.0.0',
-                        authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
                         category: 'stablecoin'
                     }),
                     'ascii',
@@ -2342,7 +2342,7 @@ describe("Testnet interactions helper", async () => {
                         name: 'MAVEN Aggregator Contract',
                         icon: 'https://logo.chainbit.xyz/link',
                         version: 'v1.0.0',
-                        authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
                         category: 'commodities'
                     }),
                     'ascii',

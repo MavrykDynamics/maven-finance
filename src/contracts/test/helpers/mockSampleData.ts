@@ -18,7 +18,7 @@ export const mockTokenData = {
                 JSON.stringify({
                     name: 'MAVEN',
                     description: 'MAVEN Token',
-                    authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+                    authors: ['MAVEN Dev Team <info@mavryk.io>'],
                     source: {
                         tools: ['Ligo', 'Flextesa'],
                         location: 'https://ligolang.org/',
@@ -45,7 +45,7 @@ export const mockTokenData = {
             JSON.stringify({
                 name: 'MAVEN',
                 description: 'MAVEN Token',
-                authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+                authors: ['MAVEN Dev Team <info@mavryk.io>'],
                 source: {
                 tools: ['Ligo', 'Flextesa'],
                 location: 'https://ligolang.org/',
@@ -270,7 +270,7 @@ export const mockMetadata = {
             name: 'MAVEN Aggregator Contract',
             icon: 'https://logo.chainbit.xyz/xtz',
             version: 'v1.0.0',
-            authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+            authors: ['MAVEN Dev Team <info@mavryk.io>'],
         }),
         'ascii',
     ).toString('hex'),
@@ -280,7 +280,7 @@ export const mockMetadata = {
             name: 'MAVEN PLENTY-USDTz Treasury',
             description: 'MAVEN Treasury Contract',
             version: 'v1.0.0',
-            authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+            authors: ['MAVEN Dev Team <info@mavryk.io>'],
         }),
         'ascii',
     ).toString('hex'),
@@ -302,7 +302,7 @@ export const mockMetadata = {
               tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
             }
           },
-          authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+          authors: ['MAVEN Dev Team <info@mavryk.io>'],
         }),
         'ascii',
       ).toString('hex'),
@@ -324,7 +324,7 @@ export const mockMetadata = {
             tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
           }
         },
-        authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+        authors: ['MAVEN Dev Team <info@mavryk.io>'],
       }),
       'ascii',
     ).toString('hex')
@@ -339,7 +339,7 @@ export const aggregatorMockData = {
                 name: 'MAVEN Aggregator Contract',
                 icon: 'https://logo.chainbit.xyz/xtz',
                 version: 'v1.0.0',
-                authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+                authors: ['MAVEN Dev Team <info@mavryk.io>'],
             }),
             'ascii',
         ).toString('hex')

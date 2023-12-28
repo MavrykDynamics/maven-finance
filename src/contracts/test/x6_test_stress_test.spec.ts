@@ -803,7 +803,7 @@ describe("Stress tests", async () => {
                             tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
                         }
                     },
-                    authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+                    authors: ['MAVEN Dev Team <info@mavryk.io>'],
                     }),
                     'ascii',
                 ).toString('hex')

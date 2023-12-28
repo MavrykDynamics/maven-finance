@@ -13,7 +13,7 @@ const metadata = MichelsonMap.fromLiteral({
         JSON.stringify({
         name: 'MAVEN Vault',
         version: 'v1.0.0',
-        authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+        authors: ['MAVEN Dev Team <info@mavryk.io>'],
         source: {
             tools: ['Ligo', 'Flextesa'],
             location: 'https://ligolang.org/',

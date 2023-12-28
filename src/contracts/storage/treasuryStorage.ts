@@ -20,7 +20,7 @@ const metadata = MichelsonMap.fromLiteral({
             name: 'MAVEN Farm Treasury',
             description: 'MAVEN Treasury Contract',
             version: 'v1.0.0',
-            authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+            authors: ['MAVEN Dev Team <info@mavryk.io>'],
         }),
         'ascii',
     ).toString('hex'),

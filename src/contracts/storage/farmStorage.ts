@@ -58,7 +58,7 @@ const metadata = MichelsonMap.fromLiteral({
                 thumbnailUri: "https://www.plentydefi.com/static/media/usdc_icon.771d659c.svg"
             }
         },
-        authors: ["MAVEN Dev Team <contact@mavenfinance.io>"]
+        authors: ["MAVEN Dev Team <info@mavryk.io>"]
         }),
         'ascii',
     ).toString('hex'),

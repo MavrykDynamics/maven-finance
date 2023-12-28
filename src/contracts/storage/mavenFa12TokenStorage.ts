@@ -15,7 +15,7 @@ const metadata = MichelsonMap.fromLiteral({
         JSON.stringify({
             version: 'v1.0.0',
             description: 'MAVEN FA12 TOKEN',
-            authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+            authors: ['MAVEN Dev Team <info@mavryk.io>'],
             source: {
                 tools: ['Ligo', 'Flextesa'],
                 location: 'https://ligolang.org/',
