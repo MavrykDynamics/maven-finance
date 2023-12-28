@@ -301,7 +301,7 @@ export class GeneralContract {
 
         const mTokenContracts = [
             "mTokenUsdt",
-            "mTokenEurl",
+            "mTokenEurt",
             "mTokenXtz",
             "mTokenTzBtc"
         ];

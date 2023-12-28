@@ -289,7 +289,7 @@ block{
 
                 // init variables
                 const vaultDelegate         : option(key_hash) = createVaultParams.baker;
-                const vaultLoanTokenName    : string = createVaultParams.loanTokenName; // e.g. USDT, EURL 
+                const vaultLoanTokenName    : string = createVaultParams.loanTokenName; // e.g. USDT, EURT 
                 const vaultOwner            : address = Tezos.get_sender();
                 const newVaultId            : vaultIdType = s.vaultCounter;
 

@@ -841,7 +841,7 @@ describe('Governance proxy lambdas tests', async () => {
                         }),
                         'ascii',
                     ).toString('hex');
-                    const lpTokenAddress            = contractDeployments.mTokenEurl.address;
+                    const lpTokenAddress            = contractDeployments.mTokenEurt.address;
                     const lpTokenId                 = 0;
                     const lpTokenStandard           = "FA2";
                     const initTrackedFarmsLength    = farmFactoryStorage.trackedFarms.length;

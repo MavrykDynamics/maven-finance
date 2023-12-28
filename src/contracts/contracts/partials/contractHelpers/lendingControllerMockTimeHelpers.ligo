@@ -1428,7 +1428,7 @@ block {
     // ------------------------------------------------------------------
 
     // Get vault loan token name
-    const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURL, some other crypto coin
+    const vaultLoanTokenName  : string = vault.loanToken; // USDT, EURT, some other crypto coin
 
     // Get loan token record
     var loanTokenRecord : loanTokenRecordType := getLoanTokenRecord(vaultLoanTokenName, s);
