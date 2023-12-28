@@ -127,10 +127,10 @@ async def origination(
             )
         )
         await ctx.add_index(
-            name="m_token_eurl",
+            name="m_token_eurt",
             template="m_token_template",
             values=dict(
-                m_token_contract="m_token_eurl"
+                m_token_contract="m_token_eurt"
             )
         )
         await ctx.add_index(

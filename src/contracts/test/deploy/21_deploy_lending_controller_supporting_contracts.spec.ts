@@ -39,7 +39,7 @@ describe('Lending Controller Supporting Contracts', async () => {
   
     var utils: Utils
     var mTokenUsdt                      
-    var mTokenEurl                      
+    var mTokenEurt                      
     var mTokenXtz                       
     var mTokenTzBtc
 
@@ -77,12 +77,12 @@ describe('Lending Controller Supporting Contracts', async () => {
 
 
             // mToken for Mock FA12 Token in Lending Controller Token Pool 
-            mTokenStorage.loanToken      = mTokenMockData.mTokenEurl.loanToken;
-            mTokenStorage.metadata       = mTokenMockData.mTokenEurl.metadata;
-            mTokenStorage.token_metadata = mTokenMockData.mTokenEurl.token_metadata;
+            mTokenStorage.loanToken      = mTokenMockData.mTokenEurt.loanToken;
+            mTokenStorage.metadata       = mTokenMockData.mTokenEurt.metadata;
+            mTokenStorage.token_metadata = mTokenMockData.mTokenEurt.token_metadata;
             
-            mTokenEurl = await GeneralContract.originate(utils.tezos, "mTokenEurl", mTokenStorage);
-            await saveContractAddress("mTokenEurlAddress", mTokenEurl.contract.address)
+            mTokenEurt = await GeneralContract.originate(utils.tezos, "mTokenEurt", mTokenStorage);
+            await saveContractAddress("mTokenEurtAddress", mTokenEurt.contract.address)
 
 
             // mToken for XTZ in Lending Controller Token Pool 

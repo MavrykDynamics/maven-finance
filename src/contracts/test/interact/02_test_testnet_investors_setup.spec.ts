@@ -52,7 +52,7 @@ describe("Testnet setup helper", async () => {
     let treasuryFactoryStorage;
     let aggregatorFactoryStorage;
 
-    let eurlAggregator;
+    let eurtAggregator;
     let usdtAggregator;
     let xtzAggregator;
     let btcAggregator;
@@ -109,8 +109,8 @@ describe("Testnet setup helper", async () => {
                     case "USDT/USD":
                         usdtAggregator  = aggregatorAddress;
                         break;
-                    case "EUROC/USD":
-                        eurlAggregator  = aggregatorAddress;
+                    case "EURT/USD":
+                        eurtAggregator  = aggregatorAddress;
                         break;
                     case "XTZ/USD":
                         xtzAggregator   = aggregatorAddress;
@@ -256,16 +256,16 @@ describe("Testnet setup helper", async () => {
                 aggregatorFactoryStorage     	            = await aggregatorFactoryInstance.storage();
                 const interestRateDecimals                  = 27;
 
-                // EURL
+                // EURT
                 var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                     "createLoanToken",
 
-                    "eurl",
+                    "eurt",
                     6,
 
-                    eurlAggregator,
+                    eurtAggregator,
 
-                    contractDeployments.mTokenEurl.address,
+                    contractDeployments.mTokenEurt.address,
                     
                     3000,
                     30 * 10 ** (interestRateDecimals - 2),
@@ -340,15 +340,15 @@ describe("Testnet setup helper", async () => {
                 // Get aggregators addresses
                 aggregatorFactoryStorage     	            = await aggregatorFactoryInstance.storage();
 
-                // Eurl
+                // Eurt
                 var setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
                     "createCollateralToken",
 
-                    "eurl",
+                    "eurt",
                     'KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS',
                     6,
 
-                    eurlAggregator,
+                    eurtAggregator,
                     false,
                     false,
                     false,
@@ -562,7 +562,7 @@ describe("Testnet setup helper", async () => {
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvnToken.address, "update"))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenEurl.address, "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenEurt.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenXtz.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenUsdt.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address, "update"))

@@ -99,7 +99,7 @@ contracts:
     kind: tezos
     address: KT1GHsfWibwnEAMHu3fm2BNof4aiNZu4GwHg
     typename: m_token
-  m_token_eurl:
+  m_token_eurt:
     kind: tezos
     address: KT1X9yinB7PsTT5f2k9vUkTCDg2recZzigzK
     typename: m_token

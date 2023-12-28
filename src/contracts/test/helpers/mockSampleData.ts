@@ -118,15 +118,15 @@ export const mTokenMockData = {
         })
     },
 
-    "mTokenEurl": {
+    "mTokenEurt": {
 
-        "loanToken": "eurl",
+        "loanToken": "eurt",
         "metadata": MichelsonMap.fromLiteral({
             '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
             data: Buffer.from(
                 JSON.stringify({
                 version: 'v1.0.0',
-                description: 'Maven mEURL Token',
+                description: 'Maven mEURT Token',
                 authors: ['Maven Dev Team <info@mavryk.io>'],
                 source: {
                     tools: ['Ligo', 'Flextesa'],
@@ -137,8 +137,8 @@ export const mTokenMockData = {
                 views: [],
                 assets: [
                     {
-                    symbol: Buffer.from('mEURL').toString('hex'),
-                    name: Buffer.from('mEURL').toString('hex'),
+                    symbol: Buffer.from('mEURT').toString('hex'),
+                    name: Buffer.from('mEURT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
                     icon: Buffer.from('https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex'),
                     shouldPreferSymbol: true,
@@ -153,8 +153,8 @@ export const mTokenMockData = {
             0: {
                 token_id: '0',
                 token_info: MichelsonMap.fromLiteral({
-                    symbol: Buffer.from('mEURL').toString('hex'),
-                    name: Buffer.from('mEURL').toString('hex'),
+                    symbol: Buffer.from('mEURT').toString('hex'),
+                    name: Buffer.from('mEURT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
                     icon: Buffer.from('https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex'),
                     shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
