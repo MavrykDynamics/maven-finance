@@ -9,7 +9,7 @@ const metadata = MichelsonMap.fromLiteral({
         JSON.stringify({
         name: 'MAVEN Vault Factory Contract',
         version: 'v1.0.0',
-        authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+        authors: ['MAVEN Dev Team <info@mavryk.io>'],
         }),
         'ascii',
     ).toString('hex'),
@@ -22,7 +22,7 @@ const vaultMetadata = MichelsonMap.fromLiteral({
         JSON.stringify({
         name: 'MAVEN Vault Contract',
         version: 'v1.0.0',
-        authors: ['MAVEN Dev Team <contact@mavenfinance.io>'],
+        authors: ['MAVEN Dev Team <info@mavryk.io>'],
         }),
         'ascii',
     ).toString('hex'),
