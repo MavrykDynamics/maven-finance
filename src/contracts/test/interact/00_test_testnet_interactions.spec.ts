@@ -66,7 +66,7 @@ describe("Testnet interactions helper", async () => {
     let aggregatorFactoryInstance;
     let lendingControllerInstance;
     let lendingControllerMockTimeInstance;
-    let mTokenEurlInstance;
+    let mTokenEurtInstance;
     let mTokenUsdtInstance;
     let vaultInstance;
     let vaultFactoryInstance;
@@ -92,7 +92,7 @@ describe("Testnet interactions helper", async () => {
     let aggregatorFactoryStorage;
     let lendingControllerStorage;
     let lendingControllerMockTimeStorage;
-    let mTokenEurlStorage;
+    let mTokenEurtStorage;
     let vaultStorage;
     let vaultFactoryStorage;
     let mavenFa12TokenStorage;
@@ -170,7 +170,7 @@ describe("Testnet interactions helper", async () => {
             lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
             // lendingControllerMockTimeInstance       = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
             mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
-            mTokenEurlInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurl.address);
+            mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
             mavenFa12TokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
     
@@ -194,7 +194,7 @@ describe("Testnet interactions helper", async () => {
             aggregatorFactoryStorage                = await aggregatorFactoryInstance.storage();
             lendingControllerStorage                = await lendingControllerInstance.storage();
             // lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
-            mTokenEurlStorage                       = await mTokenEurlInstance.storage();
+            mTokenEurtStorage                       = await mTokenEurtInstance.storage();
             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
             mavenFa12TokenStorage                  = await mavenFa12TokenInstance.storage();
     
@@ -217,7 +217,7 @@ describe("Testnet interactions helper", async () => {
             console.log('Lending Controller Contract deployed at:'              , contractDeployments.lendingController.address);
             // console.log('Lending Controller Mock Time Contract deployed at:'    , contractDeployments.lendingControllerMockTime.address);
             console.log('MToken USDT Contract deployed at:'                     , contractDeployments.mTokenUsdt.address);
-            console.log('MToken EURL Contract deployed at:'                     , contractDeployments.mTokenEurl.address);
+            console.log('MToken EURT Contract deployed at:'                     , contractDeployments.mTokenEurt.address);
             console.log('Vault Factory Contract deployed at:'                   , contractDeployments.vaultFactory.address);
             console.log('Maven FA12 Token Contract deployed at:'               , contractDeployments.mavenFa12Token.address);
 
@@ -5489,7 +5489,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets admin', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.setAdmin(bob.pkh).send();
+                const operation = await mTokenEurtInstance.methods.setAdmin(bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5499,7 +5499,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.setGovernance(contractDeployments.governance.address).send();
+                const operation = await mTokenEurtInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5509,7 +5509,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
+                const operation = await mTokenEurtInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5519,7 +5519,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin transfers MVN', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.transfer([
+                const operation = await mTokenEurtInstance.methods.transfer([
                     {
                         from_: bob.pkh,
                         txs: [
@@ -5551,7 +5551,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates its operators', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.update_operators([
+                const operation = await mTokenEurtInstance.methods.update_operators([
                     {
                         add_operator: {
                             owner: bob.pkh,
@@ -5570,7 +5570,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin compounds', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.compound([bob.pkh]).send()
+                const operation = await mTokenEurtInstance.methods.compound([bob.pkh]).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})

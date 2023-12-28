@@ -268,7 +268,7 @@ describe("FarmFactory for Farm mToken", async () => {
             const bobMockFa12Ledger                   = await mockFa12TokenStorage.ledger.get(bob.pkh);            
             const bobInitialMockFa12TokenBalance      = bobMockFa12Ledger == undefined ? 0 : bobMockFa12Ledger.balance.toNumber();
 
-            // get initial bob's mEurl Token - Mock FA12 Token - balance
+            // get initial bob's mEurt Token - Mock FA12 Token - balance
             const bobMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(bob.pkh);            
             const bobInitialMUsdtTokenTokenBalance    = bobMUsdtTokenLedger == undefined ? 0 : bobMUsdtTokenLedger.toNumber();
 

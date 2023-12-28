@@ -70,7 +70,7 @@ describe("Vault tests", async () => {
     let mockUsdMvnAggregatorInstance
 
     let mTokenUsdtInstance
-    let mTokenEurlInstance
+    let mTokenEurtInstance
     let mTokenXtzInstance
 
     let governanceInstance
@@ -112,7 +112,7 @@ describe("Vault tests", async () => {
         governanceProxyInstance                 = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
 
         mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
-        mTokenEurlInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurl.address);
+        mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
         mTokenXtzInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenXtz.address);
 
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
@@ -153,7 +153,7 @@ describe("Vault tests", async () => {
         await signerFactory(tezos, adminSk);
 
         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("usdt"); 
-        const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("eurl"); 
+        const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("eurt"); 
         const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez");
 
         if(!(mockFa12LoanToken == undefined || mockFa12LoanToken == null)){
@@ -162,7 +162,7 @@ describe("Vault tests", async () => {
         }
 
         if(!(mockFa2LoanToken == undefined || mockFa2LoanToken == null)){
-            updateTokenRewardIndexOperation = await mTokenEurlInstance.methods.compound([bob.pkh, eve.pkh]).send();
+            updateTokenRewardIndexOperation = await mTokenEurtInstance.methods.compound([bob.pkh, eve.pkh]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
@@ -286,14 +286,14 @@ describe("Vault tests", async () => {
                 await signerFactory(tezos, adminSk);
 
                 const setLoanTokenActionType                = "createLoanToken";
-                const tokenName                             = "eurl";
+                const tokenName                             = "eurt";
                 const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
 
-                const mTokenContractAddress                = contractDeployments.mTokenEurl.address;
+                const mTokenContractAddress                = contractDeployments.mTokenEurt.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
