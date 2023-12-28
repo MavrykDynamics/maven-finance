@@ -15,6 +15,10 @@ on:
         type: string
         required: true
         description: 'Dipdup image tag'
+      infraRevision:
+        type: string
+        required: true
+        description: 'Infrastructure repo revision'
       wipeDatabase:
         type: boolean
         default: false
@@ -62,19 +66,19 @@ jobs:
         with:
           version: 2.8.0
           command: app set prod-maven-finance-indexer
-          options: -p dipdup.${{ github.event.inputs.environment }}.image.tag=${{ github.event.inputs.imageTag }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
+          options: -p dipdup.${{ github.event.inputs.environment }}.image.tag=${{ github.event.inputs.imageTag }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ github.event.inputs.infraRevision }}
       - name: reset-all-env-wipe
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.8.0
           command: app set prod-maven-finance-indexer
-          options: -p dipdup.dev.initialWipe=False -p dipdup.prod.initialWipe=False -p dipdup.staging.initialWipe=False --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
+          options: -p dipdup.dev.initialWipe=False -p dipdup.prod.initialWipe=False -p dipdup.staging.initialWipe=False --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ github.event.inputs.infraRevision }}
       - name: create-wipe-database-pod
         uses: clowdhaus/argo-cd-action/@v1.9.0
         with:
           version: 2.8.0
           command: app set prod-maven-finance-indexer
-          options: -p dipdup.${{ github.event.inputs.environment }}.initialWipe=${{ github.event.inputs.wipeDatabase }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
+          options: -p dipdup.${{ github.event.inputs.environment }}.initialWipe=${{ github.event.inputs.wipeDatabase }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ github.event.inputs.infraRevision }}
   sync:
     runs-on: ubuntu-latest
     needs: setup-app
@@ -96,4 +100,4 @@ jobs:
         with:
           version: 2.8.0
           command: app sync prod-maven-finance-indexer
-          options: --grpc-web --server ${{ secrets.ARGOCD_URL }} --prune --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ steps.extract_branch.outputs.branch }}
+          options: --grpc-web --server ${{ secrets.ARGOCD_URL }} --prune --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ github.event.inputs.infraRevision }}
