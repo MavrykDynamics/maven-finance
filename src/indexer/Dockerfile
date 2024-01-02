@@ -3,14 +3,14 @@ FROM python:3.11.6-slim
 RUN pip install poetry
 
 WORKDIR /maven
-COPY poetry.lock pyproject.toml /maven/
-COPY dipdup.yml /maven/
-COPY dipdup.contract.yml /maven/
-COPY dipdup.prod.yml /maven/
+COPY src/indexer/poetry.lock src/indexer/pyproject.toml /maven/
+COPY src/indexer/dipdup.yml /maven/
+COPY src/indexer/dipdup.contract.yml /maven/
+COPY src/indexer/dipdup.prod.yml /maven/
 
 RUN poetry config virtualenvs.create false && poetry install --no-dev
 
-ADD maven /maven/maven/
+ADD src/indexer/maven /maven/maven/
 
 ENTRYPOINT ["poetry", "run", "dipdup", "-c", "dipdup.prod.yml", "-c", "dipdup.contract.yml", "-c", "dipdup.yml"]
 
