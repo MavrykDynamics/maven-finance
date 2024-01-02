@@ -4,8 +4,9 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends gcc  \ 
     libffi-dev \ 
     libc-dev \ 
-    openssl-dev \
-    rust \
+    libssl-dev \
+    rustc \
+    cargo \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install poetry
 
