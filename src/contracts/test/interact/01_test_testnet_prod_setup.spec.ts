@@ -212,20 +212,22 @@ describe("Testnet setup helper", async () => {
                     contractDeployments.farmFactory.address,
                     contractDeployments.vesting.address,
                     contractDeployments.treasuryFactory.address,
-                    contractDeployments.lendingController.address,
+                    contractDeployments.lendingControllerMockTime.address,
                     contractDeployments.vaultFactory.address,
                     contractDeployments.governance.address,
                 ]
                 
                 for (let entry of generalContracts){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry);
-                    var storage:any     = await contract.storage();
-
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
+                    if(entry !== "KT1MhY1qztezFzLdjtB59djDRaZa31tD3YFF"){
+                        // Get contract storage
+                        var contract        = await utils.tezos.contract.at(entry);
+                        var storage:any     = await contract.storage();
+    
+                        // Check admin
+                        if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                            var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                            await setAdminOperation.confirmation()
+                        }
                     }
                 }
 
