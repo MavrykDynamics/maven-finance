@@ -1,7 +1,11 @@
 FROM python:3.11.6-slim
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc libffi-dev libc-dev \
+    && apt-get install -y --no-install-recommends gcc  \ 
+    libffi-dev \ 
+    libc-dev \ 
+    openssl-dev \
+    rust \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install poetry
 
