@@ -29,6 +29,7 @@ async def sign_action(
         execution_level         = action_record_storage.executedLevel
         if execution_level:
             execution_level     = int(action_record_storage.executedLevel)
+        flushed_datetime        = None
         council_members         = sign_action.storage.councilMembers
         council_size            = sign_action.storage.councilSize
     
@@ -64,15 +65,17 @@ async def sign_action(
                 # Select correct status
                 status_type = models.ActionStatus.PENDING
                 if status == "FLUSHED":
-                    status_type = models.ActionStatus.FLUSHED
+                    status_type         = models.ActionStatus.FLUSHED
+                    flushed_datetime    = timestamp
                 elif status == "EXECUTED":
                     status_type = models.ActionStatus.EXECUTED
                 await models.CouncilAction.filter(
                     council     = council,
                     internal_id = single_action_id
                 ).update(
-                    council_size_snapshot  = council.council_size,
-                    status                 = status_type
+                    council_size_snapshot   = council.council_size,
+                    status                  = status_type,
+                    flushed_datetime        = flushed_datetime
                 )
     
         # Process action and update council members

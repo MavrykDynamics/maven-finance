@@ -32,9 +32,9 @@ async def snapshot_ledger_update(
                 next_snapshot_cycle_id  = int(next_snapshot_cycle_id)
     
             # Get governance record
-            governance                  = await models.Governance.get(network = ctx.datasource.name.replace('tzkt_',''))
-            user                    = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=satellite_address)
-            snapshot_record, _      = await models.GovernanceSatelliteSnapshot.get_or_create(
+            governance                      = await models.Governance.get(network = ctx.datasource.name.replace('tzkt_',''))
+            user                            = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=satellite_address)
+            snapshot_record, _              = await models.GovernanceSatelliteSnapshot.get_or_create(
                 governance              = governance,
                 user                    = user,
                 cycle                   = governance_cycle
@@ -50,10 +50,18 @@ async def snapshot_ledger_update(
             # Reset the latest for the previous records
             await models.GovernanceSatelliteSnapshot.filter(
                 Q(user = user),
-                ~Q(cycle = governance_cycle)
+                Q(governance = governance)
             ).update(
                 latest  = False
             )
+            latest_snapshot                 = await models.GovernanceSatelliteSnapshot.filter(
+                Q(user = user),
+                Q(governance = governance)
+            ).order_by(
+                '-cycle'
+            ).first()
+            latest_snapshot.latest          = True
+            await latest_snapshot.save()
 
     except BaseException as e:
         await save_error_report(e)

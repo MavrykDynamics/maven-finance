@@ -14,22 +14,23 @@ async def withdraw_reward_staked_mvk(
     try:
         # Get operation info
         aggregator_address          = withdraw_reward_staked_mvk.data.target_address
-        oracle_address              = withdraw_reward_staked_mvk.tezos_parameters.__root__
-        oracle_reward_smvk_storage  = withdraw_reward_staked_mvk.storage.oracleRewardStakedMvk[oracle_address]
-    
-        # Update record
-        user                            = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=oracle_address)
-        aggregator                      = await models.Aggregator.get(network=ctx.datasource.name.replace('tzkt_',''), address= aggregator_address)
-        oracle                          = await models.AggregatorOracle.get(
-            aggregator  = aggregator,
-            user        = user
-        )
-        oracle_reward_smvk, _       = await models.AggregatorOracleReward.get_or_create(
-            oracle      = oracle,
-            type        = models.RewardType.SMVK
-        )
-        oracle_reward_smvk.smvk     = oracle_reward_smvk_storage
-        await oracle_reward_smvk.save()
+        oracle_address              = withdraw_reward_staked_mvk.parameter.__root__
+        if oracle_address in withdraw_reward_staked_mvk.storage.oracleRewardStakedMvk:
+            oracle_reward_smvk_storage  = withdraw_reward_staked_mvk.storage.oracleRewardStakedMvk[oracle_address]
+        
+            # Update record
+            user                            = await models.mavryk_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=oracle_address)
+            aggregator                      = await models.Aggregator.get(network=ctx.datasource.name.replace('tzkt_',''), address= aggregator_address)
+            oracle                          = await models.AggregatorOracle.get(
+                aggregator  = aggregator,
+                user        = user
+            )
+            oracle_reward_smvk, _       = await models.AggregatorOracleReward.get_or_create(
+                oracle      = oracle,
+                type        = models.RewardType.SMVK
+            )
+            oracle_reward_smvk.smvk     = oracle_reward_smvk_storage
+            await oracle_reward_smvk.save()
 
     except BaseException as e:
         await save_error_report(e)

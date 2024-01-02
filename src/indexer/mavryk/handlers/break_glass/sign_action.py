@@ -29,6 +29,7 @@ async def sign_action(
         execution_level         = action_record_storage.executedLevel
         if execution_level:
             execution_level     = int(action_record_storage.executedLevel)
+        flushed_datetime        = None
         council_members         = sign_action.storage.councilMembers
         admin                   = sign_action.storage.admin
         glass_broken            = sign_action.storage.glassBroken
@@ -70,15 +71,17 @@ async def sign_action(
                 # Select correct status
                 status_type = models.ActionStatus.PENDING
                 if action_status == "FLUSHED":
-                    status_type = models.ActionStatus.FLUSHED
+                    status_type         = models.ActionStatus.FLUSHED
+                    flushed_datetime    = timestamp
                 elif action_status == "EXECUTED":
                     status_type = models.ActionStatus.EXECUTED
                 await models.BreakGlassAction.filter(
                     break_glass = break_glass,
                     internal_id = single_action_id
                 ).update(
-                    council_size_snapshot  = break_glass.council_size,
-                    status                 = status_type
+                    council_size_snapshot   = break_glass.council_size,
+                    status                  = status_type,
+                    flushed_datetime        = flushed_datetime
                 )
     
         # Process action and update council members
