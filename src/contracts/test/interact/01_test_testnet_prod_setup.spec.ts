@@ -284,31 +284,31 @@ describe("Testnet setup helper", async () => {
                 }
 
                 // Set aggregator contracts admin
-                aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
-                var trackedAggregators          = aggregatorFactoryStorage.trackedAggregators.entries();
-                for (let entry of trackedAggregators){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
-                    var storage:any     = await contract.storage();
+                // aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
+                // var trackedAggregators          = aggregatorFactoryStorage.trackedAggregators.entries();
+                // for (let entry of trackedAggregators){
+                //     // Get contract storage
+                //     var contract        = await utils.tezos.contract.at(entry[1]);
+                //     var storage:any     = await contract.storage();
 
-                    // Check whitelist [Gov satellite, Factory]
-                    if(storage.hasOwnProperty('whitelistContracts')){
-                        if(storage.whitelistContracts.get(contractDeployments.governanceSatellite.address) === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.governanceSatellite.address, 'update').send()
-                            await operation.confirmation()
-                        }
-                        if(storage.whitelistContracts.get(contractDeployments.aggregatorFactory.address) === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address, 'update').send()
-                            await operation.confirmation()
-                        }
-                    }
+                //     // Check whitelist [Gov satellite, Factory]
+                //     if(storage.hasOwnProperty('whitelistContracts')){
+                //         if(storage.whitelistContracts.get(contractDeployments.governanceSatellite.address) === undefined){
+                //             var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.governanceSatellite.address, 'update').send()
+                //             await operation.confirmation()
+                //         }
+                //         if(storage.whitelistContracts.get(contractDeployments.aggregatorFactory.address) === undefined){
+                //             var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address, 'update').send()
+                //             await operation.confirmation()
+                //         }
+                //     }
 
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
-                }
+                //     // Check admin
+                //     if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                //         var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                //         await setAdminOperation.confirmation()
+                //     }
+                // }
 
                 // Set governance proxy admin, governance admin and mvnToken admin
                 setAdminOperation   = await governanceProxyInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();

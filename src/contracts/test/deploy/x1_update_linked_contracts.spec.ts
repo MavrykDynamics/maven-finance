@@ -56,7 +56,7 @@ describe('Linked contracts updates for Tests', async () => {
             const farmInstance: any                         = await utils.tezos.contract.at(contractDeployments.farm.address);
             const farmFa2Instance: any                      = await utils.tezos.contract.at(contractDeployments.farmFa2.address);
             const aggregatorInstance: any                   = await utils.tezos.contract.at(contractDeployments.aggregator.address);
-            const aggregatorFactoryInstance: any            = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
+            const aggregatorFactoryInstance: any            = await utils.tezos.contract.at("KT1MhY1qztezFzLdjtB59djDRaZa31tD3YFF");
             // const lendingControllerInstance: any            = await utils.tezos.contract.at(contractDeployments.lendingController.address);
             // const lendingControllerMockTimeInstance: any    = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
             const vaultFactoryInstance: any                 = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
@@ -87,12 +87,12 @@ describe('Linked contracts updates for Tests', async () => {
 
             // Aggregator Factory Contract - set whitelist contract addresses [governanceSatellite]
             // Aggregator Factory Contract - set general contract addresses [governanceSatellite]
-            const aggregatorFactoryContractsBatch = await utils.tezos.wallet
-            .batch()
-            .withContractCall(aggregatorFactoryInstance.methods.updateWhitelistContracts(contractDeployments.governanceSatellite.address, 'update'))
+            // const aggregatorFactoryContractsBatch = await utils.tezos.wallet
+            // .batch()
+            // .withContractCall(aggregatorFactoryInstance.methods.updateWhitelistContracts(contractDeployments.governanceSatellite.address, 'update'))
             
-            const aggregatorFactoryContractsBatchOperation = await aggregatorFactoryContractsBatch.send()
-            await aggregatorFactoryContractsBatchOperation.confirmation();
+            // const aggregatorFactoryContractsBatchOperation = await aggregatorFactoryContractsBatch.send()
+            // await aggregatorFactoryContractsBatchOperation.confirmation();
         
             console.log('Aggregator Factory Contract - set whitelist contract addresses [governanceSatellite]')
 
