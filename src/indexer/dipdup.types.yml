@@ -78,6 +78,10 @@ indexes:
       pattern:
       - destination: farm
         entrypoint: setGovernance
+    - callback: farm.set_name
+      pattern:
+      - destination: farm
+        entrypoint: setName
     - callback: farm.update_config
       pattern:
       - destination: farm
@@ -140,6 +144,10 @@ indexes:
       pattern:
       - destination: farm_m_token
         entrypoint: setGovernance
+    - callback: m_farm.set_name
+      pattern:
+      - destination: farm_m_token
+        entrypoint: setName
     - callback: m_farm.update_config
       pattern:
       - destination: farm_m_token
@@ -422,6 +430,7 @@ indexes:
     - governance_financial
     - governance_satellite
     - aggregator_factory
+    - farm_factory
     - treasury_factory
     - vault_factory
     - lending_controller

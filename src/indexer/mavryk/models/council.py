@@ -22,20 +22,20 @@ class Council(MavrykContract, Model):
         table = 'council'
 
 class CouncilLambda(ContractLambda, Model):
-    contract                                 = fields.ForeignKeyField('models.Council', related_name='lambdas')
+    contract                                = fields.ForeignKeyField('models.Council', related_name='lambdas')
 
     class Meta:
         table = 'council_lambda'
 
 class CouncilGeneralContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.Council', related_name='general_contracts')
+    contract                                = fields.ForeignKeyField('models.Council', related_name='general_contracts')
     contract_name                           = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'council_general_contract'
 
 class CouncilWhitelistContract(LinkedContract, Model):
-    contract                                 = fields.ForeignKeyField('models.Council', related_name='whitelist_contracts')
+    contract                                = fields.ForeignKeyField('models.Council', related_name='whitelist_contracts')
 
     class Meta:
         table = 'council_whitelist_contract'
