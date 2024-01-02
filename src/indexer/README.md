@@ -89,14 +89,11 @@ git push
 3. Start a new workflow:
 
 - Click on **Run workflow** and fill the form
-- _Use workflow from_: select the branch where you just pushed your commit
+- _Use workflow from_: select the revision where you just pushed your commit
 - _Environment to update_: select **dev**
 - _Dipdup image tag_: go check the [indexer Grafana dashboard](https://grafana.maven.io/d/J1QevDF4k/maven-indexer). Switch between all three environments and look at the **Docker image** panel. The tag should be like this **vX.Y.Z**. You should take the most updated one and increment it (e.g. if the current tag is v0.25.10, your tag could be v0.25.11. See [this page](../indexer/README.md#build-and-push-an-indexer-image-on-dockerhub) for more details on tags)
 - _(optional) Wipe database_: since you're working with an entire new set of contracts, you should tick this box.
-
-# Deploy the indexer on Kubernetes manually (advanced)
-
-The documentation about the deployment is inside de **Infrastructure** subfolder [here](../infrastructure/helm-charts/maven-indexer/README.md).
+- _Infrastructure repo revision_: select the revision in the infrastructure folder where you want to push the update.
 
 # Debugging / Updating the indexer
 
