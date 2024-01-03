@@ -210,8 +210,8 @@ block{
 // Doorman Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(*  stake entrypoint *)
-function stake(const stakeAmount : nat; var s : doormanStorageType) : return is
+(*  stakeMvn entrypoint *)
+function stakeMvn(const stakeAmount : nat; var s : doormanStorageType) : return is
 block {
 
     // get lambda bytes

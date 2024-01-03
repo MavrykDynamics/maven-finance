@@ -79,7 +79,7 @@ git commit -m "[YOUR COMMIT MESSAGE]"
 git push
 ```
 
-- Go to the indexer updater workflow on [github](https://github.com/maven-finance/maven-dapp/actions/workflows/main.yml)
+- Go check the build progression on [github](https://github.com/maven-finance/maven-finance/actions/workflows/main.yml).
 
 - Start a new workflow:
   - Click on **Run workflow** and fill the form
