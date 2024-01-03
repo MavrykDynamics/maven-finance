@@ -6,9 +6,9 @@ module.exports = {
         peerId: "bakerPeerId"
     },
     alice: {
-        pkh: "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM",
-        sk: "edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz",
-        pk: "edpku8CdxqUzHhL8X3fgpCX5CfmqxUU7JWBTmXwqUATt78dGijvqWd",
+        pkh: "tz1byTGaUKjJqkwSXPnM3dpf9N39pYwRfnTm",
+        sk: "edsk3kBXiYPHwbTtMunn7FouFKnD794MGHNELuZ5j1hzHrqV31uxjS",
+        pk: "edpkuprQbBc5mg8nm1RN2M2mpDmu7b3XNeB9KzCSUFx7nZbqVJj3AM",
         peerId: "12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34"
     },
     bob: {
@@ -18,9 +18,9 @@ module.exports = {
         peerId: "bobPeerId"
     },
     eve: {
-        pkh: "tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1",
-        sk: "edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH",
-        pk: "edpkv758sKsFGRwE3ZNDR1wdVEnxZui344fsxEtCKbpNMcTaQw2Yis",
+        pkh: "tz1T8S68igxa6uWZbeoWWwbcuRHEDQSzknEX",
+        sk: "edsk4Pi7dejfASKVAa3nNzhXWtNgFQTweaVwWCUjoNjYSSeHwTetmM",
+        pk: "edpkuX5ihBUVb9nNqLYixvGiVJ5VXxnVk5hnf9ZMkTkvP5UsRsBWX6",
         peerId: "12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2"
     },
     mallory: {
@@ -30,15 +30,21 @@ module.exports = {
         peerId: "malloryPeerId"
     },
     oscar: {
-        pkh: "tz1Zgg2vLeyYLwQCtChXKjYDAXCRowQTzEGw",
-        sk: "edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs",
-        pk: "edpkuTgScYTtrvAtTU6UMF44NvNd51ah1aqNeerNFC38bGZrKVXwFP",
+        pkh: "tz1b3BQ8wFyQ9U5Gx8WWXimphY8ER8qorm7m",
+        sk: "edsk3GTFYchH9H9s9oeVVyaCA3nXTAoa2MnEiqn9buwPNvUVQCcm55",
+        pk: "edpkutgoG8KknR6EFViM33SfALiptofnbBRTthPU28VXzs4mCwjxNU",
         peerId: "12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5"
     },
+    alex: {
+        pkh: "tz1YYH5DGbkiJmxkCL7VUY5iHLGb9wKvWDkz",
+        sk: "edsk41FGkPVtJkn5Nr2LqTSiBRMPheR7syTeias5dLcaGis8jdEGUr",
+        pk: "edpkuZSP8dT7hyqhsmTMD8zsMSyh9tmi2N9qkH6bguxQmtcckZBn8a",
+        peerId: "trudyPeerId"
+    },
     trudy: {
-        pkh: "tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq",
-        sk: "edsk3AbmsisVnZtkyVvY1jkyNpSTcRhW3hepihBLTu6e5sUaTS2x1c",
-        pk: "edpkubMsp1wdfpARu3ZsHKwrtkR9PQiAN8nsACP2hiksb7oM5aUhpu",
+        pkh: "tz1gvYDynpK667R9VM8hwTxKmRmkcK94aqQy",
+        sk: "edsk4DLixKSarHSE2NUW9S6ii1QMWGew4aLpadNc8jw9kxX7Cztjc4",
+        pk: "edpku7okdYQQcNNtVhtZSWDSTHsCyMh8BHQ23MGxJe1HWnTqske7X2",
         peerId: "12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3"
     },
     isaac: {
@@ -54,9 +60,9 @@ module.exports = {
         peerId: "davidPeerId"
     },
     susie: {
-        pkh: "tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7",
-        sk: "edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP",
-        pk: "edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN",
+        pkh: "tz1Y2tUUooW6QT6pQCeqz9ep9wCkX5bnKeTs",
+        sk: "edsk3ahP914oz9StJD3zkezfqBwNbapGiPhZetLwFF1Bs1e6BKisf6",
+        pk: "edpkurC3L4Y3v3WXK8HMSLGeUfgVbdwYTstt4FUqhPzZD8MFeB6Ymn",
         peerId: "12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1"
     },
     ivan: {

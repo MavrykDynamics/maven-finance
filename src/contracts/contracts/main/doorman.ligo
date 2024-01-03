@@ -133,8 +133,8 @@ block {
         |   TogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
 
             // Doorman Entrypoints
-        |   StakeMvn(parameters)                     -> stake(parameters, s)  
-        |   UnstakeMvn(parameters)                   -> unstakeMvn(parameters, s)
+        |   StakeMvn(parameters)                  -> stakeMvn(parameters, s)  #todo
+        |   UnstakeMvn(parameters)                -> unstakeMvn(parameters, s)
         |   Exit(_parameters)                     -> exit(s)
         |   Compound(parameters)                  -> compound(parameters, s)
         |   FarmClaim(parameters)                 -> farmClaim(parameters, s)
