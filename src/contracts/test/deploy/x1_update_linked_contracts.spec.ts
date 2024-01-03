@@ -1,6 +1,6 @@
 import { TransactionOperation } from "@taquito/taquito"
 
-import { MVK, Utils } from "../helpers/Utils"
+import { MVN, Utils } from "../helpers/Utils"
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -44,7 +44,7 @@ describe('Linked contracts updates for Tests', async () => {
 
 
             const delegationInstance: any                   = await utils.tezos.contract.at(contractDeployments.delegation.address);
-            const mvkTokenInstance: any                     = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+            const mvnTokenInstance: any                     = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
             const governanceInstance: any                   = await utils.tezos.contract.at(contractDeployments.governance.address);
             const governanceFinancialInstance: any          = await utils.tezos.contract.at(contractDeployments.governanceFinancial.address);
             const governanceSatelliteInstance: any          = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
@@ -73,13 +73,13 @@ describe('Linked contracts updates for Tests', async () => {
 
             console.log('Break Glass Contract - set whitelist contract addresses [emergencyGovernance]')
             
-            // Treasury Factory Contract - set whitelist contract addresses [mvkToken]
-            const treasuryFactoryContractOperation = await treasuryFactoryInstance.methods.updateWhitelistContracts(contractDeployments.mvkToken.address, 'update').send();
+            // Treasury Factory Contract - set whitelist contract addresses [mvnToken]
+            const treasuryFactoryContractOperation = await treasuryFactoryInstance.methods.updateWhitelistContracts(contractDeployments.mvnToken.address, 'update').send();
             await treasuryFactoryContractOperation.confirmation();
         
-            console.log('Treasury Factory Contract - set whitelist contract addresses [mvkToken]')
+            console.log('Treasury Factory Contract - set whitelist contract addresses [mvnToken]')
             
-            // Governance Satellite Contract - set whitelist contract addresses [mvkToken]
+            // Governance Satellite Contract - set whitelist contract addresses [mvnToken]
             const governanceSatelliteContractOperation = await governanceSatelliteInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address, 'update').send();
             await governanceSatelliteContractOperation.confirmation();
 
@@ -107,20 +107,20 @@ describe('Linked contracts updates for Tests', async () => {
             
             console.log('Aggregator Contract - set whitelist contract addresses [aggregatorFactory, governanceSatellite]')
 
-            // MVK Token Contract - set governance contract address
-            // MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]
+            // MVN Token Contract - set governance contract address
+            // MVN Token Contract - set whitelist contract addresses [doorman, vesting, treasury]
         
-            const mvkContractsBatch = await utils.tezos.wallet
+            const mvnContractsBatch = await utils.tezos.wallet
                 .batch()
-                .withContractCall(mvkTokenInstance.methods.setGovernance(contractDeployments.governance.address, 'update'))
-                .withContractCall(mvkTokenInstance.methods.updateWhitelistContracts(contractDeployments.doorman.address, 'update'))
-                .withContractCall(mvkTokenInstance.methods.updateWhitelistContracts(contractDeployments.vesting.address, 'update'))
-                .withContractCall(mvkTokenInstance.methods.updateWhitelistContracts(contractDeployments.treasury.address, 'update'))
+                .withContractCall(mvnTokenInstance.methods.setGovernance(contractDeployments.governance.address, 'update'))
+                .withContractCall(mvnTokenInstance.methods.updateWhitelistContracts(contractDeployments.doorman.address, 'update'))
+                .withContractCall(mvnTokenInstance.methods.updateWhitelistContracts(contractDeployments.vesting.address, 'update'))
+                .withContractCall(mvnTokenInstance.methods.updateWhitelistContracts(contractDeployments.treasury.address, 'update'))
                 
-            const mvkContractsBatchOperation = await mvkContractsBatch.send()
-            await mvkContractsBatchOperation.confirmation();
+            const mvnContractsBatchOperation = await mvnContractsBatch.send()
+            await mvnContractsBatchOperation.confirmation();
         
-            console.log('MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]')
+            console.log('MVN Token Contract - set whitelist contract addresses [doorman, vesting, treasury]')
             
             
 
@@ -205,24 +205,24 @@ describe('Linked contracts updates for Tests', async () => {
         
         
         
-            // Governance Financial Contract - set whitelist token contracts [MavrykFA2, MavrykFA12, MVK]
+            // Governance Financial Contract - set whitelist token contracts [MavenFA2, MavenFA12, MVN]
             const governanceFinancialContractsBatch = await utils.tezos.wallet
             .batch()
 
             // whitelist token contracts
-            .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa2Token.address,     'update'))
-            .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa12Token.address,    'update'))
-            .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvkToken.address,           'update'))
+            .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavenFa2Token.address,     'update'))
+            .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavenFa12Token.address,    'update'))
+            .withContractCall(governanceFinancialInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvnToken.address,           'update'))
 
             const governanceFinancialContractsBatchOperation = await governanceFinancialContractsBatch.send()
             await governanceFinancialContractsBatchOperation.confirmation();
         
-            console.log('Governance Financial Contract - set whitelist token contract addresss [MavrykFA12, MavrykFA2, MVK]')
+            console.log('Governance Financial Contract - set whitelist token contract addresss [MavenFA12, MavenFA2, MVN]')
         
 
 
             // Treasury Contract - set whitelist contract addresses map [council, aggregatorFactory]
-            // Treasury Contract - set whitelist token contract addresses map [mavrykFa12, mavrykFA2, MVK]
+            // Treasury Contract - set whitelist token contract addresses map [mavenFa12, mavenFA2, MVN]
             const treasuryContractsBatch = await utils.tezos.wallet
             .batch()
         
@@ -236,15 +236,15 @@ describe('Linked contracts updates for Tests', async () => {
             .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governance.address,             'update'))
         
             // whitelist token contracts
-            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa2Token.address,    'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa12Token.address,   'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvkToken.address,          'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavenFa2Token.address,    'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavenFa12Token.address,   'update'))
+            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvnToken.address,          'update'))
         
             const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
             await treasuryContractsBatchOperation.confirmation();
             
             console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy, aggregatorFactory, treasuryFactory]')
-            console.log('Treasury Contract - set whitelist token contract addresses map [MavrykFA12, MavrykFA2, MVK]')
+            console.log('Treasury Contract - set whitelist token contract addresses map [MavenFA12, MavenFA2, MVN]')
         
             // Vesting Contract - set whitelist contract addresses map [council]
             const setCouncilContractAddressInVesting = await vestingInstance.methods.updateWhitelistContracts(contractDeployments.council.address, 'update').send()

@@ -5,7 +5,7 @@ export type governanceProxyStorageType = {
     admin                     : string;
     metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
     
-    mvkTokenAddress           : string;
+    mvnTokenAddress           : string;
     governanceAddress         : string;
 
     lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;

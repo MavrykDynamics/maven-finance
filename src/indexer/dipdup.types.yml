@@ -262,10 +262,10 @@ indexes:
       pattern:
       - destination: aggregator
         entrypoint: withdrawRewardXtz
-    - callback: aggregator.withdraw_reward_staked_mvk
+    - callback: aggregator.withdraw_reward_staked_mvn
       pattern:
       - destination: aggregator
-        entrypoint: withdrawRewardStakedMvk
+        entrypoint: withdrawRewardStakedMvn
     - callback: aggregator.set_lambda
       pattern:
       - destination: aggregator
@@ -419,8 +419,8 @@ indexes:
     contracts:
     - governance
     - governance_proxy
-    - mvk_token
-    - mvk_faucet
+    - mvn_token
+    - mvn_faucet
     - doorman
     - delegation
     - vesting
@@ -442,14 +442,14 @@ indexes:
       pattern:
       - type: origination
         originated_contract: governance
-    - callback: mvk.origination
+    - callback: mvn.origination
       pattern:
       - type: origination
-        originated_contract: mvk_token
-    - callback: mvk_faucet.origination
+        originated_contract: mvn_token
+    - callback: mvn_faucet.origination
       pattern:
       - type: origination
-        originated_contract: mvk_faucet
+        originated_contract: mvn_faucet
     - callback: governance_proxy.origination
       pattern:
       - type: origination
@@ -512,53 +512,53 @@ indexes:
         originated_contract: lending_controller_mock_time
 
     # Contracts entrypoints
-    # MVK Token handlers
-    - callback: mvk.set_admin
+    # MVN Token handlers
+    - callback: mvn.set_admin
       pattern:
-      - destination: mvk_token
+      - destination: mvn_token
         entrypoint: setAdmin
-    - callback: mvk.set_governance
+    - callback: mvn.set_governance
       pattern:
-      - destination: mvk_token
+      - destination: mvn_token
         entrypoint: setGovernance
-    - callback: mvk.update_whitelist_contracts
+    - callback: mvn.update_whitelist_contracts
       pattern:
-      - destination: mvk_token
+      - destination: mvn_token
         entrypoint: updateWhitelistContracts
-    - callback: mvk.update_general_contracts
+    - callback: mvn.update_general_contracts
       pattern:
-      - destination: mvk_token
+      - destination: mvn_token
         entrypoint: updateGeneralContracts
-    - callback: mvk.transfer
+    - callback: mvn.transfer
       pattern:
-      - destination: mvk_token
+      - destination: mvn_token
         entrypoint: transfer
-    - callback: mvk.update_operators
+    - callback: mvn.update_operators
       pattern:
-      - destination: mvk_token
+      - destination: mvn_token
         entrypoint: update_operators
-    - callback: mvk.mint
+    - callback: mvn.mint
       pattern:
-      - destination: mvk_token
+      - destination: mvn_token
         entrypoint: mint
-    - callback: mvk.burn
+    - callback: mvn.burn
       pattern:
-      - destination: mvk_token
+      - destination: mvn_token
         entrypoint: burn
-    - callback: mvk.update_inflation_rate
+    - callback: mvn.update_inflation_rate
       pattern:
-      - destination: mvk_token
+      - destination: mvn_token
         entrypoint: updateInflationRate
-    - callback: mvk.trigger_inflation
+    - callback: mvn.trigger_inflation
       pattern:
-      - destination: mvk_token
+      - destination: mvn_token
         entrypoint: triggerInflation
 
-    # MVK Faucet handlers
-    - callback: mvk_faucet.request_mvk
+    # MVN Faucet handlers
+    - callback: mvn_faucet.request_mvn
       pattern:
-      - destination: mvk_faucet
-        entrypoint: requestMvk
+      - destination: mvn_faucet
+        entrypoint: requestMvn
 
     # Governance Proxy Handlers
     - callback: governance_proxy.set_admin
@@ -685,26 +685,26 @@ indexes:
       pattern:
       - destination: doorman
         entrypoint: togglePauseEntrypoint
-    - callback: doorman.stake
+    - callback: doorman.stake_mvn
       pattern:
       - destination: doorman
-        entrypoint: stake
+        entrypoint: stakeMvn
       - source: doorman
-        destination: mvk_token
+        destination: mvn_token
         entrypoint: transfer
-    - callback: doorman.unstake
+    - callback: doorman.unstake_mvn
       pattern:
       - destination: doorman
-        entrypoint: unstake
+        entrypoint: unstakeMvn
       - source: doorman
-        destination: mvk_token
+        destination: mvn_token
         entrypoint: transfer
     - callback: doorman.exit
       pattern:
       - destination: doorman
         entrypoint: exit
       - source: doorman
-        destination: mvk_token
+        destination: mvn_token
         entrypoint: transfer
     - callback: doorman.compound
       pattern:
@@ -1562,10 +1562,10 @@ indexes:
     template: m_token_template
     values:
       m_token_contract: m_token_xtz
-  m_token_eurl:
+  m_token_eurt:
     template: m_token_template
     values:
-      m_token_contract: m_token_eurl
+      m_token_contract: m_token_eurt
   m_token_tzbtc:
     template: m_token_template
     values:

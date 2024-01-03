@@ -39,14 +39,14 @@ describe('Lending Controller Supporting Contracts', async () => {
   
     var utils: Utils
     var mTokenUsdt                      
-    var mTokenEurl                      
+    var mTokenEurt                      
     var mTokenXtz                       
     var mTokenTzBtc
 
     var mockUsdXtzAggregator            
     var mockUsdMockFa12TokenAggregator  
     var mockUsdMockFa2TokenAggregator   
-    var mockUsdMvkAggregator            
+    var mockUsdMvnAggregator            
 
     var tezos
 
@@ -77,12 +77,12 @@ describe('Lending Controller Supporting Contracts', async () => {
 
 
             // mToken for Mock FA12 Token in Lending Controller Token Pool 
-            mTokenStorage.loanToken      = mTokenMockData.mTokenEurl.loanToken;
-            mTokenStorage.metadata       = mTokenMockData.mTokenEurl.metadata;
-            mTokenStorage.token_metadata = mTokenMockData.mTokenEurl.token_metadata;
+            mTokenStorage.loanToken      = mTokenMockData.mTokenEurt.loanToken;
+            mTokenStorage.metadata       = mTokenMockData.mTokenEurt.metadata;
+            mTokenStorage.token_metadata = mTokenMockData.mTokenEurt.token_metadata;
             
-            mTokenEurl = await GeneralContract.originate(utils.tezos, "mTokenEurl", mTokenStorage);
-            await saveContractAddress("mTokenEurlAddress", mTokenEurl.contract.address)
+            mTokenEurt = await GeneralContract.originate(utils.tezos, "mTokenEurt", mTokenStorage);
+            await saveContractAddress("mTokenEurtAddress", mTokenEurt.contract.address)
 
 
             // mToken for XTZ in Lending Controller Token Pool 
@@ -129,11 +129,11 @@ describe('Lending Controller Supporting Contracts', async () => {
                 percentOracleThreshold              : new BigNumber(60),
                 heartbeatSeconds                    : new BigNumber(30),
                 
-                rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
+                rewardAmountStakedMvn               : new BigNumber(10000000), // 0.01 MVN
                 rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
             };
             aggregatorStorage.oracleLedger      = oracleMap;
-            aggregatorStorage.mvkTokenAddress   = contractDeployments.mvkToken.address;
+            aggregatorStorage.mvnTokenAddress   = contractDeployments.mvnToken.address;
             aggregatorStorage.governanceAddress = contractDeployments.governance.address;
 
             // Mock USD/MockFa12Token Aggregator
@@ -177,7 +177,7 @@ describe('Lending Controller Supporting Contracts', async () => {
 
 
             //----------------------------
-            // Mock USD/sMVK Token Aggregator Contract
+            // Mock USD/sMVN Token Aggregator Contract
             // - decimals to 9
             //----------------------------
 
@@ -190,8 +190,8 @@ describe('Lending Controller Supporting Contracts', async () => {
                 lastUpdatedAt           : '1'
             };
 
-            mockUsdMvkAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
-            await saveContractAddress('mockUsdMvkAggregatorAddress', mockUsdMvkAggregator.contract.address)
+            mockUsdMvnAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
+            await saveContractAddress('mockUsdMvnAggregatorAddress', mockUsdMvnAggregator.contract.address)
 
             //----------------------------
             // Set Lambdas
@@ -203,7 +203,7 @@ describe('Lending Controller Supporting Contracts', async () => {
             await setGeneralContractLambdas(tezos, "aggregator", mockUsdMockFa12TokenAggregator.contract);
             await setGeneralContractLambdas(tezos, "aggregator", mockUsdMockFa2TokenAggregator.contract);
             await setGeneralContractLambdas(tezos, "aggregator", mockUsdXtzAggregator.contract);
-            await setGeneralContractLambdas(tezos, "aggregator", mockUsdMvkAggregator.contract);
+            await setGeneralContractLambdas(tezos, "aggregator", mockUsdMvnAggregator.contract);
           
         } catch(e){
             console.dir(e, {depth: 5})

@@ -14,7 +14,7 @@
 
 type treasuryBreakGlassConfigType is [@layout:comb] record [
     transferIsPaused                : bool; 
-    mintMvkAndTransferIsPaused      : bool;
+    mintMvnAndTransferIsPaused      : bool;
     updateTokenOperatorsIsPaused    : bool;
     stakeTokensIsPaused             : bool;
     unstakeTokensIsPaused           : bool;
@@ -26,14 +26,14 @@ type treasuryBreakGlassConfigType is [@layout:comb] record [
 // ------------------------------------------------------------------------------
 
 
-type mintMvkAndTransferType is [@layout:comb] record [
+type mintMvnAndTransferType is [@layout:comb] record [
     to_             : address;
     amt             : nat;
 ]
 
 type treasuryPausableEntrypointType is
         Transfer                       of bool   
-    |   MintMvkAndTransfer             of bool
+    |   MintMvnAndTransfer             of bool
     |   UpdateTokenOperators           of bool
     |   StakeTokens                    of bool
     |   UnstakeTokens                  of bool
@@ -85,7 +85,7 @@ type treasuryLambdaActionType is
 
         // Treasury Entrypoints
     |   LambdaTransfer                       of transferActionType
-    |   LambdaMintMvkAndTransfer             of mintMvkAndTransferType
+    |   LambdaMintMvnAndTransfer             of mintMvnAndTransferType
     |   LambdaUpdateTokenOperators           of updateTokenOperatorsType
     |   LambdaStakeTokens                    of stakeTokensType
     |   LambdaUnstakeTokens                  of unstakeTokensType
@@ -101,7 +101,7 @@ type treasuryStorageType is [@layout:comb] record [
     metadata                   : metadataType;
     name                       : string;
     
-    mvkTokenAddress            : address;
+    mvnTokenAddress            : address;
     governanceAddress          : address;
 
     whitelistContracts         : whitelistContractsType;

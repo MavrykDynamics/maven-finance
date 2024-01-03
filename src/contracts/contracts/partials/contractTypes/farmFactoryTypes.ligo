@@ -123,7 +123,7 @@ type farmFactoryStorageType is [@layout:comb] record[
     metadata               : metadataType;
     config                 : farmFactoryConfigType;
 
-    mvkTokenAddress        : address;
+    mvnTokenAddress        : address;
     governanceAddress      : address;
 
     whitelistContracts     : whitelistContractsType;      

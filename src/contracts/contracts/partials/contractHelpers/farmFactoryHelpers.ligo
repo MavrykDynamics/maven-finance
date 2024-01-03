@@ -109,7 +109,7 @@ block {
     const originatedfarmStorageType : farmStorageType = record [
 
         admin                       = s.admin;                   // admin will be the Farm Factory admin (i.e. Governance Proxy contract)
-        mvkTokenAddress             = s.mvkTokenAddress;
+        mvnTokenAddress             = s.mvnTokenAddress;
         governanceAddress           = s.governanceAddress;
         metadata                    = farmMetadata;
 
@@ -211,7 +211,7 @@ block {
     const originatedfarmStorageType : farmMTokenStorageType = record [
 
         admin                       = s.admin;                   // admin will be the Farm Factory admin (i.e. Governance Proxy contract)
-        mvkTokenAddress             = s.mvkTokenAddress;
+        mvnTokenAddress             = s.mvnTokenAddress;
         governanceAddress           = s.governanceAddress;
         metadata                    = farmMetadata;
 

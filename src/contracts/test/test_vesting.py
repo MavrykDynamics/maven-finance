@@ -24,25 +24,25 @@ fileDir = os.path.dirname(os.path.realpath('__file__'))
 print('fileDir: '+fileDir)
 
 helpersDir          = os.path.join(fileDir, 'helpers')
-mvkTokenDecimals = os.path.join(helpersDir, 'mvkTokenDecimals.json')
-mvkTokenDecimals = open(mvkTokenDecimals)
-mvkTokenDecimals = json.load(mvkTokenDecimals)
-mvkTokenDecimals = mvkTokenDecimals['decimals']
+mvnTokenDecimals = os.path.join(helpersDir, 'mvnTokenDecimals.json')
+mvnTokenDecimals = open(mvnTokenDecimals)
+mvnTokenDecimals = json.load(mvnTokenDecimals)
+mvnTokenDecimals = mvnTokenDecimals['decimals']
 
 deploymentsDir          = os.path.join(fileDir, 'deployments')
 deployedVestingContract = os.path.join(deploymentsDir, 'vestingAddress.json')
-deployedMvkTokenContract = os.path.join(deploymentsDir, 'mvkTokenAddress.json')
+deployedMvnTokenContract = os.path.join(deploymentsDir, 'mvnTokenAddress.json')
 
 deployedVesting = open(deployedVestingContract)
 vestingContractAddress = json.load(deployedVesting)
 vestingContractAddress = vestingContractAddress['address']
 
-deployedMvkToken = open(deployedMvkTokenContract)
-mvkTokenAddress = json.load(deployedMvkToken)
-mvkTokenAddress = mvkTokenAddress['address']
+deployedMvnToken = open(deployedMvnTokenContract)
+mvnTokenAddress = json.load(deployedMvnToken)
+mvnTokenAddress = mvnTokenAddress['address']
 
 print('Vesting Contract Deployed at: ' + vestingContractAddress)
-print('MVK Token Address Deployed at: ' + mvkTokenAddress)
+print('MVN Token Address Deployed at: ' + mvnTokenAddress)
 
 alice = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
 admin = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
@@ -63,8 +63,8 @@ class VestingContract(TestCase):
     def setUpClass(cls):
         cls.vestingContract = pytezos.contract(vestingContractAddress)
         cls.vestingStorage  = cls.vestingContract.storage()
-        cls.mvkTokenContract = pytezos.contract(mvkTokenAddress)
-        cls.mvkTokenStorage  = cls.mvkTokenContract.storage()
+        cls.mvnTokenContract = pytezos.contract(mvnTokenAddress)
+        cls.mvnTokenStorage  = cls.mvnTokenContract.storage()
         
     @contextmanager
     def raisesMichelsonError(self, error_message):
@@ -77,9 +77,9 @@ class VestingContract(TestCase):
         else:
             self.assertEqual(f"'{error_message}': ", r.exception.format_stdout())
     
-    # MVK Formatter
-    def MVK(self, value: float = 1.0):
-        return int(value * 10**int(mvkTokenDecimals))
+    # MVN Formatter
+    def MVN(self, value: float = 1.0):
+        return int(value * 10**int(mvnTokenDecimals))
 
     ######################
     # Tests for vesting contract #
@@ -121,7 +121,7 @@ class VestingContract(TestCase):
     def test_20_whitelist_should_add_vestee(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
@@ -144,7 +144,7 @@ class VestingContract(TestCase):
     def test_21_non_whitelist_should_not_add_vestee(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
 
@@ -157,7 +157,7 @@ class VestingContract(TestCase):
     def test_22_whitelist_should_not_add_vestee_if_exists(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
@@ -186,7 +186,7 @@ class VestingContract(TestCase):
     def test_30_whitelist_should_remove_vestee(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
@@ -213,7 +213,7 @@ class VestingContract(TestCase):
     def test_31_non_council_nor_admin_should_not_remove_vestee(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
@@ -252,7 +252,7 @@ class VestingContract(TestCase):
     def test_40_whitelist_should_lock_unlock_vestee(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
@@ -286,7 +286,7 @@ class VestingContract(TestCase):
     def test_41_non_whitelist_should_not_lock_unlock_vestee(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
@@ -328,11 +328,11 @@ class VestingContract(TestCase):
     def test_50_whitelist_should_update_vestee(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
-        newTotalVestedAmount        = self.MVK(3000000)
+        newTotalVestedAmount        = self.MVN(3000000)
         newTotalCliffInMonths       = 2
         newTotalConfigVestingInMonths     = 24
         newTotalClaimAmountPerMonth = totalVestedAmount // totalConfigVestingInMonths       
@@ -362,11 +362,11 @@ class VestingContract(TestCase):
     def test_51_non_whitelist_should_not_update_vestee(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
-        newTotalVestedAmount        = self.MVK(3000000)
+        newTotalVestedAmount        = self.MVN(3000000)
         newTotalCliffInMonths       = 2
         newTotalConfigVestingInMonths     = 24
         
@@ -390,7 +390,7 @@ class VestingContract(TestCase):
     def test_52_whitelist_should_not_update_vestee_if_doesnt_exists(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        newTotalVestedAmount        = self.MVK(3000000)
+        newTotalVestedAmount        = self.MVN(3000000)
         newTotalCliffInMonths       = 2
         newTotalConfigVestingInMonths     = 24
         
@@ -409,7 +409,7 @@ class VestingContract(TestCase):
     def test_60_vestee_should_claim(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths  
@@ -437,7 +437,7 @@ class VestingContract(TestCase):
     def test_61_vestee_should_claim(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths  
@@ -468,7 +468,7 @@ class VestingContract(TestCase):
     def test_62_vestee_should_claim(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths  
@@ -496,7 +496,7 @@ class VestingContract(TestCase):
     def test_63_vestee_should_claim(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths  
@@ -518,7 +518,7 @@ class VestingContract(TestCase):
         claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         # Update process
-        newTotalVestedAmount        = self.MVK(4000000)
+        newTotalVestedAmount        = self.MVN(4000000)
         newTotalCliffInMonths       = 1
         newTotalConfigVestingInMonths     = 12
 
@@ -540,7 +540,7 @@ class VestingContract(TestCase):
     def test_64_vestee_should_claim(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 0
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths  
@@ -562,7 +562,7 @@ class VestingContract(TestCase):
         claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         # Update process
-        newTotalVestedAmount        = self.MVK(4000000)
+        newTotalVestedAmount        = self.MVN(4000000)
         newTotalCliffInMonths       = 0
         newTotalConfigVestingInMonths     = 12
 
@@ -584,7 +584,7 @@ class VestingContract(TestCase):
     def test_64_vestee_should_claim(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 4
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths  
@@ -606,7 +606,7 @@ class VestingContract(TestCase):
         claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         # Update process
-        newTotalVestedAmount        = self.MVK(4000000)
+        newTotalVestedAmount        = self.MVN(4000000)
         newTotalCliffInMonths       = 10
         newTotalConfigVestingInMonths     = 12
 
@@ -628,7 +628,7 @@ class VestingContract(TestCase):
     def test_61_non_vestee_should_not_claim(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
@@ -654,7 +654,7 @@ class VestingContract(TestCase):
     def test_65_vestee_should_not_claim_if_locked(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
@@ -682,7 +682,7 @@ class VestingContract(TestCase):
     def test_66_vestee_should_not_claim_if_already_claimed(self):
         # Initial values
         init_vesting_storage        = deepcopy(self.vestingStorage)
-        totalVestedAmount           = self.MVK(3000000)
+        totalVestedAmount           = self.MVN(3000000)
         totalCliffInMonths          = 2
         totalConfigVestingInMonths        = 24
         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths

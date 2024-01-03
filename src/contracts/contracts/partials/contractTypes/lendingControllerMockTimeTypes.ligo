@@ -135,13 +135,13 @@ type vaultRecordType is [@layout:comb] record [
 
     address                     : address;
     collateralBalanceLedger     : collateralBalanceLedgerType;   // tez/token balance
-    loanToken                   : string;                        // e.g. USDT, EURL,  
+    loanToken                   : string;                        // e.g. USDT, EURT,  
 
     // loan variables
     loanOutstandingTotal        : nat;                           // total amount debt (principal + interest)
     loanPrincipalTotal          : nat;                           // total amount principal
     loanInterestTotal           : nat;                           // total amount interest
-    loanDecimals                : nat;                           // should be 6 by default (USDT, EURL)
+    loanDecimals                : nat;                           // should be 6 by default (USDT, EURT)
     borrowIndex                 : nat;
     
     lastUpdatedBlockLevel       : nat;                           // block level of when vault was last updated for loans payment
@@ -261,7 +261,7 @@ type createCollateralTokenActionType is [@layout:comb] record [
     
     isScaledToken           : bool; // mToken
     
-    // To extend functionality beyond sMVK to other staked tokens in future
+    // To extend functionality beyond sMVN to other staked tokens in future
     isStakedToken           : bool;
     stakingContractAddress  : option(address);
 
@@ -432,7 +432,7 @@ type lendingControllerStorageType is [@layout:comb] record [
     config                      : lendingControllerConfigType;
     breakGlassConfig            : lendingControllerBreakGlassConfigType;
 
-    mvkTokenAddress             : address;
+    mvnTokenAddress             : address;
     governanceAddress           : address;
     
     // vaults and owners

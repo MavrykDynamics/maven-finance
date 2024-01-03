@@ -34,8 +34,8 @@ describe("Lending Controller (mToken) tests", async () => {
     var utils: Utils
     let tezos
 
-    //  - eve: first vault loan token: usdt, second vault loan token: eurl, third vault loan token - tez
-    //  - mallory: first vault loan token: usdt, second vault loan token: eurl
+    //  - eve: first vault loan token: usdt, second vault loan token: eurt, third vault loan token - tez
+    //  - mallory: first vault loan token: usdt, second vault loan token: eurt
     var eveVaultSet     : Array<Number> = []
     var malloryVaultSet : Array<Number> = []
     
@@ -60,7 +60,7 @@ describe("Lending Controller (mToken) tests", async () => {
     let defaultPriceObservations
 
     let usdtTokenIndex
-    let eurlTokenIndex
+    let eurtTokenIndex
     let tezIndex
 
     let lendingControllerAddress
@@ -71,19 +71,19 @@ describe("Lending Controller (mToken) tests", async () => {
 
     let doormanInstance
     let delegationInstance
-    let mvkTokenInstance
+    let mvnTokenInstance
     let treasuryInstance
     
     let usdtTokenInstance
-    let eurlTokenInstance
+    let eurtTokenInstance
 
     let mockUsdMockFa12TokenAggregatorInstance
     let mockUsdMockFa2TokenAggregatorInstance
     let mockUsdXtzAggregatorInstance
-    let mockUsdMvkAggregatorInstance
+    let mockUsdMvnAggregatorInstance
 
     let mUsdtTokenInstance
-    let mEurlTokenInstance
+    let mEurtTokenInstance
     let mXtzTokenInstance
 
     let governanceInstance
@@ -98,18 +98,18 @@ describe("Lending Controller (mToken) tests", async () => {
 
     let doormanStorage
     let delegationStorage
-    let mvkTokenStorage
+    let mvnTokenStorage
     let treasuryStorage
     let governanceStorage
     let governanceProxyStorage
 
     let usdtTokenStorage
-    let eurlTokenStorage
+    let eurtTokenStorage
 
     let mockUsdMockFa12TokenAggregatorStorage
     let mockUsdMockFa2TokenAggregatorStorage
     let mockUsdXtzAggregatorStorage
-    let mockUsdMvkAggregatorStorage
+    let mockUsdMvnAggregatorStorage
 
     let lendingControllerStorage
     let vaultFactoryStorage
@@ -235,33 +235,33 @@ describe("Lending Controller (mToken) tests", async () => {
         
         doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
         delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
-        mvkTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+        mvnTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
         treasuryInstance                        = await utils.tezos.contract.at(contractDeployments.treasury.address);
 
-        usdtTokenInstance                       = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
-        eurlTokenInstance                       = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
+        usdtTokenInstance                       = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
+        eurtTokenInstance                       = await utils.tezos.contract.at(contractDeployments.mavenFa2Token.address);
         governanceInstance                      = await utils.tezos.contract.at(contractDeployments.governance.address);
         governanceProxyInstance                 = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
 
         mUsdtTokenInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
-        mEurlTokenInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurl.address);
+        mEurtTokenInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
         mXtzTokenInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenXtz.address);
 
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
         mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdXtzAggregator.address);
-        mockUsdMvkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvkAggregator.address);
+        mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress);
         vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
 
         doormanStorage                          = await doormanInstance.storage();
         delegationStorage                       = await delegationInstance.storage();
-        mvkTokenStorage                         = await mvkTokenInstance.storage();
+        mvnTokenStorage                         = await mvnTokenInstance.storage();
         treasuryStorage                         = await treasuryInstance.storage();
 
         usdtTokenStorage                        = await usdtTokenInstance.storage();
-        eurlTokenStorage                        = await eurlTokenInstance.storage();
+        eurtTokenStorage                        = await eurtTokenInstance.storage();
         governanceStorage                       = await governanceInstance.storage();
         governanceProxyStorage                  = await governanceInstance.storage();
         lendingControllerStorage                = await lendingControllerInstance.storage();
@@ -291,7 +291,7 @@ describe("Lending Controller (mToken) tests", async () => {
         mockUsdMockFa12TokenAggregatorStorage   = await mockUsdMockFa12TokenAggregatorInstance.storage();
         mockUsdMockFa2TokenAggregatorStorage    = await mockUsdMockFa2TokenAggregatorInstance.storage();
         mockUsdXtzAggregatorStorage             = await mockUsdXtzAggregatorInstance.storage();
-        mockUsdMvkAggregatorStorage             = await mockUsdMvkAggregatorInstance.storage();
+        mockUsdMvnAggregatorStorage             = await mockUsdMvnAggregatorInstance.storage();
 
         tokenOracles.push({
             'name': 'usdt', 
@@ -301,7 +301,7 @@ describe("Lending Controller (mToken) tests", async () => {
         })
 
         tokenOracles.push({
-            'name': 'eurl', 
+            'name': 'eurt', 
             'price': mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.data.toNumber(),
             'priceDecimals': mockUsdMockFa2TokenAggregatorStorage.config.decimals.toNumber(),
             'tokenDecimals': 0
@@ -315,9 +315,9 @@ describe("Lending Controller (mToken) tests", async () => {
         })
 
         tokenOracles.push({
-            'name': "smvk", 
-            'price': mockUsdMvkAggregatorStorage.lastCompletedData.data.toNumber(),
-            'priceDecimals': mockUsdMvkAggregatorStorage.config.decimals.toNumber(),
+            'name': "smvn", 
+            'price': mockUsdMvnAggregatorStorage.lastCompletedData.data.toNumber(),
+            'priceDecimals': mockUsdMvnAggregatorStorage.config.decimals.toNumber(),
             'tokenDecimals': 9
         })
 
@@ -330,7 +330,7 @@ describe("Lending Controller (mToken) tests", async () => {
         await signerFactory(tezos, bob.sk);
 
         const usdtLoanToken  = await lendingControllerStorage.loanTokenLedger.get("usdt"); 
-        const eurlLoanToken  = await lendingControllerStorage.loanTokenLedger.get("eurl"); 
+        const eurtLoanToken  = await lendingControllerStorage.loanTokenLedger.get("eurt"); 
         const tezLoanToken   = await lendingControllerStorage.loanTokenLedger.get("tez"); 
         
         if(!(usdtLoanToken == undefined || usdtLoanToken == null)){
@@ -338,8 +338,8 @@ describe("Lending Controller (mToken) tests", async () => {
             await updateTokenRewardIndexOperation.confirmation();
         }
 
-        if(!(eurlLoanToken == undefined || eurlLoanToken == null)){
-            updateTokenRewardIndexOperation = await mEurlTokenInstance.methods.compound([bob.pkh, eve.pkh]).send();
+        if(!(eurtLoanToken == undefined || eurtLoanToken == null)){
+            updateTokenRewardIndexOperation = await mEurtTokenInstance.methods.compound([bob.pkh, eve.pkh]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
@@ -367,7 +367,7 @@ describe("Lending Controller (mToken) tests", async () => {
                 const setLoanTokenActionType                = "createLoanToken";
 
                 const tokenName                             = "usdt";
-                const tokenContractAddress                  = contractDeployments.mavrykFa12Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa12Token.address;
                 const tokenType                             = "fa12";
                 const tokenDecimals                         = 6;
 
@@ -465,14 +465,14 @@ describe("Lending Controller (mToken) tests", async () => {
 
                 const setLoanTokenActionType                = "createLoanToken";
 
-                const tokenName                             = "eurl";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenName                             = "eurt";
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
 
-                const mTokenAddress                         = contractDeployments.mTokenEurl.address;
+                const mTokenAddress                         = contractDeployments.mTokenEurt.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 1000; // 10% reserves (4 decimals)
@@ -485,8 +485,8 @@ describe("Lending Controller (mToken) tests", async () => {
                 const minRepaymentAmount                    = 10000;
 
                 // update token oracle with token decimals
-                eurlTokenIndex = tokenOracles.findIndex((o => o.name === "eurl"));
-                tokenOracles[eurlTokenIndex].tokenDecimals = tokenDecimals;
+                eurtTokenIndex = tokenOracles.findIndex((o => o.name === "eurt"));
+                tokenOracles[eurtTokenIndex].tokenDecimals = tokenDecimals;
 
                 const checkLoanTokenExists = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
@@ -521,32 +521,32 @@ describe("Lending Controller (mToken) tests", async () => {
                     await adminSetMockFa2LoanTokenOperation.confirmation();
 
                     lendingControllerStorage = await lendingControllerInstance.storage();
-                    const eurlLoanToken      = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+                    const eurtLoanToken      = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
-                    assert.equal(eurlLoanToken.tokenName              , tokenName);
+                    assert.equal(eurtLoanToken.tokenName              , tokenName);
 
-                    assert.equal(eurlLoanToken.rawMTokensTotalSupply           , 0);
-                    assert.equal(eurlLoanToken.mTokenAddress          , mTokenAddress);
+                    assert.equal(eurtLoanToken.rawMTokensTotalSupply           , 0);
+                    assert.equal(eurtLoanToken.mTokenAddress          , mTokenAddress);
 
-                    assert.equal(eurlLoanToken.reserveRatio           , reserveRatio);
-                    assert.equal(eurlLoanToken.tokenPoolTotal         , 0);
-                    assert.equal(eurlLoanToken.totalBorrowed          , 0);
-                    assert.equal(eurlLoanToken.totalRemaining         , 0);
+                    assert.equal(eurtLoanToken.reserveRatio           , reserveRatio);
+                    assert.equal(eurtLoanToken.tokenPoolTotal         , 0);
+                    assert.equal(eurtLoanToken.totalBorrowed          , 0);
+                    assert.equal(eurtLoanToken.totalRemaining         , 0);
 
-                    assert.equal(eurlLoanToken.optimalUtilisationRate , optimalUtilisationRate);
-                    assert.equal(eurlLoanToken.baseInterestRate       , baseInterestRate);
-                    assert.equal(eurlLoanToken.maxInterestRate        , maxInterestRate);
+                    assert.equal(eurtLoanToken.optimalUtilisationRate , optimalUtilisationRate);
+                    assert.equal(eurtLoanToken.baseInterestRate       , baseInterestRate);
+                    assert.equal(eurtLoanToken.maxInterestRate        , maxInterestRate);
                     
-                    assert.equal(eurlLoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
-                    assert.equal(eurlLoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
+                    assert.equal(eurtLoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
+                    assert.equal(eurtLoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
 
                 } else {
 
                     lendingControllerStorage = await lendingControllerInstance.storage();
-                    const eurlLoanToken      = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+                    const eurtLoanToken      = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                     // other variables will be affected by repeated tests
-                    assert.equal(eurlLoanToken.tokenName              , tokenName);
+                    assert.equal(eurtLoanToken.tokenName              , tokenName);
 
                 }
                 
@@ -667,13 +667,13 @@ describe("Lending Controller (mToken) tests", async () => {
                 const setLoanTokenActionType                = "createLoanToken";
 
                 const tokenName                             = "failTestLoanToken";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
 
-                const mTokenAddress                         = contractDeployments.mTokenEurl.address;
+                const mTokenAddress                         = contractDeployments.mTokenEurt.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -742,7 +742,7 @@ describe("Lending Controller (mToken) tests", async () => {
 
                 const setCollateralTokenActionType      = "createCollateralToken";
                 const tokenName                         = "usdt";
-                const tokenContractAddress              = contractDeployments.mavrykFa12Token.address;
+                const tokenContractAddress              = contractDeployments.mavenFa12Token.address;
                 const tokenType                         = "fa12";
 
                 const tokenDecimals                     = 6;
@@ -809,8 +809,8 @@ describe("Lending Controller (mToken) tests", async () => {
                 await signerFactory(tezos, bob.sk);
 
                 const setCollateralTokenActionType          = "createCollateralToken";
-                const tokenName                             = "eurl";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenName                             = "eurt";
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
 
                 const tokenDecimals                         = 6;
@@ -854,13 +854,13 @@ describe("Lending Controller (mToken) tests", async () => {
                     await adminSetMockFa2CollateralTokenOperation.confirmation();
 
                     lendingControllerStorage     = await lendingControllerInstance.storage();
-                    const eurlCollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+                    const eurtCollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
-                    assert.equal(eurlCollateralToken.tokenName              , tokenName);
+                    assert.equal(eurtCollateralToken.tokenName              , tokenName);
 
-                    assert.equal(eurlCollateralToken.tokenDecimals          , tokenDecimals);
-                    assert.equal(eurlCollateralToken.oracleAddress          , oracleAddress);
-                    assert.equal(eurlCollateralToken.protected              , tokenProtected);
+                    assert.equal(eurtCollateralToken.tokenDecimals          , tokenDecimals);
+                    assert.equal(eurtCollateralToken.oracleAddress          , oracleAddress);
+                    assert.equal(eurtCollateralToken.protected              , tokenProtected);
 
                 }
 
@@ -922,13 +922,13 @@ describe("Lending Controller (mToken) tests", async () => {
                     await adminSetMockFa2CollateralTokenOperation.confirmation();
 
                     lendingControllerStorage     = await lendingControllerInstance.storage();
-                    const eurlCollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+                    const eurtCollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
-                    assert.equal(eurlCollateralToken.tokenName              , tokenName);
+                    assert.equal(eurtCollateralToken.tokenName              , tokenName);
 
-                    assert.equal(eurlCollateralToken.tokenDecimals          , tokenDecimals);
-                    assert.equal(eurlCollateralToken.oracleAddress          , oracleAddress);
-                    assert.equal(eurlCollateralToken.protected              , tokenProtected);
+                    assert.equal(eurtCollateralToken.tokenDecimals          , tokenDecimals);
+                    assert.equal(eurtCollateralToken.oracleAddress          , oracleAddress);
+                    assert.equal(eurtCollateralToken.protected              , tokenProtected);
 
                 }
 
@@ -991,13 +991,13 @@ describe("Lending Controller (mToken) tests", async () => {
                     await adminSetMockFa2CollateralTokenOperation.confirmation();
 
                     lendingControllerStorage     = await lendingControllerInstance.storage();
-                    const eurlCollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+                    const eurtCollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
-                    assert.equal(eurlCollateralToken.tokenName              , tokenName);
+                    assert.equal(eurtCollateralToken.tokenName              , tokenName);
 
-                    assert.equal(eurlCollateralToken.tokenDecimals          , tokenDecimals);
-                    assert.equal(eurlCollateralToken.oracleAddress          , oracleAddress);
-                    assert.equal(eurlCollateralToken.protected              , tokenProtected);
+                    assert.equal(eurtCollateralToken.tokenDecimals          , tokenDecimals);
+                    assert.equal(eurtCollateralToken.oracleAddress          , oracleAddress);
+                    assert.equal(eurtCollateralToken.protected              , tokenProtected);
 
                 }
 
@@ -1016,7 +1016,7 @@ describe("Lending Controller (mToken) tests", async () => {
 
                 const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "mTokenMockFa2";
-                const tokenContractAddress                  = contractDeployments.mTokenEurl.address;
+                const tokenContractAddress                  = contractDeployments.mTokenEurt.address;
                 const tokenType                             = "fa2";
 
                 const tokenDecimals                         = 6;
@@ -1060,13 +1060,13 @@ describe("Lending Controller (mToken) tests", async () => {
                     await adminSetMockFa2CollateralTokenOperation.confirmation();
 
                     lendingControllerStorage     = await lendingControllerInstance.storage();
-                    const eurlCollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+                    const eurtCollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
-                    assert.equal(eurlCollateralToken.tokenName              , tokenName);
+                    assert.equal(eurtCollateralToken.tokenName              , tokenName);
 
-                    assert.equal(eurlCollateralToken.tokenDecimals          , tokenDecimals);
-                    assert.equal(eurlCollateralToken.oracleAddress          , oracleAddress);
-                    assert.equal(eurlCollateralToken.protected              , tokenProtected);
+                    assert.equal(eurtCollateralToken.tokenDecimals          , tokenDecimals);
+                    assert.equal(eurtCollateralToken.oracleAddress          , oracleAddress);
+                    assert.equal(eurtCollateralToken.protected              , tokenProtected);
 
                 }
 
@@ -1129,13 +1129,13 @@ describe("Lending Controller (mToken) tests", async () => {
                     await adminSetMockFa2CollateralTokenOperation.confirmation();
 
                     lendingControllerStorage        = await lendingControllerInstance.storage();
-                    const eurlCollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
+                    const eurtCollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
-                    assert.equal(eurlCollateralToken.tokenName              , tokenName);
+                    assert.equal(eurtCollateralToken.tokenName              , tokenName);
 
-                    assert.equal(eurlCollateralToken.tokenDecimals          , tokenDecimals);
-                    assert.equal(eurlCollateralToken.oracleAddress          , oracleAddress);
-                    assert.equal(eurlCollateralToken.protected              , tokenProtected);
+                    assert.equal(eurtCollateralToken.tokenDecimals          , tokenDecimals);
+                    assert.equal(eurtCollateralToken.oracleAddress          , oracleAddress);
+                    assert.equal(eurtCollateralToken.protected              , tokenProtected);
 
                 }
 
@@ -1156,7 +1156,7 @@ describe("Lending Controller (mToken) tests", async () => {
                 const setCollateralTokenActionType          = "createCollateralToken";
 
                 const tokenName                             = "failTestCollateralToken";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
 
                 const tokenDecimals                         = 6;
@@ -1350,17 +1350,17 @@ describe("Lending Controller (mToken) tests", async () => {
     
             // init variables
             await signerFactory(tezos, eve.sk);
-            const loanTokenName = "eurl";
+            const loanTokenName = "eurt";
             const liquidityAmount = 100000000; // 100 Mock FA2 Tokens
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             
             // get mock fa2 token storage and lp token pool mock fa2 token storage
-            eurlTokenStorage                        = await eurlTokenInstance.storage();
-            const lpTokenPoolMockFa2TokenStorage    = await mEurlTokenInstance.storage();
+            eurtTokenStorage                        = await eurtTokenInstance.storage();
+            const lpTokenPoolMockFa2TokenStorage    = await mEurtTokenInstance.storage();
             
             // get initial eve's Mock FA2 Token balance
-            const eveMockFa2Ledger                 = await eurlTokenStorage.ledger.get(eve.pkh);            
+            const eveMockFa2Ledger                 = await eurtTokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
             // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
@@ -1368,7 +1368,7 @@ describe("Lending Controller (mToken) tests", async () => {
             const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : eveLpTokenPoolMockFa2Ledger.toNumber();
 
             // get initial lending controller's Mock FA2 Token balance
-            const lendingControllerMockFa2Ledger                = await eurlTokenStorage.ledger.get(lendingControllerAddress);            
+            const lendingControllerMockFa2Ledger                = await eurtTokenStorage.ledger.get(lendingControllerAddress);            
             const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : lendingControllerMockFa2Ledger.toNumber();
 
             // get initial lending controller token pool total
@@ -1376,7 +1376,7 @@ describe("Lending Controller (mToken) tests", async () => {
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // update operators for vault
-            updateOperatorsOperation = await updateOperators(eurlTokenInstance, eve.pkh, lendingControllerAddress, tokenId);
+            updateOperatorsOperation = await updateOperators(eurtTokenInstance, eve.pkh, lendingControllerAddress, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // eve deposits mock FA12 tokens into lending controller token pool
@@ -1388,9 +1388,9 @@ describe("Lending Controller (mToken) tests", async () => {
 
             // get updated storages
             const updatedLendingControllerStorage  = await lendingControllerInstance.storage();
-            const updatedMockFa2TokenStorage       = await eurlTokenInstance.storage();
+            const updatedMockFa2TokenStorage       = await eurtTokenInstance.storage();
             
-            const updatedLpTokenPoolMockFa2TokenStorage     = await mEurlTokenInstance.storage();
+            const updatedLpTokenPoolMockFa2TokenStorage     = await mEurtTokenInstance.storage();
 
             // check new balance for loan token pool total
             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);

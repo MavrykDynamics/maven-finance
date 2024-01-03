@@ -84,7 +84,7 @@ type treasuryFactoryStorageType is [@layout:comb] record[
     metadata                   : metadataType;
     config                     : treasuryFactoryConfigType;
 
-    mvkTokenAddress            : address;
+    mvnTokenAddress            : address;
     governanceAddress          : address;
 
     trackedTreasuries          : set(address);

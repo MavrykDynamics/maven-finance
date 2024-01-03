@@ -1,6 +1,6 @@
 import assert from "assert";
 
-import { MVK, Utils } from "./helpers/Utils";
+import { MVN, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -81,30 +81,30 @@ describe("Test: Break Glass Contract", async () => {
 
     let doormanAddress
     let governanceProxyAddress
-    let mavrykFa2TokenAddress
+    let mavenFa2TokenAddress
 
     let doormanInstance;
     let delegationInstance;
-    let mvkTokenInstance;
+    let mvnTokenInstance;
     let councilInstance;
     let governanceInstance;
     let emergencyGovernanceInstance;
     let breakGlassInstance;
     let vestingInstance;
     let treasuryInstance;
-    let mavrykFa2TokenInstance
+    let mavenFa2TokenInstance
     let governanceProxyInstance
 
     let doormanStorage;
     let delegationStorage;
-    let mvkTokenStorage;
+    let mvnTokenStorage;
     let councilStorage;
     let governanceStorage;
     let emergencyGovernanceStorage;
     let breakGlassStorage;
     let vestingStorage;
     let treasuryStorage;
-    let mavrykFa2TokenStorage
+    let mavenFa2TokenStorage
     let governanceProxyStorage
 
     // operations
@@ -157,30 +157,30 @@ describe("Test: Break Glass Contract", async () => {
 
         doormanAddress          = contractDeployments.doorman.address;
         governanceProxyAddress  = contractDeployments.governanceProxy.address;
-        mavrykFa2TokenAddress   = contractDeployments.mavrykFa2Token.address;
+        mavenFa2TokenAddress   = contractDeployments.mavenFa2Token.address;
 
         doormanInstance                 = await utils.tezos.contract.at(doormanAddress);
         delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
-        mvkTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+        mvnTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
         councilInstance                 = await utils.tezos.contract.at(contractDeployments.council.address);
         governanceInstance              = await utils.tezos.contract.at(contractDeployments.governance.address);
         emergencyGovernanceInstance     = await utils.tezos.contract.at(contractDeployments.emergencyGovernance.address);
         breakGlassInstance              = await utils.tezos.contract.at(contractDeployments.breakGlass.address);
         vestingInstance                 = await utils.tezos.contract.at(contractDeployments.vesting.address);
         treasuryInstance                = await utils.tezos.contract.at(contractDeployments.treasury.address);
-        mavrykFa2TokenInstance          = await utils.tezos.contract.at(mavrykFa2TokenAddress);
+        mavenFa2TokenInstance          = await utils.tezos.contract.at(mavenFa2TokenAddress);
         governanceProxyInstance         = await utils.tezos.contract.at(governanceProxyAddress);
             
         doormanStorage                  = await doormanInstance.storage();
         delegationStorage               = await delegationInstance.storage();
-        mvkTokenStorage                 = await mvkTokenInstance.storage();
+        mvnTokenStorage                 = await mvnTokenInstance.storage();
         councilStorage                  = await councilInstance.storage();
         governanceStorage               = await governanceInstance.storage();
         emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
         breakGlassStorage               = await breakGlassInstance.storage();
         vestingStorage                  = await vestingInstance.storage();
         treasuryStorage                 = await treasuryInstance.storage();
-        mavrykFa2TokenStorage           = await mavrykFa2TokenInstance.storage();
+        mavenFa2TokenStorage           = await mavenFa2TokenInstance.storage();
         governanceProxyStorage          = await governanceProxyInstance.storage();
 
         generalContractsSet             = [
@@ -664,17 +664,17 @@ describe("Test: Break Glass Contract", async () => {
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
 
-                // ensure that user has enough staked MVK to trigger break glass
+                // ensure that user has enough staked MVN to trigger break glass
                 const emergencyGovernanceRecord = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyGovernanceStorage.currentEmergencyGovernanceId);
-                const sMvkRequired              = emergencyGovernanceRecord.stakedMvkRequiredForBreakGlass.toNumber();
-                if(initialUserStakedBalance < sMvkRequired){
+                const sMvnRequired              = emergencyGovernanceRecord.stakedMvnRequiredForBreakGlass.toNumber();
+                if(initialUserStakedBalance < sMvnRequired){
                     
-                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    // set stake amount so that user's final staked balance will be above sMvkRequired
-                    tempStakeAmount  = Math.abs(initialUserStakedBalance - sMvkRequired) + 1;
-                    stakeOperation   = await doormanInstance.methods.stake(tempStakeAmount).send();
+                    // set stake amount so that user's final staked balance will be above sMvnRequired
+                    tempStakeAmount  = Math.abs(initialUserStakedBalance - sMvnRequired) + 1;
+                    stakeOperation   = await doormanInstance.methods.stakeMvn(tempStakeAmount).send();
                     await stakeOperation.confirmation();
                 }
 
@@ -691,7 +691,7 @@ describe("Test: Break Glass Contract", async () => {
                 // reset stake balance (so that it will not affect subsequent tests)
                 if(tempStakeAmount > 0){
                     // reset stake balance to initial
-                    unstakeOperation     = await doormanInstance.methods.unstake(tempStakeAmount).send();
+                    unstakeOperation     = await doormanInstance.methods.unstakeMvn(tempStakeAmount).send();
                     await unstakeOperation.confirmation();
                 }
 
@@ -2815,20 +2815,20 @@ describe("Test: Break Glass Contract", async () => {
                 user              = mallory.pkh;
                 userSk            = mallory.sk;
 
-                // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
+                // Mistaken Operation - user (mallory) send 10 MavenFa2Tokens to MVN Token Contract
                 await signerFactory(tezos, userSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber()
 
                 await signerFactory(tezos, adminSk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -3020,12 +3020,12 @@ describe("Test: Break Glass Contract", async () => {
                 user = mallory.pkh;
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MavrykFa2Tokens to MVK Token Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
+                // Mistaken Operation - send 10 MavenFa2Tokens to MVN Token Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // fail: mistaken transfer operation
-                mistakenTransferOperation = await mistakenTransferFa2Token(breakGlassInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(breakGlassInstance, user, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {

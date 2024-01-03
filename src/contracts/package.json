@@ -1,5 +1,5 @@
 {
-  "name": "mavryk-dapp-contracts",
+  "name": "maven-dapp-contracts",
   "version": "1.0.0",
   "description": "",
   "devDependencies": {
@@ -17,13 +17,13 @@
     "rimraf": "^3.0.2"
   },
   "scripts": {
-    "pull-sandbox": "TAG=4.7.0 docker-compose -f docker-compose.yml pull",
-    "start-sandbox": "TAG=4.7.0 docker-compose -f docker-compose.yml up -d && bash ./sandbox-init.sh",
-    "down-sandbox": "docker-compose -f docker-compose.yml down",
-    "clear-sandbox": "docker-compose -f docker-compose.yml down -v",
+    "pull-sandbox": "TAG=4.7.0 docker compose -f docker-compose.yml pull",
+    "start-sandbox": "TAG=4.7.0 docker compose -f docker-compose.yml up -d && bash ./sandbox-init.sh",
+    "down-sandbox": "docker compose -f docker-compose.yml down",
+    "clear-sandbox": "docker compose -f docker-compose.yml down -v",
     "restart-sandbox": "yarn clear-sandbox && yarn start-sandbox",
-    "start-sandbox-old": "docker run --rm --name mavryk-sandbox -e flextesa_node_cors_origin='*' -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20230607 mumbaibox start && bash ./sandbox-init.sh",
-    "start-sandbox-m1": "docker run --rm --platform=linux/arm64/v8 --name mavryk-sandbox -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20230607 mumbaibox start && bash ./sandbox-init.sh",
+    "start-sandbox-old": "docker run --rm --name maven-sandbox -e flextesa_node_cors_origin='*' -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20230607 mumbaibox start && bash ./sandbox-init.sh",
+    "start-sandbox-m1": "docker run --rm --platform=linux/arm64/v8 --name maven-sandbox -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:20230607 mumbaibox start && bash ./sandbox-init.sh",
     "compile-lambda-function": "ts-node scripts/proxyLambdaFunctionMaker/proxyLambdaFunctionPacker.ts",
     "generate-error-codes": "bash ./generate-error-codes.sh",
     "generate-lambda-indexes": "ts-node scripts/cli.ts generate-lambda-indexes",
@@ -43,10 +43,10 @@
     "pytest-only": "pytest -s",
     "setup-prod-environment": "yarn test-net-deploy-prod && yarn test-net-setup"
   },
-  "author": "devteam@mavryk.finance",
+  "author": "devteam@mavenfinance.io",
   "license": "MIT",
   "dependencies": {
-    "@mavrykdynamics/create-lambda-bytes": "^0.2.4",
+    "@mavrykdynamics/create-lambda-bytes": "^0.3.0",
     "@taquito/signer": "^17.2.0",
     "@taquito/taquito": "^17.2.0",
     "@taquito/tezbridge-signer": "^14.2.0",

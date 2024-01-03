@@ -2,15 +2,15 @@ FROM python:3.11.6-slim
 
 RUN pip install poetry
 
-WORKDIR /mavryk
-COPY poetry.lock pyproject.toml /mavryk/
-COPY dipdup.yml /mavryk/
-COPY dipdup.contract.yml /mavryk/
-COPY dipdup.prod.yml /mavryk/
+WORKDIR /maven
+COPY src/indexer/poetry.lock src/indexer/pyproject.toml /maven/
+COPY src/indexer/dipdup.yml /maven/
+COPY src/indexer/dipdup.contract.yml /maven/
+COPY src/indexer/dipdup.prod.yml /maven/
 
 RUN poetry config virtualenvs.create false && poetry install --no-dev
 
-ADD mavryk /mavryk/mavryk/
+ADD src/indexer/maven /maven/maven/
 
 ENTRYPOINT ["poetry", "run", "dipdup", "-c", "dipdup.prod.yml", "-c", "dipdup.contract.yml", "-c", "dipdup.yml"]
 

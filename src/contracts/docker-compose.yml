@@ -54,7 +54,7 @@ services:
     logging: *bcd-logging
 
   flextesa:
-    container_name: mavryk-sandbox
+    container_name: maven-sandbox
     restart: always
     image: oxheadalpha/flextesa:20230607
     command: mumbaibox start

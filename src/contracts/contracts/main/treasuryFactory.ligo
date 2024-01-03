@@ -22,8 +22,8 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// MvkToken types
-#include "../partials/contractTypes/mvkTokenTypes.ligo"
+// MvnToken types
+#include "../partials/contractTypes/mvnTokenTypes.ligo"
 
 // Treasury types
 #include "../partials/contractTypes/treasuryTypes.ligo"

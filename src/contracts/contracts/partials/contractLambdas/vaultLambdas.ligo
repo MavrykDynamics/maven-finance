@@ -98,7 +98,7 @@ block {
                             // get collateral token record from Lending Controller through on-chain view
                             const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
 
-                            // verify that collateral token is not protected (e.g. cannot be staked MVK)
+                            // verify that collateral token is not protected (e.g. cannot be staked MVN)
                             verifyCollateralTokenIsNotProtected(collateralTokenRecord, error_CANNOT_DEPOSIT_PROTECTED_COLLATERAL_TOKEN);
 
                             // verify collateral token is not paused
@@ -155,7 +155,7 @@ block {
                             // get collateral token record from Lending Controller through on-chain view
                             const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
 
-                            // verify that collateral token is not protected (e.g. cannot be staked MVK)
+                            // verify that collateral token is not protected (e.g. cannot be staked MVN)
                             verifyCollateralTokenIsNotProtected(collateralTokenRecord, error_CANNOT_WITHDRAW_PROTECTED_COLLATERAL_TOKEN);
 
                             // get collateral token's token type

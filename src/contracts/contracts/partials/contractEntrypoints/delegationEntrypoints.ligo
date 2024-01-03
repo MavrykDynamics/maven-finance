@@ -288,7 +288,7 @@ block {
 
 
 (* distributeReward entrypoint *)
-function distributeReward(const distributeRewardParams : distributeRewardStakedMvkType; var s : delegationStorageType) : return is
+function distributeReward(const distributeRewardParams : distributeRewardStakedMvnType; var s : delegationStorageType) : return is
 block {
 
     // get lambda bytes

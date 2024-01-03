@@ -35,7 +35,7 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: "MAVRYK USDT.e-USDC.e Farm",
+        name: "MAVEN USDT.e-USDC.e Farm",
         description: "Mavryk Farm Contract for USDT.e-USDC.e",
         version: "v1.0.0",
         liquidityPairToken: {
@@ -55,7 +55,7 @@ const metadata = MichelsonMap.fromLiteral({
                 thumbnailUri: "https://www.plentydefi.com/static/media/usdc_icon.771d659c.svg"
             }
         },
-        authors: ["MAVRYK Dev Team <contact@mavryk.finance>"]
+        authors: ["MAVEN Dev Team <info@mavryk.io>"]
         }),
         'ascii',
     ).toString('hex'),
@@ -63,7 +63,7 @@ const metadata = MichelsonMap.fromLiteral({
 
 export const farmMTokenStorage: farmMTokenStorageType = {
     admin                     : bob.pkh,
-    mvkTokenAddress           : "",
+    mvnTokenAddress           : "",
     governanceAddress         : "",
     name                      : "farm",
     metadata                  : metadata,

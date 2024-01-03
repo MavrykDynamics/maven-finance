@@ -1,8 +1,0 @@
-name: indexer-mavryk
-version: 0.0.1
-apiVersion: v2
-appVersion: v0.23.1
-dependencies:
-  - name: sealed-secrets
-    version: 2.12.0
-    repository: https://bitnami-labs.github.io/sealed-secrets

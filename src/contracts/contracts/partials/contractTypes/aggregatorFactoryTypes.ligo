@@ -13,7 +13,7 @@ type aggregatorFactoryBreakGlassConfigType is [@layout:comb] record [
     trackAggregatorIsPaused             : bool;
     untrackAggregatorIsPaused           : bool;
     distributeRewardXtzIsPaused         : bool;
-    distributeRewardStakedMvkIsPaused   : bool;
+    distributeRewardStakedMvnIsPaused   : bool;
 ]
 
 
@@ -51,7 +51,7 @@ type aggregatorFactoryPausableEntrypointType is
     |   UntrackAggregator           of bool
     |   TrackAggregator             of bool
     |   DistributeRewardXtz         of bool
-    |   DistributeRewardStakedMvk   of bool
+    |   DistributeRewardStakedMvn   of bool
 
 type aggregatorFactoryTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint      : aggregatorFactoryPausableEntrypointType;
@@ -93,7 +93,7 @@ type aggregatorFactoryLambdaActionType is
 
         // Aggregator Lambdas
     |   LambdaDistributeRewardXtz           of distributeRewardXtzType
-    |   LambdaDistributeRewardStakedMvk     of distributeRewardStakedMvkType
+    |   LambdaDistributeRewardStakedMvn     of distributeRewardStakedMvnType
 
 
 // ------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ type aggregatorFactoryStorageType is [@layout:comb] record [
     metadata                : metadataType;
     config                  : aggregatorFactoryConfigType;
 
-    mvkTokenAddress         : address;
+    mvnTokenAddress         : address;
     governanceAddress       : address;
 
     trackedAggregators      : set(address);
