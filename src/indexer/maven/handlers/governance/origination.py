@@ -170,7 +170,7 @@ async def origination(
                 treasury_factory_contract="treasury_factory",
                 vault_factory_contract="vault_factory",
                 lending_controller_contract="lending_controller",
-                lending_controller_mock_time_contract="lending_controller_mock_time"
+                # lending_controller_mock_time_contract="lending_controller_mock_time"
             )
         )
 
