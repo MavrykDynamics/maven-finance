@@ -18,7 +18,7 @@ import contractDeployments from '../contractDeployments.json'
 import { bob } from "../../scripts/sandbox/accounts";
 import accounts from "../../scripts/sandbox/accounts";
 import * as helperFunctions from '../helpers/helperFunctions'
-import { ledger } from "../../storage/mvkTokenStorage";
+import { ledger } from "../../storage/mvnTokenStorage";
 
 // ------------------------------------------------------------------------------
 // Testnet Setup
@@ -29,11 +29,11 @@ describe("Testnet setup helper", async () => {
     var utils: Utils;
     var tezos
 
-    let mvkFaucetAddress
+    let mvnFaucetAddress
 
     let doormanInstance;
     let delegationInstance;
-    let mvkTokenInstance;
+    let mvnTokenInstance;
     let governanceInstance;
     let governanceProxyInstance;
     let emergencyGovernanceInstance;
@@ -53,11 +53,11 @@ describe("Testnet setup helper", async () => {
     let lendingControllerMockTimeInstance;
     let vaultInstance;
     let vaultFactoryInstance;
-    let mavrykFa12TokenInstance;
+    let mavenFa12TokenInstance;
 
     let doormanStorage;
     let delegationStorage;
-    let mvkTokenStorage;
+    let mvnTokenStorage;
     let governanceStorage;
     let governanceProxyStorage;
     let emergencyGovernanceStorage;
@@ -77,7 +77,7 @@ describe("Testnet setup helper", async () => {
     let lendingControllerMockTimeStorage;
     let vaultStorage;
     let vaultFactoryStorage;
-    let mavrykFa12TokenStorage;
+    let mavenFa12TokenStorage;
 
     before("setup", async () => {
         try{
@@ -86,11 +86,11 @@ describe("Testnet setup helper", async () => {
             await utils.init(bob.sk);
             tezos = utils.tezos;
 
-            mvkFaucetAddress                        = contractDeployments.mvkFaucet.address;
+            mvnFaucetAddress                        = contractDeployments.mvnFaucet.address;
             
             doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
             delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
-            mvkTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+            mvnTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
             governanceInstance                      = await utils.tezos.contract.at(contractDeployments.governance.address);
             governanceProxyInstance                 = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
             emergencyGovernanceInstance             = await utils.tezos.contract.at(contractDeployments.emergencyGovernance.address);
@@ -102,18 +102,18 @@ describe("Testnet setup helper", async () => {
             treasuryFactoryInstance                 = await utils.tezos.contract.at(contractDeployments.treasuryFactory.address);
             treasuryInstance                        = await utils.tezos.contract.at(contractDeployments.treasury.address);
             farmInstance                            = await utils.tezos.contract.at(contractDeployments.farm.address);
-            lpTokenInstance                         = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
+            lpTokenInstance                         = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
             governanceSatelliteInstance             = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
             aggregatorInstance                      = await utils.tezos.contract.at(contractDeployments.aggregator.address);
             aggregatorFactoryInstance               = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
             lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
             lendingControllerMockTimeInstance       = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
-            mavrykFa12TokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
+            mavenFa12TokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
     
             doormanStorage                          = await doormanInstance.storage();
             delegationStorage                       = await delegationInstance.storage();
-            mvkTokenStorage                         = await mvkTokenInstance.storage();
+            mvnTokenStorage                         = await mvnTokenInstance.storage();
             governanceStorage                       = await governanceInstance.storage();
             governanceProxyStorage                  = await governanceProxyInstance.storage();
             emergencyGovernanceStorage              = await emergencyGovernanceInstance.storage();
@@ -132,12 +132,12 @@ describe("Testnet setup helper", async () => {
             lendingControllerStorage                = await lendingControllerInstance.storage();
             lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
-            mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
+            mavenFa12TokenStorage                  = await mavenFa12TokenInstance.storage();
     
             console.log('-- -- -- -- -- Testnet Environment Setup -- -- -- --')
             console.log('Doorman Contract deployed at:'                         , contractDeployments.doorman.address);
             console.log('Delegation Contract deployed at:'                      , contractDeployments.delegation.address);
-            console.log('MVK Token Contract deployed at:'                       , contractDeployments.mvkToken.address);
+            console.log('MVN Token Contract deployed at:'                       , contractDeployments.mvnToken.address);
             console.log('Governance Contract deployed at:'                      , contractDeployments.governance.address);
             console.log('Emergency Governance Contract deployed at:'            , contractDeployments.emergencyGovernance.address);
             console.log('Vesting Contract deployed at:'                         , contractDeployments.vesting.address);
@@ -145,14 +145,14 @@ describe("Testnet setup helper", async () => {
             console.log('Treasury Factory Contract deployed at:'                , contractDeployments.treasuryFactory.address);
             console.log('Treasury Contract deployed at:'                        , contractDeployments.treasury.address);
             console.log('Farm Contract deployed at:'                            , contractDeployments.farm.address);
-            console.log('LP Token Contract deployed at:'                        , contractDeployments.mavrykFa12Token.address);
+            console.log('LP Token Contract deployed at:'                        , contractDeployments.mavenFa12Token.address);
             console.log('Governance Satellite Contract deployed at:'            , contractDeployments.governanceSatellite.address);
             console.log('Aggregator Contract deployed at:'                      , contractDeployments.aggregator.address);
             console.log('Aggregator Factory Contract deployed at:'              , contractDeployments.aggregatorFactory.address);
             console.log('Lending Controller Contract deployed at:'              , contractDeployments.lendingController.address);
             console.log('Lending Controller Mock Time Contract deployed at:'    , contractDeployments.lendingControllerMockTime.address);
             console.log('Vault Factory Contract deployed at:'                   , contractDeployments.vaultFactory.address);
-            console.log('Mavryk FA12 Token Contract deployed at:'               , contractDeployments.mavrykFa12Token.address);
+            console.log('Maven FA12 Token Contract deployed at:'               , contractDeployments.mavenFa12Token.address);
 
         } catch(e){
             console.log(e)
@@ -165,23 +165,23 @@ describe("Testnet setup helper", async () => {
             await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
-        it('Faucet gets all MVK', async () => {
+        it('Faucet gets all MVN', async () => {
             try{
                 for(let accountName in accounts){
                     let account = accounts[accountName];
                     if(ledger.has(account.pkh)){
-                        let balance = await mvkTokenStorage.ledger.get(account.pkh);
-                        if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== mvkFaucetAddress){
+                        let balance = await mvnTokenStorage.ledger.get(account.pkh);
+                        if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== mvnFaucetAddress){
                             // Transfer all funds to bob
                             await helperFunctions.signerFactory(tezos, account.sk);
                             console.log("account:", account)
                             console.log("balance:", balance)
-                            let operation = await mvkTokenInstance.methods.transfer([
+                            let operation = await mvnTokenInstance.methods.transfer([
                                 {
                                     from_: account.pkh,
                                     txs: [
                                     {
-                                        to_: mvkFaucetAddress,
+                                        to_: mvnFaucetAddress,
                                         token_id: 0,
                                         amount: balance.toNumber(),
                                     }
@@ -310,14 +310,14 @@ describe("Testnet setup helper", async () => {
                     }
                 }
 
-                // Set governance proxy admin, governance admin and mvkToken admin
+                // Set governance proxy admin, governance admin and mvnToken admin
                 setAdminOperation   = await governanceProxyInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                 await setAdminOperation.confirmation()
 
-                setAdminOperation   = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                await setAdminOperation.confirmation()
+                // setAdminOperation   = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                // await setAdminOperation.confirmation()
                 
-                setAdminOperation   = await mvkTokenInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                setAdminOperation   = await mvnTokenInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                 await setAdminOperation.confirmation()
                 
             } catch(e){

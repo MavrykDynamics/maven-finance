@@ -1,5 +1,5 @@
 import assert from "assert";
-import { MVK, Utils } from "./helpers/Utils";
+import { MVN, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -76,24 +76,24 @@ describe("Test: Council Contract", async () => {
     // instances
     let doormanInstance;
     let delegationInstance;
-    let mvkTokenInstance;
+    let mvnTokenInstance;
     let governanceFinancialInstance;
     let vestingInstance;
     let councilInstance;
-    let mavrykFa12TokenInstance;
-    let mavrykFa2TokenInstance;
+    let mavenFa12TokenInstance;
+    let mavenFa2TokenInstance;
     let treasuryInstance;
     let governanceInstance;
 
     // storages
     let doormanStorage;
     let delegationStorage;
-    let mvkTokenStorage;
+    let mvnTokenStorage;
     let governanceFinancialStorage;
     let vestingStorage;
     let councilStorage;
-    let mavrykFa12TokenStorage;
-    let mavrykFa2TokenStorage;
+    let mavenFa12TokenStorage;
+    let mavenFa2TokenStorage;
     let treasuryStorage;
     let governanceStorage;
 
@@ -142,28 +142,28 @@ describe("Test: Council Contract", async () => {
         vestingInstance                 = await utils.tezos.contract.at(contractDeployments.vesting.address);
         doormanInstance                 = await utils.tezos.contract.at(contractDeployments.doorman.address);
         delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
-        mvkTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+        mvnTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
         governanceFinancialInstance     = await utils.tezos.contract.at(contractDeployments.governanceFinancial.address);
         councilInstance                 = await utils.tezos.contract.at(contractDeployments.council.address);
-        mavrykFa12TokenInstance         = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
-        mavrykFa2TokenInstance          = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
+        mavenFa12TokenInstance         = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
+        mavenFa2TokenInstance          = await utils.tezos.contract.at(contractDeployments.mavenFa2Token.address);
         treasuryInstance                = await utils.tezos.contract.at(contractDeployments.treasury.address);
         governanceInstance              = await utils.tezos.contract.at(contractDeployments.governance.address);
             
         vestingStorage                  = await vestingInstance.storage();
         doormanStorage                  = await doormanInstance.storage();
         delegationStorage               = await delegationInstance.storage();
-        mvkTokenStorage                 = await mvkTokenInstance.storage();
+        mvnTokenStorage                 = await mvnTokenInstance.storage();
         governanceFinancialStorage      = await governanceFinancialInstance.storage();
         councilStorage                  = await councilInstance.storage();
-        mavrykFa12TokenStorage          = await mavrykFa12TokenInstance.storage();
-        mavrykFa2TokenStorage           = await mavrykFa2TokenInstance.storage();
+        mavenFa12TokenStorage          = await mavenFa12TokenInstance.storage();
+        mavenFa2TokenStorage           = await mavenFa2TokenInstance.storage();
         treasuryStorage                 = await treasuryInstance.storage();
         governanceStorage               = await governanceInstance.storage();
 
         console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
-        // Call start next round to save a SMVK Total Supply Snapshot for the tests
+        // Call start next round to save a SMVN Total Supply Snapshot for the tests
         const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
         await startNextRoundOperation.confirmation();
 
@@ -190,7 +190,7 @@ describe("Test: Council Contract", async () => {
                 councilStorage          = await councilInstance.storage();
                 const cliffInMonths     = 0;
                 const vestingInMonths   = 24;
-                const totalAllocated    = MVK(20000000);
+                const totalAllocated    = MVN(20000000);
                 const nextActionId      = councilStorage.actionCounter;
 
                 // Operation
@@ -243,7 +243,7 @@ describe("Test: Council Contract", async () => {
                 const cliffInMonths     = 0;
                 const vestingInMonths   = 24;
                 vesteeAddress           = isaac.pkh;
-                const totalAllocated    = MVK(20000000);
+                const totalAllocated    = MVN(20000000);
 
                 // Operation       
                 councilActionOperation = await councilInstance.methods.councilActionAddVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths);         
@@ -264,7 +264,7 @@ describe("Test: Council Contract", async () => {
                 councilStorage          = await councilInstance.storage();
                 const cliffInMonths     = 0;
                 const vestingInMonths   = 12;
-                const totalAllocated    = MVK(40000000);
+                const totalAllocated    = MVN(40000000);
                 const nextActionId      = councilStorage.actionCounter;
 
                 // Operation
@@ -308,7 +308,7 @@ describe("Test: Council Contract", async () => {
                 const cliffInMonths     = 0;
                 const vestingInMonths   = 24;
                 const vesteeAddress     = david.pkh;
-                const totalAllocated    = MVK(20000000);
+                const totalAllocated    = MVN(20000000);
 
                 // Operation                
                 councilActionOperation = await councilInstance.methods.councilActionUpdateVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths);
@@ -754,10 +754,10 @@ describe("Test: Council Contract", async () => {
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
                 const receiverAddress       = eve.pkh;
-                const tokenContractAddress  = contractDeployments.mvkToken.address;
+                const tokenContractAddress  = contractDeployments.mvnToken.address;
                 const tokenType             = "FA2";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
                 const nextActionId          = councilStorage.actionCounter;
 
@@ -809,10 +809,10 @@ describe("Test: Council Contract", async () => {
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
                 const receiverAddress       = eve.pkh;
-                const tokenContractAddress  = contractDeployments.mvkToken.address;
+                const tokenContractAddress  = contractDeployments.mvnToken.address;
                 const tokenType             = "FA3";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
 
                 // Operation
@@ -839,11 +839,11 @@ describe("Test: Council Contract", async () => {
                 councilStorage              = await councilInstance.storage();
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = contractDeployments.mvkToken.address;
-                const tokenName             = "MVK";
+                const tokenContractAddress  = contractDeployments.mvnToken.address;
+                const tokenName             = "MVN";
                 const tokenType             = "FA2";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
                 const nextActionId          = councilStorage.actionCounter;
 
@@ -901,11 +901,11 @@ describe("Test: Council Contract", async () => {
                 councilStorage              = await councilInstance.storage();
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = contractDeployments.mvkToken.address;
-                const tokenName             = "MVK";
+                const tokenContractAddress  = contractDeployments.mvnToken.address;
+                const tokenName             = "MVN";
                 const tokenType             = "FA3";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
 
                 // Operation
@@ -928,7 +928,7 @@ describe("Test: Council Contract", async () => {
         });
 
 
-        it('%councilActionRequestMint      - council member (eve) should be able to create a new action to request minting of MVK from a given treasury', async () => {
+        it('%councilActionRequestMint      - council member (eve) should be able to create a new action to request minting of MVN from a given treasury', async () => {
             try{
                 
                 // initial storage
@@ -936,7 +936,7 @@ describe("Test: Council Contract", async () => {
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const nextActionId          = councilStorage.actionCounter;
 
                 // Operation
@@ -1354,7 +1354,7 @@ describe("Test: Council Contract", async () => {
                 councilStorage          = await councilInstance.storage();
                 const cliffInMonths     = 0;
                 const vestingInMonths   = 24;
-                const totalAllocated    = MVK(20000000);
+                const totalAllocated    = MVN(20000000);
                 const nextActionId      = councilStorage.actionCounter;
 
                 // Operation
@@ -1430,7 +1430,7 @@ describe("Test: Council Contract", async () => {
                 councilStorage          = await councilInstance.storage();
                 const cliffInMonths     = 0;
                 const vestingInMonths   = 12;
-                const totalAllocated    = MVK(40000000);
+                const totalAllocated    = MVN(40000000);
                 const nextActionId      = councilStorage.actionCounter;
 
                 // Operation
@@ -2227,10 +2227,10 @@ describe("Test: Council Contract", async () => {
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
                 const receiverAddress       = eve.pkh;
-                const tokenContractAddress  = contractDeployments.mvkToken.address;
+                const tokenContractAddress  = contractDeployments.mvnToken.address;
                 const tokenType             = "FA2";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
                 const nextActionId          = councilStorage.actionCounter;
 
@@ -2255,9 +2255,9 @@ describe("Test: Council Contract", async () => {
                 const packedPurpose                 = (await utils.tezos.rpc.packData({ data: { string: purpose }, type: { prim: 'string' } })).packed
                 const packedTokenAmount             = (await utils.tezos.rpc.packData({ data: { int: tokenAmount.toString() }, type: { prim: 'nat' } })).packed
                 const packedTokenId                 = (await utils.tezos.rpc.packData({ data: { int: tokenId.toString() }, type: { prim: 'nat' } })).packed
-                mvkTokenStorage                     = await mvkTokenInstance.storage();
-                const preCouncilBalance             = await mvkTokenStorage.ledger.get(contractDeployments.council.address);
-                const preUserBalance                = await mvkTokenStorage.ledger.get(eve.pkh);
+                mvnTokenStorage                     = await mvnTokenInstance.storage();
+                const preCouncilBalance             = await mvnTokenStorage.ledger.get(contractDeployments.council.address);
+                const preUserBalance                = await mvnTokenStorage.ledger.get(eve.pkh);
 
                 // Assertions
                 assert.strictEqual(action.initiator, councilMember);
@@ -2290,9 +2290,9 @@ describe("Test: Council Contract", async () => {
                 var actionSigner    = await councilStorage.councilActionsSigners.get({0: nextActionId, 1: councilMember})
                 dataMap             = await action.dataMap;
 
-                mvkTokenStorage             = await mvkTokenInstance.storage();
-                const postCouncilBalance    = await mvkTokenStorage.ledger.get(contractDeployments.council.address);
-                const postUserBalance       = await mvkTokenStorage.ledger.get(eve.pkh);
+                mvnTokenStorage             = await mvnTokenInstance.storage();
+                const postCouncilBalance    = await mvnTokenStorage.ledger.get(contractDeployments.council.address);
+                const postUserBalance       = await mvnTokenStorage.ledger.get(eve.pkh);
 
                 assert.strictEqual(action.initiator, councilMember);
                 assert.strictEqual(action.status, "EXECUTED");
@@ -2323,11 +2323,11 @@ describe("Test: Council Contract", async () => {
                 councilStorage              = await councilInstance.storage();
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = contractDeployments.mvkToken.address;
-                const tokenName             = "MVK";
+                const tokenContractAddress  = contractDeployments.mvnToken.address;
+                const tokenName             = "MVN";
                 const tokenType             = "FA2";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
                 const nextActionId          = councilStorage.actionCounter;
                 
@@ -2418,7 +2418,7 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-        it('requestMint                    --> should create a financial request for minting of MVK in the Governance Financial contract', async () => {
+        it('requestMint                    --> should create a financial request for minting of MVN in the Governance Financial contract', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -2426,7 +2426,7 @@ describe("Test: Council Contract", async () => {
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const nextActionId          = councilStorage.actionCounter;
                 
                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
@@ -2637,7 +2637,7 @@ describe("Test: Council Contract", async () => {
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const mintActionID          = councilStorage.actionCounter;
 
                 // Operation
@@ -2748,7 +2748,7 @@ describe("Test: Council Contract", async () => {
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const mintActionID          = councilStorage.actionCounter;
 
                 // Operation
@@ -2854,7 +2854,7 @@ describe("Test: Council Contract", async () => {
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const mintActionID          = councilStorage.actionCounter;
 
                 // Operation
@@ -3010,7 +3010,7 @@ describe("Test: Council Contract", async () => {
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const mintActionID          = councilStorage.actionCounter;
 
                 // Operation
@@ -3544,7 +3544,7 @@ describe("Test: Council Contract", async () => {
                 councilStorage          = await councilInstance.storage();
                 const cliffInMonths     = 0;
                 const vestingInMonths   = 24;
-                const totalAllocated    = MVK(20000000);
+                const totalAllocated    = MVN(20000000);
 
                 // Operation
                 councilActionOperation = councilInstance.methods.councilActionAddVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths)
@@ -3593,7 +3593,7 @@ describe("Test: Council Contract", async () => {
                 councilStorage       = await councilInstance.storage();
                 const cliffInMonths     = 0;
                 const vestingInMonths   = 12;
-                const totalAllocated    = MVK(40000000);
+                const totalAllocated    = MVN(40000000);
 
                 // Operation
                 councilActionOperation = councilInstance.methods.councilActionUpdateVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths)
@@ -3723,10 +3723,10 @@ describe("Test: Council Contract", async () => {
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
                 const receiverAddress       = mallory.pkh;
-                const tokenContractAddress  = contractDeployments.mvkToken.address;
+                const tokenContractAddress  = contractDeployments.mvnToken.address;
                 const tokenType             = "FA2";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
 
                 // Operation
@@ -3752,11 +3752,11 @@ describe("Test: Council Contract", async () => {
                 councilStorage              = await councilInstance.storage();
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
-                const tokenContractAddress  = contractDeployments.mvkToken.address;
-                const tokenName             = "MVK";
+                const tokenContractAddress  = contractDeployments.mvnToken.address;
+                const tokenName             = "MVN";
                 const tokenType             = "FA2";
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const tokenId               = 0;
 
                 // Operation
@@ -3785,7 +3785,7 @@ describe("Test: Council Contract", async () => {
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
 
                 // Operation
                 councilActionOperation = await councilInstance.methods.councilActionRequestMint(
@@ -3814,7 +3814,7 @@ describe("Test: Council Contract", async () => {
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const nextActionId          = councilStorage.actionCounter;
 
                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
@@ -3887,7 +3887,7 @@ describe("Test: Council Contract", async () => {
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const actionId              = councilStorage.actionCounter;
 
                 // set signer as council member one
@@ -3947,7 +3947,7 @@ describe("Test: Council Contract", async () => {
                 const fromTreasury          = contractDeployments.treasury.address;
                 const receiverAddress       = councilAddress;
                 const purpose               = "For testing purposes";
-                const tokenAmount           = MVK(3);
+                const tokenAmount           = MVN(3);
                 const actionId              = councilStorage.actionCounter;
 
                 // set signer as council member one

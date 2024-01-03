@@ -1,5 +1,5 @@
 import { farmStorageType } from "../storage/storageTypes/farmStorageType";
-import { MVK, Utils } from "./helpers/Utils";
+import { MVN, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const assert = require("chai").assert;
@@ -46,16 +46,16 @@ describe("FarmFactory for Farm mToken", async () => {
 
     let tokenId = 0; 
 
-    let mavrykFa2TokenAddress;
-    let mavrykFa2TokenInstance;
-    let mavrykFa2TokenStorage;
+    let mavenFa2TokenAddress;
+    let mavenFa2TokenInstance;
+    let mavenFa2TokenStorage;
 
     let farmInstance;
     let farmStorage;
 
     let farmAddress
     let farmFactoryAddress
-    let mvkTokenAddress
+    let mvnTokenAddress
     let lpTokenAddress 
     let doormanAddress
     let treasuryAddress
@@ -73,8 +73,8 @@ describe("FarmFactory for Farm mToken", async () => {
     let doormanInstance;
     let doormanStorage;
 
-    let mvkTokenInstance;
-    let mvkTokenStorage;
+    let mvnTokenInstance;
+    let mvnTokenStorage;
 
     let lendingControllerInstance;
     let lendingControllerStorage;
@@ -116,17 +116,17 @@ describe("FarmFactory for Farm mToken", async () => {
 
         farmAddress                             = contractDeployments.farmMToken.address;
         farmFactoryAddress                      = contractDeployments.farmFactory.address;
-        mvkTokenAddress                         = contractDeployments.mvkToken.address;
+        mvnTokenAddress                         = contractDeployments.mvnToken.address;
         lpTokenAddress                          = contractDeployments.mTokenUsdt.address;
         treasuryAddress                         = contractDeployments.treasury.address;
         doormanAddress                          = contractDeployments.doorman.address;
         lendingControllerAddress                = contractDeployments.lendingControllerMockTime.address;
         mTokenUsdtAddress                       = contractDeployments.mTokenUsdt.address;
-        mockFa12TokenAddress                    = contractDeployments.mavrykFa12Token.address;
+        mockFa12TokenAddress                    = contractDeployments.mavenFa12Token.address;
         mockUsdMockFa12TokenAggregatorAddress   = contractDeployments.mockUsdMockFa12TokenAggregator.address;
         
         farmFactoryInstance         = await utils.tezos.contract.at(farmFactoryAddress);
-        mvkTokenInstance            = await utils.tezos.contract.at(mvkTokenAddress);
+        mvnTokenInstance            = await utils.tezos.contract.at(mvnTokenAddress);
         lpTokenInstance             = await utils.tezos.contract.at(lpTokenAddress);
         doormanInstance             = await utils.tezos.contract.at(doormanAddress);
         lendingControllerInstance   = await utils.tezos.contract.at(lendingControllerAddress);
@@ -134,12 +134,12 @@ describe("FarmFactory for Farm mToken", async () => {
         mTokenUsdtInstance          = await utils.tezos.contract.at(mTokenUsdtAddress);
 
         // for mistaken transfers
-        mavrykFa2TokenAddress   = contractDeployments.mavrykFa2Token.address 
-        mavrykFa2TokenInstance  = await utils.tezos.contract.at(mavrykFa2TokenAddress);
-        mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
+        mavenFa2TokenAddress   = contractDeployments.mavenFa2Token.address 
+        mavenFa2TokenInstance  = await utils.tezos.contract.at(mavenFa2TokenAddress);
+        mavenFa2TokenStorage   = await mavenFa2TokenInstance.storage();
 
         farmFactoryStorage          = await farmFactoryInstance.storage();
-        mvkTokenStorage             = await mvkTokenInstance.storage();
+        mvnTokenStorage             = await mvnTokenInstance.storage();
         lpTokenStorage              = await lpTokenInstance.storage();
         doormanStorage              = await doormanInstance.storage();
         lendingControllerStorage    = await lendingControllerInstance.storage();
@@ -241,7 +241,7 @@ describe("FarmFactory for Farm mToken", async () => {
         lpTokenStorage    = await lpTokenInstance.storage();
         lendingControllerStorage    = await lendingControllerInstance.storage();
         doormanStorage    = await doormanInstance.storage();
-        mvkTokenStorage    = await mvkTokenInstance.storage();
+        mvnTokenStorage    = await mvnTokenInstance.storage();
         await signerFactory(tezos, bob.sk)
     })
 
@@ -268,7 +268,7 @@ describe("FarmFactory for Farm mToken", async () => {
             const bobMockFa12Ledger                   = await mockFa12TokenStorage.ledger.get(bob.pkh);            
             const bobInitialMockFa12TokenBalance      = bobMockFa12Ledger == undefined ? 0 : bobMockFa12Ledger.balance.toNumber();
 
-            // get initial bob's mEurl Token - Mock FA12 Token - balance
+            // get initial bob's mEurt Token - Mock FA12 Token - balance
             const bobMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(bob.pkh);            
             const bobInitialMUsdtTokenTokenBalance    = bobMUsdtTokenLedger == undefined ? 0 : bobMUsdtTokenLedger.toNumber();
 
@@ -619,20 +619,20 @@ describe("FarmFactory for Farm mToken", async () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - userOne (eve) send 10 MavrykFa2Tokens to MVK Token Contract
+                // Mistaken Operation - userOne (eve) send 10 MavenFa2Tokens to MVN Token Contract
                 await signerFactory(tezos, userOneSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userOne)).toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(userOne)).toNumber()
 
                 await signerFactory(tezos, adminSk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(userOne)).toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(userOne)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -990,12 +990,12 @@ describe("FarmFactory for Farm mToken", async () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MavrykFa2Tokens to MVK Token Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
+                // Mistaken Operation - send 10 MavenFa2Tokens to MVN Token Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {

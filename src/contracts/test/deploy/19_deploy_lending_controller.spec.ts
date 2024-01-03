@@ -46,7 +46,7 @@ describe('Lending Controller', async () => {
             //----------------------------
 
             lendingControllerStorage.governanceAddress = contractDeployments.governance.address
-            lendingControllerStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
+            lendingControllerStorage.mvnTokenAddress   = contractDeployments.mvnToken.address
             lendingController = await GeneralContract.originate(utils.tezos, "lendingController", lendingControllerStorage);
             await saveContractAddress('lendingControllerAddress', lendingController.contract.address)
 

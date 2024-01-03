@@ -706,22 +706,22 @@ block {
 
                         const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(collateralTokenName, s);
 
-                        if collateralTokenName = "smvk" then {
+                        if collateralTokenName = "smvn" then {
                             
                             // get user staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
                             // - for better accuracy, there should be a frontend call to compound rewards for the vault first
                             const stakingContractAddress : address = getStakingContractAddress(collateralTokenRecord.stakingContractAddress);
                             finalTokenBalance := getBalanceFromStakingContract(vaultAddress, stakingContractAddress);
 
-                            // for special case of sMVK
+                            // for special case of sMVN
                             if finalTokenBalance > 0n then {
-                                const withdrawAllStakedMvkOperation : operation = onWithdrawStakedTokenFromVaultOperation(
+                                const withdrawAllStakedMvnOperation : operation = onWithdrawStakedTokenFromVaultOperation(
                                     vaultOwner,                         // vault owner
                                     vaultAddress,                       // vault address
                                     finalTokenBalance,                  // withdraw amount
                                     stakingContractAddress              // staking contract address
                                 );
-                                operations := withdrawAllStakedMvkOperation # operations;
+                                operations := withdrawAllStakedMvnOperation # operations;
                             } else skip;
 
                         } else if collateralTokenRecord.isScaledToken then {
@@ -731,7 +731,7 @@ block {
                             // get updated scaled token balance (e.g. mToken)
                             finalTokenBalance := getBalanceFromScaledTokenContract(vaultAddress, collateralTokenRecord.tokenContractAddress);
 
-                            // for other collateral token types besides sMVK and scaled tokens
+                            // for other collateral token types besides sMVN and scaled tokens
                             if finalTokenBalance > 0n then {
                                 const withdrawTokenOperation : operation = liquidateFromVaultOperation(
                                     vaultOwner,                         // to_
@@ -744,7 +744,7 @@ block {
 
                         } else {
 
-                            // for other collateral token types besides sMVK and scaled tokens
+                            // for other collateral token types besides sMVN and scaled tokens
                             if finalTokenBalance > 0n then {
                                 const withdrawTokenOperation : operation = liquidateFromVaultOperation(
                                     vaultOwner,                         // to_
@@ -1174,7 +1174,7 @@ block {
                 // get collateral token record reference
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(tokenName, s);
 
-                // Verify that token name is not protected (e.g. smvk)
+                // Verify that token name is not protected (e.g. smvn)
                 verifyCollateralTokenIsNotProtected(collateralTokenRecord, error_CANNOT_REGISTER_DEPOSIT_FOR_PROTECTED_COLLATERAL_TOKEN);
 
                 // ------------------------------------------------------------------
@@ -1247,7 +1247,7 @@ block {
                 // get collateral token record reference
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(tokenName, s);
 
-                // Verify that token name is not protected (e.g. smvk)
+                // Verify that token name is not protected (e.g. smvn)
                 verifyCollateralTokenIsNotProtected(collateralTokenRecord, error_CANNOT_REGISTER_WITHDRAWAL_FOR_PROTECTED_COLLATERAL_TOKEN);
 
                 // ------------------------------------------------------------------
@@ -1731,7 +1731,7 @@ block {
 
                 var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
-                // Check if token (e.g. sMVK) exists in collateral token ledger
+                // Check if token (e.g. sMVN) exists in collateral token ledger
                 checkCollateralTokenExists(collateralTokenName, s);
 
                 // Verify that collateral token is of staked token type
@@ -1797,7 +1797,7 @@ block {
 
 
 
-(* withdrawStakedMvk lambda *)
+(* withdrawStakedMvn lambda *)
 function lambdaVaultWithdrawStakedToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
@@ -1817,7 +1817,7 @@ block {
 
                 var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
-                // Check if token (e.g. sMVK) exists in collateral token ledger
+                // Check if token (e.g. sMVN) exists in collateral token ledger
                 checkCollateralTokenExists(collateralTokenName, s);
 
                 // Verify that collateral token is of staked token type
@@ -1854,7 +1854,7 @@ block {
                 // - for better accuracy, there could be a frontend call to compound rewards for the vault first
                 const currentVaultStakedTokenBalance : nat = getBalanceFromStakingContract(vault.address, stakingContractAddress);
 
-                // Calculate new collateral balance - verify that withdrawAmount is less than currentVaultStakedMvkBalance
+                // Calculate new collateral balance - verify that withdrawAmount is less than currentVaultStakedMvnBalance
                 verifyLessThanOrEqual(withdrawAmount, currentVaultStakedTokenBalance, error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE);
                 const newCollateralBalance : nat = abs(currentVaultStakedTokenBalance - withdrawAmount);
 

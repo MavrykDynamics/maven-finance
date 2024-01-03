@@ -333,7 +333,7 @@ block {
     //    - check that vestee has a total remainder greater than 0
     //    - check that current timestamp is greater than vestee's next redemption timestamp
     // 3. Calculate amount that vestee is able to claim
-    // 4. Send operation to mint new MVK tokens and update user's balance in MVK ledger
+    // 4. Send operation to mint new MVN tokens and update user's balance in MVN ledger
     // 5. Calculate changes to vestee record 
     //    - e.g. months remaining, months claimed, total claimed, total remaining, next redemption timestamp
     // 6. Update vestee records in ledger
@@ -371,14 +371,14 @@ block {
 
                     // ---------------------------------------------
 
-                    // mint MVK Tokens based on total claim amount
-                    const mintMvkTokensOperation : operation = mintTokens(
+                    // mint MVN Tokens based on total claim amount
+                    const mintMvnTokensOperation : operation = mintTokens(
                         Tezos.get_sender(),           // to address
-                        totalClaimAmount,             // amount of mvk Tokens to be minted
+                        totalClaimAmount,             // amount of mvn Tokens to be minted
                         s                             // storage
                     ); 
 
-                    operations := mintMvkTokensOperation # operations;
+                    operations := mintMvnTokensOperation # operations;
                     
                     // ---------------------------------------------
 

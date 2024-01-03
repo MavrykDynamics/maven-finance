@@ -1,6 +1,6 @@
 import assert from "assert";
 
-import { MVK, Utils } from "./helpers/Utils";
+import { MVN, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -64,16 +64,16 @@ describe("Test: Delegation Contract", async () => {
     // contract instances
     let doormanInstance
     let delegationInstance
-    let mvkTokenInstance
+    let mvnTokenInstance
     let governanceInstance
-    let mavrykFa2TokenInstance
+    let mavenFa2TokenInstance
 
     // contract storages
     let doormanStorage
     let delegationStorage
-    let mvkTokenStorage
+    let mvnTokenStorage
     let governanceStorage
-    let mavrykFa2TokenStorage
+    let mavenFa2TokenStorage
 
     let initialSatelliteRecord
     let midSatelliteRecord
@@ -89,8 +89,8 @@ describe("Test: Delegation Contract", async () => {
     let midDelegateRecord
     let updatedDelegateRecord
 
-    let initialMinimumStakedMvkRequirement
-    let updatedMinimumStakedMvkRequirement
+    let initialMinimumStakedMvnRequirement
+    let updatedMinimumStakedMvnRequirement
 
     let initialTotalDelegatedAmount
     let updatedTotalDelegatedAmount
@@ -153,15 +153,15 @@ describe("Test: Delegation Contract", async () => {
         
         doormanInstance         = await utils.tezos.contract.at(doormanAddress);
         delegationInstance      = await utils.tezos.contract.at(delegationAddress);
-        mvkTokenInstance        = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+        mvnTokenInstance        = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
         governanceInstance      = await utils.tezos.contract.at(contractDeployments.governance.address);
-        mavrykFa2TokenInstance  = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
+        mavenFa2TokenInstance  = await utils.tezos.contract.at(contractDeployments.mavenFa2Token.address);
             
         doormanStorage          = await doormanInstance.storage();
         delegationStorage       = await delegationInstance.storage();
-        mvkTokenStorage         = await mvkTokenInstance.storage();
+        mvnTokenStorage         = await mvnTokenInstance.storage();
         governanceStorage       = await governanceInstance.storage();
-        mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
+        mavenFa2TokenStorage   = await mavenFa2TokenInstance.storage();
         
         console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
@@ -184,26 +184,26 @@ describe("Test: Delegation Contract", async () => {
                 doormanStorage                   = await doormanInstance.storage();
                 initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(user);         
 
-                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                initialMinimumStakedMvnRequirement  = delegationStorage.config.minimumStakedMvnBalance;
                 initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
-                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                if(initialUserStakedBalance < initialMinimumStakedMvnRequirement){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvnRequirement) + 1;
 
                     // update operators operation for user
-                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    // user stake MVK tokens
-                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    // user stake MVN tokens
+                    stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                     await stakeOperation.confirmation();
 
                 }; 
 
-                // update user staked balance for assertion check below (satellite's staked mvk balance)
+                // update user staked balance for assertion check below (satellite's staked mvn balance)
                 doormanStorage                      = await doormanInstance.storage();
                 initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
@@ -233,7 +233,7 @@ describe("Test: Delegation Contract", async () => {
                     assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.alice.name);
                     assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.alice.desc);
                     assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.alice.website);
-                    assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
+                    assert.equal(updatedSatelliteRecord.stakedMvnBalance.toNumber(),    initialUserStakedBalance);
                     assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.alice.satelliteFee);
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
@@ -262,26 +262,26 @@ describe("Test: Delegation Contract", async () => {
                 doormanStorage                   = await doormanInstance.storage();
                 initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(user);         
 
-                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                initialMinimumStakedMvnRequirement  = delegationStorage.config.minimumStakedMvnBalance;
                 initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
-                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                if(initialUserStakedBalance < initialMinimumStakedMvnRequirement){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvnRequirement) + 1;
 
                     // update operators operation for user
-                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    // user stake MVK tokens
-                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    // user stake MVN tokens
+                    stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                     await stakeOperation.confirmation();
 
                 }; 
 
-                // update user staked balance for assertion check below (satellite's staked mvk balance)
+                // update user staked balance for assertion check below (satellite's staked mvn balance)
                 doormanStorage           = await doormanInstance.storage();
                 initialUserStakedRecord  = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
@@ -311,7 +311,7 @@ describe("Test: Delegation Contract", async () => {
                     assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
                     assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
                     assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
-                    assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
+                    assert.equal(updatedSatelliteRecord.stakedMvnBalance.toNumber(),    initialUserStakedBalance);
                     assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
                     assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                     assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
@@ -336,22 +336,22 @@ describe("Test: Delegation Contract", async () => {
                 // update storage
                 delegationStorage                   = await delegationInstance.storage();
                 doormanStorage                      = await doormanInstance.storage();
-                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                initialMinimumStakedMvnRequirement  = delegationStorage.config.minimumStakedMvnBalance;
                 
                 initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
-                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                if(initialUserStakedBalance < initialMinimumStakedMvnRequirement){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvnRequirement) + 1;
 
                     // update operators operation for user
-                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    // user stake MVK tokens
-                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    // user stake MVN tokens
+                    stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                     await stakeOperation.confirmation();
 
                 }
@@ -399,7 +399,7 @@ describe("Test: Delegation Contract", async () => {
                     // update storage
                     delegationStorage                   = await delegationInstance.storage();
                     doormanStorage                      = await doormanInstance.storage();
-                    initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                    initialMinimumStakedMvnRequirement  = delegationStorage.config.minimumStakedMvnBalance;
                     
                     initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
                     initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
@@ -407,16 +407,16 @@ describe("Test: Delegation Contract", async () => {
                     initialSatelliteRecord      = await delegationStorage.satelliteLedger.get(satellite);
 
                     // check that user has sufficient staked balance
-                    if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                    if(initialUserStakedBalance < initialMinimumStakedMvnRequirement){
 
-                        stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                        stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvnRequirement) + 1;
 
                         // update operators operation for user
-                        updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                        updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                         await updateOperatorsOperation.confirmation();
 
-                        // user stake MVK tokens
-                        stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                        // user stake MVN tokens
+                        stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                         await stakeOperation.confirmation();
 
                     }
@@ -462,16 +462,16 @@ describe("Test: Delegation Contract", async () => {
                 // init values
                 user         = trudy.pkh;
                 userSk       = trudy.sk;
-                stakeAmount  = MVK(1);
+                stakeAmount  = MVN(1);
                 
                 await signerFactory(tezos, userSk)
 
                 // update operators operation for user
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
-                // user stake MVK tokens
-                stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                // user stake MVN tokens
+                stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                 await stakeOperation.confirmation();
 
                 // Final values
@@ -522,22 +522,22 @@ describe("Test: Delegation Contract", async () => {
                 // update storage
                 delegationStorage           = await delegationInstance.storage();
                 doormanStorage              = await doormanInstance.storage();
-                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                initialMinimumStakedMvnRequirement  = delegationStorage.config.minimumStakedMvnBalance;
                 
                 initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
-                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                if(initialUserStakedBalance < initialMinimumStakedMvnRequirement){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvnRequirement) + 1;
 
                     // update operators operation for user
-                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    // user stake MVK tokens
-                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    // user stake MVN tokens
+                    stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                     await stakeOperation.confirmation();
 
                 }
@@ -564,7 +564,7 @@ describe("Test: Delegation Contract", async () => {
             }
         });
 
-        it('user (trudy) should not be able to register as a satellite if she does not meet the minimum staked MVK requirement', async () => {
+        it('user (trudy) should not be able to register as a satellite if she does not meet the minimum staked MVN requirement', async () => {
             try{
 
                 // init values
@@ -576,26 +576,26 @@ describe("Test: Delegation Contract", async () => {
                 initialUserStakedRecord   = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance  = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
-                const initialMinimumStakedMvkRequirement = delegationStorage.config.minimumStakedMvkBalance;
-                const newMinimumStakedMvkRequirement     = MVK(100);
+                const initialMinimumStakedMvnRequirement = delegationStorage.config.minimumStakedMvnBalance;
+                const newMinimumStakedMvnRequirement     = MVN(100);
 
                 // Operation
                 await signerFactory(tezos, adminSk)
-                updateConfigOperation       = await delegationInstance.methods.updateConfig(newMinimumStakedMvkRequirement, "configMinimumStakedMvkBalance").send();
+                updateConfigOperation       = await delegationInstance.methods.updateConfig(newMinimumStakedMvnRequirement, "configMinimumStakedMvnBalance").send();
                 await updateConfigOperation.confirmation();
 
                 // set signer to user
                 await signerFactory(tezos, userSk)
                 
                 // min amount required to stake on doorman contract
-                stakeAmount = MVK(1); 
+                stakeAmount = MVN(1); 
 
                 // update operators operation for user
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
-                // user stake 100 MVK tokens
-                stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                // user stake 100 MVN tokens
+                stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                 await stakeOperation.confirmation();
 
                 // User registers as a satellite again
@@ -612,7 +612,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // Reset
                 await signerFactory(tezos, adminSk)
-                updateConfigOperation = await delegationInstance.methods.updateConfig(initialMinimumStakedMvkRequirement, "configMinimumStakedMvkBalance").send();
+                updateConfigOperation = await delegationInstance.methods.updateConfig(initialMinimumStakedMvnRequirement, "configMinimumStakedMvnBalance").send();
                 await updateConfigOperation.confirmation();
 
             } catch(e){
@@ -662,22 +662,22 @@ describe("Test: Delegation Contract", async () => {
                 // update storage
                 delegationStorage                   = await delegationInstance.storage();
                 doormanStorage                      = await doormanInstance.storage();
-                initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                initialMinimumStakedMvnRequirement  = delegationStorage.config.minimumStakedMvnBalance;
                 
                 initialUserStakedRecord     = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance    = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // check that user has sufficient staked balance
-                if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                if(initialUserStakedBalance < initialMinimumStakedMvnRequirement){
 
-                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                    stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvnRequirement) + 1;
 
                     // update operators operation for user
-                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
-                    // user stake MVK tokens
-                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    // user stake MVN tokens
+                    stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                     await stakeOperation.confirmation();
 
                 }
@@ -707,7 +707,7 @@ describe("Test: Delegation Contract", async () => {
                 assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
                 assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
                 assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
-                assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    updatedUserStakedBalance);
+                assert.equal(updatedSatelliteRecord.stakedMvnBalance.toNumber(),    updatedUserStakedBalance);
                 assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
                 assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                 assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
@@ -937,14 +937,14 @@ describe("Test: Delegation Contract", async () => {
 
         // todo: add one more test for multiple users delegating to a satellite
 
-        it('user (trudy) should be able to delegate her staked MVK to a satellite', async () => {
+        it('user (trudy) should be able to delegate her staked MVN to a satellite', async () => {
             try{
 
                 // init values
                 user        = trudy.pkh;
                 userSk      = trudy.sk;
                 satellite   = eve.pkh;
-                stakeAmount = MVK(1);
+                stakeAmount = MVN(1);
 
                 // set signer to user
                 await signerFactory(tezos, userSk);
@@ -963,11 +963,11 @@ describe("Test: Delegation Contract", async () => {
                 if(initialDelegateRecord == null){
 
                     // update operators operation for user
-                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     // stake operation
-                    stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                    stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                     await stakeOperation.confirmation();
 
                     // delegate operation
@@ -994,7 +994,7 @@ describe("Test: Delegation Contract", async () => {
             }
         });
 
-        it('user (trudy) should be able to re-delegate his staked MVK and change satellite', async () => {
+        it('user (trudy) should be able to re-delegate his staked MVN and change satellite', async () => {
             try{
 
                 // init values
@@ -1085,17 +1085,17 @@ describe("Test: Delegation Contract", async () => {
                 user            = trudy.pkh;
                 userSk          = trudy.sk;
                 satellite       = ivan.pkh; 
-                stakeAmount     = MVK(1);
+                stakeAmount     = MVN(1);
 
                 // initial storage
                 delegationStorage        = await delegationInstance.storage();
                 initialSatelliteRecord   = await delegationStorage.satelliteLedger.get(satellite);
 
                 // update operators operation for user
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
-                stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                 await stakeOperation.confirmation();
 
                 delegateOperation = delegationInstance.methods.delegateToSatellite(user, satellite);
@@ -1154,16 +1154,16 @@ describe("Test: Delegation Contract", async () => {
                 user        = oscar.pkh;
                 userSk      = oscar.sk;
                 satellite   = eve.pkh;
-                stakeAmount = MVK(1);
+                stakeAmount = MVN(1);
 
                 // set signer to user
                 await signerFactory(tezos, userSk);
 
                 // update operators operation for user
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
     
-                stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                 await stakeOperation.confirmation();
                 
                 // updated storage
@@ -1300,16 +1300,16 @@ describe("Test: Delegation Contract", async () => {
                 // init values
                 user        = oscar.pkh;
                 userSk      = oscar.sk;
-                stakeAmount = MVK(1);
+                stakeAmount = MVN(1);
                 
                 // set signer to user
                 await signerFactory(tezos, userSk);
 
                 // update operators operation for user
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
     
-                stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                 await stakeOperation.confirmation();
 
                 undelegateOperation = await delegationInstance.methods.undelegateFromSatellite(user);
@@ -1349,7 +1349,7 @@ describe("Test: Delegation Contract", async () => {
             }
         });
 
-        it('user (trudy) should be able to call this entrypoint and undelegate her staked MVK from her satellite', async () => {
+        it('user (trudy) should be able to call this entrypoint and undelegate her staked MVN from her satellite', async () => {
             try{
 
                 // init values
@@ -1393,7 +1393,7 @@ describe("Test: Delegation Contract", async () => {
             }
         })
 
-        it('user (trudy) should be able to undelegate her staked MVK from a satellite even if the satellite re-registered', async () => {
+        it('user (trudy) should be able to undelegate her staked MVN from a satellite even if the satellite re-registered', async () => {
             try{
 
                 // init values
@@ -1464,7 +1464,7 @@ describe("Test: Delegation Contract", async () => {
                 // final assertions
                 // i) delegate should be able to undelegate successfully
                 // ii) mid-state satellite registered time should be equal to final satellite registered time
-                // iii) final satellite's total delegated amount should be decreased accordingly by user staked MVK amount
+                // iii) final satellite's total delegated amount should be decreased accordingly by user staked MVN amount
                 assert.strictEqual(updatedDelegateRecord, undefined);
                 assert.strictEqual(midSatelliteRecord.registeredDateTime, updatedSatelliteRecord.registeredDateTime);                
                 assert.equal(updatedSatelliteRecord.totalDelegatedAmount.toNumber(), 0);
@@ -1491,7 +1491,7 @@ describe("Test: Delegation Contract", async () => {
                 delegationStorage        = await delegationInstance.storage();
                 initialSatelliteRecord   = await delegationStorage.satelliteLedger.get(satellite);
                 initialDelegateRecord    = await delegationStorage.delegateLedger.get(user);
-                stakeAmount              = MVK(2);
+                stakeAmount              = MVN(2);
 
                 // check initial state
                 // i) delegate record should still exist 
@@ -1535,7 +1535,7 @@ describe("Test: Delegation Contract", async () => {
 
                 // user stake operation and trigger %onStakeChange
                 await signerFactory(tezos, userSk);
-                stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                 await stakeOperation.confirmation();
 
                 // final storage
@@ -1773,29 +1773,29 @@ describe("Test: Delegation Contract", async () => {
                 
                 // Initial Values
                 delegationStorage                    = await delegationInstance.storage();
-                const initialMinimumStakedMvkBalance = delegationStorage.config.minimumStakedMvkBalance.toNumber();
-                const newMinimumStakedMvkBalance     = MVK(50);
+                const initialMinimumStakedMvnBalance = delegationStorage.config.minimumStakedMvnBalance.toNumber();
+                const newMinimumStakedMvnBalance     = MVN(50);
 
                 // Operation
-                updateConfigOperation = await delegationInstance.methods.updateConfig(newMinimumStakedMvkBalance, "configMinimumStakedMvkBalance").send();
+                updateConfigOperation = await delegationInstance.methods.updateConfig(newMinimumStakedMvnBalance, "configMinimumStakedMvnBalance").send();
                 await updateConfigOperation.confirmation();
 
                 // Final values
                 delegationStorage           = await delegationInstance.storage();
-                const updatedConfigValue = delegationStorage.config.minimumStakedMvkBalance.toNumber();
+                const updatedConfigValue = delegationStorage.config.minimumStakedMvnBalance.toNumber();
 
                 // Assertions
-                assert.equal(updatedConfigValue, newMinimumStakedMvkBalance);
+                assert.equal(updatedConfigValue, newMinimumStakedMvnBalance);
 
                 // reset config operation
-                const resetConfigOperation = await delegationInstance.methods.updateConfig(initialMinimumStakedMvkBalance, "configMinimumStakedMvkBalance").send();
+                const resetConfigOperation = await delegationInstance.methods.updateConfig(initialMinimumStakedMvnBalance, "configMinimumStakedMvnBalance").send();
                 await resetConfigOperation.confirmation();
 
                 // Final values
                 delegationStorage        = await delegationInstance.storage();
-                const resetConfigValue   = delegationStorage.config.minimumStakedMvkBalance.toNumber();
+                const resetConfigValue   = delegationStorage.config.minimumStakedMvnBalance.toNumber();
 
-                assert.equal(resetConfigValue, initialMinimumStakedMvkBalance);
+                assert.equal(resetConfigValue, initialMinimumStakedMvnBalance);
 
 
             } catch(e){
@@ -1903,20 +1903,20 @@ describe("Test: Delegation Contract", async () => {
                 user              = mallory.pkh;
                 userSk            = mallory.sk;
 
-                // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
+                // Mistaken Operation - user (mallory) send 10 MavenFa2Tokens to MVN Token Contract
                 await signerFactory(tezos, userSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, delegationAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, delegationAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(delegationInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(delegationInstance, user, contractDeployments.mavenFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -2131,20 +2131,20 @@ describe("Test: Delegation Contract", async () => {
                 
                 // Initial Values
                 delegationStorage                   = await delegationInstance.storage();
-                const initialConfigValue            = delegationStorage.config.minimumStakedMvkBalance;
-                const newMinimumStakedMvkBalance    = MVK(11.11);
+                const initialConfigValue            = delegationStorage.config.minimumStakedMvnBalance;
+                const newMinimumStakedMvnBalance    = MVN(11.11);
 
                 // Operation
-                updateConfigOperation = await delegationInstance.methods.updateConfig(newMinimumStakedMvkBalance, "configMinimumStakedMvkBalance");
+                updateConfigOperation = await delegationInstance.methods.updateConfig(newMinimumStakedMvnBalance, "configMinimumStakedMvnBalance");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 // Final values
                 delegationStorage                   = await delegationInstance.storage();
-                const updatedConfigValue            = delegationStorage.config.minimumStakedMvkBalance;
+                const updatedConfigValue            = delegationStorage.config.minimumStakedMvnBalance;
 
                 // check that there is no change in config values
                 assert.equal(updatedConfigValue.toNumber(), initialConfigValue.toNumber());
-                assert.notEqual(updatedConfigValue.toNumber(), newMinimumStakedMvkBalance);
+                assert.notEqual(updatedConfigValue.toNumber(), newMinimumStakedMvnBalance);
                 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -2201,12 +2201,12 @@ describe("Test: Delegation Contract", async () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MavrykFa2Tokens to Delegation Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, delegationAddress, tokenId, tokenAmount);
+                // Mistaken Operation - send 10 MavenFa2Tokens to Delegation Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, mallory.pkh, delegationAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await mistakenTransferFa2Token(delegationInstance, mallory.pkh, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(delegationInstance, mallory.pkh, contractDeployments.mavenFa2Token.address, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {
@@ -2294,7 +2294,7 @@ describe("Test: Delegation Contract", async () => {
         it("%distributeReward         - non-admin (mallory) should not be able to call this entrypoint", async() => {
             try{
 
-                const distributeRewardOperation = delegationInstance.methods.distributeReward([eve.pkh],MVK(50)); 
+                const distributeRewardOperation = delegationInstance.methods.distributeReward([eve.pkh],MVN(50)); 
                 await chai.expect(distributeRewardOperation.send()).to.be.rejected;
 
             } catch(e) {

@@ -1,7 +1,7 @@
 import assert from 'assert';
 
 import * as doormanLambdas from '../build/lambdas/doormanLambdas.json';
-import { MVK, Utils } from './helpers/Utils';
+import { MVN, Utils } from './helpers/Utils';
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
@@ -29,7 +29,7 @@ import {
     mistakenTransferFa2Token,
     updateWhitelistContracts,
     updateGeneralContracts,
-    calcStakedMvkRequiredForActionApproval, 
+    calcStakedMvnRequiredForActionApproval, 
     calcTotalVotingPower 
 } from './helpers/helperFunctions'
 
@@ -54,7 +54,7 @@ describe('Governance proxy lambdas tests', async () => {
     let lambdaFunction;
 
     let governanceProxyInstance;
-    let mvkTokenInstance;
+    let mvnTokenInstance;
     let vestingInstance;
     let farmInstance;
     let farmFactoryInstance;
@@ -72,11 +72,11 @@ describe('Governance proxy lambdas tests', async () => {
     let governanceSatelliteInstance;
     let lendingControllerInstance;
     let vaultFactoryInstance;
-    let mavrykFa12TokenInstance;
-    let mavrykFa2TokenInstance;
+    let mavenFa12TokenInstance;
+    let mavenFa2TokenInstance;
 
     let governanceProxyStorage;
-    let mvkTokenStorage;
+    let mvnTokenStorage;
     let vestingStorage;
     let farmStorage;
     let farmFactoryStorage;
@@ -95,8 +95,8 @@ describe('Governance proxy lambdas tests', async () => {
     let lendingControllerStorage;
     let tokenSaleStorage;
     let vaultFactoryStorage;
-    let mavrykFa12TokenStorage;
-    let mavrykFa2TokenStorage;
+    let mavenFa12TokenStorage;
+    let mavenFa2TokenStorage;
 
     // operations
     let setAdminOperation
@@ -115,7 +115,7 @@ describe('Governance proxy lambdas tests', async () => {
             tezos = utils.tezos 
 
             governanceProxyInstance         = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
-            mvkTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+            mvnTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
             vestingInstance                 = await utils.tezos.contract.at(contractDeployments.vesting.address);
             farmInstance                    = await utils.tezos.contract.at(contractDeployments.farm.address);
             farmFactoryInstance             = await utils.tezos.contract.at(contractDeployments.farmFactory.address);
@@ -133,11 +133,11 @@ describe('Governance proxy lambdas tests', async () => {
             governanceSatelliteInstance     = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
             lendingControllerInstance       = await utils.tezos.contract.at(contractDeployments.lendingController.address);
             vaultFactoryInstance            = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
-            mavrykFa12TokenInstance         = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
-            mavrykFa2TokenInstance          = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
+            mavenFa12TokenInstance         = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
+            mavenFa2TokenInstance          = await utils.tezos.contract.at(contractDeployments.mavenFa2Token.address);
 
             governanceProxyStorage          = await governanceProxyInstance.storage();
-            mvkTokenStorage                 = await mvkTokenInstance.storage();
+            mvnTokenStorage                 = await mvnTokenInstance.storage();
             vestingStorage                  = await vestingInstance.storage();
             farmStorage                     = await farmInstance.storage();
             farmFactoryStorage              = await farmFactoryInstance.storage();
@@ -155,8 +155,8 @@ describe('Governance proxy lambdas tests', async () => {
             governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
             lendingControllerStorage        = await lendingControllerInstance.storage();
             vaultFactoryStorage             = await vaultFactoryInstance.storage();
-            mavrykFa12TokenStorage          = await mavrykFa12TokenInstance.storage();
-            mavrykFa2TokenStorage           = await mavrykFa2TokenInstance.storage();
+            mavenFa12TokenStorage          = await mavenFa12TokenInstance.storage();
+            mavenFa2TokenStorage           = await mavenFa2TokenInstance.storage();
 
             console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
             
@@ -168,17 +168,17 @@ describe('Governance proxy lambdas tests', async () => {
 
     describe('%executeGovernanceAction', function() {
 
-        describe('MVK Token Contract', function() {
+        describe('MVN Token Contract', function() {
 
-            before('Change the MVK Token contract admin', async () => {
+            before('Change the MVN Token contract admin', async () => {
                 try{
                     // Initial values
                     await signerFactory(tezos, bob.sk)
-                    mvkTokenStorage     = await mvkTokenInstance.storage();
+                    mvnTokenStorage     = await mvnTokenInstance.storage();
     
                     // Operation
-                    if(mvkTokenStorage.admin !== contractDeployments.governanceProxy.address){
-                        executeGovernanceActionOperation = await mvkTokenInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                    if(mvnTokenStorage.admin !== contractDeployments.governanceProxy.address){
+                        executeGovernanceActionOperation = await mvnTokenInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                         await executeGovernanceActionOperation.confirmation();
                     }
                 } catch(e) {
@@ -189,8 +189,8 @@ describe('Governance proxy lambdas tests', async () => {
             it('%updateInflationRate', async () => {
                 try{
                     // Initial values
-                    mvkTokenStorage                     = await mvkTokenInstance.storage();
-                    const initInflationRate             = mvkTokenStorage.inflationRate.toNumber();
+                    mvnTokenStorage                     = await mvnTokenInstance.storage();
+                    const initInflationRate             = mvnTokenStorage.inflationRate.toNumber();
                     const newInflationRate              = initInflationRate * 2;
                     
                     // Operation
@@ -200,7 +200,7 @@ describe('Governance proxy lambdas tests', async () => {
                         
                         'updateInflationRate',
                         [
-                            contractDeployments.mvkToken.address,
+                            contractDeployments.mvnToken.address,
                             newInflationRate
                         ]
                     );
@@ -208,8 +208,8 @@ describe('Governance proxy lambdas tests', async () => {
                     await executeGovernanceActionOperation.confirmation();
     
                     // Final values
-                    mvkTokenStorage                     = await mvkTokenInstance.storage();
-                    const finalInflationRate            = mvkTokenStorage.inflationRate.toNumber();
+                    mvnTokenStorage                     = await mvnTokenInstance.storage();
+                    const finalInflationRate            = mvnTokenStorage.inflationRate.toNumber();
 
                     // Assertions
                     assert.notEqual(initInflationRate, finalInflationRate);
@@ -223,9 +223,9 @@ describe('Governance proxy lambdas tests', async () => {
             it('%triggerInflation', async () => {
                 try{
                     // Initial values
-                    mvkTokenStorage                     = await mvkTokenInstance.storage();
-                    const initInflationTimestamp        = mvkTokenStorage.nextInflationTimestamp;
-                    const initMaximumSupply             = mvkTokenStorage.maximumSupply;
+                    mvnTokenStorage                     = await mvnTokenInstance.storage();
+                    const initInflationTimestamp        = mvnTokenStorage.nextInflationTimestamp;
+                    const initMaximumSupply             = mvnTokenStorage.maximumSupply;
                     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -234,16 +234,16 @@ describe('Governance proxy lambdas tests', async () => {
                         
                         'triggerInflation',
                         [
-                            contractDeployments.mvkToken.address
+                            contractDeployments.mvnToken.address
                         ]
                     );
                     executeGovernanceActionOperation                     = await governanceProxyInstance.methods.executeGovernanceAction(lambdaFunction).send();
                     await executeGovernanceActionOperation.confirmation();
     
                     // Final values
-                    mvkTokenStorage                     = await mvkTokenInstance.storage();
-                    const finalInflationTimestamp       = mvkTokenStorage.nextInflationTimestamp;
-                    const finalMaximumSupply            = mvkTokenStorage.maximumSupply;
+                    mvnTokenStorage                     = await mvnTokenInstance.storage();
+                    const finalInflationTimestamp       = mvnTokenStorage.nextInflationTimestamp;
+                    const finalMaximumSupply            = mvnTokenStorage.maximumSupply;
 
                     // Assertions
                     assert.notEqual(finalMaximumSupply, initMaximumSupply);
@@ -258,7 +258,7 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     const newGovernance         = alice.pkh;
-                    const initMvkGovernance     = mvkTokenStorage.governanceAddress;
+                    const initMvnGovernance     = mvnTokenStorage.governanceAddress;
     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -267,7 +267,7 @@ describe('Governance proxy lambdas tests', async () => {
                         
                         'setGovernance',
                         [
-                            contractDeployments.mvkToken.address,
+                            contractDeployments.mvnToken.address,
                             newGovernance
                         ]
                     );
@@ -276,13 +276,13 @@ describe('Governance proxy lambdas tests', async () => {
                     await executeGovernanceActionOperation.confirmation();
     
                     // Final values
-                    mvkTokenStorage             = await mvkTokenInstance.storage();
-                    const finalMvkGovernance    = mvkTokenStorage.governanceAddress;
+                    mvnTokenStorage             = await mvnTokenInstance.storage();
+                    const finalMvnGovernance    = mvnTokenStorage.governanceAddress;
     
                     // Assertions
-                    assert.notStrictEqual(initMvkGovernance, newGovernance);
-                    assert.strictEqual(finalMvkGovernance, newGovernance);
-                    assert.notStrictEqual(initMvkGovernance, finalMvkGovernance);
+                    assert.notStrictEqual(initMvnGovernance, newGovernance);
+                    assert.strictEqual(finalMvnGovernance, newGovernance);
+                    assert.notStrictEqual(initMvnGovernance, finalMvnGovernance);
     
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -293,7 +293,7 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     let newAdmin      = alice.pkh;
-                    const initMvkAdmin  = mvkTokenStorage.admin;
+                    const initMvnAdmin  = mvnTokenStorage.admin;
     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -302,7 +302,7 @@ describe('Governance proxy lambdas tests', async () => {
                         
                         'setAdmin',
                         [
-                            contractDeployments.mvkToken.address,
+                            contractDeployments.mvnToken.address,
                             newAdmin
                         ]
                     );
@@ -311,18 +311,18 @@ describe('Governance proxy lambdas tests', async () => {
                     await executeGovernanceActionOperation.confirmation();
 
                     // Final values
-                    mvkTokenStorage     = await mvkTokenInstance.storage();
-                    const finalMvkAdmin = mvkTokenStorage.admin;
+                    mvnTokenStorage     = await mvnTokenInstance.storage();
+                    const finalMvnAdmin = mvnTokenStorage.admin;
     
                     // Assertions
-                    assert.notStrictEqual(initMvkAdmin, newAdmin);
-                    assert.strictEqual(finalMvkAdmin, newAdmin);
-                    assert.notStrictEqual(initMvkAdmin, finalMvkAdmin);
+                    assert.notStrictEqual(initMvnAdmin, newAdmin);
+                    assert.strictEqual(finalMvnAdmin, newAdmin);
+                    assert.notStrictEqual(initMvnAdmin, finalMvnAdmin);
 
                     // Reset Operation
                     newAdmin = bob.pkh;
                     await signerFactory(tezos, alice.sk);
-                    setAdminOperation     = await mvkTokenInstance.methods.setAdmin(newAdmin).send();
+                    setAdminOperation     = await mvnTokenInstance.methods.setAdmin(newAdmin).send();
                     await setAdminOperation.confirmation();
     
                 } catch(e){
@@ -822,8 +822,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const currentRewardPerBlock     = 123;
                     const metadataBytes             = Buffer.from(
                         JSON.stringify({
-                        name: 'MAVRYK Farm',
-                        description: 'MAVRYK Farm Contract',
+                        name: 'MAVEN Farm',
+                        description: 'MAVEN Farm Contract',
                         version: 'v1.0.0',
                         liquidityPairToken: {
                             tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
@@ -837,11 +837,11 @@ describe('Governance proxy lambdas tests', async () => {
                                 tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
                             }
                         },
-                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
                         }),
                         'ascii',
                     ).toString('hex');
-                    const lpTokenAddress            = contractDeployments.mTokenEurl.address;
+                    const lpTokenAddress            = contractDeployments.mTokenEurt.address;
                     const lpTokenId                 = 0;
                     const lpTokenStandard           = "FA2";
                     const initTrackedFarmsLength    = farmFactoryStorage.trackedFarms.length;
@@ -1046,7 +1046,7 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     farmFactoryStorage                  = await farmFactoryInstance.storage();
-                    const lambdaName                    = "lambdaUnstake";
+                    const lambdaName                    = "lambdaUnstakeMvn";
                     const newFarmUnstakeLambda          = doormanLambdas.lambdaNewUnstake;
                     const initFarmUnstakeLambda         = await farmFactoryStorage.mFarmLambdaLedger.get(lambdaName);
                     
@@ -1101,21 +1101,21 @@ describe('Governance proxy lambdas tests', async () => {
                     await transferXTZOperation.confirmation();
                     
                     // FA12
-                    const fa12InTreasury        = await treasuryStorage.whitelistTokenContracts.get(contractDeployments.mavrykFa12Token.address);
+                    const fa12InTreasury        = await treasuryStorage.whitelistTokenContracts.get(contractDeployments.mavenFa12Token.address);
                     if(fa12InTreasury === undefined){
-                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa12Token.address, "update").send();
+                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavenFa12Token.address, "update").send();
                         await updateWhitelistTokenContractsOperation.confirmation();
                     }
-                    const transferFA12Operation = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.treasury.address, 50).send();
+                    const transferFA12Operation = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.treasury.address, 50).send();
                     await transferFA12Operation.confirmation();
                     
                     // FA2
-                    const fa2InTreasury         = await treasuryStorage.whitelistTokenContracts.get(contractDeployments.mavrykFa2Token.address);
+                    const fa2InTreasury         = await treasuryStorage.whitelistTokenContracts.get(contractDeployments.mavenFa2Token.address);
                     if(fa2InTreasury === undefined){
-                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavrykFa2Token.address, "update").send();
+                        const updateWhitelistTokenContractsOperation    = await treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavenFa2Token.address, "update").send();
                         await updateWhitelistTokenContractsOperation.confirmation();
                     }
-                    const transferFA2Operation  = await mavrykFa2TokenInstance.methods.transfer([
+                    const transferFA2Operation  = await mavenFa2TokenInstance.methods.transfer([
                         {
                             from_: bob.pkh,
                             txs: [
@@ -1139,22 +1139,22 @@ describe('Governance proxy lambdas tests', async () => {
                 }
             });
 
-            it('%mintMvkAndTransfer', async () => {
+            it('%mintMvnAndTransfer', async () => {
                 try{
                     // Initial values
                     treasuryStorage                     = await treasuryInstance.storage();
-                    mvkTokenStorage                     = await mvkTokenInstance.storage();
+                    mvnTokenStorage                     = await mvnTokenInstance.storage();
                     const receiverAddress               = alice.pkh;
-                    const mintedAmount                  = MVK(2);
-                    const initReceiverMvkLedger         = await mvkTokenStorage.ledger.get(receiverAddress);
-                    const initReceiverMvkBalance        = initReceiverMvkLedger ? initReceiverMvkLedger.toNumber() : 0;
+                    const mintedAmount                  = MVN(2);
+                    const initReceiverMvnLedger         = await mvnTokenStorage.ledger.get(receiverAddress);
+                    const initReceiverMvnBalance        = initReceiverMvnLedger ? initReceiverMvnLedger.toNumber() : 0;
                     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
                         tezos.rpc.url,
                         contractDeployments.governanceProxy.address,
                         
-                        'mintMvkAndTransfer',
+                        'mintMvnAndTransfer',
                         [
                             contractDeployments.treasury.address,
                             receiverAddress,
@@ -1166,12 +1166,12 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
-                    mvkTokenStorage                     = await mvkTokenInstance.storage();
-                    const finalReceiverMvkLedger        = await mvkTokenStorage.ledger.get(receiverAddress);
-                    const finalReceiverMvkBalance       = finalReceiverMvkLedger ? finalReceiverMvkLedger.toNumber() : 0;
+                    mvnTokenStorage                     = await mvnTokenInstance.storage();
+                    const finalReceiverMvnLedger        = await mvnTokenStorage.ledger.get(receiverAddress);
+                    const finalReceiverMvnBalance       = finalReceiverMvnLedger ? finalReceiverMvnLedger.toNumber() : 0;
 
                     // Assertions
-                    assert.equal(finalReceiverMvkBalance, initReceiverMvkBalance + mintedAmount);
+                    assert.equal(finalReceiverMvnBalance, initReceiverMvnBalance + mintedAmount);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1182,8 +1182,8 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     treasuryStorage                     = await treasuryInstance.storage();
-                    mvkTokenStorage                     = await mvkTokenInstance.storage();
-                    const initTreasuryOperators         = await mvkTokenStorage.operators.get({
+                    mvnTokenStorage                     = await mvnTokenInstance.storage();
+                    const initTreasuryOperators         = await mvnTokenStorage.operators.get({
                         0: contractDeployments.treasury.address,
                         1: bob.pkh,
                         2: 0
@@ -1213,7 +1213,7 @@ describe('Governance proxy lambdas tests', async () => {
                         'updateTokenOperators',
                         [
                             contractDeployments.treasury.address,
-                            contractDeployments.mvkToken.address,
+                            contractDeployments.mvnToken.address,
                             operators
                         ]
                     );
@@ -1222,8 +1222,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
-                    mvkTokenStorage                     = await mvkTokenInstance.storage();
-                    const finalTreasuryOperators        = await mvkTokenStorage.operators.get({
+                    mvnTokenStorage                     = await mvnTokenInstance.storage();
+                    const finalTreasuryOperators        = await mvnTokenStorage.operators.get({
                         0: contractDeployments.treasury.address,
                         1: bob.pkh,
                         2: 0
@@ -1243,9 +1243,9 @@ describe('Governance proxy lambdas tests', async () => {
                     // Initial values
                     treasuryStorage                     = await treasuryInstance.storage();
                     doormanStorage                      = await doormanInstance.storage();
-                    const stakedAmount                  = MVK(2);
-                    const initTreasurySMvkLedger        = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
-                    const initTreasurySMvkBalance       = initTreasurySMvkLedger ? initTreasurySMvkLedger.balance.toNumber() : 0;
+                    const stakedAmount                  = MVN(2);
+                    const initTreasurySMvnLedger        = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
+                    const initTreasurySMvnBalance       = initTreasurySMvnLedger ? initTreasurySMvnLedger.balance.toNumber() : 0;
                     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -1265,11 +1265,11 @@ describe('Governance proxy lambdas tests', async () => {
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
                     doormanStorage                      = await doormanInstance.storage();
-                    const finalTreasurySMvkLedger       = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
-                    const finalTreasurySMvkBalance      = finalTreasurySMvkLedger ? finalTreasurySMvkLedger.balance.toNumber() : 0;
+                    const finalTreasurySMvnLedger       = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
+                    const finalTreasurySMvnBalance      = finalTreasurySMvnLedger ? finalTreasurySMvnLedger.balance.toNumber() : 0;
 
                     // Assertions
-                    assert.equal(finalTreasurySMvkBalance, initTreasurySMvkBalance + stakedAmount);
+                    assert.equal(finalTreasurySMvnBalance, initTreasurySMvnBalance + stakedAmount);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1281,9 +1281,9 @@ describe('Governance proxy lambdas tests', async () => {
                     // Initial values
                     treasuryStorage                     = await treasuryInstance.storage();
                     doormanStorage                      = await doormanInstance.storage();
-                    const unstakedAmount                = MVK();
-                    const initTreasurySMvkLedger        = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
-                    const initTreasurySMvkBalance       = initTreasurySMvkLedger ? initTreasurySMvkLedger.balance.toNumber() : 0;
+                    const unstakedAmount                = MVN();
+                    const initTreasurySMvnLedger        = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
+                    const initTreasurySMvnBalance       = initTreasurySMvnLedger ? initTreasurySMvnLedger.balance.toNumber() : 0;
                     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -1303,11 +1303,11 @@ describe('Governance proxy lambdas tests', async () => {
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
                     doormanStorage                      = await doormanInstance.storage();
-                    const finalTreasurySMvkLedger       = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
-                    const finalTreasurySMvkBalance      = finalTreasurySMvkLedger ? finalTreasurySMvkLedger.balance.toNumber() : 0;
+                    const finalTreasurySMvnLedger       = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
+                    const finalTreasurySMvnBalance      = finalTreasurySMvnLedger ? finalTreasurySMvnLedger.balance.toNumber() : 0;
 
                     // Assertions
-                    assert.notEqual(finalTreasurySMvkBalance, initTreasurySMvkBalance);
+                    assert.notEqual(finalTreasurySMvnBalance, initTreasurySMvnBalance);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1318,12 +1318,12 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     treasuryStorage                     = await treasuryInstance.storage();
-                    mavrykFa12TokenStorage              = await mavrykFa12TokenInstance.storage();
-                    mavrykFa2TokenStorage               = await mavrykFa2TokenInstance.storage();
+                    mavenFa12TokenStorage              = await mavenFa12TokenInstance.storage();
+                    mavenFa2TokenStorage               = await mavenFa2TokenInstance.storage();
                     const receiver                      = alice.pkh;
-                    const initUserFA12Ledger            = await mavrykFa12TokenStorage.ledger.get(receiver)
+                    const initUserFA12Ledger            = await mavenFa12TokenStorage.ledger.get(receiver)
                     const initUserFA12Balance           = initUserFA12Ledger ? initUserFA12Ledger.balance.toNumber() : 0;
-                    const initUserFA2Ledger             = await mavrykFa2TokenStorage.ledger.get(receiver)
+                    const initUserFA2Ledger             = await mavenFa2TokenStorage.ledger.get(receiver)
                     const initUserFA2Balance            = initUserFA2Ledger ? initUserFA2Ledger.toNumber() : 0;
                     const initUserXTZBalance            = (await utils.tezos.tz.getBalance(receiver)).toNumber();
                     const tokenAmount                   = 50;
@@ -1332,7 +1332,7 @@ describe('Governance proxy lambdas tests', async () => {
                             to_: receiver,
                             amount: tokenAmount,
                             token: {
-                                fa12: contractDeployments.mavrykFa12Token.address
+                                fa12: contractDeployments.mavenFa12Token.address
                             }
                         },
                         {
@@ -1340,7 +1340,7 @@ describe('Governance proxy lambdas tests', async () => {
                             amount: tokenAmount,
                             token: {
                                 fa2: {
-                                    tokenContractAddress: contractDeployments.mavrykFa2Token.address,
+                                    tokenContractAddress: contractDeployments.mavenFa2Token.address,
                                     tokenId: 0
                                 }
                             }
@@ -1368,11 +1368,11 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     treasuryStorage                     = await treasuryInstance.storage();
-                    mavrykFa12TokenStorage              = await mavrykFa12TokenInstance.storage();
-                    mavrykFa2TokenStorage               = await mavrykFa2TokenInstance.storage();
-                    const finalUserFA12Ledger           = await mavrykFa12TokenStorage.ledger.get(receiver)
+                    mavenFa12TokenStorage              = await mavenFa12TokenInstance.storage();
+                    mavenFa2TokenStorage               = await mavenFa2TokenInstance.storage();
+                    const finalUserFA12Ledger           = await mavenFa12TokenStorage.ledger.get(receiver)
                     const finalUserFA12Balance          = finalUserFA12Ledger ? finalUserFA12Ledger.balance.toNumber() : 0;
-                    const finalUserFA2Ledger            = await mavrykFa2TokenStorage.ledger.get(receiver)
+                    const finalUserFA2Ledger            = await mavenFa2TokenStorage.ledger.get(receiver)
                     const finalUserFA2Balance           = finalUserFA2Ledger ? finalUserFA2Ledger.toNumber() : 0;
                     const finalUserXTZBalance           = (await utils.tezos.tz.getBalance(receiver)).toNumber();
 
@@ -1451,8 +1451,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const addToGeneralContracts         = true;
                     const metadataBytes                 = Buffer.from(
                         JSON.stringify({
-                            name: 'MAVRYK PLENTY-USDTz Farm',
-                            description: 'MAVRYK Farm Contract',
+                            name: 'MAVEN PLENTY-USDTz Farm',
+                            description: 'MAVEN Farm Contract',
                             version: 'v1.0.0',
                             liquidityPairToken: {
                             tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
@@ -1466,7 +1466,7 @@ describe('Governance proxy lambdas tests', async () => {
                                 tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
                             }
                             },
-                            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                            authors: ['MAVEN Dev Team <info@mavryk.io>'],
                         }),
                         'ascii',
                         ).toString('hex')
@@ -1950,14 +1950,14 @@ describe('Governance proxy lambdas tests', async () => {
                     const alphaPercentPerThousand       = 10;
                     const percentOracleThreshold        = 10;
                     const heartbeatSeconds              = 5;
-                    const rewardAmountStakedMvk         = 100;
+                    const rewardAmountStakedMvn         = 100;
                     const rewardAmountXtz               = 100;
                     const metadata                      = Buffer.from(
                             JSON.stringify({
-                                name: 'MAVRYK Aggregator Contract',
+                                name: 'MAVEN Aggregator Contract',
                                 icon: 'https://logo.chainbit.xyz/xtz',
                                 version: 'v1.0.0',
-                                authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                                authors: ['MAVEN Dev Team <info@mavryk.io>'],
                             }),
                             'ascii',
                         ).toString('hex');
@@ -1979,7 +1979,7 @@ describe('Governance proxy lambdas tests', async () => {
                             alphaPercentPerThousand,
                             percentOracleThreshold,
                             heartbeatSeconds,
-                            rewardAmountStakedMvk,
+                            rewardAmountStakedMvn,
                             rewardAmountXtz,
                             metadata
                         ]
@@ -2006,7 +2006,7 @@ describe('Governance proxy lambdas tests', async () => {
                     assert.strictEqual(createdAggregatorStorage.config.alphaPercentPerThousand.toNumber(), alphaPercentPerThousand);
                     assert.strictEqual(createdAggregatorStorage.config.percentOracleThreshold.toNumber(), percentOracleThreshold);
                     assert.strictEqual(createdAggregatorStorage.config.heartbeatSeconds.toNumber(), heartbeatSeconds);
-                    assert.strictEqual(createdAggregatorStorage.config.rewardAmountStakedMvk.toNumber(), rewardAmountStakedMvk);
+                    assert.strictEqual(createdAggregatorStorage.config.rewardAmountStakedMvn.toNumber(), rewardAmountStakedMvn);
                     assert.strictEqual(createdAggregatorStorage.config.rewardAmountXtz.toNumber(), rewardAmountXtz);
 
                 } catch(e){
@@ -2352,10 +2352,10 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     doormanStorage                      = await doormanInstance.storage();
-                    const updateConfigAction            = "ConfigMinMvkAmount";
+                    const updateConfigAction            = "ConfigMinMvnAmount";
                     const targetContractType            = "doorman";
                     const updateConfigNewValue          = 1010;
-                    const initConfigValue               = doormanStorage.config.minMvkAmount.toNumber();
+                    const initConfigValue               = doormanStorage.config.minMvnAmount.toNumber();
                     
                     // Operation
                     lambdaFunction                = await createLambdaBytes(
@@ -2375,7 +2375,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     doormanStorage                      = await doormanInstance.storage();
-                    const finalConfigValue              = doormanStorage.config.minMvkAmount.toNumber();
+                    const finalConfigValue              = doormanStorage.config.minMvnAmount.toNumber();
 
                     // Assertions
                     assert.notEqual(initConfigValue, finalConfigValue);
@@ -2390,9 +2390,9 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     doormanStorage                      = await doormanInstance.storage();
-                    const targetEntrypoint              = "Stake";
+                    const targetEntrypoint              = "StakeMvn";
                     const targetContractType            = "doorman";
-                    const initConfigValue               = doormanStorage.breakGlassConfig.stakeIsPaused;
+                    const initConfigValue               = doormanStorage.breakGlassConfig.stakeMvnIsPaused;
                     
                     // Operation
                     lambdaFunction        = await createLambdaBytes(
@@ -2412,7 +2412,7 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Final values
                     doormanStorage                      = await doormanInstance.storage();
-                    const finalConfigValue              = doormanStorage.breakGlassConfig.stakeIsPaused;
+                    const finalConfigValue              = doormanStorage.breakGlassConfig.stakeMvnIsPaused;
 
                     // Assertions
                     assert.notEqual(initConfigValue, finalConfigValue);
@@ -2668,7 +2668,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const minRepaymentAmount                    = 9;
                     const tokenType                             = {
                         fa2: {
-                            tokenContractAddress: contractDeployments.mavrykFa2Token.address,
+                            tokenContractAddress: contractDeployments.mavenFa2Token.address,
                             tokenId             : 0
                         }
                     };
@@ -2813,7 +2813,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const isScaledToken                         = false;
                     const isStakedToken                         = false;
                     const tokenType                             = {
-                        fa12: contractDeployments.mavrykFa12Token.address
+                        fa12: contractDeployments.mavenFa12Token.address
                     };
                     const setCollateralTokenAction              = 
                     {
@@ -3057,7 +3057,7 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     doormanStorage                      = await doormanInstance.storage();
-                    const lambdaName                    = "lambdaUnstake";
+                    const lambdaName                    = "lambdaUnstakeMvn";
                     const newDoormanUnstakeLambda       = doormanLambdas.lambdaNewUnstake;
                     const initDoormanUnstakeLambda      = doormanStorage.lambdaLedger.get(lambdaName);
                     
@@ -3093,7 +3093,7 @@ describe('Governance proxy lambdas tests', async () => {
                 try{
                     // Initial values
                     treasuryFactoryStorage              = await treasuryFactoryInstance.storage();
-                    const lambdaName                    = "lambdaUnstake";
+                    const lambdaName                    = "lambdaUnstakeMvn";
                     const newTreasuryUnstakeLambda      = doormanLambdas.lambdaNewUnstake;
                     const initTreasuryUnstakeLambda     = await treasuryFactoryStorage.treasuryLambdaLedger.get(lambdaName);
                     
@@ -3132,8 +3132,8 @@ describe('Governance proxy lambdas tests', async () => {
                     const metadataKey                   = "";
                     const newDoormanMetadata            = Buffer.from(
                         JSON.stringify({
-                        name: 'MAVRYK PLENTY-USDTz Farm',
-                        description: 'MAVRYK Farm Contract',
+                        name: 'MAVEN PLENTY-USDTz Farm',
+                        description: 'MAVEN Farm Contract',
                         version: 'v1.0.0',
                         liquidityPairToken: {
                             tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
@@ -3147,7 +3147,7 @@ describe('Governance proxy lambdas tests', async () => {
                                 tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
                             }
                         },
-                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
                         }),
                         'ascii',
                     ).toString('hex');
@@ -3385,20 +3385,20 @@ describe('Governance proxy lambdas tests', async () => {
                 user              = mallory.pkh;
                 userSk            = mallory.sk;
 
-                // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to Contract
+                // Mistaken Operation - user (mallory) send 10 MavenFa2Tokens to Contract
                 await signerFactory(tezos, userSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, contractDeployments.governanceProxy.address, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, contractDeployments.governanceProxy.address, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(governanceProxyInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(governanceProxyInstance, user, contractDeployments.mavenFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -3492,12 +3492,12 @@ describe('Governance proxy lambdas tests', async () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MavrykFa2Tokens to Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, contractDeployments.aggregatorFactory.address, tokenId, tokenAmount);
+                // Mistaken Operation - send 10 MavenFa2Tokens to Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, mallory.pkh, contractDeployments.aggregatorFactory.address, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await mistakenTransferFa2Token(governanceProxyInstance, mallory.pkh, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(governanceProxyInstance, mallory.pkh, contractDeployments.mavenFa2Token.address, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {

@@ -47,7 +47,7 @@ describe('Governance Proxy', async () => {
             //----------------------------
         
             governanceProxyStorage.governanceAddress  = contractDeployments.governance.address;
-            governanceProxyStorage.mvkTokenAddress    = contractDeployments.mvkToken.address;
+            governanceProxyStorage.mvnTokenAddress    = contractDeployments.mvnToken.address;
             governanceProxy = await GeneralContract.originate(utils.tezos, "governanceProxy", governanceProxyStorage);
             await saveContractAddress('governanceProxyAddress', governanceProxy.contract.address)
         

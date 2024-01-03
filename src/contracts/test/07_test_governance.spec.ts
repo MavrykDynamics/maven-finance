@@ -1,6 +1,6 @@
 import assert from "assert";
 
-import { MVK, Utils } from "./helpers/Utils";
+import { MVN, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -29,7 +29,7 @@ import {
     mistakenTransferFa2Token,
     updateWhitelistContracts,
     updateGeneralContracts,
-    calcStakedMvkRequiredForActionApproval, 
+    calcStakedMvnRequiredForActionApproval, 
     calcTotalVotingPower 
 } from './helpers/helperFunctions'
 
@@ -102,23 +102,23 @@ describe("Governance tests", async () => {
 
     let doormanInstance
     let delegationInstance
-    let mvkTokenInstance
+    let mvnTokenInstance
     let governanceInstance
     let governanceProxyInstance
     let emergencyGovernanceInstance
     let breakGlassInstance
     let councilInstance
-    let mavrykFa2TokenInstance
+    let mavenFa2TokenInstance
 
     let doormanStorage
     let delegationStorage
-    let mvkTokenStorage
+    let mvnTokenStorage
     let governanceStorage
     let governanceProxyStorage
     let emergencyGovernanceStorage
     let breakGlassStorage
     let councilStorage
-    let mavrykFa2TokenStorage
+    let mavenFa2TokenStorage
 
     let initialUserStakedRecord
     let initialUserStakedBalance
@@ -130,7 +130,7 @@ describe("Governance tests", async () => {
     let updatedSatelliteRecord 
     
     let stakeAmount
-    let initialMinimumStakedMvkRequirement
+    let initialMinimumStakedMvnRequirement
 
     // operations
     let updateOperatorsOperation
@@ -172,23 +172,23 @@ describe("Governance tests", async () => {
             
             doormanInstance             = await utils.tezos.contract.at(contractDeployments.doorman.address);
             delegationInstance          = await utils.tezos.contract.at(contractDeployments.delegation.address);
-            mvkTokenInstance            = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+            mvnTokenInstance            = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
             governanceInstance          = await utils.tezos.contract.at(contractDeployments.governance.address);
             governanceProxyInstance     = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
             emergencyGovernanceInstance = await utils.tezos.contract.at(contractDeployments.emergencyGovernance.address);
             breakGlassInstance          = await utils.tezos.contract.at(contractDeployments.breakGlass.address);
             councilInstance             = await utils.tezos.contract.at(contractDeployments.council.address);
-            mavrykFa2TokenInstance      = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
+            mavenFa2TokenInstance      = await utils.tezos.contract.at(contractDeployments.mavenFa2Token.address);
                 
             doormanStorage              = await doormanInstance.storage();
             delegationStorage           = await delegationInstance.storage();
-            mvkTokenStorage             = await mvkTokenInstance.storage();
+            mvnTokenStorage             = await mvnTokenInstance.storage();
             governanceStorage           = await governanceInstance.storage();
             governanceProxyStorage      = await governanceProxyInstance.storage();
             emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
             breakGlassStorage           = await breakGlassInstance.storage();
             councilStorage              = await councilInstance.storage();
-            mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
+            mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
     
             console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
@@ -304,7 +304,7 @@ describe("Governance tests", async () => {
             // -------------------
 
             delegationConfigChange  = 100;
-            doormanConfigChange     = MVK(1.5);
+            doormanConfigChange     = MVN(1.5);
             councilConfigChange     = 1234;
 
             const delegationLambdaFunction = await createLambdaBytes(
@@ -328,7 +328,7 @@ describe("Governance tests", async () => {
                 [
                     contractDeployments.doorman.address,
                     "doorman",
-                    "ConfigMinMvkAmount",
+                    "ConfigMinMvnAmount",
                     doormanConfigChange
                 ]
             );
@@ -549,17 +549,17 @@ describe("Governance tests", async () => {
                     doormanStorage              = await doormanInstance.storage();
                     const proposal              = await governanceStorage.proposalLedger.get(proposalId);
                     const minimumNeeded         = proposal.minProposalRoundVotesRequired.toNumber();
-                    let satelliteSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
-                    let satelliteSMVKBalance  = satelliteSMVKRecord.balance.toNumber();
-                    const stakeRequired         = minimumNeeded - satelliteSMVKBalance;
+                    let satelliteSMVNRecord   = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                    let satelliteSMVNBalance  = satelliteSMVNRecord.balance.toNumber();
+                    const stakeRequired         = minimumNeeded - satelliteSMVNBalance;
                     if(stakeRequired > 0){
-                        const stakeAmount   = stakeRequired + MVK();
-                        stakeOperation      = await doormanInstance.methods.stake(stakeAmount).send();
+                        const stakeAmount   = stakeRequired + MVN();
+                        stakeOperation      = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                         await stakeOperation.confirmation();
                     }
                     doormanStorage              = await doormanInstance.storage();
-                    satelliteSMVKRecord   = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
-                    satelliteSMVKBalance  = satelliteSMVKRecord.balance.toNumber();
+                    satelliteSMVNRecord   = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
+                    satelliteSMVNBalance  = satelliteSMVNRecord.balance.toNumber();
 
                     // Lock and vote for the proposal
                     const lockProposalOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -676,18 +676,18 @@ describe("Governance tests", async () => {
                     governanceStorage         = await governanceInstance.storage();
                     proposalRecord            = await governanceStorage.proposalLedger.get(proposalId);
 
-                    const yayVotesRequired    = Math.floor((proposalRecord.quorumStakedMvkTotal * proposalRecord.minYayVotePercentage) / 10000);
+                    const yayVotesRequired    = Math.floor((proposalRecord.quorumStakedMvnTotal * proposalRecord.minYayVotePercentage) / 10000);
 
-                    const totalStakedMvkSupply         = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                    const totalStakedMvnSupply         = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
                     const minQuorumPercentage          = governanceStorage.config.minQuorumPercentage;
-                    // const stakedMvkRequiredForQuorum   = calcStakedMvkRequiredForActionApproval(totalStakedMvkSupply, minQuorumPercentage, 5);
-                    const minQuorumStakedMvkTotal   = Math.floor((totalStakedMvkSupply * minQuorumPercentage) / 10000);
+                    // const stakedMvnRequiredForQuorum   = calcStakedMvnRequiredForActionApproval(totalStakedMvnSupply, minQuorumPercentage, 5);
+                    const minQuorumStakedMvnTotal   = Math.floor((totalStakedMvnSupply * minQuorumPercentage) / 10000);
 
-                    let yayVoteStakedMvkTotal = proposalRecord.yayVoteStakedMvkTotal;
-                    let quorumStakedMvkTotal  = proposalRecord.quorumStakedMvkTotal;
+                    let yayVoteStakedMvnTotal = proposalRecord.yayVoteStakedMvnTotal;
+                    let quorumStakedMvnTotal  = proposalRecord.quorumStakedMvnTotal;
 
                     // check if sufficient yay votes obtained
-                    if(yayVoteStakedMvkTotal < yayVotesRequired || quorumStakedMvkTotal < minQuorumStakedMvkTotal){
+                    if(yayVoteStakedMvnTotal < yayVotesRequired || quorumStakedMvnTotal < minQuorumStakedMvnTotal){
                         // set signer to satellite two (alice) and vote for voting round proposal
                         await signerFactory(tezos, satelliteTwoSk)
                         const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
@@ -696,10 +696,10 @@ describe("Governance tests", async () => {
 
                     governanceStorage         = await governanceInstance.storage();
                     proposalRecord            = await governanceStorage.proposalLedger.get(proposalId);
-                    yayVoteStakedMvkTotal     = proposalRecord.yayVoteStakedMvkTotal;
-                    quorumStakedMvkTotal      = proposalRecord.quorumStakedMvkTotal;
+                    yayVoteStakedMvnTotal     = proposalRecord.yayVoteStakedMvnTotal;
+                    quorumStakedMvnTotal      = proposalRecord.quorumStakedMvnTotal;
 
-                    if(yayVoteStakedMvkTotal < yayVotesRequired || quorumStakedMvkTotal < minQuorumStakedMvkTotal){
+                    if(yayVoteStakedMvnTotal < yayVotesRequired || quorumStakedMvnTotal < minQuorumStakedMvnTotal){
                         // set signer to satellite three (susie) and vote for voting round proposal
                         await signerFactory(tezos, satelliteThreeSk)
                         const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
@@ -708,10 +708,10 @@ describe("Governance tests", async () => {
 
                     governanceStorage         = await governanceInstance.storage();
                     proposalRecord            = await governanceStorage.proposalLedger.get(proposalId);
-                    yayVoteStakedMvkTotal     = proposalRecord.yayVoteStakedMvkTotal;
-                    quorumStakedMvkTotal      = proposalRecord.quorumStakedMvkTotal;
+                    yayVoteStakedMvnTotal     = proposalRecord.yayVoteStakedMvnTotal;
+                    quorumStakedMvnTotal      = proposalRecord.quorumStakedMvnTotal;
 
-                    if(yayVoteStakedMvkTotal < yayVotesRequired || quorumStakedMvkTotal < minQuorumStakedMvkTotal){
+                    if(yayVoteStakedMvnTotal < yayVotesRequired || quorumStakedMvnTotal < minQuorumStakedMvnTotal){
                         // set signer to satellite four (oscar) and vote for voting round proposal
                         await signerFactory(tezos, satelliteFourSk)
                         const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
@@ -727,7 +727,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage                       = await governanceInstance.storage();
-                    mvkTokenStorage                         = await mvkTokenInstance.storage();
+                    mvnTokenStorage                         = await mvnTokenInstance.storage();
                     const finalRound                        = governanceStorage.currentCycleInfo.round
                     const finalRoundString                  = Object.keys(finalRound)[0]
 
@@ -828,18 +828,18 @@ describe("Governance tests", async () => {
                     assert.equal(newProposal.executed, false);
                     assert.equal(newProposal.locked, false);
                     assert.equal(newProposal.proposalVoteCount.toNumber(), 0);
-                    assert.equal(newProposal.proposalVoteStakedMvkTotal.toNumber(), 0);
+                    assert.equal(newProposal.proposalVoteStakedMvnTotal.toNumber(), 0);
                     assert.equal(newProposal.minProposalRoundVotePercentage.toNumber(), minProposalRoundVotePercentage.toNumber());
                     assert.equal(newProposal.yayVoteCount.toNumber(), 0);
-                    assert.equal(newProposal.yayVoteStakedMvkTotal.toNumber(), 0);
+                    assert.equal(newProposal.yayVoteStakedMvnTotal.toNumber(), 0);
                     assert.equal(newProposal.nayVoteCount.toNumber(), 0);
-                    assert.equal(newProposal.nayVoteStakedMvkTotal.toNumber(), 0);
+                    assert.equal(newProposal.nayVoteStakedMvnTotal.toNumber(), 0);
                     assert.equal(newProposal.passVoteCount.toNumber(), 0);
-                    assert.equal(newProposal.passVoteStakedMvkTotal.toNumber(), 0);
+                    assert.equal(newProposal.passVoteStakedMvnTotal.toNumber(), 0);
                     assert.equal(newProposal.minQuorumPercentage.toNumber(), minQuorumPercentage.toNumber());
                     assert.equal(newProposal.minYayVotePercentage.toNumber(), minYayVotePercentage.toNumber());
                     assert.equal(newProposal.quorumCount.toNumber(), 0);
-                    assert.equal(newProposal.quorumStakedMvkTotal.toNumber(), 0);
+                    assert.equal(newProposal.quorumStakedMvnTotal.toNumber(), 0);
                     assert.equal(newProposal.cycle.toNumber(), cycleId.toNumber());
                     assert.equal(newProposal.currentCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
 
@@ -880,11 +880,11 @@ describe("Governance tests", async () => {
                                     "to_"    : bob.pkh,
                                     "token"  : {
                                         "fa2" : {
-                                            "tokenContractAddress" : contractDeployments.mvkToken.address,
+                                            "tokenContractAddress" : contractDeployments.mvnToken.address,
                                             "tokenId" : 0
                                         }
                                     },
-                                    "amount" : MVK(5)
+                                    "amount" : MVN(5)
                                 }
                             }
                         }
@@ -928,18 +928,18 @@ describe("Governance tests", async () => {
                     assert.equal(newProposal.executed, false);
                     assert.equal(newProposal.locked, false);
                     assert.equal(newProposal.proposalVoteCount.toNumber(), 0);
-                    assert.equal(newProposal.proposalVoteStakedMvkTotal.toNumber(), 0);
+                    assert.equal(newProposal.proposalVoteStakedMvnTotal.toNumber(), 0);
                     assert.equal(newProposal.minProposalRoundVotePercentage.toNumber(), minProposalRoundVotePercentage.toNumber());
                     assert.equal(newProposal.yayVoteCount.toNumber(), 0);
-                    assert.equal(newProposal.yayVoteStakedMvkTotal.toNumber(), 0);
+                    assert.equal(newProposal.yayVoteStakedMvnTotal.toNumber(), 0);
                     assert.equal(newProposal.nayVoteCount.toNumber(), 0);
-                    assert.equal(newProposal.nayVoteStakedMvkTotal.toNumber(), 0);
+                    assert.equal(newProposal.nayVoteStakedMvnTotal.toNumber(), 0);
                     assert.equal(newProposal.passVoteCount.toNumber(), 0);
-                    assert.equal(newProposal.passVoteStakedMvkTotal.toNumber(), 0);
+                    assert.equal(newProposal.passVoteStakedMvnTotal.toNumber(), 0);
                     assert.equal(newProposal.minQuorumPercentage.toNumber(), minQuorumPercentage.toNumber());
                     assert.equal(newProposal.minYayVotePercentage.toNumber(), minYayVotePercentage.toNumber());
                     assert.equal(newProposal.quorumCount.toNumber(), 0);
-                    assert.equal(newProposal.quorumStakedMvkTotal.toNumber(), 0);
+                    assert.equal(newProposal.quorumStakedMvnTotal.toNumber(), 0);
                     assert.equal(newProposal.cycle.toNumber(), cycleId.toNumber());
                     assert.equal(newProposal.currentCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
 
@@ -998,26 +998,26 @@ describe("Governance tests", async () => {
                     doormanStorage                   = await doormanInstance.storage();
                     initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(newSatellite);         
 
-                    initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                    initialMinimumStakedMvnRequirement  = delegationStorage.config.minimumStakedMvnBalance;
                     initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                     // check that user has sufficient staked balance
-                    if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                    if(initialUserStakedBalance < initialMinimumStakedMvnRequirement){
 
-                        stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                        stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvnRequirement) + 1;
 
                         // update operators operation for user
-                        updateOperatorsOperation = await updateOperators(mvkTokenInstance, newSatellite, doormanAddress, tokenId);
+                        updateOperatorsOperation = await updateOperators(mvnTokenInstance, newSatellite, doormanAddress, tokenId);
                         await updateOperatorsOperation.confirmation();
 
-                        // user stake MVK tokens
-                        stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                        // user stake MVN tokens
+                        stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                         await stakeOperation.confirmation();
 
                     }; 
 
-                    // update user staked balance for assertion check below (satellite's staked mvk balance)
+                    // update user staked balance for assertion check below (satellite's staked mvn balance)
                     doormanStorage                      = await doormanInstance.storage();
                     initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
@@ -1045,7 +1045,7 @@ describe("Governance tests", async () => {
                         assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
                         assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
                         assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
-                        assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
+                        assert.equal(updatedSatelliteRecord.stakedMvnBalance.toNumber(),    initialUserStakedBalance);
                         assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
                         assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                         assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
@@ -1276,11 +1276,11 @@ describe("Governance tests", async () => {
                         "to_"    : bob.pkh,
                         "token"  : {
                             "fa2" : {
-                                "tokenContractAddress" : contractDeployments.mvkToken.address,
+                                "tokenContractAddress" : contractDeployments.mvnToken.address,
                                 "tokenId" : 0
                             }
                         },
-                        "amount" : MVK(5)
+                        "amount" : MVN(5)
                     }
 
                     // Operation
@@ -1321,11 +1321,11 @@ describe("Governance tests", async () => {
                         "to_"    : alice.pkh,
                         "token"  : {
                             "fa2" : {
-                                "tokenContractAddress" : contractDeployments.mvkToken.address,
+                                "tokenContractAddress" : contractDeployments.mvnToken.address,
                                 "tokenId" : 0
                             }
                         },
-                        "amount" : MVK(5)
+                        "amount" : MVN(5)
                     }
 
                     // Operation
@@ -1393,21 +1393,21 @@ describe("Governance tests", async () => {
                         "to_"    : alice.pkh,
                         "token"  : {
                             "fa2" : {
-                                "tokenContractAddress" : contractDeployments.mvkToken.address,
+                                "tokenContractAddress" : contractDeployments.mvnToken.address,
                                 "tokenId" : 0
                             }
                         },
-                        "amount" : MVK(5)
+                        "amount" : MVN(5)
                     }
                     const secondTransaction     = {
                         "to_"    : bob.pkh,
                         "token"  : {
                             "fa2" : {
-                                "tokenContractAddress" : contractDeployments.mvkToken.address,
+                                "tokenContractAddress" : contractDeployments.mvnToken.address,
                                 "tokenId" : 0
                             }
                         },
-                        "amount" : MVK(5)
+                        "amount" : MVN(5)
                     }
 
                     // Operation
@@ -1709,16 +1709,16 @@ describe("Governance tests", async () => {
                     await compoundOperation.confirmation();
 
                     const preIncreaseSnapshot           = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne})
-                    const preIncreaseUserSMVK           = (await doormanStorage.userStakeBalanceLedger.get(satelliteOne)).balance.toNumber();
+                    const preIncreaseUserSMVN           = (await doormanStorage.userStakeBalanceLedger.get(satelliteOne)).balance.toNumber();
                     const preIncreaseSatellite          = await delegationStorage.satelliteLedger.get(satelliteOne);
 
                     // satellite increases her stake (which should not increase her total voting power)
-                    var stakeOperation = await doormanInstance.methods.stake(MVK(3)).send()
+                    var stakeOperation = await doormanInstance.methods.stakeMvn(MVN(3)).send()
                     await stakeOperation.confirmation();
 
                     // User (mallory) delegates to satellite
                     await signerFactory(tezos, mallory.sk)
-                    var updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteOne, tokenId);
+                    var updateOperatorsOperation = await updateOperators(mvnTokenInstance, mallory.pkh, satelliteOne, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     var delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteOne).send()
@@ -1755,25 +1755,25 @@ describe("Governance tests", async () => {
                     governanceStorage                   = await governanceInstance.storage();
                     const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
                     const postIncreaseSnapshot          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
-                    const postIncreaseUserSMVK          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
+                    const postIncreaseUserSMVN          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
                     const postIncreaseSatellite         = await delegationStorage.satelliteLedger.get(eve.pkh);
                     
                     // console.log("BALANCE:", preIncreaseSatellite)
                     // console.log("BALANCE2:", postIncreaseSatellite)
 
                     // Assertions
-                    assert.notEqual(postIncreaseUserSMVK, preIncreaseUserSMVK);
-                    assert.notEqual(postIncreaseSatellite.stakedMvkBalance.toNumber(), preIncreaseSatellite.stakedMvkBalance.toNumber());
+                    assert.notEqual(postIncreaseUserSMVN, preIncreaseUserSMVN);
+                    assert.notEqual(postIncreaseSatellite.stakedMvnBalance.toNumber(), preIncreaseSatellite.stakedMvnBalance.toNumber());
                     assert.notEqual(postIncreaseSatellite.totalDelegatedAmount.toNumber(), preIncreaseSatellite.totalDelegatedAmount.toNumber());
-                    assert.equal(postIncreaseSnapshot.totalStakedMvkBalance.toNumber(), preIncreaseSnapshot.totalStakedMvkBalance.toNumber())
+                    assert.equal(postIncreaseSnapshot.totalStakedMvnBalance.toNumber(), preIncreaseSnapshot.totalStakedMvnBalance.toNumber())
                     assert.equal(postIncreaseSnapshot.totalDelegatedAmount.toNumber(), preIncreaseSnapshot.totalDelegatedAmount.toNumber())
                     assert.equal(postIncreaseSnapshot.totalVotingPower.toNumber(), preIncreaseSnapshot.totalVotingPower.toNumber())
-                    assert.equal(proposal.proposalVoteStakedMvkTotal.toNumber(), postIncreaseSnapshot.totalVotingPower.toNumber())
+                    assert.equal(proposal.proposalVoteStakedMvnTotal.toNumber(), postIncreaseSnapshot.totalVotingPower.toNumber())
 
                     // Reset delegate 
                     // User (mallory) redelegates to satellite two (alice)
                     await signerFactory(tezos, mallory.sk)
-                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteTwo, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvnTokenInstance, mallory.pkh, satelliteTwo, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteTwo).send()
@@ -1802,26 +1802,26 @@ describe("Governance tests", async () => {
                     doormanStorage                   = await doormanInstance.storage();
                     initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(newSatellite);         
 
-                    initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                    initialMinimumStakedMvnRequirement  = delegationStorage.config.minimumStakedMvnBalance;
                     initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                     // check that user has sufficient staked balance
-                    if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                    if(initialUserStakedBalance < initialMinimumStakedMvnRequirement){
 
-                        stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                        stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvnRequirement) + 1;
 
                         // update operators operation for user
-                        updateOperatorsOperation = await updateOperators(mvkTokenInstance, newSatellite, doormanAddress, tokenId);
+                        updateOperatorsOperation = await updateOperators(mvnTokenInstance, newSatellite, doormanAddress, tokenId);
                         await updateOperatorsOperation.confirmation();
 
-                        // user stake MVK tokens
-                        stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                        // user stake MVN tokens
+                        stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                         await stakeOperation.confirmation();
 
                     }; 
 
-                    // update user staked balance for assertion check below (satellite's staked mvk balance)
+                    // update user staked balance for assertion check below (satellite's staked mvn balance)
                     doormanStorage                      = await doormanInstance.storage();
                     initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
@@ -1849,7 +1849,7 @@ describe("Governance tests", async () => {
                         assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
                         assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
                         assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
-                        assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
+                        assert.equal(updatedSatelliteRecord.stakedMvnBalance.toNumber(),    initialUserStakedBalance);
                         assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
                         assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                         assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
@@ -2110,26 +2110,26 @@ describe("Governance tests", async () => {
                     doormanStorage                   = await doormanInstance.storage();
                     initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(newSatellite);         
 
-                    initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                    initialMinimumStakedMvnRequirement  = delegationStorage.config.minimumStakedMvnBalance;
                     initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                     // check that user has sufficient staked balance
-                    if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                    if(initialUserStakedBalance < initialMinimumStakedMvnRequirement){
 
-                        stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                        stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvnRequirement) + 1;
 
                         // update operators operation for user
-                        updateOperatorsOperation = await updateOperators(mvkTokenInstance, newSatellite, doormanAddress, tokenId);
+                        updateOperatorsOperation = await updateOperators(mvnTokenInstance, newSatellite, doormanAddress, tokenId);
                         await updateOperatorsOperation.confirmation();
 
-                        // user stake MVK tokens
-                        stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                        // user stake MVN tokens
+                        stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                         await stakeOperation.confirmation();
 
                     }; 
 
-                    // update user staked balance for assertion check below (satellite's staked mvk balance)
+                    // update user staked balance for assertion check below (satellite's staked mvn balance)
                     doormanStorage                      = await doormanInstance.storage();
                     initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
@@ -2157,7 +2157,7 @@ describe("Governance tests", async () => {
                         assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
                         assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
                         assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
-                        assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
+                        assert.equal(updatedSatelliteRecord.stakedMvnBalance.toNumber(),    initialUserStakedBalance);
                         assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
                         assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                         assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
@@ -2575,26 +2575,26 @@ describe("Governance tests", async () => {
                     doormanStorage                   = await doormanInstance.storage();
                     initialSatelliteRecord           = await delegationStorage.satelliteLedger.get(newSatellite);         
 
-                    initialMinimumStakedMvkRequirement  = delegationStorage.config.minimumStakedMvkBalance;
+                    initialMinimumStakedMvnRequirement  = delegationStorage.config.minimumStakedMvnBalance;
                     initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                     // check that user has sufficient staked balance
-                    if(initialUserStakedBalance < initialMinimumStakedMvkRequirement){
+                    if(initialUserStakedBalance < initialMinimumStakedMvnRequirement){
 
-                        stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvkRequirement) + 1;
+                        stakeAmount = Math.abs(initialUserStakedBalance - initialMinimumStakedMvnRequirement) + 1;
 
                         // update operators operation for user
-                        updateOperatorsOperation = await updateOperators(mvkTokenInstance, newSatellite, doormanAddress, tokenId);
+                        updateOperatorsOperation = await updateOperators(mvnTokenInstance, newSatellite, doormanAddress, tokenId);
                         await updateOperatorsOperation.confirmation();
 
-                        // user stake MVK tokens
-                        stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                        // user stake MVN tokens
+                        stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                         await stakeOperation.confirmation();
 
                     }; 
 
-                    // update user staked balance for assertion check below (satellite's staked mvk balance)
+                    // update user staked balance for assertion check below (satellite's staked mvn balance)
                     doormanStorage                      = await doormanInstance.storage();
                     initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(newSatellite);
                     initialUserStakedBalance            = initialUserStakedRecord.balance.toNumber();
@@ -2622,7 +2622,7 @@ describe("Governance tests", async () => {
                         assert.equal(updatedSatelliteRecord.name,                           mockSatelliteData.eve.name);
                         assert.equal(updatedSatelliteRecord.description,                    mockSatelliteData.eve.desc);
                         assert.equal(updatedSatelliteRecord.website,                        mockSatelliteData.eve.website);
-                        assert.equal(updatedSatelliteRecord.stakedMvkBalance.toNumber(),    initialUserStakedBalance);
+                        assert.equal(updatedSatelliteRecord.stakedMvnBalance.toNumber(),    initialUserStakedBalance);
                         assert.equal(updatedSatelliteRecord.satelliteFee,                   mockSatelliteData.eve.satelliteFee);
                         assert.equal(updatedSatelliteRecord.totalDelegatedAmount,           0);
                         assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
@@ -3006,16 +3006,16 @@ describe("Governance tests", async () => {
                     await compoundOperation.confirmation();
 
                     const preIncreaseSnapshot           = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne})
-                    const preIncreaseUserSMVK           = (await doormanStorage.userStakeBalanceLedger.get(satelliteOne)).balance.toNumber();
+                    const preIncreaseUserSMVN           = (await doormanStorage.userStakeBalanceLedger.get(satelliteOne)).balance.toNumber();
                     const preIncreaseSatellite          = await delegationStorage.satelliteLedger.get(satelliteOne);
 
                     // satellite increases her stake
-                    var stakeOperation = await doormanInstance.methods.stake(MVK(3)).send()
+                    var stakeOperation = await doormanInstance.methods.stakeMvn(MVN(3)).send()
                     await stakeOperation.confirmation();
 
                     // User (mallory) delegates to satellite
                     await signerFactory(tezos, mallory.sk)
-                    var updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteOne, tokenId);
+                    var updateOperatorsOperation = await updateOperators(mvnTokenInstance, mallory.pkh, satelliteOne, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     var delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteOne).send()
@@ -3052,25 +3052,25 @@ describe("Governance tests", async () => {
                     governanceStorage                   = await governanceInstance.storage();
                     const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
                     const postIncreaseSnapshot          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
-                    const postIncreaseUserSMVK          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
+                    const postIncreaseUserSMVN          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
                     const postIncreaseSatellite         = await delegationStorage.satelliteLedger.get(eve.pkh);
                     
                     // console.log("BALANCE:", preIncreaseSatellite)
                     // console.log("BALANCE2:", postIncreaseSatellite)
 
                     // Assertions
-                    assert.notEqual(postIncreaseUserSMVK, preIncreaseUserSMVK);
-                    assert.notEqual(postIncreaseSatellite.stakedMvkBalance.toNumber(), preIncreaseSatellite.stakedMvkBalance.toNumber());
+                    assert.notEqual(postIncreaseUserSMVN, preIncreaseUserSMVN);
+                    assert.notEqual(postIncreaseSatellite.stakedMvnBalance.toNumber(), preIncreaseSatellite.stakedMvnBalance.toNumber());
                     assert.notEqual(postIncreaseSatellite.totalDelegatedAmount.toNumber(), preIncreaseSatellite.totalDelegatedAmount.toNumber());
-                    assert.equal(postIncreaseSnapshot.totalStakedMvkBalance.toNumber(), preIncreaseSnapshot.totalStakedMvkBalance.toNumber())
+                    assert.equal(postIncreaseSnapshot.totalStakedMvnBalance.toNumber(), preIncreaseSnapshot.totalStakedMvnBalance.toNumber())
                     assert.equal(postIncreaseSnapshot.totalDelegatedAmount.toNumber(), preIncreaseSnapshot.totalDelegatedAmount.toNumber())
                     assert.equal(postIncreaseSnapshot.totalVotingPower.toNumber(), preIncreaseSnapshot.totalVotingPower.toNumber())
-                    assert.equal(proposal.proposalVoteStakedMvkTotal.toNumber(), postIncreaseSnapshot.totalVotingPower.toNumber())
+                    assert.equal(proposal.proposalVoteStakedMvnTotal.toNumber(), postIncreaseSnapshot.totalVotingPower.toNumber())
 
                     // Reset delegate 
                     // User (mallory) redelegates to satellite two (alice)
                     await signerFactory(tezos, mallory.sk)
-                    updateOperatorsOperation = await updateOperators(mvkTokenInstance, mallory.pkh, satelliteTwo, tokenId);
+                    updateOperatorsOperation = await updateOperators(mvnTokenInstance, mallory.pkh, satelliteTwo, tokenId);
                     await updateOperatorsOperation.confirmation();
 
                     delegateOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh, satelliteTwo).send()
@@ -4413,20 +4413,20 @@ describe("Governance tests", async () => {
                 user              = mallory.pkh;
                 userSk            = mallory.sk;
 
-                // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
+                // Mistaken Operation - user (mallory) send 10 MavenFa2Tokens to MVN Token Contract
                 await signerFactory(tezos, userSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, governanceAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, governanceAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(governanceInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(governanceInstance, user, contractDeployments.mavenFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -4651,12 +4651,12 @@ describe("Governance tests", async () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MavrykFa2Tokens to Delegation Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, governanceAddress, tokenId, tokenAmount);
+                // Mistaken Operation - send 10 MavenFa2Tokens to Delegation Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, mallory.pkh, governanceAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await mistakenTransferFa2Token(governanceInstance, mallory.pkh, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(governanceInstance, mallory.pkh, contractDeployments.mavenFa2Token.address, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {

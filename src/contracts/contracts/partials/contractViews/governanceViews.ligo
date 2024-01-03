@@ -70,9 +70,9 @@
 
 
 
-(* View: get a staked MVK total supply snapshot *)
-[@view] function getStakedMvkSnapshotOpt(const cycleId : nat; const s : governanceStorageType) : option(nat) is
-    Big_map.find_opt(cycleId, s.stakedMvkSnapshotLedger)
+(* View: get a staked MVN total supply snapshot *)
+[@view] function getStakedMvnSnapshotOpt(const cycleId : nat; const s : governanceStorageType) : option(nat) is
+    Big_map.find_opt(cycleId, s.stakedMvnSnapshotLedger)
 
 
 
@@ -82,7 +82,7 @@
 
 
 
-(* View: get all proposals id and smvk of the current proposal *)
+(* View: get all proposals id and smvn of the current proposal *)
 [@view] function getCycleProposals(const _ : unit; const s : governanceStorageType) : map(actionIdType, nat) is
     s.cycleProposals
 

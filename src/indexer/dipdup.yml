@@ -283,10 +283,10 @@ templates:
       pattern:
       - destination: <aggregator_contract>
         entrypoint: withdrawRewardXtz
-    - callback: aggregator.withdraw_reward_staked_mvk
+    - callback: aggregator.withdraw_reward_staked_mvn
       pattern:
       - destination: <aggregator_contract>
-        entrypoint: withdrawRewardStakedMvk
+        entrypoint: withdrawRewardStakedMvn
     - callback: aggregator.set_lambda
       pattern:
       - destination: <aggregator_contract>
@@ -363,9 +363,9 @@ templates:
     - callback: governance.snapshot_ledger_update
       contract: <governance_contract>
       path: snapshotLedger
-  # Main Template - Mavryk Finance
+  # Main Template - Maven Finance
   # Ran after the governance origination and index the entire dApp
-  mavryk_finance_template:
+  maven_finance_template:
     kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:
@@ -374,8 +374,8 @@ templates:
     contracts:
     - <governance_contract>
     - <governance_proxy_contract>
-    - <mvk_token_contract>
-    - <mvk_faucet_contract>
+    - <mvn_token_contract>
+    - <mvn_faucet_contract>
     - <doorman_contract>
     - <delegation_contract>
     - <vesting_contract>
@@ -393,14 +393,14 @@ templates:
     handlers:
     # Contracts origination
     # Index contracts originations first
-    - callback: mvk.origination
+    - callback: mvn.origination
       pattern:
       - type: origination
-        originated_contract: <mvk_token_contract>
-    - callback: mvk_faucet.origination
+        originated_contract: <mvn_token_contract>
+    - callback: mvn_faucet.origination
       pattern:
       - type: origination
-        originated_contract: <mvk_faucet_contract>
+        originated_contract: <mvn_faucet_contract>
     - callback: governance_proxy.origination
       pattern:
       - type: origination
@@ -463,53 +463,53 @@ templates:
         originated_contract: <lending_controller_mock_time_contract>
 
     # Contracts entrypoints
-    # MVK Token handlers
-    - callback: mvk.set_admin
+    # MVN Token handlers
+    - callback: mvn.set_admin
       pattern:
-      - destination: <mvk_token_contract>
+      - destination: <mvn_token_contract>
         entrypoint: setAdmin
-    - callback: mvk.set_governance
+    - callback: mvn.set_governance
       pattern:
-      - destination: <mvk_token_contract>
+      - destination: <mvn_token_contract>
         entrypoint: setGovernance
-    - callback: mvk.update_whitelist_contracts
+    - callback: mvn.update_whitelist_contracts
       pattern:
-      - destination: <mvk_token_contract>
+      - destination: <mvn_token_contract>
         entrypoint: updateWhitelistContracts
-    - callback: mvk.update_general_contracts
+    - callback: mvn.update_general_contracts
       pattern:
-      - destination: <mvk_token_contract>
+      - destination: <mvn_token_contract>
         entrypoint: updateGeneralContracts
-    - callback: mvk.transfer
+    - callback: mvn.transfer
       pattern:
-      - destination: <mvk_token_contract>
+      - destination: <mvn_token_contract>
         entrypoint: transfer
-    - callback: mvk.update_operators
+    - callback: mvn.update_operators
       pattern:
-      - destination: <mvk_token_contract>
+      - destination: <mvn_token_contract>
         entrypoint: update_operators
-    - callback: mvk.mint
+    - callback: mvn.mint
       pattern:
-      - destination: <mvk_token_contract>
+      - destination: <mvn_token_contract>
         entrypoint: mint
-    - callback: mvk.burn
+    - callback: mvn.burn
       pattern:
-      - destination: <mvk_token_contract>
+      - destination: <mvn_token_contract>
         entrypoint: burn
-    - callback: mvk.update_inflation_rate
+    - callback: mvn.update_inflation_rate
       pattern:
-      - destination: <mvk_token_contract>
+      - destination: <mvn_token_contract>
         entrypoint: updateInflationRate
-    - callback: mvk.trigger_inflation
+    - callback: mvn.trigger_inflation
       pattern:
-      - destination: <mvk_token_contract>
+      - destination: <mvn_token_contract>
         entrypoint: triggerInflation
 
-    # MVK Faucet handlers
-    - callback: mvk_faucet.request_mvk
+    # MVN Faucet handlers
+    - callback: mvn_faucet.request_mvn
       pattern:
-      - destination: <mvk_faucet_contract>
-        entrypoint: requestMvk
+      - destination: <mvn_faucet_contract>
+        entrypoint: requestMvn
 
     # Governance Proxy Handlers
     - callback: governance_proxy.set_admin
@@ -636,26 +636,26 @@ templates:
       pattern:
       - destination: <doorman_contract>
         entrypoint: togglePauseEntrypoint
-    - callback: doorman.stake
+    - callback: doorman.stake_mvn
       pattern:
       - destination: <doorman_contract>
-        entrypoint: stake
+        entrypoint: stakeMvn
       - source: <doorman_contract>
-        destination: <mvk_token_contract>
+        destination: <mvn_token_contract>
         entrypoint: transfer
-    - callback: doorman.unstake
+    - callback: doorman.unstake_mvn
       pattern:
       - destination: <doorman_contract>
-        entrypoint: unstake
+        entrypoint: unstakeMvn
       - source: <doorman_contract>
-        destination: <mvk_token_contract>
+        destination: <mvn_token_contract>
         entrypoint: transfer
     - callback: doorman.exit
       pattern:
       - destination: <doorman_contract>
         entrypoint: exit
       - source: doorman
-        destination: <mvk_token_contract>
+        destination: <mvn_token_contract>
         entrypoint: transfer
     - callback: doorman.compound
       pattern:
@@ -1568,7 +1568,7 @@ templates:
         entrypoint: transfer
 
 indexes:
-  mavryk_finance_ghostnet_init:
+  maven_finance_ghostnet_init:
     kind: tezos.tzkt.operations
     datasource: tzkt_ghostnet
     types:

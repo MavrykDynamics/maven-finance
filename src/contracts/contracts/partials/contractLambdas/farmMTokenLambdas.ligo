@@ -577,7 +577,7 @@ block{
     // 6. Get depositor's unclaimed rewards and check that user has more than 0 rewards to claim
     // 7. Reset depositor's unclaimedRewards to 0, and update claimedRewards total
     // 8. Update storage with new depositor record
-    // 9. Transfer staked MVK rewards to user through the %farmClaim entrypoint on the Doorman Contract
+    // 9. Transfer staked MVN rewards to user through the %farmClaim entrypoint on the Doorman Contract
 
     
     // Verify that %claim entrypoint is not paused (e.g. glass broken)
@@ -636,7 +636,7 @@ block{
 
                 };
 
-                // Transfer staked MVK rewards to user through the %farmClaim entrypoint on the Doorman Contract
+                // Transfer staked MVN rewards to user through the %farmClaim entrypoint on the Doorman Contract
                 if Set.cardinal(farmClaimDepositors) > 0n then {
                     const transferRewardOperation : operation   = transferReward(farmClaimDepositors, s);
                     operations                                  := transferRewardOperation # operations;

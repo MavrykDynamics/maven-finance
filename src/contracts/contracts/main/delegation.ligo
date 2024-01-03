@@ -28,8 +28,8 @@
 // Delegation Types
 #include "../partials/contractTypes/delegationTypes.ligo"
 
-// MVK Token Type
-#include "../partials/contractTypes/mvkTokenTypes.ligo"
+// MVN Token Type
+#include "../partials/contractTypes/mvnTokenTypes.ligo"
 
 // Treasury Type
 #include "../partials/contractTypes/treasuryTypes.ligo"
@@ -63,7 +63,7 @@ type delegationAction is
     |   RegisterAsSatellite               of registerAsSatelliteParamsType
     |   UnregisterAsSatellite             of (address)
     |   UpdateSatelliteRecord             of updateSatelliteRecordType
-    |   DistributeReward                  of distributeRewardStakedMvkType
+    |   DistributeReward                  of distributeRewardStakedMvnType
     |   TakeSatellitesSnapshot            of takeSatellitesSnapshotType
 
         // General Entrypoints

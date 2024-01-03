@@ -2,12 +2,12 @@ import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 
 import { bob } from '../scripts/sandbox/accounts'
-import { MVK, zeroAddress } from '../test/helpers/Utils'
+import { MVN, zeroAddress } from '../test/helpers/Utils'
 import { governanceStorageType } from './storageTypes/governanceStorageType'
 
 const config = {
-    successReward                       : MVK(10),
-    cycleVotersReward                   : MVK(100),
+    successReward                       : MVN(10),
+    cycleVotersReward                   : MVN(100),
 
     minProposalRoundVotePercentage      : 1000,
 
@@ -34,9 +34,9 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: 'MAVRYK Governance Contract',
+        name: 'MAVEN Governance Contract',
         version: 'v1.0.0',
-        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        authors: ['MAVEN Dev Team <info@mavryk.io>'],
         }),
         'ascii',
     ).toString('hex'),
@@ -45,7 +45,7 @@ const metadata = MichelsonMap.fromLiteral({
 export const governanceStorage: governanceStorageType = {
   
     admin                   : bob.pkh,
-    mvkTokenAddress         : "",
+    mvnTokenAddress         : "",
     governanceProxyAddress  : zeroAddress,
     metadata                : metadata,
     config                  : config,
@@ -57,7 +57,7 @@ export const governanceStorage: governanceStorageType = {
     proposalLedger                      : MichelsonMap.fromLiteral({}),
     proposalVoters                      : MichelsonMap.fromLiteral({}),
     proposalRewards                     : MichelsonMap.fromLiteral({}),
-    stakedMvkSnapshotLedger             : MichelsonMap.fromLiteral({}),
+    stakedMvnSnapshotLedger             : MichelsonMap.fromLiteral({}),
     snapshotLedger                      : MichelsonMap.fromLiteral({}),
     satelliteLastSnapshotLedger         : MichelsonMap.fromLiteral({}),
 
@@ -73,7 +73,7 @@ export const governanceStorage: governanceStorageType = {
         roundEndLevel             : new BigNumber(0),
         cycleEndLevel             : new BigNumber(0),
         cycleTotalVotersReward    : new BigNumber(0),
-        minQuorumStakedMvkTotal   : new BigNumber(0)
+        minQuorumStakedMvnTotal   : new BigNumber(0)
     },
 
     cycleProposals                     : MichelsonMap.fromLiteral({}),
