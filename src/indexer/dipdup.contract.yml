@@ -91,10 +91,10 @@ contracts:
     kind: tezos
     address: KT1TVPaqstLKvkvTiK9cGGN4JCfHTpWB7S55
     typename: lending_controller
-  lending_controller_mock_time:
-    kind: tezos
-    address: KT1LH5ZsEnW6ojVJpSMwQHWjidcgDqdEwkGM
-    typename: lending_controller_mock_time
+  # lending_controller_mock_time:
+  #   kind: tezos
+  #   address: KT1LH5ZsEnW6ojVJpSMwQHWjidcgDqdEwkGM
+  #   typename: lending_controller_mock_time
   m_token_xtz:
     kind: tezos
     address: KT1A9B5LZf9jBM8BcqY71dfe9iihioAi1QMM

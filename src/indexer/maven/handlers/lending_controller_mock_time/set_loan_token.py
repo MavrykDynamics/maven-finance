@@ -75,7 +75,6 @@ async def set_loan_token(
         lending_controller                  = await models.LendingController.get(
             network         = ctx.datasource.name.replace('tzkt_',''),
             address         = lending_controller_address,
-            mock_time       = True
         )
         oracle                              = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=loan_token_oracle_address)
         token                               = await models.Token.get(

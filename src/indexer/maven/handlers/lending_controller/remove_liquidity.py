@@ -65,7 +65,6 @@ async def remove_liquidity(
         lending_controller                      = await models.LendingController.get(
             network         = ctx.datasource.name.replace('tzkt_',''),
             address         = lending_controller_address,
-            mock_time       = False
         )
         lending_controller_loan_token           = await models.LendingControllerLoanToken.get(
             lending_controller  = lending_controller,
