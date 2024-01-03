@@ -1,0 +1,35 @@
+from maven.utils.error_reporting import save_error_report
+
+from urllib import request
+from maven.types.governance.tezos_storage import GovernanceStorage
+from maven.types.governance.tezos_parameters.execute_proposal import ExecuteProposalParameter
+from dipdup.context import HandlerContext
+from dipdup.models.tezos_tzkt import TzktTransaction
+import maven.models as models
+from dateutil import parser
+
+async def execute_proposal(
+    ctx: HandlerContext,
+    execute_proposal: TzktTransaction[ExecuteProposalParameter, GovernanceStorage],
+) -> None:
+
+    try:
+        # Get operation values
+        proposal_id         = int(execute_proposal.storage.timelockProposalId)
+        proposal_storage    = execute_proposal.storage.proposalLedger[execute_proposal.storage.timelockProposalId]
+        executed            = proposal_storage.executed
+        execution_datetime  = proposal_storage.executedDateTime
+        if execution_datetime:
+            execution_datetime  = parser.parse(proposal_storage.executedDateTime)
+    
+        # Update record
+        await models.GovernanceProposal.filter(
+            internal_id  = proposal_id
+        ).update(
+            executed            = executed,
+            execution_datetime  = execution_datetime
+        )
+
+    except BaseException as e:
+        await save_error_report(e)
+

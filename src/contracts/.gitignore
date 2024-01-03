@@ -2,3 +2,14 @@ build/
 node_modules/
 scripts/tools/**
 !scripts/tools/*.js
+__pycache__/
+venv/
+deployments/*.json
+compiled/*.tz
+contractDeployments.json
+# Webstorm IDE
+./.idea
+**/.idea/**
+.VSCodeCounter/
+.ligo-work
+scripts/proxyLambdaFunctionMaker/governanceProxyLambdaFunction.ligo

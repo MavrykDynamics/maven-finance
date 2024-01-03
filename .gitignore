@@ -8,6 +8,12 @@
 **/screenshots
 **/yarn-error.log
 **/error.log
+**/compiled/*.tz
+.ligoproject
+
+# Python
+__pycache__/
+venv/
 
 # Windows
 **/Thumbs.db
@@ -20,3 +26,10 @@
 
 # Temp
 ./src/contracts
+
+# Webstorm IDE
+./.idea
+**/.idea/**
+
+# VS CODE
+.VSCodeCounter
