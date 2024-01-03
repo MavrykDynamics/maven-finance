@@ -3,7 +3,7 @@ import { bob } from '../scripts/sandbox/accounts'
 import { treasuryStorageType } from "./storageTypes/treasuryStorageType"
 
 const config = {
-    minMvkAmount            : 0,
+    minMvnAmount            : 0,
     maxXtzAmount            : 1000000000,
 }
 
@@ -17,10 +17,10 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-            name: 'MAVRYK Farm Treasury',
-            description: 'MAVRYK Treasury Contract',
+            name: 'MAVEN Farm Treasury',
+            description: 'MAVEN Treasury Contract',
             version: 'v1.0.0',
-            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+            authors: ['MAVEN Dev Team <info@mavryk.io>'],
         }),
         'ascii',
     ).toString('hex'),
@@ -29,7 +29,7 @@ const metadata = MichelsonMap.fromLiteral({
 export const treasuryStorage: treasuryStorageType = {
     
     admin                     : bob.pkh,
-    mvkTokenAddress           : "",
+    mvnTokenAddress           : "",
     governanceAddress         : "",
     name                      : "treasury",
     metadata                  : metadata,

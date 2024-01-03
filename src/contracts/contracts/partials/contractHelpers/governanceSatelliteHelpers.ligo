@@ -227,20 +227,20 @@ block {
 
 
 
-// helper function to get staked mvk snapshot total supply based on the current governance cycle 
-function getStakedMvkSnapshotTotalSupply(const currentCycleId : nat; const s : governanceSatelliteStorageType) : nat is 
+// helper function to get staked mvn snapshot total supply based on the current governance cycle 
+function getStakedMvnSnapshotTotalSupply(const currentCycleId : nat; const s : governanceSatelliteStorageType) : nat is 
 block {
 
-    const getStakedMvkSnapshotOptView : option(option(nat)) = Tezos.call_view ("getStakedMvkSnapshotOpt", currentCycleId, s.governanceAddress);
-    const stakedMvkTotalSupply : nat = case getStakedMvkSnapshotOptView of [
+    const getStakedMvnSnapshotOptView : option(option(nat)) = Tezos.call_view ("getStakedMvnSnapshotOpt", currentCycleId, s.governanceAddress);
+    const stakedMvnTotalSupply : nat = case getStakedMvnSnapshotOptView of [
             Some (_view)  -> case _view of [
                     Some(_value) -> _value
-                |   None         -> failwith(error_STAKED_MVK_SNAPSHOT_FOR_CYCLE_NOT_FOUND)
+                |   None         -> failwith(error_STAKED_MVN_SNAPSHOT_FOR_CYCLE_NOT_FOUND)
             ]
-        |   None          -> failwith(error_GET_STAKED_MVK_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        |   None          -> failwith(error_GET_STAKED_MVN_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
 
-} with stakedMvkTotalSupply 
+} with stakedMvnTotalSupply 
 
 
 
@@ -406,14 +406,14 @@ block {
     verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
 
     // ------------------------------------------------------------------
-    // Snapshot Staked MVK Total Supply
+    // Snapshot Staked MVN Total Supply
     // ------------------------------------------------------------------
 
-    // Take snapshot of current total staked MVK supply 
-    const snapshotStakedMvkTotalSupply : nat = getStakedMvkSnapshotTotalSupply(currentCycleId, s);
+    // Take snapshot of current total staked MVN supply 
+    const snapshotStakedMvnTotalSupply : nat = getStakedMvnSnapshotTotalSupply(currentCycleId, s);
 
-    // Calculate staked MVK votes required for approval based on config's approval percentage
-    const stakedMvkRequiredForApproval : nat = abs((snapshotStakedMvkTotalSupply * s.config.approvalPercentage) / 10000);
+    // Calculate staked MVN votes required for approval based on config's approval percentage
+    const stakedMvnRequiredForApproval : nat = abs((snapshotStakedMvnTotalSupply * s.config.approvalPercentage) / 10000);
 
     // ------------------------------------------------------------------
     // Create new Governance Satellite Action
@@ -431,14 +431,14 @@ block {
 
         dataMap                            = dataMap;
 
-        yayVoteStakedMvkTotal              = 0n;
-        nayVoteStakedMvkTotal              = 0n;
-        passVoteStakedMvkTotal             = 0n;
+        yayVoteStakedMvnTotal              = 0n;
+        nayVoteStakedMvnTotal              = 0n;
+        passVoteStakedMvnTotal             = 0n;
 
         governanceCycleId                  = currentCycleId;
-        snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
-        stakedMvkPercentageForApproval     = s.config.approvalPercentage; 
-        stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
+        snapshotStakedMvnTotalSupply       = snapshotStakedMvnTotalSupply;
+        stakedMvnPercentageForApproval     = s.config.approvalPercentage; 
+        stakedMvnRequiredForApproval       = stakedMvnRequiredForApproval; 
 
         startDateTime                      = Tezos.get_now();
         expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.satelliteActionDurationInDays);
@@ -588,7 +588,7 @@ block {
         // Create a snapshot
         const satelliteSnapshot : updateSatelliteSingleSnapshotType  = record[
             satelliteAddress            = satelliteAddress;
-            totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
+            totalStakedMvnBalance       = satelliteRecord.stakedMvnBalance;
             totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
             ready                       = ready;
             delegationRatio             = delegationRatio;
@@ -643,7 +643,7 @@ block {
         
         totalVotingPower := voteHelperCalculateVotingPower(
             delegationRatio,                        // delegation ratio
-            satelliteRecord.stakedMvkBalance,       // staked MVK balance
+            satelliteRecord.stakedMvnBalance,       // staked MVN balance
             satelliteRecord.totalDelegatedAmount    // total delegated amount
         );
 

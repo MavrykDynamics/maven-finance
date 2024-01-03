@@ -68,38 +68,38 @@ error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER                                   
 
 
 
-error_MVK_TOKEN_CONTRACT_NOT_FOUND                                                                      = 50
-error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                                                                   = 51
+error_MVN_TOKEN_CONTRACT_NOT_FOUND                                                                      = 50
+error_ONLY_MVN_TOKEN_CONTRACT_ALLOWED                                                                   = 51
 
 error_MAXIMUM_SUPPLY_EXCEEDED                                                                           = 52
 error_INFLATION_RATE_TOO_HIGH                                                                           = 53
 error_CANNOT_TRIGGER_INFLATION_NOW                                                                      = 54
 
 
-error_SET_ADMIN_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                              = 55
-error_SET_GOVERNANCE_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                         = 56
-error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                             = 57
-error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                               = 58
-error_MISTAKEN_TRANSFER_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                      = 59
-error_ASSERT_METADATA_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                        = 60
-error_TRANSFER_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                               = 61
-error_BALANCE_OF_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                             = 62
-error_UPDATE_OPERATORS_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                       = 63
-error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                                   = 64
-error_UPDATE_INFLATION_RATE_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                             = 65
-error_TRIGGER_INFLATION_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                                 = 66
+error_SET_ADMIN_ENTRYPOINT_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                              = 55
+error_SET_GOVERNANCE_ENTRYPOINT_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                         = 56
+error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                             = 57
+error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                               = 58
+error_MISTAKEN_TRANSFER_ENTRYPOINT_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                      = 59
+error_ASSERT_METADATA_ENTRYPOINT_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                        = 60
+error_TRANSFER_ENTRYPOINT_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                               = 61
+error_BALANCE_OF_ENTRYPOINT_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                             = 62
+error_UPDATE_OPERATORS_ENTRYPOINT_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                       = 63
+error_MINT_ENTRYPOINT_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                                   = 64
+error_UPDATE_INFLATION_RATE_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                             = 65
+error_TRIGGER_INFLATION_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                                 = 66
 
 
-error_GET_ADMIN_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                                    = 67
-error_GET_GENERAL_CONTRACTS_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                        = 68
-error_GET_WHITELIST_CONTRACTS_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                      = 69
-error_GET_INFLATION_RATE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                           = 70
-error_GET_NEXT_INFLATION_TIMESTAMP_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                 = 71
-error_GET_OPERATOR_OPT_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                             = 72
-error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                                  = 73
-error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                             = 74
-error_GET_MAXIMUM_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                           = 75
-error_GET_TOTAL_AND_MAXIMUM_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                 = 76
+error_GET_ADMIN_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                                    = 67
+error_GET_GENERAL_CONTRACTS_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                        = 68
+error_GET_WHITELIST_CONTRACTS_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                      = 69
+error_GET_INFLATION_RATE_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                           = 70
+error_GET_NEXT_INFLATION_TIMESTAMP_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                 = 71
+error_GET_OPERATOR_OPT_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                             = 72
+error_GET_BALANCE_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                                  = 73
+error_GET_TOTAL_SUPPLY_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                             = 74
+error_GET_MAXIMUM_SUPPLY_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                           = 75
+error_GET_TOTAL_AND_MAXIMUM_SUPPLY_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND                                 = 76
 
 
 
@@ -284,15 +284,15 @@ error_ONLY_DOORMAN_CONTRACT_ALLOWED                                             
 error_FARM_TREASURY_CONTRACT_NOT_FOUND                                                                  = 201
 
 
-error_MIN_STAKED_MVK_AMOUNT_NOT_REACHED                                                                 = 202
-error_MIN_MVK_AMOUNT_NOT_REACHED                                                                        = 203
+error_MIN_STAKED_MVN_AMOUNT_NOT_REACHED                                                                 = 202
+error_MIN_MVN_AMOUNT_NOT_REACHED                                                                        = 203
 
 error_USER_STAKE_RECORD_NOT_FOUND                                                                       = 204
 error_VAULT_STAKE_RECORD_NOT_FOUND                                                                      = 205
-error_INSUFFICIENT_STAKED_MVK_BALANCE                                                                   = 206
-error_UNSTAKE_AMOUNT_CANNOT_BE_GREATER_THAN_STAKED_MVK_TOTAL_SUPPLY                                     = 207
+error_INSUFFICIENT_STAKED_MVN_BALANCE                                                                   = 206
+error_UNSTAKE_AMOUNT_CANNOT_BE_GREATER_THAN_STAKED_MVN_TOTAL_SUPPLY                                     = 207
 
-error_CANNOT_TRANSFER_MVK_TOKEN_USING_MISTAKEN_TRANSFER                                                 = 208
+error_CANNOT_TRANSFER_MVN_TOKEN_USING_MISTAKEN_TRANSFER                                                 = 208
 
 
 error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED                                                       = 209
@@ -324,9 +324,9 @@ error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND                          
 error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND                                                 = 231
 error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND                                               = 232
 error_SET_LAMBDA_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND                                               = 233
-error_ON_VAULT_DEPOSIT_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND                              = 234
-error_ON_VAULT_WITHDRAW_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND                             = 235
-error_ON_VAULT_LIQUIDATE_STAKED_MVK_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND                            = 236
+error_ON_VAULT_DEPOSIT_STAKED_MVN_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND                              = 234
+error_ON_VAULT_WITHDRAW_STAKED_MVN_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND                             = 235
+error_ON_VAULT_LIQUIDATE_STAKED_MVN_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND                            = 236
 
 
 error_GET_ADMIN_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND                                                      = 237
@@ -335,7 +335,7 @@ error_GET_WHITELIST_CONTRACTS_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND                
 error_GET_GENERAL_CONTRACTS_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND                                          = 240
 error_GET_BREAK_GLASS_CONFIG_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND                                         = 241
 error_GET_USER_STAKE_BALANCE_OPT_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND                                     = 242
-error_GET_STAKED_MVK_TOTAL_SUPPLY_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND                                    = 243
+error_GET_STAKED_MVN_TOTAL_SUPPLY_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND                                    = 243
 error_GET_UNCLAIMED_REWARDS_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND                                          = 244
 error_GET_ACCUMULATED_FEES_PER_SHARE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND                                 = 245
 error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND                                             = 246
@@ -545,7 +545,7 @@ error_CURRENT_ROUND_NOT_FINISHED                                                
 error_MAX_PROPOSAL_REACHED                                                                              = 396
 error_DEVELOPER_NOT_WHITELISTED                                                                         = 397
 error_AT_LEAST_ONE_WHITELISTED_DEVELOPER_REQUIRED                                                       = 398
-error_STAKED_MVK_SNAPSHOT_FOR_CYCLE_NOT_FOUND                                                           = 399
+error_STAKED_MVN_SNAPSHOT_FOR_CYCLE_NOT_FOUND                                                           = 399
 
 
 error_SET_ADMIN_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                             = 400
@@ -588,7 +588,7 @@ error_GET_PROPOSAL_VOTER_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND              
 error_GET_PROPOSAL_REWARD_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                     = 435
 error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                            = 436
 error_GET_SATELLITE_LAST_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                             = 437
-error_GET_STAKED_MVK_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                 = 438
+error_GET_STAKED_MVN_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                 = 438
 error_GET_CURRENT_CYCLE_INFO_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                      = 439
 error_GET_CYCLE_PROPOSALS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                         = 440
 error_GET_CYCLE_PROPOSER_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                      = 441
@@ -685,7 +685,7 @@ error_UNSTAKE_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND                            
 
 
 error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                                   = 499
-error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                      = 500
+error_MINT_MVN_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                      = 500
 error_UPDATE_TOKEN_OPERATORS_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                     = 501
 error_STAKE_TOKENS_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                               = 502
 error_UNSTAKE_TOKENS_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                             = 503
@@ -704,10 +704,10 @@ error_PAUSE_ALL_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                       
 error_UNPAUSE_ALL_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                             = 514
 error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                 = 515
 error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                                = 516
-error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                   = 517
-error_UPDATE_MVK_OPERATORS_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                    = 518
-error_STAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                               = 519
-error_UNSTAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                             = 520
+error_MINT_MVN_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                   = 517
+error_UPDATE_MVN_OPERATORS_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                    = 518
+error_STAKE_MVN_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                               = 519
+error_UNSTAKE_MVN_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                             = 520
 
 
 error_GET_ADMIN_VIEW_IN_TREASURY_CONTRACT_NOT_FOUND                                                     = 521
@@ -836,7 +836,7 @@ error_ORACLE_NOT_PRESENT_IN_AGGREGATOR                                          
 
 error_UPDATE_DATA_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                              = 603
 error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 604
-error_WITHDRAW_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                               = 605
+error_WITHDRAW_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                               = 605
 
 
 error_SET_ADMIN_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                             = 606
@@ -857,7 +857,7 @@ error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND       
 error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                   = 619
 error_SET_OBSERVATION_REVEAL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                = 620
 error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                   = 621
-error_WITHDRAW_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                            = 622
+error_WITHDRAW_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                            = 622
 error_MISTAKEN_TRANSFER_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                     = 623
 error_SET_LAMBDA_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                            = 624
 
@@ -869,7 +869,7 @@ error_GET_GOVERNANCE_ADDRESS_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND              
 error_GET_WHITELIST_CONTRACTS_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                     = 629
 error_GET_GENERAL_CONTRACTS_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                       = 630
 error_GET_ORACLE_ADDRESSES_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                        = 631
-error_GET_ORACLE_REWARDS_STAKED_MVK_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                               = 632
+error_GET_ORACLE_REWARDS_STAKED_MVN_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                               = 632
 error_GET_ORACLE_REWARDS_XTZ_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                      = 633
 error_GET_LAST_COMPLETED_DATA_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                     = 634
 error_GET_DECIMALS_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                                = 635
@@ -910,7 +910,7 @@ error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED        
 error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                                 = 658
 error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                               = 659
 error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                            = 660
-error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                     = 661
+error_DISTRIBUTE_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                     = 661
 
 
 error_SET_ADMIN_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                                     = 662
@@ -926,7 +926,7 @@ error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND     
 error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                              = 672
 error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                            = 673
 error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                         = 674
-error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                  = 675
+error_DISTRIBUTE_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                  = 675
 error_MISTAKEN_TRANSFER_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                             = 676
 error_SET_LAMBDA_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                                    = 677
 error_SET_PRODUCT_LAMBDA_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                            = 678
@@ -969,7 +969,7 @@ error_MAX_GOVERNANCE_SATELLITE_ACTIONS_REACHED                                  
 
 error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION                                             = 701
 error_ONLY_SATELLITES_ALLOWED_TO_VOTE_FOR_GOVERNANCE_ACTION                                             = 702
-error_SNAPSHOT_STAKED_MVK_TOTAL_SUPPLY_NOT_FOUND                                                        = 703
+error_SNAPSHOT_STAKED_MVN_TOTAL_SUPPLY_NOT_FOUND                                                        = 703
 
 error_SATELLITE_SUBSCRIBED_AGGREGATORS_NOT_FOUND                                                        = 704
 error_ORACLE_NOT_FOUND                                                                                  = 705
@@ -1023,8 +1023,8 @@ error_GET_LAMBDA_LEDGER_VIEW_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND         
 
 
 
-error_MVK_PAY_AMOUNT_NOT_MET                                                                            = 743
-error_MIN_MVK_AMOUNT_NOT_REACHED                                                                        = 744
+error_MVN_PAY_AMOUNT_NOT_MET                                                                            = 743
+error_MIN_MVN_AMOUNT_NOT_REACHED                                                                        = 744
 error_TOKEN_SALE_HAS_NOT_STARTED                                                                        = 745
 error_TOKEN_SALE_HAS_ENDED                                                                              = 746
 error_TOKEN_SALE_HAS_NOT_ENDED                                                                          = 747
@@ -1133,7 +1133,7 @@ error_SET_ADMIN_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                          
 error_SET_GOVERNANCE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                             = 807
 error_UPDATE_METADATA_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                            = 808
 error_DELEGATE_TEZ_TO_BAKER_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                      = 809
-error_VAULT_DELEGATE_MVK_TO_SATELLITE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                            = 810
+error_VAULT_DELEGATE_MVN_TO_SATELLITE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                            = 810
 error_VAULT_DEPOSIT_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                              = 811
 error_WITHDRAW_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                   = 812
 error_ON_LIQUIDATE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                               = 813
@@ -1214,7 +1214,7 @@ error_VAULT_DEPOSIT_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSE
 error_VAULT_WITHDRAW_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                      = 861
 
 error_VAULT_DELEGATE_TEZ_TO_BAKER_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 862
-error_VAULT_DELEGATE_MVK_TO_SAT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                   = 863
+error_VAULT_DELEGATE_MVN_TO_SAT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                   = 863
 error_VAULT_DEPOSIT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                               = 864
 error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                              = 865
 error_VAULT_ON_LIQUIDATE_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                          = 866
@@ -1232,7 +1232,7 @@ error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND      
 error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                           = 873
 error_REGISTER_VAULT_CREATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                       = 874
 
-error_VAULT_LIQUIDATE_STAKED_MVK_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                               = 875
+error_VAULT_LIQUIDATE_STAKED_MVN_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                               = 875
 error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                                = 876
 error_SET_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND                          = 877
 

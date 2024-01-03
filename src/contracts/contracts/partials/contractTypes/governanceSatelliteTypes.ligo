@@ -16,7 +16,7 @@
 
 
 type governanceSatelliteConfigType is [@layout:comb] record [
-    approvalPercentage                  : nat;  // threshold for satellite governance to be approved: 67% of total staked MVK supply
+    approvalPercentage                  : nat;  // threshold for satellite governance to be approved: 67% of total staked MVN supply
     satelliteActionDurationInDays       : nat;  // duration of satellite governance before expiry
     governancePurposeMaxLength          : nat;
     maxActionsPerSatellite              : nat;
@@ -32,14 +32,14 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
 
     dataMap                            : dataMapType;
 
-    yayVoteStakedMvkTotal              : nat;
-    nayVoteStakedMvkTotal              : nat;
-    passVoteStakedMvkTotal             : nat;
+    yayVoteStakedMvnTotal              : nat;
+    nayVoteStakedMvnTotal              : nat;
+    passVoteStakedMvnTotal             : nat;
 
     governanceCycleId                  : nat;
-    snapshotStakedMvkTotalSupply       : nat;
-    stakedMvkPercentageForApproval     : nat; 
-    stakedMvkRequiredForApproval       : nat; 
+    snapshotStakedMvnTotalSupply       : nat;
+    stakedMvnPercentageForApproval     : nat; 
+    stakedMvnRequiredForApproval       : nat; 
 
     startDateTime                      : timestamp;           
     expiryDateTime                     : timestamp;
@@ -191,7 +191,7 @@ type governanceSatelliteStorageType is record [
     metadata                                : metadataType;
     config                                  : governanceSatelliteConfigType;
 
-    mvkTokenAddress                         : address;
+    mvnTokenAddress                         : address;
     governanceAddress                       : address; 
 
     whitelistContracts                      : whitelistContractsType;      

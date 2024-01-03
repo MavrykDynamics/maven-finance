@@ -1,16 +1,16 @@
 import { MichelsonMap } from "@taquito/michelson-encoder"
 import { BigNumber } from "bignumber.js"
 import { bob } from '../scripts/sandbox/accounts'
-import { MVK } from "../test/helpers/Utils"
+import { MVN } from "../test/helpers/Utils"
 import { doormanStorageType } from "./storageTypes/doormanStorageType"
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: 'MAVRYK Doorman Contract',
+        name: 'MAVEN Doorman Contract',
         version: 'v1.0.0',
-        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        authors: ['MAVEN Dev Team <info@mavryk.io>'],
         source: {
             tools: ['Ligo', 'Flextesa'],
             location: 'https://ligolang.org/',
@@ -23,20 +23,20 @@ const metadata = MichelsonMap.fromLiteral({
 export const doormanStorage: doormanStorageType = {
     
     admin                     : bob.pkh,
-    mvkTokenAddress           : "",
+    mvnTokenAddress           : "",
     governanceAddress         : "",
     metadata                  : metadata,
 
     config                    : {
-        minMvkAmount  : new BigNumber(MVK(1))
+        minMvnAmount  : new BigNumber(MVN(1))
     },
 
     whitelistContracts        : MichelsonMap.fromLiteral({}),
     generalContracts          : MichelsonMap.fromLiteral({}),
     
     breakGlassConfig: {
-        stakeIsPaused           : false,
-        unstakeIsPaused         : false,
+        stakeMvnIsPaused           : false,
+        unstakeMvnIsPaused         : false,
         exitIsPaused            : false,
         compoundIsPaused        : false,
         farmClaimIsPaused       : false,

@@ -94,7 +94,7 @@ type breakGlassStorageType is [@layout:comb] record [
     metadata                    : metadataType;
     config                      : breakGlassConfigType;
 
-    mvkTokenAddress             : address;
+    mvnTokenAddress             : address;
     governanceAddress           : address;
 
     whitelistContracts          : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints

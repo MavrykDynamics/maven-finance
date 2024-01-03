@@ -37,16 +37,16 @@ describe("Mistaken transfers tests", async () => {
     let admin 
     let adminSk 
 
-    let mavrykFa12TokenAddress
-    let mavrykFa2TokenAddress
-    let mvkTokenAddress
+    let mavenFa12TokenAddress
+    let mavenFa2TokenAddress
+    let mvnTokenAddress
     let tokenId = 0
 
     let doormanInstance;
     let delegationInstance;
-    let mvkTokenInstance;
-    let mavrykFa12TokenInstance;
-    let mavrykFa2TokenInstance;
+    let mvnTokenInstance;
+    let mavenFa12TokenInstance;
+    let mavenFa2TokenInstance;
     let mTokenInstance;
     let treasuryInstance;
     let treasuryFactoryInstance;
@@ -66,9 +66,9 @@ describe("Mistaken transfers tests", async () => {
 
     let doormanStorage;
     let delegationStorage;
-    let mvkTokenStorage;
-    let mavrykFa12TokenStorage;
-    let mavrykFa2TokenStorage;
+    let mvnTokenStorage;
+    let mavenFa12TokenStorage;
+    let mavenFa2TokenStorage;
     let mTokenStorage;
     let treasuryStorage;
     let treasuryFactoryStorage;
@@ -95,19 +95,19 @@ describe("Mistaken transfers tests", async () => {
         admin   = bob.pkh;
         adminSk = bob.sk;
         
-        mavrykFa12TokenAddress          = contractDeployments.mavrykFa12Token.address;
-        mavrykFa2TokenAddress           = contractDeployments.mavrykFa2Token.address;
-        mvkTokenAddress                 = contractDeployments.mvkToken.address;
+        mavenFa12TokenAddress          = contractDeployments.mavenFa12Token.address;
+        mavenFa2TokenAddress           = contractDeployments.mavenFa2Token.address;
+        mvnTokenAddress                 = contractDeployments.mvnToken.address;
 
         doormanInstance                 = await utils.tezos.contract.at(contractDeployments.doorman.address);
         delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
-        mvkTokenInstance                = await utils.tezos.contract.at(mvkTokenAddress);
-        mavrykFa12TokenInstance         = await utils.tezos.contract.at(mavrykFa12TokenAddress);
-        mavrykFa2TokenInstance          = await utils.tezos.contract.at(mavrykFa2TokenAddress);
+        mvnTokenInstance                = await utils.tezos.contract.at(mvnTokenAddress);
+        mavenFa12TokenInstance         = await utils.tezos.contract.at(mavenFa12TokenAddress);
+        mavenFa2TokenInstance          = await utils.tezos.contract.at(mavenFa2TokenAddress);
         treasuryInstance                = await utils.tezos.contract.at(contractDeployments.treasury.address);
         treasuryFactoryInstance         = await utils.tezos.contract.at(contractDeployments.treasuryFactory.address);
         farmInstance                    = await utils.tezos.contract.at(contractDeployments.farm.address);
-        lpTokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
+        lpTokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
         breakGlassInstance              = await utils.tezos.contract.at(contractDeployments.breakGlass.address);
         emergencyGovernanceInstance     = await utils.tezos.contract.at(contractDeployments.emergencyGovernance.address);
         farmFactoryInstance             = await utils.tezos.contract.at(contractDeployments.farmFactory.address);
@@ -123,9 +123,9 @@ describe("Mistaken transfers tests", async () => {
             
         doormanStorage                  = await doormanInstance.storage();
         delegationStorage               = await delegationInstance.storage();
-        mvkTokenStorage                 = await mvkTokenInstance.storage();
-        mavrykFa12TokenStorage          = await mavrykFa12TokenInstance.storage();
-        mavrykFa2TokenStorage           = await mavrykFa2TokenInstance.storage();
+        mvnTokenStorage                 = await mvnTokenInstance.storage();
+        mavenFa12TokenStorage          = await mavenFa12TokenInstance.storage();
+        mavenFa2TokenStorage           = await mavenFa2TokenInstance.storage();
         treasuryStorage                 = await treasuryInstance.storage();
         treasuryFactoryStorage          = await treasuryFactoryInstance.storage();
         farmStorage                     = await farmInstance.storage();
@@ -159,31 +159,31 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.doorman.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                var contractAccount         = await mavenFa12TokenStorage.ledger.get(contractDeployments.doorman.address)
+                var userAccount             = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const initContractBalance   = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.doorman.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.doorman.address, tokenAmount).send();
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.doorman.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.doorman.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const midContractBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa12Token(doormanInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa12Token(doormanInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.doorman.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.doorman.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const endContractBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -197,18 +197,18 @@ describe("Mistaken transfers tests", async () => {
             }
         })
 
-        it("Governance Satellite should not be able to transfer MVK Tokens sent to the doorman by mistake", async() => {
+        it("Governance Satellite should not be able to transfer MVN Tokens sent to the doorman by mistake", async() => {
             try{
 
                 // Initial values
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.doorman.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.doorman.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = mistakenTransferFa2Token(doormanInstance, bob.pkh, mvkTokenAddress, tokenId, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa2Token(doormanInstance, bob.pkh, mvnTokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -220,16 +220,16 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.doorman.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.doorman.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa12Token(doormanInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(doormanInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -248,16 +248,16 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.farm.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                var contractAccount         = await mavenFa2TokenStorage.ledger.get(contractDeployments.farm.address)
+                var userAccount             = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
                 const transferOperation    = await fa2Transfer(
-                    mavrykFa2TokenInstance,             // contract instance
+                    mavenFa2TokenInstance,             // contract instance
                     bob.pkh,                            // from_
                     contractDeployments.farm.address,   // to_
                     tokenId,                            // token id
@@ -266,19 +266,19 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.farm.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.farm.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa2Token(farmInstance, bob.pkh, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.farm.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.farm.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 
@@ -303,7 +303,7 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = mistakenTransferFa12Token(farmInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(farmInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -315,16 +315,16 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.farm.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.farm.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa12Token(farmInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(farmInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -343,31 +343,31 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.delegation.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                var contractAccount         = await mavenFa12TokenStorage.ledger.get(contractDeployments.delegation.address)
+                var userAccount             = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.delegation.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.delegation.address, tokenAmount).send();
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.delegation.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.delegation.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa12Token(delegationInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa12Token(delegationInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.delegation.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.delegation.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -385,16 +385,16 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.delegation.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.delegation.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = await mistakenTransferFa12Token(delegationInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = await mistakenTransferFa12Token(delegationInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -413,31 +413,31 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.breakGlass.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                var contractAccount         = await mavenFa12TokenStorage.ledger.get(contractDeployments.breakGlass.address)
+                var userAccount             = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.breakGlass.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.breakGlass.address, tokenAmount).send();
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.breakGlass.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.breakGlass.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa12Token(breakGlassInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa12Token(breakGlassInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.breakGlass.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.breakGlass.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -455,16 +455,16 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.breakGlass.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.breakGlass.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa12Token(breakGlassInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(breakGlassInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -483,31 +483,31 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.emergencyGovernance.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                var contractAccount         = await mavenFa12TokenStorage.ledger.get(contractDeployments.emergencyGovernance.address)
+                var userAccount             = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.emergencyGovernance.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.emergencyGovernance.address, tokenAmount).send();
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.emergencyGovernance.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.emergencyGovernance.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa12Token(emergencyGovernanceInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa12Token(emergencyGovernanceInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.emergencyGovernance.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.emergencyGovernance.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -525,16 +525,16 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.emergencyGovernance.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.emergencyGovernance.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa12Token(emergencyGovernanceInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(emergencyGovernanceInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -553,31 +553,31 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.farmFactory.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                var contractAccount         = await mavenFa12TokenStorage.ledger.get(contractDeployments.farmFactory.address)
+                var userAccount             = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.farmFactory.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.farmFactory.address, tokenAmount).send();
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.farmFactory.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.farmFactory.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa12Token(farmFactoryInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa12Token(farmFactoryInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.farmFactory.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.farmFactory.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -595,16 +595,16 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.farmFactory.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.farmFactory.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa12Token(farmFactoryInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(farmFactoryInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -623,31 +623,31 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governance.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                var contractAccount         = await mavenFa12TokenStorage.ledger.get(contractDeployments.governance.address)
+                var userAccount             = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governance.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governance.address, tokenAmount).send();
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governance.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.governance.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa12Token(governanceInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa12Token(governanceInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governance.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.governance.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -665,16 +665,16 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governance.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governance.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa12Token(governanceInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(governanceInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -693,31 +693,31 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governanceFinancial.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                var contractAccount         = await mavenFa12TokenStorage.ledger.get(contractDeployments.governanceFinancial.address)
+                var userAccount             = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governanceFinancial.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governanceFinancial.address, tokenAmount).send();
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governanceFinancial.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.governanceFinancial.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa12Token(governanceFinancialInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa12Token(governanceFinancialInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governanceFinancial.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.governanceFinancial.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -735,16 +735,16 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governanceFinancial.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governanceFinancial.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa12Token(governanceFinancialInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(governanceFinancialInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -763,31 +763,31 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governanceProxy.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                var contractAccount         = await mavenFa12TokenStorage.ledger.get(contractDeployments.governanceProxy.address)
+                var userAccount             = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governanceProxy.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governanceProxy.address, tokenAmount).send();
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governanceProxy.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.governanceProxy.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa12Token(governanceProxyInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa12Token(governanceProxyInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.governanceProxy.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.governanceProxy.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -805,16 +805,16 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governanceProxy.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.governanceProxy.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa12Token(governanceProxyInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(governanceProxyInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -823,41 +823,41 @@ describe("Mistaken transfers tests", async () => {
         })
     })
 
-    describe("MVK TOKEN", async () => {
+    describe("MVN TOKEN", async () => {
 
         beforeEach('Set sender to admin', async () => {
             await signerFactory(tezos, adminSk)
         })
 
-        it("Governance Satellite should be able to transfer Tokens sent to the mvkToken by mistake", async() => {
+        it("Governance Satellite should be able to transfer Tokens sent to the mvnToken by mistake", async() => {
             try{
 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.mvkToken.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                var contractAccount         = await mavenFa12TokenStorage.ledger.get(contractDeployments.mvnToken.address)
+                var userAccount             = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.mvkToken.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.mvnToken.address, tokenAmount).send();
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.mvkToken.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.mvnToken.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa12Token(mvkTokenInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa12Token(mvnTokenInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.mvkToken.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.mvnToken.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -875,16 +875,16 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.mvkToken.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.mvnToken.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa12Token(mvkTokenInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(mvnTokenInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -903,31 +903,31 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.treasuryFactory.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                var contractAccount         = await mavenFa12TokenStorage.ledger.get(contractDeployments.treasuryFactory.address)
+                var userAccount             = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.treasuryFactory.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.treasuryFactory.address, tokenAmount).send();
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.treasuryFactory.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.treasuryFactory.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa12Token(treasuryFactoryInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa12Token(treasuryFactoryInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.treasuryFactory.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.treasuryFactory.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -945,16 +945,16 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.treasuryFactory.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.treasuryFactory.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa12Token(treasuryFactoryInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(treasuryFactoryInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -973,31 +973,31 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vaultFactory.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                var contractAccount         = await mavenFa12TokenStorage.ledger.get(contractDeployments.vaultFactory.address)
+                var userAccount             = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.vaultFactory.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.vaultFactory.address, tokenAmount).send();
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vaultFactory.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.vaultFactory.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa12Token(vaultFactoryInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa12Token(vaultFactoryInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vaultFactory.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.vaultFactory.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -1015,16 +1015,16 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.vaultFactory.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.vaultFactory.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa12Token(vaultFactoryInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(vaultFactoryInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -1044,31 +1044,31 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                var contractAccount         = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vesting.address)
-                var userAccount             = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                var contractAccount         = await mavenFa12TokenStorage.ledger.get(contractDeployments.vesting.address)
+                var userAccount             = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.balance.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.vesting.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.vesting.address, tokenAmount).send();
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vesting.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.vesting.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa12Token(vestingInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa12Token(vestingInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
-                contractAccount             = await mavrykFa12TokenStorage.ledger.get(contractDeployments.vesting.address)
-                userAccount                 = await mavrykFa12TokenStorage.ledger.get(bob.pkh)
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
+                contractAccount             = await mavenFa12TokenStorage.ledger.get(contractDeployments.vesting.address)
+                userAccount                 = await mavenFa12TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.balance.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.balance.toNumber() : 0;
 
@@ -1086,16 +1086,16 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage()
+                mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
-                const transferOperation     = await mavrykFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.vesting.address, tokenAmount).send();
+                const transferOperation     = await mavenFa12TokenInstance.methods.transfer(bob.pkh, contractDeployments.vesting.address, tokenAmount).send();
                 await transferOperation.confirmation();
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa12Token(vestingInstance, bob.pkh, mavrykFa12TokenAddress, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa12Token(vestingInstance, bob.pkh, mavenFa12TokenAddress, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -1114,16 +1114,16 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.aggregator.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                var contractAccount         = await mavenFa2TokenStorage.ledger.get(contractDeployments.aggregator.address)
+                var userAccount             = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
                 const transferOperation    = await fa2Transfer(
-                    mavrykFa2TokenInstance,                   // contract instance
+                    mavenFa2TokenInstance,                   // contract instance
                     bob.pkh,                                  // from_
                     contractDeployments.aggregator.address,   // to_
                     tokenId,                                  // token id
@@ -1132,19 +1132,19 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.aggregator.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.aggregator.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa2Token(aggregatorInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa2Token(aggregatorInstance, bob.pkh, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa2TokenStorage        = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.aggregator.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage        = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.aggregator.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 
@@ -1162,12 +1162,12 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa2TokenStorage        = await mavrykFa2TokenInstance.storage()
+                mavenFa2TokenStorage        = await mavenFa2TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
                 const transferOperation    = await fa2Transfer(
-                    mavrykFa2TokenInstance,                 // contract instance
+                    mavenFa2TokenInstance,                 // contract instance
                     bob.pkh,                                // from_
                     contractDeployments.aggregator.address, // to_
                     tokenId,                                // token id
@@ -1177,7 +1177,7 @@ describe("Mistaken transfers tests", async () => {
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa2Token(aggregatorInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa2Token(aggregatorInstance, bob.pkh, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -1196,16 +1196,16 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                var contractAccount         = await mavenFa2TokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
+                var userAccount             = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
                 const transferOperation    = await fa2Transfer(
-                    mavrykFa2TokenInstance,                         // contract instance
+                    mavenFa2TokenInstance,                         // contract instance
                     bob.pkh,                                        // from_
                     contractDeployments.aggregatorFactory.address,  // to_
                     tokenId,                                        // token id
@@ -1214,19 +1214,19 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa2Token(aggregatorFactoryInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa2Token(aggregatorFactoryInstance, bob.pkh, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 
@@ -1244,12 +1244,12 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
                 const transferOperation    = await fa2Transfer(
-                    mavrykFa2TokenInstance,                             // contract instance
+                    mavenFa2TokenInstance,                             // contract instance
                     bob.pkh,                                            // from_
                     contractDeployments.aggregatorFactory.address,    // to_
                     tokenId,                                            // token id
@@ -1259,7 +1259,7 @@ describe("Mistaken transfers tests", async () => {
 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa2Token(aggregatorFactoryInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa2Token(aggregatorFactoryInstance, bob.pkh, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -1279,16 +1279,16 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.governanceSatellite.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                var contractAccount         = await mavenFa2TokenStorage.ledger.get(contractDeployments.governanceSatellite.address)
+                var userAccount             = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
                 const transferOperation    = await fa2Transfer(
-                    mavrykFa2TokenInstance,                             // contract instance
+                    mavenFa2TokenInstance,                             // contract instance
                     bob.pkh,                                            // from_
                     contractDeployments.governanceSatellite.address,    // to_
                     tokenId,                                            // token id
@@ -1297,19 +1297,19 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.governanceSatellite.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.governanceSatellite.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa2Token(governanceSatelliteInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa2Token(governanceSatelliteInstance, bob.pkh, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.governanceSatellite.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.governanceSatellite.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 
@@ -1327,12 +1327,12 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
                 const transferOperation    = await fa2Transfer(
-                    mavrykFa2TokenInstance,                             // contract instance
+                    mavenFa2TokenInstance,                             // contract instance
                     bob.pkh,                                            // from_
                     contractDeployments.governanceSatellite.address,    // to_
                     tokenId,                                            // token id
@@ -1342,7 +1342,7 @@ describe("Mistaken transfers tests", async () => {
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa2Token(governanceSatelliteInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa2Token(governanceSatelliteInstance, bob.pkh, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -1351,47 +1351,47 @@ describe("Mistaken transfers tests", async () => {
         })
     });
 
-    describe("MAVRYK FA12 TOKEN", async () => {
+    describe("MAVEN FA12 TOKEN", async () => {
 
         beforeEach('Set sender to admin', async () => {
             await signerFactory(tezos, adminSk)
         })
 
-        it("Governance Satellite should be able to transfer Tokens sent to a mavryk fa12 token by mistake", async() => {
+        it("Governance Satellite should be able to transfer Tokens sent to a maven fa12 token by mistake", async() => {
             try{
 
                 // Initial values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mavrykFa12Token.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                var contractAccount         = await mavenFa2TokenStorage.ledger.get(contractDeployments.mavenFa12Token.address)
+                var userAccount             = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
                 const transferOperation    = await fa2Transfer(
-                    mavrykFa2TokenInstance,                         // contract instance
+                    mavenFa2TokenInstance,                         // contract instance
                     bob.pkh,                                        // from_
-                    contractDeployments.mavrykFa12Token.address,    // to_
+                    contractDeployments.mavenFa12Token.address,    // to_
                     tokenId,                                        // token id
                     tokenAmount                                     // token amount
                 );
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mavrykFa12Token.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.mavenFa12Token.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa2Token(mavrykFa12TokenInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa2Token(mavenFa12TokenInstance, bob.pkh, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mavrykFa12Token.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.mavenFa12Token.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 
@@ -1409,14 +1409,14 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
                 const transferOperation    = await fa2Transfer(
-                    mavrykFa2TokenInstance,                         // contract instance
+                    mavenFa2TokenInstance,                         // contract instance
                     bob.pkh,                                        // from_
-                    contractDeployments.mavrykFa12Token.address,    // to_
+                    contractDeployments.mavenFa12Token.address,    // to_
                     tokenId,                                        // token id
                     tokenAmount                                     // token amount
                 );
@@ -1424,7 +1424,7 @@ describe("Mistaken transfers tests", async () => {
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa2Token(mavrykFa12TokenInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa2Token(mavenFa12TokenInstance, bob.pkh, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -1433,47 +1433,47 @@ describe("Mistaken transfers tests", async () => {
         })
     });
 
-    describe("MAVRYK FA2 TOKEN", async () => {
+    describe("MAVEN FA2 TOKEN", async () => {
 
         beforeEach('Set sender to admin', async () => {
             await signerFactory(tezos, adminSk)
         })
 
-        it("Governance Satellite should be able to transfer Tokens sent to a mavryk fa12 token by mistake", async() => {
+        it("Governance Satellite should be able to transfer Tokens sent to a maven fa12 token by mistake", async() => {
             try{
 
                 // Initial values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mavrykFa2Token.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                var contractAccount         = await mavenFa2TokenStorage.ledger.get(contractDeployments.mavenFa2Token.address)
+                var userAccount             = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
                 const transferOperation    = await fa2Transfer(
-                    mavrykFa2TokenInstance,                         // contract instance
+                    mavenFa2TokenInstance,                         // contract instance
                     bob.pkh,                                        // from_
-                    contractDeployments.mavrykFa2Token.address,     // to_
+                    contractDeployments.mavenFa2Token.address,     // to_
                     tokenId,                                        // token id
                     tokenAmount                                     // token amount
                 );
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mavrykFa2Token.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.mavenFa2Token.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa2Token(mavrykFa2TokenInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa2Token(mavenFa2TokenInstance, bob.pkh, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mavrykFa2Token.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.mavenFa2Token.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 
@@ -1491,14 +1491,14 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
                 const transferOperation    = await fa2Transfer(
-                    mavrykFa2TokenInstance,                         // contract instance
+                    mavenFa2TokenInstance,                         // contract instance
                     bob.pkh,                                        // from_
-                    contractDeployments.mavrykFa2Token.address,     // to_
+                    contractDeployments.mavenFa2Token.address,     // to_
                     tokenId,                                        // token id
                     tokenAmount                                     // token amount
                 );
@@ -1506,7 +1506,7 @@ describe("Mistaken transfers tests", async () => {
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa2Token(mavrykFa2TokenInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa2Token(mavenFa2TokenInstance, bob.pkh, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -1525,16 +1525,16 @@ describe("Mistaken transfers tests", async () => {
             try{
 
                 // Initial values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                var contractAccount         = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mTokenUsdt.address)
-                var userAccount             = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                var contractAccount         = await mavenFa2TokenStorage.ledger.get(contractDeployments.mTokenUsdt.address)
+                var userAccount             = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
                 const tokenAmount           = 200;
 
                 // Mistake Operation
                 const transferOperation    = await fa2Transfer(
-                    mavrykFa2TokenInstance,                   // contract instance
+                    mavenFa2TokenInstance,                   // contract instance
                     bob.pkh,                                  // from_
                     contractDeployments.mTokenUsdt.address,   // to_
                     tokenId,                                  // token id
@@ -1543,19 +1543,19 @@ describe("Mistaken transfers tests", async () => {
                 await transferOperation.confirmation();
 
                 // Mid values
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mTokenUsdt.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.mTokenUsdt.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 
                 // Mistaken Transfer Operation
-                const mistakenTransferOperation = await mistakenTransferFa2Token(mTokenInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                const mistakenTransferOperation = await mistakenTransferFa2Token(mTokenInstance, bob.pkh, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
                 // Final values
-                mavrykFa2TokenStorage        = await mavrykFa2TokenInstance.storage()
-                contractAccount             = await mavrykFa2TokenStorage.ledger.get(contractDeployments.mTokenUsdt.address)
-                userAccount                 = await mavrykFa2TokenStorage.ledger.get(bob.pkh)
+                mavenFa2TokenStorage        = await mavenFa2TokenInstance.storage()
+                contractAccount             = await mavenFa2TokenStorage.ledger.get(contractDeployments.mTokenUsdt.address)
+                userAccount                 = await mavenFa2TokenStorage.ledger.get(bob.pkh)
                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
 
@@ -1573,12 +1573,12 @@ describe("Mistaken transfers tests", async () => {
             try{
                 
                 // Initial values
-                mavrykFa2TokenStorage        = await mavrykFa2TokenInstance.storage()
+                mavenFa2TokenStorage        = await mavenFa2TokenInstance.storage()
                 const tokenAmount           = 200;
 
                 // Mistake Operation
                 const transferOperation    = await fa2Transfer(
-                    mavrykFa2TokenInstance,                 // contract instance
+                    mavenFa2TokenInstance,                 // contract instance
                     bob.pkh,                                // from_
                     contractDeployments.mTokenUsdt.address, // to_
                     tokenId,                                // token id
@@ -1588,7 +1588,7 @@ describe("Mistaken transfers tests", async () => {
                 
                 // Mistaken Transfer Operation
                 await signerFactory(tezos, alice.sk)
-                const mistakenTransferOperation = mistakenTransferFa2Token(mTokenInstance, bob.pkh, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                const mistakenTransferOperation = mistakenTransferFa2Token(mTokenInstance, bob.pkh, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch(e) {

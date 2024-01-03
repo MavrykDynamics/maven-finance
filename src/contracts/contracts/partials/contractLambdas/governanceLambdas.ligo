@@ -484,7 +484,7 @@ block {
                                     //  -   If conditions are fulfilled, start voting round with highest voted proposal from proposal round
                                     //  -   If conditions are not fulfilled, start a new proposal round
 
-                                    Some (proposal) -> if s.cycleHighestVotedProposalId =/= 0n and proposal.proposalVoteStakedMvkTotal >= proposal.minProposalRoundVotesRequired 
+                                    Some (proposal) -> if s.cycleHighestVotedProposalId =/= 0n and proposal.proposalVoteStakedMvnTotal >= proposal.minProposalRoundVotesRequired 
                                         
                                         then
 
@@ -518,10 +518,10 @@ block {
                                     s.proposalLedger[s.cycleHighestVotedProposalId] := highestVotedProposal;
 
                                     // Calculate YAY votes required for proposal to be successful and move on to the Timelock round
-                                    const yayVotesRequired: nat = (proposal.quorumStakedMvkTotal * proposal.minYayVotePercentage) / 10000n;
+                                    const yayVotesRequired: nat = (proposal.quorumStakedMvnTotal * proposal.minYayVotePercentage) / 10000n;
 
                                     // Calculate if quorum and vote conditions fulfilled for proposal to be successful
-                                    if proposal.quorumStakedMvkTotal < proposal.minQuorumStakedMvkTotal or proposal.yayVoteStakedMvkTotal < yayVotesRequired or proposal.yayVoteStakedMvkTotal < proposal.nayVoteStakedMvkTotal then {
+                                    if proposal.quorumStakedMvnTotal < proposal.minQuorumStakedMvnTotal or proposal.yayVoteStakedMvnTotal < yayVotesRequired or proposal.yayVoteStakedMvnTotal < proposal.nayVoteStakedMvnTotal then {
                                     
                                         // Conditions not fulfilled - restart a new proposal round
                                         s := setupProposalRound(s);
@@ -591,8 +591,8 @@ block {
     //      -   Validate inputs (max length not exceeded)
     //      -   Get Delegation Contract from General Contracts Map
     //      -   Get Delegation Contract Config
-    //      -   Get minimumStakedMvkBalance from Delegation Contract Config
-    //      -   Check if satellite has sufficient staked MVK to make a proposal 
+    //      -   Get minimumStakedMvnBalance from Delegation Contract Config
+    //      -   Check if satellite has sufficient staked MVN to make a proposal 
     // 5. Create New Proposal
     //      -   Get total number of proposals from satellite for current cycle
     //      -   Check that satellite's total number of proposals does not exceed the maximum set in config (spam check)
@@ -603,7 +603,7 @@ block {
     // 7. Add Proposal Metadata and Payment Metadata 
     //      -   Create operations to add proposal metadata
     //      -   Create operations to add proposal payment metadata
-    // 8. Add proposal id to current round proposals and initialise with zero positive votes in MVK 
+    // 8. Add proposal id to current round proposals and initialise with zero positive votes in MVN 
     // 9. Increment next proposal id
 
     // Verify that the current round is a Proposal round
@@ -648,11 +648,11 @@ block {
                 // Validation Checks
                 // ------------------------------------------------------------------
                 
-                // Get minimumStakedMvkBalance from Delegation Contract Config to serve as requirement for satellite to make a proposal
-                const minimumStakedMvkRequirement : nat = getMinimumStakedMvkRequirement(s);
+                // Get minimumStakedMvnBalance from Delegation Contract Config to serve as requirement for satellite to make a proposal
+                const minimumStakedMvnRequirement : nat = getMinimumStakedMvnRequirement(s);
 
-                // Verify that satellite has sufficient staked MVK to make a proposal 
-                verifySatelliteHasSufficientStakedMvk(satelliteSnapshot.totalStakedMvkBalance, minimumStakedMvkRequirement);
+                // Verify that satellite has sufficient staked MVN to make a proposal 
+                verifySatelliteHasSufficientStakedMvn(satelliteSnapshot.totalStakedMvnBalance, minimumStakedMvnRequirement);
 
                 // Get total number of proposals from satellite for current cycle
                 var satelliteProposals : set(nat) := getSatelliteProposals(Tezos.get_sender(), s.cycleId, s);
@@ -695,7 +695,7 @@ block {
 
                 } else skip;
 
-                // Add proposal id to current round proposals and initialise with zero positive votes in MVK 
+                // Add proposal id to current round proposals and initialise with zero positive votes in MVN 
                 s.cycleProposals := Map.add(proposalId, 0n, s.cycleProposals);
 
                 // Increment next proposal id
@@ -920,17 +920,17 @@ block {
                     // -------------------------------------------
 
                     // Calculate proposal's new vote
-                    const newProposalVoteStakedMvkTotal : nat = _proposal.proposalVoteStakedMvkTotal + satelliteSnapshot.totalVotingPower;
+                    const newProposalVoteStakedMvnTotal : nat = _proposal.proposalVoteStakedMvnTotal + satelliteSnapshot.totalVotingPower;
 
                     // Update proposal with satellite's vote
                     _proposal.proposalVoteCount                     := _proposal.proposalVoteCount + 1n;    
-                    _proposal.proposalVoteStakedMvkTotal            := newProposalVoteStakedMvkTotal;
+                    _proposal.proposalVoteStakedMvnTotal            := newProposalVoteStakedMvnTotal;
                     
                     // Update proposal with new vote
                     s.proposalLedger[proposalId]    := _proposal;
 
-                    // Update cycle proposal with its updated vote smvk
-                    s.cycleProposals[proposalId]    := _proposal.proposalVoteStakedMvkTotal;
+                    // Update cycle proposal with its updated vote smvn
+                    s.cycleProposals[proposalId]    := _proposal.proposalVoteStakedMvnTotal;
 
                     // Update current round votes with satellite
                     s.roundVotes[(s.cycleId, Tezos.get_sender())] := (Proposal (proposalId): roundVoteType);
@@ -951,11 +951,11 @@ block {
                     ];
 
                     // Calculate proposal's new vote
-                    const newProposalVoteStakedMvkTotal : nat = _proposal.proposalVoteStakedMvkTotal + satelliteSnapshot.totalVotingPower;
+                    const newProposalVoteStakedMvnTotal : nat = _proposal.proposalVoteStakedMvnTotal + satelliteSnapshot.totalVotingPower;
 
                     // Update proposal with satellite's vote
                     _proposal.proposalVoteCount               := _proposal.proposalVoteCount + 1n;
-                    _proposal.proposalVoteStakedMvkTotal      := newProposalVoteStakedMvkTotal;
+                    _proposal.proposalVoteStakedMvnTotal      := newProposalVoteStakedMvnTotal;
 
                     // -------------------------------------------
                     // Recalculate votes for previous proposal voted on 
@@ -969,11 +969,11 @@ block {
                     _previousProposal.proposalVoteCount := abs(previousProposalProposalVoteCount - 1n) ;
 
                     // Decrement previous proposal by amount of satellite's total voting power - check that min will never go below 0
-                    var previousProposalProposalVoteStakedMvkTotal : nat := _previousProposal.proposalVoteStakedMvkTotal;
-                    if satelliteSnapshot.totalVotingPower > previousProposalProposalVoteStakedMvkTotal then previousProposalProposalVoteStakedMvkTotal := 0n 
-                    else previousProposalProposalVoteStakedMvkTotal := abs(previousProposalProposalVoteStakedMvkTotal - satelliteSnapshot.totalVotingPower); 
+                    var previousProposalProposalVoteStakedMvnTotal : nat := _previousProposal.proposalVoteStakedMvnTotal;
+                    if satelliteSnapshot.totalVotingPower > previousProposalProposalVoteStakedMvnTotal then previousProposalProposalVoteStakedMvnTotal := 0n 
+                    else previousProposalProposalVoteStakedMvnTotal := abs(previousProposalProposalVoteStakedMvnTotal - satelliteSnapshot.totalVotingPower); 
                     
-                    _previousProposal.proposalVoteStakedMvkTotal := previousProposalProposalVoteStakedMvkTotal;
+                    _previousProposal.proposalVoteStakedMvnTotal := previousProposalProposalVoteStakedMvnTotal;
                     
                     // -------------------------------------------
                     // Update Storage
@@ -983,9 +983,9 @@ block {
                     s.proposalLedger[proposalId]                := _proposal;
                     s.proposalLedger[previousVotedProposalId]   := _previousProposal;
 
-                    // Update cycle proposals with their updated vote smvk
-                    s.cycleProposals[proposalId]                    := _proposal.proposalVoteStakedMvkTotal;
-                    s.cycleProposals[previousVotedProposalId]       := _previousProposal.proposalVoteStakedMvkTotal;
+                    // Update cycle proposals with their updated vote smvn
+                    s.cycleProposals[proposalId]                    := _proposal.proposalVoteStakedMvnTotal;
+                    s.cycleProposals[previousVotedProposalId]       := _previousProposal.proposalVoteStakedMvnTotal;
 
                     // Update current round votes with satellite
                     s.roundVotes[(s.cycleId, Tezos.get_sender())] := (Proposal (proposalId) : roundVoteType);
@@ -993,8 +993,8 @@ block {
 
                 // Update the current round highest voted proposal
                 const highestVote: nat  = case Big_map.find_opt(s.cycleHighestVotedProposalId, s.proposalLedger) of [
-                        Some (_highestVotedProposal)    -> if _proposal.proposalVoteStakedMvkTotal > _highestVotedProposal.proposalVoteStakedMvkTotal then _proposal.proposalVoteStakedMvkTotal else _highestVotedProposal.proposalVoteStakedMvkTotal
-                    |   None                            -> _proposal.proposalVoteStakedMvkTotal
+                        Some (_highestVotedProposal)    -> if _proposal.proposalVoteStakedMvnTotal > _highestVotedProposal.proposalVoteStakedMvnTotal then _proposal.proposalVoteStakedMvnTotal else _highestVotedProposal.proposalVoteStakedMvnTotal
+                    |   None                            -> _proposal.proposalVoteStakedMvnTotal
                 ];
                 function findHighestVotedProposalIdFold(const currentHighestVotedProposalId: actionIdType; const proposalVote: actionIdType * nat): actionIdType is
                 if proposalVote.1 >= highestVote then proposalVote.0 else currentHighestVotedProposalId;

@@ -49,8 +49,8 @@ describe('Farms', async () => {
         
             // Farm FA12 Token
             farmStorage.governanceAddress           = contractDeployments.governance.address;
-            farmStorage.mvkTokenAddress             = contractDeployments.mvkToken.address;
-            farmStorage.config.lpToken.tokenAddress = contractDeployments.mavrykFa12Token.address;
+            farmStorage.mvnTokenAddress             = contractDeployments.mvnToken.address;
+            farmStorage.config.lpToken.tokenAddress = contractDeployments.mavenFa12Token.address;
             farmStorage.config.tokenPair = {
                 token0Address: "KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb",
                 token1Address: "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"
@@ -60,7 +60,7 @@ describe('Farms', async () => {
             await saveContractAddress("farmAddress", farm.contract.address)
         
             // Farm FA2 Token
-            farmStorage.config.lpToken.tokenAddress = contractDeployments.mavrykFa2Token.address;
+            farmStorage.config.lpToken.tokenAddress = contractDeployments.mavenFa2Token.address;
             farmStorage.config.lpToken.tokenStandard = {
                 fa2: ""
             };
@@ -68,7 +68,7 @@ describe('Farms', async () => {
             farmFA2 = await GeneralContract.originate(utils.tezos, "farm", farmStorage);
             await saveContractAddress("farmFa2Address", farmFA2.contract.address)
         
-            farmStorage.config.lpToken.tokenAddress = contractDeployments.mavrykFa12Token.address;
+            farmStorage.config.lpToken.tokenAddress = contractDeployments.mavenFa12Token.address;
             farmStorage.config.infinite = true
             farmStorage.config.lpToken.tokenStandard = {
                 fa12: ""

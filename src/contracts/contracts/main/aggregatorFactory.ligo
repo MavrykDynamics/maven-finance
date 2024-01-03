@@ -69,7 +69,7 @@ type aggregatorFactoryAction is
 
         // Aggregator Entrypoints
     |   DistributeRewardXtz             of distributeRewardXtzType
-    |   DistributeRewardStakedMvk       of distributeRewardStakedMvkType
+    |   DistributeRewardStakedMvn       of distributeRewardStakedMvnType
 
         // Lambda Entrypoints
     |   SetLambda                       of setLambdaType
@@ -144,7 +144,7 @@ block{
 
             // Aggregator Entrypoints
         |   DistributeRewardXtz (parameters)              -> distributeRewardXtz(parameters, s)
-        |   DistributeRewardStakedMvk (parameters)        -> distributeRewardStakedMvk(parameters, s)
+        |   DistributeRewardStakedMvn (parameters)        -> distributeRewardStakedMvn(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda (parameters)                        -> setLambda(parameters, s)

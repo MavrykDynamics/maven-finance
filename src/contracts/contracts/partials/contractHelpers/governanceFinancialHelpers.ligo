@@ -149,23 +149,23 @@ block {
 
 
 
-// helper function to get staked mvk snapshot total supply based on the current governance cycle 
-function getStakedMvkSnapshotTotalSupply(const currentCycleId : nat; const s : governanceFinancialStorageType) : nat is 
+// helper function to get staked mvn snapshot total supply based on the current governance cycle 
+function getStakedMvnSnapshotTotalSupply(const currentCycleId : nat; const s : governanceFinancialStorageType) : nat is 
 block {
 
-    const getStakedMvkSnapshotOptView : option(option(nat)) = Tezos.call_view ("getStakedMvkSnapshotOpt", currentCycleId, s.governanceAddress);
+    const getStakedMvnSnapshotOptView : option(option(nat)) = Tezos.call_view ("getStakedMvnSnapshotOpt", currentCycleId, s.governanceAddress);
 
-    const stakedMvkSnapshotView : option(nat) = case getStakedMvkSnapshotOptView of [
+    const stakedMvnSnapshotView : option(nat) = case getStakedMvnSnapshotOptView of [
             Some (_view)  -> _view
-        |   None          -> failwith(error_GET_STAKED_MVK_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        |   None          -> failwith(error_GET_STAKED_MVN_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
 
-    const stakedMvkTotalSupply : nat = case stakedMvkSnapshotView of [
+    const stakedMvnTotalSupply : nat = case stakedMvnSnapshotView of [
             Some(_value) -> _value
-        |   None         -> failwith(error_STAKED_MVK_SNAPSHOT_FOR_CYCLE_NOT_FOUND)
+        |   None         -> failwith(error_STAKED_MVN_SNAPSHOT_FOR_CYCLE_NOT_FOUND)
     ];
 
-} with stakedMvkTotalSupply 
+} with stakedMvnTotalSupply 
 
 
 
@@ -186,17 +186,17 @@ function createGovernanceFinancialRequest(
 block{
 
     // ------------------------------------------------------------------
-    // Snapshot Staked MVK Total Supply
+    // Snapshot Staked MVN Total Supply
     // ------------------------------------------------------------------
     
     // Get the current cycle from the governance contract
     const currentCycleId : nat = getCurrentCycleCounter(s);
 
-    // Take snapshot of current total staked MVK supply 
-    const snapshotStakedMvkTotalSupply : nat = getStakedMvkSnapshotTotalSupply(currentCycleId, s);
+    // Take snapshot of current total staked MVN supply 
+    const snapshotStakedMvnTotalSupply : nat = getStakedMvnSnapshotTotalSupply(currentCycleId, s);
 
-    // Calculate staked MVK votes required for approval based on config's financial request approval percentage
-    const stakedMvkRequiredForApproval : nat = abs((snapshotStakedMvkTotalSupply * s.config.approvalPercentage) / 10000);
+    // Calculate staked MVN votes required for approval based on config's financial request approval percentage
+    const stakedMvnRequiredForApproval : nat = abs((snapshotStakedMvnTotalSupply * s.config.approvalPercentage) / 10000);
 
     // ------------------------------------------------------------------
     // Validation Checks 
@@ -234,14 +234,14 @@ block{
         requestPurpose                      = purpose;
         keyHash                             = keyHash;
 
-        yayVoteStakedMvkTotal               = 0n;
-        nayVoteStakedMvkTotal               = 0n;
-        passVoteStakedMvkTotal              = 0n;
+        yayVoteStakedMvnTotal               = 0n;
+        nayVoteStakedMvnTotal               = 0n;
+        passVoteStakedMvnTotal              = 0n;
 
         governanceCycleId                   = currentCycleId;
-        snapshotStakedMvkTotalSupply        = snapshotStakedMvkTotalSupply;
-        stakedMvkPercentageForApproval      = s.config.approvalPercentage; 
-        stakedMvkRequiredForApproval        = stakedMvkRequiredForApproval; 
+        snapshotStakedMvnTotalSupply        = snapshotStakedMvnTotalSupply;
+        stakedMvnPercentageForApproval      = s.config.approvalPercentage; 
+        stakedMvnRequiredForApproval        = stakedMvnRequiredForApproval; 
 
         requestedDateTime                   = Tezos.get_now();
         expiryDateTime                      = Tezos.get_now() + (86_400 * s.config.financialRequestDurationInDays);
@@ -332,8 +332,8 @@ block {
 
 
 
-// helper function to mint MVK from treasury and transfer operation
-function mintMvkAndTransferOperation(const financialRequestRecord : financialRequestRecordType) : operation is
+// helper function to mint MVN from treasury and transfer operation
+function mintMvnAndTransferOperation(const financialRequestRecord : financialRequestRecordType) : operation is
 block {
 
     // Get Addresses from params
@@ -341,18 +341,18 @@ block {
     const receiverAddress : address = financialRequestRecord.receiverAddress;
 
     // Create mint operation
-    const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
+    const mintMvnAndTransferTokenParams : mintMvnAndTransferType = record [
         to_  = receiverAddress;
         amt  = financialRequestRecord.tokenAmount;
     ];
 
-    const mintMvkAndTransferOperation : operation = Tezos.transaction(
-        mintMvkAndTransferTokenParams, 
+    const mintMvnAndTransferOperation : operation = Tezos.transaction(
+        mintMvnAndTransferTokenParams, 
         0tez, 
-        sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
+        sendMintMvnAndTransferOperationToTreasury(treasuryAddress)
     );
 
-} with mintMvkAndTransferOperation
+} with mintMvnAndTransferOperation
 
 
 
@@ -387,17 +387,17 @@ block {
                     
             Some (_voteType) -> case _voteType of [
 
-                    Yay(_v)   ->    if totalVotingPower > financialRequestRecord.yayVoteStakedMvkTotal 
+                    Yay(_v)   ->    if totalVotingPower > financialRequestRecord.yayVoteStakedMvnTotal 
                                     then failwith(error_CALCULATION_ERROR) 
-                                    else financialRequestRecord.yayVoteStakedMvkTotal := abs(financialRequestRecord.yayVoteStakedMvkTotal - totalVotingPower)
+                                    else financialRequestRecord.yayVoteStakedMvnTotal := abs(financialRequestRecord.yayVoteStakedMvnTotal - totalVotingPower)
 
-                |   Nay(_v)   ->    if totalVotingPower > financialRequestRecord.nayVoteStakedMvkTotal 
+                |   Nay(_v)   ->    if totalVotingPower > financialRequestRecord.nayVoteStakedMvnTotal 
                                     then failwith(error_CALCULATION_ERROR) 
-                                    else financialRequestRecord.nayVoteStakedMvkTotal := abs(financialRequestRecord.nayVoteStakedMvkTotal - totalVotingPower)
+                                    else financialRequestRecord.nayVoteStakedMvnTotal := abs(financialRequestRecord.nayVoteStakedMvnTotal - totalVotingPower)
 
-                |   Pass(_v)  ->    if totalVotingPower > financialRequestRecord.passVoteStakedMvkTotal 
+                |   Pass(_v)  ->    if totalVotingPower > financialRequestRecord.passVoteStakedMvnTotal 
                                     then failwith(error_CALCULATION_ERROR) 
-                                    else financialRequestRecord.passVoteStakedMvkTotal := abs(financialRequestRecord.passVoteStakedMvkTotal - totalVotingPower)                    
+                                    else financialRequestRecord.passVoteStakedMvnTotal := abs(financialRequestRecord.passVoteStakedMvnTotal - totalVotingPower)                    
             ]
 
         |   None -> skip
@@ -416,15 +416,15 @@ block {
     case voteType of [
 
             Yay(_v) -> block {                
-                financialRequestRecord.yayVoteStakedMvkTotal := financialRequestRecord.yayVoteStakedMvkTotal + totalVotingPower;
+                financialRequestRecord.yayVoteStakedMvnTotal := financialRequestRecord.yayVoteStakedMvnTotal + totalVotingPower;
             }
 
         |   Nay(_v) -> block {
-                financialRequestRecord.nayVoteStakedMvkTotal := financialRequestRecord.nayVoteStakedMvkTotal + totalVotingPower;
+                financialRequestRecord.nayVoteStakedMvnTotal := financialRequestRecord.nayVoteStakedMvnTotal + totalVotingPower;
             }
 
         |   Pass(_v) -> block {
-                financialRequestRecord.passVoteStakedMvkTotal := financialRequestRecord.passVoteStakedMvkTotal + totalVotingPower;
+                financialRequestRecord.passVoteStakedMvnTotal := financialRequestRecord.passVoteStakedMvnTotal + totalVotingPower;
             }
     ];
 
@@ -439,8 +439,8 @@ block {
     // init bool as False
     var sufficientYayVotesGatheredBool : bool := False;
     
-    // set bool to true if yayVotes are sufficient (greater than staked MVK required)
-    if financialRequestRecord.yayVoteStakedMvkTotal > financialRequestRecord.stakedMvkRequiredForApproval 
+    // set bool to true if yayVotes are sufficient (greater than staked MVN required)
+    if financialRequestRecord.yayVoteStakedMvnTotal > financialRequestRecord.stakedMvnRequiredForApproval 
     then sufficientYayVotesGatheredBool := True 
     else sufficientYayVotesGatheredBool := False;
 
@@ -457,7 +457,7 @@ block {
 
     if financialRequestRecord.requestType = "TRANSFER"           then operations := transferFromTreasuryToCouncilOperation(financialRequestRecord) # operations; 
 
-    if financialRequestRecord.requestType = "MINT"               then operations := mintMvkAndTransferOperation(financialRequestRecord) # operations;
+    if financialRequestRecord.requestType = "MINT"               then operations := mintMvnAndTransferOperation(financialRequestRecord) # operations;
 
     if financialRequestRecord.requestType = "SET_CONTRACT_BAKER" then operations := setContractBakerOperation(financialRequestRecord) # operations;
 
@@ -587,7 +587,7 @@ block {
         // Create a snapshot
         const satelliteSnapshot : updateSatelliteSingleSnapshotType  = record[
             satelliteAddress            = satelliteAddress;
-            totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
+            totalStakedMvnBalance       = satelliteRecord.stakedMvnBalance;
             totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
             ready                       = ready;
             delegationRatio             = delegationRatio;
@@ -642,7 +642,7 @@ block {
         
         totalVotingPower := voteHelperCalculateVotingPower(
             delegationRatio,                        // delegation ratio
-            satelliteRecord.stakedMvkBalance,       // staked MVK balance
+            satelliteRecord.stakedMvnBalance,       // staked MVN balance
             satelliteRecord.totalDelegatedAmount    // total delegated amount
         );
 

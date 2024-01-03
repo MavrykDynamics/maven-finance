@@ -27,7 +27,7 @@ block{
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to %stake entrypoint on the Doorman contract
+// helper function to %stakeMvn entrypoint on the Doorman contract
 function getUpdateGeneralContractsEntrypoint(const contractAddress : address) : contract(updateGeneralContractsType) is
     case (Tezos.get_entrypoint_opt(
         "%updateGeneralContracts",
@@ -86,7 +86,7 @@ block {
     // Init break glass config
     const treasuryBreakGlassConfig: treasuryBreakGlassConfigType = record[
         transferIsPaused                = False;
-        mintMvkAndTransferIsPaused      = False;
+        mintMvnAndTransferIsPaused      = False;
         stakeTokensIsPaused             = False;
         unstakeTokensIsPaused           = False;
         updateTokenOperatorsIsPaused    = False;
@@ -108,7 +108,7 @@ block {
         metadata                  = treasuryMetadata;
         name                      = treasuryName;
 
-        mvkTokenAddress           = s.mvkTokenAddress;
+        mvnTokenAddress           = s.mvnTokenAddress;
         governanceAddress         = s.governanceAddress;
 
         whitelistContracts        = treasuryWhitelistContracts;      

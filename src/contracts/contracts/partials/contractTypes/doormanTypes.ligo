@@ -14,8 +14,8 @@ type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
 
 type doormanBreakGlassConfigType is [@layout:comb] record [
     
-    stakeIsPaused           : bool;
-    unstakeIsPaused         : bool;
+    stakeMvnIsPaused        : bool;
+    unstakeMvnIsPaused      : bool;
     exitIsPaused            : bool;
     compoundIsPaused        : bool;
     farmClaimIsPaused       : bool;
@@ -28,7 +28,7 @@ type doormanBreakGlassConfigType is [@layout:comb] record [
 ]
 
 type doormanConfigType is [@layout:comb] record [
-    minMvkAmount     : nat;
+    minMvnAmount     : nat;
     empty            : unit
 ];
 
@@ -42,7 +42,7 @@ type farmClaimType is (set(farmClaimDepositorType) * bool) // Recipient address 
 
 type doormanUpdateConfigNewValueType is nat
 type doormanUpdateConfigActionType is 
-        ConfigMinMvkAmount          of unit
+        ConfigMinMvnAmount          of unit
     |   Empty                       of unit
 
 type doormanUpdateConfigParamsType is [@layout:comb] record [
@@ -67,8 +67,8 @@ type onVaultLiquidateStakeType is [@layout:comb] record [
 ]
 
 type doormanPausableEntrypointType is
-        Stake                         of bool
-    |   Unstake                       of bool
+        StakeMvn                      of bool
+    |   UnstakeMvn                    of bool
     |   Exit                          of bool
     |   Compound                      of bool
     |   FarmClaim                     of bool
@@ -105,8 +105,8 @@ type doormanLambdaActionType is
     |   LambdaTogglePauseEntrypoint       of doormanTogglePauseEntrypointType
 
         // Doorman Lambdas
-    |   LambdaStake                       of (nat)
-    |   LambdaUnstake                     of (nat)
+    |   LambdaStakeMvn                       of (nat)
+    |   LambdaUnstakeMvn                     of (nat)
     |   LambdaExit                        of (unit)
     |   LambdaCompound                    of set(address)
     |   LambdaFarmClaim                   of farmClaimType
@@ -126,7 +126,7 @@ type doormanStorageType is [@layout:comb] record [
     metadata                  : metadataType;
     config                    : doormanConfigType;
 
-    mvkTokenAddress           : address;
+    mvnTokenAddress           : address;
     governanceAddress         : address;
     
     whitelistContracts        : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints

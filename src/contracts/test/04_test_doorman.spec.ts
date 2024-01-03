@@ -1,7 +1,7 @@
 import assert from "assert";
 import { BigNumber } from 'bignumber.js'
 
-import { MVK, Utils } from "./helpers/Utils";
+import { MVN, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -28,7 +28,7 @@ import {
     updateOperators,
     updateGeneralContracts,
     updateWhitelistContracts,
-    calculateMavrykLoyaltyIndex,
+    calculateMavenLoyaltyIndex,
     calculateExitFeePercent,
     fixedPointAccuracy,
     calcIncrementAccumulatedFeesPerShare,
@@ -54,8 +54,8 @@ describe("Test: Doorman Contract", async () => {
 
     // basic inputs for updating operators
     let doormanAddress
-    let mvkTokenAddress
-    let mavrykFa2TokenAddress
+    let mvnTokenAddress
+    let mavenFa2TokenAddress
     let tokenId = 0
     let user 
     let userSk
@@ -65,14 +65,14 @@ describe("Test: Doorman Contract", async () => {
     // contract instances
     let doormanInstance
     let delegationInstance
-    let mvkTokenInstance
-    let mavrykFa2TokenInstance
+    let mvnTokenInstance
+    let mavenFa2TokenInstance
 
     // contract storages
     let doormanStorage
     let delegationStorage
-    let mvkTokenStorage
-    let mavrykFa2TokenStorage
+    let mvnTokenStorage
+    let mavenFa2TokenStorage
 
     // stake variables
     let stakeAmount 
@@ -129,15 +129,15 @@ describe("Test: Doorman Contract", async () => {
     let initialUserTokenBalance
     let initialUserStakedRecord
     let initialUserStakedBalance
-    let initialStakedMvkTotal
-    let initialMvkTotalSupply
+    let initialStakedMvnTotal
+    let initialMvnTotalSupply
 
     // updated state
     let updatedUserTokenBalance
     let updatedUserStakedRecord
     let updatedUserStakedBalance
-    let updatedStakedMvkTotal
-    let updatedMvkTotalSupply
+    let updatedStakedMvnTotal
+    let updatedMvnTotalSupply
 
     // operations
     let transferOperation
@@ -178,16 +178,16 @@ describe("Test: Doorman Contract", async () => {
         adminSk = bob.sk 
 
         doormanAddress          = contractDeployments.doorman.address;
-        mvkTokenAddress         = contractDeployments.mvkToken.address;
-        mavrykFa2TokenAddress   = contractDeployments.mavrykFa2Token.address;
+        mvnTokenAddress         = contractDeployments.mvnToken.address;
+        mavenFa2TokenAddress   = contractDeployments.mavenFa2Token.address;
 
         doormanInstance         = await utils.tezos.contract.at(doormanAddress);
-        mvkTokenInstance        = await utils.tezos.contract.at(mvkTokenAddress);
-        mavrykFa2TokenInstance  = await utils.tezos.contract.at(mavrykFa2TokenAddress);
+        mvnTokenInstance        = await utils.tezos.contract.at(mvnTokenAddress);
+        mavenFa2TokenInstance  = await utils.tezos.contract.at(mavenFa2TokenAddress);
             
         doormanStorage          = await doormanInstance.storage();
-        mvkTokenStorage         = await mvkTokenInstance.storage();
-        mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
+        mvnTokenStorage         = await mvnTokenInstance.storage();
+        mavenFa2TokenStorage   = await mavenFa2TokenInstance.storage();
 
         console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
@@ -195,22 +195,22 @@ describe("Test: Doorman Contract", async () => {
 
     beforeEach('storage', async () => {
         doormanStorage     = await doormanInstance.storage();
-        mvkTokenStorage    = await mvkTokenInstance.storage();
+        mvnTokenStorage    = await mvnTokenInstance.storage();
     })
 
-    describe("%stake", async () => {
+    describe("%stakeMvn", async () => {
 
         beforeEach("Set signer to user (eve)", async () => {
             await signerFactory(tezos, eve.sk);
         });
 
-        it("user (eve) should be able to stake less than his maximum amount of MVK but at least 1MVK", async() => {
+        it("user (eve) should be able to stake less than his maximum amount of MVN but at least 1MVN", async() => {
             try{
 
                 // Initial values
                 user                      = eve.pkh;
-                stakeAmount               = MVK(10);
-                initialUserTokenBalance   = (await mvkTokenStorage.ledger.get(user)).toNumber();
+                stakeAmount               = MVN(10);
+                initialUserTokenBalance   = (await mvnTokenStorage.ledger.get(user)).toNumber();
 
                 // Compound first so values are updated below (for retesting if required)
                 compoundOperation   = await doormanInstance.methods.compound([user]).send();
@@ -218,28 +218,28 @@ describe("Test: Doorman Contract", async () => {
                 
                 initialUserStakedRecord   = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance  = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
-                initialStakedMvkTotal     = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+                initialStakedMvnTotal     = ((await mvnTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(doormanAddress))).toNumber();
 
                 // update operators operation
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // Operation
-                stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                 await stakeOperation.confirmation();
 
                 // Update storage
                 doormanStorage  = await doormanInstance.storage();
-                mvkTokenStorage = await mvkTokenInstance.storage();
+                mvnTokenStorage = await mvnTokenInstance.storage();
 
                 // Final Values
-                updatedUserTokenBalance  = (await mvkTokenStorage.ledger.get(user)).toNumber();
+                updatedUserTokenBalance  = (await mvnTokenStorage.ledger.get(user)).toNumber();
                 updatedUserStakedRecord  = await doormanStorage.userStakeBalanceLedger.get(user);
                 updatedUserStakedBalance = updatedUserStakedRecord.balance.toNumber()
-                updatedStakedMvkTotal    = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+                updatedStakedMvnTotal    = ((await mvnTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(doormanAddress))).toNumber();
 
                 // Assertion
-                assert.equal(updatedStakedMvkTotal      , initialStakedMvkTotal    + stakeAmount);
+                assert.equal(updatedStakedMvnTotal      , initialStakedMvnTotal    + stakeAmount);
                 assert.equal(updatedUserTokenBalance    , initialUserTokenBalance  - stakeAmount);
                 assert.equal(updatedUserStakedBalance   , initialUserStakedBalance + stakeAmount);
 
@@ -248,19 +248,19 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it("user (eve) should not be able to stake less than 1MVK", async() => {
+        it("user (eve) should not be able to stake less than 1MVN", async() => {
             try{
 
                 // Initial values
                 user        = eve.pkh;
-                stakeAmount = MVK(0.1);
+                stakeAmount = MVN(0.1);
 
                 // update operators operation
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // Operation
-                stakeOperation = await doormanInstance.methods.stake(stakeAmount);
+                stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount);
                 await chai.expect(stakeOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -268,12 +268,12 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it("user (eve) should not be able to stake a negative amount of MVK", async() => {
+        it("user (eve) should not be able to stake a negative amount of MVN", async() => {
             try{
 
                 // Initial values
                 user                        = eve.pkh;
-                stakeAmount                 = MVK(1);
+                stakeAmount                 = MVN(1);
                 const negativeStakeAmount   = -1000000000;
 
                 doormanStorage              = await doormanInstance.storage();
@@ -281,11 +281,11 @@ describe("Test: Doorman Contract", async () => {
                 initialUserStakedBalance   = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // update operators operation
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // Operation
-                stakeOperation = await doormanInstance.methods.stake(negativeStakeAmount);
+                stakeOperation = await doormanInstance.methods.stakeMvn(negativeStakeAmount);
                 await chai.expect(stakeOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -300,20 +300,20 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it("user (eve) should not be able to stake more MVK than she has", async() => {
+        it("user (eve) should not be able to stake more MVN than she has", async() => {
             try{
 
                 // Initial values
                 user                    = eve.pkh;
-                initialUserTokenBalance = (await mvkTokenStorage.ledger.get(user)).toNumber();
-                stakeAmount             = initialUserTokenBalance + MVK(1);
+                initialUserTokenBalance = (await mvnTokenStorage.ledger.get(user)).toNumber();
+                stakeAmount             = initialUserTokenBalance + MVN(1);
 
                 // update operators operation
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // Operation
-                stakeOperation = await doormanInstance.methods.stake(stakeAmount);
+                stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount);
                 await chai.expect(stakeOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -323,15 +323,15 @@ describe("Test: Doorman Contract", async () => {
 
     })
 
-    describe("%unstake", async () => {
+    describe("%unstakeMvn", async () => {
 
         beforeEach("Set signer to user (eve)", async () => {
             doormanStorage  = await doormanInstance.storage();
-            mvkTokenStorage = await mvkTokenInstance.storage();
+            mvnTokenStorage = await mvnTokenInstance.storage();
             await signerFactory(tezos, eve.sk);
         });
 
-        it("user (eve) should be able to unstake some MVK and see an increase in rewards from her exit fee distribution to staked MVK holders (including herself)", async() => {
+        it("user (eve) should be able to unstake some MVN and see an increase in rewards from her exit fee distribution to staked MVN holders (including herself)", async() => {
             try{
                 
                 user = eve.pkh;
@@ -343,49 +343,49 @@ describe("Test: Doorman Contract", async () => {
 
                 // Update storage
                 doormanStorage           = await doormanInstance.storage();
-                mvkTokenStorage          = await mvkTokenInstance.storage();
+                mvnTokenStorage          = await mvnTokenInstance.storage();
                 accumulatedFeesPerShare  = doormanStorage.accumulatedFeesPerShare;
 
-                initialMvkTotalSupply    = (mvkTokenStorage.totalSupply).toNumber();
-                initialStakedMvkTotal    = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+                initialMvnTotalSupply    = (mvnTokenStorage.totalSupply).toNumber();
+                initialStakedMvnTotal    = ((await mvnTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(doormanAddress))).toNumber();
 
                 // Initial values
-                initialUserTokenBalance             = (await mvkTokenStorage.ledger.get(user)).toNumber();
+                initialUserTokenBalance             = (await mvnTokenStorage.ledger.get(user)).toNumber();
                 initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialParticipationFeesPerShare    = initialUserStakedRecord.participationFeesPerShare;
                 initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
 
                 // input param
-                unstakeAmount                       = initialUserStakedBalance - MVK(1);
+                unstakeAmount                       = initialUserStakedBalance - MVN(1);
 
                 // Operation
-                unstakeOperation = await doormanInstance.methods.unstake(unstakeAmount).send();
+                unstakeOperation = await doormanInstance.methods.unstakeMvn(unstakeAmount).send();
                 await unstakeOperation.confirmation();
 
                 // Calculate exit fees and final unstake amount
-                const mli                   = calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
+                const mli                   = calculateMavenLoyaltyIndex(initialStakedMvnTotal, initialMvnTotalSupply);
                 const exitFeePercent        = calculateExitFeePercent(mli);
                 const paidFeeWithFpa        = Math.trunc( unstakeAmount * (exitFeePercent / 100)); // with fixed point accuracy
                 const paidFee               = Math.trunc( paidFeeWithFpa / fixedPointAccuracy);
                 finalUnstakeAmount          = unstakeAmount - paidFee;
                 
                 // calculate increment in accumulated fees per share from exit fee, and the corresponding updated accumulated fees per share
-                const calcIncrementAccumulatedFeesPerShareFromExitFee = calcIncrementAccumulatedFeesPerShare(paidFeeWithFpa, unstakeAmount, initialStakedMvkTotal);
-                const calcUpdatedAccumulatedFeesPerShareFromExitFee   = calcUpdatedAccumulatedFeesPerShare(paidFeeWithFpa, unstakeAmount, initialStakedMvkTotal, accumulatedFeesPerShare);
+                const calcIncrementAccumulatedFeesPerShareFromExitFee = calcIncrementAccumulatedFeesPerShare(paidFeeWithFpa, unstakeAmount, initialStakedMvnTotal);
+                const calcUpdatedAccumulatedFeesPerShareFromExitFee   = calcUpdatedAccumulatedFeesPerShare(paidFeeWithFpa, unstakeAmount, initialStakedMvnTotal, accumulatedFeesPerShare);
 
                 // Update storage
                 doormanStorage                      = await doormanInstance.storage();
-                mvkTokenStorage                     = await mvkTokenInstance.storage();
+                mvnTokenStorage                     = await mvnTokenInstance.storage();
                 updatedAccumulatedFeesPerShare      = doormanStorage.accumulatedFeesPerShare;
-                updatedStakedMvkTotal               = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+                updatedStakedMvnTotal               = ((await mvnTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(doormanAddress))).toNumber();
 
                 // Final Values for user
-                updatedUserTokenBalance             = (await mvkTokenStorage.ledger.get(user)).toNumber();
+                updatedUserTokenBalance             = (await mvnTokenStorage.ledger.get(user)).toNumber();
                 updatedUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
                 updatedParticipationFeesPerShare    = updatedUserStakedRecord.participationFeesPerShare;
                 updatedUserStakedBalance            = updatedUserStakedRecord.balance.toNumber()
                 
-                // reward from user's exit fee distributed over user's remaining staked MVK
+                // reward from user's exit fee distributed over user's remaining staked MVN
                 const balanceAfterUnstake           = initialUserStakedBalance - unstakeAmount;
                 const calcUserReward                = calculateExitFeeRewards(balanceAfterUnstake, initialParticipationFeesPerShare, updatedParticipationFeesPerShare)
 
@@ -393,10 +393,10 @@ describe("Test: Doorman Contract", async () => {
                 // Test Assertions
                 // --------------------------------
 
-                // staked MVK should decrease by final unstake amount
-                assert.equal(almostEqual(updatedStakedMvkTotal, Math.floor(initialStakedMvkTotal - finalUnstakeAmount), 0.01), true)
+                // staked MVN should decrease by final unstake amount
+                assert.equal(almostEqual(updatedStakedMvnTotal, Math.floor(initialStakedMvnTotal - finalUnstakeAmount), 0.01), true)
 
-                // MVK Total supply should increase by final unstake amount (sMVK converted to MVK)
+                // MVN Total supply should increase by final unstake amount (sMVN converted to MVN)
                 assert.equal(almostEqual(updatedUserTokenBalance, Math.round(initialUserTokenBalance + finalUnstakeAmount), 0.01), true)
 
                 // User staked balance should reflect decrease in final unstake amount and paid fee, and increase from user rewards
@@ -418,75 +418,75 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it("user (eve) should be able to unstake some MVK and other users (mallory) should see a corresponding increase in rewards from the exit fee distribution to all staked MVK holders", async() => {
+        it("user (eve) should be able to unstake some MVN and other users (mallory) should see a corresponding increase in rewards from the exit fee distribution to all staked MVN holders", async() => {
             try{
 
                 // Initial values
                 firstUser               = eve.pkh
                 firstUserSk             = eve.sk
-                firstUserStakeAmount    = MVK(2)
-                firstUserUnstakeAmount  = MVK(1)
+                firstUserStakeAmount    = MVN(2)
+                firstUserUnstakeAmount  = MVN(1)
 
                 secondUser              = mallory.pkh
                 secondUserSk            = mallory.sk
-                secondUserStakeAmount   = MVK(2)
+                secondUserStakeAmount   = MVN(2)
 
                 // get most updated storage
                 doormanStorage          = await doormanInstance.storage();
-                mvkTokenStorage         = await mvkTokenInstance.storage();
+                mvnTokenStorage         = await mvnTokenInstance.storage();
                 
                 // --------------------------------
                 // Update Operators Operation
                 // --------------------------------
 
                 await signerFactory(tezos, firstUserSk);
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, firstUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 await signerFactory(tezos, secondUserSk);
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, secondUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // --------------------------------
-                // Stake Operation
+                // StakeMvn Operation
                 // --------------------------------
 
                 await signerFactory(tezos, firstUserSk);
-                stakeOperation = await doormanInstance.methods.stake(firstUserStakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(firstUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
                 await signerFactory(tezos, secondUserSk);
-                stakeOperation = await doormanInstance.methods.stake(secondUserStakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(secondUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
                 // Balances before unstaking
                 doormanStorage              = await doormanInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
                 accumulatedFeesPerShare     = doormanStorage.accumulatedFeesPerShare;
 
                 // first user
                 firstUserStakedRecord                = await doormanStorage.userStakeBalanceLedger.get(firstUser)
                 firstUserStakedBalance               = firstUserStakedRecord === undefined ? 0 : firstUserStakedRecord.balance.toNumber()
                 firstUserParticipationFeesPerShare   = firstUserStakedRecord.participationFeesPerShare;
-                firstUserTokenBalance                = await mvkTokenStorage.ledger.get(firstUser)
+                firstUserTokenBalance                = await mvnTokenStorage.ledger.get(firstUser)
                 
                 // second user
                 secondUserStakedRecord               = await doormanStorage.userStakeBalanceLedger.get(secondUser)
                 secondUserStakedBalance              = secondUserStakedRecord === undefined ? 0 : secondUserStakedRecord.balance.toNumber()
                 secondUserParticipationFeesPerShare  = secondUserStakedRecord.participationFeesPerShare;
-                secondUserTokenBalance               = await mvkTokenStorage.ledger.get(secondUser)
+                secondUserTokenBalance               = await mvnTokenStorage.ledger.get(secondUser)
 
                 // total supply
-                initialMvkTotalSupply                = mvkTokenStorage.totalSupply.toNumber()
-                initialStakedMvkTotal                = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+                initialMvnTotalSupply                = mvnTokenStorage.totalSupply.toNumber()
+                initialStakedMvnTotal                = ((await mvnTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(doormanAddress))).toNumber();
 
                 // --------------------------------
-                // Unstake and Compound Operation
+                // UnstakeMvn and Compound Operation
                 // --------------------------------
 
                 // First user unstake
                 await signerFactory(tezos, firstUserSk);
-                unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstakeAmount).send();
+                unstakeOperation = await doormanInstance.methods.unstakeMvn(firstUserUnstakeAmount).send();
                 await unstakeOperation.confirmation()
 
                 // Compound operations for first and second user
@@ -498,15 +498,15 @@ describe("Test: Doorman Contract", async () => {
 
                 // update storage
                 doormanStorage                      = await doormanInstance.storage();
-                mvkTokenStorage                     = await mvkTokenInstance.storage();
+                mvnTokenStorage                     = await mvnTokenInstance.storage();
                 updatedAccumulatedFeesPerShare      = doormanStorage.accumulatedFeesPerShare;
-                updatedStakedMvkTotal               = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+                updatedStakedMvnTotal               = ((await mvnTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(doormanAddress))).toNumber();
                 
                 // updated values for first user
                 firstUserUpdatedStakedRecord                = await doormanStorage.userStakeBalanceLedger.get(firstUser)
                 firstUserUpdatedStakedBalance               = firstUserUpdatedStakedRecord === undefined ? 0 : firstUserUpdatedStakedRecord.balance.toNumber()
                 firstUserUpdatedParticipationFeesPerShare   = firstUserUpdatedStakedRecord.participationFeesPerShare;
-                firstUserUpdatedTokenBalance                = await mvkTokenStorage.ledger.get(firstUser)
+                firstUserUpdatedTokenBalance                = await mvnTokenStorage.ledger.get(firstUser)
 
                 // updated values for second user
                 secondUserUpdatedStakedRecord               = await doormanStorage.userStakeBalanceLedger.get(secondUser)
@@ -514,17 +514,17 @@ describe("Test: Doorman Contract", async () => {
                 secondUserUpdatedParticipationFeesPerShare  = secondUserUpdatedStakedRecord.participationFeesPerShare;
 
                 // Calculate exit fees and final unstake amount
-                const mli                   = calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
+                const mli                   = calculateMavenLoyaltyIndex(initialStakedMvnTotal, initialMvnTotalSupply);
                 const exitFeePercent        = calculateExitFeePercent(mli);
                 const paidFeeWithFpa        = Math.trunc( firstUserUnstakeAmount * (exitFeePercent / 100)); // with fixed point accuracy
                 const paidFee               = Math.trunc( paidFeeWithFpa / fixedPointAccuracy);
                 finalUnstakeAmount          = firstUserUnstakeAmount - paidFee;
                 
                 // calculate increment in accumulated fees per share from exit fee, and the corresponding updated accumulated fees per share
-                const calcIncrementAccumulatedFeesPerShareFromExitFee = calcIncrementAccumulatedFeesPerShare(paidFeeWithFpa, firstUserUnstakeAmount, initialStakedMvkTotal);
-                const calcUpdatedAccumulatedFeesPerShareFromExitFee   = calcUpdatedAccumulatedFeesPerShare(paidFeeWithFpa, firstUserUnstakeAmount, initialStakedMvkTotal, accumulatedFeesPerShare);
+                const calcIncrementAccumulatedFeesPerShareFromExitFee = calcIncrementAccumulatedFeesPerShare(paidFeeWithFpa, firstUserUnstakeAmount, initialStakedMvnTotal);
+                const calcUpdatedAccumulatedFeesPerShareFromExitFee   = calcUpdatedAccumulatedFeesPerShare(paidFeeWithFpa, firstUserUnstakeAmount, initialStakedMvnTotal, accumulatedFeesPerShare);
 
-                // reward from user's exit fee distributed over user's remaining staked MVK
+                // reward from user's exit fee distributed over user's remaining staked MVN
                 const firstUserBalanceAfterUnstake  = firstUserStakedBalance - firstUserUnstakeAmount;
                 const calcFirstUserReward           = calculateExitFeeRewards(firstUserBalanceAfterUnstake, firstUserParticipationFeesPerShare, firstUserUpdatedParticipationFeesPerShare)
                 
@@ -535,10 +535,10 @@ describe("Test: Doorman Contract", async () => {
                 // Test Assertions
                 // --------------------------------
 
-                // staked MVK should decrease by final unstake amount
-                assert.equal(almostEqual(updatedStakedMvkTotal, Math.floor(initialStakedMvkTotal - finalUnstakeAmount), 0.01), true)
+                // staked MVN should decrease by final unstake amount
+                assert.equal(almostEqual(updatedStakedMvnTotal, Math.floor(initialStakedMvnTotal - finalUnstakeAmount), 0.01), true)
 
-                // MVK Total supply should increase by final unstake amount (sMVK converted to MVK)
+                // MVN Total supply should increase by final unstake amount (sMVN converted to MVN)
                 assert.equal(almostEqual(updatedUserTokenBalance, Math.round(initialUserTokenBalance + finalUnstakeAmount), 0.01), true)
 
                 // First User staked balance should reflect decrease in final unstake amount and paid fee, and increase from user rewards
@@ -567,14 +567,14 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it("user (eve) should not be able to unstake less than 1MVK", async() => {
+        it("user (eve) should not be able to unstake less than 1MVN", async() => {
             try{
                 
                 // Initial values
-                unstakeAmount = MVK(0.1);
+                unstakeAmount = MVN(0.1);
 
                 // Operation
-                unstakeOperation = await doormanInstance.methods.unstake(unstakeAmount);
+                unstakeOperation = await doormanInstance.methods.unstakeMvn(unstakeAmount);
                 await chai.expect(unstakeOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -582,7 +582,7 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it("user (eve) should not be able to unstake more MVK than she has", async() => {
+        it("user (eve) should not be able to unstake more MVN than she has", async() => {
             try{
 
                 // Initial values
@@ -590,10 +590,10 @@ describe("Test: Doorman Contract", async () => {
 
                 initialUserStakedRecord   = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance  = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
-                unstakeAmount             = initialUserStakedBalance +  MVK(1);
+                unstakeAmount             = initialUserStakedBalance +  MVN(1);
 
                 // Operation
-                unstakeOperation = await doormanInstance.methods.unstake(unstakeAmount);
+                unstakeOperation = await doormanInstance.methods.unstakeMvn(unstakeAmount);
                 await chai.expect(unstakeOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -610,13 +610,13 @@ describe("Test: Doorman Contract", async () => {
 
                 // Initial values
                 initialUserStakedRecord = await doormanStorage.userStakeBalanceLedger.get(user);
-                unstakeAmount           = MVK(1);
+                unstakeAmount           = MVN(1);
 
                 // Assertion
                 assert.strictEqual(initialUserStakedRecord,undefined);
 
                 // Operation
-                unstakeOperation = await doormanInstance.methods.unstake(unstakeAmount);
+                unstakeOperation = await doormanInstance.methods.unstakeMvn(unstakeAmount);
                 await chai.expect(unstakeOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -628,14 +628,14 @@ describe("Test: Doorman Contract", async () => {
 
     describe("%compound", async () => {
 
-        it("user (eve) should be able to compound rewards after unstaking some staked mvk", async() => {
+        it("user (eve) should be able to compound rewards after unstaking some staked mvn", async() => {
             try{
                 
                 // Initial values
                 user            = eve.pkh;
                 userSk          = eve.sk;
-                stakeAmount     = MVK(100)
-                unstakeAmount   = MVK(2) 
+                stakeAmount     = MVN(100)
+                unstakeAmount   = MVN(2) 
 
                 // set user as signer
                 await signerFactory(tezos, userSk);
@@ -645,15 +645,15 @@ describe("Test: Doorman Contract", async () => {
                 initialUserStakedBalance    = initialUserStakedRecord.balance.toNumber()
                 
                 // update operators operation 
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, user, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, user, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // stake operation
-                stakeOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(stakeAmount).send();
                 await stakeOperation.confirmation();
 
                 // unstake operation
-                unstakeOperation = await doormanInstance.methods.unstake(unstakeAmount).send();
+                unstakeOperation = await doormanInstance.methods.unstakeMvn(unstakeAmount).send();
                 await unstakeOperation.confirmation();
 
                 // Final values
@@ -678,45 +678,45 @@ describe("Test: Doorman Contract", async () => {
                 // Initial values
                 firstUser               = eve.pkh
                 firstUserSk             = eve.sk
-                firstUserStakeAmount    = MVK(2)
-                firstUserUnstakeAmount  = MVK(1)
+                firstUserStakeAmount    = MVN(2)
+                firstUserUnstakeAmount  = MVN(1)
 
                 secondUser              = mallory.pkh
                 secondUserSk            = mallory.sk
-                secondUserStakeAmount   = MVK(3)
+                secondUserStakeAmount   = MVN(3)
 
                 // --------------------------------
                 // Update Operators Operation
                 // --------------------------------
 
                 await signerFactory(tezos, firstUserSk);
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, firstUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
                 
 
                 await signerFactory(tezos, secondUserSk);
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, secondUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // --------------------------------
-                // Stake Operation
+                // StakeMvn Operation
                 // --------------------------------
 
                 await signerFactory(tezos, firstUserSk);
-                stakeOperation = await doormanInstance.methods.stake(firstUserStakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(firstUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
                 await signerFactory(tezos, secondUserSk);
-                stakeOperation = await doormanInstance.methods.stake(secondUserStakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(secondUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
                 // --------------------------------
-                // Unstake and Compound Operation
+                // UnstakeMvn and Compound Operation
                 // --------------------------------
                 
                 // first user unstakes some amount - this will add exit fee rewards to second user
                 await signerFactory(tezos, firstUserSk);
-                unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstakeAmount).send();
+                unstakeOperation = await doormanInstance.methods.unstakeMvn(firstUserUnstakeAmount).send();
                 await unstakeOperation.confirmation();
 
                 // update storage
@@ -745,18 +745,18 @@ describe("Test: Doorman Contract", async () => {
                 console.dir(e, {depth: 5})
             }
         })
-        it("user (oscar) should not be able to earn rewards without having staked MVK before", async() => {
+        it("user (oscar) should not be able to earn rewards without having staked MVN before", async() => {
             try{
                 
                 // Initial values
                 firstUser               = mallory.pkh
                 firstUserSk             = mallory.sk
-                firstUserStakeAmount    = MVK(2)
-                firstUserUnstakeAmount  = MVK(1)
+                firstUserStakeAmount    = MVN(2)
+                firstUserUnstakeAmount  = MVN(1)
 
                 secondUser              = eve.pkh
                 secondUserSk            = eve.sk
-                secondUserStakeAmount   = MVK(1)
+                secondUserStakeAmount   = MVN(1)
 
                 thirdUser               = oscar.pkh
                 thirdUserSk             = oscar.sk
@@ -766,32 +766,32 @@ describe("Test: Doorman Contract", async () => {
                 // --------------------------------
 
                 await signerFactory(tezos, firstUserSk);
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, firstUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 await signerFactory(tezos, secondUserSk);
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, secondUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // --------------------------------
-                // Stake Operation
+                // StakeMvn Operation
                 // --------------------------------
 
                 await signerFactory(tezos, firstUserSk);
-                stakeOperation = await doormanInstance.methods.stake(firstUserStakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(firstUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
                 await signerFactory(tezos, secondUserSk);
-                stakeOperation = await doormanInstance.methods.stake(secondUserStakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(secondUserStakeAmount).send();
                 await stakeOperation.confirmation();
                 
                 // --------------------------------
-                // Unstake and Compound Operation
+                // UnstakeMvn and Compound Operation
                 // --------------------------------
 
                 // unstake operation
                 await signerFactory(tezos, firstUserSk);
-                unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstakeAmount).send();
+                unstakeOperation = await doormanInstance.methods.unstakeMvn(firstUserUnstakeAmount).send();
                 await unstakeOperation.confirmation();
 
                 // compound operation for third user - should have no rewards
@@ -825,40 +825,40 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it("user (mallory) should not see any further increase in staked MVK if she unstakes everything and compounds", async() => {
+        it("user (mallory) should not see any further increase in staked MVN if she unstakes everything and compounds", async() => {
             try{
 
                 // Initial values
                 firstUser               = mallory.pkh
                 firstUserSk             = mallory.sk
-                firstUserStakeAmount    = MVK(2)
+                firstUserStakeAmount    = MVN(2)
 
                 secondUser              = eve.pkh
                 secondUserSk            = eve.sk
-                secondUserStakeAmount   = MVK(3)
+                secondUserStakeAmount   = MVN(3)
 
                 // --------------------------------
                 // Update Operators Operation
                 // --------------------------------
 
                 await signerFactory(tezos, firstUserSk);
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, firstUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
                 
                 await signerFactory(tezos, secondUserSk);
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, secondUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // --------------------------------
-                // Stake Operation
+                // StakeMvn Operation
                 // --------------------------------
 
                 await signerFactory(tezos, firstUserSk);
-                stakeOperation = await doormanInstance.methods.stake(firstUserStakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(firstUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
                 await signerFactory(tezos, secondUserSk);
-                stakeOperation = await doormanInstance.methods.stake(secondUserStakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(secondUserStakeAmount).send();
                 await stakeOperation.confirmation();
                 
                 // Refresh values
@@ -868,7 +868,7 @@ describe("Test: Doorman Contract", async () => {
 
                 // unstake and compound operations
                 await signerFactory(tezos, firstUserSk);
-                unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstakeAmount).send();
+                unstakeOperation = await doormanInstance.methods.unstakeMvn(firstUserUnstakeAmount).send();
                 await unstakeOperation.confirmation();
 
                 compoundOperation = await doormanInstance.methods.compound([firstUser]).send();
@@ -893,43 +893,43 @@ describe("Test: Doorman Contract", async () => {
                 // Initial values
                 firstUser               = mallory.pkh
                 firstUserSk             = mallory.sk
-                firstUserStakeAmount    = MVK(2)
-                firstUserUnstakeAmount  = MVK(1)
+                firstUserStakeAmount    = MVN(2)
+                firstUserUnstakeAmount  = MVN(1)
 
                 secondUser              = eve.pkh
                 secondUserSk            = eve.sk
-                secondUserStakeAmount   = MVK(3)
+                secondUserStakeAmount   = MVN(3)
 
                 // --------------------------------
                 // Update Operators Operation
                 // --------------------------------
                 
                 await signerFactory(tezos, firstUserSk);
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, firstUser, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, firstUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 await signerFactory(tezos, secondUserSk);
-                updateOperatorsOperation = await updateOperators(mvkTokenInstance, secondUser, doormanAddress, tokenId);
+                updateOperatorsOperation = await updateOperators(mvnTokenInstance, secondUser, doormanAddress, tokenId);
                 await updateOperatorsOperation.confirmation();
 
                 // --------------------------------
-                // Stake Operation
+                // StakeMvn Operation
                 // --------------------------------
 
                 await signerFactory(tezos, firstUserSk);
-                stakeOperation = await doormanInstance.methods.stake(firstUserStakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(firstUserStakeAmount).send();
                 await stakeOperation.confirmation();
 
                 await signerFactory(tezos, secondUserSk);
-                stakeOperation = await doormanInstance.methods.stake(secondUserStakeAmount).send();
+                stakeOperation = await doormanInstance.methods.stakeMvn(secondUserStakeAmount).send();
                 await stakeOperation.confirmation();
                 
                 // --------------------------------
-                // Unstake and Compound Operation
+                // UnstakeMvn and Compound Operation
                 // --------------------------------
 
                 await signerFactory(tezos, firstUserSk);
-                unstakeOperation = await doormanInstance.methods.unstake(firstUserUnstakeAmount).send();
+                unstakeOperation = await doormanInstance.methods.unstakeMvn(firstUserUnstakeAmount).send();
                 await unstakeOperation.confirmation();
 
                 await signerFactory(tezos, secondUserSk);
@@ -966,7 +966,7 @@ describe("Test: Doorman Contract", async () => {
 
     describe("%exit", async () => {
 
-        it("user (mallory) should be able to exit the doorman contract and remove all her staked MVK", async() => {
+        it("user (mallory) should be able to exit the doorman contract and remove all her staked MVN", async() => {
 
             // Initial values
             user               = mallory.pkh
@@ -979,21 +979,21 @@ describe("Test: Doorman Contract", async () => {
             
             // update storage
             doormanStorage              = await doormanInstance.storage()
-            mvkTokenStorage             = await mvkTokenInstance.storage();
+            mvnTokenStorage             = await mvnTokenInstance.storage();
             accumulatedFeesPerShare     = doormanStorage.accumulatedFeesPerShare;
 
             // get initial values
             initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
             initialParticipationFeesPerShare    = initialUserStakedRecord.participationFeesPerShare;
             initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
-            initialUserTokenBalance             = await mvkTokenStorage.ledger.get(user)
+            initialUserTokenBalance             = await mvnTokenStorage.ledger.get(user)
 
             // set unstake amount to initial user staked balance for calculation below
             unstakeAmount                        = initialUserStakedBalance;
 
             // total supply
-            initialMvkTotalSupply               = mvkTokenStorage.totalSupply.toNumber()
-            initialStakedMvkTotal               = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+            initialMvnTotalSupply               = mvnTokenStorage.totalSupply.toNumber()
+            initialStakedMvnTotal               = ((await mvnTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(doormanAddress))).toNumber();
 
             // exit operation
             exitOperation = await doormanInstance.methods.exit().send();
@@ -1001,19 +1001,19 @@ describe("Test: Doorman Contract", async () => {
 
             // update storage
             doormanStorage              = await doormanInstance.storage()
-            mvkTokenStorage             = await mvkTokenInstance.storage();
+            mvnTokenStorage             = await mvnTokenInstance.storage();
 
             updatedAccumulatedFeesPerShare      = doormanStorage.accumulatedFeesPerShare.toNumber();
-            updatedStakedMvkTotal               = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+            updatedStakedMvnTotal               = ((await mvnTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(doormanAddress))).toNumber();
 
             // updated values for user
             updatedUserStakedRecord                = await doormanStorage.userStakeBalanceLedger.get(user)
             updatedUserStakedBalance               = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
             updatedParticipationFeesPerShare       = updatedUserStakedRecord.participationFeesPerShare.toNumber();
-            updatedUserTokenBalance                = await mvkTokenStorage.ledger.get(user)
+            updatedUserTokenBalance                = await mvnTokenStorage.ledger.get(user)
 
             // Calculate exit fees and final unstake amount
-            const mli                   = calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
+            const mli                   = calculateMavenLoyaltyIndex(initialStakedMvnTotal, initialMvnTotalSupply);
             const exitFeePercent        = calculateExitFeePercent(mli);
             const paidFeeWithFpa        = Math.trunc( unstakeAmount * (exitFeePercent / 100)); // with fixed point accuracy
             const paidFee               = Math.trunc( paidFeeWithFpa / fixedPointAccuracy);
@@ -1024,8 +1024,8 @@ describe("Test: Doorman Contract", async () => {
             assert.equal(updatedParticipationFeesPerShare, updatedAccumulatedFeesPerShare)
             assert.equal(updatedUserTokenBalance, +initialUserTokenBalance + +finalUnstakeAmount)
 
-            // check that staked MVK token has decreased by the final unstake amount
-            assert.equal(updatedStakedMvkTotal, +initialStakedMvkTotal - +finalUnstakeAmount)
+            // check that staked MVN token has decreased by the final unstake amount
+            assert.equal(updatedStakedMvnTotal, +initialStakedMvnTotal - +finalUnstakeAmount)
         })
 
         it("user (mallory) should be able to exit the doorman contract again, but with no rewards earned", async() => {
@@ -1041,21 +1041,21 @@ describe("Test: Doorman Contract", async () => {
             
             // update storage
             doormanStorage              = await doormanInstance.storage()
-            mvkTokenStorage             = await mvkTokenInstance.storage();
+            mvnTokenStorage             = await mvnTokenInstance.storage();
             accumulatedFeesPerShare     = doormanStorage.accumulatedFeesPerShare;
 
             // get initial values
             initialUserStakedRecord             = await doormanStorage.userStakeBalanceLedger.get(user);
             initialParticipationFeesPerShare    = initialUserStakedRecord.participationFeesPerShare;
             initialUserStakedBalance            = initialUserStakedRecord === undefined ? 0 : initialUserStakedRecord.balance.toNumber()
-            initialUserTokenBalance             = await mvkTokenStorage.ledger.get(user)
+            initialUserTokenBalance             = await mvnTokenStorage.ledger.get(user)
 
             // set unstake amount to initial user staked balance for calculation below
             unstakeAmount                        = initialUserStakedBalance;
 
             // total supply
-            initialMvkTotalSupply               = mvkTokenStorage.totalSupply.toNumber()
-            initialStakedMvkTotal               = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+            initialMvnTotalSupply               = mvnTokenStorage.totalSupply.toNumber()
+            initialStakedMvnTotal               = ((await mvnTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(doormanAddress))).toNumber();
 
             // exit operation
             exitOperation = await doormanInstance.methods.exit().send();
@@ -1063,19 +1063,19 @@ describe("Test: Doorman Contract", async () => {
 
             // update storage
             doormanStorage              = await doormanInstance.storage()
-            mvkTokenStorage             = await mvkTokenInstance.storage();
+            mvnTokenStorage             = await mvnTokenInstance.storage();
 
             updatedAccumulatedFeesPerShare      = doormanStorage.accumulatedFeesPerShare.toNumber();
-            updatedStakedMvkTotal               = ((await mvkTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress))).toNumber();
+            updatedStakedMvnTotal               = ((await mvnTokenStorage.ledger.get(doormanAddress)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(doormanAddress))).toNumber();
 
             // updated values for user
             updatedUserStakedRecord                = await doormanStorage.userStakeBalanceLedger.get(user)
             updatedUserStakedBalance               = updatedUserStakedRecord === undefined ? 0 : updatedUserStakedRecord.balance.toNumber()
             updatedParticipationFeesPerShare       = updatedUserStakedRecord.participationFeesPerShare.toNumber();
-            updatedUserTokenBalance                = await mvkTokenStorage.ledger.get(user)
+            updatedUserTokenBalance                = await mvnTokenStorage.ledger.get(user)
 
             // Calculate exit fees and final unstake amount
-            const mli                   = calculateMavrykLoyaltyIndex(initialStakedMvkTotal, initialMvkTotalSupply);
+            const mli                   = calculateMavenLoyaltyIndex(initialStakedMvnTotal, initialMvnTotalSupply);
             const exitFeePercent        = calculateExitFeePercent(mli);
             const paidFeeWithFpa        = Math.trunc( unstakeAmount * (exitFeePercent / 100)); // with fixed point accuracy
             const paidFee               = Math.trunc( paidFeeWithFpa / fixedPointAccuracy);
@@ -1086,8 +1086,8 @@ describe("Test: Doorman Contract", async () => {
             assert.equal(updatedParticipationFeesPerShare, updatedAccumulatedFeesPerShare)
             assert.equal(updatedUserTokenBalance, +initialUserTokenBalance + +finalUnstakeAmount)
 
-            // check that staked MVK token has decreased by the final unstake amount
-            assert.equal(updatedStakedMvkTotal, +initialStakedMvkTotal - +finalUnstakeAmount)
+            // check that staked MVN token has decreased by the final unstake amount
+            assert.equal(updatedStakedMvnTotal, +initialStakedMvnTotal - +finalUnstakeAmount)
         })
 
     })
@@ -1185,29 +1185,29 @@ describe("Test: Doorman Contract", async () => {
                 
                 // Initial Values
                 doormanStorage            = await doormanInstance.storage();
-                const initialMinMvkAmount = doormanStorage.config.minMvkAmount.toNumber();
-                const newMinMvkAmount     = MVK(3);
+                const initialMinMvnAmount = doormanStorage.config.minMvnAmount.toNumber();
+                const newMinMvnAmount     = MVN(3);
 
                 // Operation
-                const updateConfigOperation = await doormanInstance.methods.updateConfig(newMinMvkAmount, "configMinMvkAmount").send();
+                const updateConfigOperation = await doormanInstance.methods.updateConfig(newMinMvnAmount, "configMinMvnAmount").send();
                 await updateConfigOperation.confirmation();
 
                 // Final values
                 doormanStorage           = await doormanInstance.storage();
-                const updatedConfigValue = doormanStorage.config.minMvkAmount;
+                const updatedConfigValue = doormanStorage.config.minMvnAmount;
 
                 // Assertions
-                assert.equal(updatedConfigValue, newMinMvkAmount);
+                assert.equal(updatedConfigValue, newMinMvnAmount);
 
                 // reset config operation
-                const resetConfigOperation = await doormanInstance.methods.updateConfig(initialMinMvkAmount, "configMinMvkAmount").send();
+                const resetConfigOperation = await doormanInstance.methods.updateConfig(initialMinMvnAmount, "configMinMvnAmount").send();
                 await resetConfigOperation.confirmation();
 
                 // Final values
                 doormanStorage           = await doormanInstance.storage();
-                const resetConfigValue   = doormanStorage.config.minMvkAmount;
+                const resetConfigValue   = doormanStorage.config.minMvnAmount;
 
-                assert.equal(resetConfigValue, initialMinMvkAmount);
+                assert.equal(resetConfigValue, initialMinMvnAmount);
 
 
             } catch(e){
@@ -1315,20 +1315,20 @@ describe("Test: Doorman Contract", async () => {
                 user              = mallory.pkh;
                 userSk            = mallory.sk;
 
-                // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
+                // Mistaken Operation - user (mallory) send 10 MavenFa2Tokens to MVN Token Contract
                 await signerFactory(tezos, userSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber()
 
                 await signerFactory(tezos, adminSk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await mavrykFa2TokenStorage.ledger.get(user)).toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -1338,7 +1338,7 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it('%mistakenTransfer         - admin (bob) should not be able to call this entrypoint to transfer MVK tokens (protected for doorman contract)', async () => {
+        it('%mistakenTransfer         - admin (bob) should not be able to call this entrypoint to transfer MVN tokens (protected for doorman contract)', async () => {
             try {
 
                 // Initial values
@@ -1346,20 +1346,20 @@ describe("Test: Doorman Contract", async () => {
                 user              = mallory.pkh;
                 userSk            = mallory.sk;
 
-                // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to MVK Token Contract
+                // Mistaken Operation - user (mallory) send 10 MavenFa2Tokens to MVN Token Contract
                 await signerFactory(tezos, userSk);
-                transferOperation = await fa2Transfer(mvkTokenInstance, user, doormanAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mvnTokenInstance, user, doormanAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mvkTokenStorage             = await mvkTokenInstance.storage();
-                const initialUserBalance    = (await mvkTokenStorage.ledger.get(user)).toNumber()
+                mvnTokenStorage             = await mvnTokenInstance.storage();
+                const initialUserBalance    = (await mvnTokenStorage.ledger.get(user)).toNumber()
 
                 await signerFactory(tezos, adminSk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mvkTokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mvnTokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
-                mvkTokenStorage             = await mvkTokenInstance.storage();
-                const updatedUserBalance    = (await mvkTokenStorage.ledger.get(user)).toNumber();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
+                const updatedUserBalance    = (await mvnTokenStorage.ledger.get(user)).toNumber();
 
                 // no change in balance
                 assert.equal(updatedUserBalance, initialUserBalance);
@@ -1369,16 +1369,16 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it("%migrateFunds             - admin (bob) should be able to migrate the Doorman contract MVK funds only when all entrypoints are paused", async() => {
+        it("%migrateFunds             - admin (bob) should be able to migrate the Doorman contract MVN funds only when all entrypoints are paused", async() => {
             try{
 
                 // Initial values
                 doormanStorage              = await doormanInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
 
                 const newDoormanAddress     = alice.pkh
-                const initNewDoormanBalance = await mvkTokenStorage.ledger.get(newDoormanAddress);
-                const initDoormanBalance    = await mvkTokenStorage.ledger.get(doormanAddress);
+                const initNewDoormanBalance = await mvnTokenStorage.ledger.get(newDoormanAddress);
+                const initDoormanBalance    = await mvnTokenStorage.ledger.get(doormanAddress);
 
                 // pause all operation
                 pauseAllOperation = await doormanInstance.methods.pauseAll().send();
@@ -1390,18 +1390,18 @@ describe("Test: Doorman Contract", async () => {
 
                 // Final values
                 doormanStorage              = await doormanInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
 
                 // get updated values
-                const endNewDoormanBalance  = await mvkTokenStorage.ledger.get(newDoormanAddress);
-                const endDoormanBalance     = await mvkTokenStorage.ledger.get(doormanAddress);
+                const endNewDoormanBalance  = await mvnTokenStorage.ledger.get(newDoormanAddress);
+                const endDoormanBalance     = await mvnTokenStorage.ledger.get(doormanAddress);
 
                 // Assertions
                 assert.equal(endNewDoormanBalance.toNumber(), initNewDoormanBalance.toNumber() + initDoormanBalance.toNumber())
                 assert.equal(endDoormanBalance.toNumber(), 0)
                 
-                assert.equal(doormanStorage.breakGlassConfig.stakeIsPaused, true)
-                assert.equal(doormanStorage.breakGlassConfig.unstakeIsPaused, true)
+                assert.equal(doormanStorage.breakGlassConfig.stakeMvnIsPaused, true)
+                assert.equal(doormanStorage.breakGlassConfig.unstakeMvnIsPaused, true)
                 assert.equal(doormanStorage.breakGlassConfig.compoundIsPaused, true)
 
                 // reset break glass by unpausing all entrypoints
@@ -1410,7 +1410,7 @@ describe("Test: Doorman Contract", async () => {
 
                 // reset migration - transfer funds back to old doorman contract  
                 await signerFactory(tezos, alice.sk)
-                transferOperation = await fa2Transfer(mvkTokenInstance, alice.pkh, doormanAddress, tokenId, initDoormanBalance.toNumber());
+                transferOperation = await fa2Transfer(mvnTokenInstance, alice.pkh, doormanAddress, tokenId, initDoormanBalance.toNumber());
                 await transferOperation.confirmation();
 
             } catch(e) {
@@ -1418,12 +1418,12 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it("%migrateFunds             - admin (bob) should not be able to migrate the Doorman contract (and move MVK funds) if any contract entrypoint is unpaused", async() => {
+        it("%migrateFunds             - admin (bob) should not be able to migrate the Doorman contract (and move MVN funds) if any contract entrypoint is unpaused", async() => {
             try{
                 
                 // Initial values
                 doormanStorage              = await doormanInstance.storage();
-                const initDoormanBalance    = await mvkTokenStorage.ledger.get(doormanAddress);
+                const initDoormanBalance    = await mvnTokenStorage.ledger.get(doormanAddress);
                 
                 // pause all operation
                 pauseAllOperation = await doormanInstance.methods.pauseAll().send();
@@ -1439,17 +1439,17 @@ describe("Test: Doorman Contract", async () => {
 
                 // Final values
                 doormanStorage              = await doormanInstance.storage()
-                const endDoormanBalance     = await mvkTokenStorage.ledger.get(doormanAddress);
+                const endDoormanBalance     = await mvnTokenStorage.ledger.get(doormanAddress);
 
-                // check that there is no change to doorman MVK balance
+                // check that there is no change to doorman MVN balance
                 assert.equal(endDoormanBalance.toNumber(), initDoormanBalance.toNumber())
 
                 // check that %compound entrypoint is not paused
                 assert.equal(doormanStorage.breakGlassConfig.compoundIsPaused   , false)
 
                 // check that the other two entrypoints are paused
-                assert.equal(doormanStorage.breakGlassConfig.stakeIsPaused      , true)
-                assert.equal(doormanStorage.breakGlassConfig.unstakeIsPaused    , true)
+                assert.equal(doormanStorage.breakGlassConfig.stakeMvnIsPaused      , true)
+                assert.equal(doormanStorage.breakGlassConfig.unstakeMvnIsPaused    , true)
                 
                 // reset test by unpausing all entrypoints
                 unpauseOperation = await doormanInstance.methods.unpauseAll().send();
@@ -1491,7 +1491,7 @@ describe("Test: Doorman Contract", async () => {
                 pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("stake", true).send(); 
                 await pauseOperation.confirmation();
                 
-                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("unstake", true).send(); 
+                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("unstakeMvn", true).send(); 
                 await pauseOperation.confirmation();
 
                 pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("exit", true).send();
@@ -1516,8 +1516,8 @@ describe("Test: Doorman Contract", async () => {
                 doormanStorage = await doormanInstance.storage();
 
                 // check that entrypoints are paused
-                assert.equal(doormanStorage.breakGlassConfig.stakeIsPaused                  , true)
-                assert.equal(doormanStorage.breakGlassConfig.unstakeIsPaused                , true)
+                assert.equal(doormanStorage.breakGlassConfig.stakeMvnIsPaused                  , true)
+                assert.equal(doormanStorage.breakGlassConfig.unstakeMvnIsPaused                , true)
                 assert.equal(doormanStorage.breakGlassConfig.exitIsPaused                   , true)
                 assert.equal(doormanStorage.breakGlassConfig.compoundIsPaused               , true)
                 assert.equal(doormanStorage.breakGlassConfig.farmClaimIsPaused              , true)
@@ -1530,7 +1530,7 @@ describe("Test: Doorman Contract", async () => {
                 unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("stake", false).send();
                 await unpauseOperation.confirmation();
                 
-                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("unstake", false).send();
+                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("unstakeMvn", false).send();
                 await unpauseOperation.confirmation();
 
                 unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("exit", false).send();
@@ -1555,8 +1555,8 @@ describe("Test: Doorman Contract", async () => {
                 doormanStorage = await doormanInstance.storage();
 
                 // check that entrypoints are unpaused
-                assert.equal(doormanStorage.breakGlassConfig.stakeIsPaused                  , false)
-                assert.equal(doormanStorage.breakGlassConfig.unstakeIsPaused                , false)
+                assert.equal(doormanStorage.breakGlassConfig.stakeMvnIsPaused                  , false)
+                assert.equal(doormanStorage.breakGlassConfig.unstakeMvnIsPaused                , false)
                 assert.equal(doormanStorage.breakGlassConfig.exitIsPaused                   , false)
                 assert.equal(doormanStorage.breakGlassConfig.compoundIsPaused               , false)
                 assert.equal(doormanStorage.breakGlassConfig.farmClaimIsPaused              , false)
@@ -1653,20 +1653,20 @@ describe("Test: Doorman Contract", async () => {
                 
                 // Initial Values
                 doormanStorage           = await doormanInstance.storage();
-                const initialConfigValue = doormanStorage.config.minMvkAmount;
-                const newMinMvkAmount = MVK(10);
+                const initialConfigValue = doormanStorage.config.minMvnAmount;
+                const newMinMvnAmount = MVN(10);
 
                 // Operation
-                const updateConfigOperation = await doormanInstance.methods.updateConfig(newMinMvkAmount, "configMinMvkAmount");
+                const updateConfigOperation = await doormanInstance.methods.updateConfig(newMinMvnAmount, "configMinMvnAmount");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 // Final values
                 doormanStorage           = await doormanInstance.storage();
-                const updatedConfigValue = doormanStorage.config.minMvkAmount;
+                const updatedConfigValue = doormanStorage.config.minMvnAmount;
 
                 // check that there is no change in config values
                 assert.equal(updatedConfigValue.toNumber(), initialConfigValue.toNumber());
-                assert.notEqual(updatedConfigValue.toNumber(), newMinMvkAmount);
+                assert.notEqual(updatedConfigValue.toNumber(), newMinMvnAmount);
                 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -1724,12 +1724,12 @@ describe("Test: Doorman Contract", async () => {
                 user = mallory.pkh;
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MavrykFa2Tokens to MVK Token Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
+                // Mistaken Operation - send 10 MavenFa2Tokens to MVN Token Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, doormanAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(doormanInstance, user, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {
@@ -1737,7 +1737,7 @@ describe("Test: Doorman Contract", async () => {
             }
         })
 
-        it("%migrateFunds             - non-admin (mallory) should not be able to migrate the Doorman contract MVK funds", async() => {
+        it("%migrateFunds             - non-admin (mallory) should not be able to migrate the Doorman contract MVN funds", async() => {
             try{
                 
                 const destination = alice.pkh;
@@ -1781,7 +1781,7 @@ describe("Test: Doorman Contract", async () => {
                 pauseOperation = doormanInstance.methods.togglePauseEntrypoint("stake", true); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
                 
-                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("unstake", true); 
+                pauseOperation = doormanInstance.methods.togglePauseEntrypoint("unstakeMvn", true); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
 
                 pauseOperation = doormanInstance.methods.togglePauseEntrypoint("exit", true); 
@@ -1807,7 +1807,7 @@ describe("Test: Doorman Contract", async () => {
                 unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("stake", false); 
                 await chai.expect(unpauseOperation.send()).to.be.rejected;
                 
-                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("unstake", false); 
+                unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("unstakeMvn", false); 
                 await chai.expect(unpauseOperation.send()).to.be.rejected;
 
                 unpauseOperation = doormanInstance.methods.togglePauseEntrypoint("exit", false); 

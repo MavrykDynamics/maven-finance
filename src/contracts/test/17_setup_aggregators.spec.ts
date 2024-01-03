@@ -33,7 +33,7 @@ import {
 //   - USD/BTC 
 //   - USD/XTZ 
 //   - USD/DOGE 
-//   - USD/MVK 
+//   - USD/MVN 
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -114,7 +114,7 @@ describe("Setup: Mock Aggregators", async () => {
                         case 'USD/BTC':
                         case 'USD/XTZ':
                         case 'USD/DOGE':
-                        case 'USD/MVK':
+                        case 'USD/MVN':
                             break;
                         default:
                             const untrackAggregatorOperation    = await aggregatorFactoryInstance.methods.untrackAggregator(aggregatorAddress).send();
@@ -149,7 +149,7 @@ describe("Setup: Mock Aggregators", async () => {
                         new BigNumber(60),            // percentOracleThreshold
                         new BigNumber(30),            // heartbeatSeconds
 
-                        new BigNumber(10000000),      // rewardAmountStakedMvk
+                        new BigNumber(10000000),      // rewardAmountStakedMvn
                         new BigNumber(1300),          // rewardAmountXtz
                         
                         aggregatorMetadataBase        // metadata bytes
@@ -185,7 +185,7 @@ describe("Setup: Mock Aggregators", async () => {
                         new BigNumber(60),            // percentOracleThreshold
                         new BigNumber(30),            // heartbeatSeconds
 
-                        new BigNumber(10000000),      // rewardAmountStakedMvk
+                        new BigNumber(10000000),      // rewardAmountStakedMvn
                         new BigNumber(1300),          // rewardAmountXtz
                         
                         aggregatorMetadataBase        // metadata bytes
@@ -221,7 +221,7 @@ describe("Setup: Mock Aggregators", async () => {
                         new BigNumber(60),            // percentOracleThreshold
                         new BigNumber(30),            // heartbeatSeconds
 
-                        new BigNumber(10000000),      // rewardAmountStakedMvk
+                        new BigNumber(10000000),      // rewardAmountStakedMvn
                         new BigNumber(1300),          // rewardAmountXtz
                         
                         aggregatorMetadataBase        // metadata bytes
@@ -235,10 +235,10 @@ describe("Setup: Mock Aggregators", async () => {
             }
         });
 
-        it('setup USD/MVK aggregator', async () => {
+        it('setup USD/MVN aggregator', async () => {
             try{
                 
-                const aggregatorName = 'USD/MVK';
+                const aggregatorName = 'USD/MVN';
                 const aggregatorRecord = await governanceSatelliteStorage.aggregatorLedger.get(aggregatorName);
                 if(aggregatorRecord == undefined){
 
@@ -257,7 +257,7 @@ describe("Setup: Mock Aggregators", async () => {
                         new BigNumber(60),            // percentOracleThreshold
                         new BigNumber(30),            // heartbeatSeconds
 
-                        new BigNumber(10000000),      // rewardAmountStakedMvk
+                        new BigNumber(10000000),      // rewardAmountStakedMvn
                         new BigNumber(1300),          // rewardAmountXtz
                         
                         aggregatorMetadataBase        // metadata bytes

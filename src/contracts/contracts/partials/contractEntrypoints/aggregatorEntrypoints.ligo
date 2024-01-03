@@ -312,15 +312,15 @@ block{
 } with response
 
 
-(*  withdrawRewardStakedMvk entrypoint  *)
-function withdrawRewardStakedMvk(const receiver: address; const s : aggregatorStorageType) : return is
+(*  withdrawRewardStakedMvn entrypoint  *)
+function withdrawRewardStakedMvn(const receiver: address; const s : aggregatorStorageType) : return is
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaWithdrawRewardStakedMvk", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaWithdrawRewardStakedMvn", s.lambdaLedger);
 
     // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaWithdrawRewardStakedMvk(receiver);
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaWithdrawRewardStakedMvn(receiver);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);

@@ -28,8 +28,8 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// MvkToken Types
-#include "../partials/contractTypes/mvkTokenTypes.ligo"
+// MvnToken Types
+#include "../partials/contractTypes/mvnTokenTypes.ligo"
 
 // Treasury Type for mint and transfers
 #include "../partials/contractTypes/treasuryTypes.ligo"
