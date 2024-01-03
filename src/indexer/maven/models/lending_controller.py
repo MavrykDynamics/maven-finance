@@ -8,7 +8,6 @@ from maven.models.parents import LinkedContract, ContractLambda, MavenContract
 
 class LendingController(MavenContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='lending_controllers')
-    mock_time                               = fields.BooleanField(default=False, index=True)
     collateral_ratio                        = fields.SmallIntField(default=0)
     liquidation_ratio                       = fields.SmallIntField(default=0)
     liquidation_fee_pct                     = fields.SmallIntField(default=0)

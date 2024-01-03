@@ -64,7 +64,6 @@ async def set_collateral_token(
             lending_controller          = await models.LendingController.get(
                 network         = ctx.datasource.name.replace('tzkt_',''),
                 address         = lending_controller_address,
-                mock_time       = True
             )
             oracle                      = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=collateral_token_oracle_address)
             lending_controller_collateral_token, _  = await models.LendingControllerCollateralToken.get_or_create(
