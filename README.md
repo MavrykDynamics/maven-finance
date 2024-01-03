@@ -1,3 +1,3 @@
-## About Mavryk
+## About Maven Finance
 
-Mavryk is a decentralized finance ecosystem designed to allow users to borrow and earn, to unlock the world from legacy financial systems.
+Maven Finance is a decentralized finance ecosystem designed to allow users to borrow and earn, to unlock the world from legacy financial systems.
