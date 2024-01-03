@@ -25,7 +25,6 @@ async def repay(
         lending_controller                      = await models.LendingController.get(
             network             = ctx.datasource.name.replace('tzkt_',''),
             address             = lending_controller_address,
-            mock_time           = False
         )
         lending_controller_vault                = await models.LendingControllerVault.get(
             lending_controller  = lending_controller,
