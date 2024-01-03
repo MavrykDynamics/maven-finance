@@ -59,7 +59,6 @@ async def origination(
             address                                 = lending_controller_address,
             network                                 = ctx.datasource.name.replace('tzkt_',''),
             metadata                                = contract_metadata,
-            mock_time                               = False,
             admin                                   = admin,
             last_updated_at                         = timestamp,
             governance                              = governance,
