@@ -74,7 +74,7 @@
 3. `yarn start`: start to index
 4. Go to https://localhost:42000/ to log to **Hasura** admin console (password: **_hasura12345_**)
 
-# Build, Push and Deploy an indexer (CI/CD)
+# Builda and Push an indexer image (CI/CD)
 
 1. Commit and push all your changes
 
@@ -84,16 +84,7 @@ git commit -m "[YOUR COMMIT MESSAGE]"
 git push
 ```
 
-2. Go to the indexer updater workflow on [github](https://github.com/maven-finance/maven-dapp/actions/workflows/main.yml)
-
-3. Start a new workflow:
-
-- Click on **Run workflow** and fill the form
-- _Use workflow from_: select the revision where you just pushed your commit
-- _Environment to update_: select **dev**
-- _Dipdup image tag_: go check the [indexer Grafana dashboard](https://grafana.maven.io/d/J1QevDF4k/maven-indexer). Switch between all three environments and look at the **Docker image** panel. The tag should be like this **vX.Y.Z**. You should take the most updated one and increment it (e.g. if the current tag is v0.25.10, your tag could be v0.25.11. See [this page](../indexer/README.md#build-and-push-an-indexer-image-on-dockerhub) for more details on tags)
-- _(optional) Wipe database_: since you're working with an entire new set of contracts, you should tick this box.
-- _Infrastructure repo revision_: select the revision in the infrastructure folder where you want to push the update.
+2. Go check the build progression on [github](https://github.com/maven-finance/maven-finance/actions/workflows/main.yml).
 
 # Debugging / Updating the indexer
 
