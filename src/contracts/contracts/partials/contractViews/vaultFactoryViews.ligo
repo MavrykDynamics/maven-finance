@@ -1,0 +1,57 @@
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get admin variable *)
+[@view] function getAdmin(const _ : unit; var s : vaultFactoryStorageType) : address is
+    s.admin
+
+
+
+(* View: get governance address *)
+[@view] function getGovernanceAddress(const _ : unit; var s : vaultFactoryStorageType) : address is
+    s.governanceAddress
+
+
+
+(* View: get config *)
+[@view] function getConfig (const _ : unit; const s : vaultFactoryStorageType) : vaultFactoryConfigType is 
+    s.config
+
+
+
+(* View: get break glass config *)
+[@view] function getBreakGlassConfig (const _ : unit; const s : vaultFactoryStorageType) : vaultFactoryBreakGlassConfigType is 
+    s.breakGlassConfig
+
+
+
+(* View: get whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : vaultFactoryStorageType) : option(unit) is 
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
+
+
+
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const s : vaultFactoryStorageType) : option(address) is
+    Big_map.find_opt(contractName, s.generalContracts)
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName : string; var s : vaultFactoryStorageType) : option(bytes) is
+    Big_map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get a vault lambda *)
+[@view] function getVaultLambdaOpt(const lambdaName : string; var s : vaultFactoryStorageType) : option(bytes) is
+    Big_map.find_opt(lambdaName, s.vaultLambdaLedger)
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------

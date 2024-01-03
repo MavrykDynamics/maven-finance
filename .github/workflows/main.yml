@@ -1,76 +1,55 @@
-name: Mavryk Indexer Updater
+name: Maven Indexer Builder
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        type: choice
-        description: 'Environment to update'
-        required: true
-        default: 'dev'
-        options:
-          - dev
-          - prod
-          - prod2
-      imageTag:
-        type: string
-        required: true
-        description: 'Dipdup image tag'
-      buildImage:
-        type: boolean
-        default: false
-        required: false
-        description: '(optional) Build indexer docker image'
-      prodService:
-        type: choice
-        description: 'Service to link to api.mavryk.io'
-        required: true
-        default: 'hasura-prod'
-        options:
-          - hasura-prod
-          - hasura-prod2
-      wipeDatabase:
-        type: boolean
-        default: false
-        required: false
-        description: '(optional) Wipe database (needed when schema changed)'
+  push:
+    branches:
+      - 'main'
+      - 'staging'
+    tags:
+      - '*.*.*'
+  pull_request:
+    branches:
+      - 'main'
+      - 'staging'
+      - 'maven-migration'
 jobs:
-  docker:
+  build-docker-image:
+    name: Build indexer image
     runs-on: ubuntu-latest
-    if: '${{ github.event.inputs.buildImage }}'
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      DOCKER_REGISTRY: ghcr.io
+      DOCKER_IMAGE_BASE: ${{ github.repository }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3 
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
+
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v2
-      - name: Login to Docker Hub
+
+      - name: Log in to the registry
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v3
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Indexer image tags & labels
+        id: meta-indexer
+        uses: docker/metadata-action@v3
         with:
-          context: ./src/indexer/.
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE_BASE }}-indexer
+
+      - name: Indexer image build & push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: src/indexer/Dockerfile
           push: true
-          tags: tezosdynamics/mavryk-indexer:${{ github.event.inputs.imageTag }}
-  setup-app:
-    runs-on: ubuntu-latest
-    steps:
-      - name: update-docker-image
-        uses: clowdhaus/argo-cd-action/@v1.9.0
-        with:
-          version: 2.5.2
-          command: app set prod-mavryk-indexer
-          options: -p instances.${{ github.event.inputs.environment }}.dipdup.image.tag=${{ github.event.inputs.imageTag }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ $GITHUB_REF }}
-      - name: update-ingress
-        uses: clowdhaus/argo-cd-action/@v1.9.0
-        with:
-          version: 2.5.2
-          command: app set prod-mavryk-indexer
-          options: -p instances.prod.hasura.ingress.service.name=${{ github.event.inputs.prodService }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ $GITHUB_REF }}
-      - name: create-wipe-database-pod
-        uses: clowdhaus/argo-cd-action/@v1.9.0
-        with:
-          version: 2.5.2
-          command: app set prod-mavryk-indexer
-          options: -p instances.${{ github.event.inputs.environment }}.dipdup.initialWipe=${{ github.event.inputs.wipeDatabase }} --grpc-web --server ${{ secrets.ARGOCD_URL }} --auth-token ${{ secrets.ARGOCD_TOKEN }} --revision ${{ $GITHUB_REF }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: ${{ steps.meta-indexer.outputs.tags }}
+          labels: ${{ steps.meta-indexer.outputs.labels }}

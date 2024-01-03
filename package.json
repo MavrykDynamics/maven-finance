@@ -2,16 +2,10 @@
   "name": "mavryk-app",
   "version": "2.0.0",
   "scripts": {
-    "start": "lerna exec -- yarn run --parallel start",
-    "build": "lerna exec -- yarn run --parallel build",
-    "lint": "eslint '**/*.{js,jsx}'",
-    "lint:fix": "npm run lint -- --fix",
-    "prettier": "prettier -l '**/*.{js,jsx,ts,tsx,json,md}'",
-    "test": "lerna run --parallel test",
-    "postinstall": "lerna bootstrap",
-    "start-sandbox": "docker run --rm --name mavryk-sandbox -e flextesa_node_cors_origin='*' --detach -p 8732:20000 tqtezos/flextesa:20210316 flobox start"
+    "prettier": "prettier -l '**/*.{js,jsx,ts,tsx,json,md}'"
   },
   "devDependencies": {
+    "@types/mocha": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
     "babel-eslint": "^10.1.0",
@@ -50,8 +44,10 @@
     ]
   },
   "dependencies": {
-    "@taquito/taquito": "^10.2.1",
-    "@taquito/tezbridge-signer": "^10.2.1",
+    "@taquito/signer": "^17.2.0",
+    "@taquito/taquito": "^17.2.0",
+    "@taquito/tezbridge-signer": "^14.2.0",
+    "assert": "^2.0.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1"
   }

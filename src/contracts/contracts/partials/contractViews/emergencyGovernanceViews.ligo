@@ -1,0 +1,70 @@
+
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get admin variable *)
+[@view] function getAdmin(const _ : unit; const s : emergencyGovernanceStorageType) : address is
+    s.admin
+
+
+
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; const s : emergencyGovernanceStorageType) : address is
+    s.governanceAddress
+
+
+
+(* View: config *)
+[@view] function getConfig (const _ : unit; const s : emergencyGovernanceStorageType) : emergencyConfigType is
+    s.config
+
+
+
+(* View: get whitelist contracts opt *)
+[@view] function getWhitelistContractOpt(const contractAddress : address; const s : emergencyGovernanceStorageType) : option(unit) is 
+    Big_map.find_opt(contractAddress, s.whitelistContracts)
+
+
+
+(* get: general contracts opt *)
+[@view] function getGeneralContractOpt(const contractName : string; const s : emergencyGovernanceStorageType) : option(address) is
+    Big_map.find_opt(contractName, s.generalContracts)
+
+
+
+(* View: get emergency governance record opt *)
+[@view] function getEmergencyGovernanceOpt (const emergencyGovernanceId : nat; const s : emergencyGovernanceStorageType) : option(emergencyGovernanceRecordType) is
+    Big_map.find_opt(emergencyGovernanceId, s.emergencyGovernanceLedger)
+
+
+
+(* View: get emergency governance voter opt *)
+[@view] function getEmergencyGovernanceVoterOpt (const voterId : voterIdentifierType; const s : emergencyGovernanceStorageType) : option((nat * timestamp)) is
+    Big_map.find_opt(voterId, s.emergencyGovernanceVoters)
+
+
+
+(* View: get current emergency governance id *)
+[@view] function getCurrentEmergencyGovernanceId (const _ : unit; const s : emergencyGovernanceStorageType) : nat is
+    s.currentEmergencyGovernanceId
+
+
+
+(* View: get next emergency governance id *)
+[@view] function getNextEmergencyGovernanceId (const _ : unit; const s : emergencyGovernanceStorageType) : nat is
+    s.nextEmergencyGovernanceId
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName : string; const s : emergencyGovernanceStorageType) : option(bytes) is
+    Big_map.find_opt(lambdaName, s.lambdaLedger)
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------

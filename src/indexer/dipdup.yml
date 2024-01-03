@@ -1,0 +1,1583 @@
+hooks:
+  fetch_liquidity_baking_prices:
+    callback: fetch_liquidity_baking_prices
+    atomic: false
+    args:
+      datasource: str
+      batch_size: int
+
+jobs:
+  fetch_liquidity_baking_prices:
+    hook: fetch_liquidity_baking_prices
+    interval: 500
+    args:
+      datasource: tzkt_mainnet
+      batch_size: 10000
+
+templates:
+  # Treasury token balance template
+  treasury_token_transfer_receiver_template:
+    kind: tezos.tzkt.token_transfers
+    datasource: tzkt_ghostnet
+    handlers:
+    - callback: treasury.token_transfer_receiver
+      to: <treasury_contract>
+      first_level: <first_level>
+
+  # Farm template
+  farm_template:
+    kind: tezos.tzkt.operations
+    datasource: tzkt_ghostnet
+    types:
+    - transaction
+    handlers:
+    - callback: farm.set_admin
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: setAdmin
+    - callback: farm.set_governance
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: setGovernance
+    - callback: farm.set_name
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: setName
+    - callback: farm.update_config
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: updateConfig
+    - callback: farm.update_whitelist_contracts
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: farm.update_general_contracts
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: updateGeneralContracts
+    - callback: farm.init_farm
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: initFarm
+    - callback: farm.close_farm
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: closeFarm
+    - callback: farm.pause_all
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: pauseAll
+    - callback: farm.unpause_all
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: unpauseAll
+    - callback: farm.toggle_pause_entrypoint
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: togglePauseEntrypoint
+    - callback: farm.deposit
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: deposit
+    - callback: farm.withdraw
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: withdraw
+    - callback: farm.claim
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: claim
+    - callback: farm.set_lambda
+      pattern:
+      - destination: <farm_contract>
+        entrypoint: setLambda
+
+  # MFarm template
+  m_farm_template:
+    kind: tezos.tzkt.operations
+    datasource: tzkt_ghostnet
+    types:
+    - transaction
+    handlers:
+    - callback: m_farm.set_admin
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: setAdmin
+    - callback: m_farm.set_governance
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: setGovernance
+    - callback: m_farm.set_name
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: setName
+    - callback: m_farm.update_config
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: updateConfig
+    - callback: m_farm.update_whitelist_contracts
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: m_farm.update_general_contracts
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: updateGeneralContracts
+    - callback: m_farm.init_farm
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: initFarm
+    - callback: m_farm.close_farm
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: closeFarm
+    - callback: m_farm.pause_all
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: pauseAll
+    - callback: m_farm.unpause_all
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: unpauseAll
+    - callback: m_farm.toggle_pause_entrypoint
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: togglePauseEntrypoint
+    - callback: m_farm.deposit
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: deposit
+    - callback: m_farm.withdraw
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: withdraw
+    - callback: m_farm.claim
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: claim
+    - callback: m_farm.set_lambda
+      pattern:
+      - destination: <m_farm_contract>
+        entrypoint: setLambda
+
+  # Treasury template
+  treasury_template:
+    kind: tezos.tzkt.operations
+    datasource: tzkt_ghostnet
+    types:
+    - transaction
+    handlers:
+    - callback: treasury.set_admin
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: setAdmin
+    - callback: treasury.set_governance
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: setGovernance
+    - callback: treasury.set_baker
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: setBaker
+    - callback: treasury.update_general_contracts
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: updateGeneralContracts
+    - callback: treasury.update_whitelist_contracts
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: treasury.update_whitelist_token_contracts
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: updateWhitelistTokenContracts
+    - callback: treasury.pause_all
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: pauseAll
+    - callback: treasury.unpause_all
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: unpauseAll
+    - callback: treasury.toggle_pause_entrypoint
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: togglePauseEntrypoint
+    - callback: treasury.default
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: default
+    - callback: treasury.transfer
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: transfer
+    - callback: treasury.set_lambda
+      pattern:
+      - destination: <treasury_contract>
+        entrypoint: setLambda
+
+  # Aggregator template
+  aggregator_template:
+    kind: tezos.tzkt.operations
+    datasource: tzkt_ghostnet
+    types:
+    - transaction
+    handlers:
+    - callback: aggregator.set_admin
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: setAdmin
+    - callback: aggregator.set_governance
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: setGovernance
+    - callback: aggregator.set_name
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: setName
+    - callback: aggregator.update_metadata
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: updateMetadata
+    - callback: aggregator.update_config
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: updateConfig
+    - callback: aggregator.update_whitelist_contracts
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: aggregator.update_general_contracts
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: updateGeneralContracts
+    - callback: aggregator.add_oracle
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: addOracle
+    - callback: aggregator.update_oracle
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: updateOracle
+    - callback: aggregator.remove_oracle
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: removeOracle
+    - callback: aggregator.pause_all
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: pauseAll
+    - callback: aggregator.unpause_all
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: unpauseAll
+    - callback: aggregator.toggle_pause_entrypoint
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: togglePauseEntrypoint
+    - callback: aggregator.update_data
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: updateData
+    - callback: aggregator.withdraw_reward_xtz
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: withdrawRewardXtz
+    - callback: aggregator.withdraw_reward_staked_mvn
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: withdrawRewardStakedMvn
+    - callback: aggregator.set_lambda
+      pattern:
+      - destination: <aggregator_contract>
+        entrypoint: setLambda
+
+  # Vault template
+  vault_template:
+    kind: tezos.tzkt.operations
+    datasource: tzkt_ghostnet
+    types:
+    - transaction
+    handlers:
+    - callback: vault.update_depositor
+      pattern:
+      - destination: <vault_contract>
+        entrypoint: updateDepositor
+    - callback: vault.set_baker
+      pattern:
+      - destination: <vault_contract>
+        entrypoint: setBaker
+    - callback: vault.update_vault_name
+      pattern:
+      - destination: <vault_contract>
+        entrypoint: updateVaultName
+  # MToken template
+  m_token_template:
+    kind: tezos.tzkt.operations
+    datasource: tzkt_ghostnet
+    types:
+    - origination
+    - transaction
+    contracts:
+    - <m_token_contract>
+    handlers:
+    - callback: m_token.origination
+      pattern:
+      - type: origination
+        originated_contract: <m_token_contract>
+    - callback: m_token.set_admin
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: setAdmin
+    - callback: m_token.set_governance
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: setGovernance
+    - callback: m_token.update_whitelist_contracts
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: m_token.transfer
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: transfer
+    - callback: m_token.update_operators
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: update_operators
+    - callback: m_token.mint_or_burn
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: mintOrBurn
+    - callback: m_token.compound
+      pattern:
+      - destination: <m_token_contract>
+        entrypoint: compound
+  # Governance satellite snapshot template
+  # Index the snapshot ledger bigmap of the governance contract
+  governance_satellite_snapshot_template:
+    kind: tezos.tzkt.big_maps
+    datasource: tzkt_ghostnet
+    skip_history: never
+    handlers:
+    - callback: governance.snapshot_ledger_update
+      contract: <governance_contract>
+      path: snapshotLedger
+  # Main Template - Maven Finance
+  # Ran after the governance origination and index the entire dApp
+  maven_finance_template:
+    kind: tezos.tzkt.operations
+    datasource: tzkt_ghostnet
+    types:
+    - origination
+    - transaction
+    contracts:
+    - <governance_contract>
+    - <governance_proxy_contract>
+    - <mvn_token_contract>
+    - <mvn_faucet_contract>
+    - <doorman_contract>
+    - <delegation_contract>
+    - <vesting_contract>
+    - <emergency_governance_contract>
+    - <council_contract>
+    - <break_glass_contract>
+    - <governance_financial_contract>
+    - <governance_satellite_contract>
+    - <aggregator_factory_contract>
+    - <farm_factory_contract>
+    - <treasury_factory_contract>
+    - <vault_factory_contract>
+    - <lending_controller_contract>
+    - <lending_controller_mock_time_contract>
+    handlers:
+    # Contracts origination
+    # Index contracts originations first
+    - callback: mvn.origination
+      pattern:
+      - type: origination
+        originated_contract: <mvn_token_contract>
+    - callback: mvn_faucet.origination
+      pattern:
+      - type: origination
+        originated_contract: <mvn_faucet_contract>
+    - callback: governance_proxy.origination
+      pattern:
+      - type: origination
+        originated_contract: <governance_proxy_contract>
+    - callback: doorman.origination
+      pattern:
+      - type: origination
+        originated_contract: <doorman_contract>
+    - callback: farm_factory.origination
+      pattern:
+      - type: origination
+        originated_contract: <farm_factory_contract>
+    - callback: delegation.origination
+      pattern:
+      - type: origination
+        originated_contract: <delegation_contract>
+    - callback: vesting.origination
+      pattern:
+      - type: origination
+        originated_contract: <vesting_contract>
+    - callback: emergency_governance.origination
+      pattern:
+      - type: origination
+        originated_contract: <emergency_governance_contract>
+    - callback: council.origination
+      pattern:
+      - type: origination
+        originated_contract: <council_contract>
+    - callback: break_glass.origination
+      pattern:
+      - type: origination
+        originated_contract: <break_glass_contract>
+    - callback: governance_financial.origination
+      pattern:
+      - type: origination
+        originated_contract: <governance_financial_contract>
+    - callback: governance_satellite.origination
+      pattern:
+      - type: origination
+        originated_contract: <governance_satellite_contract>
+    - callback: aggregator_factory.origination
+      pattern:
+      - type: origination
+        originated_contract: <aggregator_factory_contract>
+    - callback: treasury_factory.origination
+      pattern:
+      - type: origination
+        originated_contract: <treasury_factory_contract>
+    - callback: vault_factory.origination
+      pattern:
+      - type: origination
+        originated_contract: <vault_factory_contract>
+    - callback: lending_controller.origination
+      pattern:
+      - type: origination
+        originated_contract: <lending_controller_contract>
+    - callback: lending_controller_mock_time.origination
+      pattern:
+      - type: origination
+        originated_contract: <lending_controller_mock_time_contract>
+
+    # Contracts entrypoints
+    # MVN Token handlers
+    - callback: mvn.set_admin
+      pattern:
+      - destination: <mvn_token_contract>
+        entrypoint: setAdmin
+    - callback: mvn.set_governance
+      pattern:
+      - destination: <mvn_token_contract>
+        entrypoint: setGovernance
+    - callback: mvn.update_whitelist_contracts
+      pattern:
+      - destination: <mvn_token_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: mvn.update_general_contracts
+      pattern:
+      - destination: <mvn_token_contract>
+        entrypoint: updateGeneralContracts
+    - callback: mvn.transfer
+      pattern:
+      - destination: <mvn_token_contract>
+        entrypoint: transfer
+    - callback: mvn.update_operators
+      pattern:
+      - destination: <mvn_token_contract>
+        entrypoint: update_operators
+    - callback: mvn.mint
+      pattern:
+      - destination: <mvn_token_contract>
+        entrypoint: mint
+    - callback: mvn.burn
+      pattern:
+      - destination: <mvn_token_contract>
+        entrypoint: burn
+    - callback: mvn.update_inflation_rate
+      pattern:
+      - destination: <mvn_token_contract>
+        entrypoint: updateInflationRate
+    - callback: mvn.trigger_inflation
+      pattern:
+      - destination: <mvn_token_contract>
+        entrypoint: triggerInflation
+
+    # MVN Faucet handlers
+    - callback: mvn_faucet.request_mvn
+      pattern:
+      - destination: <mvn_faucet_contract>
+        entrypoint: requestMvn
+
+    # Governance Proxy Handlers
+    - callback: governance_proxy.set_admin
+      pattern:
+      - destination: <governance_proxy_contract>
+        entrypoint: setAdmin
+    - callback: governance_proxy.set_governance
+      pattern:
+      - destination: <governance_proxy_contract>
+        entrypoint: setGovernance
+    - callback: governance_proxy.set_lambda
+      pattern:
+      - destination: <governance_proxy_contract>
+        entrypoint: setLambda
+
+    # Governance Handlers
+    - callback: governance.break_glass
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: breakGlass
+    - callback: governance.set_admin
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: setAdmin
+    - callback: governance.set_governance_proxy
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: setGovernanceProxy
+    - callback: governance.update_config
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: updateConfig
+    - callback: governance.update_general_contracts
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: updateGeneralContracts
+    - callback: governance.update_whitelist_contracts
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: governance.update_whitelist_developers
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: updateWhitelistDevelopers
+    - callback: governance.start_next_round
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: startNextRound
+    - callback: governance.propose
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: propose
+    - callback: governance.proposal_round_vote
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: proposalRoundVote
+    - callback: governance.update_proposal_data
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: updateProposalData
+    - callback: governance.lock_proposal
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: lockProposal
+    - callback: governance.voting_round_vote
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: votingRoundVote
+    - callback: governance.execute_proposal
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: executeProposal
+    - callback: governance.process_proposal_payment
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: processProposalPayment
+    - callback: governance.process_proposal_single_data
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: processProposalSingleData
+    - callback: governance.drop_proposal
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: dropProposal
+    - callback: governance.distribute_proposal_rewards
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: distributeProposalRewards
+    - callback: governance.set_lambda
+      pattern:
+      - destination: <governance_contract>
+        entrypoint: setLambda
+    
+    # Doorman Handlers
+    - callback: doorman.set_admin
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: setAdmin
+    - callback: doorman.set_governance
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: setGovernance
+    - callback: doorman.update_config
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: updateConfig
+    - callback: doorman.update_whitelist_contracts
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: doorman.update_general_contracts
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: updateGeneralContracts
+    - callback: doorman.pause_all
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: pauseAll
+    - callback: doorman.unpause_all
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: unpauseAll
+    - callback: doorman.toggle_pause_entrypoint
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: togglePauseEntrypoint
+    - callback: doorman.stake_mvn
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: stakeMvn
+      - source: <doorman_contract>
+        destination: <mvn_token_contract>
+        entrypoint: transfer
+    - callback: doorman.unstake_mvn
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: unstakeMvn
+      - source: <doorman_contract>
+        destination: <mvn_token_contract>
+        entrypoint: transfer
+    - callback: doorman.exit
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: exit
+      - source: doorman
+        destination: <mvn_token_contract>
+        entrypoint: transfer
+    - callback: doorman.compound
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: compound
+    - callback: doorman.farm_claim
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: farmClaim
+    - callback: doorman.on_vault_deposit_stake
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: onVaultDepositStake
+    - callback: doorman.on_vault_withdraw_stake
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: onVaultWithdrawStake
+    - callback: doorman.on_vault_liquidate_stake
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: onVaultLiquidateStake
+    - callback: doorman.set_lambda
+      pattern:
+      - destination: <doorman_contract>
+        entrypoint: setLambda
+
+    # Farm Factory Handlers 
+    - callback: farm_factory.set_admin
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: setAdmin
+    - callback: farm_factory.set_governance
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: setGovernance
+    - callback: farm_factory.update_config
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: updateConfig
+    - callback: farm_factory.update_whitelist_contracts
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: farm_factory.update_general_contracts
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: updateGeneralContracts
+    - callback: farm_factory.pause_all
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: pauseAll
+    - callback: farm_factory.unpause_all
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: unpauseAll
+    - callback: farm_factory.toggle_pause_entrypoint
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: togglePauseEntrypoint
+    - callback: farm_factory.create_farm
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: createFarm
+      - type: origination
+        originated_contract: farm
+    - callback: farm_factory.create_farm_m_token
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: createFarmMToken
+      - type: origination
+        originated_contract: farm_m_token
+    - callback: farm_factory.track_farm
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: trackFarm
+    - callback: farm_factory.untrack_farm
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: untrackFarm
+    - callback: farm_factory.set_lambda
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: setLambda
+    - callback: farm_factory.set_product_lambda
+      pattern:
+      - destination: <farm_factory_contract>
+        entrypoint: setProductLambda
+
+    # Delegation Handlers
+    - callback: delegation.set_admin
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: setAdmin
+    - callback: delegation.set_governance
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: setGovernance
+    - callback: delegation.update_config
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: updateConfig
+    - callback: delegation.update_whitelist_contracts
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: delegation.update_general_contracts
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: updateGeneralContracts
+    - callback: delegation.pause_all
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: pauseAll
+    - callback: delegation.unpause_all
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: unpauseAll
+    - callback: delegation.toggle_pause_entrypoint
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: togglePauseEntrypoint
+    - callback: delegation.delegate_to_satellite
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: delegateToSatellite
+    - callback: delegation.undelegate_from_satellite
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: undelegateFromSatellite
+    - callback: delegation.register_as_satellite
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: registerAsSatellite
+    - callback: delegation.unregister_as_satellite
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: unregisterAsSatellite
+    - callback: delegation.update_satellite_record
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: updateSatelliteRecord
+    - callback: delegation.distribute_reward
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: distributeReward
+    - callback: delegation.update_satellite_status
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: updateSatelliteStatus
+    - callback: delegation.on_stake_change
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: onStakeChange
+    - callback: delegation.set_lambda
+      pattern:
+      - destination: <delegation_contract>
+        entrypoint: setLambda
+
+    # Vesting Handlers
+    - callback: vesting.set_admin
+      pattern:
+      - destination: <vesting_contract>
+        entrypoint: setAdmin
+    - callback: vesting.set_governance
+      pattern:
+      - destination: <vesting_contract>
+        entrypoint: setGovernance
+    - callback: vesting.update_whitelist_contracts
+      pattern:
+      - destination: <vesting_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: vesting.update_general_contracts
+      pattern:
+      - destination: <vesting_contract>
+        entrypoint: updateGeneralContracts
+    - callback: vesting.add_vestee
+      pattern:
+      - destination: <vesting_contract>
+        entrypoint: addVestee
+    - callback: vesting.remove_vestee
+      pattern:
+      - destination: <vesting_contract>
+        entrypoint: removeVestee
+    - callback: vesting.update_vestee
+      pattern:
+      - destination: <vesting_contract>
+        entrypoint: updateVestee
+    - callback: vesting.toggle_vestee_lock
+      pattern:
+      - destination: <vesting_contract>
+        entrypoint: toggleVesteeLock
+    - callback: vesting.claim
+      pattern:
+      - destination: <vesting_contract>
+        entrypoint: claim
+    - callback: vesting.set_lambda
+      pattern:
+      - destination: <vesting_contract>
+        entrypoint: setLambda
+
+    # Emergency Governance Handlers
+    - callback: emergency_governance.set_admin
+      pattern:
+      - destination: <emergency_governance_contract>
+        entrypoint: setAdmin
+    - callback: emergency_governance.set_governance
+      pattern:
+      - destination: <emergency_governance_contract>
+        entrypoint: setGovernance
+    - callback: emergency_governance.update_config
+      pattern:
+      - destination: <emergency_governance_contract>
+        entrypoint: updateConfig
+    - callback: emergency_governance.update_general_contracts
+      pattern:
+      - destination: <emergency_governance_contract>
+        entrypoint: updateGeneralContracts
+    - callback: emergency_governance.update_whitelist_contracts
+      pattern:
+      - destination: <emergency_governance_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: emergency_governance.trigger_emergency_control
+      pattern:
+      - destination: <emergency_governance_contract>
+        entrypoint: triggerEmergencyControl
+    - callback: emergency_governance.vote_for_emergency_control
+      pattern:
+      - destination: <emergency_governance_contract>
+        entrypoint: voteForEmergencyControl
+    - callback: emergency_governance.set_lambda
+      pattern:
+      - destination: <emergency_governance_contract>
+        entrypoint: setLambda
+
+    # Council Handlers
+    - callback: council.set_admin
+      pattern:
+      - destination: <council_contract>
+        entrypoint: setAdmin
+    - callback: council.set_governance
+      pattern:
+      - destination: <council_contract>
+        entrypoint: setGovernance
+    - callback: council.update_config
+      pattern:
+      - destination: <council_contract>
+        entrypoint: updateConfig
+    - callback: council.update_whitelist_contracts
+      pattern:
+      - destination: <council_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: council.update_general_contracts
+      pattern:
+      - destination: <council_contract>
+        entrypoint: updateGeneralContracts
+    - callback: council.update_council_member_info
+      pattern:
+      - destination: <council_contract>
+        entrypoint: updateCouncilMemberInfo
+    - callback: council.council_action_add_member
+      pattern:
+      - destination: <council_contract>
+        entrypoint: councilActionAddMember
+    - callback: council.council_action_remove_member
+      pattern:
+      - destination: <council_contract>
+        entrypoint: councilActionRemoveMember
+    - callback: council.council_action_change_member
+      pattern:
+      - destination: <council_contract>
+        entrypoint: councilActionChangeMember
+    - callback: council.council_action_set_baker
+      pattern:
+      - destination: <council_contract>
+        entrypoint: councilActionSetBaker
+    - callback: council.council_action_add_vestee
+      pattern:
+      - destination: <council_contract>
+        entrypoint: councilActionAddVestee
+    - callback: council.council_action_remove_vestee
+      pattern:
+      - destination: <council_contract>
+        entrypoint: councilActionRemoveVestee
+    - callback: council.council_action_update_vestee
+      pattern:
+      - destination: <council_contract>
+        entrypoint: councilActionUpdateVestee
+    - callback: council.council_action_toggle_vestee_lock
+      pattern:
+      - destination: <council_contract>
+        entrypoint: councilActionToggleVesteeLock
+    - callback: council.council_action_transfer
+      pattern:
+      - destination: <council_contract>
+        entrypoint: councilActionTransfer
+    - callback: council.council_action_request_tokens
+      pattern:
+      - destination: <council_contract>
+        entrypoint: councilActionRequestTokens
+    - callback: council.council_action_request_mint
+      pattern:
+      - destination: <council_contract>
+        entrypoint: councilActionRequestMint
+    - callback: council.council_action_set_contract_baker
+      pattern:
+      - destination: <council_contract>
+        entrypoint: councilActionSetContractBaker
+    - callback: council.council_action_drop_financial_req
+      pattern:
+      - destination: <council_contract>
+        entrypoint: councilActionDropFinancialReq
+    - callback: council.flush_action
+      pattern:
+      - destination: <council_contract>
+        entrypoint: flushAction
+    - callback: council.sign_action
+      pattern:
+      - destination: <council_contract>
+        entrypoint: signAction
+    - callback: council.set_lambda
+      pattern:
+      - destination: <council_contract>
+        entrypoint: setLambda
+
+    # Break Glass Handlers
+    - callback: break_glass.break_glass
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: breakGlass
+    - callback: break_glass.set_admin
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: setAdmin
+    - callback: break_glass.set_governance
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: setGovernance
+    - callback: break_glass.update_config
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: updateConfig
+    - callback: break_glass.update_whitelist_contracts
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: break_glass.update_general_contracts
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: updateGeneralContracts
+    - callback: break_glass.update_council_member_info
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: updateCouncilMemberInfo
+    - callback: break_glass.council_action_add_member
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: councilActionAddMember
+    - callback: break_glass.council_action_remove_member
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: councilActionRemoveMember
+    - callback: break_glass.council_action_change_member
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: councilActionChangeMember
+    - callback: break_glass.propagate_break_glass
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: propagateBreakGlass
+    - callback: break_glass.set_contracts_admin
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: setContractsAdmin
+    - callback: break_glass.pause_all_entrypoints
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: pauseAllEntrypoints
+    - callback: break_glass.unpause_all_entrypoints
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: unpauseAllEntrypoints
+    - callback: break_glass.remove_break_glass_control
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: removeBreakGlassControl
+    - callback: break_glass.flush_action
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: flushAction
+    - callback: break_glass.sign_action
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: signAction
+    - callback: break_glass.set_lambda
+      pattern:
+      - destination: <break_glass_contract>
+        entrypoint: setLambda
+
+    # Governance Financial Handlers
+    - callback: governance_financial.set_admin
+      pattern:
+      - destination: <governance_financial_contract>
+        entrypoint: setAdmin
+    - callback: governance_financial.set_governance
+      pattern:
+      - destination: <governance_financial_contract>
+        entrypoint: setGovernance
+    - callback: governance_financial.update_config
+      pattern:
+      - destination: <governance_financial_contract>
+        entrypoint: updateConfig
+    - callback: governance_financial.update_general_contracts
+      pattern:
+      - destination: <governance_financial_contract>
+        entrypoint: updateGeneralContracts
+    - callback: governance_financial.update_whitelist_contracts
+      pattern:
+      - destination: <governance_financial_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: governance_financial.update_whitelist_token_contracts
+      pattern:
+      - destination: <governance_financial_contract>
+        entrypoint: updateWhitelistTokenContracts
+    - callback: governance_financial.request_tokens
+      pattern:
+      - destination: <governance_financial_contract>
+        entrypoint: requestTokens
+    - callback: governance_financial.request_mint
+      pattern:
+      - destination: <governance_financial_contract>
+        entrypoint: requestMint
+    - callback: governance_financial.set_contract_baker
+      pattern:
+      - destination: <governance_financial_contract>
+        entrypoint: setContractBaker
+    - callback: governance_financial.drop_financial_request
+      pattern:
+      - destination: <governance_financial_contract>
+        entrypoint: dropFinancialRequest
+    - callback: governance_financial.vote_for_request
+      pattern:
+      - destination: <governance_financial_contract>
+        entrypoint: voteForRequest
+    - callback: governance_financial.set_lambda
+      pattern:
+      - destination: <governance_financial_contract>
+        entrypoint: setLambda
+
+    # Governance Satellite Handlers
+    - callback: governance_satellite.set_admin
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: setAdmin
+    - callback: governance_satellite.set_governance
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: setGovernance
+    - callback: governance_satellite.update_config
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: updateConfig
+    - callback: governance_satellite.update_whitelist_contracts
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: governance_satellite.update_general_contracts
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: updateGeneralContracts
+    - callback: governance_satellite.suspend_satellite
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: suspendSatellite
+    - callback: governance_satellite.ban_satellite
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: banSatellite
+    - callback: governance_satellite.restore_satellite
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: restoreSatellite
+    - callback: governance_satellite.remove_all_satellite_oracles
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: removeAllSatelliteOracles
+    - callback: governance_satellite.add_oracle_to_aggregator
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: addOracleToAggregator
+    - callback: governance_satellite.remove_oracle_in_aggregator
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: removeOracleInAggregator
+    - callback: governance_satellite.toggle_pause_aggregator
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: togglePauseAggregator
+    - callback: governance_satellite.fix_mistaken_transfer
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: fixMistakenTransfer
+    - callback: governance_satellite.drop_action
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: dropAction
+    - callback: governance_satellite.vote_for_action
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: voteForAction
+    - callback: governance_satellite.set_lambda
+      pattern:
+      - destination: <governance_satellite_contract>
+        entrypoint: setLambda
+
+    # Aggregator Factory Handlers
+    - callback: aggregator_factory.set_admin
+      pattern:
+      - destination: <aggregator_factory_contract>
+        entrypoint: setAdmin
+    - callback: aggregator_factory.set_governance
+      pattern:
+      - destination: <aggregator_factory_contract>
+        entrypoint: setGovernance
+    - callback: aggregator_factory.update_config
+      pattern:
+      - destination: <aggregator_factory_contract>
+        entrypoint: updateConfig
+    - callback: aggregator_factory.update_whitelist_contracts
+      pattern:
+      - destination: <aggregator_factory_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: aggregator_factory.update_general_contracts
+      pattern:
+      - destination: <aggregator_factory_contract>
+        entrypoint: updateGeneralContracts
+    - callback: aggregator_factory.pause_all
+      pattern:
+      - destination: <aggregator_factory_contract>
+        entrypoint: pauseAll
+    - callback: aggregator_factory.unpause_all
+      pattern:
+      - destination: <aggregator_factory_contract>
+        entrypoint: unpauseAll
+    - callback: aggregator_factory.toggle_pause_entrypoint
+      pattern:
+      - destination: <aggregator_factory_contract>
+        entrypoint: togglePauseEntrypoint
+    - callback: aggregator_factory.create_aggregator
+      pattern:
+      - destination: <aggregator_factory_contract>
+        entrypoint: createAggregator
+      - type: origination
+        originated_contract: aggregator
+    - callback: aggregator_factory.track_aggregator
+      pattern:
+      - destination: <aggregator_factory_contract>
+        entrypoint: trackAggregator
+    - callback: aggregator_factory.untrack_aggregator
+      pattern:
+      - destination: <aggregator_factory_contract>
+        entrypoint: untrackAggregator
+    - callback: aggregator_factory.set_lambda
+      pattern:
+      - destination: <aggregator_factory_contract>
+        entrypoint: setLambda
+    - callback: aggregator_factory.set_product_lambda
+      pattern:
+      - destination: <aggregator_factory_contract>
+        entrypoint: setProductLambda
+
+    # Treasury Factory Handlers
+    - callback: treasury_factory.set_admin
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: setAdmin
+    - callback: treasury_factory.set_governance
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: setGovernance
+    - callback: treasury_factory.update_config
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: updateConfig
+    - callback: treasury_factory.update_general_contracts
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: updateGeneralContracts
+    - callback: treasury_factory.update_whitelist_contracts
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: treasury_factory.update_whitelist_token_contracts
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: updateWhitelistTokenContracts
+    - callback: treasury_factory.pause_all
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: pauseAll
+    - callback: treasury_factory.unpause_all
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: unpauseAll
+    - callback: treasury_factory.toggle_pause_entrypoint
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: togglePauseEntrypoint
+    - callback: treasury_factory.create_treasury
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: createTreasury
+      - type: origination
+        originated_contract: treasury
+    - callback: treasury_factory.track_treasury
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: trackTreasury
+    - callback: treasury_factory.untrack_treasury
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: untrackTreasury
+    - callback: treasury_factory.set_lambda
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: setLambda
+    - callback: treasury_factory.set_product_lambda
+      pattern:
+      - destination: <treasury_factory_contract>
+        entrypoint: setProductLambda
+
+    # Vault Factory Handlers
+    - callback: vault_factory.set_admin
+      pattern:
+      - destination: <vault_factory_contract>
+        entrypoint: setAdmin
+    - callback: vault_factory.set_governance
+      pattern:
+      - destination: <vault_factory_contract>
+        entrypoint: setGovernance
+    - callback: vault_factory.update_config
+      pattern:
+      - destination: <vault_factory_contract>
+        entrypoint: updateConfig
+    - callback: vault_factory.update_general_contracts
+      pattern:
+      - destination: <vault_factory_contract>
+        entrypoint: updateGeneralContracts
+    - callback: vault_factory.update_whitelist_contracts
+      pattern:
+      - destination: <vault_factory_contract>
+        entrypoint: updateWhitelistContracts
+    - callback: vault_factory.pause_all
+      pattern:
+      - destination: <vault_factory_contract>
+        entrypoint: pauseAll
+    - callback: vault_factory.unpause_all
+      pattern:
+      - destination: <vault_factory_contract>
+        entrypoint: unpauseAll
+    - callback: vault_factory.toggle_pause_entrypoint
+      pattern:
+      - destination: <vault_factory_contract>
+        entrypoint: togglePauseEntrypoint
+    - callback: vault_factory.create_vault
+      pattern:
+      - destination: <vault_factory_contract>
+        entrypoint: createVault
+      - type: origination
+        originated_contract: vault
+      - source: <vault_factory_contract>
+        destination: <lending_controller_contract>
+        entrypoint: registerVaultCreation
+    - callback: vault_factory.create_vault_mock_time
+      pattern:
+      - destination: <vault_factory_contract>
+        entrypoint: createVault
+      - type: origination
+        originated_contract: vault
+      - source: <vault_factory_contract>
+        destination: <lending_controller_mock_time_contract>
+        entrypoint: registerVaultCreation
+    - callback: vault_factory.set_lambda
+      pattern:
+      - destination: <vault_factory_contract>
+        entrypoint: setLambda
+    - callback: vault_factory.set_product_lambda
+      pattern:
+      - destination: <vault_factory_contract>
+        entrypoint: setProductLambda
+
+    # Lending Controller Handlers
+    - callback: lending_controller.set_admin
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: setAdmin
+    - callback: lending_controller.set_governance
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: setGovernance
+    - callback: lending_controller.update_config
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: updateConfig
+    - callback: lending_controller.pause_all
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: pauseAll
+    - callback: lending_controller.unpause_all
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: unpauseAll
+    - callback: lending_controller.toggle_pause_entrypoint
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: togglePauseEntrypoint
+    - callback: lending_controller.set_loan_token
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: setLoanToken
+    - callback: lending_controller.set_collateral_token
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: setCollateralToken
+    - callback: lending_controller.add_liquidity
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: addLiquidity
+    - callback: lending_controller.remove_liquidity
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: removeLiquidity
+    - callback: lending_controller.close_vault
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: closeVault
+    - callback: lending_controller.register_deposit
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: registerDeposit
+    - callback: lending_controller.register_withdrawal
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: registerWithdrawal
+    - callback: lending_controller.mark_for_liquidation
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: markForLiquidation
+    - callback: lending_controller.liquidate_vault
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: liquidateVault
+    - callback: lending_controller.borrow
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: borrow
+    - callback: lending_controller.repay
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: repay
+    - callback: lending_controller.vault_deposit_staked_token
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: vaultDepositStakedToken
+    - callback: lending_controller.vault_withdraw_staked_token
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: vaultWithdrawStakedToken
+    - callback: lending_controller.set_lambda
+      pattern:
+      - destination: <lending_controller_contract>
+        entrypoint: setLambda
+
+    # Lending Controller Mock Time Handlers
+    - callback: lending_controller_mock_time.set_admin
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: setAdmin
+    - callback: lending_controller_mock_time.set_governance
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: setGovernance
+    - callback: lending_controller_mock_time.update_config
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: updateConfig
+    - callback: lending_controller_mock_time.pause_all
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: pauseAll
+    - callback: lending_controller_mock_time.unpause_all
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: unpauseAll
+    - callback: lending_controller_mock_time.toggle_pause_entrypoint
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: togglePauseEntrypoint
+    - callback: lending_controller_mock_time.set_loan_token
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: setLoanToken
+    - callback: lending_controller_mock_time.set_collateral_token
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: setCollateralToken
+    - callback: lending_controller_mock_time.add_liquidity
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: addLiquidity
+    - callback: lending_controller_mock_time.remove_liquidity
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: removeLiquidity
+    - callback: lending_controller_mock_time.close_vault
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: closeVault
+    - callback: lending_controller_mock_time.register_deposit
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: registerDeposit
+    - callback: lending_controller_mock_time.register_withdrawal
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: registerWithdrawal
+    - callback: lending_controller_mock_time.mark_for_liquidation
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: markForLiquidation
+    - callback: lending_controller_mock_time.liquidate_vault
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: liquidateVault
+    - callback: lending_controller_mock_time.borrow
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: borrow
+    - callback: lending_controller_mock_time.repay
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: repay
+    - callback: lending_controller_mock_time.vault_deposit_staked_token
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: vaultDepositStakedToken
+    - callback: lending_controller_mock_time.vault_withdraw_staked_token
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: vaultWithdrawStakedToken
+    - callback: lending_controller_mock_time.set_lambda
+      pattern:
+      - destination: <lending_controller_mock_time_contract>
+        entrypoint: setLambda
+  # Side Template - Liquidity Baking
+  # Ran after the liquidity baking origination and index the entire dApp
+  liquidity_baking_template:
+    kind: tezos.tzkt.operations
+    datasource: tzkt_mainnet
+    types:
+    - origination
+    - transaction
+    contracts:
+    - <liquidity_baking_contract>
+    - <sirius_contract>
+    - <tzbtc_contract>
+    handlers:
+    # Liquidity baking handlers
+    - callback: liquidity_baking.add_liquidity
+      pattern:
+      - destination: <liquidity_baking_contract>
+        entrypoint: addLiquidity
+      - destination: <tzbtc_contract>
+        entrypoint: transfer
+      - destination: <sirius_contract>
+        entrypoint: mintOrBurn
+    - callback: liquidity_baking.remove_liquidity
+      pattern:
+      - destination: <liquidity_baking_contract>
+        entrypoint: removeLiquidity
+      - destination: <sirius_contract>
+        entrypoint: mintOrBurn
+      - destination: <tzbtc_contract>
+        entrypoint: transfer
+      - source: <liquidity_baking_contract>
+        type: transaction
+    - callback: liquidity_baking.token_to_xtz
+      pattern:
+      - destination: <liquidity_baking_contract>
+        entrypoint: tokenToXtz
+      - destination: <tzbtc_contract>
+        entrypoint: transfer
+      - source: <liquidity_baking_contract>
+        type: transaction
+      - source: <liquidity_baking_contract>
+        type: transaction
+    - callback: liquidity_baking.xtz_to_token
+      pattern:
+      - destination: <liquidity_baking_contract>
+        entrypoint: xtzToToken
+      - destination: <tzbtc_contract>
+        entrypoint: transfer
+    - callback: liquidity_baking.default
+      pattern:
+      - destination: <liquidity_baking_contract>
+        entrypoint: default
+    # Sirius handlers
+    - callback: sirius.transfer
+      pattern:
+      - destination: <sirius_contract>
+        entrypoint: transfer
+
+indexes:
+  maven_finance_ghostnet_init:
+    kind: tezos.tzkt.operations
+    datasource: tzkt_ghostnet
+    types:
+    - origination
+    contracts:
+    - governance
+    handlers:
+    # Start by only initializing governance before anything else
+    - callback: governance.origination
+      pattern:
+      - type: origination
+        originated_contract: governance

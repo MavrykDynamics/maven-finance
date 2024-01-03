@@ -1,0 +1,85 @@
+version: '3.6'
+services:
+  db:
+    image: postgres:14
+    shm_size: 1g
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=bcd
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - db:/var/lib/postgresql/data
+    logging: &bcd-logging
+      options:
+        max-size: 10m
+        max-file: '5'
+
+  api:
+    restart: always
+    image: ghcr.io/baking-bad/bcdhub-api:${TAG}
+    environment:
+      - BCD_ENV=sandbox
+      - GIN_MODE=debug
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - SANDBOX_NODE_URI=http://sandbox:20000
+      - SANDBOX_IPFS_GATEWAY=https://cloudflare-ipfs.com
+    depends_on:
+      - db
+    ports:
+      - 127.0.0.1:14000:14000
+    volumes:
+      - bcdshare:/etc/bcd
+    links:
+      - 'flextesa:sandbox'
+    logging: *bcd-logging
+
+  indexer:
+    restart: always
+    image: ghcr.io/baking-bad/bcdhub-indexer:${TAG}
+    environment:
+      - BCD_ENV=sandbox
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - SANDBOX_NODE_URI=http://sandbox:20000
+      - SANDBOX_IPFS_GATEWAY=https://cloudflare-ipfs.com
+    depends_on:
+      - db
+    links:
+      - 'flextesa:sandbox'
+    volumes:
+      - bcdshare:/etc/bcd
+    logging: *bcd-logging
+
+  flextesa:
+    container_name: maven-sandbox
+    restart: always
+    image: oxheadalpha/flextesa:20230607
+    command: mumbaibox start
+    environment:
+      - block_time=3
+      - flextesa_node_cors_origin=*
+    ports:
+      - 127.0.0.1:20000:20000
+      - 127.0.0.1:8732:20000
+    expose:
+      - 20000/tcp
+      - 8732/tcp
+    logging: *bcd-logging
+
+  gui:
+    container_name: sandbox-gui
+    restart: always
+    image: ghcr.io/baking-bad/bcdhub-gui:${TAG}
+    depends_on:
+      - api
+    ports:
+      - 127.0.0.1:8000:80
+    logging: *bcd-logging
+
+volumes:
+  bcdshare:
+  db:
+    driver: local

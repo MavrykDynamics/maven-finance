@@ -1,55 +1,156 @@
+// ------------------------------------------------------------------------------
+// Error Codes
+// ------------------------------------------------------------------------------
+
+// Error Codes
+#include "../partials/errors.ligo"
+
+// ------------------------------------------------------------------------------
+// Shared Helpers and Types
+// ------------------------------------------------------------------------------
+
+// Constants
+#include "../partials/shared/constants.ligo"
+
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
+
+// Transfer Helpers
+#include "../partials/shared/transferHelpers.ligo"
+
+// Permission Helpers
+#include "../partials/shared/permissionHelpers.ligo"
+
+// ------------------------------------------------------------------------------
+// Contract Types
+// ------------------------------------------------------------------------------
+
+// Delegation Types
+#include "../partials/contractTypes/delegationTypes.ligo"
+
+// MVN Token Type
+#include "../partials/contractTypes/mvnTokenTypes.ligo"
+
+// Treasury Type
+#include "../partials/contractTypes/treasuryTypes.ligo"
+
+// Governance Type
+#include "../partials/contractTypes/governanceTypes.ligo"
+
+// ------------------------------------------------------------------------------
+
 type delegationAction is 
-    | SetDelegate of (nat)
-    | RegisterDelegate of (nat)
-    | UnregisterDelegate of (nat)
-    | ChangeStake of (nat)
-    | OnGovernanceAction of (nat)    // to be clarified what this does
 
-type delegateRecordType is record [
-    status               : nat; 
-    registeredDateTime   : timestamp;
-    amountStaked         : nat; 
-]
-type delegateLedgerType is big_map (address, delegateRecordType)
+        // Housekeeping Entrypoints
+    |   SetAdmin                          of (address)
+    |   SetGovernance                     of (address)
+    |   UpdateMetadata                    of updateMetadataType
+    |   UpdateConfig                      of delegationUpdateConfigParamsType
+    |   UpdateWhitelistContracts          of updateWhitelistContractsType
+    |   UpdateGeneralContracts            of updateGeneralContractsType
+    |   MistakenTransfer                  of transferActionType
 
-type storage is record [
-    admin                : address;
-    delegateLedger       : delegateLedgerType;
-]
+        // Pause / Break Glass Entrypoints
+    |   PauseAll                          of (unit)
+    |   UnpauseAll                        of (unit)
+    |   TogglePauseEntrypoint             of delegationTogglePauseEntrypointType
+
+        // Delegation Entrypoints
+    |   DelegateToSatellite               of delegateToSatelliteType    
+    |   UndelegateFromSatellite           of (address)
+    
+        // Satellite Entrypoints
+    |   RegisterAsSatellite               of registerAsSatelliteParamsType
+    |   UnregisterAsSatellite             of (address)
+    |   UpdateSatelliteRecord             of updateSatelliteRecordType
+    |   DistributeReward                  of distributeRewardStakedMvnType
+    |   TakeSatellitesSnapshot            of takeSatellitesSnapshotType
+
+        // General Entrypoints
+    |   OnStakeChange                     of onStakeChangeType
+    |   UpdateSatelliteStatus             of updateSatelliteStatusParamsType
+
+        // Lambda Entrypoints
+    |   SetLambda                         of setLambdaType
+
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * storage
+type return is list (operation) * delegationStorageType
 
-function setDelegate(const _parameters : nat; var s : storage) : return is
-block {
-    skip
-} with (noOperations, s)
+// delegation contract methods lambdas
+type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegationStorageType) -> return
 
-function registerDelegate(const _parameters : nat; var s : storage) : return is 
-block {
-    skip
-} with (noOperations, s)
 
-function unregisterDelegate(const _parameters : nat; var s : storage) : return is
-block {
-    skip
-} with (noOperations, s)
+// ------------------------------------------------------------------------------
+// Helpers
+// ------------------------------------------------------------------------------
 
-function changeStake(const _parameters : nat; var s : storage) : return is 
-block {
-    skip
-} with (noOperations, s)
+// Delegation Helpers:
+#include "../partials/contractHelpers/delegationHelpers.ligo"
 
-function onGovernanceAction(const _parameters : nat; var s : storage) : return is 
-block {
-    skip
-} with (noOperations, s)
+// ------------------------------------------------------------------------------
+// Views
+// ------------------------------------------------------------------------------
 
-function main (const action : delegationAction; const s : storage) : return is 
-    case action of
-        | SetDelegate(parameters) -> setDelegate(parameters, s)
-        | RegisterDelegate(parameters) -> registerDelegate(parameters, s)
-        | ChangeStake(parameters) -> changeStake(parameters, s)
-        | UnregisterDelegate(parameters) -> unregisterDelegate(parameters, s)
-        | OnGovernanceAction(parameters) -> onGovernanceAction(parameters, s)
-    end
+// Delegation Views:
+#include "../partials/contractViews/delegationViews.ligo"
+
+// ------------------------------------------------------------------------------
+// Lambdas
+// ------------------------------------------------------------------------------
+
+// Delegation Lambdas:
+#include "../partials/contractLambdas/delegationLambdas.ligo"
+
+// ------------------------------------------------------------------------------
+// Entrypoints
+// ------------------------------------------------------------------------------
+
+// Delegation Entrypoints:
+#include "../partials/contractEntrypoints/delegationEntrypoints.ligo"
+
+// ------------------------------------------------------------------------------
+
+
+
+(* main entrypoint *)
+function main (const action : delegationAction; const s : delegationStorageType) : return is 
+block{
+
+    verifyNoAmountSent(unit); // entrypoints should not receive any tez amount  
+
+} with (case action of [    
+
+            // Housekeeping Entrypoints
+            SetAdmin(parameters)                          -> setAdmin(parameters, s) 
+        |   SetGovernance(parameters)                     -> setGovernance(parameters, s) 
+        |   UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
+        |   UpdateConfig(parameters)                      -> updateConfig(parameters, s)
+        |   UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer(parameters)                  -> mistakenTransfer(parameters, s)
+
+            // Pause / Break Glass Entrypoints
+        |   PauseAll(_parameters)                         -> pauseAll(s)
+        |   UnpauseAll(_parameters)                       -> unpauseAll(s)
+        |   TogglePauseEntrypoint(parameters)             -> togglePauseEntrypoint(parameters, s)
+        
+            // Delegation Entrypoints
+        |   DelegateToSatellite(parameters)               -> delegateToSatellite(parameters, s)
+        |   UndelegateFromSatellite(parameters)           -> undelegateFromSatellite(parameters, s)
+        
+            // Satellite Entrypoints
+        |   RegisterAsSatellite(parameters)               -> registerAsSatellite(parameters, s)
+        |   UnregisterAsSatellite(parameters)             -> unregisterAsSatellite(parameters, s)
+        |   UpdateSatelliteRecord(parameters)             -> updateSatelliteRecord(parameters, s)
+        |   DistributeReward(parameters)                  -> distributeReward(parameters, s)
+        |   TakeSatellitesSnapshot(parameters)            -> takeSatellitesSnapshot(parameters, s)
+
+            // General Entrypoints
+        |   OnStakeChange(parameters)                     -> onStakeChange(parameters, s)
+        |   UpdateSatelliteStatus(parameters)             -> updateSatelliteStatus(parameters, s)
+
+            // Lambda Entrypoints
+        |   SetLambda(parameters)                         -> setLambda(parameters, s)    
+    ]
+)

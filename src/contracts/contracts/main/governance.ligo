@@ -1,94 +1,144 @@
+// ------------------------------------------------------------------------------
+// Error Codes
+// ------------------------------------------------------------------------------
 
-// Yay or Nay vote, and the vMVK amount voter has staked - add timestamps?
-type voteType is (bool * nat * timestamp)
+// Error Codes
+#include "../partials/errors.ligo"
 
-// Stores all voter data for a proposal
-type voterMapType is map (address, voteType)
+// ------------------------------------------------------------------------------
+// Shared Helpers and Types
+// ------------------------------------------------------------------------------
 
-type proposalRecordType is record [
-    proposerAddress      : address;   
-    proposerStakeLocked  : nat; 
-    status               : nat;         
-    title                : string;
-    briefDescription     : string;   
-    forumPostId          : nat;
-    upvoteCount          : nat;
-    downvoteCount        : nat; 
-    votingPeriodLength   : nat; 
-    voters               : voterMapType;  
-    minQuorumPercentage  : nat;         // capture state of min quorum percentage
-    quorumCount          : nat;         // turnout for quorum
-    startDateTime        : timestamp;
-]
-type proposalLedgerType is big_map (nat, proposalRecordType);
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
-type configType is record [
-    successfulProposalReward    : nat;  // incentive reward for successful proposal
-    incentiveStakeWeightage     : nat;  // weightage to calculate incentives based on amount staked
-    incentiveTimeWeightage      : nat;  // weightage to calculate incentives based on time voted
-    fastVotingPeriod            : nat;  // fast voting period: 24 hours
-    slowVotingPeriod            : nat;  // slow voting period: 72 hours   
-    verySlowVotingPeriod        : nat;  // very slow voting period: 120 hours
-    minQuorumPercentage         : nat;  // minimum quorum percentage to be achieved (in sMVK)
-    proposalSubmissionFee       : nat;  // e.g. 10 tez per submitted proposal
-    proposalMinimumStaked       : nat;  // in percentage of total vMVK supply (e.g. 0.01%)
-    maxProposalsPerDelegate     : nat;  // number of active proposals delegate can have at any given time
-]
+// Transfer Helpers
+#include "../partials/shared/transferHelpers.ligo"
 
-type storage is record [
-    admin                       : address;
-    config                      : configType;
-    proposalLedger              : proposalLedgerType;
-    tempSMvkTotalSupply         : nat;  // for quorum use to get total amount
-]
+// Permission Helpers
+#include "../partials/shared/permissionHelpers.ligo"
+
+// Votes Helpers
+#include "../partials/shared/voteHelpers.ligo"
+
+// ------------------------------------------------------------------------------
+// Contract Types
+// ------------------------------------------------------------------------------
+
+// Delegation Type
+#include "../partials/contractTypes/delegationTypes.ligo"
+
+// Governance Type
+#include "../partials/contractTypes/governanceTypes.ligo"
 
 type governanceAction is 
-    | Propose of (nat)
-    | Vote of (nat)
-    | Release of (nat)
-    | Execute of (nat)
-    | Clear of (nat)
-    | ChangeStake of (nat)
+
+        // Break Glass Entrypoint
+        BreakGlass                      of (unit)
+    |   PropagateBreakGlass             of set(address)
+
+        // Housekeeping Entrypoints
+    |   SetAdmin                        of (address)
+    |   SetGovernanceProxy              of (address)
+    |   UpdateMetadata                  of updateMetadataType
+    |   UpdateConfig                    of governanceUpdateConfigParamsType
+    |   UpdateWhitelistContracts        of updateWhitelistContractsType
+    |   UpdateGeneralContracts          of updateGeneralContractsType    
+    |   UpdateWhitelistDevelopers       of (address)
+    |   MistakenTransfer                of transferActionType
+    |   SetContractAdmin                of setContractAdminType
+    |   SetContractGovernance           of setContractGovernanceType
+    
+        // Governance Cycle Entrypoints
+    |   UpdateSatellitesSnapshot        of updateSatellitesSnapshotType
+    |   StartNextRound                  of bool
+    |   Propose                         of newProposalType
+    |   ProposalRoundVote               of actionIdType
+    |   UpdateProposalData              of updateProposalType
+    |   LockProposal                    of actionIdType
+    |   VotingRoundVote                 of (votingRoundVoteType)
+    |   ExecuteProposal                 of actionIdType
+    |   ProcessProposalPayment          of actionIdType
+    |   ProcessProposalSingleData       of actionIdType
+    |   DistributeProposalRewards       of distributeProposalRewardsType
+    |   DropProposal                    of actionIdType
+
+        // Lambda Entrypoints
+    |   SetLambda                       of setLambdaType
+
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * storage
+type return is list (operation) * governanceStorageType
 
-function propose(const _parameters : nat; var s : storage) : return is 
-block {
-    skip
-} with (noOperations, s)
+// governance contract methods lambdas
+type governanceUnpackLambdaFunctionType is (governanceLambdaActionType * governanceStorageType) -> return
 
-function vote(const _parameters : nat; var s : storage) : return is 
-block {
-    skip
-} with (noOperations, s)
 
-function release(const _parameters : nat; var s : storage) : return is
-block {
-    skip
-} with (noOperations, s)
+// ------------------------------------------------------------------------------
+// Helpers
+// ------------------------------------------------------------------------------
 
-function execute(const _parameters : nat; var s : storage) : return is 
-block {
-    skip
-} with (noOperations, s)
+// Governance Helpers:
+#include "../partials/contractHelpers/governanceHelpers.ligo"
 
-function clear(const _parameters : nat; var s : storage) : return is 
-block {
-    skip
-} with (noOperations, s)
+// ------------------------------------------------------------------------------
+// Views
+// ------------------------------------------------------------------------------
 
-function changeStake(const _parameters : nat; var s : storage) : return is
-block {
-    skip
-} with (noOperations, s)
+// Governance Views:
+#include "../partials/contractViews/governanceViews.ligo"
 
-function main (const action : governanceAction; const s : storage) : return is 
-    case action of
-        | Propose(parameters) -> propose(parameters, s)
-        | Vote(parameters) -> vote(parameters, s)
-        | Release(parameters) -> release(parameters, s)
-        | Execute(parameters) -> execute(parameters, s)
-        | Clear(parameters) -> clear(parameters, s)
-        | ChangeStake(parameters) -> changeStake(parameters, s)
-    end
+// ------------------------------------------------------------------------------
+// Lambdas
+// ------------------------------------------------------------------------------
+
+// Governance Lambdas:
+#include "../partials/contractLambdas/governanceLambdas.ligo"
+
+// ------------------------------------------------------------------------------
+// Entrypoints
+// ------------------------------------------------------------------------------
+
+// Governance Entrypoints:
+#include "../partials/contractEntrypoints/governanceEntrypoints.ligo"
+
+
+(* main entrypoint *)
+function main (const action : governanceAction; const s : governanceStorageType) : return is 
+
+    case action of [
+
+            // Break Glass Entrypoint
+        |   BreakGlass(_parameters)                     -> breakGlass(s)
+        |   PropagateBreakGlass(parameters)             -> propagateBreakGlass(parameters, s)
+        
+            // Housekeeping Entrypoints
+        |   SetAdmin(parameters)                        -> setAdmin(parameters, s)
+        |   SetGovernanceProxy(parameters)              -> setGovernanceProxy(parameters, s)
+        |   UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
+        |   UpdateConfig(parameters)                    -> updateConfig(parameters, s)
+        |   UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)        
+        |   UpdateWhitelistDevelopers(parameters)       -> updateWhitelistDevelopers(parameters, s)
+        |   MistakenTransfer(parameters)                -> mistakenTransfer(parameters, s)
+        |   SetContractAdmin(parameters)                -> setContractAdmin(parameters, s)
+        |   SetContractGovernance(parameters)           -> setContractGovernance(parameters, s)
+
+            // Governance Cycle Entrypoints
+        |   UpdateSatellitesSnapshot(parameters)        -> updateSatellitesSnapshot(parameters, s)
+        |   StartNextRound(parameters)                  -> startNextRound(parameters, s)
+        |   Propose(parameters)                         -> propose(parameters, s)
+        |   ProposalRoundVote(parameters)               -> proposalRoundVote(parameters, s)
+        |   UpdateProposalData(parameters)              -> updateProposalData(parameters, s)
+        |   LockProposal(parameters)                    -> lockProposal(parameters, s)
+        |   VotingRoundVote(parameters)                 -> votingRoundVote(parameters, s)
+        |   ExecuteProposal(parameters)                 -> executeProposal(parameters, s)
+        |   ProcessProposalPayment(parameters)          -> processProposalPayment(parameters, s)
+        |   ProcessProposalSingleData(parameters)       -> processProposalSingleData(parameters, s)
+        |   DistributeProposalRewards(parameters)       -> distributeProposalRewards(parameters, s)
+        |   DropProposal(parameters)                    -> dropProposal(parameters, s)
+
+            // Lambda Entrypoints
+        |   SetLambda(parameters)                       -> setLambda(parameters, s)
+
+    ]
