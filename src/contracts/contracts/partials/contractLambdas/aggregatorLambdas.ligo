@@ -49,7 +49,7 @@ function lambdaSetName(const aggregatorLambdaAction : aggregatorLambdaActionType
 block {
 
     // Steps Overview: 
-    // 1. Check that no mav is sent to this entrypoint
+    // 1. Check that no tez is sent to this entrypoint
     // 2. Check that sender is admin (i.e. Governance Proxy Contract address)
     // 3. Get Aggregator Factory address
     // 4. Get Config from Aggregator Factory through on-chain views, and get aggregatorNameMaxLength variable
@@ -145,7 +145,7 @@ block{
                     |   ConfigPercentOracleThreshold (_v)    -> s.config.percentOracleThreshold               := updateConfigNewValue
                     |   ConfigHeartbeatSeconds (_v)          -> s.config.heartbeatSeconds                     := updateConfigNewValue
                     
-                    |   ConfigRewardAmountStakedMvk (_v)     -> s.config.rewardAmountStakedMvk                := updateConfigNewValue
+                    |   ConfigRewardAmountStakedMvn (_v)     -> s.config.rewardAmountStakedMvn                := updateConfigNewValue
                     |   ConfigRewardAmountXtz (_v)           -> s.config.rewardAmountXtz                      := updateConfigNewValue
                 ];
             }
@@ -361,7 +361,7 @@ block {
                 case params.targetEntrypoint of [
                         UpdateData (_v)                     -> s.breakGlassConfig.updateDataIsPaused                  := _v
                     |   WithdrawRewardXtz (_v)              -> s.breakGlassConfig.withdrawRewardXtzIsPaused           := _v
-                    |   WithdrawRewardStakedMvk (_v)        -> s.breakGlassConfig.withdrawRewardStakedMvkIsPaused     := _v
+                    |   WithdrawRewardStakedMvn (_v)        -> s.breakGlassConfig.withdrawRewardStakedMvnIsPaused     := _v
                 ]
                 
             }
@@ -387,7 +387,7 @@ block{
     // Steps Overview:
     // 1. Standard checks
     //    - Check that %updateData entrypoint is not paused (e.g. glass broken)
-    //    - Check that entrypoint should not receive any mav amount   
+    //    - Check that entrypoint should not receive any tez amount   
     //    - Check that sender is oracle
     //    - Check that satellite is not suspended or banned
     // 2. Verify the observations and signatures maps sizes
@@ -468,7 +468,7 @@ block{
   // Steps Overview:
     // 1. Standard checks
     //    - Check that %withdrawRewardXtz entrypoint is not paused (e.g. glass broken)
-    //    - Check that entrypoint should not receive any mav amount   
+    //    - Check that entrypoint should not receive any tez amount   
     //    - Check that sender is an oracle registered on the aggregator
     //    - Check that satellite is not suspended or banned
     // 2. Get oracle's XTZ reward amount 
@@ -508,44 +508,44 @@ block{
 
 
 
-(*  withdrawRewardStakedMvk entrypoint  *)
-function lambdaWithdrawRewardStakedMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
+(*  withdrawRewardStakedMvn entrypoint  *)
+function lambdaWithdrawRewardStakedMvn(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
     // Steps Overview:
     // 1. Standard checks
-    //    - Check that %withdrawRewardStakedMvk entrypoint is not paused (e.g. glass broken)
-    //    - Check that entrypoint should not receive any mav amount   
+    //    - Check that %withdrawRewardStakedMvn entrypoint is not paused (e.g. glass broken)
+    //    - Check that entrypoint should not receive any tez amount   
     //    - Check that sender is an oracle registered on the aggregator
     //    - Check that satellite is not suspended or banned
-    // 2. Get oracle's staked MVK reward amount 
+    // 2. Get oracle's staked MVN reward amount 
     // 3. If reward amount is greater than 0, create an operation to the Aggregator Factory Contract to distribute the rewards
-    //    - Reset oracle staked MVK rewards to zero and update storage
+    //    - Reset oracle staked MVN rewards to zero and update storage
 
 
-    // Check that %withdrawRewardStakedMvk entrypoint is not paused (e.g. glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.withdrawRewardStakedMvkIsPaused, error_WITHDRAW_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED);
+    // Check that %withdrawRewardStakedMvn entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.withdrawRewardStakedMvnIsPaused, error_WITHDRAW_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED);
     
     var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [
-        |   LambdaWithdrawRewardStakedMvk(oracleAddress) -> {
+        |   LambdaWithdrawRewardStakedMvn(oracleAddress) -> {
 
                 // Verify that satellite is not suspended or banned
                 verifySatelliteIsNotSuspendedOrBanned(oracleAddress, s);
 
-                // Get oracle's staked MVK reward amount 
-                const reward = getOracleStakedMvkRewards(oracleAddress, s);
+                // Get oracle's staked MVN reward amount 
+                const reward = getOracleStakedMvnRewards(oracleAddress, s);
 
                 // If reward amount is greater than 0, create an operation to the Aggregator Factory Contract to distribute the rewards
                 if (reward > 0n) then {
 
-                    // distribute reward staked mvk operation to oracle
-                    const distributeRewardStakedMvkOperation : operation = distributeRewardStakedMvkOperation(oracleAddress, reward, s);
-                    operations := distributeRewardStakedMvkOperation # operations;
+                    // distribute reward staked mvn operation to oracle
+                    const distributeRewardStakedMvnOperation : operation = distributeRewardStakedMvnOperation(oracleAddress, reward, s);
+                    operations := distributeRewardStakedMvnOperation # operations;
 
-                    // Reset oracle staked MVK rewards to zero and update storage
-                    s.oracleRewardStakedMvk[oracleAddress] := 0n;
+                    // Reset oracle staked MVN rewards to zero and update storage
+                    s.oracleRewardStakedMvn[oracleAddress] := 0n;
 
                 } else skip;
                 

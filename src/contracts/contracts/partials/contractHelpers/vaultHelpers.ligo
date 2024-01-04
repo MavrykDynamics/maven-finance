@@ -332,7 +332,7 @@ function processVaultTransfer(const from_ : address; const to_ : address; const 
 block {
 
     const processVaultTransferOperation : operation = case tokenType of [
-            Tez(_mav)   -> transferTez( (Mavryk.get_contract_with_error(to_, "Error. Unable to send mav to vault.") : contract(unit)), amount * 1mumav)
+            Tez(_tez)   -> transferTez( (Mavryk.get_contract_with_error(to_, "Error. Unable to send tez to vault.") : contract(unit)), amount * 1mumav)
         |   Fa12(token) -> {
                 verifyNoAmountSent(unit);
                 const transferOperation : operation = transferFa12Token(from_, to_, amount, token)

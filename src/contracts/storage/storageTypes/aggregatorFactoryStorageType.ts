@@ -10,7 +10,7 @@ export type aggregatorFactoryStorageType = {
         trackAggregatorIsPaused               : boolean;
         untrackAggregatorIsPaused             : boolean;
         distributeRewardXtzIsPaused           : boolean;
-        distributeRewardStakedMvkIsPaused     : boolean;
+        distributeRewardStakedMvnIsPaused     : boolean;
     };
     config                    : {
         aggregatorNameMaxLength               : BigNumber;
@@ -19,7 +19,7 @@ export type aggregatorFactoryStorageType = {
     generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
     whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
 
-    mvkTokenAddress           : string;
+    mvnTokenAddress           : string;
     governanceAddress         : string;
     
     trackedAggregators        : Array<unknown>;

@@ -5,7 +5,7 @@ export type farmFactoryStorageType = {
 
     admin                 : string;
     governanceAddress     : string;
-    mvkTokenAddress       : string;
+    mvnTokenAddress       : string;
     metadata              : MichelsonMap<MichelsonMapKey, unknown>;
     config                : {
         farmNameMaxLength   : BigNumber

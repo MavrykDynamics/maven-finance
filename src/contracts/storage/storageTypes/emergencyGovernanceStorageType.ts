@@ -5,7 +5,7 @@ export type emergencyGovernanceStorageType = {
     
     admin                                 : string;
     config                                : {};
-    mvkTokenAddress                       : string;
+    mvnTokenAddress                       : string;
     governanceAddress                     : string;
     metadata                              : MichelsonMap<MichelsonMapKey, unknown>;
     

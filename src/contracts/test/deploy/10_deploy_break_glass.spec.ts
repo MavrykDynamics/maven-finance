@@ -48,7 +48,7 @@ describe('Break Glass', async () => {
             //----------------------------
         
             breakGlassStorage.governanceAddress = contractDeployments.governance.address
-            breakGlassStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
+            breakGlassStorage.mvnTokenAddress   = contractDeployments.mvnToken.address
         
             breakGlassStorage.councilMembers.set(alice.pkh, {
                 name: "Alice",

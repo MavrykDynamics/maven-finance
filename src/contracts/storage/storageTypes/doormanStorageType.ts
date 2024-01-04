@@ -4,12 +4,12 @@ import { BigNumber } from "bignumber.js"
 export type doormanStorageType = {
 
     admin                     : string;
-    mvkTokenAddress           : string;
+    mvnTokenAddress           : string;
     governanceAddress         : string;
     metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
 
     config                    : {
-        minMvkAmount  : BigNumber
+        minMvnAmount  : BigNumber
     } ;
 
     whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;

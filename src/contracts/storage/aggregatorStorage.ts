@@ -8,7 +8,7 @@ import { aggregatorStorageType } from './storageTypes/aggregatorStorageType'
 const breakGlassConfig = {
     updateDataIsPaused                 : false,
     withdrawRewardXtzIsPaused           : false,
-    withdrawRewardStakedMvkIsPaused     : false
+    withdrawRewardStakedMvnIsPaused     : false
 }
 
 const config = {
@@ -18,7 +18,7 @@ const config = {
     percentOracleThreshold              : new BigNumber(49),
     heartbeatSeconds                    : new BigNumber(300),
     
-    rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
+    rewardAmountStakedMvn               : new BigNumber(10000000), // 0.01 MVN
     rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
 }
 
@@ -26,9 +26,9 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: 'MAVRYK Aggregator Contract',
+        name: 'MAVEN Aggregator Contract',
         version: 'v1.0.0',
-        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        authors: ['MAVEN Dev Team <info@mavryk.io>'],
         }),
         'ascii',
     ).toString('hex'),
@@ -52,7 +52,7 @@ export const aggregatorStorage: aggregatorStorageType = {
     config                    : config,
     breakGlassConfig          : breakGlassConfig,
     
-    mvkTokenAddress           : zeroAddress,
+    mvnTokenAddress           : zeroAddress,
     governanceAddress         : zeroAddress,
 
     whitelistContracts        : MichelsonMap.fromLiteral({}),
@@ -62,7 +62,7 @@ export const aggregatorStorage: aggregatorStorageType = {
     
     lastCompletedData         : lastCompletedData,
 
-    oracleRewardStakedMvk     : MichelsonMap.fromLiteral({}),
+    oracleRewardStakedMvn     : MichelsonMap.fromLiteral({}),
     oracleRewardXtz           : MichelsonMap.fromLiteral({}),
 
     lambdaLedger              : MichelsonMap.fromLiteral({}),

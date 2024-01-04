@@ -80,7 +80,7 @@ block {
                 const updateConfigNewValue  : doormanUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                    |   ConfigMinMvkAmount (_v)  -> s.config.minMvkAmount         := updateConfigNewValue
+                    |   ConfigMinMvnAmount (_v)  -> s.config.minMvnAmount         := updateConfigNewValue
                     |   Empty (_v)               -> skip
                 ];
             }
@@ -133,7 +133,7 @@ block {
 
     // Steps Overview:    
     // 1. Check that sender is admin or from the Governance Satellite Contract
-    // 2. Check that token is not MVK (it would break staked MVK in the Doorman Contract) before creating the transfer operation
+    // 2. Check that token is not MVN (it would break staked MVN in the Doorman Contract) before creating the transfer operation
     // 3. Create and execute transfer operations based on the params sent
 
     var operations : list(operation) := nil;
@@ -144,11 +144,11 @@ block {
                 // Verify that the sender is admin or the Governance Satellite Contract
                 verifySenderIsAdminOrGovernanceSatelliteContract(s);
 
-                // Get MVK Token address
-                const mvkTokenAddress : address  = s.mvkTokenAddress;
+                // Get MVN Token address
+                const mvnTokenAddress : address  = s.mvnTokenAddress;
 
                 // verify token is allowed to be transferred
-                verifyTokenAllowedForOperationFold(mvkTokenAddress, destinationParams, error_CANNOT_TRANSFER_MVK_TOKEN_USING_MISTAKEN_TRANSFER);
+                verifyTokenAllowedForOperationFold(mvnTokenAddress, destinationParams, error_CANNOT_TRANSFER_MVN_TOKEN_USING_MISTAKEN_TRANSFER);
 
                 // Create transfer operations (transferOperationFold in transferHelpers)
                 operations := List.fold_right(transferOperationFold, destinationParams, operations)
@@ -169,10 +169,10 @@ block {
     // 1. Check that sender is admin 
     // 2. Check that no Tez is sent to the entrypoint 
     // 3. Check that all entrypoints are paused
-    // 4. Get Doorman MVK balance from MVK Token Contract - equivalent to total staked MVK supply
+    // 4. Get Doorman MVN balance from MVN Token Contract - equivalent to total staked MVN supply
     // 5. Create a transfer to transfer all funds to an upgraded Doorman Contract
     
-    verifyNoAmountSent(Unit);          // entrypoint should not receive any mav amount  
+    verifyNoAmountSent(Unit);          // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin); // check that sender is admin 
 
     var operations : list(operation) := nil;
@@ -249,15 +249,15 @@ block {
 function lambdaTogglePauseEntrypoint(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit);          // entrypoint should not receive any mav amount  
+    verifyNoAmountSent(Unit);          // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin); // check that sender is admin 
 
     case doormanLambdaAction of [
         |   LambdaTogglePauseEntrypoint(params) -> {
 
                 case params.targetEntrypoint of [
-                        Stake (_v)            -> s.breakGlassConfig.stakeIsPaused       := _v
-                    |   Unstake (_v)          -> s.breakGlassConfig.unstakeIsPaused     := _v
+                        StakeMvn (_v)            -> s.breakGlassConfig.stakeMvnIsPaused       := _v
+                    |   UnstakeMvn (_v)          -> s.breakGlassConfig.unstakeMvnIsPaused     := _v
                     |   Exit (_v)             -> s.breakGlassConfig.exitIsPaused        := _v
                     |   Compound (_v)         -> s.breakGlassConfig.compoundIsPaused    := _v
                     |   FarmClaim (_v)        -> s.breakGlassConfig.farmClaimIsPaused   := _v
@@ -287,23 +287,23 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  stake lambda *)
-function lambdaStake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
+function lambdaStakeMvn(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
     // Steps Overview: 
-    // 1. Check that %stake entrypoint is not paused (e.g. glass broken)
+    // 1. Check that %stakeMvn entrypoint is not paused (e.g. glass broken)
     // 2. Compound user rewards
-    // 3. Check that user is staking at least the min amount of MVK tokens required 
-    // 4. Transfer MVK from user to the Doorman Contract
+    // 3. Check that user is staking at least the min amount of MVN tokens required 
+    // 4. Transfer MVN from user to the Doorman Contract
     // 5. Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-    // 6. Update user's staked MVK balance in storage
+    // 6. Update user's staked MVN balance in storage
 
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.stakeIsPaused, error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.stakeMvnIsPaused, error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
-        |   LambdaStake(stakeAmount) -> {
+        |   LambdaStakeMvn(stakeAmount) -> {
 
                 // Get params - userAddress
                 const userAddress : address = Mavryk.get_sender();
@@ -311,11 +311,11 @@ block {
                 // Compound user rewards
                 s := compoundUserRewards(userAddress, s);
 
-                // Verify that user is staking at least the min amount of MVK tokens required - note: amount should be converted on frontend to 10^9 decimals
-                verifyMinMvkAmountReached(stakeAmount, s);
+                // Verify that user is staking at least the min amount of MVN tokens required - note: amount should be converted on frontend to 10^9 decimals
+                verifyMinMvnAmountReached(stakeAmount, s);
 
                 // -------------------------------------------
-                // Transfer MVK from user to the Doorman Contract
+                // Transfer MVN from user to the Doorman Contract
                 // -------------------------------------------
 
                 const transferOperation : operation = transferFa2Token(
@@ -323,7 +323,7 @@ block {
                     Mavryk.get_self_address(),   // to_
                     stakeAmount,                // amount
                     0n,                         // tokenId
-                    s.mvkTokenAddress           // tokenContractAddress
+                    s.mvnTokenAddress           // tokenContractAddress
                 );
 
                 // -------------------------------------------
@@ -337,7 +337,7 @@ block {
                 s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
 
                 // -------------------------------------------
-                // Update Delegation contract since user staked MVK balance has changed
+                // Update Delegation contract since user staked MVN balance has changed
                 // -------------------------------------------
 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
@@ -352,53 +352,53 @@ block {
 
 
 
-(*  unstake lambda *)
-function lambdaUnstake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
+(*  unstakeMvn lambda *)
+function lambdaUnstakeMvn(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
     // Steps Overview: 
-    // 1. Check that %unstake entrypoint is not paused (e.g. glass broken)
-    // 2. Check user is unstaking at least the min amount of MVK tokens required 
+    // 1. Check that %unstakeMvn entrypoint is not paused (e.g. glass broken)
+    // 2. Check user is unstaking at least the min amount of MVN tokens required 
     // 3. Compound user rewards
-    // 4. Compute MLI (MVK Loyalty Index) and Exit Fee 
-    //      -   Get MVK Total Supply
-    //      -   Get staked MVK Total Supply
-    //      -   Calculate MVK Loyalty Index
+    // 4. Compute MLI (MVN Loyalty Index) and Exit Fee 
+    //      -   Get MVN Total Supply
+    //      -   Get staked MVN Total Supply
+    //      -   Calculate MVN Loyalty Index
     //      -   Calculate Exit Fee
     //      -   Calculate final unstake amount and increment unclaimed rewards
     // 5. Balance Checks
-    //      -   Check that unstakeAmount is not greater than staked MVK total supply 
-    //      -   Check that final unstakeAmount is not greater than staked MVK total supply
+    //      -   Check that unstakeAmount is not greater than staked MVN total supply 
+    //      -   Check that final unstakeAmount is not greater than staked MVN total supply
     //      -   Update user's stake balance record
-    // 6. Update MVK balances for user and Doorman Contract
-    //      -   Get MVK Token Contract
-    //      -   Transfer MVK from user to the Doorman Contract
+    // 6. Update MVN balances for user and Doorman Contract
+    //      -   Get MVN Token Contract
+    //      -   Transfer MVN from user to the Doorman Contract
     // 7. Compound Exit Fee and Update Participation Fees Per Share
     // 8. Update Storage
     //      -   Set the user's new participationFeesPerShare to storage's accumulatedFeesPerShare
-    //      -   Update user's staked MVK balance in storage
-    // 9. Update Delegation contract since user staked MVK balance has changed
+    //      -   Update user's staked MVN balance in storage
+    // 9. Update Delegation contract since user staked MVN balance has changed
     //      -   Get Delegation Contract Address from the General Contracts Map on the Governance Contract
     //      -   Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
     
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.unstakeIsPaused, error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.unstakeMvnIsPaused, error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
-        |   LambdaUnstake(unstakeAmount) -> {
+        |   LambdaUnstakeMvn(unstakeAmount) -> {
 
                 // Get params - userAddress
                 const userAddress : address = Mavryk.get_sender();
                 
-                // Verify that user is unstaking at least the min amount of MVK tokens required - note: amount should be converted on frontend to 10^9 decimals
-                verifyMinMvkAmountReached(unstakeAmount, s);
+                // Verify that user is unstaking at least the min amount of MVN tokens required - note: amount should be converted on frontend to 10^9 decimals
+                verifyMinMvnAmountReached(unstakeAmount, s);
 
                 // Compound user rewards
                 s := compoundUserRewards(userAddress, s);
 
                 // -------------------------------------------
-                // Compute MLI (MVK Loyalty Index) and Exit Fee 
+                // Compute MLI (MVN Loyalty Index) and Exit Fee 
                 // -------------------------------------------
 
                 // Calculate Exit Fee
@@ -410,14 +410,14 @@ block {
                 s.unclaimedRewards               := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
 
                 // Verify unstake amount is less than staked total supply
-                const stakedMvkTotalSupply : nat = getStakedMvkTotalSupply(s);
-                verifyUnstakeAmountLessThanStakedTotalSupply(unstakeAmount, stakedMvkTotalSupply);
+                const stakedMvnTotalSupply : nat = getStakedMvnTotalSupply(s);
+                verifyUnstakeAmountLessThanStakedTotalSupply(unstakeAmount, stakedMvnTotalSupply);
 
                 // Update accumulated fees per share 
                 s := incrementAccumulatedFeesPerShare(
                     paidFee,
                     unstakeAmount,
-                    stakedMvkTotalSupply,
+                    stakedMvnTotalSupply,
                     s 
                 );
 
@@ -425,14 +425,14 @@ block {
                 var userStakeBalanceRecord : userStakeBalanceRecordType := getUserStakeBalanceRecord(userAddress, s);
                 const userInitBalance : nat     = userStakeBalanceRecord.balance;
                 
-                // Verify that unstake amount is not greater than user's staked MVK balance
+                // Verify that unstake amount is not greater than user's staked MVN balance
                 verifySufficientWithdrawalBalance(unstakeAmount, userStakeBalanceRecord);
 
                 // Update user's stake balance record
                 userStakeBalanceRecord.balance := abs(userInitBalance - unstakeAmount); 
 
                 // -------------------------------------------
-                // Transfer MVK Operation
+                // Transfer MVN Operation
                 // -------------------------------------------
 
                 const transferOperation : operation = transferFa2Token(
@@ -440,7 +440,7 @@ block {
                     userAddress,                // to_
                     finalUnstakeAmount,         // amount
                     0n,                         // tokenId
-                    s.mvkTokenAddress           // tokenContractAddress
+                    s.mvnTokenAddress           // tokenContractAddress
                 );
 
                 // -------------------------------------------
@@ -448,7 +448,7 @@ block {
                 // -------------------------------------------
 
                 // Compound only the exit fee rewards
-                // Check if the user has more than 0 MVK staked. If he/she hasn't, he cannot earn rewards
+                // Check if the user has more than 0 MVN staked. If he/she hasn't, he cannot earn rewards
                 if userStakeBalanceRecord.balance > 0n then {
 
                     // Calculate user rewards
@@ -470,7 +470,7 @@ block {
                 s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
 
                 // -------------------------------------------
-                // Update Delegation contract since user staked MVK balance has changed
+                // Update Delegation contract since user staked MVN balance has changed
                 // -------------------------------------------
 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
@@ -492,27 +492,27 @@ function lambdaExit(const doormanLambdaAction : doormanLambdaActionType; var s :
 block {
 
     // Steps Overview: 
-    // 1. Check that %unstake entrypoint is not paused (e.g. glass broken)
-    // 2. Check user is unstaking at least the min amount of MVK tokens required 
+    // 1. Check that %unstakeMvn entrypoint is not paused (e.g. glass broken)
+    // 2. Check user is unstaking at least the min amount of MVN tokens required 
     // 3. Compound user rewards
-    // 4. Compute MLI (MVK Loyalty Index) and Exit Fee 
-    //      -   Get MVK Total Supply
-    //      -   Get staked MVK Total Supply
-    //      -   Calculate MVK Loyalty Index
+    // 4. Compute MLI (MVN Loyalty Index) and Exit Fee 
+    //      -   Get MVN Total Supply
+    //      -   Get staked MVN Total Supply
+    //      -   Calculate MVN Loyalty Index
     //      -   Calculate Exit Fee
     //      -   Calculate final unstake amount and increment unclaimed rewards
     // 5. Balance Checks
-    //      -   Check that unstakeAmount is not greater than staked MVK total supply 
-    //      -   Check that final unstakeAmount is not greater than staked MVK total supply
+    //      -   Check that unstakeAmount is not greater than staked MVN total supply 
+    //      -   Check that final unstakeAmount is not greater than staked MVN total supply
     //      -   Update user's stake balance record
-    // 6. Update MVK balances for user and Doorman Contract
-    //      -   Get MVK Token Contract
-    //      -   Transfer MVK from user to the Doorman Contract
+    // 6. Update MVN balances for user and Doorman Contract
+    //      -   Get MVN Token Contract
+    //      -   Transfer MVN from user to the Doorman Contract
     // 7. Compound Exit Fee and Update Participation Fees Per Share
     // 8. Update Storage
     //      -   Set the user's new participationFeesPerShare to storage's accumulatedFeesPerShare
-    //      -   Update user's staked MVK balance in storage
-    // 9. Update Delegation contract since user staked MVK balance has changed
+    //      -   Update user's staked MVN balance in storage
+    // 9. Update Delegation contract since user staked MVN balance has changed
     //      -   Get Delegation Contract Address from the General Contracts Map on the Governance Contract
     //      -   Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
     
@@ -538,7 +538,7 @@ block {
                 // -------------------------------------------
 
                 // Compound only the exit fee rewards
-                // Check if the user has more than 0 MVK staked. If he/she hasn't, he cannot earn rewards
+                // Check if the user has more than 0 MVN staked. If he/she hasn't, he cannot earn rewards
                 if userInitBalance > 0n then {
 
                     // Update user's stake balance record
@@ -546,7 +546,7 @@ block {
                     userStakeBalanceRecord.balance := 0n;
 
                     // -------------------------------------------
-                    // Compute MLI (MVK Loyalty Index) and Exit Fee 
+                    // Compute MLI (MVN Loyalty Index) and Exit Fee 
                     // -------------------------------------------
 
                     // Calculate Exit Fee
@@ -558,14 +558,14 @@ block {
                     s.unclaimedRewards               := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
 
                     // Verify unstake amount is less than staked total supply
-                    const stakedMvkTotalSupply : nat = getStakedMvkTotalSupply(s);
-                    verifyUnstakeAmountLessThanStakedTotalSupply(unstakeAmount, stakedMvkTotalSupply);
+                    const stakedMvnTotalSupply : nat = getStakedMvnTotalSupply(s);
+                    verifyUnstakeAmountLessThanStakedTotalSupply(unstakeAmount, stakedMvnTotalSupply);
 
                     // Update accumulated fees per share 
                     s := incrementAccumulatedFeesPerShare(
                         paidFee,
                         unstakeAmount,
-                        stakedMvkTotalSupply,
+                        stakedMvnTotalSupply,
                         s 
                     );
 
@@ -576,7 +576,7 @@ block {
                     s.userStakeBalanceLedger[userAddress] := userStakeBalanceRecord;
 
                     // -------------------------------------------
-                    // Transfer MVK Operation
+                    // Transfer MVN Operation
                     // -------------------------------------------
 
                     const transferOperation : operation = transferFa2Token(
@@ -584,11 +584,11 @@ block {
                         userAddress,                // to_
                         finalUnstakeAmount,         // amount
                         0n,                         // tokenId
-                        s.mvkTokenAddress           // tokenContractAddress
+                        s.mvnTokenAddress           // tokenContractAddress
                     );
 
                     // -------------------------------------------
-                    // Update Delegation contract since user staked MVK balance has changed
+                    // Update Delegation contract since user staked MVN balance has changed
                     // -------------------------------------------
 
                     // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
@@ -657,19 +657,19 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
 
     // Steps Overview: 
     // 1. Check that %farmClaim entrypoint is not paused (e.g. glass broken)
-    // 2. Get necessary contracts and info - Farm, MVK Token, Delegation, Farm Treasury
+    // 2. Get necessary contracts and info - Farm, MVN Token, Delegation, Farm Treasury
     // 3. Validation Check 
     //      -   Check if farm address is known to the farmFactory
     // 4. Compound and update user's staked balance record
     //      -   Compound user rewards
     //      -   Get and update user's staked balance record
-    // 5. Check if MVK Tokens should be minted or transferred from Treasury
-    //      -   Check if MVK Force Transfer is enabled (no minting new MVK Tokens)
+    // 5. Check if MVN Tokens should be minted or transferred from Treasury
+    //      -   Check if MVN Force Transfer is enabled (no minting new MVN Tokens)
     //      -   If Force Transfer is not enabled, calculate claimAmount and transferredToken
     //          -   Check if the desired minted amount will surpass the maximum total supply
-    //      -   Mint MVK Tokens if claimAmount is greater than 0
-    //      -   Transfer MVK Tokens from treasury if transferredToken is greater than 0
-    // 6. Update Delegation contract since user staked MVK balance has changed
+    //      -   Mint MVN Tokens if claimAmount is greater than 0
+    //      -   Transfer MVN Tokens from treasury if transferredToken is greater than 0
+    // 6. Update Delegation contract since user staked MVN balance has changed
     //      -   Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
 
     verifyEntrypointIsNotPaused(s.breakGlassConfig.farmClaimIsPaused, error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
@@ -720,10 +720,10 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                     s.userStakeBalanceLedger[delegator] := userStakeBalanceRecord;
 
                     // ------------------------------------------------------------------
-                    // Check if MVK Tokens should be minted or transferred from Treasury
+                    // Check if MVN Tokens should be minted or transferred from Treasury
                     // ------------------------------------------------------------------
 
-                    // Check if MVK Force Transfer is enabled (no minting new MVK Tokens)
+                    // Check if MVN Force Transfer is enabled (no minting new MVN Tokens)
                     if forceTransfer then {
 
                         transferAmount   := claimAmount;
@@ -732,15 +732,15 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                     }
                     else {
 
-                        // get MVK Total Supply, and MVK Maximum Total Supply
-                        const mvkTotalSupply    : nat = getMvkTotalSupply(s);
-                        const mvkMaximumSupply  : nat = getMvkMaximumTotalSupply(s);
+                        // get MVN Total Supply, and MVN Maximum Total Supply
+                        const mvnTotalSupply    : nat = getMvnTotalSupply(s);
+                        const mvnMaximumSupply  : nat = getMvnMaximumTotalSupply(s);
 
                         // Check if the desired minted amount will surpass the maximum total supply
-                        const tempTotalSupply : nat = mvkTotalSupply + claimAmount;
-                        if tempTotalSupply > mvkMaximumSupply then {
+                        const tempTotalSupply : nat = mvnTotalSupply + claimAmount;
+                        if tempTotalSupply > mvnMaximumSupply then {
                             
-                            transferAmount   := abs(tempTotalSupply - mvkMaximumSupply);
+                            transferAmount   := abs(tempTotalSupply - mvnMaximumSupply);
                             claimAmount      := abs(claimAmount - transferAmount);
 
                         } else skip;
@@ -770,15 +770,15 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 // Mint and/or transfer rewards to the Doorman Contract
                 // -------------------------------------------
 
-                // Mint MVK Tokens if claimAmount is greater than 0
+                // Mint MVN Tokens if claimAmount is greater than 0
                 if totalClaimAmount > 0n then {
                     
-                    const mintMvkAndTransferOperation : operation = mintMvkAndTransferOperation(totalClaimAmount, s);
-                    operations := mintMvkAndTransferOperation # operations;
+                    const mintMvnAndTransferOperation : operation = mintMvnAndTransferOperation(totalClaimAmount, s);
+                    operations := mintMvnAndTransferOperation # operations;
 
                 } else skip;
 
-                // Transfer MVK Tokens from treasury if transferredToken is greater than 0
+                // Transfer MVN Tokens from treasury if transferredToken is greater than 0
                 if totalTransferAmount > 0n then {
                     
                     const transferFromTreasuryOperation : operation = transferFromTreasuryOperation(totalTransferAmount, s);
@@ -787,7 +787,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 } else skip;
 
                 // -------------------------------------------
-                // Update Delegation contract since user staked MVK balance has changed
+                // Update Delegation contract since user staked MVN balance has changed
                 // -------------------------------------------
                 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
@@ -836,7 +836,7 @@ block{
                 const userInitBalance : nat = userBalanceInStakeBalanceLedger.balance;
 
                 // calculate new user staked balance
-                if depositAmount > userInitBalance then failwith(error_INSUFFICIENT_STAKED_MVK_BALANCE) else skip;
+                if depositAmount > userInitBalance then failwith(error_INSUFFICIENT_STAKED_MVN_BALANCE) else skip;
                 const newUserStakedBalance : nat = abs(userInitBalance - depositAmount);
 
                 // find or create vault record in stake balance ledger
@@ -912,8 +912,8 @@ block{
                 ];
                 const vaultInitBalance : nat    = vaultStakeBalanceRecord.balance;
 
-                // calculate new vault staked balance (check if vault has enough staked MVK to be withdrawn)
-                if withdrawAmount > vaultInitBalance then failwith(error_INSUFFICIENT_STAKED_MVK_BALANCE) else skip;
+                // calculate new vault staked balance (check if vault has enough staked MVN to be withdrawn)
+                if withdrawAmount > vaultInitBalance then failwith(error_INSUFFICIENT_STAKED_MVN_BALANCE) else skip;
                 const newVaultStakedBalance : nat = abs(vaultInitBalance - withdrawAmount);
 
                 // update vault stake balance in stake balance ledger
@@ -982,8 +982,8 @@ block{
                 ];
                 const userInitBalance : nat = liquidatorStakeBalanceRecord.balance;
 
-                // calculate new vault staked balance (check if vault has enough staked MVK to be liquidated)
-                if liquidatedAmount > vaultInitBalance then failwith(error_INSUFFICIENT_STAKED_MVK_BALANCE) else skip;
+                // calculate new vault staked balance (check if vault has enough staked MVN to be liquidated)
+                if liquidatedAmount > vaultInitBalance then failwith(error_INSUFFICIENT_STAKED_MVN_BALANCE) else skip;
                 const newVaultStakedBalance : nat = abs(vaultInitBalance - liquidatedAmount);
 
                 // update vault stake balance in stake balance ledger
@@ -1029,31 +1029,31 @@ block {
     // New unstake lambda for upgradability testing
     // - different exit fee calculation
 
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.unstakeIsPaused, error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.unstakeMvnIsPaused, error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
-        |   LambdaUnstake(unstakeAmount) -> {
+        |   LambdaUnstakeMvn(unstakeAmount) -> {
                 
                 // Get params
                 const userAddress : address = Mavryk.get_sender();
                 
-                // Verify that user is unstaking at least the min amount of MVK tokens required - note: amount should be converted on frontend to 10^9 decimals
-                verifyMinMvkAmountReached(unstakeAmount, s);
+                // Verify that user is unstaking at least the min amount of MVN tokens required - note: amount should be converted on frontend to 10^9 decimals
+                verifyMinMvnAmountReached(unstakeAmount, s);
 
                 // Compound user rewards
                 s := compoundUserRewards(userAddress, s);
 
-                // get MVK and staked MVK total supply
-                const mvkTotalSupply        : nat = getMvkTotalSupply(s);
-                const stakedMvkTotalSupply  : nat = getStakedMvkTotalSupply(s);
+                // get MVN and staked MVN total supply
+                const mvnTotalSupply        : nat = getMvnTotalSupply(s);
+                const stakedMvnTotalSupply  : nat = getStakedMvnTotalSupply(s);
 
-                // sMVK total supply is a part of MVK total supply since token aren't burned anymore.
-                const mvkLoyaltyIndex: nat = (stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
+                // sMVN total supply is a part of MVN total supply since token aren't burned anymore.
+                const mvnLoyaltyIndex: nat = (stakedMvnTotalSupply * 100n * fixedPointAccuracy) / mvnTotalSupply;
                 
                 // Fee calculation
-                const exitFee: nat = (200n * fixedPointAccuracy * fixedPointAccuracy) / (mvkLoyaltyIndex + (2n * fixedPointAccuracy));
+                const exitFee: nat = (200n * fixedPointAccuracy * fixedPointAccuracy) / (mvnLoyaltyIndex + (2n * fixedPointAccuracy));
 
                 //const finalAmountPercent: nat = abs(percentageFactor - exitFee);
                 const paidFee             : nat  = unstakeAmount * (exitFee / 100n);
@@ -1061,13 +1061,13 @@ block {
                 s.unclaimedRewards := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
 
                 // Verify unstake amount is less than staked total supply
-                verifyUnstakeAmountLessThanStakedTotalSupply(unstakeAmount, stakedMvkTotalSupply);
+                verifyUnstakeAmountLessThanStakedTotalSupply(unstakeAmount, stakedMvnTotalSupply);
 
                 // Update accumulated fees per share 
                 s := incrementAccumulatedFeesPerShare(
                     paidFee,
                     unstakeAmount,
-                    stakedMvkTotalSupply,
+                    stakedMvnTotalSupply,
                     s 
                 );
 
@@ -1075,7 +1075,7 @@ block {
                 var userStakeBalanceRecord : userStakeBalanceRecordType := getUserStakeBalanceRecord(userAddress, s);
                 const userInitBalance : nat = userStakeBalanceRecord.balance;
 
-                // Verify that unstake amount is not greater than user's staked MVK balance
+                // Verify that unstake amount is not greater than user's staked MVN balance
                 verifySufficientWithdrawalBalance(unstakeAmount, userStakeBalanceRecord);
 
                 userStakeBalanceRecord.balance := abs(userInitBalance - unstakeAmount); 
@@ -1085,11 +1085,11 @@ block {
                     userAddress,                // to_
                     finalUnstakeAmount,         // amount
                     0n,                         // tokenId
-                    s.mvkTokenAddress           // tokenContractAddress
+                    s.mvnTokenAddress           // tokenContractAddress
                 );
 
                 // Compound only the exit fee rewards
-                // Check if the user has more than 0MVK staked. If he/she hasn't, he cannot earn rewards
+                // Check if the user has more than 0MVN staked. If he/she hasn't, he cannot earn rewards
                 if userStakeBalanceRecord.balance > 0n then {
                     
                     // Calculate user rewards

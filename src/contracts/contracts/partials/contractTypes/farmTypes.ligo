@@ -132,7 +132,7 @@ type farmStorageType is [@layout:comb] record[
     name                        : string;
     config                      : farmConfigType;
 
-    mvkTokenAddress             : address;
+    mvnTokenAddress             : address;
     governanceAddress           : address;
 
     whitelistContracts          : whitelistContractsType;      

@@ -210,15 +210,15 @@ block{
 // Doorman Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(*  stake entrypoint *)
-function stake(const stakeAmount : nat; var s : doormanStorageType) : return is
+(*  stakeMvn entrypoint *)
+function stakeMvn(const stakeAmount : nat; var s : doormanStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaStake", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaStakeMvn", s.lambdaLedger);
 
     // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaStake(stakeAmount);
+    const doormanLambdaAction : doormanLambdaActionType = LambdaStakeMvn(stakeAmount);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
@@ -227,15 +227,15 @@ block {
 
 
 
-(*  unstake entrypoint *)
-function unstake(const unstakeAmount : nat; var s : doormanStorageType) : return is
+(*  unstakeMvn entrypoint *)
+function unstakeMvn(const unstakeAmount : nat; var s : doormanStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnstake", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaUnstakeMvn", s.lambdaLedger);
 
     // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaUnstake(unstakeAmount);
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUnstakeMvn(unstakeAmount);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  

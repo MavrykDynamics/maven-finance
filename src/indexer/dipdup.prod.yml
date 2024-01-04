@@ -1,6 +1,6 @@
 spec_version: 2.0
 
-package: mavryk
+package: maven
 
 database:
   kind: postgres
@@ -18,9 +18,7 @@ prometheus:
   update_interval: 5
 
 advanced:
-  early_realtime: false
   crash_reporting: false
-  merge_subscriptions: true
   scheduler:
     apscheduler.job_defaults.coalesce: true
     apscheduler.job_defaults.max_instances: 1
@@ -43,6 +41,8 @@ datasources:
   tzkt_ghostnet:
     kind: tezos.tzkt
     url: ${TZKT_GHOSTNET_URL:-changeme}
+    merge_subscriptions: true
   tzkt_mainnet:
     kind: tezos.tzkt
     url: ${TZKT_MAINNET_URL:-changeme}
+    merge_subscriptions: true

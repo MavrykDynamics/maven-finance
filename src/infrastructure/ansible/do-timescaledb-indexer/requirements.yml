@@ -1,4 +1,0 @@
----
-collections:
-  - name: community.digitalocean
-  - name: community.postgresql

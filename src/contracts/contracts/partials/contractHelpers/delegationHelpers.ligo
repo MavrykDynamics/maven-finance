@@ -190,7 +190,7 @@ function sendUpdateSatellitesSnapshotOperationToGovernance(const governanceAddre
 // ------------------------------------------------------------------------------
 
 // helper function to create operation to distribute satellite rewards 
-// (transfers MVK token from Satellite Treasury contract to the doorman contract i.e. increases staked MVK supply)
+// (transfers MVN token from Satellite Treasury contract to the doorman contract i.e. increases staked MVN supply)
 function distributeSatelliteRewardsOperation(const totalReward : nat; const s : delegationStorageType) : operation is 
 block {
 
@@ -206,7 +206,7 @@ block {
             to_   = doormanAddress;
             amount = totalReward;
             token = (Fa2 (record [
-                    tokenContractAddress = s.mvkTokenAddress;
+                    tokenContractAddress = s.mvnTokenAddress;
                     tokenId              = 0n;
                 ]) : tokenType
             );                
@@ -310,21 +310,21 @@ block {
 
 
 
-// helper function to get user staked mvk balance from Doorman contract
-function getUserStakedMvkBalanceFromDoorman(const userAddress : address; const s : delegationStorageType) : nat is 
+// helper function to get user staked mvn balance from Doorman contract
+function getUserStakedMvnBalanceFromDoorman(const userAddress : address; const s : delegationStorageType) : nat is 
 block {
 
     // Get Doorman Address from the General Contracts map on the Governance Contract
     const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
-    // get staked MVK balance of user from Doorman contract
+    // get staked MVN balance of user from Doorman contract
     const getStakedBalanceView : option (nat) = Mavryk.call_view ("getStakedBalance", userAddress, doormanAddress);
-    const userStakedMvkBalance : nat = case getStakedBalanceView of [
+    const userStakedMvnBalance : nat = case getStakedBalanceView of [
             Some (_value) -> _value
         |   None          -> failwith(error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND)
     ];
 
-} with userStakedMvkBalance
+} with userStakedMvnBalance
 
 
 
@@ -357,7 +357,7 @@ block {
     // Init empty satellite record - for type checking 
     const emptySatelliteRecord : satelliteRecordType = record [
         status                = "INACTIVE";        
-        stakedMvkBalance      = 0n;
+        stakedMvnBalance      = 0n;
         satelliteFee          = 0n;
         totalDelegatedAmount  = 0n;
         
@@ -389,11 +389,11 @@ block {
     // Init user address
     const userAddress : address  = Mavryk.get_sender();
 
-    // Get user's staked MVK balance from the Doorman Contract
-    const userStakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
+    // Get user's staked MVN balance from the Doorman Contract
+    const userStakedMvnBalance : nat = getUserStakedMvnBalanceFromDoorman(userAddress, s);
 
-    // Check if user's staked MVK balance has reached the minimum staked MVK amount required to be a satellite
-    verifyGreaterThanOrEqual(userStakedMvkBalance, s.config.minimumStakedMvkBalance, error_MIN_STAKED_MVK_AMOUNT_NOT_REACHED);
+    // Check if user's staked MVN balance has reached the minimum staked MVN amount required to be a satellite
+    verifyGreaterThanOrEqual(userStakedMvnBalance, s.config.minimumStakedMvnBalance, error_MIN_STAKED_MVN_AMOUNT_NOT_REACHED);
 
     // Init new satellite record params
     const name          : string  = registerAsSatelliteParams.name;
@@ -426,7 +426,7 @@ block {
             Some (_satellite) -> (failwith(error_SATELLITE_ALREADY_EXISTS): satelliteRecordType)
         |   None -> record [            
                 status                = "ACTIVE";
-                stakedMvkBalance      = userStakedMvkBalance;
+                stakedMvnBalance      = userStakedMvnBalance;
                 satelliteFee          = satelliteFee;
                 totalDelegatedAmount  = 0n;
 
@@ -572,14 +572,14 @@ block {
 
 
 // helper function to create new delegate record
-function createDelegateRecord(const satelliteAddress : address; const satelliteRegisteredDateTime : timestamp; const stakedMvkBalance : nat) : delegateRecordType is 
+function createDelegateRecord(const satelliteAddress : address; const satelliteRegisteredDateTime : timestamp; const stakedMvnBalance : nat) : delegateRecordType is 
 block {
 
     const delegateRecord : delegateRecordType = record [
         satelliteAddress              = satelliteAddress;
         satelliteRegisteredDateTime   = satelliteRegisteredDateTime;
         delegatedDateTime             = Mavryk.get_now();
-        delegatedStakedMvkBalance     = stakedMvkBalance;
+        delegatedStakedMvnBalance     = stakedMvnBalance;
     ];
 
 } with delegateRecord
@@ -631,7 +631,7 @@ block {
         // Create a snapshot
         const satelliteSnapshot : updateSatelliteSingleSnapshotType  = record[
             satelliteAddress            = satelliteAddress;
-            totalStakedMvkBalance       = satelliteRecord.stakedMvkBalance;
+            totalStakedMvnBalance       = satelliteRecord.stakedMvnBalance;
             totalDelegatedAmount        = satelliteRecord.totalDelegatedAmount;
             ready                       = ready;
             delegationRatio             = s.config.delegationRatio;
@@ -702,11 +702,11 @@ block{
         // Steps Overview:
         // 1. Check if user is recorded in the Satellite Rewards Ledger
         // 2. Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-        // 3. Get user's staked MVK balance from the Doorman Contract
+        // 3. Get user's staked MVN balance from the Doorman Contract
         // 4. Get satellite rewards record of satellite that user is delegated to (for reference)
         // 5. Calculate satellite unclaimed rewards
         //    - calculate rewards ratio: difference between satellite's accumulatedRewardsPerShare and user's current participationRewardsPerShare
-        //    - user's satellite rewards is equal to his staked MVK balance multiplied by rewards ratio
+        //    - user's satellite rewards is equal to his staked MVN balance multiplied by rewards ratio
         // 6. Update user's satellite rewards record 
         //    - set participationRewardsPerShare to satellite's accumulatedRewardsPerShare
         //    - increment user's unpaid rewards by the calculated rewards
@@ -718,8 +718,8 @@ block{
             var userRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(userAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
             const satelliteReferenceAddress : address = userRewardsRecord.satelliteReferenceAddress;
 
-            // Get user's staked MVK balance from the Doorman Contract
-            const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
+            // Get user's staked MVN balance from the Doorman Contract
+            const stakedMvnBalance : nat = getUserStakedMvnBalanceFromDoorman(userAddress, s);
 
             // Get satellite rewards record of satellite that user is delegated to
             const satelliteReferenceRewardsRecord : satelliteRewardsType = getSatelliteRewardsRecord(satelliteReferenceAddress, s, error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND);
@@ -729,10 +729,10 @@ block{
 
                 // Calculate satellite unclaimed rewards
                 // - calculate rewards ratio: difference between satellite's accumulatedRewardsPerShare and user's current participationRewardsPerShare
-                // - user's satellite rewards is equal to his staked MVK balance multiplied by rewards ratio
+                // - user's satellite rewards is equal to his staked MVN balance multiplied by rewards ratio
                 
                 const satelliteRewardsRatio : nat  = abs(satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - userRewardsRecord.participationRewardsPerShare);
-                const satelliteRewards : nat       = (stakedMvkBalance * satelliteRewardsRatio) / fixedPointAccuracy;
+                const satelliteRewards : nat       = (stakedMvnBalance * satelliteRewardsRatio) / fixedPointAccuracy;
 
                 // Update user's satellite rewards record 
                 // - set participationRewardsPerShare to satellite's accumulatedRewardsPerShare
@@ -771,7 +771,7 @@ block{
 
                                  // Calculate satellite unclaimed rewards
                                 const satelliteRewardsRatio : nat  = abs(satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - initialParticipationRewardsPerShare);
-                                const satelliteRewards : nat       = (stakedMvkBalance * satelliteRewardsRatio) / fixedPointAccuracy;
+                                const satelliteRewards : nat       = (stakedMvnBalance * satelliteRewardsRatio) / fixedPointAccuracy;
 
                                 // Update user's satellite rewards record 
                                 userRewardsRecord.participationRewardsPerShare    := satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare;

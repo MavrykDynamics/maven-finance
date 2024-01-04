@@ -28,14 +28,14 @@ type financialRequestRecordType is [@layout:comb] record [
     requestPurpose                      : string;
     keyHash                             : option(key_hash);
 
-    yayVoteStakedMvkTotal               : nat;
-    nayVoteStakedMvkTotal               : nat;
-    passVoteStakedMvkTotal              : nat;
+    yayVoteStakedMvnTotal               : nat;
+    nayVoteStakedMvnTotal               : nat;
+    passVoteStakedMvnTotal              : nat;
 
     governanceCycleId                   : nat;
-    snapshotStakedMvkTotalSupply        : nat;
-    stakedMvkPercentageForApproval      : nat; 
-    stakedMvkRequiredForApproval        : nat; 
+    snapshotStakedMvnTotalSupply        : nat;
+    stakedMvnPercentageForApproval      : nat; 
+    stakedMvnRequiredForApproval        : nat; 
 
     requestedDateTime                   : timestamp;  // log of when the request was submitted
     expiryDateTime                      : timestamp;
@@ -48,7 +48,7 @@ type financialRequestLedgerType is big_map (actionIdType, financialRequestRecord
 // ------------------------------------------------------------------------------
 
 type governanceFinancialConfigType is [@layout:comb] record [
-    approvalPercentage                  : nat;  // threshold for financial request to be approved: 67% of total staked MVK supply
+    approvalPercentage                  : nat;  // threshold for financial request to be approved: 67% of total staked MVN supply
     financialRequestDurationInDays      : nat;  // duration of final request before expiry
 ]
 
@@ -112,7 +112,7 @@ type governanceFinancialStorageType is [@layout:comb] record [
     metadata                            : metadataType;
     config                              : governanceFinancialConfigType;
 
-    mvkTokenAddress                     : address;
+    mvnTokenAddress                     : address;
     governanceAddress                   : address;   
 
     whitelistTokenContracts             : whitelistTokenContractsType;

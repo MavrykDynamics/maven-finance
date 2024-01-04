@@ -9,7 +9,7 @@ export type lendingControllerMockTimeStorageType = {
     config                      : {};
     breakGlassConfig            : {};
 
-    mvkTokenAddress             : string;
+    mvnTokenAddress             : string;
     governanceAddress           : string;
 
     whitelistContracts          : MichelsonMap<MichelsonMapKey, unknown>;    

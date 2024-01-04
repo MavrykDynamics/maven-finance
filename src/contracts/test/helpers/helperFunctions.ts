@@ -44,14 +44,9 @@ export const almostEqual = (actual, expected, delta) => {
 }
 
 
-export async function getStorageMapValue (parentStorage, mapName, key) {
-    try {
-        const storageMapValue = await parentStorage[mapName].get(key);
-        return storageMapValue;
-    }
-    catch(e) {
-        return undefined
-    }
+export async function getStorageMapValue (contractStorage, mapName, key) {
+    const storageMapValue = await contractStorage[mapName].get(key);
+    return storageMapValue;
 }
 
 
@@ -214,26 +209,26 @@ export function mistakenTransferFa12Token (contractInstance, to, tokenContractAd
 // Doorman Helpers
 // ------------------------------------------------------------------------------
 
-export const calculateMavrykLoyaltyIndex = (stakedMvkTotal : number, mvkTotalSupply : number) => {
-    return Math.trunc((stakedMvkTotal * 100 * fixedPointAccuracy) / mvkTotalSupply);
+export const calculateMavenLoyaltyIndex = (stakedMvnTotal : number, mvnTotalSupply : number) => {
+    return Math.trunc((stakedMvnTotal * 100 * fixedPointAccuracy) / mvnTotalSupply);
 }
 
 
-export const calculateExitFeePercent = (mavrykLoyaltyIndex : number) => {
-    return ( ((300_000 * fixedPointAccuracy) - (5_250 * mavrykLoyaltyIndex)) * fixedPointAccuracy + 25 * mavrykLoyaltyIndex * mavrykLoyaltyIndex) / (10_000 * fixedPointAccuracy)
+export const calculateExitFeePercent = (mavenLoyaltyIndex : number) => {
+    return ( ((300_000 * fixedPointAccuracy) - (5_250 * mavenLoyaltyIndex)) * fixedPointAccuracy + 25 * mavenLoyaltyIndex * mavenLoyaltyIndex) / (10_000 * fixedPointAccuracy)
 }
 
 
-export const calculateExitFeeRewards = (initialStakedMvkBalance : number, updatedParticipationFeesPerShare : number, updatedAccumulatedFeesPerShare : number) => {
+export const calculateExitFeeRewards = (initialStakedMvnBalance : number, updatedParticipationFeesPerShare : number, updatedAccumulatedFeesPerShare : number) => {
     const currentFeesPerShare = Math.abs(updatedAccumulatedFeesPerShare - updatedParticipationFeesPerShare);
-    const exitFeeRewards = Math.trunc(currentFeesPerShare * initialStakedMvkBalance / fixedPointAccuracy);
+    const exitFeeRewards = Math.trunc(currentFeesPerShare * initialStakedMvnBalance / fixedPointAccuracy);
     return exitFeeRewards
 }
 
 
-export const calcUpdatedAccumulatedFeesPerShare = (paidFee : number, unstakeAmount : number, stakedMvkTotalSupply : number, accumulatedFeesPerShare : BigNumber) => {
+export const calcUpdatedAccumulatedFeesPerShare = (paidFee : number, unstakeAmount : number, stakedMvnTotalSupply : number, accumulatedFeesPerShare : BigNumber) => {
 
-    const stakedTotalWithoutUnstakeAmount = Math.abs(stakedMvkTotalSupply - unstakeAmount);
+    const stakedTotalWithoutUnstakeAmount = Math.abs(stakedMvnTotalSupply - unstakeAmount);
     let newAccumulatedFeesPerShare = accumulatedFeesPerShare.toNumber();
 
     if(stakedTotalWithoutUnstakeAmount > 0){
@@ -243,9 +238,9 @@ export const calcUpdatedAccumulatedFeesPerShare = (paidFee : number, unstakeAmou
 
 }
 
-export const calcIncrementAccumulatedFeesPerShare = (paidFee : number, unstakeAmount : number, stakedMvkTotalSupply : number) => {
+export const calcIncrementAccumulatedFeesPerShare = (paidFee : number, unstakeAmount : number, stakedMvnTotalSupply : number) => {
 
-    const stakedTotalWithoutUnstakeAmount = Math.abs(stakedMvkTotalSupply - unstakeAmount);
+    const stakedTotalWithoutUnstakeAmount = Math.abs(stakedMvnTotalSupply - unstakeAmount);
     
     if(stakedTotalWithoutUnstakeAmount > 0){
         return Number(Math.trunc(paidFee / stakedTotalWithoutUnstakeAmount));
@@ -260,34 +255,34 @@ export const calcIncrementAccumulatedFeesPerShare = (paidFee : number, unstakeAm
 // ------------------------------------------------------------------------------
 
 
-export const calcRewardsPerShareAfterDistributeRewards = (rewardAmount : number, satelliteFee : number, satelliteTotalStakedMvk : number) => {
+export const calcRewardsPerShareAfterDistributeRewards = (rewardAmount : number, satelliteFee : number, satelliteTotalStakedMvn : number) => {
 
     const satelliteFeeReward                    = Math.floor((satelliteFee * rewardAmount) / 10000);
     const totalDistributionAmountForDelegates   = rewardAmount - satelliteFeeReward;
-    const incrementRewardsPerShare              = totalDistributionAmountForDelegates / satelliteTotalStakedMvk;
+    const incrementRewardsPerShare              = totalDistributionAmountForDelegates / satelliteTotalStakedMvn;
 
     return incrementRewardsPerShare
 } 
 
 
 
-export const calcTotalVotingPower = (delegationRatio : number, satelliteStakedMvkBalance : number, satelliteTotalDelegatedAmount : number) => {
+export const calcTotalVotingPower = (delegationRatio : number, satelliteStakedMvnBalance : number, satelliteTotalDelegatedAmount : number) => {
 
     var totalVotingPower    = 0;
     var maxTotalVotingPower = 0;
 
     if(delegationRatio == 0){
-        maxTotalVotingPower = satelliteStakedMvkBalance * 10000;
+        maxTotalVotingPower = satelliteStakedMvnBalance * 10000;
     } else {
-        maxTotalVotingPower = Math.floor((satelliteStakedMvkBalance * 10000) / delegationRatio);
+        maxTotalVotingPower = Math.floor((satelliteStakedMvnBalance * 10000) / delegationRatio);
     };
 
-    const mvkBalanceAndTotalDelegatedAmount = satelliteStakedMvkBalance + satelliteTotalDelegatedAmount;
+    const mvnBalanceAndTotalDelegatedAmount = satelliteStakedMvnBalance + satelliteTotalDelegatedAmount;
 
-    if(mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower){
+    if(mvnBalanceAndTotalDelegatedAmount > maxTotalVotingPower){
         totalVotingPower = maxTotalVotingPower;
     } else {
-        totalVotingPower = mvkBalanceAndTotalDelegatedAmount;
+        totalVotingPower = mvnBalanceAndTotalDelegatedAmount;
     };
 
     return totalVotingPower;
@@ -295,8 +290,8 @@ export const calcTotalVotingPower = (delegationRatio : number, satelliteStakedMv
 
 
 
-export const calcStakedMvkRequiredForActionApproval = (totalStakedMvkSupply : number, approvalPercentage : number, percentageDecimals : number) => {
-    const stakedMvkRequiredForApproval = Math.floor((totalStakedMvkSupply * approvalPercentage) / (10 ** percentageDecimals));
-    return stakedMvkRequiredForApproval
+export const calcStakedMvnRequiredForActionApproval = (totalStakedMvnSupply : number, approvalPercentage : number, percentageDecimals : number) => {
+    const stakedMvnRequiredForApproval = Math.floor((totalStakedMvnSupply * approvalPercentage) / (10 ** percentageDecimals));
+    return stakedMvnRequiredForApproval
 }
 

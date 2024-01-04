@@ -3,7 +3,7 @@ import { MichelsonMap, MichelsonMapKey } from '@mavrykdynamics/taquito-michelson
 export type treasuryStorageType = {
 
     admin                     : string;
-    mvkTokenAddress           : string;
+    mvnTokenAddress           : string;
     governanceAddress         : string;
 
     name                      : string;

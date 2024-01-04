@@ -25,8 +25,8 @@
 // Doorman types
 #include "../partials/contractTypes/doormanTypes.ligo"
 
-// MvkToken types for transfer
-#include "../partials/contractTypes/mvkTokenTypes.ligo"
+// MvnToken types for transfer
+#include "../partials/contractTypes/mvnTokenTypes.ligo"
 
 // Treasury types for farmClaim
 #include "../partials/contractTypes/treasuryTypes.ligo"
@@ -54,8 +54,8 @@ type doormanAction is
     |   TogglePauseEntrypoint       of doormanTogglePauseEntrypointType
 
         // Doorman Entrypoints
-    |   Stake                       of (nat)
-    |   Unstake                     of (nat)
+    |   StakeMvn                    of (nat)
+    |   UnstakeMvn                  of (nat)
     |   Exit                        of (unit)
     |   Compound                    of set(address)
     |   FarmClaim                   of farmClaimType
@@ -111,7 +111,7 @@ type doormanUnpackLambdaFunctionType is (doormanLambdaActionType * doormanStorag
 function main (const action : doormanAction; const s : doormanStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoints should not receive any mav amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
 
 } with(
 
@@ -133,8 +133,8 @@ block {
         |   TogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
 
             // Doorman Entrypoints
-        |   Stake(parameters)                     -> stake(parameters, s)  
-        |   Unstake(parameters)                   -> unstake(parameters, s)
+        |   StakeMvn(parameters)                  -> stakeMvn(parameters, s)  #todo
+        |   UnstakeMvn(parameters)                -> unstakeMvn(parameters, s)
         |   Exit(_parameters)                     -> exit(s)
         |   Compound(parameters)                  -> compound(parameters, s)
         |   FarmClaim(parameters)                 -> farmClaim(parameters, s)

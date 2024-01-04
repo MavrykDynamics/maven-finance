@@ -1,8 +1,0 @@
----
-- name: Install and configure TimescaleDB
-  hosts: all
-  roles:
-    - role: timescaledb
-      tags: install
-    - role: database
-      tags: configure

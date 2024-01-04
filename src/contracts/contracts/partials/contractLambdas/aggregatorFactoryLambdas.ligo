@@ -176,8 +176,8 @@ block {
                 if s.breakGlassConfig.untrackAggregatorIsPaused then skip
                 else s.breakGlassConfig.untrackAggregatorIsPaused := True;
 
-                if s.breakGlassConfig.distributeRewardStakedMvkIsPaused then skip
-                else s.breakGlassConfig.distributeRewardStakedMvkIsPaused := True;
+                if s.breakGlassConfig.distributeRewardStakedMvnIsPaused then skip
+                else s.breakGlassConfig.distributeRewardStakedMvnIsPaused := True;
 
                 if s.breakGlassConfig.distributeRewardXtzIsPaused then skip
                 else s.breakGlassConfig.distributeRewardXtzIsPaused := True;
@@ -220,7 +220,7 @@ block {
                 if s.breakGlassConfig.untrackAggregatorIsPaused then s.breakGlassConfig.untrackAggregatorIsPaused := False
                 else skip;
 
-                if s.breakGlassConfig.distributeRewardStakedMvkIsPaused then s.breakGlassConfig.distributeRewardStakedMvkIsPaused := False
+                if s.breakGlassConfig.distributeRewardStakedMvnIsPaused then s.breakGlassConfig.distributeRewardStakedMvnIsPaused := False
                 else skip;
 
                 if s.breakGlassConfig.distributeRewardXtzIsPaused then s.breakGlassConfig.distributeRewardXtzIsPaused := False
@@ -246,7 +246,7 @@ block {
 function lambdaTogglePauseEntrypoint(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit);   // entrypoint should not receive any mav amount  
+    verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case aggregatorFactoryLambdaAction of [
@@ -257,7 +257,7 @@ block {
                     |   UntrackAggregator (_v)            -> s.breakGlassConfig.untrackAggregatorIsPaused := _v
                     |   TrackAggregator (_v)              -> s.breakGlassConfig.trackAggregatorIsPaused := _v
                     |   DistributeRewardXtz (_v)          -> s.breakGlassConfig.distributeRewardXtzIsPaused := _v
-                    |   DistributeRewardStakedMvk (_v)    -> s.breakGlassConfig.distributeRewardStakedMvkIsPaused := _v
+                    |   DistributeRewardStakedMvn (_v)    -> s.breakGlassConfig.distributeRewardStakedMvnIsPaused := _v
                 ]
                 
             }
@@ -472,36 +472,36 @@ block{
 
 
 
-(*  distributeRewardStakedMvk lambda  *)
-function lambdaDistributeRewardStakedMvk(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
+(*  distributeRewardStakedMvn lambda  *)
+function lambdaDistributeRewardStakedMvn(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block{
 
     // Steps Overview:
     // 1. Standard checks
-    //      -   Check that %distributeRewardStakedMvk entrypoint is not paused (e.g. glass broken)
+    //      -   Check that %distributeRewardStakedMvn entrypoint is not paused (e.g. glass broken)
     //      -   Check that sender is from a tracked Aggregator Contract
     // 2. Get Delegation Contract Address from the General Contracts Map on the Governance Contract
-    // 3. Create operation to distribute staked MVK reward to oracle recipient through the %distributeReward entrypoint on the Delegation Contract
+    // 3. Create operation to distribute staked MVN reward to oracle recipient through the %distributeReward entrypoint on the Delegation Contract
 
-    // Check that %distributeRewardStakedMvk entrypoint is not paused (e.g. glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.distributeRewardStakedMvkIsPaused, error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED);
+    // Check that %distributeRewardStakedMvn entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.distributeRewardStakedMvnIsPaused, error_DISTRIBUTE_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
     case aggregatorFactoryLambdaAction of [
-        |   LambdaDistributeRewardStakedMvk(distributeRewardStakedMvkParams) -> {
+        |   LambdaDistributeRewardStakedMvn(distributeRewardStakedMvnParams) -> {
                 
                 // Verify that sender is from a tracked Aggregator Contract
                 verifySenderIsTrackedAggregators(s);
 
-                // Create operation to distribute staked MVK reward to eligible oracle recipient (satellite) through the %distributeReward entrypoint on the Delegation Contract
-                const distributeRewardStakedMvkOperation : operation = distributeRewardStakedMvkOperation(
-                    distributeRewardStakedMvkParams.eligibleSatellites,
-                    distributeRewardStakedMvkParams.totalStakedMvkReward,
+                // Create operation to distribute staked MVN reward to eligible oracle recipient (satellite) through the %distributeReward entrypoint on the Delegation Contract
+                const distributeRewardStakedMvnOperation : operation = distributeRewardStakedMvnOperation(
+                    distributeRewardStakedMvnParams.eligibleSatellites,
+                    distributeRewardStakedMvnParams.totalStakedMvnReward,
                     s 
                 );
 
-                operations := distributeRewardStakedMvkOperation # operations;
+                operations := distributeRewardStakedMvnOperation # operations;
 
             }
         |   _ -> skip

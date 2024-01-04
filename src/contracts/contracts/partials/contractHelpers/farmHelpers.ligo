@@ -371,15 +371,15 @@ block{
     var depositorRecord : depositorRecordType := getDepositorRecord(depositor, s);
 
     // Compute depositor reward
-    //  -   calculate user's currentMvkPerShare based on difference between his participationRewardsPerShare and farm's accumulatedRewardsPerShare
+    //  -   calculate user's currentMvnPerShare based on difference between his participationRewardsPerShare and farm's accumulatedRewardsPerShare
     //  -   check that user's participationRewardsPerShare does not exceed farm's accumulatedRewardsPerShare
-    //  -   calculate total user's reward based on currentMvkPerShare multiplied by his balance
+    //  -   calculate total user's reward based on currentMvnPerShare multiplied by his balance
 
     const accumulatedRewardsPerShareStart : tokenBalanceType = depositorRecord.participationRewardsPerShare;
     const accumulatedRewardsPerShareEnd : tokenBalanceType = s.accumulatedRewardsPerShare;
     if accumulatedRewardsPerShareStart > accumulatedRewardsPerShareEnd then failwith(error_CALCULATION_ERROR) else skip;
-    const currentMvkPerShare = abs(accumulatedRewardsPerShareEnd - accumulatedRewardsPerShareStart);
-    const depositorReward = (currentMvkPerShare * depositorRecord.balance) / fixedPointAccuracy;
+    const currentMvnPerShare = abs(accumulatedRewardsPerShareEnd - accumulatedRewardsPerShareStart);
+    const depositorReward = (currentMvnPerShare * depositorRecord.balance) / fixedPointAccuracy;
 
     // Update paid and unpaid rewards in farm storage 
     //  -   check that user's reward does not exceed total unpaid claimed rewards on the farm

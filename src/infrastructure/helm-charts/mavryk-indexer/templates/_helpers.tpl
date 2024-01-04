@@ -1,3 +1,0 @@
-{{- define "listToCSV" -}}
-{{- join ", " . -}}
-{{- end -}}

@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case treasuryLambdaAction of [
@@ -30,7 +30,7 @@ block {
 function lambdaSetGovernance(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case treasuryLambdaAction of [
@@ -48,7 +48,7 @@ block {
 function lambdaSetBaker(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit);                        // entrypoint should not receive any mav amount  
+    verifyNoAmountSent(Unit);                        // entrypoint should not receive any tez amount  
     verifySenderIsAdminOrGovernanceFinancial(s);     // verify that sender is admin or the Governance Financial Contract address
 
     var operations : list(operation) := nil;
@@ -233,7 +233,7 @@ block {
 function lambdaTogglePauseEntrypoint(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit);     // entrypoint should not receive any mav amount    
+    verifyNoAmountSent(Unit);     // entrypoint should not receive any tez amount    
     verifySenderIsAdmin(s.admin); // verify that sender is admin 
 
     case treasuryLambdaAction of [
@@ -241,7 +241,7 @@ block {
 
                 case params.targetEntrypoint of [
                         Transfer (_v)             -> s.breakGlassConfig.transferIsPaused              := _v
-                    |   MintMvkAndTransfer (_v)   -> s.breakGlassConfig.mintMvkAndTransferIsPaused    := _v
+                    |   MintMvnAndTransfer (_v)   -> s.breakGlassConfig.mintMvnAndTransferIsPaused    := _v
                     |   UpdateTokenOperators (_v) -> s.breakGlassConfig.updateTokenOperatorsIsPaused  := _v
                     |   StakeTokens (_v)          -> s.breakGlassConfig.stakeTokensIsPaused            := _v
                     |   UnstakeTokens (_v)        -> s.breakGlassConfig.unstakeTokensIsPaused          := _v
@@ -321,36 +321,36 @@ block {
 
 
 
-(* mintMvkAndTransfer lambda *)
-function lambdaMintMvkAndTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
+(* mintMvnAndTransfer lambda *)
+function lambdaMintMvnAndTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
 
     // Steps Overview:
     // 1. Check if sender is whitelisted (governance)
-    // 2. Check that %mintMvkAndTransfer entrypoint is not paused (e.g. if glass broken)
-    // 3. Create and execute mint operation to MVK Token Contract
+    // 2. Check that %mintMvnAndTransfer entrypoint is not paused (e.g. if glass broken)
+    // 3. Create and execute mint operation to MVN Token Contract
 
     // Verify that sender is whitelisted
     verifySenderIsWhitelisted(s);
 
-    // verify that %mintMvkAndTransfer entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.mintMvkAndTransferIsPaused, error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED);
+    // verify that %mintMvnAndTransfer entrypoint is not paused (e.g. if glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.mintMvnAndTransferIsPaused, error_MINT_MVN_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
     case treasuryLambdaAction of [
-        |   LambdaMintMvkAndTransfer(mintMvkAndTransferParams) -> {
+        |   LambdaMintMvnAndTransfer(mintMvnAndTransferParams) -> {
                 
-                const to_    : address   = mintMvkAndTransferParams.to_;
-                const amt    : nat       = mintMvkAndTransferParams.amt;
+                const to_    : address   = mintMvnAndTransferParams.to_;
+                const amt    : nat       = mintMvnAndTransferParams.amt;
 
-                const mintMvkTokensOperation : operation = mintTokens(
+                const mintMvnTokensOperation : operation = mintTokens(
                     to_,                // to address
-                    amt,                // amount of mvk Tokens to be minted
-                    s                   // mvkTokenAddress
+                    amt,                // amount of mvn Tokens to be minted
+                    s                   // mvnTokenAddress
                 );
 
-                operations := mintMvkTokensOperation # operations;
+                operations := mintMvnTokensOperation # operations;
 
             }
         |   _ -> skip
@@ -366,7 +366,7 @@ block {
 
     // Steps Overview:
     // 1. Check if sender is admin
-    // 2. Update operators of Treasury Contract on the MVK Token contract 
+    // 2. Update operators of Treasury Contract on the MVN Token contract 
     //    - required to set Doorman Contract as an operator for staking/unstaking 
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin 
@@ -429,8 +429,8 @@ block {
     // 1. Check if sender is admin
     // 2. Check that %unstakeTokens entrypoint is not paused (e.g. if glass broken)
     // 3. Get Doorman Contract address from the General Contracts Map on the Governance Contract
-    // 4. Get unstake entrypoint in the Doorman Contract
-    // 5. Create and send unstake operation to the Doorman Contract
+    // 4. Get unstakeMvn entrypoint in the Doorman Contract
+    // 5. Create and send unstakeMvn operation to the Doorman Contract
     
     verifySenderIsAdmin(s.admin);  // verify that sender is admin 
     
@@ -442,7 +442,7 @@ block {
     case treasuryLambdaAction of [
         |   LambdaUnstakeTokens(unstakeTokensParams) -> {
                 
-                // Create and send unstake operation
+                // Create and send unstakeMvn operation
                 const unstakeTokensOperation : operation = unstakeTokensOperation(unstakeTokensParams);
                 operations := unstakeTokensOperation # operations;
 

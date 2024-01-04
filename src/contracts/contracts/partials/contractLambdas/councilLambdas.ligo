@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit);        // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -32,7 +32,7 @@ block {
 function lambdaSetGovernance(const councilLambdaAction : councilLambdaActionType;  var s : councilStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit);        // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -52,7 +52,7 @@ block {
 function lambdaUpdateMetadata(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit);     // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit);     // entrypoint should not receive any tez amount
     verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
 
     case councilLambdaAction of [
@@ -74,7 +74,7 @@ block {
 function lambdaUpdateConfig(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    verifyNoAmountSent(Unit);     // entrypoint should not receive any mav amount  
+    verifyNoAmountSent(Unit);     // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case councilLambdaAction of [
