@@ -172,7 +172,7 @@ block {
     // 4. Get Doorman MVN balance from MVN Token Contract - equivalent to total staked MVN supply
     // 5. Create a transfer to transfer all funds to an upgraded Doorman Contract
     
-    verifyNoAmountSent(Unit);          // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);          // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin); // check that sender is admin 
 
     var operations : list(operation) := nil;
@@ -249,7 +249,7 @@ block {
 function lambdaTogglePauseEntrypoint(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit);          // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);          // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin); // check that sender is admin 
 
     case doormanLambdaAction of [

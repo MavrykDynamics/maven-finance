@@ -91,13 +91,13 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Validation check for new admin address
     //      -   Check if the new admin address is a whitelisted developer or the current Governance Proxy Contract address
     //      -   Check if the new admin address is the Break Glass Contract
     // 4. Set new admin address
 
-    verifyNoAmountSent(Unit);    // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);    // check that no mav is sent to the entrypoint
     verifySenderIsAdmin(s.admin); // verify that sender is admin (e.g. Governance Proxy contract)
     
     case governanceLambdaAction of [
@@ -123,10 +123,10 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Set new Governance Proxy Contract address
     
-    verifyNoAmountSent(Unit);    // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);    // check that no mav is sent to the entrypoint
     verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case governanceLambdaAction of [
@@ -145,10 +145,10 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Set new contract metadata
 
-    verifyNoAmountSent(Unit);    // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);    // check that no mav is sent to the entrypoint
     verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case governanceLambdaAction of [
@@ -172,10 +172,10 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Update config with new input (validate if necessary)
 
-    verifyNoAmountSent(Unit);   // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);   // check that no mav is sent to the entrypoint
     verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case governanceLambdaAction of [
@@ -219,11 +219,11 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin or whitelisted (e.g. Factory contracts)
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Update whitelist contracts map
 
     verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
-    verifyNoAmountSent(Unit);            // verify that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);            // verify that no mav is sent to the entrypoint
     
     case governanceLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -242,11 +242,11 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin or whitelisted (e.g. Factory contracts)
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Update general contracts map
 
     verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
-    verifyNoAmountSent(Unit);            // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);            // check that no mav is sent to the entrypoint
     
     case governanceLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -265,12 +265,12 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Remove developer address if it is already present in the whitelist developers set, otherwise add developer address
     //      -   Check that there will always be at least one whitelisted developer address present
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin
-    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);     // check that no mav is sent to the entrypoint
 
     case governanceLambdaAction of [
             LambdaUpdateWhitelistDevelopers(developer) -> 
@@ -329,11 +329,11 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Create operation to set new admin of contract
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin
-    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint    
+    verifyNoAmountSent(Unit);     // check that no mav is sent to the entrypoint    
 
     var operations : list(operation) := nil;
 
@@ -357,11 +357,11 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Create operation to set new Governance Address of contract
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin
-    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint    
+    verifyNoAmountSent(Unit);     // check that no mav is sent to the entrypoint    
 
     // Operations list
     var operations : list(operation) := nil;
@@ -632,7 +632,7 @@ block {
                 // Process Proposal Submission Fee
                 // ------------------------------------------------------------------
 
-                // check if tez sent is equal to the required fee
+                // check if mav sent is equal to the required fee
                 verifyCorrectSubmissionFee(s);
 
                 // Get Tax Treasury from General Contracts map

@@ -200,7 +200,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
             });    
 
-        }); // end test: create vaults with tez as initial deposit
+        }); // end test: create vaults with mav as initial deposit
 
 
 
@@ -209,7 +209,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
         //
         describe('%deposit test', function () {
         
-            it('user (eve) can deposit tez into her vaults', async () => {
+            it('user (eve) can deposit mav into her vaults', async () => {
                 
                 // init variables
                 await signerFactory(tezos, eve.sk);
@@ -392,7 +392,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
             });
 
-        }); // end test: deposit tez into vault
+        }); // end test: deposit mav into vault
 
 
 
@@ -606,7 +606,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
             });
 
-            it('user (eve) can withdraw tez from her vault', async () => {
+            it('user (eve) can withdraw mav from her vault', async () => {
 
                 await signerFactory(tezos, eve.sk);
                 const vaultId              = eveVaultSet[0]; 

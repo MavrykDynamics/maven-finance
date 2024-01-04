@@ -134,7 +134,7 @@ describe("Treasury tests", async () => {
 
     describe('test: Treasury deposit tests', function() {
 
-        it('test: any user (alice) can deposit tez into treasury', async () => {
+        it('test: any user (alice) can deposit mav into treasury', async () => {
             try{        
                 
                 // Alice transfers 8 XTZ to Treasury

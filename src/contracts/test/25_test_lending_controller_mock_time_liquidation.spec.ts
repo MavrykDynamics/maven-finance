@@ -879,7 +879,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         });
 
 
-        it('admin can set tez as a loan token', async () => {
+        it('admin can set mav as a loan token', async () => {
 
             try{        
                 
@@ -1191,7 +1191,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             } 
         });
 
-        it('admin can set tez as a collateral token', async () => {
+        it('admin can set mav as a collateral token', async () => {
 
             try{        
                 
@@ -1585,7 +1585,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         });
 
 
-        it('user (eve) can add liquidity for tez into Lending Controller token pool (100 XTZ)', async () => {
+        it('user (eve) can add liquidity for mav into Lending Controller token pool (100 XTZ)', async () => {
     
             // init variables
             await signerFactory(tezos, eve.sk);
@@ -2718,7 +2718,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.deepEqual(mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
 
             // ---------------------------------
-            // Reset tez prices to default observation data
+            // Reset mav prices to default observation data
             // ---------------------------------
 
             epoch = await mockUsdXtzAggregatorStorage.lastCompletedData.epoch;
@@ -3505,7 +3505,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.deepEqual(mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
 
             // ---------------------------------
-            // Reset tez prices to default observation data
+            // Reset mav prices to default observation data
             // ---------------------------------
 
             epoch = await mockUsdXtzAggregatorStorage.lastCompletedData.epoch;

@@ -69,7 +69,7 @@ block {
                             // verify sender is vault owner
                             verifySenderIsVaultOwner(s);
                             
-                            // Create delegate to tez baker operation
+                            // Create delegate to mav baker operation
                             const delegateToTezBakerOperation : operation = Mavryk.set_delegate(optionKeyHash);
                             
                             operations := delegateToTezBakerOperation # operations;
