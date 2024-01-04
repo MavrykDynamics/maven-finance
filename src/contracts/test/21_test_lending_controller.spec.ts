@@ -382,7 +382,7 @@ describe("Lending Controller tests", async () => {
         });
 
 
-        it('admin can set tez as a loan token', async () => {
+        it('admin can set mav as a loan token', async () => {
 
             try{        
                 
@@ -904,7 +904,7 @@ describe("Lending Controller tests", async () => {
             } 
         });
 
-        it('admin can set tez as collateral token', async () => {
+        it('admin can set mav as collateral token', async () => {
 
             try{        
                 
@@ -1350,7 +1350,7 @@ describe("Lending Controller tests", async () => {
     //
     describe('%createVault test: create vaults - loan tokens: MockFA12 Tokens, MockFA2 Tokens, Tez', function () {
 
-        it('user (eve) can create a new vault (depositors: any) with no tez - LOAN TOKEN: MockFA12 (USDT)', async () => {
+        it('user (eve) can create a new vault (depositors: any) with no mav - LOAN TOKEN: MockFA12 (USDT)', async () => {
             try{        
                 
                 // init variables
@@ -1397,7 +1397,7 @@ describe("Lending Controller tests", async () => {
 
         });    
 
-        it('user (mallory) can create a new vault (depositors: whitelist set) with no tez - LOAN TOKEN: MockFA12 (USDT)', async () => {
+        it('user (mallory) can create a new vault (depositors: whitelist set) with no mav - LOAN TOKEN: MockFA12 (USDT)', async () => {
             try{        
 
                 // init variables
@@ -1596,16 +1596,16 @@ describe("Lending Controller tests", async () => {
 
         });    
 
-    }); // end test: create vaults with tez as initial deposit
+    }); // end test: create vaults with mav as initial deposit
 
 
 
     // 
-    // Test: Deposit tez into vault
+    // Test: Deposit mav into vault
     //
-    describe('%deposit test: deposit tez into vault', function () {
+    describe('%deposit test: deposit mav into vault', function () {
     
-        it('user (eve) can deposit tez into her vaults', async () => {
+        it('user (eve) can deposit mav into her vaults', async () => {
             
             // init variables
             await signerFactory(tezos, eve.sk);
@@ -1682,7 +1682,7 @@ describe("Lending Controller tests", async () => {
 
         });
 
-        it('user (mallory) can deposit tez into user (eve)\'s vault (depositors: any)', async () => {
+        it('user (mallory) can deposit mav into user (eve)\'s vault (depositors: any)', async () => {
             
             // init variables
             await signerFactory(tezos, mallory.sk);
@@ -1703,7 +1703,7 @@ describe("Lending Controller tests", async () => {
             const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
             const initialTezCollateralBalance   = await vault.collateralBalanceLedger.get('tez');
 
-            // check that initial tez collateral balance is now ten tez
+            // check that initial mav collateral balance is now ten tez
             assert.equal(initialTezCollateralBalance, TEZ(10));
 
             // get vault contract
@@ -1722,12 +1722,12 @@ describe("Lending Controller tests", async () => {
             const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
             
-            // check that tez balance is now 20 tez
+            // check that mav balance is now 20 tez
             assert.equal(tezCollateralBalance, TEZ(finalAmountTez));
 
         });
 
-        it('user (mallory) deposit tez into her vault (depositors: whitelist set)', async () => {
+        it('user (mallory) deposit mav into her vault (depositors: whitelist set)', async () => {
             
             // init variables
             await signerFactory(tezos, mallory.sk);
@@ -1765,7 +1765,7 @@ describe("Lending Controller tests", async () => {
     
         });
     
-        it('user (eve) cannot deposit tez into user (mallory)\'s vault (depositors: whitelist set)', async () => {
+        it('user (eve) cannot deposit mav into user (mallory)\'s vault (depositors: whitelist set)', async () => {
                 
             // init variables
             await signerFactory(tezos, eve.sk);
@@ -1785,7 +1785,7 @@ describe("Lending Controller tests", async () => {
             const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
             const initialTezCollateralBalance   = await vault.collateralBalanceLedger.get('tez');
     
-            // check that initial tez collateral balance is now ten tez (from previous test)
+            // check that initial mav collateral balance is now ten mav (from previous test)
             assert.equal(initialTezCollateralBalance, TEZ(10));
     
             // get vault contract
@@ -1802,7 +1802,7 @@ describe("Lending Controller tests", async () => {
     
         });
 
-    }); // end test: deposit tez into vault
+    }); // end test: deposit mav into vault
 
 
 
@@ -1970,7 +1970,7 @@ describe("Lending Controller tests", async () => {
         });
 
 
-        it('user (eve) cannot deposit tez and mock FA12 tokens into her vault (depositors: any) at the same time', async () => {
+        it('user (eve) cannot deposit mav and mock FA12 tokens into her vault (depositors: any) at the same time', async () => {
     
             // init variables
             await signerFactory(tezos, eve.sk);
@@ -2009,7 +2009,7 @@ describe("Lending Controller tests", async () => {
             ).send();
             await setNewTokenAllowance.confirmation();
     
-            // eve fails to deposit tez and mock FA12 tokens into vault
+            // eve fails to deposit mav and mock FA12 tokens into vault
             const failEveDepositTezAndMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
                 "deposit",
                 depositAmount,              
@@ -2138,7 +2138,7 @@ describe("Lending Controller tests", async () => {
             ).send();
             await setNewTokenAllowance.confirmation();
     
-            // eve fails to deposit tez and mock FA12 tokens into vault
+            // eve fails to deposit mav and mock FA12 tokens into vault
             const failDepositMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
                 "deposit",
                 depositAmount,
@@ -2148,7 +2148,7 @@ describe("Lending Controller tests", async () => {
     
         });
 
-        it('user (mallory) cannot deposit tez and mock FA12 tokens into her vault (depositors: whitelist set) at the same time', async () => {
+        it('user (mallory) cannot deposit mav and mock FA12 tokens into her vault (depositors: whitelist set) at the same time', async () => {
     
             // init variables
             await signerFactory(tezos, mallory.sk);
@@ -2188,7 +2188,7 @@ describe("Lending Controller tests", async () => {
             ).send();
             await setNewTokenAllowance.confirmation();
     
-            // mallory fails to deposit tez and mock FA12 tokens into vault
+            // mallory fails to deposit mav and mock FA12 tokens into vault
             const failDepositTezAndMockFa12TokenOperation  = await vaultInstance.methods.initVaultAction(
                 "deposit",
                 depositAmount, 
@@ -2347,7 +2347,7 @@ describe("Lending Controller tests", async () => {
 
         });
 
-        it('user (eve) cannot deposit tez and mock FA2 tokens into her vault (depositors: any) at the same time', async () => {
+        it('user (eve) cannot deposit mav and mock FA2 tokens into her vault (depositors: any) at the same time', async () => {
     
             // init variables
             await signerFactory(tezos, eve.sk);
@@ -2376,7 +2376,7 @@ describe("Lending Controller tests", async () => {
             updateOperatorsOperation = await updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
             
-            // eve fails to deposit tez and mock FA2 tokens into vault at the same time
+            // eve fails to deposit mav and mock FA2 tokens into vault at the same time
             const failDepositTezAndMockFa2TokenOperation  = await vaultInstance.methods.initVaultAction(
                 "deposit",
                 depositAmount,
@@ -2486,7 +2486,7 @@ describe("Lending Controller tests", async () => {
             updateOperatorsOperation = await updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
     
-            // eve fails to deposit tez and mock FA2 tokens into vault at the same time
+            // eve fails to deposit mav and mock FA2 tokens into vault at the same time
             const failDepositMockFa2TokenOperation  = await vaultInstance.methods.initVaultAction(
                 "deposit",
                 depositAmount, 
@@ -2497,7 +2497,7 @@ describe("Lending Controller tests", async () => {
         });
 
 
-        it('user (mallory) cannot deposit tez and mock FA2 tokens into her vault (depositors: whitelist set) at the same time', async () => {
+        it('user (mallory) cannot deposit mav and mock FA2 tokens into her vault (depositors: whitelist set) at the same time', async () => {
     
             // init variables
             await signerFactory(tezos, mallory.sk);
@@ -2527,7 +2527,7 @@ describe("Lending Controller tests", async () => {
             updateOperatorsOperation = await updateOperators(mockFa2TokenInstance, mallory.pkh, vaultAddress, tokenId);
             await updateOperatorsOperation.confirmation();
     
-            // eve fails to deposit tez and mock FA2 tokens into vault at the same time
+            // eve fails to deposit mav and mock FA2 tokens into vault at the same time
             const failDepositTezAndMockFa2TokenOperation  = await vaultInstance.methods.initVaultAction(
                 "deposit",
                 depositAmount,         
@@ -2689,7 +2689,7 @@ describe("Lending Controller tests", async () => {
         });
 
 
-        it('user (eve) can add liquidity for tez into Lending Controller token pool (10 XTZ)', async () => {
+        it('user (eve) can add liquidity for mav into Lending Controller token pool (10 XTZ)', async () => {
     
             // init variables
             await signerFactory(tezos, eve.sk);
@@ -2889,7 +2889,7 @@ describe("Lending Controller tests", async () => {
 
 
 
-        it('user (eve) can remove liquidity for tez from Lending Controller token pool (5 XTZ)', async () => {
+        it('user (eve) can remove liquidity for mav from Lending Controller token pool (5 XTZ)', async () => {
     
             // init variables
             await signerFactory(tezos, eve.sk);
@@ -2917,7 +2917,7 @@ describe("Lending Controller tests", async () => {
             const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
-            // eve withdraws tez from lending controller token pool
+            // eve withdraws mav from lending controller token pool
             const eveWithdrawTezOperation  = await lendingControllerInstance.methods.removeLiquidity(
                 loanTokenName,
                 withdrawAmount, 
@@ -3015,7 +3015,7 @@ describe("Lending Controller tests", async () => {
 
             const withdrawMoreThanBalanceAmount = eveInitialXtzBalance + incrementAmount;
 
-            // fail: eve has insufficient tez in token pool
+            // fail: eve has insufficient mav in token pool
             const failEveWithdrawTezOperation  = await lendingControllerInstance.methods.removeLiquidity(
                 loanTokenName,
                 withdrawMoreThanBalanceAmount, 
@@ -3573,7 +3573,7 @@ describe("Lending Controller tests", async () => {
         it('user (eve) can repay 1 Tez', async () => {
 
             await signerFactory(tezos, eve.sk);
-            const vaultId            = eveVaultSet[2]; // vault with tez loan token
+            const vaultId            = eveVaultSet[2]; // vault with mav loan token
             const vaultOwner         = eve.pkh;
             const repayAmount        = 1000000; // 1 Tez
             const loanTokenName      = 'tez';
@@ -3646,8 +3646,8 @@ describe("Lending Controller tests", async () => {
             const failEveRepayMockFa2Operation = lendingControllerInstance.methods.repay(mockFa2VaultId, belowMinRepaymentAmountForMockFa2LoanToken);
             await chai.expect(failEveRepayMockFa2Operation.send()).to.be.rejected;
 
-            // tez vault
-            const tezVaultId         = eveVaultSet[2]; // vault with tez loan token
+            // mav vault
+            const tezVaultId         = eveVaultSet[2]; // vault with mav loan token
             const failEveRepayTezOperation = lendingControllerInstance.methods.repay(tezVaultId, belowMinRepaymentAmountForTezLoanToken);
             await chai.expect(failEveRepayTezOperation.send({ mumav : true, amount : belowMinRepaymentAmountForTezLoanToken })).to.be.rejected;        
 
@@ -3661,7 +3661,7 @@ describe("Lending Controller tests", async () => {
     //
     describe('%withdraw', function () {
 
-        it('user (eve) can withdraw tez from her vault', async () => {
+        it('user (eve) can withdraw mav from her vault', async () => {
 
             await signerFactory(tezos, eve.sk);
             const vaultId              = eveVaultSet[0]; 

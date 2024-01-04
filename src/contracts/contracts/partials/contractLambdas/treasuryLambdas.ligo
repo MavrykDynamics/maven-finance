@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case treasuryLambdaAction of [
@@ -30,7 +30,7 @@ block {
 function lambdaSetGovernance(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case treasuryLambdaAction of [
@@ -48,7 +48,7 @@ block {
 function lambdaSetBaker(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit);                        // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);                        // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrGovernanceFinancial(s);     // verify that sender is admin or the Governance Financial Contract address
 
     var operations : list(operation) := nil;
@@ -233,7 +233,7 @@ block {
 function lambdaTogglePauseEntrypoint(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit);     // entrypoint should not receive any tez amount    
+    verifyNoAmountSent(Unit);     // entrypoint should not receive any mav amount    
     verifySenderIsAdmin(s.admin); // verify that sender is admin 
 
     case treasuryLambdaAction of [

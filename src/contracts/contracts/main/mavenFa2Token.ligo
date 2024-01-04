@@ -479,7 +479,7 @@ block {
 function main (const action : action; const s : mavenFa2TokenStorageType) : return is
 block{
 
-    verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // // entrypoints should not receive any mav amount  
 
 } with(
     

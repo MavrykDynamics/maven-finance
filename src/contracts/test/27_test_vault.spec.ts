@@ -377,7 +377,7 @@ describe("Vault tests", async () => {
         });
 
 
-        it('admin can set tez as a loan token', async () => {
+        it('admin can set mav as a loan token', async () => {
 
             try{        
                 
@@ -619,7 +619,7 @@ describe("Vault tests", async () => {
             } 
         });
 
-        it('admin can set tez as collateral token', async () => {
+        it('admin can set mav as collateral token', async () => {
 
             try{        
                 
@@ -835,7 +835,7 @@ describe("Vault tests", async () => {
             await signerFactory(tezos, adminSk)
         })
 
-        it('user (alice) can create a new vault (depositors: any) with collateral deposit tez - LOAN TOKEN: MockFA12', async () => {
+        it('user (alice) can create a new vault (depositors: any) with collateral deposit mav - LOAN TOKEN: MockFA12', async () => {
             try{        
                 
                 // init variables
@@ -894,7 +894,7 @@ describe("Vault tests", async () => {
         });    
 
 
-        it('user (alice) cannot create a new vault with collateral deposit tez if no tez is sent', async () => {
+        it('user (alice) cannot create a new vault with collateral deposit mav if no mav is sent', async () => {
             try{        
                 
                 // init variables
@@ -929,7 +929,7 @@ describe("Vault tests", async () => {
         });    
 
 
-        it('user (alice) cannot create a new vault with collateral deposit tez if tez amount is wrongly specified', async () => {
+        it('user (alice) cannot create a new vault with collateral deposit mav if mav amount is wrongly specified', async () => {
             try{        
                 
                 // init variables
@@ -1051,7 +1051,7 @@ describe("Vault tests", async () => {
         });    
 
 
-        it('user (bob) can create a new vault (depositors: any) with tez deposit and two collateral token deposits - LOAN TOKEN: MockFA12', async () => {
+        it('user (bob) can create a new vault (depositors: any) with mav deposit and two collateral token deposits - LOAN TOKEN: MockFA12', async () => {
             try{        
                 
                 // init variables
@@ -1143,7 +1143,7 @@ describe("Vault tests", async () => {
         });    
 
 
-        it('user (bob) cannot create a new vault with tez deposit and two collateral token deposits if no tez is sent', async () => {
+        it('user (bob) cannot create a new vault with mav deposit and two collateral token deposits if no mav is sent', async () => {
             try{        
                 
                 // init variables
@@ -1206,7 +1206,7 @@ describe("Vault tests", async () => {
         });  
         
         
-        it('user (bob) cannot create a new vault with tez deposit and two collateral token deposits if tez amount is wrongly specified', async () => {
+        it('user (bob) cannot create a new vault with mav deposit and two collateral token deposits if mav amount is wrongly specified', async () => {
             try{        
                 
                 // init variables
@@ -1391,7 +1391,7 @@ describe("Vault tests", async () => {
 
         });    
 
-    }); // end test: create vaults with tez as initial deposit
+    }); // end test: create vaults with mav as initial deposit
 
 
     // 
@@ -1399,7 +1399,7 @@ describe("Vault tests", async () => {
     //
     describe('%updateDepositor - "Any" to "Whitelist Account" ', function () {
 
-        it('user (mallory) can deposit tez into user (eve)\'s vault (depositors: any)', async () => {
+        it('user (mallory) can deposit mav into user (eve)\'s vault (depositors: any)', async () => {
             
             // init variables
             await signerFactory(tezos, mallory.sk);
@@ -1432,7 +1432,7 @@ describe("Vault tests", async () => {
             const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const tezCollateralBalance            = updatedVault.collateralBalanceLedger.get('tez') == undefined ? 0 : updatedVault.collateralBalanceLedger.get('tez');
             
-            // check that tez balance is now 20 tez
+            // check that mav balance is now 20 tez
             assert.equal(tezCollateralBalance, initialTezCollateralBalance + depositAmountMutez);
 
         });
@@ -1487,7 +1487,7 @@ describe("Vault tests", async () => {
 
 
 
-        it('user (alice) can deposit tez into user (eve)\'s vault (depositors: whitelist) but mallory cannot', async () => {
+        it('user (alice) can deposit mav into user (eve)\'s vault (depositors: whitelist) but mallory cannot', async () => {
             
             // init variables
             await signerFactory(tezos, alice.sk);
@@ -1520,7 +1520,7 @@ describe("Vault tests", async () => {
             const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const tezCollateralBalance            = updatedVault.collateralBalanceLedger.get('tez') == undefined ? 0 : updatedVault.collateralBalanceLedger.get('tez');
             
-            // check that tez balance is now 20 tez
+            // check that mav balance is now 20 tez
             assert.equal(tezCollateralBalance, initialTezCollateralBalance + depositAmountMutez);
 
             // check that mallory is not able to deposit into the vault now

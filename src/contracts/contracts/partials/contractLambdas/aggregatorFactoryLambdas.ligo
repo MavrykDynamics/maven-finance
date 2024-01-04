@@ -246,7 +246,7 @@ block {
 function lambdaTogglePauseEntrypoint(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);   // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case aggregatorFactoryLambdaAction of [

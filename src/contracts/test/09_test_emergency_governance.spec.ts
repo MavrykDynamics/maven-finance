@@ -185,7 +185,7 @@ describe("Emergency Governance tests", async () => {
             await signerFactory(tezos, eve.sk)
         });
 
-        it('user (eve) should not be able to trigger emergency control if she did not send the required tez fees', async () => {
+        it('user (eve) should not be able to trigger emergency control if she did not send the required mav fees', async () => {
             try{
 
                 user   = eve.pkh;
@@ -222,7 +222,7 @@ describe("Emergency Governance tests", async () => {
             }
         });
 
-        it('user (eve) should not be able to trigger emergency control if she sends the wrong tez fees', async () => {
+        it('user (eve) should not be able to trigger emergency control if she sends the wrong mav fees', async () => {
             try{
 
                 user   = eve.pkh;
@@ -358,7 +358,7 @@ describe("Emergency Governance tests", async () => {
         });
 
 
-        it('user (eve) should be able to trigger an emergency control with sufficient staked MVN and correct tez fees sent', async () => {
+        it('user (eve) should be able to trigger an emergency control with sufficient staked MVN and correct mav fees sent', async () => {
             try{
                 
                 user   = eve.pkh;

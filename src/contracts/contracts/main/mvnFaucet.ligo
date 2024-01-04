@@ -127,7 +127,7 @@ block {
 function main (const action : action; const s : mvnFaucetStorageType) : return is
 block{
 
-    verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // // entrypoints should not receive any mav amount  
 
 } with(
     
