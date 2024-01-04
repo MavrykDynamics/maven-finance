@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any mav amount  
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -32,7 +32,7 @@ block {
 function lambdaSetGovernance(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any mav amount  
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -323,7 +323,7 @@ block {
     // 1. Access Checks 
     //      -   Check that %setLoanToken entrypoint is not paused (e.g. glass broken)
     //      -   Check that sender is admin (Governance Proxy)
-    //      -   Check that no tez is sent
+    //      -   Check that no mav is sent
     // 2a. If variant is CreateLoanToken
     //      -   Check if loan token already exists
     //      -   Update loan token ledger with new loan token record
@@ -332,7 +332,7 @@ block {
     //      -   Update and save loan token record with new parameters
 
 
-    verifyNoAmountSent(Unit);           // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);           // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin);       // verify that sender is admin
     
     // verify that %setLoanToken entrypoint is not paused (e.g. if glass broken)
@@ -379,7 +379,7 @@ block {
     // 1. Access Checks 
     //      -   Check that %setCollateralToken entrypoint is not paused (e.g. glass broken)
     //      -   Check that sender is admin (Governance Proxy)
-    //      -   Check that no tez is sent
+    //      -   Check that no mav is sent
     // 2a. If variant is CreateCollateralToken
     //      -   Check if collateral token already exists
     //      -   Update collateral token ledger with new collateral token record
@@ -387,7 +387,7 @@ block {
     //      -   Get collateral token record if exists
     //      -   Update and save collateral token record with new parameters
 
-    verifyNoAmountSent(Unit);                 // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);                 // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin);             // verify that sender is admin
     
     // Verify that %setCollateralToken entrypoint is not paused (e.g. if glass broken)
@@ -573,7 +573,7 @@ block {
 
     // Steps Overview: 
     // 1. Check that %removeLiquidity entrypoint is not paused (e.g. glass broken)
-    // 2. Check that no tez is sent
+    // 2. Check that no mav is sent
     // 2. Process remove liquidity operation
     //      -   Get loan token record
     //      -   Send tokens from token pool / lending controller (i.e. self address) to user
@@ -582,7 +582,7 @@ block {
     // 3. Get or create user's current token pool deposit balance 
     // 4. Update user rewards (based on user's current token pool deposit balance, and not the updated balance)
     
-    verifyNoAmountSent(Unit);                   // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);                   // entrypoint should not receive any mav amount  
     
     // Verify that %removeLiquidity entrypoint is not paused (e.g. if glass broken)
     verifyEntrypointIsNotPaused(s.breakGlassConfig.removeLiquidityIsPaused, error_REMOVE_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
@@ -1202,7 +1202,7 @@ block {
                 // Register token deposit in vault collateral balance ledger
                 // ------------------------------------------------------------------
                 
-                // Check if token is tez or exists in collateral token ledger
+                // Check if token is mav or exists in collateral token ledger
                 if tokenName = "tez" then skip else {
                     checkCollateralTokenExists(tokenName, s)    
                 };

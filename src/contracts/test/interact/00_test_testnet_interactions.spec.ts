@@ -5708,7 +5708,7 @@ describe("Testnet interactions helper", async () => {
             await helperFunctions.signerFactory(tezos, bob.sk);
         });
         
-        it('Admin delegates vault tez to baker', async () => {
+        it('Admin delegates vault mav to baker', async () => {
             try{
                 // Operation
                 const operation = await vaultInstance.methods.initVaultAction("setBaker", null).send();

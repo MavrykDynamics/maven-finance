@@ -258,7 +258,7 @@ class TokenSaleContract(TestCase):
             "updateConfigNewValue" : newVestingOptionThreeInMonths
         }).interpret(storage = res.storage, sender = bob)
 
-        # options tez per token
+        # options mav per token
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "optionOneConfigTokenXtzPrice",
             "updateConfigNewValue" : newOptionOneConfigTokenXtzPrice
@@ -461,7 +461,7 @@ class TokenSaleContract(TestCase):
               "updateConfigNewValue" : newVestingOptionThreeInMonths
             }).interpret(storage = init_token_sale_storage, sender = eve)
 
-        # options tez per token
+        # options mav per token
         with self.raisesMichelsonError(error_ONLY_ADMINISTRATOR_ALLOWED):
             self.tokenSaleContract.updateConfig({
               "updateConfigAction"   : "optionOneConfigTokenXtzPrice",
@@ -819,7 +819,7 @@ class TokenSaleContract(TestCase):
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
         whitelistEndDateTime       = pytezos.now() + 3 * sec_day
-        amountToBuy                = 50000000     # 50 tez worth ea (option one, option two, option three)
+        amountToBuy                = 50000000     # 50 mav worth ea (option one, option two, option three)
 
         # Storage preparation
         res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
@@ -863,7 +863,7 @@ class TokenSaleContract(TestCase):
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
         whitelistEndDateTime       = pytezos.now() + 3 * sec_day
-        amountToBuy                = 50000000     # 50 tez worth ea (option one, option two, option three)
+        amountToBuy                = 50000000     # 50 mav worth ea (option one, option two, option three)
 
         # Storage preparation
         res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
@@ -908,7 +908,7 @@ class TokenSaleContract(TestCase):
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
         whitelistEndDateTime       = pytezos.now() + 3 * sec_day
-        amountToBuy                = 50000000     # 50 tez worth ea (option one, option two, option three)
+        amountToBuy                = 50000000     # 50 mav worth ea (option one, option two, option three)
         incorrectAmount            = 40000000     # 40 tez
 
         # Storage preparation
@@ -947,7 +947,7 @@ class TokenSaleContract(TestCase):
         with pytest.raises(KeyError):
           _ = res.storage['tokenSaleLedger'][mallory] 
     
-        print('✅ Whitelisted users should send the correct amount of tez for the amount they are buying')
+        print('✅ Whitelisted users should send the correct amount of mav for the amount they are buying')
 
 
     def test_903_whitelisted_users_should_not_be_able_to_buy_tokens_before_token_sale_start(self):
@@ -955,7 +955,7 @@ class TokenSaleContract(TestCase):
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
         whitelistEndDateTime       = pytezos.now() + 3 * sec_day
-        amountToBuy                = 50000000     # 50 tez worth ea (option one, option two, option three)
+        amountToBuy                = 50000000     # 50 mav worth ea (option one, option two, option three)
 
         # Storage preparation
         res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
@@ -1000,8 +1000,8 @@ class TokenSaleContract(TestCase):
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
         whitelistEndDateTime       = pytezos.now() + 3 * sec_day
-        minAmountRequiredPerOption = 30000000     # 30 tez worth
-        amountToBuy                = 20000000     # 20 tez worth ea (option one, option two, option three)
+        minAmountRequiredPerOption = 30000000     # 30 mav worth
+        amountToBuy                = 20000000     # 20 mav worth ea (option one, option two, option three)
         newAmountToBuy             = 30000001     
 
         # Storage preparation
@@ -1067,7 +1067,7 @@ class TokenSaleContract(TestCase):
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
         whitelistEndDateTime       = pytezos.now() + 3 * sec_day
-        amountToBuy                = 110000000    # 110 tez worth ea (option one, option two, option three)
+        amountToBuy                = 110000000    # 110 mav worth ea (option one, option two, option three)
         whitelistMaxAmountOption   = 100000000    # 100 tez
 
         # Storage preparation
@@ -1117,9 +1117,9 @@ class TokenSaleContract(TestCase):
         whitelistStartDateTime     = pytezos.now()
         whitelistEndDateTime       = pytezos.now() + 3 * sec_day
         firstAmountToBuyAboveMin   = 30000000     # 30 tez
-        secondAmountToBuy          = 20000000     # 20 tez worth ea (option one, option two, option three)
+        secondAmountToBuy          = 20000000     # 20 mav worth ea (option one, option two, option three)
         thirdAmountToBuy           = 10000000     # 10 tez
-        fourthAmountToBuy          = 40000000     # 40 tez  
+        fourthAmountToBuy          = 40000000     # 40 mav  
         whitelistMaxAmountOption   = 100000000    # 100 tez
         testAmountToBuy            = 5000000      # 5 tez
 
@@ -1235,7 +1235,7 @@ class TokenSaleContract(TestCase):
         whitelistStartDateTime     = pytezos.now()
         whitelistEndDateTime       = pytezos.now() + 3 * sec_day
         firstAmountToBuyAboveMin   = 30000000     # 30 tez
-        secondAmountToBuy          = 20000000     # 20 tez worth ea (option one, option two, option three)
+        secondAmountToBuy          = 20000000     # 20 mav worth ea (option one, option two, option three)
         thirdAmountToBuy           = 10000000     # 10 tez
         whitelistMaxAmountOption   = 100000000    # 100 tez
         testAmountToBuy            = 35000000     # 35 tez
@@ -1393,7 +1393,7 @@ class TokenSaleContract(TestCase):
         whitelistEndDateTime         = pytezos.now() + 1 * sec_day
         duringPublicSale             = whitelistEndDateTime + 6 * sec_hour 
         firstAmountToBuyAboveMin     = 30000000     # 30 tez
-        secondAmountToBuy            = 20000000     # 20 tez worth ea (option one, option two, option three)
+        secondAmountToBuy            = 20000000     # 20 mav worth ea (option one, option two, option three)
         thirdAmountToBuy             = 150000000    # 150 tez
         maxAmountPerOptionPerWallet  = 200000000    # 200 tez
         testAmountToBuy              = 35000000     # 35 tez
@@ -1574,9 +1574,9 @@ class TokenSaleContract(TestCase):
         whitelistEndDateTime         = pytezos.now() + 1 * sec_day
         duringPublicSale             = whitelistEndDateTime + 6 * sec_hour 
         amountToBuy                  = 40000000     # 40 tez
-        testAmountToBuy              = 35000000     # 35 tez - still needs to be above min amount (30 tez) for first purchase of user
+        testAmountToBuy              = 35000000     # 35 mav - still needs to be above min amount (30 tez) for first purchase of user
 
-        optionOneConfigMaxAmountCap        = 600000000000 # 600,000 tez 
+        optionOneConfigMaxAmountCap        = 600000000000 # 600,000 mav 
         optionTwoConfigMaxAmountCap        = 630000000000 # 630,000 tez
         optionThreeConfigMaxAmountCap      = 560000000000 # 560,000 tez
 
@@ -1596,7 +1596,7 @@ class TokenSaleContract(TestCase):
         self.assertEqual(res.storage['tokenSaleHasEnded'], False)
         self.assertEqual(res.storage['tokenSalePaused'], False)
 
-        # Remaining Tez to be bought is 15 tez per option 
+        # Remaining Tez to be bought is 15 mav per option 
         # Failed Operations - max amount cap per option reached
         with self.raisesMichelsonError(error_OPTION_ONE_MAX_AMOUNT_CAP_REACHED):
           res = self.tokenSaleContract.buyTokens({

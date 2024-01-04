@@ -35,7 +35,7 @@ type emergencyGovernanceLedgerType is big_map(nat, emergencyGovernanceRecordType
 type emergencyConfigType is record [
     decimals                          : nat;        // decimals used for percentages
     durationInMinutes                 : nat;        // duration of emergency governance before expiry
-    requiredFeeMutez                  : mav;        // fee for triggering emergency control - e.g. 100 tez -> change to MVN 
+    requiredFeeMutez                  : mav;        // fee for triggering emergency control - e.g. 100 mav -> change to MVN 
     stakedMvnPercentageRequired       : nat;        // minimum staked MVN percentage amount required to activate break glass 
     minStakedMvnRequiredToVote        : nat;        // minimum staked MVN balance of user required to vote for emergency governance
     minStakedMvnRequiredToTrigger     : nat;        // minimum staked MVN balance of user to trigger emergency governance

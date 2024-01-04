@@ -19,7 +19,7 @@ const config = {
     heartbeatSeconds                    : new BigNumber(300),
     
     rewardAmountStakedMvn               : new BigNumber(10000000), // 0.01 MVN
-    rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
+    rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 mav 
 }
 
 const metadata = MichelsonMap.fromLiteral({

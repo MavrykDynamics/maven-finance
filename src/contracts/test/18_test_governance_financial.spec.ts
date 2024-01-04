@@ -700,7 +700,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const financialRequestCounter   = governanceFinancialStorage.financialRequestCounter;
                 currentCycle                    = governanceStorage.cycleId;
 
-                // get initial tez balance
+                // get initial mav balance
                 const initialCouncilTezBalance  = (await utils.tezos.tz.getBalance(councilAddress)).toNumber();
 
                 // get initial values of satellites
@@ -841,7 +841,7 @@ describe("Test: Governance Financial Contract", async () => {
                 governanceFinancialStorage                         = await governanceFinancialInstance.storage();        
                 const updatedGovernanceFinancialRequest            = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
 
-                // get updated tez balance for council
+                // get updated mav balance for council
                 const updatedCouncilTezBalance                     = (await utils.tezos.tz.getBalance(councilAddress)).toNumber();
                 
                 // check details of financial request snapshot ledger

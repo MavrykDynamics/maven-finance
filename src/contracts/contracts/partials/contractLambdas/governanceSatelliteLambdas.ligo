@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case governanceSatelliteLambdaAction of [
@@ -30,7 +30,7 @@ block {
 function lambdaSetGovernance(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case governanceSatelliteLambdaAction of [
@@ -68,7 +68,7 @@ block {
 function lambdaUpdateConfig(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is 
 block {
 
-  verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+  verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
   verifySenderIsAdmin(s.admin); // verify that sender is admin
 
   case governanceSatelliteLambdaAction of [
@@ -162,7 +162,7 @@ function lambdaSuspendSatellite(const governanceSatelliteLambdaAction : governan
 block {
 
     // Steps Overview:    
-    // 1. Check that no tez is sent to the entrypoint
+    // 1. Check that no mav is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -175,7 +175,7 @@ block {
     // 6. Create new governance satellite action record - "SUSPEND"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaSuspendSatellite(suspendSatelliteParams) -> {
@@ -210,7 +210,7 @@ function lambdaBanSatellite(const governanceSatelliteLambdaAction : governanceSa
 block {
 
     // Steps Overview:    
-    // 1. Check that no tez is sent to the entrypoint
+    // 1. Check that no mav is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -223,7 +223,7 @@ block {
     // 6. Create new governance satellite action record - "BAN"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaBanSatellite(banSatelliteParams) -> {
@@ -258,7 +258,7 @@ function lambdaRestoreSatellite(const governanceSatelliteLambdaAction : governan
 block {
 
     // Steps Overview:    
-    // 1. Check that no tez is sent to the entrypoint
+    // 1. Check that no mav is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -271,7 +271,7 @@ block {
     // 6. Create new governance satellite action record - "RESTORE"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaRestoreSatellite(restoreSatelliteParams) -> {
@@ -314,7 +314,7 @@ function lambdaRemoveAllSatelliteOracles(const governanceSatelliteLambdaAction :
 block {
 
     // Steps Overview:    
-    // 1. Check that no tez is sent to the entrypoint
+    // 1. Check that no mav is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -327,7 +327,7 @@ block {
     // 6. Create new governance satellite action record - "REMOVE_ALL_SATELLITE_ORACLES"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaRemoveAllSatelliteOracles(removeAllSatelliteOraclesParams) -> {
@@ -362,7 +362,7 @@ function lambdaAddOracleToAggregator(const governanceSatelliteLambdaAction : gov
 block {
     
     // Steps Overview:    
-    // 1. Check that no tez is sent to the entrypoint
+    // 1. Check that no mav is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -375,7 +375,7 @@ block {
     // 6. Create new governance satellite action record - "ADD_ORACLE_TO_AGGREGATOR"
     // 6. Update storage with new records 
 
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaAddOracleToAggregator(addOracleToAggregatorParams) -> {
@@ -412,7 +412,7 @@ function lambdaRemoveOracleInAggregator(const governanceSatelliteLambdaAction : 
 block {
 
     // Steps Overview:    
-    // 1. Check that no tez is sent to the entrypoint
+    // 1. Check that no mav is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -425,7 +425,7 @@ block {
     // 6. Create new governance satellite action record - "REMOVE_ORACLE_IN_AGGREGATOR"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaRemoveOracleInAggregator(removeOracleInAggregatorParams) -> {
@@ -472,12 +472,12 @@ block {
 
     // Steps Overview:    
     // 1. Standard Checks
-    //      -   Check that no tez is sent to the entrypoint
+    //      -   Check that no mav is sent to the entrypoint
     //      -   Check that sender is admin, is whitelisted or is an aggregator
     // 2. Delete the entry associated with old name in the aggregatorLedger
     // 3. Create the entry associated with new name in the aggregatorLedger
 
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
 
     case governanceSatelliteLambdaAction of [
         |   LambdaSetAggregatorReference(setAggregatorReferenceParams) -> {
@@ -517,7 +517,7 @@ function lambdaTogglePauseAggregator(const governanceSatelliteLambdaAction : gov
 block {
 
     // Steps Overview:    
-    // 1. Check that no tez is sent to the entrypoint
+    // 1. Check that no mav is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -530,7 +530,7 @@ block {
     // 6. Create new governance satellite action record - "REMOVE_ORACLE_IN_AGGREGATOR"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaTogglePauseAggregator(togglePauseAggregatorParams) -> {
@@ -575,7 +575,7 @@ function lambdaFixMistakenTransfer(const governanceSatelliteLambdaAction : gover
 block {
 
     // Steps Overview:    
-    // 1. Check that no tez is sent to the entrypoint
+    // 1. Check that no mav is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -588,7 +588,7 @@ block {
     // 6. Create new governance satellite action record - "MISTAKEN_TRANSFER_FIX"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     
     case governanceSatelliteLambdaAction of [
         | LambdaFixMistakenTransfer(fixMistakenTransferParams) -> {
@@ -632,7 +632,7 @@ function lambdaDropAction(const governanceSatelliteLambdaAction : governanceSate
 block {
 
     // Steps Overview:    
-    // 1. Check that no tez is sent to the entrypoint
+    // 1. Check that no mav is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
     // 3. Get / Check Satellite Records
@@ -647,7 +647,7 @@ block {
     // 7. Update storage - action ledger
 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaDropAction(dropActionParams) -> {
@@ -714,7 +714,7 @@ block {
     //      -   Update governance satellite action map of voters with new vote
     // 5. Compute governance satellite action's vote totals and execute governance satellite action if enough votes have been gathered
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     
     var operations : list(operation) := nil;
 
