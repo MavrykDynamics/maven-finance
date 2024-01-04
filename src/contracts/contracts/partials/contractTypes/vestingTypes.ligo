@@ -90,7 +90,7 @@ type vestingStorageType is [@layout:comb] record [
     admin               : address;
     metadata            : metadataType;
 
-    mvkTokenAddress     : address;
+    mvnTokenAddress     : address;
     governanceAddress   : address;
 
     whitelistContracts  : whitelistContractsType;      

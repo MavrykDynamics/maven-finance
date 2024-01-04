@@ -46,7 +46,7 @@ describe('Treasury', async () => {
             //----------------------------
         
             treasuryStorage.governanceAddress = contractDeployments.governance.address
-            treasuryStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
+            treasuryStorage.mvnTokenAddress   = contractDeployments.mvnToken.address
             treasury = await GeneralContract.originate(utils.tezos, "treasury", treasuryStorage);
             await saveContractAddress('treasuryAddress', treasury.contract.address)
         

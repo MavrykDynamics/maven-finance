@@ -2,7 +2,7 @@ import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import { MichelsonMap } from "@mavrykdynamics/taquito"
 import { BigNumber } from "bignumber.js"
 
-import { MVK, Utils, zeroAddress } from "../helpers/Utils"
+import { MVN, Utils, zeroAddress } from "../helpers/Utils"
 
 // import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
 
@@ -24,7 +24,6 @@ import contractDeployments from '../contractDeployments.json'
 import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
 import * as helperFunctions from '../helpers/helperFunctions'
 import { mockSatelliteData } from "../helpers/mockSampleData"
-import { mockMetadata } from "../helpers/mockSampleData";
 
 // ------------------------------------------------------------------------------
 // Testnet Setup
@@ -48,7 +47,7 @@ describe("Testnet interactions helper", async () => {
 
     let doormanInstance;
     let delegationInstance;
-    let mvkTokenInstance;
+    let mvnTokenInstance;
     let governanceInstance;
     let governanceProxyInstance;
     let emergencyGovernanceInstance;
@@ -67,15 +66,15 @@ describe("Testnet interactions helper", async () => {
     let aggregatorFactoryInstance;
     let lendingControllerInstance;
     let lendingControllerMockTimeInstance;
-    let mTokenEurlInstance;
+    let mTokenEurtInstance;
     let mTokenUsdtInstance;
     let vaultInstance;
     let vaultFactoryInstance;
-    let mavrykFa12TokenInstance;
+    let mavenFa12TokenInstance;
 
     let doormanStorage;
     let delegationStorage;
-    let mvkTokenStorage;
+    let mvnTokenStorage;
     let governanceStorage;
     let governanceProxyStorage;
     let emergencyGovernanceStorage;
@@ -93,14 +92,45 @@ describe("Testnet interactions helper", async () => {
     let aggregatorFactoryStorage;
     let lendingControllerStorage;
     let lendingControllerMockTimeStorage;
-    let mTokenEurlStorage;
+    let mTokenEurtStorage;
     let vaultStorage;
     let vaultFactoryStorage;
-    let mavrykFa12TokenStorage;
+    let mavenFa12TokenStorage;
 
     let createdTreasuryAddress;
 
+    const treasuryMetadataBase = Buffer.from(
+        JSON.stringify({
+          name: 'MAVEN Farm Treasury',
+          description: 'MAVEN Treasury Contract',
+          version: 'v1.0.0',
+          authors: ['MAVEN Dev Team <info@mavryk.io>'],
+        }),
+        'ascii',
+      ).toString('hex')
+
     let createdFarmAddress;
+    const farmMetadataBase = Buffer.from(
+        JSON.stringify({
+            name: 'MAVEN PLENTY-USDTz Farm',
+            description: 'MAVEN Farm Contract',
+            version: 'v1.0.0',
+            liquidityPairToken: {
+                tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+                origin: ['Plenty'],
+                token0: {
+                symbol: ['PLENTY'],
+                tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+                },
+                token1: {
+                symbol: ['USDtz'],
+                tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+                }
+            },
+            authors: ['MAVEN Dev Team <info@mavryk.io>'],
+            }),
+            'ascii',
+        ).toString('hex')
 
     let createdAggregatorAddress;
 
@@ -120,7 +150,7 @@ describe("Testnet interactions helper", async () => {
             
             doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
             delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
-            mvkTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+            mvnTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
             governanceInstance                      = await utils.tezos.contract.at(contractDeployments.governance.address);
             governanceProxyInstance                 = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
             emergencyGovernanceInstance             = await utils.tezos.contract.at(contractDeployments.emergencyGovernance.address);
@@ -133,20 +163,20 @@ describe("Testnet interactions helper", async () => {
             treasuryInstance                        = await utils.tezos.contract.at(contractDeployments.treasury.address);
             farmInstance                            = await utils.tezos.contract.at(contractDeployments.farm.address);
             farmMTokenInstance                      = await utils.tezos.contract.at(contractDeployments.farmMToken.address);
-            lpTokenInstance                         = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
+            lpTokenInstance                         = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
             governanceSatelliteInstance             = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
             aggregatorInstance                      = await utils.tezos.contract.at(contractDeployments.aggregator.address);
             aggregatorFactoryInstance               = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
             lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
             // lendingControllerMockTimeInstance       = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
             mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
-            mTokenEurlInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurl.address);
+            mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
-            mavrykFa12TokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
+            mavenFa12TokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
     
             doormanStorage                          = await doormanInstance.storage();
             delegationStorage                       = await delegationInstance.storage();
-            mvkTokenStorage                         = await mvkTokenInstance.storage();
+            mvnTokenStorage                         = await mvnTokenInstance.storage();
             governanceStorage                       = await governanceInstance.storage();
             governanceProxyStorage                  = await governanceProxyInstance.storage();
             emergencyGovernanceStorage              = await emergencyGovernanceInstance.storage();
@@ -164,14 +194,14 @@ describe("Testnet interactions helper", async () => {
             aggregatorFactoryStorage                = await aggregatorFactoryInstance.storage();
             lendingControllerStorage                = await lendingControllerInstance.storage();
             // lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
-            mTokenEurlStorage                       = await mTokenEurlInstance.storage();
+            mTokenEurtStorage                       = await mTokenEurtInstance.storage();
             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
-            mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
+            mavenFa12TokenStorage                  = await mavenFa12TokenInstance.storage();
     
             console.log('-- -- -- -- -- Testnet Interactions Helper -- -- -- --')
             console.log('Doorman Contract deployed at:'                         , contractDeployments.doorman.address);
             console.log('Delegation Contract deployed at:'                      , contractDeployments.delegation.address);
-            console.log('MVK Token Contract deployed at:'                       , contractDeployments.mvkToken.address);
+            console.log('MVN Token Contract deployed at:'                       , contractDeployments.mvnToken.address);
             console.log('Governance Contract deployed at:'                      , contractDeployments.governance.address);
             console.log('Emergency Governance Contract deployed at:'            , contractDeployments.emergencyGovernance.address);
             console.log('Vesting Contract deployed at:'                         , contractDeployments.vesting.address);
@@ -180,16 +210,16 @@ describe("Testnet interactions helper", async () => {
             console.log('Treasury Contract deployed at:'                        , contractDeployments.treasury.address);
             console.log('Farm Contract deployed at:'                            , contractDeployments.farm.address);
             console.log('Farm mToken Contract deployed at:'                     , contractDeployments.farmMToken.address);
-            console.log('LP Token Contract deployed at:'                        , contractDeployments.mavrykFa12Token.address);
+            console.log('LP Token Contract deployed at:'                        , contractDeployments.mavenFa12Token.address);
             console.log('Governance Satellite Contract deployed at:'            , contractDeployments.governanceSatellite.address);
             console.log('Aggregator Contract deployed at:'                      , contractDeployments.aggregator.address);
             console.log('Aggregator Factory Contract deployed at:'              , contractDeployments.aggregatorFactory.address);
             console.log('Lending Controller Contract deployed at:'              , contractDeployments.lendingController.address);
             // console.log('Lending Controller Mock Time Contract deployed at:'    , contractDeployments.lendingControllerMockTime.address);
             console.log('MToken USDT Contract deployed at:'                     , contractDeployments.mTokenUsdt.address);
-            console.log('MToken EURL Contract deployed at:'                     , contractDeployments.mTokenEurl.address);
+            console.log('MToken EURT Contract deployed at:'                     , contractDeployments.mTokenEurt.address);
             console.log('Vault Factory Contract deployed at:'                   , contractDeployments.vaultFactory.address);
-            console.log('Mavryk FA12 Token Contract deployed at:'               , contractDeployments.mavrykFa12Token.address);
+            console.log('Maven FA12 Token Contract deployed at:'               , contractDeployments.mavenFa12Token.address);
 
             generalContractsSet             = [
                 contractDeployments.aggregatorFactory.address,
@@ -211,7 +241,7 @@ describe("Testnet interactions helper", async () => {
         }
     });
 
-    describe("MVK TOKEN", async () => {
+    describe("MVN TOKEN", async () => {
 
         before("Send XTZ to treasury", async () => {
             await helperFunctions.signerFactory(tezos, bob.sk);
@@ -228,7 +258,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets admin', async () => {
             try{
                 // Operation
-                const operation = await mvkTokenInstance.methods.setAdmin(bob.pkh).send();
+                const operation = await mvnTokenInstance.methods.setAdmin(bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -238,7 +268,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await mvkTokenInstance.methods.setGovernance(contractDeployments.governance.address).send();
+                const operation = await mvnTokenInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -248,7 +278,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await mvkTokenInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
+                const operation = await mvnTokenInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -258,29 +288,29 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates general contracts', async () => {
             try{
                 // Operation
-                const operation = await mvkTokenInstance.methods.updateGeneralContracts("test", bob.pkh, "update").send();
+                const operation = await mvnTokenInstance.methods.updateGeneralContracts("test", bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin transfers MVK', async () => {
+        it('Admin transfers MVN', async () => {
             try{
                 // Operation
-                const operation = await mvkTokenInstance.methods.transfer([
+                const operation = await mvnTokenInstance.methods.transfer([
                     {
                         from_: bob.pkh,
                         txs: [
                         {
                             to_: contractDeployments.treasury.address,
                             token_id: 0,
-                            amount: MVK(5000),
+                            amount: MVN(5000),
                         },
                         {
                             to_: eve.pkh,
                             token_id: 0,
-                            amount: MVK(1),
+                            amount: MVN(1),
                         },
                         {
                             to_: alice.pkh,
@@ -300,7 +330,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates its operators', async () => {
             try{
                 // Operation
-                const operation = await mvkTokenInstance.methods.update_operators([
+                const operation = await mvnTokenInstance.methods.update_operators([
                     {
                         add_operator: {
                             owner: bob.pkh,
@@ -316,30 +346,30 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin mints 50MVK', async () => {
+        it('Admin mints 50MVN', async () => {
             try{
                 // Operation
-                const operation = await mvkTokenInstance.methods.mint(bob.pkh, MVK(50)).send()
+                const operation = await mvnTokenInstance.methods.mint(bob.pkh, MVN(50)).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin burns 10MVK', async () => {
+        it('Admin burns 10MVN', async () => {
             try{
                 // Operation
-                const operation = await mvkTokenInstance.methods.burn(MVK(10)).send()
+                const operation = await mvnTokenInstance.methods.burn(MVN(10)).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin updates the MVK inflation rate', async () => {
+        it('Admin updates the MVN inflation rate', async () => {
             try{
                 // Operation
-                const operation = await mvkTokenInstance.methods.updateInflationRate(700).send()
+                const operation = await mvnTokenInstance.methods.updateInflationRate(700).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -355,7 +385,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin add Doorman as an operator', async () => {
             try{
                 // Operation
-                const operation = await mvkTokenInstance.methods
+                const operation = await mvnTokenInstance.methods
                     .update_operators([
                     {
                         add_operator: {
@@ -372,20 +402,20 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin stakes 100MVK', async () => {
+        it('Admin stakes 100MVN', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.stake(MVK(100)).send();
+                const operation = await doormanInstance.methods.stakeMvn(MVN(100)).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin unstakes 50MVK', async () => {
+        it('Admin unstakes 50MVN', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.unstake(MVK(50)).send();
+                const operation = await doormanInstance.methods.unstakeMvn(MVN(50)).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -409,7 +439,7 @@ describe("Testnet interactions helper", async () => {
                 await operation.confirmation();
 
                 // Admin restake
-                operation       = await doormanInstance.methods.stake(MVK(100)).send();
+                operation       = await doormanInstance.methods.stakeMvn(MVN(100)).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -436,10 +466,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates min MVK amount', async () => {
+        it('Admin updates min MVN amount', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.updateConfig(new BigNumber(MVK(0.01)), "configMinMvkAmount").send();
+                const operation = await doormanInstance.methods.updateConfig(new BigNumber(MVN(0.01)), "configMinMvnAmount").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -466,20 +496,20 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin pauses stake', async () => {
+        it('Admin pauses stakeMvn', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.togglePauseEntrypoint("stake", true).send();
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("stakeMvn", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin pauses unstake', async () => {
+        it('Admin pauses unstakeMvn', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.togglePauseEntrypoint("unstake", true).send();
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("unstakeMvn", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -592,10 +622,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates min SMVK balance required to interact with the entrypoints', async () => {
+        it('Admin updates min SMVN balance required to interact with the entrypoints', async () => {
             try{
                 // Operation
-                const operation = await delegationInstance.methods.updateConfig(new BigNumber(MVK(0.01)), "configMinimumStakedMvkBalance").send();
+                const operation = await delegationInstance.methods.updateConfig(new BigNumber(MVN(0.01)), "configMinimumStakedMvnBalance").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -803,7 +833,7 @@ describe("Testnet interactions helper", async () => {
                     "Astronaut Satellite", 
                     "This is the description", 
                     "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
-                    "https://mavryk.finance/", 
+                    "https://mavenfinance.io/", 
                     1000
                 ).send();
                 await operation.confirmation();
@@ -840,7 +870,7 @@ describe("Testnet interactions helper", async () => {
 
                 // Delegate Part
                 await helperFunctions.signerFactory(tezos, alice.sk);
-                var delegationOperation = await mvkTokenInstance.methods
+                var delegationOperation = await mvnTokenInstance.methods
                 .update_operators([
                 {
                     add_operator: {
@@ -852,7 +882,7 @@ describe("Testnet interactions helper", async () => {
                 ])
                 .send()
                 await delegationOperation.confirmation()
-                delegationOperation = await doormanInstance.methods.stake(MVK(10)).send()
+                delegationOperation = await doormanInstance.methods.stakeMvn(MVN(10)).send()
                 await delegationOperation.confirmation()
                 delegationOperation = await delegationInstance.methods.delegateToSatellite(alice.pkh, bob.pkh).send()
                 await delegationOperation.confirmation()
@@ -865,7 +895,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin distributes rewards', async () => {
             try{
                 // Operation
-                const operation = await delegationInstance.methods.distributeReward([bob.pkh], MVK(100)).send();
+                const operation = await delegationInstance.methods.distributeReward([bob.pkh], MVN(100)).send();
                 await operation.confirmation();
             await operation.confirmation();
             } catch(e){
@@ -1005,7 +1035,7 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 await helperFunctions.signerFactory(tezos, eve.sk)
-                const operation = await councilInstance.methods.updateCouncilMemberInfo("Bob", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                const operation = await councilInstance.methods.updateCouncilMemberInfo("Bob", "https://mavenfinance.io/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1016,7 +1046,7 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 await helperFunctions.signerFactory(tezos, eve.sk)
-                const operation = await councilInstance.methods.councilActionAddMember(bob.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                const operation = await councilInstance.methods.councilActionAddMember(bob.pkh, "Trudy", "https://mavenfinance.io/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1062,7 +1092,7 @@ describe("Testnet interactions helper", async () => {
                 await helperFunctions.signerFactory(tezos, eve.sk)
                 councilStorage  = await councilInstance.storage();
                 const actionId  = councilStorage.actionCounter;
-                var operation   = await councilInstance.methods.councilActionAddVestee(bob.pkh, new BigNumber(MVK(1000000000)), 0, 24).send()
+                var operation   = await councilInstance.methods.councilActionAddVestee(bob.pkh, new BigNumber(MVN(1000000000)), 0, 24).send()
                 await operation.confirmation();
 
                 await helperFunctions.signerFactory(tezos, alice.sk);
@@ -1078,7 +1108,7 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 await helperFunctions.signerFactory(tezos, eve.sk)
-                const operation = await councilInstance.methods.councilActionUpdateVestee(bob.pkh, new BigNumber(MVK(1000000000)), 0, 24).send()
+                const operation = await councilInstance.methods.councilActionUpdateVestee(bob.pkh, new BigNumber(MVN(1000000000)), 0, 24).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1119,8 +1149,8 @@ describe("Testnet interactions helper", async () => {
                 await helperFunctions.signerFactory(tezos, eve.sk)
                 const operation = await councilInstance.methods.councilActionTransfer(
                     bob.pkh,
-                    contractDeployments.mvkToken.address,
-                    MVK(20),
+                    contractDeployments.mvnToken.address,
+                    MVN(20),
                     "FA2",
                     0,
                     "For testing purposes"
@@ -1138,9 +1168,9 @@ describe("Testnet interactions helper", async () => {
                 const operation = await councilInstance.methods.councilActionRequestTokens(
                     contractDeployments.treasury.address,
                     bob.pkh,
-                    contractDeployments.mvkToken.address,
-                    "MVK",
-                    MVK(20),
+                    contractDeployments.mvnToken.address,
+                    "MVN",
+                    MVN(20),
                     "FA2",
                     0,
                     "For testing purposes"
@@ -1158,7 +1188,7 @@ describe("Testnet interactions helper", async () => {
                 const operation = await councilInstance.methods.councilActionRequestMint(
                     contractDeployments.treasury.address,
                     bob.pkh,
-                    MVK(20),
+                    MVN(20),
                     "For testing purposes"
                 ).send()
                 await operation.confirmation();
@@ -1198,9 +1228,9 @@ describe("Testnet interactions helper", async () => {
                 var operation = await councilInstance.methods.councilActionRequestTokens(
                     contractDeployments.treasury.address,
                     bob.pkh,
-                    contractDeployments.mvkToken.address,
-                    "MVK",
-                    MVK(20),
+                    contractDeployments.mvnToken.address,
+                    "MVN",
+                    MVN(20),
                     "FA2",
                     0,
                     "For testing purposes"
@@ -1277,7 +1307,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin adds a new vestee', async () => {
             try{
                 // Operation
-                const operation = await vestingInstance.methods.addVestee(bob.pkh, MVK(2000000), 0, 24).send();
+                const operation = await vestingInstance.methods.addVestee(bob.pkh, MVN(2000000), 0, 24).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1298,7 +1328,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates a vestee', async () => {
             try{
                 // Operation
-                const operation = await vestingInstance.methods.updateVestee(bob.pkh, MVK(2000000), 0, 36).send();
+                const operation = await vestingInstance.methods.updateVestee(bob.pkh, MVN(2000000), 0, 36).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1400,9 +1430,9 @@ describe("Testnet interactions helper", async () => {
                 var operation           = await councilInstance.methods.councilActionRequestTokens(
                     contractDeployments.treasury.address,
                     bob.pkh,
-                    contractDeployments.mvkToken.address,
-                    "MVK",
-                    MVK(20),
+                    contractDeployments.mvnToken.address,
+                    "MVN",
+                    MVN(20),
                     "FA2",
                     0,
                     "For testing purposes"
@@ -1425,7 +1455,7 @@ describe("Testnet interactions helper", async () => {
                 var operation = await councilInstance.methods.councilActionRequestMint(
                     contractDeployments.treasury.address,
                     bob.pkh,
-                    MVK(20),
+                    MVN(20),
                     "For testing purposes"
                 ).send()
                 await operation.confirmation();
@@ -1592,7 +1622,7 @@ describe("Testnet interactions helper", async () => {
                     null,
                     "treasuryInteraction",
                     true,
-                    mockMetadata.treasury
+                    treasuryMetadataBase
                 ).send()
                 await operation.confirmation();
             } catch(e){
@@ -1702,7 +1732,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses mint and transfer entrypoint', async () => {
             try{
                 // Operation
-                const operation = await treasuryInstance.methods.togglePauseEntrypoint("mintMvkAndTransfer", true).send();
+                const operation = await treasuryInstance.methods.togglePauseEntrypoint("mintMvnAndTransfer", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1719,7 +1749,7 @@ describe("Testnet interactions helper", async () => {
             }
         });
         
-        it('Admin pauses unstake tokens entrypoint', async () => {
+        it('Admin pauses unstakeMvn tokens entrypoint', async () => {
             try{
                 // Operation
                 const operation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeTokens", true).send();
@@ -1858,6 +1888,32 @@ describe("Testnet interactions helper", async () => {
         it('Admin creates a farm', async () => {
             try{
                 // Operation
+                const farmMetadataBase2 = Buffer.from(
+                    JSON.stringify({
+                    name: "MAVEN USDT.e-USDC.e Farm",
+                    description: "Maven Farm Contract for USDT.e-USDC.e",
+                    version: "v1.0.0",
+                    liquidityPairToken: {
+                        tokenAddress: ["KT1CDeAxaiqbA5aMkPMmqqYXxqgfFwocJHza"],
+                        origin: ["Maven Finance"],
+                        symbol: ["MLP"],
+                        thumbnailUri: "https://infura-ipfs.io/ipfs/QmaazYGXFxbLvdVBUkxkprsZuBpQeraMWyUkU1gGsigiYm",
+                        decimals: 15,
+                        token0: {
+                            symbol: ["USDT.e"],
+                            tokenAddress: ["KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"],
+                            thumbnailUri: "https://infura-ipfs.io/ipfs/QmdQ4R6TtBe75wSVEsLfRDtAn36Bv2zLAHyVe1cuLYeyfK"
+                        },
+                        token1: {
+                            symbol: ["USDC.e"],
+                            tokenAddress: ["KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9"],
+                            thumbnailUri: "https://www.plentydefi.com/static/media/usdc_icon.771d659c.svg"
+                        }
+                    },
+                    authors: ["MAVEN Dev Team <info@mavryk.io>"]
+                    }),
+                    'ascii',
+                ).toString('hex')
                 const operation = await farmFactoryInstance.methods.createFarm(
                     "testFarm",
                     false,
@@ -1865,32 +1921,10 @@ describe("Testnet interactions helper", async () => {
                     false,
                     12000,
                     100,
-                    mockMetadata.farm,
-                    contractDeployments.mavrykFa12Token.address,
+                    farmMetadataBase2,
+                    contractDeployments.mavenFa12Token.address,
                     0,
                     "fa12",
-                ).send();
-                await operation.confirmation()
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin creates a mfarm', async () => {
-            try{
-                // Operation
-                const operation = await farmFactoryInstance.methods.createFarmMToken(
-                    "testFarm",
-                    'usdt',
-                    false,
-                    false,
-                    false,
-                    12000,
-                    100,
-                    mockMetadata.farmMToken,
-                    contractDeployments.mTokenUsdt.address,
-                    0,
-                    "fa2",
                 ).send();
                 await operation.confirmation()
             } catch(e){
@@ -1975,7 +2009,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates rewards per block', async () => {
             try{
                 // Operation
-                const operation = await farmInstance.methods.updateConfig(new BigNumber(MVK(2)), "configRewardPerBlock").send();
+                const operation = await farmInstance.methods.updateConfig(new BigNumber(MVN(2)), "configRewardPerBlock").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2192,10 +2226,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
         
-        it('Admin pauses distribute reward smvk', async () => {
+        it('Admin pauses distribute reward smvn', async () => {
             try{
                 // Operation
-                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvk", true).send();
+                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvn", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2243,10 +2277,10 @@ describe("Testnet interactions helper", async () => {
                 // USD/BTC Aggregator
                 var aggregatorMetadata = Buffer.from(
                     JSON.stringify({
-                        name: 'MAVRYK Aggregator Contract',
+                        name: 'MAVEN Aggregator Contract',
                         icon: 'https://logo.chainbit.xyz/btc',
                         version: 'v1.0.0',
-                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
                         category: 'cryptocurrency'
                     }),
                     'ascii',
@@ -2264,7 +2298,7 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(60),            // percentOracleThreshold
                     new BigNumber(30),            // heartbeatSeconds
 
-                    new BigNumber(10000000),      // rewardAmountStakedMvk
+                    new BigNumber(10000000),      // rewardAmountStakedMvn
                     new BigNumber(1300),          // rewardAmountXtz
                     
                     aggregatorMetadata            // metadata
@@ -2274,10 +2308,10 @@ describe("Testnet interactions helper", async () => {
                 // USD/BTC Aggregator
                 aggregatorMetadata = Buffer.from(
                     JSON.stringify({
-                        name: 'MAVRYK Aggregator Contract',
+                        name: 'MAVEN Aggregator Contract',
                         icon: 'https://logo.chainbit.xyz/usdt',
                         version: 'v1.0.0',
-                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
                         category: 'stablecoin'
                     }),
                     'ascii',
@@ -2295,7 +2329,7 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(60),            // percentOracleThreshold
                     new BigNumber(30),            // heartbeatSeconds
 
-                    new BigNumber(10000000),      // rewardAmountStakedMvk
+                    new BigNumber(10000000),      // rewardAmountStakedMvn
                     new BigNumber(1300),          // rewardAmountXtz
                     
                     aggregatorMetadata        // metadata
@@ -2305,10 +2339,10 @@ describe("Testnet interactions helper", async () => {
                 // USD/BTC Aggregator
                 aggregatorMetadata = Buffer.from(
                     JSON.stringify({
-                        name: 'MAVRYK Aggregator Contract',
+                        name: 'MAVEN Aggregator Contract',
                         icon: 'https://logo.chainbit.xyz/link',
                         version: 'v1.0.0',
-                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
                         category: 'commodities'
                     }),
                     'ascii',
@@ -2326,7 +2360,7 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(60),            // percentOracleThreshold
                     new BigNumber(30),            // heartbeatSeconds
 
-                    new BigNumber(10000000),      // rewardAmountStakedMvk
+                    new BigNumber(10000000),      // rewardAmountStakedMvn
                     new BigNumber(1300),          // rewardAmountXtz
                     
                     aggregatorMetadata        // metadata
@@ -2476,10 +2510,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin pauses %withdrawRewardStakedMvk', async () => {
+        it('Admin pauses %withdrawRewardStakedMvn', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardStakedMvk", true).send();
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardStakedMvn", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2555,10 +2589,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin withdraws rewards smvk', async () => {
+        it('Admin withdraws rewards smvn', async () => {
             try{
                 // Operation
-                var operation = await aggregatorInstance.methods.withdrawRewardStakedMvk(bob.pkh).send();
+                var operation = await aggregatorInstance.methods.withdrawRewardStakedMvn(bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2605,10 +2639,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates reward smvk', async () => {
+        it('Admin updates reward smvn', async () => {
             try{
                 // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(MVK(1), "configRewardAmountStakedMvk").send();
+                var operation = await aggregatorInstance.methods.updateConfig(MVN(1), "configRewardAmountStakedMvn").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2661,7 +2695,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates success reward', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.updateConfig(new BigNumber(MVK(300)), "configSuccessReward").send();
+                const operation = await governanceInstance.methods.updateConfig(new BigNumber(MVN(300)), "configSuccessReward").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2671,7 +2705,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates cycle voters reward', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.updateConfig(new BigNumber(MVK(500)), "configCycleVotersReward").send();
+                const operation = await governanceInstance.methods.updateConfig(new BigNumber(MVN(500)), "configCycleVotersReward").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2698,7 +2732,7 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates min yay vote mvk total', async () => {
+        it('Admin updates min yay vote mvn total', async () => {
             try{
                 // Operation
                 const operation = await governanceInstance.methods.updateConfig(1, "configMinYayVotePercentage").send();
@@ -2708,7 +2742,7 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates propose fee mutez', async () => {
+        it('Admin updates propose fee mumav', async () => {
             try{
                 // Operation
                 const operation = await governanceInstance.methods.updateConfig(1000000, "configProposeFeeMutez").send();
@@ -2874,8 +2908,8 @@ describe("Testnet interactions helper", async () => {
                         false,
                         12000,
                         100,
-                        mockMetadata.farm,
-                        contractDeployments.mavrykFa12Token.address,
+                        farmMetadataBase,
+                        contractDeployments.mavenFa12Token.address,
                         0,
                         "FA12"
                     ]
@@ -2898,11 +2932,11 @@ describe("Testnet interactions helper", async () => {
                                 "to_"    : bob.pkh,
                                 "token"  : {
                                     "fa2" : {
-                                        "tokenContractAddress" : contractDeployments.mvkToken.address,
+                                        "tokenContractAddress" : contractDeployments.mvnToken.address,
                                         "tokenId" : 0
                                     }
                                 },
-                                "amount" : MVK(50)
+                                "amount" : MVN(50)
                             }
                         }
                     },
@@ -2913,11 +2947,11 @@ describe("Testnet interactions helper", async () => {
                                 "to_"    : bob.pkh,
                                 "token"  : {
                                     "fa2" : {
-                                        "tokenContractAddress" : contractDeployments.mvkToken.address,
+                                        "tokenContractAddress" : contractDeployments.mvnToken.address,
                                         "tokenId" : 0
                                     }
                                 },
-                                "amount" : MVK(50)
+                                "amount" : MVN(50)
                             }
                         }
                     }
@@ -2994,8 +3028,8 @@ describe("Testnet interactions helper", async () => {
                         false,
                         12000,
                         100,
-                        mockMetadata.farm,
-                        contractDeployments.mavrykFa12Token.address,
+                        farmMetadataBase,
+                        contractDeployments.mavenFa12Token.address,
                         0,
                         "FA12"
                     ]
@@ -3098,8 +3132,8 @@ describe("Testnet interactions helper", async () => {
                         false,
                         12000,
                         100,
-                        mockMetadata.farm,
-                        contractDeployments.mavrykFa12Token.address,
+                        farmMetadataBase,
+                        contractDeployments.mavenFa12Token.address,
                         0,
                         "FA12"
                     ]
@@ -3316,13 +3350,13 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var contractAccount         = await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.aggregatorFactory.address)
-                var userAccount             = await getStorageMapValue(mvkTokenStorage, 'ledger', bob.pkh)
-                const tokenAmount           = MVK(200);
+                var contractAccount         = await mvnTokenStorage.ledger.get(contractDeployments.aggregatorFactory.address)
+                var userAccount             = await mvnTokenStorage.ledger.get(bob.pkh)
+                const tokenAmount           = MVN(200);
                 const purpose               = "Transfer made by mistake to the aggregator factory"
 
                 // Mistake Operation
-                const transferOperation     = await mvkTokenInstance.methods.transfer([
+                const transferOperation     = await mvnTokenInstance.methods.transfer([
                     {
                         from_: bob.pkh,
                         txs: [
@@ -3345,7 +3379,7 @@ describe("Testnet interactions helper", async () => {
                                 "to_"    : bob.pkh,
                                 "token"  : {
                                     "fa2" : {
-                                        "tokenContractAddress": contractDeployments.mvkToken.address,
+                                        "tokenContractAddress": contractDeployments.mvnToken.address,
                                         "tokenId" : 0
                                     }
                                 },
@@ -3436,7 +3470,7 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates required fee mutez to trigger emergency', async () => {
+        it('Admin updates required fee mumav to trigger emergency', async () => {
             try{
                 // Operation
                 const operation = await emergencyGovernanceInstance.methods.updateConfig(1000000, "configRequiredFeeMutez").send();
@@ -3446,30 +3480,30 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates SMVK percentage required', async () => {
+        it('Admin updates SMVN percentage required', async () => {
             try{
                 // Operation
-                const operation = await emergencyGovernanceInstance.methods.updateConfig(0, "configStakedMvkPercentRequired").send();
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(0, "configStakedMvnPercentRequired").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin updates minimum SMVK for voting', async () => {
+        it('Admin updates minimum SMVN for voting', async () => {
             try{
                 // Operation
-                const operation = await emergencyGovernanceInstance.methods.updateConfig(new BigNumber(MVK(0.1)), "configMinStakedMvkForVoting").send();
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(new BigNumber(MVN(0.1)), "configMinStakedMvnForVoting").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin updates minimum SMVK to trigger', async () => {
+        it('Admin updates minimum SMVN to trigger', async () => {
             try{
                 // Operation
-                const operation = await emergencyGovernanceInstance.methods.updateConfig(new BigNumber(MVK(0.1)), "configMinStakedMvkToTrigger").send();
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(new BigNumber(MVN(0.1)), "configMinStakedMvnToTrigger").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4290,7 +4324,7 @@ describe("Testnet interactions helper", async () => {
                     "id"    : vaultId,
                     "owner" : bob.pkh
                 };
-                const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle)
+                const vault                         = await lendingControllerStorage.vaults.get(vaultHandle)
                 createdVaultAddress                 = vault.address;
 
                 // Adds TEZ as a collateral token
@@ -4315,7 +4349,7 @@ describe("Testnet interactions helper", async () => {
                     false,
                     false,
                     null,
-                    MVK(10), // Max deposit amount
+                    MVN(10), // Max deposit amount
                     
                     // fa2 token type - token contract address + token id
                     tokenType,
@@ -4339,7 +4373,7 @@ describe("Testnet interactions helper", async () => {
                 const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
                 // Operation
-                const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mumav: true, amount : depositAmountMutez });
+                const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mumav : true, amount : depositAmountMutez });
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4398,7 +4432,7 @@ describe("Testnet interactions helper", async () => {
                 const repayAmount           = 1000;
 
                 // Operation
-                const approveOperation  = await mavrykFa12TokenInstance.methods.approve(contractDeployments.lendingController.address, repayAmount).send()
+                const approveOperation  = await mavenFa12TokenInstance.methods.approve(contractDeployments.lendingController.address, repayAmount).send()
                 await approveOperation.confirmation();
                 const operation         = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
                 await operation.confirmation();
@@ -4407,22 +4441,22 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin deposits smvk into the vault', async () => {
+        it('Admin deposits smvn into the vault', async () => {
             try{
                 // Initial values
                 vaultFactoryStorage                     = await vaultFactoryInstance.storage();
                 const vaultId                           = vaultFactoryStorage.vaultCounter.toNumber() - 1;
                 const depositAmount                     = 1000;
-                const tokenName                         = "smvk";
-                const tokenContractAddress              = contractDeployments.mvkToken.address;
+                const tokenName                         = "smvn";
+                const tokenContractAddress              = contractDeployments.mvnToken.address;
                 const tokenType                         = "fa2";
                 const tokenId                           = 0;
 
                 const tokenDecimals                     = 9;
                 const oracleAddress                     = contractDeployments.aggregator.address;
-                const tokenProtected                    = true; // sMVK is protected
+                const tokenProtected                    = true; // sMVN is protected
 
-                // Add SMVK as collateral
+                // Add SMVN as collateral
                 const setCollateralTokenOperation       = await lendingControllerInstance.methods.setCollateralToken(
                     "createCollateralToken",
 
@@ -4446,14 +4480,14 @@ describe("Testnet interactions helper", async () => {
                 await setCollateralTokenOperation.confirmation();
 
                 // Operation
-                const operation                         = await lendingControllerInstance.methods.vaultDepositStakedToken("smvk", vaultId, depositAmount).send();
+                const operation                         = await lendingControllerInstance.methods.vaultDepositStakedToken("smvn", vaultId, depositAmount).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin withdraws smvk from the vault', async () => {
+        it('Admin withdraws smvn from the vault', async () => {
             try{
                 // Initial values
                 vaultFactoryStorage         = await vaultFactoryInstance.storage();
@@ -4461,7 +4495,7 @@ describe("Testnet interactions helper", async () => {
                 const withdrawAmount        = 1000;
 
                 // Operation
-                const operation             = await lendingControllerInstance.methods.vaultWithdrawStakedToken("smvk", vaultId, withdrawAmount).send();
+                const operation             = await lendingControllerInstance.methods.vaultWithdrawStakedToken("smvn", vaultId, withdrawAmount).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5018,7 +5052,7 @@ describe("Testnet interactions helper", async () => {
     //                 "id"    : vaultId,
     //                 "owner" : bob.pkh
     //             };
-    //             const vault                         = await getStorageMapValue(lendingControllerMockTimeStorage, 'vaults', vaultHandle)
+    //             const vault                         = await lendingControllerMockTimeStorage.vaults.get(vaultHandle)
     //             createdVaultAddress                 = vault.address;
 
     //             // Adds TEZ as a collateral token
@@ -5043,7 +5077,7 @@ describe("Testnet interactions helper", async () => {
     //                 false,
     //                 false,
     //                 null,
-    //                 MVK(10), // Max deposit amount
+    //                 MVN(10), // Max deposit amount
                     
     //                 // fa2 token type - token contract address + token id
     //                 tokenType,
@@ -5067,7 +5101,7 @@ describe("Testnet interactions helper", async () => {
     //             const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
     //             // Operation
-    //             const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mumav: true, amount : depositAmountMutez });
+    //             const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mumav : true, amount : depositAmountMutez });
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
@@ -5126,7 +5160,7 @@ describe("Testnet interactions helper", async () => {
     //             const repayAmount           = 1000;
 
     //             // Operation
-    //             const approveOperation  = await mavrykFa12TokenInstance.methods.approve(contractDeployments.lendingControllerMockTime.address, repayAmount).send()
+    //             const approveOperation  = await mavenFa12TokenInstance.methods.approve(contractDeployments.lendingControllerMockTime.address, repayAmount).send()
     //             await approveOperation.confirmation();
     //             const operation         = await lendingControllerMockTimeInstance.methods.repay(vaultId, repayAmount).send();
     //             await operation.confirmation();
@@ -5135,22 +5169,22 @@ describe("Testnet interactions helper", async () => {
     //         }
     //     });
 
-    //     it('Admin deposits smvk into the vault', async () => {
+    //     it('Admin deposits smvn into the vault', async () => {
     //         try{
     //             // Initial values
     //             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
     //             const vaultId                           = vaultFactoryStorage.vaultCounter.toNumber() - 1;
     //             const depositAmount                     = 1000;
-    //             const tokenName                         = "smvk";
-    //             const tokenContractAddress              = contractDeployments.mvkToken.address;
+    //             const tokenName                         = "smvn";
+    //             const tokenContractAddress              = contractDeployments.mvnToken.address;
     //             const tokenType                         = "fa2";
     //             const tokenId                           = 0;
 
     //             const tokenDecimals                     = 9;
     //             const oracleAddress                     = contractDeployments.aggregator.address;
-    //             const tokenProtected                    = true; // sMVK is protected
+    //             const tokenProtected                    = true; // sMVN is protected
 
-    //             // Add SMVK as collateral
+    //             // Add SMVN as collateral
     //             const setCollateralTokenOperation       = await lendingControllerMockTimeInstance.methods.setCollateralToken(
     //                 "createCollateralToken",
 
@@ -5174,14 +5208,14 @@ describe("Testnet interactions helper", async () => {
     //             await setCollateralTokenOperation.confirmation();
 
     //             // Operation
-    //             const operation                         = await lendingControllerMockTimeInstance.methods.vaultDepositStakedToken("smvk", vaultId, depositAmount).send();
+    //             const operation                         = await lendingControllerMockTimeInstance.methods.vaultDepositStakedToken("smvn", vaultId, depositAmount).send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin withdraws smvk from the vault', async () => {
+    //     it('Admin withdraws smvn from the vault', async () => {
     //         try{
     //             // Initial values
     //             vaultFactoryStorage         = await vaultFactoryInstance.storage();
@@ -5189,7 +5223,7 @@ describe("Testnet interactions helper", async () => {
     //             const withdrawAmount        = 1000;
 
     //             // Operation
-    //             const operation             = await lendingControllerMockTimeInstance.methods.vaultWithdrawStakedToken("smvk", vaultId, withdrawAmount).send();
+    //             const operation             = await lendingControllerMockTimeInstance.methods.vaultWithdrawStakedToken("smvn", vaultId, withdrawAmount).send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
@@ -5206,10 +5240,10 @@ describe("Testnet interactions helper", async () => {
     //                 "id"    : vaultId,
     //                 "owner" : bob.pkh
     //             };
-    //             const vault                         = await getStorageMapValue(lendingControllerMockTimeStorage, 'vaults', vaultHandle)
+    //             const vault                         = await lendingControllerMockTimeStorage.vaults.get(vaultHandle)
     //             const tmpVaultInstance              = await utils.tezos.contract.at(vault.address);
     //             const borrowAmount                  = 1000;
-    //             const withdrawAmount                = (await getStorageMapValue(vault, 'collateralBalanceLedger', "tez")).toNumber();
+    //             const withdrawAmount                = (await vault.collateralBalanceLedger.get("tez")).toNumber();
     //             const lastUpdatedBlockLevel         = vault.lastUpdatedBlockLevel.toNumber();
     //             const mockLevel                     = oneMonthLevelBlocks + lastUpdatedBlockLevel;
 
@@ -5242,7 +5276,7 @@ describe("Testnet interactions helper", async () => {
     //                 "id"    : vaultId,
     //                 "owner" : bob.pkh
     //             };
-    //             const vault                         = await getStorageMapValue(lendingControllerMockTimeStorage, 'vaults', vaultHandle)
+    //             const vault                         = await lendingControllerMockTimeStorage.vaults.get(vaultHandle)
     //             const mockLevel                     = vault.markedForLiquidationLevel.toNumber() + oneDayLevelBlocks;
 
     //             // Update Mock Level
@@ -5250,7 +5284,7 @@ describe("Testnet interactions helper", async () => {
     //             await updateConfigOperation.confirmation();
 
     //             // Approve
-    //             const approveOperation  = await mavrykFa12TokenInstance.methods.approve(contractDeployments.lendingControllerMockTime.address, 100).send()
+    //             const approveOperation  = await mavenFa12TokenInstance.methods.approve(contractDeployments.lendingControllerMockTime.address, 100).send()
     //             await approveOperation.confirmation();
 
     //             // Operation
@@ -5315,7 +5349,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates rewards per block', async () => {
             try{
                 // Operation
-                const operation = await farmMTokenInstance.methods.updateConfig(new BigNumber(MVK(2)), "configRewardPerBlock").send();
+                const operation = await farmMTokenInstance.methods.updateConfig(new BigNumber(MVN(2)), "configRewardPerBlock").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5455,7 +5489,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets admin', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.setAdmin(bob.pkh).send();
+                const operation = await mTokenEurtInstance.methods.setAdmin(bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5465,7 +5499,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets governance', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.setGovernance(contractDeployments.governance.address).send();
+                const operation = await mTokenEurtInstance.methods.setGovernance(contractDeployments.governance.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5475,17 +5509,17 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates whitelist contracts', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
+                const operation = await mTokenEurtInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin transfers MVK', async () => {
+        it('Admin transfers MVN', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.transfer([
+                const operation = await mTokenEurtInstance.methods.transfer([
                     {
                         from_: bob.pkh,
                         txs: [
@@ -5517,7 +5551,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates its operators', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.update_operators([
+                const operation = await mTokenEurtInstance.methods.update_operators([
                     {
                         add_operator: {
                             owner: bob.pkh,
@@ -5536,7 +5570,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin compounds', async () => {
             try{
                 // Operation
-                const operation = await mTokenEurlInstance.methods.compound([bob.pkh]).send()
+                const operation = await mTokenEurtInstance.methods.compound([bob.pkh]).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5665,7 +5699,7 @@ describe("Testnet interactions helper", async () => {
                 "id"    : vaultId,
                 "owner" : bob.pkh
             };
-            const vault                         = await getStorageMapValue(lendingControllerMockTimeStorage, 'vaults', vaultHandle)
+            const vault                         = await lendingControllerMockTimeStorage.vaults.get(vaultHandle)
             vaultInstance                       = await utils.tezos.contract.at(vault.address);
             vaultStorage                        = await vaultInstance.storage();
         });

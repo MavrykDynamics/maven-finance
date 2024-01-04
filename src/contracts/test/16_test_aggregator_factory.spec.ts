@@ -69,8 +69,8 @@ describe('AggregatorFactory', () => {
     let governanceSatelliteInstance;
     let governanceSatelliteStorage;
 
-    let mavrykFa2TokenInstance
-    let mavrykFa2TokenStorage
+    let mavenFa2TokenInstance
+    let mavenFa2TokenStorage
 
     let oracleMap
 
@@ -107,12 +107,12 @@ describe('AggregatorFactory', () => {
         aggregatorInstance              = await utils.tezos.contract.at(contractDeployments.aggregator.address);
         aggregatorFactoryInstance       = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
         governanceSatelliteInstance     = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
-        mavrykFa2TokenInstance          = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
+        mavenFa2TokenInstance          = await utils.tezos.contract.at(contractDeployments.mavenFa2Token.address);
 
         aggregatorStorage               = await aggregatorInstance.storage();
         aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
         governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
-        mavrykFa2TokenStorage           = await mavrykFa2TokenInstance.storage();
+        mavenFa2TokenStorage           = await mavenFa2TokenInstance.storage();
 
         console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
 
@@ -245,7 +245,7 @@ describe('AggregatorFactory', () => {
                 // Final values
                 aggregatorFactoryStorage       = await aggregatorFactoryInstance.storage();            
 
-                const updatedData       = await getStorageMapValue(aggregatorFactoryStorage, 'metadata', key);
+                const updatedData       = await aggregatorFactoryStorage.metadata.get(key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -387,20 +387,20 @@ describe('AggregatorFactory', () => {
                 user              = mallory.pkh;
                 userSk            = mallory.sk;
 
-                // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to Contract
+                // Mistaken Operation - user (mallory) send 10 MavenFa2Tokens to Contract
                 await signerFactory(tezos, userSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, contractDeployments.aggregatorFactory.address, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, contractDeployments.aggregatorFactory.address, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(aggregatorFactoryInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(aggregatorFactoryInstance, user, contractDeployments.mavenFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -432,7 +432,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(60),            // percentOracleThreshold
                     new BigNumber(30),            // heartbeatSeconds
         
-                    new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
+                    new BigNumber(10000000),      // rewardAmountMvn ~ 0.01 MVN
                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
                     
                     mockMetadata.aggregator       // metadata
@@ -442,7 +442,7 @@ describe('AggregatorFactory', () => {
                 // Final values
                 aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
                 governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
-                const aggregatorRecord          = await getStorageMapValue(governanceSatelliteStorage, 'aggregatorLedger', randomAggregatorName);
+                const aggregatorRecord          = await governanceSatelliteStorage.aggregatorLedger.get(randomAggregatorName);
                 const endTrackedAggregators     = aggregatorFactoryStorage.trackedAggregators.length;
 
                 // Assertion
@@ -533,7 +533,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(30),            // heartbeatSeconds
 
                     
-                    new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
+                    new BigNumber(10000000),      // rewardAmountMvn ~ 0.01 MVN
                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
                     
                     mockMetadata.aggregator       // metadata
@@ -582,7 +582,7 @@ describe('AggregatorFactory', () => {
                 await signerFactory(tezos, satelliteOneSk);
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
                 await chai.expect(aggregatorInstance.methods.withdrawRewardXtz(satelliteOne).send()).to.be.rejected;
-                await chai.expect(aggregatorInstance.methods.withdrawRewardStakedMvk(satelliteOne).send()).to.be.rejected;
+                await chai.expect(aggregatorInstance.methods.withdrawRewardStakedMvn(satelliteOne).send()).to.be.rejected;
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -626,7 +626,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(60),            // percentOracleThreshold
                     new BigNumber(30),            // heartbeatSeconds
             
-                    new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
+                    new BigNumber(10000000),      // rewardAmountMvn ~ 0.01 MVN
                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
                     
                     mockMetadata.aggregator       // metadata
@@ -666,7 +666,7 @@ describe('AggregatorFactory', () => {
                 pauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardXtz", true).send();
                 await pauseOperation.confirmation();
 
-                pauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvk", true).send();
+                pauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvn", true).send();
                 await pauseOperation.confirmation();
 
                 // update storage
@@ -691,7 +691,7 @@ describe('AggregatorFactory', () => {
                 unpauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardXtz", false).send();
                 await unpauseOperation.confirmation();
 
-                unpauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvk", false).send();
+                unpauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvn", false).send();
                 await unpauseOperation.confirmation();
 
                 // update storage
@@ -768,7 +768,7 @@ describe('AggregatorFactory', () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 aggregatorFactoryStorage = await aggregatorFactoryInstance.storage();   
-                const initialMetadata    = await getStorageMapValue(aggregatorFactoryStorage, 'metadata', key);
+                const initialMetadata    = await aggregatorFactoryStorage.metadata.get(key);
 
                 // Operation
                 const updateOperation = await aggregatorFactoryInstance.methods.updateMetadata(key, hash);
@@ -776,7 +776,7 @@ describe('AggregatorFactory', () => {
 
                 // Final values
                 aggregatorFactoryStorage = await aggregatorFactoryInstance.storage();            
-                const updatedData        = await getStorageMapValue(aggregatorFactoryStorage, 'metadata', key);
+                const updatedData        = await aggregatorFactoryStorage.metadata.get(key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);
@@ -862,12 +862,12 @@ describe('AggregatorFactory', () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MavrykFa2Tokens to Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, contractDeployments.aggregatorFactory.address, tokenId, tokenAmount);
+                // Mistaken Operation - send 10 MavenFa2Tokens to Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, mallory.pkh, contractDeployments.aggregatorFactory.address, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await mistakenTransferFa2Token(aggregatorFactoryInstance, mallory.pkh, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(aggregatorFactoryInstance, mallory.pkh, contractDeployments.mavenFa2Token.address, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {
@@ -914,7 +914,7 @@ describe('AggregatorFactory', () => {
                 pauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardXtz", true); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
 
-                pauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvk", true); 
+                pauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvn", true); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
 
                 // unpause operations
@@ -931,7 +931,7 @@ describe('AggregatorFactory', () => {
                 unpauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardXtz", false); 
                 await chai.expect(unpauseOperation.send()).to.be.rejected;
 
-                unpauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvk", false); 
+                unpauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvn", false); 
                 await chai.expect(unpauseOperation.send()).to.be.rejected;
 
             } catch(e) {
@@ -956,7 +956,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(60),            // percentOracleThreshold
                     new BigNumber(30),            // heartbeatSeconds
         
-                    new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
+                    new BigNumber(10000000),      // rewardAmountMvn ~ 0.01 MVN
                     new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
                     
                     mockMetadata.aggregator       // metadata

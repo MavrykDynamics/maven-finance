@@ -30,11 +30,11 @@ fi
 
 for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
     case "$contract_test" in
-        dev)
-            echo "Running tests for dev"
-            COMMANDS+=("yarn ts-mocha --paths test/01_test_mvk_token.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/02_test_mavryk_fa12_tokens.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/03_test_mavryk_fa2_tokens.spec.ts --bail --timeout 9000000 --exit")
+        all)
+            echo "Running tests for all contracts"
+            COMMANDS+=("yarn ts-mocha --paths test/01_test_mvn_token.spec.ts --bail --timeout 9000000 --exit")
+            COMMANDS+=("yarn ts-mocha --paths test/02_test_maven_fa12_tokens.spec.ts --bail --timeout 9000000 --exit")
+            COMMANDS+=("yarn ts-mocha --paths test/03_test_maven_fa2_tokens.spec.ts --bail --timeout 9000000 --exit")
             COMMANDS+=("yarn ts-mocha --paths test/04_test_doorman.spec.ts --bail --timeout 9000000 --exit")
             COMMANDS+=("yarn ts-mocha --paths test/05_test_delegation.spec.ts --bail --timeout 9000000 --exit")
             COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000 --exit")
@@ -123,13 +123,13 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             echo "Setup satellite"
             COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000 --exit")
             ;;
-        mvkToken)
-            echo "Running tests for mvkToken"
-            COMMANDS+=("yarn ts-mocha --paths test/01_test_mvk_token.spec.ts --bail --timeout 9000000 --exit")
+        mvnToken)
+            echo "Running tests for mvnToken"
+            COMMANDS+=("yarn ts-mocha --paths test/01_test_mvn_token.spec.ts --bail --timeout 9000000 --exit")
             ;;
-        mavrykTokens)
-            echo "Running tests for mavrykTokens"
-            COMMANDS+=("yarn ts-mocha --paths test/03_test_mavryk_fa2_tokens.spec.ts --bail --timeout 9000000 --exit")
+        mavenTokens)
+            echo "Running tests for mavenTokens"
+            COMMANDS+=("yarn ts-mocha --paths test/03_test_maven_fa2_tokens.spec.ts --bail --timeout 9000000 --exit")
             ;;
         doorman)
             echo "Running tests for doorman"
@@ -265,47 +265,9 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             echo "Running tests for vault"
             COMMANDS+=("yarn ts-mocha --paths test/27_test_vault.spec.ts --bail --timeout 9000000 --exit")
             ;;
-        mvkFaucet)
-            echo "Running tests for mvkFaucet"
-            COMMANDS+=("yarn ts-mocha --paths test/35_test_mvk_faucet.spec.ts --bail --timeout 9000000 --exit")
-            ;;
-        all)
-            echo "Running all tests"
-            COMMANDS+=("yarn ts-mocha --paths test/01_test_mvk_token.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/02_test_mavryk_fa12_tokens.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/03_test_mavryk_fa2_tokens.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/04_test_doorman.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/05_test_delegation.spec.ts --bail --timeout 9000000 --exit")
-            
-            COMMANDS+=("yarn ts-mocha --paths test/05_test_council.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/06_test_farm.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/06a_test_farm_mToken.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/07_test_farm_factory.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/07a_test_mFarm_factory.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/13_test_treasury.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/09_test_treasury_factory.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/10_test_emergency_governance.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/11_test_break_glass.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/12_test_governance_financial.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/21_test_governance_financial.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/13_test_governance_proxy.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/14_test_super_admin.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/30_test_mistaken_transfers.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/20_test_governance_quorum.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/18_test_aggregator.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/19_test_aggregator_factory.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/22_test_satellite_status.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/23_test_stress_test.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/21_test_lending_controller.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/22_test_lending_controller_pause.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/23_test_lending_controller_mock_time_month.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/24_test_lending_controller_mock_time_year.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/25_test_lending_controller_mock_time_liquidation.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/26_test_mToken.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/27_test_vault.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/34_test_delegation.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/33_test_governance.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/35_test_mvk_faucet.spec.ts --bail --timeout 9000000 --exit")
+        mvnFaucet)
+            echo "Running tests for mvnFaucet"
+            COMMANDS+=("yarn ts-mocha --paths test/35_test_mvn_faucet.spec.ts --bail --timeout 9000000 --exit")
             ;;
         *)
             echo "Unknown contract test: $contract_test"

@@ -48,7 +48,7 @@ describe('Council', async () => {
             //----------------------------
         
             councilStorage.governanceAddress = contractDeployments.governance.address
-            councilStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
+            councilStorage.mvnTokenAddress   = contractDeployments.mvnToken.address
 
             councilStorage.councilMembers.set(alice.pkh, {
                 name: "Alice",

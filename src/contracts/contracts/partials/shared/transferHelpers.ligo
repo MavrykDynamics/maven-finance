@@ -4,7 +4,7 @@
 
 #include "./transferTypes.ligo"
 #include "../contractTypes/treasuryTypes.ligo"
-#include "../contractTypes/mvkTokenTypes.ligo"
+#include "../contractTypes/mvnTokenTypes.ligo"
 
 // ------------------------------------------------------------------------------
 // Transfer Helper Functions Begin
@@ -72,24 +72,24 @@ function sendTransferOperationToTreasury(const contractAddress : address) : cont
 
 
 
-// helper function to get %mint entrypoint from MVK Token address
+// helper function to get %mint entrypoint from MVN Token address
 function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintType) is
     case (Mavryk.get_entrypoint_opt(
         "%mint",
         token_address) : option(contract(mintType))) of [
                 Some(contr) -> contr
-            |   None        -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
+            |   None        -> (failwith(error_MINT_ENTRYPOINT_IN_MVN_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
         ];
 
 
 
-// helper function to send mint MVK and transfer operation to treasury
-function sendMintMvkAndTransferOperationToTreasury(const contractAddress : address) : contract(mintMvkAndTransferType) is
+// helper function to send mint MVN and transfer operation to treasury
+function sendMintMvnAndTransferOperationToTreasury(const contractAddress : address) : contract(mintMvnAndTransferType) is
     case (Mavryk.get_entrypoint_opt(
-        "%mintMvkAndTransfer",
-        contractAddress) : option(contract(mintMvkAndTransferType))) of [
+        "%mintMvnAndTransfer",
+        contractAddress) : option(contract(mintMvnAndTransferType))) of [
                 Some(contr) -> contr
-            |   None        -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(mintMvkAndTransferType))
+            |   None        -> (failwith(error_MINT_MVN_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(mintMvnAndTransferType))
         ];
 
 

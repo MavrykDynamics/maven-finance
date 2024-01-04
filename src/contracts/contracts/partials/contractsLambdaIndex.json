@@ -3,18 +3,14 @@
     "lambdaSetAdmin",
     "lambdaSetGovernance",
     "lambdaUpdateConfig",
-
     "lambdaPauseAll",
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
-
     "lambdaSetLoanToken",
     "lambdaSetCollateralToken",
     "lambdaRegisterVaultCreation",
-
     "lambdaAddLiquidity",
     "lambdaRemoveLiquidity",
-
     "lambdaCloseVault",
     "lambdaMarkForLiquidation",
     "lambdaLiquidateVault",
@@ -22,7 +18,6 @@
     "lambdaRegisterDeposit",
     "lambdaBorrow",
     "lambdaRepay",
-
     "lambdaVaultDepositStakedToken",
     "lambdaVaultWithdrawStakedToken"
   ],
@@ -30,18 +25,14 @@
     "lambdaSetAdmin",
     "lambdaSetGovernance",
     "lambdaUpdateConfig",
-
     "lambdaPauseAll",
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
-
     "lambdaSetLoanToken",
     "lambdaSetCollateralToken",
     "lambdaRegisterVaultCreation",
-
     "lambdaAddLiquidity",
     "lambdaRemoveLiquidity",
-
     "lambdaCloseVault",
     "lambdaMarkForLiquidation",
     "lambdaLiquidateVault",
@@ -49,11 +40,13 @@
     "lambdaRegisterDeposit",
     "lambdaBorrow",
     "lambdaRepay",
-
     "lambdaVaultDepositStakedToken",
     "lambdaVaultWithdrawStakedToken"
   ],
-  "vault": ["lambdaDepositXtz", "lambdaInitVaultAction"],
+  "vault": [
+    "lambdaDepositXtz",
+    "lambdaInitVaultAction"
+  ],
   "vaultFactory": [
     "lambdaSetAdmin",
     "lambdaSetGovernance",
@@ -62,11 +55,9 @@
     "lambdaUpdateWhitelistContracts",
     "lambdaUpdateGeneralContracts",
     "lambdaMistakenTransfer",
-
     "lambdaPauseAll",
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
-
     "lambdaCreateVault"
   ],
   "aggregatorFactory": [
@@ -77,17 +68,14 @@
     "lambdaUpdateWhitelistContracts",
     "lambdaUpdateGeneralContracts",
     "lambdaMistakenTransfer",
-
     "lambdaPauseAll",
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
-
     "lambdaCreateAggregator",
     "lambdaTrackAggregator",
     "lambdaUntrackAggregator",
-
     "lambdaDistributeRewardXtz",
-    "lambdaDistributeRewardStakedMvk"
+    "lambdaDistributeRewardStakedMvn"
   ],
   "aggregator": [
     "lambdaSetAdmin",
@@ -98,23 +86,18 @@
     "lambdaUpdateWhitelistContracts",
     "lambdaUpdateGeneralContracts",
     "lambdaMistakenTransfer",
-
     "lambdaAddOracle",
     "lambdaUpdateOracle",
     "lambdaRemoveOracle",
-
     "lambdaPauseAll",
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
-
     "lambdaUpdateData",
-
     "lambdaWithdrawRewardXtz",
-    "lambdaWithdrawRewardStakedMvk"
+    "lambdaWithdrawRewardStakedMvn"
   ],
   "breakGlass": [
     "lambdaBreakGlass",
-
     "lambdaSetAdmin",
     "lambdaSetGovernance",
     "lambdaUpdateMetadata",
@@ -123,17 +106,14 @@
     "lambdaUpdateGeneralContracts",
     "lambdaMistakenTransfer",
     "lambdaUpdateCouncilMemberInfo",
-
     "lambdaCouncilAddMember",
     "lambdaCouncilRemoveMember",
     "lambdaCouncilChangeMember",
-
     "lambdaPropagateBreakGlass",
     "lambdaSetContractsAdmin",
     "lambdaPauseAllEntrypoints",
     "lambdaUnpauseAllEntrypoints",
     "lambdaRemoveBreakGlassControl",
-
     "lambdaFlushAction",
     "lambdaSignAction"
   ],
@@ -145,23 +125,19 @@
     "lambdaUpdateWhitelistContracts",
     "lambdaUpdateGeneralContracts",
     "lambdaUpdateCouncilMemberInfo",
-
     "lambdaCouncilAddMember",
     "lambdaCouncilRemoveMember",
     "lambdaCouncilChangeMember",
     "lambdaCouncilSetBaker",
-
     "lambdaCouncilAddVestee",
     "lambdaCouncilRemoveVestee",
     "lambdaCouncilUpdateVestee",
     "lambdaCouncilToggleVesteeLock",
-
     "lambdaCouncilTransfer",
     "lambdaCouncilRequestTokens",
     "lambdaCouncilRequestMint",
     "lambdaCouncilSetContractBaker",
     "lambdaCouncilDropFinancialReq",
-
     "lambdaFlushAction",
     "lambdaSignAction"
   ],
@@ -173,20 +149,16 @@
     "lambdaUpdateWhitelistContracts",
     "lambdaUpdateGeneralContracts",
     "lambdaMistakenTransfer",
-
     "lambdaPauseAll",
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
-
     "lambdaDelegateToSatellite",
     "lambdaUndelegateFromSatellite",
-
     "lambdaRegisterAsSatellite",
     "lambdaUnregisterAsSatellite",
     "lambdaUpdateSatelliteRecord",
     "lambdaDistributeReward",
     "lambdaTakeSatellitesSnapshot",
-
     "lambdaOnStakeChange",
     "lambdaUpdateSatelliteStatus"
   ],
@@ -199,21 +171,17 @@
     "lambdaUpdateGeneralContracts",
     "lambdaMistakenTransfer",
     "lambdaMigrateFunds",
-
     "lambdaPauseAll",
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
-
-    "lambdaStake",
-    "lambdaUnstake",
+    "lambdaStakeMvn",
+    "lambdaUnstakeMvn",
     "lambdaExit",
     "lambdaCompound",
     "lambdaFarmClaim",
-
     "lambdaOnVaultDepositStake",
     "lambdaOnVaultWithdrawStake",
     "lambdaOnVaultLiquidateStake",
-
     "lambdaNewUnstake"
   ],
   "emergencyGovernance": [
@@ -224,7 +192,6 @@
     "lambdaUpdateWhitelistContracts",
     "lambdaUpdateGeneralContracts",
     "lambdaMistakenTransfer",
-
     "lambdaTriggerEmergencyControl",
     "lambdaVoteForEmergencyControl"
   ],
@@ -236,11 +203,9 @@
     "lambdaUpdateWhitelistContracts",
     "lambdaUpdateGeneralContracts",
     "lambdaMistakenTransfer",
-
     "lambdaPauseAll",
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
-
     "lambdaCreateFarm",
     "lambdaCreateFarmMToken",
     "lambdaTrackFarm",
@@ -255,14 +220,11 @@
     "lambdaUpdateWhitelistContracts",
     "lambdaUpdateGeneralContracts",
     "lambdaMistakenTransfer",
-
     "lambdaInitFarm",
     "lambdaCloseFarm",
-
     "lambdaPauseAll",
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
-
     "lambdaDeposit",
     "lambdaWithdraw",
     "lambdaClaim"
@@ -276,14 +238,11 @@
     "lambdaUpdateWhitelistContracts",
     "lambdaUpdateGeneralContracts",
     "lambdaMistakenTransfer",
-
     "lambdaInitFarm",
     "lambdaCloseFarm",
-
     "lambdaPauseAll",
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
-
     "lambdaDeposit",
     "lambdaWithdraw",
     "lambdaClaim"
@@ -297,7 +256,6 @@
     "lambdaUpdateGeneralContracts",
     "lambdaUpdateWhitelistTokenContracts",
     "lambdaMistakenTransfer",
-
     "lambdaRequestTokens",
     "lambdaRequestMint",
     "lambdaSetContractBaker",
@@ -312,27 +270,21 @@
     "lambdaUpdateWhitelistContracts",
     "lambdaUpdateGeneralContracts",
     "lambdaMistakenTransfer",
-
     "lambdaSuspendSatellite",
     "lambdaBanSatellite",
     "lambdaRestoreSatellite",
-
     "lambdaRemoveAllSatelliteOracles",
     "lambdaAddOracleToAggregator",
     "lambdaRemoveOracleInAggregator",
-
     "lambdaSetAggregatorReference",
     "lambdaTogglePauseAggregator",
-
     "lambdaFixMistakenTransfer",
-
     "lambdaVoteForAction",
     "lambdaDropAction"
   ],
   "governance": [
     "lambdaBreakGlass",
     "lambdaPropagateBreakGlass",
-
     "lambdaSetAdmin",
     "lambdaSetGovernanceProxy",
     "lambdaUpdateMetadata",
@@ -343,7 +295,6 @@
     "lambdaMistakenTransfer",
     "lambdaSetContractAdmin",
     "lambdaSetContractGovernance",
-
     "lambdaUpdateSatellitesSnapshot",
     "lambdaStartNextRound",
     "lambdaPropose",
@@ -366,11 +317,9 @@
     "lambdaUpdateGeneralContracts",
     "lambdaUpdateWhitelistTokenContracts",
     "lambdaMistakenTransfer",
-
     "lambdaPauseAll",
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
-
     "lambdaCreateTreasury",
     "lambdaTrackTreasury",
     "lambdaUntrackTreasury"
@@ -384,14 +333,11 @@
     "lambdaUpdateWhitelistContracts",
     "lambdaUpdateGeneralContracts",
     "lambdaUpdateWhitelistTokenContracts",
-
     "lambdaPauseAll",
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
-
     "lambdaTransfer",
-    "lambdaMintMvkAndTransfer",
-    
+    "lambdaMintMvnAndTransfer",
     "lambdaUpdateTokenOperators",
     "lambdaStakeTokens",
     "lambdaUnstakeTokens"
@@ -403,13 +349,16 @@
     "lambdaUpdateWhitelistContracts",
     "lambdaUpdateGeneralContracts",
     "lambdaMistakenTransfer",
-
     "lambdaAddVestee",
     "lambdaRemoveVestee",
     "lambdaUpdateVestee",
     "lambdaToggleVesteeLock",
-
     "lambdaClaim"
   ],
-  "governanceProxy": ["lambdaSetAdmin", "lambdaSetGovernance", "lambdaUpdateMetadata", "lambdaMistakenTransfer"]
+  "governanceProxy": [
+    "lambdaSetAdmin",
+    "lambdaSetGovernance",
+    "lambdaUpdateMetadata",
+    "lambdaMistakenTransfer"
+  ]
 }

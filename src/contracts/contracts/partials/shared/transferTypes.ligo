@@ -69,7 +69,7 @@ type assertMetadataType is [@layout:comb] record[
 // Transfer Types
 // ------------------------------------------------------------------------------
 
-type mavType             is unit
+type tezType             is unit
 type fa12TokenType       is address
 type fa2TokenType        is [@layout:comb] record [
     tokenContractAddress    : address;
@@ -77,7 +77,7 @@ type fa2TokenType        is [@layout:comb] record [
 ]
 
 type tokenType is
-    |   Tez    of mavType         // unit
+    |   Tez    of tezType         // unit
     |   Fa12   of fa12TokenType   // address
     |   Fa2    of fa2TokenType    // record [ tokenContractAddress : address; tokenId : nat; ]
 

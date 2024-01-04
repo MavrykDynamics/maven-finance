@@ -15,16 +15,16 @@ export type aggregatorStorageType = {
         heartbeatSeconds                    : BigNumber;
         
         rewardAmountXtz                     : BigNumber;
-        rewardAmountStakedMvk               : BigNumber;
+        rewardAmountStakedMvn               : BigNumber;
     };
 
     breakGlassConfig          : {
         updateDataIsPaused                 : boolean;
         withdrawRewardXtzIsPaused           : boolean;
-        withdrawRewardStakedMvkIsPaused     : boolean;
+        withdrawRewardStakedMvnIsPaused     : boolean;
     };
 
-    mvkTokenAddress           : string;
+    mvnTokenAddress           : string;
     governanceAddress         : string;
 
     whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
@@ -40,7 +40,7 @@ export type aggregatorStorageType = {
         lastUpdatedAt         : string;
     };
 
-    oracleRewardStakedMvk     : MichelsonMap<MichelsonMapKey, unknown>;
+    oracleRewardStakedMvn     : MichelsonMap<MichelsonMapKey, unknown>;
     oracleRewardXtz           : MichelsonMap<MichelsonMapKey, unknown>;
 
     lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;

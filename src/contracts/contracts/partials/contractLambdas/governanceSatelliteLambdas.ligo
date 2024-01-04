@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case governanceSatelliteLambdaAction of [
@@ -30,7 +30,7 @@ block {
 function lambdaSetGovernance(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case governanceSatelliteLambdaAction of [
@@ -68,7 +68,7 @@ block {
 function lambdaUpdateConfig(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is 
 block {
 
-  verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
+  verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
   verifySenderIsAdmin(s.admin); // verify that sender is admin
 
   case governanceSatelliteLambdaAction of [
@@ -162,7 +162,7 @@ function lambdaSuspendSatellite(const governanceSatelliteLambdaAction : governan
 block {
 
     // Steps Overview:    
-    // 1. Check that no mav is sent to the entrypoint
+    // 1. Check that no tez is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -170,12 +170,12 @@ block {
     // 3. Get / Check Satellite Records
     //      -   Get satellite record for initiator
     //      -   Check if address given for satellite to be suspended is valid
-    // 4. Take snapshot of current total staked MVK supply 
-    // 5. Calculate staked MVK votes required for approval based on config's financial request approval percentage
+    // 4. Take snapshot of current total staked MVN supply 
+    // 5. Calculate staked MVN votes required for approval based on config's financial request approval percentage
     // 6. Create new governance satellite action record - "SUSPEND"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaSuspendSatellite(suspendSatelliteParams) -> {
@@ -210,7 +210,7 @@ function lambdaBanSatellite(const governanceSatelliteLambdaAction : governanceSa
 block {
 
     // Steps Overview:    
-    // 1. Check that no mav is sent to the entrypoint
+    // 1. Check that no tez is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -218,12 +218,12 @@ block {
     // 3. Get / Check Satellite Records
     //      -   Get satellite record for initiator
     //      -   Check if address given for satellite to be banned is valid
-    // 4. Take snapshot of current total staked MVK supply 
-    // 5. Calculate staked MVK votes required for approval based on config's financial request approval percentage
+    // 4. Take snapshot of current total staked MVN supply 
+    // 5. Calculate staked MVN votes required for approval based on config's financial request approval percentage
     // 6. Create new governance satellite action record - "BAN"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaBanSatellite(banSatelliteParams) -> {
@@ -258,7 +258,7 @@ function lambdaRestoreSatellite(const governanceSatelliteLambdaAction : governan
 block {
 
     // Steps Overview:    
-    // 1. Check that no mav is sent to the entrypoint
+    // 1. Check that no tez is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -266,12 +266,12 @@ block {
     // 3. Get / Check Satellite Records
     //      -   Get satellite record for initiator
     //      -   Check if address given for satellite to be restored is valid
-    // 4. Take snapshot of current total staked MVK supply 
-    // 5. Calculate staked MVK votes required for approval based on config's financial request approval percentage
+    // 4. Take snapshot of current total staked MVN supply 
+    // 5. Calculate staked MVN votes required for approval based on config's financial request approval percentage
     // 6. Create new governance satellite action record - "RESTORE"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaRestoreSatellite(restoreSatelliteParams) -> {
@@ -314,7 +314,7 @@ function lambdaRemoveAllSatelliteOracles(const governanceSatelliteLambdaAction :
 block {
 
     // Steps Overview:    
-    // 1. Check that no mav is sent to the entrypoint
+    // 1. Check that no tez is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -322,12 +322,12 @@ block {
     // 3. Get / Check Satellite Records
     //      -   Get satellite record for initiator
     //      -   Check if address given for specified satellite is valid
-    // 4. Take snapshot of current total staked MVK supply 
-    // 5. Calculate staked MVK votes required for approval based on config's financial request approval percentage
+    // 4. Take snapshot of current total staked MVN supply 
+    // 5. Calculate staked MVN votes required for approval based on config's financial request approval percentage
     // 6. Create new governance satellite action record - "REMOVE_ALL_SATELLITE_ORACLES"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaRemoveAllSatelliteOracles(removeAllSatelliteOraclesParams) -> {
@@ -362,7 +362,7 @@ function lambdaAddOracleToAggregator(const governanceSatelliteLambdaAction : gov
 block {
     
     // Steps Overview:    
-    // 1. Check that no mav is sent to the entrypoint
+    // 1. Check that no tez is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -370,12 +370,12 @@ block {
     // 3. Get / Check Satellite Records
     //      -   Get satellite record for initiator
     //      -   Check if address given for specified oracle is valid
-    // 4. Take snapshot of current total staked MVK supply 
-    // 5. Calculate staked MVK votes required for approval based on config's financial request approval percentage
+    // 4. Take snapshot of current total staked MVN supply 
+    // 5. Calculate staked MVN votes required for approval based on config's financial request approval percentage
     // 6. Create new governance satellite action record - "ADD_ORACLE_TO_AGGREGATOR"
     // 6. Update storage with new records 
 
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaAddOracleToAggregator(addOracleToAggregatorParams) -> {
@@ -412,7 +412,7 @@ function lambdaRemoveOracleInAggregator(const governanceSatelliteLambdaAction : 
 block {
 
     // Steps Overview:    
-    // 1. Check that no mav is sent to the entrypoint
+    // 1. Check that no tez is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -420,12 +420,12 @@ block {
     // 3. Get / Check Satellite Records
     //      -   Get satellite record for initiator
     //      -   Check if address given for specified oracle is valid
-    // 4. Take snapshot of current total staked MVK supply 
-    // 5. Calculate staked MVK votes required for approval based on config's financial request approval percentage
+    // 4. Take snapshot of current total staked MVN supply 
+    // 5. Calculate staked MVN votes required for approval based on config's financial request approval percentage
     // 6. Create new governance satellite action record - "REMOVE_ORACLE_IN_AGGREGATOR"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaRemoveOracleInAggregator(removeOracleInAggregatorParams) -> {
@@ -472,12 +472,12 @@ block {
 
     // Steps Overview:    
     // 1. Standard Checks
-    //      -   Check that no mav is sent to the entrypoint
+    //      -   Check that no tez is sent to the entrypoint
     //      -   Check that sender is admin, is whitelisted or is an aggregator
     // 2. Delete the entry associated with old name in the aggregatorLedger
     // 3. Create the entry associated with new name in the aggregatorLedger
 
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
 
     case governanceSatelliteLambdaAction of [
         |   LambdaSetAggregatorReference(setAggregatorReferenceParams) -> {
@@ -517,7 +517,7 @@ function lambdaTogglePauseAggregator(const governanceSatelliteLambdaAction : gov
 block {
 
     // Steps Overview:    
-    // 1. Check that no mav is sent to the entrypoint
+    // 1. Check that no tez is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -525,12 +525,12 @@ block {
     // 3. Get / Check Satellite Records
     //      -   Get satellite record for initiator
     //      -   Check if address given for specified oracle is valid
-    // 4. Take snapshot of current total staked MVK supply 
-    // 5. Calculate staked MVK votes required for approval based on config's financial request approval percentage
+    // 4. Take snapshot of current total staked MVN supply 
+    // 5. Calculate staked MVN votes required for approval based on config's financial request approval percentage
     // 6. Create new governance satellite action record - "REMOVE_ORACLE_IN_AGGREGATOR"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaTogglePauseAggregator(togglePauseAggregatorParams) -> {
@@ -575,7 +575,7 @@ function lambdaFixMistakenTransfer(const governanceSatelliteLambdaAction : gover
 block {
 
     // Steps Overview:    
-    // 1. Check that no mav is sent to the entrypoint
+    // 1. Check that no tez is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
@@ -583,12 +583,12 @@ block {
     // 3. Get / Check Satellite Records
     //      -   Get satellite record for initiator
     //      -   Check if address given for specified oracle is valid
-    // 4. Take snapshot of current total staked MVK supply 
-    // 5. Calculate staked MVK votes required for approval based on config's financial request approval percentage
+    // 4. Take snapshot of current total staked MVN supply 
+    // 5. Calculate staked MVN votes required for approval based on config's financial request approval percentage
     // 6. Create new governance satellite action record - "MISTAKEN_TRANSFER_FIX"
     // 6. Update storage with new records 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         | LambdaFixMistakenTransfer(fixMistakenTransferParams) -> {
@@ -632,7 +632,7 @@ function lambdaDropAction(const governanceSatelliteLambdaAction : governanceSate
 block {
 
     // Steps Overview:    
-    // 1. Check that no mav is sent to the entrypoint
+    // 1. Check that no tez is sent to the entrypoint
     // 2. Get necessary contracts and config info
     //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
     // 3. Get / Check Satellite Records
@@ -647,7 +647,7 @@ block {
     // 7. Update storage - action ledger
 
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
         |   LambdaDropAction(dropActionParams) -> {
@@ -714,7 +714,7 @@ block {
     //      -   Update governance satellite action map of voters with new vote
     // 5. Compute governance satellite action's vote totals and execute governance satellite action if enough votes have been gathered
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
     
     var operations : list(operation) := nil;
 
@@ -764,17 +764,17 @@ block {
                     
                         Some (_voteType) -> case _voteType of [
 
-                                Yay(_v)   ->    if totalVotingPower > _governanceSatelliteActionRecord.yayVoteStakedMvkTotal 
+                                Yay(_v)   ->    if totalVotingPower > _governanceSatelliteActionRecord.yayVoteStakedMvnTotal 
                                                 then failwith(error_CALCULATION_ERROR) 
-                                                else _governanceSatelliteActionRecord.yayVoteStakedMvkTotal := abs(_governanceSatelliteActionRecord.yayVoteStakedMvkTotal - totalVotingPower)
+                                                else _governanceSatelliteActionRecord.yayVoteStakedMvnTotal := abs(_governanceSatelliteActionRecord.yayVoteStakedMvnTotal - totalVotingPower)
 
-                            |   Nay(_v)   ->    if totalVotingPower > _governanceSatelliteActionRecord.nayVoteStakedMvkTotal 
+                            |   Nay(_v)   ->    if totalVotingPower > _governanceSatelliteActionRecord.nayVoteStakedMvnTotal 
                                                 then failwith(error_CALCULATION_ERROR) 
-                                                else _governanceSatelliteActionRecord.nayVoteStakedMvkTotal := abs(_governanceSatelliteActionRecord.nayVoteStakedMvkTotal - totalVotingPower)
+                                                else _governanceSatelliteActionRecord.nayVoteStakedMvnTotal := abs(_governanceSatelliteActionRecord.nayVoteStakedMvnTotal - totalVotingPower)
 
-                            |   Pass(_v)  ->    if totalVotingPower > _governanceSatelliteActionRecord.passVoteStakedMvkTotal 
+                            |   Pass(_v)  ->    if totalVotingPower > _governanceSatelliteActionRecord.passVoteStakedMvnTotal 
                                                 then failwith(error_CALCULATION_ERROR) 
-                                                else _governanceSatelliteActionRecord.passVoteStakedMvkTotal := abs(_governanceSatelliteActionRecord.passVoteStakedMvkTotal - totalVotingPower)
+                                                else _governanceSatelliteActionRecord.passVoteStakedMvnTotal := abs(_governanceSatelliteActionRecord.passVoteStakedMvnTotal - totalVotingPower)
                         ]
 
                     |   None -> skip
@@ -789,14 +789,14 @@ block {
                     Yay(_v) -> block {
 
                         // Compute new YAY vote total
-                        const newYayVoteStakedMvkTotal : nat = _governanceSatelliteActionRecord.yayVoteStakedMvkTotal + totalVotingPower;
+                        const newYayVoteStakedMvnTotal : nat = _governanceSatelliteActionRecord.yayVoteStakedMvnTotal + totalVotingPower;
 
                         // Update governance satellite action with new vote total
-                        _governanceSatelliteActionRecord.yayVoteStakedMvkTotal      := newYayVoteStakedMvkTotal;
+                        _governanceSatelliteActionRecord.yayVoteStakedMvnTotal      := newYayVoteStakedMvnTotal;
                         s.governanceSatelliteActionLedger[actionId]                 := _governanceSatelliteActionRecord;
 
-                        // Execute governance satellite action if total yay votes exceed staked MVK required for approval
-                        if newYayVoteStakedMvkTotal > _governanceSatelliteActionRecord.stakedMvkRequiredForApproval then block {
+                        // Execute governance satellite action if total yay votes exceed staked MVN required for approval
+                        if newYayVoteStakedMvnTotal > _governanceSatelliteActionRecord.stakedMvnRequiredForApproval then block {
                             const executeGovernanceSatelliteActionReturn : return   = executeGovernanceSatelliteAction(_governanceSatelliteActionRecord, actionId, operations, s);
                             s           := executeGovernanceSatelliteActionReturn.1;
                             operations := executeGovernanceSatelliteActionReturn.0;
@@ -806,20 +806,20 @@ block {
                     | Nay(_v) -> block {
                         
                         // Compute new NAY vote total
-                        const newNayVoteStakedMvkTotal : nat                        = _governanceSatelliteActionRecord.nayVoteStakedMvkTotal + totalVotingPower;
+                        const newNayVoteStakedMvnTotal : nat                        = _governanceSatelliteActionRecord.nayVoteStakedMvnTotal + totalVotingPower;
                         
                         // Update governance satellite action with new vote total
-                        _governanceSatelliteActionRecord.nayVoteStakedMvkTotal      := newNayVoteStakedMvkTotal;
+                        _governanceSatelliteActionRecord.nayVoteStakedMvnTotal      := newNayVoteStakedMvnTotal;
                         s.governanceSatelliteActionLedger[actionId]                 := _governanceSatelliteActionRecord;
                     }
 
                     | Pass(_v) -> block {
 
                         // Compute new PASS vote total
-                        const newPassVoteStakedMvkTotal : nat                           = _governanceSatelliteActionRecord.passVoteStakedMvkTotal + totalVotingPower;
+                        const newPassVoteStakedMvnTotal : nat                           = _governanceSatelliteActionRecord.passVoteStakedMvnTotal + totalVotingPower;
 
                         // Update governance satellite action with new vote total
-                        _governanceSatelliteActionRecord.passVoteStakedMvkTotal         := newPassVoteStakedMvkTotal;
+                        _governanceSatelliteActionRecord.passVoteStakedMvnTotal         := newPassVoteStakedMvnTotal;
                         s.governanceSatelliteActionLedger[actionId]                     := _governanceSatelliteActionRecord;
                     }
                 ];

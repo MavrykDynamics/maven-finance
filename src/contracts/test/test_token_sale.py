@@ -24,30 +24,30 @@ print('fileDir: '+fileDir)
 
 helpersDir          = os.path.join(fileDir, 'helpers')
 
-mvkTokenDecimals = os.path.join(helpersDir, 'mvkTokenDecimals.json')
-mvkTokenDecimals = open(mvkTokenDecimals)
-mvkTokenDecimals = json.load(mvkTokenDecimals)
-mvkTokenDecimals = mvkTokenDecimals['decimals']
+mvnTokenDecimals = os.path.join(helpersDir, 'mvnTokenDecimals.json')
+mvnTokenDecimals = open(mvnTokenDecimals)
+mvnTokenDecimals = json.load(mvnTokenDecimals)
+mvnTokenDecimals = mvnTokenDecimals['decimals']
 
 deploymentsDir          = os.path.join(fileDir, 'deployments')
 deployedTokenSaleContract = os.path.join(deploymentsDir, 'tokenSaleAddress.json')
-deployedMvkTokenContract = os.path.join(deploymentsDir, 'mvkTokenAddress.json')
+deployedMvnTokenContract = os.path.join(deploymentsDir, 'mvnTokenAddress.json')
 deployedTreasuryContract = os.path.join(deploymentsDir, 'treasuryAddress.json')
 
 deployedTokenSale = open(deployedTokenSaleContract)
 tokenSaleContractAddress = json.load(deployedTokenSale)
 tokenSaleContractAddress = tokenSaleContractAddress['address']
 
-deployedMvkToken = open(deployedMvkTokenContract)
-mvkTokenAddress = json.load(deployedMvkToken)
-mvkTokenAddress = mvkTokenAddress['address']
+deployedMvnToken = open(deployedMvnTokenContract)
+mvnTokenAddress = json.load(deployedMvnToken)
+mvnTokenAddress = mvnTokenAddress['address']
 
 deployedTreasury = open(deployedTreasuryContract)
 treasuryContractAddress = json.load(deployedTreasury)
 treasuryContractAddress = treasuryContractAddress['address']
 
 print('Token Sale Contract Deployed at: ' + tokenSaleContractAddress)
-print('MVK Token Address Deployed at: ' + mvkTokenAddress)
+print('MVN Token Address Deployed at: ' + mvnTokenAddress)
 print('Treasury Contract Deployed at: ' + treasuryContractAddress)
 
 alice = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
@@ -55,7 +55,7 @@ admin = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
 bob   = 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6'
 eve   = 'tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6'
 fox   = 'tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L'
-mallory = 'tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n'
+mallory = 'mv1Ffw8ejzFRH6zBtbMdB87qzf5MZBhr8e3L'
 
 sec_hour  = 3600
 sec_day   = 86400
@@ -73,8 +73,8 @@ class TokenSaleContract(TestCase):
         cls.tokenSaleContract = pytezos.contract(tokenSaleContractAddress)
         cls.tokenSaleStorage  = cls.tokenSaleContract.storage()
         
-        cls.mvkTokenContract = pytezos.contract(mvkTokenAddress)
-        cls.mvkTokenStorage  = cls.mvkTokenContract.storage()
+        cls.mvnTokenContract = pytezos.contract(mvnTokenAddress)
+        cls.mvnTokenStorage  = cls.mvnTokenContract.storage()
 
         cls.treasuryContract = pytezos.contract(treasuryContractAddress)
         cls.treasuryStorage  = cls.treasuryContract.storage()
@@ -91,9 +91,9 @@ class TokenSaleContract(TestCase):
         else:
             self.assertEqual(f"'{error_message}': ", r.exception.format_stdout())
     
-    # MVK Formatter
-    def MVK(self, value: float = 1.0):
-        return int(value * 10**int(mvkTokenDecimals))
+    # MVN Formatter
+    def MVN(self, value: float = 1.0):
+        return int(value * 10**int(mvnTokenDecimals))
 
     ######################
     # Tests for Token Sale contract #

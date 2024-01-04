@@ -1,5 +1,5 @@
 import assert from "assert";
-import { Utils, MVK } from "./helpers/Utils";
+import { Utils, MVN } from "./helpers/Utils";
 import { BigNumber } from 'bignumber.js'
 
 const chai = require("chai");
@@ -52,23 +52,23 @@ describe("Treasury tests", async () => {
     let delegationAddress
     let treasuryAddress 
     let governanceAddress 
-    let mvkTokenAddress 
-    let mavrykFa12TokenAddress
-    let mavrykFa2TokenAddress
+    let mvnTokenAddress 
+    let mavenFa12TokenAddress
+    let mavenFa2TokenAddress
 
     let treasuryInstance;
     let doormanInstance;    
-    let mvkTokenInstance;
+    let mvnTokenInstance;
     let governanceInstance;
-    let mavrykFa12TokenInstance;
-    let mavrykFa2TokenInstance;
+    let mavenFa12TokenInstance;
+    let mavenFa2TokenInstance;
 
     let treasuryStorage;
     let doormanStorage;
-    let mvkTokenStorage;
+    let mvnTokenStorage;
     let governanceStorage;
-    let mavrykFa12TokenStorage;
-    let mavrykFa2TokenStorage;
+    let mavenFa12TokenStorage;
+    let mavenFa2TokenStorage;
 
     // operations
     let transferOperation
@@ -108,27 +108,27 @@ describe("Treasury tests", async () => {
         userTwo     = alice.pkh 
         userTwoSk   = alice.sk 
 
-        mvkTokenAddress         = contractDeployments.mvkToken.address;
+        mvnTokenAddress         = contractDeployments.mvnToken.address;
         doormanAddress          = contractDeployments.doorman.address;
         delegationAddress       = contractDeployments.delegation.address;
         treasuryAddress         = contractDeployments.treasury.address;
         governanceAddress       = contractDeployments.governance.address;
-        mavrykFa12TokenAddress  = contractDeployments.mavrykFa12Token.address;
-        mavrykFa2TokenAddress   = contractDeployments.mavrykFa2Token.address;
+        mavenFa12TokenAddress  = contractDeployments.mavenFa12Token.address;
+        mavenFa2TokenAddress   = contractDeployments.mavenFa2Token.address;
 
         treasuryInstance        = await utils.tezos.contract.at(treasuryAddress);
         doormanInstance         = await utils.tezos.contract.at(doormanAddress);
-        mvkTokenInstance        = await utils.tezos.contract.at(mvkTokenAddress);
+        mvnTokenInstance        = await utils.tezos.contract.at(mvnTokenAddress);
         governanceInstance      = await utils.tezos.contract.at(governanceAddress);
-        mavrykFa12TokenInstance = await utils.tezos.contract.at(mavrykFa12TokenAddress);
-        mavrykFa2TokenInstance  = await utils.tezos.contract.at(mavrykFa2TokenAddress);
+        mavenFa12TokenInstance = await utils.tezos.contract.at(mavenFa12TokenAddress);
+        mavenFa2TokenInstance  = await utils.tezos.contract.at(mavenFa2TokenAddress);
             
         treasuryStorage         = await treasuryInstance.storage();
         doormanStorage          = await doormanInstance.storage();
-        mvkTokenStorage         = await mvkTokenInstance.storage();
+        mvnTokenStorage         = await mvnTokenInstance.storage();
         governanceStorage       = await governanceInstance.storage();
-        mavrykFa12TokenStorage  = await mavrykFa12TokenInstance.storage();
-        mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
+        mavenFa12TokenStorage  = await mavenFa12TokenInstance.storage();
+        mavenFa2TokenStorage   = await mavenFa2TokenInstance.storage();
 
     });
 
@@ -154,44 +154,44 @@ describe("Treasury tests", async () => {
             } 
         });
 
-        it('test: any user (alice) can deposit mavryk FA12 Tokens into treasury', async () => {
+        it('test: any user (alice) can deposit maven FA12 Tokens into treasury', async () => {
             try{        
                 
-                // Alice transfers 0.8 Mavryk FA12 Tokens to Treasury
+                // Alice transfers 0.8 Maven FA12 Tokens to Treasury
                 const depositAmount                         = 800000;
-                mavrykFa12TokenStorage                      = await mavrykFa12TokenInstance.storage();
-                var initTreasuryMavrykFa12TokenBalance      = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', treasuryAddress);
-                initTreasuryMavrykFa12TokenBalance          = initTreasuryMavrykFa12TokenBalance ? initTreasuryMavrykFa12TokenBalance.balance : new BigNumber(0);
+                mavenFa12TokenStorage                      = await mavenFa12TokenInstance.storage();
+                var initTreasuryMavenFa12TokenBalance      = await mavenFa12TokenStorage.ledger.get(treasuryAddress);
+                initTreasuryMavenFa12TokenBalance          = initTreasuryMavenFa12TokenBalance ? initTreasuryMavenFa12TokenBalance.balance : new BigNumber(0);
         
                 await signerFactory(tezos, alice.sk)
-                const aliceTransferMavrykFa12ToTreasuryOperation = await mavrykFa12TokenInstance.methods.transfer(
+                const aliceTransferMavenFa12ToTreasuryOperation = await mavenFa12TokenInstance.methods.transfer(
                     alice.pkh, 
                     treasuryAddress, 
                     depositAmount
                     ).send();
-                await aliceTransferMavrykFa12ToTreasuryOperation.confirmation();
+                await aliceTransferMavenFa12ToTreasuryOperation.confirmation();
 
-                mavrykFa12TokenStorage                      = await mavrykFa12TokenInstance.storage();
-                const treasuryMavrykFa12TokenBalance        = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', treasuryAddress);
+                mavenFa12TokenStorage                      = await mavenFa12TokenInstance.storage();
+                const treasuryMavenFa12TokenBalance        = await mavenFa12TokenStorage.ledger.get(treasuryAddress);
 
-                assert.deepEqual(treasuryMavrykFa12TokenBalance.balance, initTreasuryMavrykFa12TokenBalance.plus(depositAmount));
+                assert.deepEqual(treasuryMavenFa12TokenBalance.balance, initTreasuryMavenFa12TokenBalance.plus(depositAmount));
 
             } catch(e){
                 console.dir(e, {depth:  5});
             } 
         });
 
-        it('test: any user (alice) can deposit mavryk FA2 Tokens into treasury', async () => {
+        it('test: any user (alice) can deposit maven FA2 Tokens into treasury', async () => {
             try{        
                 
-                // Alice transfers 80 Mavryk FA2 Tokens to Treasury
+                // Alice transfers 80 Maven FA2 Tokens to Treasury
                 const depositAmount = 80000000;
-                mavrykFa2TokenStorage                       = await mavrykFa2TokenInstance.storage();
-                var initTreasuryMavrykFa2TokenBalance       = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', treasuryAddress);
-                initTreasuryMavrykFa2TokenBalance           = initTreasuryMavrykFa2TokenBalance ? initTreasuryMavrykFa2TokenBalance : new BigNumber(0);
+                mavenFa2TokenStorage                       = await mavenFa2TokenInstance.storage();
+                var initTreasuryMavenFa2TokenBalance       = await mavenFa2TokenStorage.ledger.get(treasuryAddress);
+                initTreasuryMavenFa2TokenBalance           = initTreasuryMavenFa2TokenBalance ? initTreasuryMavenFa2TokenBalance : new BigNumber(0);
         
                 await signerFactory(tezos, alice.sk)
-                const aliceTransferMavrykFa2ToTreasuryOperation = await mavrykFa2TokenInstance.methods.transfer([
+                const aliceTransferMavenFa2ToTreasuryOperation = await mavenFa2TokenInstance.methods.transfer([
                         {
                             from_: alice.pkh,
                             txs: [
@@ -203,30 +203,30 @@ describe("Treasury tests", async () => {
                             ]
                         }
                     ]).send();
-                await aliceTransferMavrykFa2ToTreasuryOperation.confirmation();
+                await aliceTransferMavenFa2ToTreasuryOperation.confirmation();
 
-                mavrykFa2TokenStorage                       = await mavrykFa2TokenInstance.storage();
-                const treasuryMavrykFa2TokenBalance         = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', treasuryAddress);
+                mavenFa2TokenStorage                       = await mavenFa2TokenInstance.storage();
+                const treasuryMavenFa2TokenBalance         = await mavenFa2TokenStorage.ledger.get(treasuryAddress);
 
-                assert.deepEqual(treasuryMavrykFa2TokenBalance, initTreasuryMavrykFa2TokenBalance.plus(depositAmount));
+                assert.deepEqual(treasuryMavenFa2TokenBalance, initTreasuryMavenFa2TokenBalance.plus(depositAmount));
 
             } catch(e){
                 console.dir(e, {depth:  5});
             } 
         });
 
-        it('test: any user (alice) can deposit MVK Tokens into treasury', async () => {
+        it('test: any user (alice) can deposit MVN Tokens into treasury', async () => {
             try{        
                 
-                // Alice transfers 2 MVK Tokens to Treasury
-                const depositAmount = MVK(2);
+                // Alice transfers 2 MVN Tokens to Treasury
+                const depositAmount = MVN(2);
         
-                mvkTokenStorage                         = await mvkTokenInstance.storage();
-                var initTreasuryMvkTokenBalance         = await getStorageMapValue(mvkTokenStorage, 'ledger', treasuryAddress);
-                initTreasuryMvkTokenBalance             = initTreasuryMvkTokenBalance ? initTreasuryMvkTokenBalance : new BigNumber(0);
+                mvnTokenStorage                         = await mvnTokenInstance.storage();
+                var initTreasuryMvnTokenBalance         = await mvnTokenStorage.ledger.get(treasuryAddress);
+                initTreasuryMvnTokenBalance             = initTreasuryMvnTokenBalance ? initTreasuryMvnTokenBalance : new BigNumber(0);
 
                 await signerFactory(tezos, alice.sk)
-                const aliceTransferMavrykFa2ToTreasuryOperation = await mvkTokenInstance.methods.transfer([
+                const aliceTransferMavenFa2ToTreasuryOperation = await mvnTokenInstance.methods.transfer([
                         {
                             from_: alice.pkh,
                             txs: [
@@ -238,12 +238,12 @@ describe("Treasury tests", async () => {
                             ]
                         }
                     ]).send();
-                await aliceTransferMavrykFa2ToTreasuryOperation.confirmation();
+                await aliceTransferMavenFa2ToTreasuryOperation.confirmation();
 
-                mvkTokenStorage                         = await mvkTokenInstance.storage();
-                const finalTreasuryMvkTokenBalance      = await getStorageMapValue(mvkTokenStorage, 'ledger', treasuryAddress);
+                mvnTokenStorage                         = await mvnTokenInstance.storage();
+                const finalTreasuryMvnTokenBalance      = await mvnTokenStorage.ledger.get(treasuryAddress);
 
-                assert.deepEqual(finalTreasuryMvkTokenBalance, initTreasuryMvkTokenBalance.plus(depositAmount));
+                assert.deepEqual(finalTreasuryMvnTokenBalance, initTreasuryMvnTokenBalance.plus(depositAmount));
 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -263,7 +263,7 @@ describe("Treasury tests", async () => {
             await adminUpdateWhitelistContractsOperation.confirmation();
 
             const treasuryStorage            = await treasuryInstance.storage();
-            const treasuryWhitelistContracts = await getStorageMapValue(treasuryStorage, 'whitelistContracts', userOne);
+            const treasuryWhitelistContracts = await treasuryStorage.whitelistContracts.get(userOne);
             assert.notStrictEqual(treasuryWhitelistContracts, undefined);
         })
 
@@ -306,15 +306,15 @@ describe("Treasury tests", async () => {
                 
                 const to_                               = userOne;
                 const amount                            = 10000000;
-                const tokenContractAddress              = mavrykFa12TokenAddress;
-                mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
-                var initTreasuryMavrykFa12TokenBalance  = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', treasuryAddress);
-                initTreasuryMavrykFa12TokenBalance      = initTreasuryMavrykFa12TokenBalance ? initTreasuryMavrykFa12TokenBalance.balance : new BigNumber(0);
-                var initUserMavrykFa12TokenBalance      = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', to_);
-                initUserMavrykFa12TokenBalance          = initUserMavrykFa12TokenBalance ? initUserMavrykFa12TokenBalance.balance : new BigNumber(0);
+                const tokenContractAddress              = mavenFa12TokenAddress;
+                mavenFa12TokenStorage                  = await mavenFa12TokenInstance.storage();
+                var initTreasuryMavenFa12TokenBalance  = await mavenFa12TokenStorage.ledger.get(treasuryAddress);
+                initTreasuryMavenFa12TokenBalance      = initTreasuryMavenFa12TokenBalance ? initTreasuryMavenFa12TokenBalance.balance : new BigNumber(0);
+                var initUserMavenFa12TokenBalance      = await mavenFa12TokenStorage.ledger.get(to_);
+                initUserMavenFa12TokenBalance          = initUserMavenFa12TokenBalance ? initUserMavenFa12TokenBalance.balance : new BigNumber(0);
 
                 await signerFactory(tezos, userOneSk);
-                const adminTransferMavrykFa12TokenOperation = await treasuryInstance.methods.transfer(
+                const adminTransferMavenFa12TokenOperation = await treasuryInstance.methods.transfer(
                     [
                         {
                             "to_"    : to_,
@@ -325,13 +325,13 @@ describe("Treasury tests", async () => {
                         }
                     ]
                 ).send();
-                await adminTransferMavrykFa12TokenOperation.confirmation();
-                mavrykFa12TokenStorage                  = await mavrykFa12TokenInstance.storage();
-                const treasuryMavrykFa12TokenBalance    = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', treasuryAddress);
-                const userMavrykFa12TokenBalance        = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', to_);
+                await adminTransferMavenFa12TokenOperation.confirmation();
+                mavenFa12TokenStorage                  = await mavenFa12TokenInstance.storage();
+                const treasuryMavenFa12TokenBalance    = await mavenFa12TokenStorage.ledger.get(treasuryAddress);
+                const userMavenFa12TokenBalance        = await mavenFa12TokenStorage.ledger.get(to_);
 
-                assert.deepEqual(treasuryMavrykFa12TokenBalance.balance, initTreasuryMavrykFa12TokenBalance.minus(amount));
-                assert.deepEqual(userMavrykFa12TokenBalance.balance, initUserMavrykFa12TokenBalance.plus(amount));
+                assert.deepEqual(treasuryMavenFa12TokenBalance.balance, initTreasuryMavenFa12TokenBalance.minus(amount));
+                assert.deepEqual(userMavenFa12TokenBalance.balance, initUserMavenFa12TokenBalance.plus(amount));
 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -343,17 +343,17 @@ describe("Treasury tests", async () => {
 
                 const to_                    = userOne;
                 const amount                 = 10000000;
-                const tokenContractAddress   = mavrykFa2TokenAddress;
+                const tokenContractAddress   = mavenFa2TokenAddress;
                 const tokenId                = 0;
 
-                mavrykFa2TokenStorage                   = await mavrykFa2TokenInstance.storage();
-                var initTreasuryMavrykFa2TokenBalance   = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', treasuryAddress);
-                initTreasuryMavrykFa2TokenBalance       = initTreasuryMavrykFa2TokenBalance ? initTreasuryMavrykFa2TokenBalance : new BigNumber(0);
-                var initUserMavrykFa2TokenBalance       = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', to_);
-                initUserMavrykFa2TokenBalance           = initUserMavrykFa2TokenBalance ? initUserMavrykFa2TokenBalance : new BigNumber(0);
+                mavenFa2TokenStorage                   = await mavenFa2TokenInstance.storage();
+                var initTreasuryMavenFa2TokenBalance   = await mavenFa2TokenStorage.ledger.get(treasuryAddress);
+                initTreasuryMavenFa2TokenBalance       = initTreasuryMavenFa2TokenBalance ? initTreasuryMavenFa2TokenBalance : new BigNumber(0);
+                var initUserMavenFa2TokenBalance       = await mavenFa2TokenStorage.ledger.get(to_);
+                initUserMavenFa2TokenBalance           = initUserMavenFa2TokenBalance ? initUserMavenFa2TokenBalance : new BigNumber(0);
 
                 await signerFactory(tezos, userOneSk);
-                const adminTransferMavrykFa2TokenOperation = await treasuryInstance.methods.transfer(
+                const adminTransferMavenFa2TokenOperation = await treasuryInstance.methods.transfer(
                     [
                         {
                             "to_"    : to_,
@@ -367,33 +367,33 @@ describe("Treasury tests", async () => {
                         }
                     ]
                 ).send();
-                await adminTransferMavrykFa2TokenOperation.confirmation();
-                mavrykFa2TokenStorage               = await mavrykFa2TokenInstance.storage();
-                const treasuryMavrykFa2TokenBalance = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', treasuryAddress);
-                const userMavrykFa2TokenBalance     = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', to_);
+                await adminTransferMavenFa2TokenOperation.confirmation();
+                mavenFa2TokenStorage               = await mavenFa2TokenInstance.storage();
+                const treasuryMavenFa2TokenBalance = await mavenFa2TokenStorage.ledger.get(treasuryAddress);
+                const userMavenFa2TokenBalance     = await mavenFa2TokenStorage.ledger.get(to_);
 
-                assert.deepEqual(treasuryMavrykFa2TokenBalance, initTreasuryMavrykFa2TokenBalance.minus(amount));
-                assert.deepEqual(userMavrykFa2TokenBalance, initUserMavrykFa2TokenBalance.plus(amount));
+                assert.deepEqual(treasuryMavenFa2TokenBalance, initTreasuryMavenFa2TokenBalance.minus(amount));
+                assert.deepEqual(userMavenFa2TokenBalance, initUserMavenFa2TokenBalance.plus(amount));
 
             } catch(e){
                 console.dir(e, {depth:  5});
             } 
         });
 
-        it('%transfer                 - whitelisted contract (eve) should be able to call this entrypoint and transfer MVK', async () => {
+        it('%transfer                 - whitelisted contract (eve) should be able to call this entrypoint and transfer MVN', async () => {
             try{        
 
                 const to_                      = oscar.pkh;
-                const amount                   = MVK(2);
-                const tokenContractAddress     = mvkTokenAddress;
+                const amount                   = MVN(2);
+                const tokenContractAddress     = mvnTokenAddress;
                 const tokenId                  = 0;
                 
-                mvkTokenStorage                     = await mvkTokenInstance.storage();
-                const initTreasuryMvkTokenBalance   = await getStorageMapValue(mvkTokenStorage, 'ledger', treasuryAddress);
-                const initUserMvkTokenBalance       = await getStorageMapValue(mvkTokenStorage, 'ledger', to_);
+                mvnTokenStorage                     = await mvnTokenInstance.storage();
+                const initTreasuryMvnTokenBalance   = await mvnTokenStorage.ledger.get(treasuryAddress);
+                const initUserMvnTokenBalance       = await mvnTokenStorage.ledger.get(to_);
 
                 await signerFactory(tezos, userOneSk);
-                const adminTransferMavrykFa2TokenOperation = await treasuryInstance.methods.transfer(
+                const adminTransferMavenFa2TokenOperation = await treasuryInstance.methods.transfer(
                     [
                         {
                             "to_"    : to_,
@@ -407,14 +407,14 @@ describe("Treasury tests", async () => {
                         }
                     ]
                 ).send();
-                await adminTransferMavrykFa2TokenOperation.confirmation();
+                await adminTransferMavenFa2TokenOperation.confirmation();
 
-                mvkTokenStorage                         = await mvkTokenInstance.storage();
-                const finalTreasuryMvkTokenBalance      = await getStorageMapValue(mvkTokenStorage, 'ledger', treasuryAddress);
-                const finalUserMvkTokenBalance          = await getStorageMapValue(mvkTokenStorage, 'ledger', to_);
+                mvnTokenStorage                         = await mvnTokenInstance.storage();
+                const finalTreasuryMvnTokenBalance      = await mvnTokenStorage.ledger.get(treasuryAddress);
+                const finalUserMvnTokenBalance          = await mvnTokenStorage.ledger.get(to_);
 
-                assert.deepEqual(finalTreasuryMvkTokenBalance, initTreasuryMvkTokenBalance.minus(amount));
-                assert.deepEqual(finalUserMvkTokenBalance, initUserMvkTokenBalance.plus(amount));
+                assert.deepEqual(finalTreasuryMvnTokenBalance, initTreasuryMvnTokenBalance.minus(amount));
+                assert.deepEqual(finalUserMvnTokenBalance, initUserMvnTokenBalance.plus(amount));
 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -485,7 +485,7 @@ describe("Treasury tests", async () => {
             try{        
                 
                 const tokenType             = "fa12";
-                const tokenContractAddress  = mavrykFa12TokenAddress;
+                const tokenContractAddress  = mavenFa12TokenAddress;
 
                 const recipient_one   = mallory.pkh;
                 const amount_one      = 20000;
@@ -496,10 +496,10 @@ describe("Treasury tests", async () => {
                 const recipient_three = trudy.pkh;
                 const amount_three    = 50000;
 
-                const mavrykFa12TokenStorage           = await mavrykFa12TokenInstance.storage();
-                const initialRecipientOneAccount     = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', recipient_one);
-                const initialRecipientTwoAccount     = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', recipient_two);
-                const initialRecipientThreeAccount   = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', recipient_three);
+                const mavenFa12TokenStorage           = await mavenFa12TokenInstance.storage();
+                const initialRecipientOneAccount     = await mavenFa12TokenStorage.ledger.get(recipient_one);
+                const initialRecipientTwoAccount     = await mavenFa12TokenStorage.ledger.get(recipient_two);
+                const initialRecipientThreeAccount   = await mavenFa12TokenStorage.ledger.get(recipient_three);
 
                 const initialRecipientOneBalance     = initialRecipientOneAccount   === undefined ? new BigNumber(0) : initialRecipientOneAccount.balance;
                 const initialRecipientTwoBalance     = initialRecipientTwoAccount   === undefined ? new BigNumber(0) : initialRecipientTwoAccount.balance;
@@ -533,10 +533,10 @@ describe("Treasury tests", async () => {
                 ).send();
                 await adminBatchTransferOperation.confirmation();
 
-                const updatedMavrykFa12TokenStorage  = await mavrykFa12TokenInstance.storage();
-                const finalRecipientOneBalance       = await getStorageMapValue(updatedMavrykFa12TokenStorage, 'ledger', recipient_one);
-                const finalRecipientTwoBalance       = await getStorageMapValue(updatedMavrykFa12TokenStorage, 'ledger', recipient_two);
-                const finalRecipientThreeBalance     = await getStorageMapValue(updatedMavrykFa12TokenStorage, 'ledger', recipient_three);
+                const updatedMavenFa12TokenStorage  = await mavenFa12TokenInstance.storage();
+                const finalRecipientOneBalance       = await updatedMavenFa12TokenStorage.ledger.get(recipient_one);
+                const finalRecipientTwoBalance       = await updatedMavenFa12TokenStorage.ledger.get(recipient_two);
+                const finalRecipientThreeBalance     = await updatedMavenFa12TokenStorage.ledger.get(recipient_three);
 
                 assert.deepEqual(finalRecipientOneBalance.balance,   initialRecipientOneBalance.plus(amount_one));
                 assert.deepEqual(finalRecipientTwoBalance.balance,   initialRecipientTwoBalance.plus(amount_two));
@@ -551,7 +551,7 @@ describe("Treasury tests", async () => {
             try{        
                 
                 const tokenType             = "fa2";
-                const tokenContractAddress  = mavrykFa2TokenAddress;
+                const tokenContractAddress  = mavenFa2TokenAddress;
                 const tokenId               = 0;
 
                 const recipient_one   = mallory.pkh;
@@ -563,10 +563,10 @@ describe("Treasury tests", async () => {
                 const recipient_three = trudy.pkh;
                 const amount_three    = 5000000;
 
-                const mavrykFa2TokenStorage          = await mavrykFa2TokenInstance.storage();
-                const initialRecipientOneAccount     = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', recipient_one);
-                const initialRecipientTwoAccount     = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', recipient_two);
-                const initialRecipientThreeAccount   = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', recipient_three);
+                const mavenFa2TokenStorage          = await mavenFa2TokenInstance.storage();
+                const initialRecipientOneAccount     = await mavenFa2TokenStorage.ledger.get(recipient_one);
+                const initialRecipientTwoAccount     = await mavenFa2TokenStorage.ledger.get(recipient_two);
+                const initialRecipientThreeAccount   = await mavenFa2TokenStorage.ledger.get(recipient_three);
 
                 const initialRecipientOneBalance     = initialRecipientOneAccount   === undefined ? new BigNumber(0) : initialRecipientOneAccount;
                 const initialRecipientTwoBalance     = initialRecipientTwoAccount   === undefined ? new BigNumber(0) : initialRecipientTwoAccount;
@@ -609,10 +609,10 @@ describe("Treasury tests", async () => {
                 ).send();
                 await adminBatchTransferOperation.confirmation();
 
-                const updatedMavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
-                const finalRecipientOneBalance       = await getStorageMapValue(updatedMavrykFa2TokenStorage, 'ledger', recipient_one);
-                const finalRecipientTwoBalance       = await getStorageMapValue(updatedMavrykFa2TokenStorage, 'ledger', recipient_two);
-                const finalRecipientThreeBalance     = await getStorageMapValue(updatedMavrykFa2TokenStorage, 'ledger', recipient_three);
+                const updatedMavenFa2TokenStorage   = await mavenFa2TokenInstance.storage();
+                const finalRecipientOneBalance       = await updatedMavenFa2TokenStorage.ledger.get(recipient_one);
+                const finalRecipientTwoBalance       = await updatedMavenFa2TokenStorage.ledger.get(recipient_two);
+                const finalRecipientThreeBalance     = await updatedMavenFa2TokenStorage.ledger.get(recipient_three);
 
                 assert.deepEqual(finalRecipientOneBalance,   initialRecipientOneBalance.plus(amount_one));
                 assert.deepEqual(finalRecipientTwoBalance,   initialRecipientTwoBalance.plus(amount_two));
@@ -623,11 +623,11 @@ describe("Treasury tests", async () => {
             } 
         });
 
-        it('%transfer                 - whitelisted contract (eve) should be able to call this entrypoint and transfer batch of MVK', async () => {
+        it('%transfer                 - whitelisted contract (eve) should be able to call this entrypoint and transfer batch of MVN', async () => {
             try{        
                 
                 const tokenType             = "fa2";
-                const tokenContractAddress  = mvkTokenAddress;
+                const tokenContractAddress  = mvnTokenAddress;
                 const tokenId               = 0;
 
                 const recipient_one   = mallory.pkh;
@@ -639,10 +639,10 @@ describe("Treasury tests", async () => {
                 const recipient_three = trudy.pkh;
                 const amount_three    = 50000;
 
-                const mvkTokenStorage                = await mvkTokenInstance.storage();
-                const initialRecipientOneAccount     = await getStorageMapValue(mvkTokenStorage, 'ledger', recipient_one);
-                const initialRecipientTwoAccount     = await getStorageMapValue(mvkTokenStorage, 'ledger', recipient_two);
-                const initialRecipientThreeAccount   = await getStorageMapValue(mvkTokenStorage, 'ledger', recipient_three);
+                const mvnTokenStorage                = await mvnTokenInstance.storage();
+                const initialRecipientOneAccount     = await mvnTokenStorage.ledger.get(recipient_one);
+                const initialRecipientTwoAccount     = await mvnTokenStorage.ledger.get(recipient_two);
+                const initialRecipientThreeAccount   = await mvnTokenStorage.ledger.get(recipient_three);
 
                 const initialRecipientOneBalance     = initialRecipientOneAccount   === undefined ? new BigNumber(0) : initialRecipientOneAccount;
                 const initialRecipientTwoBalance     = initialRecipientTwoAccount   === undefined ? new BigNumber(0) : initialRecipientTwoAccount;
@@ -685,10 +685,10 @@ describe("Treasury tests", async () => {
                 ).send();
                 await adminBatchTransferOperation.confirmation();
 
-                const updatedMvkTokenStorage         = await mvkTokenInstance.storage();
-                const finalRecipientOneBalance       = await getStorageMapValue(updatedMvkTokenStorage, 'ledger', recipient_one);
-                const finalRecipientTwoBalance       = await getStorageMapValue(updatedMvkTokenStorage, 'ledger', recipient_two);
-                const finalRecipientThreeBalance     = await getStorageMapValue(updatedMvkTokenStorage, 'ledger', recipient_three);
+                const updatedMvnTokenStorage         = await mvnTokenInstance.storage();
+                const finalRecipientOneBalance       = await updatedMvnTokenStorage.ledger.get(recipient_one);
+                const finalRecipientTwoBalance       = await updatedMvnTokenStorage.ledger.get(recipient_two);
+                const finalRecipientThreeBalance     = await updatedMvnTokenStorage.ledger.get(recipient_three);
 
                 assert.deepEqual(finalRecipientOneBalance,   initialRecipientOneBalance.plus(amount_one));
                 assert.deepEqual(finalRecipientTwoBalance,   initialRecipientTwoBalance.plus(amount_two));
@@ -699,40 +699,40 @@ describe("Treasury tests", async () => {
             } 
         });
 
-        it('%transfer                 - whitelisted contract (eve) should be able to call this entrypoint and transfer batch of FA12, FA2, MVK and XTZ', async () => {
+        it('%transfer                 - whitelisted contract (eve) should be able to call this entrypoint and transfer batch of FA12, FA2, MVN and XTZ', async () => {
             try{
-                const mavrykFa12TokenContractAddress  = mavrykFa12TokenAddress;
+                const mavenFa12TokenContractAddress  = mavenFa12TokenAddress;
 
-                const mavrykFa2TokenContractAddress   = mavrykFa2TokenAddress;
-                const mavrykFa2TokenId                = 0;
+                const mavenFa2TokenContractAddress   = mavenFa2TokenAddress;
+                const mavenFa2TokenId                = 0;
                 
-                const mvkTokenContractAddress       = mvkTokenAddress;
-                const mvkTokenId                    = 0;
+                const mvnTokenContractAddress       = mvnTokenAddress;
+                const mvnTokenId                    = 0;
 
                 // receive tez
                 const recipient_one   = isaac.pkh;
                 const amount_one      = 20000;
 
-                // receive mavryk FA12 tokens
+                // receive maven FA12 tokens
                 const recipient_two   = oscar.pkh;
                 const amount_two      = 30000;
 
-                // receive mavryk FA2 tokens
+                // receive maven FA2 tokens
                 const recipient_three = trudy.pkh;
                 const amount_three    = 50000;
 
-                // receive MVK Tokens
+                // receive MVN Tokens
                 const recipient_four  = david.pkh;
                 const amount_four     = 50000;
 
-                const mvkTokenStorage                = await mvkTokenInstance.storage();
-                const mavrykFa12TokenStorage         = await mavrykFa12TokenInstance.storage();
-                const mavrykFa2TokenStorage          = await mavrykFa2TokenInstance.storage();
+                const mvnTokenStorage                = await mvnTokenInstance.storage();
+                const mavenFa12TokenStorage         = await mavenFa12TokenInstance.storage();
+                const mavenFa2TokenStorage          = await mavenFa2TokenInstance.storage();
 
                 const initRecipientOneTezBalance     = await utils.tezos.tz.getBalance(recipient_one);
-                const initialRecipientTwoAccount     = await getStorageMapValue(mavrykFa12TokenStorage, 'ledger', recipient_two);
-                const initialRecipientThreeAccount   = await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', recipient_three);
-                const initialRecipientFourAccount    = await getStorageMapValue(mvkTokenStorage, 'ledger', recipient_four);
+                const initialRecipientTwoAccount     = await mavenFa12TokenStorage.ledger.get(recipient_two);
+                const initialRecipientThreeAccount   = await mavenFa2TokenStorage.ledger.get(recipient_three);
+                const initialRecipientFourAccount    = await mvnTokenStorage.ledger.get(recipient_four);
 
                 const initialRecipientTwoBalance     = initialRecipientTwoAccount    === undefined ? new BigNumber(0) : initialRecipientTwoAccount.balance;
                 const initialRecipientThreeBalance   = initialRecipientThreeAccount  === undefined ? new BigNumber(0) : initialRecipientThreeAccount;
@@ -751,7 +751,7 @@ describe("Treasury tests", async () => {
                     {
                         "to_"    : recipient_two,
                         "token"  : {
-                            "fa12" : mavrykFa12TokenContractAddress
+                            "fa12" : mavenFa12TokenContractAddress
                         },
                         "amount" : amount_two
                     },
@@ -759,8 +759,8 @@ describe("Treasury tests", async () => {
                         "to_"    : recipient_three,
                         "token"  : {
                             "fa2" : {
-                                "tokenContractAddress" : mavrykFa2TokenContractAddress,
-                                "tokenId" : mavrykFa2TokenId
+                                "tokenContractAddress" : mavenFa2TokenContractAddress,
+                                "tokenId" : mavenFa2TokenId
                             }
                         },
                         "amount" : amount_three
@@ -769,8 +769,8 @@ describe("Treasury tests", async () => {
                         "to_"    : recipient_four,
                         "token"  : {
                             "fa2" : {
-                                "tokenContractAddress" : mvkTokenContractAddress,
-                                "tokenId" : mvkTokenId
+                                "tokenContractAddress" : mvnTokenContractAddress,
+                                "tokenId" : mvnTokenId
                             }
                         },
                         "amount" : amount_four
@@ -779,19 +779,19 @@ describe("Treasury tests", async () => {
                 ).send();
                 await adminBatchTransferOperation.confirmation();
 
-                const updatedMvkTokenStorage           = await mvkTokenInstance.storage();
-                const updatedMavrykFa12TokenStorage    = await mavrykFa12TokenInstance.storage();
-                const updatedMavrykFa2TokenStorage     = await mavrykFa2TokenInstance.storage();
+                const updatedMvnTokenStorage           = await mvnTokenInstance.storage();
+                const updatedMavenFa12TokenStorage    = await mavenFa12TokenInstance.storage();
+                const updatedMavenFa2TokenStorage     = await mavenFa2TokenInstance.storage();
 
                 const finalRecipientOneTezBalance               = await utils.tezos.tz.getBalance(recipient_one);
-                const finalRecipientTwoMavrykFa12TokenBalance   = await getStorageMapValue(updatedMavrykFa12TokenStorage, 'ledger', recipient_two);
-                const finalRecipientThreeMavrykFa2TokenBalance  = await getStorageMapValue(updatedMavrykFa2TokenStorage, 'ledger', recipient_three);
-                const finalRecipientThreeMvkTokenBalance        = await getStorageMapValue(updatedMvkTokenStorage, 'ledger', recipient_four);
+                const finalRecipientTwoMavenFa12TokenBalance   = await updatedMavenFa12TokenStorage.ledger.get(recipient_two);
+                const finalRecipientThreeMavenFa2TokenBalance  = await updatedMavenFa2TokenStorage.ledger.get(recipient_three);
+                const finalRecipientThreeMvnTokenBalance        = await updatedMvnTokenStorage.ledger.get(recipient_four);
 
                 assert.deepEqual(finalRecipientOneTezBalance,   initRecipientOneTezBalance.plus(amount_one));
-                assert.deepEqual(finalRecipientTwoMavrykFa12TokenBalance.balance,  initialRecipientTwoBalance.plus(amount_two));
-                assert.deepEqual(finalRecipientThreeMavrykFa2TokenBalance,         initialRecipientThreeBalance.plus(amount_three));
-                assert.deepEqual(finalRecipientThreeMvkTokenBalance,               initialRecipientFourBalance.plus(amount_four));
+                assert.deepEqual(finalRecipientTwoMavenFa12TokenBalance.balance,  initialRecipientTwoBalance.plus(amount_two));
+                assert.deepEqual(finalRecipientThreeMavenFa2TokenBalance,         initialRecipientThreeBalance.plus(amount_three));
+                assert.deepEqual(finalRecipientThreeMvnTokenBalance,               initialRecipientFourBalance.plus(amount_four));
 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -799,29 +799,29 @@ describe("Treasury tests", async () => {
         });
     })
 
-    describe('%mintMvkAndTransfer', function() {
+    describe('%mintMvnAndTransfer', function() {
 
-        it('%mintMvkAndTransfer       - whitelisted contract (eve) should be able to call this entrypoint and mintAndTransfer MVK', async () => {
+        it('%mintMvnAndTransfer       - whitelisted contract (eve) should be able to call this entrypoint and mintAndTransfer MVN', async () => {
             try{        
                 
                 const to_        = userOne;
-                const amount     = MVK(2); // 2 MVK
+                const amount     = MVN(2); // 2 MVN
 
-                const mvkTokenStorage           = await mvkTokenInstance.storage();
-                const initialBobMvkTokenBalance = await getStorageMapValue(mvkTokenStorage, 'ledger', userOne);
+                const mvnTokenStorage           = await mvnTokenInstance.storage();
+                const initialBobMvnTokenBalance = await mvnTokenStorage.ledger.get(userOne);
 
 
                 await signerFactory(tezos, userOneSk);
-                const mintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
+                const mintMvnAndTransferOperation = await treasuryInstance.methods.mintMvnAndTransfer(
                      to_,
                      amount,
                 ).send();
-                await mintMvkAndTransferOperation.confirmation();
+                await mintMvnAndTransferOperation.confirmation();
 
-                const updatedMvkTokenStorage     = await mvkTokenInstance.storage();
-                const updatedBobMvkTokenBalance  = await getStorageMapValue(updatedMvkTokenStorage, 'ledger', userOne);
+                const updatedMvnTokenStorage     = await mvnTokenInstance.storage();
+                const updatedBobMvnTokenBalance  = await updatedMvnTokenStorage.ledger.get(userOne);
 
-                assert.deepEqual(updatedBobMvkTokenBalance, initialBobMvkTokenBalance.plus(amount));
+                assert.deepEqual(updatedBobMvnTokenBalance, initialBobMvnTokenBalance.plus(amount));
                 
 
             } catch(e){
@@ -832,16 +832,16 @@ describe("Treasury tests", async () => {
 
     describe('%stakeTokens', function() {
 
-        it('%stakeTokens              - admin (bob) should be able to call this entrypoint and stake MVK', async () => {
+        it('%stakeTokens              - admin (bob) should be able to call this entrypoint and stake MVN', async () => {
             try{        
                 // Initial values
                 await signerFactory(tezos, adminSk);
                 doormanStorage                      = await doormanInstance.storage();
-                mvkTokenStorage                     = await mvkTokenInstance.storage();
-                const initTreasuryMvkTokenBalance   = await getStorageMapValue(mvkTokenStorage, 'ledger', treasuryAddress);
-                var initTreasurySMvkTokenBalance    = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', treasuryAddress);
-                initTreasurySMvkTokenBalance        = initTreasurySMvkTokenBalance ? initTreasurySMvkTokenBalance.balance : new BigNumber(0);
-                const stakeAmount                   = MVK(4);
+                mvnTokenStorage                     = await mvnTokenInstance.storage();
+                const initTreasuryMvnTokenBalance   = await mvnTokenStorage.ledger.get(treasuryAddress);
+                var initTreasurySMvnTokenBalance    = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress);
+                initTreasurySMvnTokenBalance        = initTreasurySMvnTokenBalance ? initTreasurySMvnTokenBalance.balance : new BigNumber(0);
+                const stakeAmount                   = MVN(4);
 
                 // Operations
                 const stakeOperation                = await treasuryInstance.methods.stakeTokens(
@@ -851,13 +851,13 @@ describe("Treasury tests", async () => {
                 await stakeOperation.confirmation();
 
                 // Final values
-                mvkTokenStorage                     = await mvkTokenInstance.storage();
+                mvnTokenStorage                     = await mvnTokenInstance.storage();
                 doormanStorage                      = await doormanInstance.storage();
-                const finalTreasuryMvkTokenBalance  = await getStorageMapValue(mvkTokenStorage, 'ledger', treasuryAddress);
-                const finalTreasurySMvkTokenBalance = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', treasuryAddress);
+                const finalTreasuryMvnTokenBalance  = await mvnTokenStorage.ledger.get(treasuryAddress);
+                const finalTreasurySMvnTokenBalance = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress);
 
-                assert.deepEqual(initTreasuryMvkTokenBalance.minus(stakeAmount), finalTreasuryMvkTokenBalance);
-                assert.deepEqual(finalTreasurySMvkTokenBalance.balance, initTreasurySMvkTokenBalance.plus(stakeAmount));
+                assert.deepEqual(initTreasuryMvnTokenBalance.minus(stakeAmount), finalTreasuryMvnTokenBalance);
+                assert.deepEqual(finalTreasurySMvnTokenBalance.balance, initTreasurySMvnTokenBalance.plus(stakeAmount));
 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -867,7 +867,7 @@ describe("Treasury tests", async () => {
         it('%stakeTokens              - admin (bob) should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map', async () => {
             try{
                 // Initial values
-                const stakeAmount     = MVK(2);
+                const stakeAmount     = MVN(2);
 
                 // Update config
                 await signerFactory(tezos, adminSk);
@@ -893,15 +893,15 @@ describe("Treasury tests", async () => {
 
     describe('%unstakeTokens', function() {
 
-        it('%unstakeTokens            - admin (bob) should be able to call this entrypoint and unstake MVK', async () => {
+        it('%unstakeTokens            - admin (bob) should be able to call this entrypoint and unstake MVN', async () => {
             try{        
                 // Initial values
                 await signerFactory(tezos, adminSk);
                 doormanStorage                      = await doormanInstance.storage();
-                mvkTokenStorage                     = await mvkTokenInstance.storage();
-                const initTreasuryMvkTokenBalance   = await getStorageMapValue(mvkTokenStorage, 'ledger', treasuryAddress);
-                const initTreasurySMvkTokenBalance  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', treasuryAddress);
-                const unstakeAmount                 = MVK(2);
+                mvnTokenStorage                     = await mvnTokenInstance.storage();
+                const initTreasuryMvnTokenBalance   = await mvnTokenStorage.ledger.get(treasuryAddress);
+                const initTreasurySMvnTokenBalance  = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress);
+                const unstakeAmount                 = MVN(2);
 
                 // Operations
                 const stakeOperation = await treasuryInstance.methods.unstakeTokens(
@@ -911,12 +911,12 @@ describe("Treasury tests", async () => {
                 await stakeOperation.confirmation();
 
                 // Final values
-                mvkTokenStorage                     = await mvkTokenInstance.storage();
-                const finalTreasuryMvkTokenBalance  = await getStorageMapValue(mvkTokenStorage, 'ledger', treasuryAddress);
-                const finalTreasurySMvkTokenBalance = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', treasuryAddress);
+                mvnTokenStorage                     = await mvnTokenInstance.storage();
+                const finalTreasuryMvnTokenBalance  = await mvnTokenStorage.ledger.get(treasuryAddress);
+                const finalTreasurySMvnTokenBalance = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress);
 
-                assert.notEqual(initTreasuryMvkTokenBalance.toNumber(), finalTreasuryMvkTokenBalance.toNumber());
-                assert.notEqual(initTreasurySMvkTokenBalance.balance.toNumber() - unstakeAmount, finalTreasurySMvkTokenBalance.balance.toNumber());
+                assert.notEqual(initTreasuryMvnTokenBalance.toNumber(), finalTreasuryMvnTokenBalance.toNumber());
+                assert.notEqual(initTreasurySMvnTokenBalance.balance.toNumber() - unstakeAmount, finalTreasurySMvnTokenBalance.balance.toNumber());
 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -926,7 +926,7 @@ describe("Treasury tests", async () => {
         it('%unstakeTokens            - admin (bob) should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map', async () => {
             try{
                 // Initial values
-                const unstakeAmount     = MVK(2);
+                const unstakeAmount     = MVN(2);
 
                 // Update config
                 await signerFactory(tezos, adminSk);
@@ -1049,7 +1049,7 @@ describe("Treasury tests", async () => {
                 // Final values
                 treasuryStorage       = await treasuryInstance.storage();            
 
-                const updatedData       = await getStorageMapValue(treasuryStorage, 'metadata', key);
+                const updatedData       = await treasuryStorage.metadata.get(key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -1252,7 +1252,7 @@ describe("Treasury tests", async () => {
                 pauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("transfer", true).send();
                 await pauseOperation.confirmation();
                 
-                pauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("mintMvkAndTransfer", true).send();
+                pauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("mintMvnAndTransfer", true).send();
                 await pauseOperation.confirmation();
 
                 pauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("stakeTokens", true).send(); 
@@ -1277,7 +1277,7 @@ describe("Treasury tests", async () => {
                 pauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("transfer", false).send();
                 await pauseOperation.confirmation();
                 
-                pauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("mintMvkAndTransfer", false).send();
+                pauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("mintMvnAndTransfer", false).send();
                 await pauseOperation.confirmation();
 
                 pauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("stakeTokens", false).send(); 
@@ -1371,7 +1371,7 @@ describe("Treasury tests", async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 treasuryStorage = await treasuryInstance.storage();   
-                const initialMetadata    = await getStorageMapValue(treasuryStorage, 'metadata', key);
+                const initialMetadata    = await treasuryStorage.metadata.get(key);
 
                 // Operation
                 const updateOperation = await treasuryInstance.methods.updateMetadata(key, hash);
@@ -1379,7 +1379,7 @@ describe("Treasury tests", async () => {
 
                 // Final values
                 treasuryStorage = await treasuryInstance.storage();            
-                const updatedData        = await getStorageMapValue(treasuryStorage, 'metadata', key);
+                const updatedData        = await treasuryStorage.metadata.get(key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);
@@ -1486,7 +1486,7 @@ describe("Treasury tests", async () => {
                 pauseOperation = treasuryInstance.methods.togglePauseEntrypoint("transfer", true); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
                 
-                pauseOperation = treasuryInstance.methods.togglePauseEntrypoint("mintMvkAndTransfer", true); 
+                pauseOperation = treasuryInstance.methods.togglePauseEntrypoint("mintMvnAndTransfer", true); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
 
                 pauseOperation = treasuryInstance.methods.togglePauseEntrypoint("stakeTokens", true); 
@@ -1500,7 +1500,7 @@ describe("Treasury tests", async () => {
                 pauseOperation = treasuryInstance.methods.togglePauseEntrypoint("transfer", false); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
                 
-                pauseOperation = treasuryInstance.methods.togglePauseEntrypoint("mintMvkAndTransfer", false); 
+                pauseOperation = treasuryInstance.methods.togglePauseEntrypoint("mintMvnAndTransfer", false); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
 
                 pauseOperation = treasuryInstance.methods.togglePauseEntrypoint("stakeTokens", false); 
@@ -1544,10 +1544,10 @@ describe("Treasury tests", async () => {
             try{
                 const to_                   = userOne;
                 const amount                = 100000;
-                const tokenContractAddress  = mavrykFa12TokenAddress;
+                const tokenContractAddress  = mavenFa12TokenAddress;
 
                 await signerFactory(tezos, adminSk);
-                const failTransferMavrykFa12TokenOperation = await treasuryInstance.methods.transfer(
+                const failTransferMavenFa12TokenOperation = await treasuryInstance.methods.transfer(
                     [
                         {
                             "to_"    : to_,
@@ -1558,7 +1558,7 @@ describe("Treasury tests", async () => {
                         }
                     ]
                 );
-                await chai.expect(failTransferMavrykFa12TokenOperation.send()).to.be.eventually.rejected;
+                await chai.expect(failTransferMavenFa12TokenOperation.send()).to.be.eventually.rejected;
 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -1569,11 +1569,11 @@ describe("Treasury tests", async () => {
             try{
                 const to_        = userOne;
                 const amount     = 100000;
-                const tokenContractAddress      = mavrykFa12TokenAddress;
+                const tokenContractAddress      = mavenFa12TokenAddress;
                 const tokenId    = 0;
 
                 await signerFactory(tezos, adminSk);
-                const failTransferMavrykFa2TokenOperation = await treasuryInstance.methods.transfer(
+                const failTransferMavenFa2TokenOperation = await treasuryInstance.methods.transfer(
                     [
                         {
                             "to_"    : to_,
@@ -1587,22 +1587,22 @@ describe("Treasury tests", async () => {
                         }
                     ]
                 );
-                await chai.expect(failTransferMavrykFa2TokenOperation.send()).to.be.eventually.rejected;
+                await chai.expect(failTransferMavenFa2TokenOperation.send()).to.be.eventually.rejected;
 
             } catch(e){
                 console.dir(e, {depth:  5});
             } 
         });
 
-        it('%transfer                 - non-whitelisted contract (admin) should not be able to call this entrypoint and transfer MVK', async () => {
+        it('%transfer                 - non-whitelisted contract (admin) should not be able to call this entrypoint and transfer MVN', async () => {
             try{
                 const to_                   = userOne;
-                const amount                = MVK(2);
-                const tokenContractAddress  = mvkTokenAddress;
+                const amount                = MVN(2);
+                const tokenContractAddress  = mvnTokenAddress;
                 const tokenId               = 0;
 
                 await signerFactory(tezos, adminSk);
-                const failTransferMvkTokenOperation = await treasuryInstance.methods.transfer(
+                const failTransferMvnTokenOperation = await treasuryInstance.methods.transfer(
                     [
                         {
                             "to_"    : to_,
@@ -1616,33 +1616,33 @@ describe("Treasury tests", async () => {
                         }
                     ]
                 );
-                await chai.expect(failTransferMvkTokenOperation.send()).to.be.eventually.rejected;
+                await chai.expect(failTransferMvnTokenOperation.send()).to.be.eventually.rejected;
             } catch(e){
                 console.dir(e, {depth:  5});
             } 
         });
 
-        it('%mintMvkAndTransfer      - non-whitelisted contract (admin) should not be able to call this entrypoint and mintAndTransfer MVK', async () => {
+        it('%mintMvnAndTransfer      - non-whitelisted contract (admin) should not be able to call this entrypoint and mintAndTransfer MVN', async () => {
             try{
                 const to_        = userOne;
                 const amount     = 100000;
 
                 await signerFactory(tezos, adminSk);
-                const failMintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
+                const failMintMvnAndTransferOperation = await treasuryInstance.methods.mintMvnAndTransfer(
                      to_,
                      amount,
                 );
-                await chai.expect(failMintMvkAndTransferOperation.send()).to.be.eventually.rejected;
+                await chai.expect(failMintMvnAndTransferOperation.send()).to.be.eventually.rejected;
 
             } catch(e){
                 console.dir(e, {depth:  5});
             } 
         });
 
-        it('%stakeTokens             - non-admin (eve) should not be able to call this entrypoint and stake MVK', async () => {
+        it('%stakeTokens             - non-admin (eve) should not be able to call this entrypoint and stake MVN', async () => {
             try{
                 // Initial values
-                const stakeAmount     = MVK(2);
+                const stakeAmount     = MVN(2);
 
                 // Operations
                 await chai.expect(treasuryInstance.methods.stakeTokens(
@@ -1654,10 +1654,10 @@ describe("Treasury tests", async () => {
             } 
         });
 
-        it('%unstakeTokens           - non-admin (eve) should not be able to call this entrypoint and stake MVK', async () => {
+        it('%unstakeTokens           - non-admin (eve) should not be able to call this entrypoint and stake MVN', async () => {
             try{
                 // Initial values
-                const unstakeAmount     = MVK(2);
+                const unstakeAmount     = MVN(2);
 
                 // Operations
                 await chai.expect(treasuryInstance.methods.unstakeTokens(

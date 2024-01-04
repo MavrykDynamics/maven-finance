@@ -47,7 +47,7 @@ describe('Vault Factory', async () => {
             //----------------------------
 
             vaultFactoryStorage.governanceAddress = contractDeployments.governance.address
-            vaultFactoryStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
+            vaultFactoryStorage.mvnTokenAddress   = contractDeployments.mvnToken.address
             vaultFactory = await GeneralContract.originate(utils.tezos, "vaultFactory", vaultFactoryStorage);
             await saveContractAddress('vaultFactoryAddress', vaultFactory.contract.address)
 

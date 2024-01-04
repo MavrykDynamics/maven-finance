@@ -6,7 +6,7 @@
 const fixedPointAccuracy : nat = 1_000_000_000_000_000_000_000_000_000n // 10^27
 
 // for entries where a default address is required
-const zeroAddress : address = ("mv18Cw7psUrAAPBpXYd9CtCpHg9EgjHP9KTe" : address);
+const zeroAddress : address = ("mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d" : address);
 
 // time constants
 const one_day        : int  = 86_400;           // seconds in a day

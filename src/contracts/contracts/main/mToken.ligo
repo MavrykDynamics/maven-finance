@@ -748,7 +748,7 @@ block {
 function main (const action : action; const s : mTokenStorageType) : return is
 block{
 
-    checkNoAmount(Unit); // Check that sender didn't send any mavos while calling an entrypoint
+    checkNoAmount(Unit); // Check that sender didn't send any tezos while calling an entrypoint
 
 } with(
     

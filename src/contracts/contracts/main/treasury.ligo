@@ -19,8 +19,8 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// MvkToken Types
-#include "../partials/contractTypes/mvkTokenTypes.ligo"
+// MvnToken Types
+#include "../partials/contractTypes/mvnTokenTypes.ligo"
 
 // Treasury Types
 #include "../partials/contractTypes/treasuryTypes.ligo"
@@ -51,7 +51,7 @@ type treasuryAction is
 
         // Treasury Entrypoints
     |   Transfer                       of transferActionType
-    |   MintMvkAndTransfer             of mintMvkAndTransferType
+    |   MintMvnAndTransfer             of mintMvnAndTransferType
 
         // Staking Entrypoints
     |   UpdateTokenOperators           of updateTokenOperatorsType
@@ -124,7 +124,7 @@ function main (const action : treasuryAction; const s : treasuryStorageType) : r
         
             // Treasury Entrypoints
         |   Transfer(parameters)                          -> transfer(parameters, s)
-        |   MintMvkAndTransfer(parameters)                -> mintMvkAndTransfer(parameters, s)
+        |   MintMvnAndTransfer(parameters)                -> mintMvnAndTransfer(parameters, s)
 
             // Staking Entrypoints
         |   UpdateTokenOperators(parameters)              -> updateTokenOperators(parameters, s)

@@ -154,8 +154,8 @@ block {
     if s.breakGlassConfig.withdrawRewardXtzIsPaused then skip
     else s.breakGlassConfig.withdrawRewardXtzIsPaused := True;
 
-    if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then skip
-    else s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := True;
+    if s.breakGlassConfig.withdrawRewardStakedMvnIsPaused then skip
+    else s.breakGlassConfig.withdrawRewardStakedMvnIsPaused := True;
 
 } with s
 
@@ -172,7 +172,7 @@ block {
     if s.breakGlassConfig.withdrawRewardXtzIsPaused then s.breakGlassConfig.withdrawRewardXtzIsPaused := False
     else skip;
 
-    if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := False
+    if s.breakGlassConfig.withdrawRewardStakedMvnIsPaused then s.breakGlassConfig.withdrawRewardStakedMvnIsPaused := False
     else skip;
 
 } with s
@@ -198,13 +198,13 @@ function getDistributeRewardXtzInFactoryEntrypoint(const contractAddress : addre
 
 
 
-// helper function to get distributeRewardMvk entrypoint in factory contract
-function getDistributeRewardStakedMvkInFactoryEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvkType) is
+// helper function to get distributeRewardMvn entrypoint in factory contract
+function getDistributeRewardStakedMvnInFactoryEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvnType) is
     case (Mavryk.get_entrypoint_opt(
-        "%distributeRewardStakedMvk",
-        contractAddress) : option(contract(distributeRewardStakedMvkType))) of [
+        "%distributeRewardStakedMvn",
+        contractAddress) : option(contract(distributeRewardStakedMvnType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(distributeRewardStakedMvkType))
+            |   None -> (failwith(error_DISTRIBUTE_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(distributeRewardStakedMvnType))
         ];
 
 
@@ -249,24 +249,24 @@ block {
 
 
 
-// helper function to distribute staked MVK rewards
-function distributeRewardStakedMvkOperation(const oracleAddress : address; const rewardAmount : nat; const s : aggregatorStorageType) : operation is
+// helper function to distribute staked MVN rewards
+function distributeRewardStakedMvnOperation(const oracleAddress : address; const rewardAmount : nat; const s : aggregatorStorageType) : operation is
 block {
 
     const factoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
     
-    const distributeRewardMvkParams : distributeRewardStakedMvkType = record [
+    const distributeRewardMvnParams : distributeRewardStakedMvnType = record [
         eligibleSatellites     = set[oracleAddress];
-        totalStakedMvkReward   = rewardAmount;
+        totalStakedMvnReward   = rewardAmount;
     ];
 
-    const distributeRewardMvkOperation : operation = Mavryk.transaction(
-        distributeRewardMvkParams,
+    const distributeRewardMvnOperation : operation = Mavryk.transaction(
+        distributeRewardMvnParams,
         0mav,
-        getDistributeRewardStakedMvkInFactoryEntrypoint(factoryAddress)
+        getDistributeRewardStakedMvnInFactoryEntrypoint(factoryAddress)
     );
 
-} with distributeRewardMvkOperation
+} with distributeRewardMvnOperation
 
 
 // ------------------------------------------------------------------------------
@@ -328,16 +328,16 @@ block {
 
 
 
-// helper function to get current oracle staked MVK rewards
-function getOracleStakedMvkRewards(const oracleAddress : address; const s : aggregatorStorageType) : nat is 
+// helper function to get current oracle staked MVN rewards
+function getOracleStakedMvnRewards(const oracleAddress : address; const s : aggregatorStorageType) : nat is 
 block {
 
-    const oracleStakedMvkRewards : nat = case s.oracleRewardStakedMvk[oracleAddress] of [
+    const oracleStakedMvnRewards : nat = case s.oracleRewardStakedMvn[oracleAddress] of [
             Some (_amount) -> (_amount) 
         |   None           -> 0n 
     ];
 
-} with oracleStakedMvkRewards
+} with oracleStakedMvnRewards
 
 
 
@@ -566,7 +566,7 @@ block {
     var oracleVotingPower : nat := 0n;
     oracleVotingPower := voteHelperCalculateVotingPower(
         delegationRatio,                        // delegation ratio
-        satelliteRecord.stakedMvkBalance,       // staked MVK balance
+        satelliteRecord.stakedMvnBalance,       // staked MVN balance
         satelliteRecord.totalDelegatedAmount    // total delegated amount
     );
 
@@ -578,37 +578,37 @@ block {
 function calculateProportionalRewardAmount(const oracleShare : nat; const totalVotingPower : nat; const rewardAmount : nat) : nat is
 block {
 
-    const stakedMvkRewardShare = ((oracleShare * fixedPointAccuracy) / totalVotingPower) * rewardAmount;
-    const incrementStakedMvkRewardAmount = stakedMvkRewardShare / fixedPointAccuracy;
+    const stakedMvnRewardShare = ((oracleShare * fixedPointAccuracy) / totalVotingPower) * rewardAmount;
+    const incrementStakedMvnRewardAmount = stakedMvnRewardShare / fixedPointAccuracy;
 
-} with incrementStakedMvkRewardAmount
+} with incrementStakedMvnRewardAmount
 
 
 
-// helper function to update specified oracle's staked MVK rewards
-function updateRewardsStakedMvk (const oracleObservations : oracleObservationsType; const oracleVotingPowerMap : map(address, nat); const totalVotingPower : nat; var s : aggregatorStorageType) : aggregatorStorageType is 
+// helper function to update specified oracle's staked MVN rewards
+function updateRewardsStakedMvn (const oracleObservations : oracleObservationsType; const oracleVotingPowerMap : map(address, nat); const totalVotingPower : nat; var s : aggregatorStorageType) : aggregatorStorageType is 
 block {
 
-    // get reward amount staked mvk
-    const rewardAmountStakedMvk : nat = s.config.rewardAmountStakedMvk;
+    // get reward amount staked mvn
+    const rewardAmountStakedMvn : nat = s.config.rewardAmountStakedMvn;
 
     // total voting power has been calculated, so update amount for each oracle
     for oracleAddress -> _value in map oracleObservations block {
 
-        // increment satellites' staked mvk reward amounts based on their share of total voting power (among other satellites for this observation reveal)
+        // increment satellites' staked mvn reward amounts based on their share of total voting power (among other satellites for this observation reveal)
         const oracleShare : nat = case oracleVotingPowerMap[oracleAddress] of [
                 Some(_value) -> _value
             |   None         -> failwith(error_SATELLITE_NOT_FOUND)
         ];
 
-        // calculate increase to staked MVK rewards
-        const incrementStakedMvkRewardAmount = calculateProportionalRewardAmount(oracleShare, totalVotingPower, rewardAmountStakedMvk);
+        // calculate increase to staked MVN rewards
+        const incrementStakedMvnRewardAmount = calculateProportionalRewardAmount(oracleShare, totalVotingPower, rewardAmountStakedMvn);
 
-        // get oracle's current staked MVK rewards
-        const oracleRewardStakedMvk : nat = getOracleStakedMvkRewards(oracleAddress, s);
+        // get oracle's current staked MVN rewards
+        const oracleRewardStakedMvn : nat = getOracleStakedMvnRewards(oracleAddress, s);
         
-        // update oracle staked MVK rewards
-        s.oracleRewardStakedMvk[oracleAddress] := oracleRewardStakedMvk + incrementStakedMvkRewardAmount;
+        // update oracle staked MVN rewards
+        s.oracleRewardStakedMvn[oracleAddress] := oracleRewardStakedMvn + incrementStakedMvnRewardAmount;
 
     }
 
@@ -735,7 +735,7 @@ block {
 
     // If the sender is still an oracle, the rewards can be calculated
     if Map.mem(satelliteAddress, s.oracleLedger) then {
-        s   := updateRewardsStakedMvk(updateDataParams.oracleObservations, tempOracleVotingPowerMap, totalVotingPower, s);
+        s   := updateRewardsStakedMvn(updateDataParams.oracleObservations, tempOracleVotingPowerMap, totalVotingPower, s);
         s   := updateRewardsXtz(s);
     }
 

@@ -1,5 +1,5 @@
 import { farmStorageType } from "../storage/storageTypes/farmStorageType";
-import { MVK, Utils } from "./helpers/Utils";
+import { MVN, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const assert = require("chai").assert;
@@ -45,16 +45,16 @@ describe("FarmFactory", async () => {
 
     let tokenId = 0; 
 
-    let mavrykFa2TokenAddress;
-    let mavrykFa2TokenInstance;
-    let mavrykFa2TokenStorage;
+    let mavenFa2TokenAddress;
+    let mavenFa2TokenInstance;
+    let mavenFa2TokenStorage;
 
     let farmInstance;
     let farmStorage;
 
     let farmAddress
     let farmFactoryAddress
-    let mvkTokenAddress
+    let mvnTokenAddress
     let lpTokenAddress 
     let doormanAddress
 
@@ -67,8 +67,8 @@ describe("FarmFactory", async () => {
     let doormanInstance;
     let doormanStorage;
 
-    let mvkTokenInstance;
-    let mvkTokenStorage;
+    let mvnTokenInstance;
+    let mvnTokenStorage;
 
     // housekeeping operations
     let setAdminOperation;
@@ -103,24 +103,24 @@ describe("FarmFactory", async () => {
 
         farmAddress             = contractDeployments.farm.address;
         farmFactoryAddress      = contractDeployments.farmFactory.address;
-        mvkTokenAddress         = contractDeployments.mvkToken.address;
-        lpTokenAddress          = contractDeployments.mavrykFa12Token.address;
+        mvnTokenAddress         = contractDeployments.mvnToken.address;
+        lpTokenAddress          = contractDeployments.mavenFa12Token.address;
         doormanAddress          = contractDeployments.doorman.address;
         
         farmFactoryInstance     = await utils.tezos.contract.at(farmFactoryAddress);
         lpTokenInstance         = await utils.tezos.contract.at(lpTokenAddress);
         doormanInstance         = await utils.tezos.contract.at(doormanAddress);
-        mvkTokenInstance        = await utils.tezos.contract.at(mvkTokenAddress);
+        mvnTokenInstance        = await utils.tezos.contract.at(mvnTokenAddress);
 
         // for mistaken transfers
-        mavrykFa2TokenAddress   = contractDeployments.mavrykFa2Token.address 
-        mavrykFa2TokenInstance  = await utils.tezos.contract.at(mavrykFa2TokenAddress);
-        mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
+        mavenFa2TokenAddress   = contractDeployments.mavenFa2Token.address 
+        mavenFa2TokenInstance  = await utils.tezos.contract.at(mavenFa2TokenAddress);
+        mavenFa2TokenStorage   = await mavenFa2TokenInstance.storage();
 
         farmFactoryStorage      = await farmFactoryInstance.storage();
         doormanStorage          = await doormanInstance.storage();
         lpTokenStorage          = await lpTokenInstance.storage();
-        mvkTokenStorage         = await mvkTokenInstance.storage();
+        mvnTokenStorage         = await mvnTokenInstance.storage();
 
         // reset the farm tracking
         if(farmFactoryStorage.trackedFarms.includes(farmAddress)){
@@ -134,7 +134,7 @@ describe("FarmFactory", async () => {
         farmFactoryStorage = await farmFactoryInstance.storage();
         lpTokenStorage    = await lpTokenInstance.storage();
         doormanStorage    = await doormanInstance.storage();
-        mvkTokenStorage    = await mvkTokenInstance.storage();
+        mvnTokenStorage    = await mvnTokenInstance.storage();
         await signerFactory(tezos, bob.sk)
     })
 
@@ -217,7 +217,7 @@ describe("FarmFactory", async () => {
                 // Final values
                 farmFactoryStorage          = await farmFactoryInstance.storage();            
 
-                const updatedData       = await getStorageMapValue(farmFactoryStorage, 'metadata', key);
+                const updatedData       = await farmFactoryStorage.metadata.get(key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -347,20 +347,20 @@ describe("FarmFactory", async () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - userOne (eve) send 10 MavrykFa2Tokens to MVK Token Contract
+                // Mistaken Operation - userOne (eve) send 10 MavenFa2Tokens to MVN Token Contract
                 await signerFactory(tezos, userOneSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', userOne)).toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(userOne)).toNumber()
 
                 await signerFactory(tezos, adminSk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', userOne)).toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(userOne)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -621,7 +621,7 @@ describe("FarmFactory", async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 farmFactoryStorage          = await farmFactoryInstance.storage();   
-                const initialMetadata   = await getStorageMapValue(farmFactoryStorage, 'metadata', key);
+                const initialMetadata   = await farmFactoryStorage.metadata.get(key);
 
                 // Operation
                 const updateOperation = await farmFactoryInstance.methods.updateMetadata(key, hash);
@@ -629,7 +629,7 @@ describe("FarmFactory", async () => {
 
                 // Final values
                 farmFactoryStorage          = await farmFactoryInstance.storage();            
-                const updatedData       = await getStorageMapValue(farmFactoryStorage, 'metadata', key);
+                const updatedData       = await farmFactoryStorage.metadata.get(key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);
@@ -716,12 +716,12 @@ describe("FarmFactory", async () => {
                 userOne = userOne;
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MavrykFa2Tokens to MVK Token Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
+                // Mistaken Operation - send 10 MavenFa2Tokens to MVN Token Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {

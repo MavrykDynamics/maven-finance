@@ -1,5 +1,5 @@
 import { farmStorageType } from "../storage/storageTypes/farmStorageType";
-import { MVK, Utils } from "./helpers/Utils";
+import { MVN, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const assert = require("chai").assert;
@@ -46,16 +46,16 @@ describe("FarmFactory for Farm mToken", async () => {
 
     let tokenId = 0; 
 
-    let mavrykFa2TokenAddress;
-    let mavrykFa2TokenInstance;
-    let mavrykFa2TokenStorage;
+    let mavenFa2TokenAddress;
+    let mavenFa2TokenInstance;
+    let mavenFa2TokenStorage;
 
     let farmInstance;
     let farmStorage;
 
     let farmAddress
     let farmFactoryAddress
-    let mvkTokenAddress
+    let mvnTokenAddress
     let lpTokenAddress 
     let doormanAddress
     let treasuryAddress
@@ -73,8 +73,8 @@ describe("FarmFactory for Farm mToken", async () => {
     let doormanInstance;
     let doormanStorage;
 
-    let mvkTokenInstance;
-    let mvkTokenStorage;
+    let mvnTokenInstance;
+    let mvnTokenStorage;
 
     let lendingControllerInstance;
     let lendingControllerStorage;
@@ -116,17 +116,17 @@ describe("FarmFactory for Farm mToken", async () => {
 
         farmAddress                             = contractDeployments.farmMToken.address;
         farmFactoryAddress                      = contractDeployments.farmFactory.address;
-        mvkTokenAddress                         = contractDeployments.mvkToken.address;
+        mvnTokenAddress                         = contractDeployments.mvnToken.address;
         lpTokenAddress                          = contractDeployments.mTokenUsdt.address;
         treasuryAddress                         = contractDeployments.treasury.address;
         doormanAddress                          = contractDeployments.doorman.address;
         lendingControllerAddress                = contractDeployments.lendingControllerMockTime.address;
         mTokenUsdtAddress                       = contractDeployments.mTokenUsdt.address;
-        mockFa12TokenAddress                    = contractDeployments.mavrykFa12Token.address;
+        mockFa12TokenAddress                    = contractDeployments.mavenFa12Token.address;
         mockUsdMockFa12TokenAggregatorAddress   = contractDeployments.mockUsdMockFa12TokenAggregator.address;
         
         farmFactoryInstance         = await utils.tezos.contract.at(farmFactoryAddress);
-        mvkTokenInstance            = await utils.tezos.contract.at(mvkTokenAddress);
+        mvnTokenInstance            = await utils.tezos.contract.at(mvnTokenAddress);
         lpTokenInstance             = await utils.tezos.contract.at(lpTokenAddress);
         doormanInstance             = await utils.tezos.contract.at(doormanAddress);
         lendingControllerInstance   = await utils.tezos.contract.at(lendingControllerAddress);
@@ -134,12 +134,12 @@ describe("FarmFactory for Farm mToken", async () => {
         mTokenUsdtInstance          = await utils.tezos.contract.at(mTokenUsdtAddress);
 
         // for mistaken transfers
-        mavrykFa2TokenAddress   = contractDeployments.mavrykFa2Token.address 
-        mavrykFa2TokenInstance  = await utils.tezos.contract.at(mavrykFa2TokenAddress);
-        mavrykFa2TokenStorage   = await mavrykFa2TokenInstance.storage();
+        mavenFa2TokenAddress   = contractDeployments.mavenFa2Token.address 
+        mavenFa2TokenInstance  = await utils.tezos.contract.at(mavenFa2TokenAddress);
+        mavenFa2TokenStorage   = await mavenFa2TokenInstance.storage();
 
         farmFactoryStorage          = await farmFactoryInstance.storage();
-        mvkTokenStorage             = await mvkTokenInstance.storage();
+        mvnTokenStorage             = await mvnTokenInstance.storage();
         lpTokenStorage              = await lpTokenInstance.storage();
         doormanStorage              = await doormanInstance.storage();
         lendingControllerStorage    = await lendingControllerInstance.storage();
@@ -176,7 +176,7 @@ describe("FarmFactory for Farm mToken", async () => {
         const minRepaymentAmount                    = 10000;
 
         // check if loan token exists
-        const checkLoanTokenExists   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+        const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
         if(checkLoanTokenExists === undefined){
 
@@ -208,7 +208,7 @@ describe("FarmFactory for Farm mToken", async () => {
             await adminSetMockFa12LoanTokenOperation.confirmation();
 
             lendingControllerStorage  = await lendingControllerInstance.storage();
-            const mockFa12LoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+            const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
             assert.equal(mockFa12LoanToken.rawMTokensTotalSupply , 0);
             assert.equal(mockFa12LoanToken.mTokenAddress         , mTokenContractAddress);
@@ -228,7 +228,7 @@ describe("FarmFactory for Farm mToken", async () => {
         } else {
 
             lendingControllerStorage  = await lendingControllerInstance.storage();
-            const mockFa12LoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+            const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
         
             // other variables will be affected by repeated tests
             assert.equal(mockFa12LoanToken.tokenName              , tokenName);
@@ -241,7 +241,7 @@ describe("FarmFactory for Farm mToken", async () => {
         lpTokenStorage    = await lpTokenInstance.storage();
         lendingControllerStorage    = await lendingControllerInstance.storage();
         doormanStorage    = await doormanInstance.storage();
-        mvkTokenStorage    = await mvkTokenInstance.storage();
+        mvnTokenStorage    = await mvnTokenInstance.storage();
         await signerFactory(tezos, bob.sk)
     })
 
@@ -265,19 +265,19 @@ describe("FarmFactory for Farm mToken", async () => {
             const mTokenPoolMockFa12TokenStorage      = await mTokenUsdtInstance.storage();
             
             // get initial bob's Mock FA12 Token balance
-            const bobMockFa12Ledger                   = await getStorageMapValue(mockFa12TokenStorage, 'ledger', bob.pkh);            
+            const bobMockFa12Ledger                   = await mockFa12TokenStorage.ledger.get(bob.pkh);            
             const bobInitialMockFa12TokenBalance      = bobMockFa12Ledger == undefined ? 0 : bobMockFa12Ledger.balance.toNumber();
 
-            // get initial bob's mEurl Token - Mock FA12 Token - balance
-            const bobMUsdtTokenLedger                 = await getStorageMapValue(mTokenPoolMockFa12TokenStorage, 'ledger', bob.pkh);            
+            // get initial bob's mEurt Token - Mock FA12 Token - balance
+            const bobMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(bob.pkh);            
             const bobInitialMUsdtTokenTokenBalance    = bobMUsdtTokenLedger == undefined ? 0 : bobMUsdtTokenLedger.toNumber();
 
             // get initial lending controller's Mock FA12 Token balance
-            const lendingControllerMockFa12Ledger                = await getStorageMapValue(mockFa12TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress);            
             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
 
             // get initial lending controller token pool total
-            const initialLoanTokenRecord                 = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // bob resets mock FA12 tokens allowance then set new allowance to deposit amount
@@ -308,19 +308,19 @@ describe("FarmFactory for Farm mToken", async () => {
             const updatedMUsdtTokenTokenStorage           = await mTokenUsdtInstance.storage();
 
             // check new balance for loan token pool total
-            const updatedLoanTokenRecord           = await getStorageMapValue(updatedLendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
 
             // check Bob's Mock FA12 Token balance
-            const updatedBobMockFa12Ledger         = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', bob.pkh);            
+            const updatedBobMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(bob.pkh);            
             assert.equal(updatedBobMockFa12Ledger.balance, bobInitialMockFa12TokenBalance - liquidityAmount);
 
             // check Lending Controller's Mock FA12 Token Balance
-            const lendingControllerMockFa12Account  = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress);            
             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + liquidityAmount);
 
             // check Bob's mUsdt Token Token balance
-            const updatedBobMUsdtTokenLedger        = await getStorageMapValue(updatedMUsdtTokenTokenStorage, 'ledger', bob.pkh);            
+            const updatedBobMUsdtTokenLedger        = await updatedMUsdtTokenTokenStorage.ledger.get(bob.pkh);            
             assert.equal(updatedBobMUsdtTokenLedger, bobInitialMUsdtTokenTokenBalance + liquidityAmount);        
 
             } catch (e) {
@@ -344,21 +344,21 @@ describe("FarmFactory for Farm mToken", async () => {
             const mTokenPoolMockFa12TokenStorage      = await mTokenUsdtInstance.storage();
             
             // get initial alice's Mock FA12 Token balance
-            const aliceMockFa12Ledger                   = await getStorageMapValue(mockFa12TokenStorage, 'ledger', alice.pkh);            
+            const aliceMockFa12Ledger                   = await mockFa12TokenStorage.ledger.get(alice.pkh);            
             const aliceInitialMockFa12TokenBalance      = aliceMockFa12Ledger == undefined ? 0 : aliceMockFa12Ledger.balance.toNumber();
 
             // get initial alice's mToken - Mock FA12 Token (USDT) - balance
             compoundOperation                           = await mTokenUsdtInstance.methods.compound([alice.pkh]).send();
             await compoundOperation.confirmation();
-            const aliceMUsdtTokenLedger                 = await getStorageMapValue(mTokenPoolMockFa12TokenStorage, 'ledger', alice.pkh);            
+            const aliceMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(alice.pkh);            
             const aliceInitialMUsdtTokenTokenBalance    = aliceMUsdtTokenLedger == undefined ? 0 : aliceMUsdtTokenLedger.toNumber();
 
             // get initial lending controller's Mock FA12 Token balance
-            const lendingControllerMockFa12Ledger                = await getStorageMapValue(mockFa12TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress);            
             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
 
             // get initial lending controller token pool total
-            const initialLoanTokenRecord                 = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // alice resets mock FA12 tokens allowance then set new allowance to deposit amount
@@ -389,19 +389,19 @@ describe("FarmFactory for Farm mToken", async () => {
             const updatedMUsdtTokenTokenStorage           = await mTokenUsdtInstance.storage();
 
             // check new balance for loan token pool total
-            const updatedLoanTokenRecord           = await getStorageMapValue(updatedLendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
 
             // check alice's Mock FA12 Token balance
-            const updatedAliceMockFa12Ledger         = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', alice.pkh);            
+            const updatedAliceMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(alice.pkh);            
             assert.equal(updatedAliceMockFa12Ledger.balance, aliceInitialMockFa12TokenBalance - liquidityAmount);
 
             // check Lending Controller's Mock FA12 Token Balance
-            const lendingControllerMockFa12Account  = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress);            
             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + liquidityAmount);
 
             // check alice's mUsdt Token Token balance
-            const updatedAliceMUsdtTokenLedger        = await getStorageMapValue(updatedMUsdtTokenTokenStorage, 'ledger', alice.pkh);            
+            const updatedAliceMUsdtTokenLedger        = await updatedMUsdtTokenTokenStorage.ledger.get(alice.pkh);            
             assert.equal(updatedAliceMUsdtTokenLedger, aliceInitialMUsdtTokenTokenBalance + liquidityAmount);        
 
             } catch (e) {
@@ -489,7 +489,7 @@ describe("FarmFactory for Farm mToken", async () => {
                 // Final values
                 farmFactoryStorage          = await farmFactoryInstance.storage();            
 
-                const updatedData       = await getStorageMapValue(farmFactoryStorage, 'metadata', key);
+                const updatedData       = await farmFactoryStorage.metadata.get(key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -619,20 +619,20 @@ describe("FarmFactory for Farm mToken", async () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - userOne (eve) send 10 MavrykFa2Tokens to MVK Token Contract
+                // Mistaken Operation - userOne (eve) send 10 MavenFa2Tokens to MVN Token Contract
                 await signerFactory(tezos, userOneSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', userOne)).toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(userOne)).toNumber()
 
                 await signerFactory(tezos, adminSk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavenFa2TokenAddress, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', userOne)).toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(userOne)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -896,7 +896,7 @@ describe("FarmFactory for Farm mToken", async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 farmFactoryStorage          = await farmFactoryInstance.storage();   
-                const initialMetadata   = await getStorageMapValue(farmFactoryStorage, 'metadata', key);
+                const initialMetadata   = await farmFactoryStorage.metadata.get(key);
 
                 // Operation
                 const updateOperation = await farmFactoryInstance.methods.updateMetadata(key, hash);
@@ -904,7 +904,7 @@ describe("FarmFactory for Farm mToken", async () => {
 
                 // Final values
                 farmFactoryStorage          = await farmFactoryInstance.storage();            
-                const updatedData       = await getStorageMapValue(farmFactoryStorage, 'metadata', key);
+                const updatedData       = await farmFactoryStorage.metadata.get(key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);
@@ -990,12 +990,12 @@ describe("FarmFactory for Farm mToken", async () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MavrykFa2Tokens to MVK Token Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
+                // Mistaken Operation - send 10 MavenFa2Tokens to MVN Token Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, userOne, farmFactoryAddress, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavrykFa2TokenAddress, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(farmFactoryInstance, userOne, mavenFa2TokenAddress, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {

@@ -24,16 +24,16 @@ fileDir = os.path.dirname(os.path.realpath('__file__'))
 print('fileDir: '+fileDir)
 
 helpersDir          = os.path.join(fileDir, 'helpers')
-mvkTokenDecimals = os.path.join(helpersDir, 'mvkTokenDecimals.json')
-mvkTokenDecimals = open(mvkTokenDecimals)
-mvkTokenDecimals = json.load(mvkTokenDecimals)
-mvkTokenDecimals = mvkTokenDecimals['decimals']
+mvnTokenDecimals = os.path.join(helpersDir, 'mvnTokenDecimals.json')
+mvnTokenDecimals = open(mvnTokenDecimals)
+mvnTokenDecimals = json.load(mvnTokenDecimals)
+mvnTokenDecimals = mvnTokenDecimals['decimals']
 
 deploymentsDir          = os.path.join(fileDir, 'deployments')
 deployedFarmContract = os.path.join(deploymentsDir, 'farmAddress.json')
 deployedFarmFA2Contract = os.path.join(deploymentsDir, 'farmFA2Address.json')
 deployedFarmInfiniteContract = os.path.join(deploymentsDir, 'farmInfiniteAddress.json')
-deployedMvkTokenContract = os.path.join(deploymentsDir, 'mvkTokenAddress.json')
+deployedMvnTokenContract = os.path.join(deploymentsDir, 'mvnTokenAddress.json')
 deployedLpTokenContract = os.path.join(deploymentsDir, 'lpTokenAddress.json')
 deployedCouncilContract = os.path.join(deploymentsDir, 'councilAddress.json')
 deployedDoormanContract = os.path.join(deploymentsDir, 'doormanAddress.json')
@@ -51,9 +51,9 @@ deployedFarmInfinite = open(deployedFarmContract)
 farmInfiniteContractAddress = json.load(deployedFarmInfinite)
 farmInfiniteContractAddress = farmInfiniteContractAddress['address']
 
-deployedMvkToken = open(deployedMvkTokenContract)
-mvkTokenAddress = json.load(deployedMvkToken)
-mvkTokenAddress = mvkTokenAddress['address']
+deployedMvnToken = open(deployedMvnTokenContract)
+mvnTokenAddress = json.load(deployedMvnToken)
+mvnTokenAddress = mvnTokenAddress['address']
 
 deployedLpToken = open(deployedLpTokenContract)
 lpTokenAddress = json.load(deployedLpToken)
@@ -73,12 +73,12 @@ governanceAddress = governanceAddress['address']
 
 print('Farm Contract Deployed at: ' + farmContractAddress)
 print('Farm FA2 Contract Deployed at: ' + farmContractAddress)
-print('MVK Token Address Deployed at: ' + mvkTokenAddress)
+print('MVN Token Address Deployed at: ' + mvnTokenAddress)
 print('LP Token Address Deployed at: ' + lpTokenAddress)
 
 alice = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
 admin = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
-bob   = 'tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD'
+bob   = 'mv1TMgthRwT69X8WMqRyeMYLPEcoEfCKqX2w'
 eve   = 'tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6'
 fox   = 'tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L'
 
@@ -101,8 +101,8 @@ class FarmContract(TestCase):
         cls.farmFA2Storage  = cls.farmFA2Contract.storage()
         cls.farmInfiniteContract = pytezos.contract(farmInfiniteContractAddress)
         cls.farmInfiniteStorage  = cls.farmInfiniteContract.storage()
-        cls.mvkTokenContract = pytezos.contract(mvkTokenAddress)
-        cls.mvkTokenStorage  = cls.mvkTokenContract.storage()
+        cls.mvnTokenContract = pytezos.contract(mvnTokenAddress)
+        cls.mvnTokenStorage  = cls.mvnTokenContract.storage()
         cls.lpTokenContract = pytezos.contract(lpTokenAddress)
         cls.lpTokenStorage  = cls.lpTokenContract.storage()
         
@@ -117,9 +117,9 @@ class FarmContract(TestCase):
         else:
             self.assertEqual(f"'{error_message}': ", r.exception.format_stdout())
 
-    # MVK Formatter
-    def MVK(self, value: float = 1.0):
-        return int(value * 10**int(mvkTokenDecimals))
+    # MVN Formatter
+    def MVN(self, value: float = 1.0):
+        return int(value * 10**int(mvnTokenDecimals))
 
     ######################
     # Tests for farm contract #
@@ -872,11 +872,11 @@ class FarmContract(TestCase):
         print('✅ Alice and Bob deposit 2LP on a block then they both claim on another one')
         print('alice deposit balance:')
         print(res.storage['depositorLedger'][bob]['balance'])
-        print('alice unclaimed sMVK:')
+        print('alice unclaimed sMVN:')
         print(aliceClaimedRewards)
         print('bob deposit balance:')
         print(res.storage['depositorLedger'][alice]['balance'])
-        print('bob unclaimed sMVK:')
+        print('bob unclaimed sMVN:')
         print(bobClaimedRewards)
 
     def test_31_alice_and_bob_deposit_2_lp_then_claim_on_two_different_blocks_on_fa2(self):        
@@ -928,11 +928,11 @@ class FarmContract(TestCase):
         print('✅ Alice and Bob deposit 2LP on a block then they both claim on another one on a farm with FA2 LP Tokens')
         print('alice deposit balance:')
         print(res.storage['depositorLedger'][bob]['balance'])
-        print('alice claimed sMVK:')
+        print('alice claimed sMVN:')
         print(aliceClaimedRewards)
         print('bob deposit balance:')
         print(res.storage['depositorLedger'][alice]['balance'])
-        print('bob claimed sMVK:')
+        print('bob claimed sMVN:')
         print(bobClaimedRewards)
 
     def test_32_alice_and_bob_deposit_then_claim_on_different_blocks(self):        
@@ -988,11 +988,11 @@ class FarmContract(TestCase):
         print('✅ Alice deposit 2LP on a block, Bob deposit 4LP on another block then Alice claim on another block then Bob claim on another block')
         print('alice deposit balance:')
         print(res.storage['depositorLedger'][bob]['balance'])
-        print('alice claimed sMVK:')
+        print('alice claimed sMVN:')
         print(aliceClaimedRewards)
         print('bob deposit balance:')
         print(res.storage['depositorLedger'][alice]['balance'])
-        print('bob claimed sMVK:')
+        print('bob claimed sMVN:')
         print(bobClaimedRewards)
         
     def test_33_alice_deposits_then_claims_on_same_blocks(self):        
@@ -1033,7 +1033,7 @@ class FarmContract(TestCase):
         self.assertEqual(aliceClaimedRewards, suspectedRewards)
         self.assertEqual(aliceUnclaimedRewards, suspectedRewards)
         print('----')
-        print('✅ Alice claims sMVK after depositing 2LP on the same block')
+        print('✅ Alice claims sMVN after depositing 2LP on the same block')
         print('alice delegated lp balance')
         print(res.storage['depositorLedger'][bob]['balance'])
         print('rewards:')
@@ -1123,7 +1123,7 @@ class FarmContract(TestCase):
         self.assertEqual(aliceClaimedRewards, suspectedRewards)
         self.assertEqual(aliceUnclaimedRewards, 0)
         print('----')
-        print('✅ Alice claims sMVK after depositing 2LP')
+        print('✅ Alice claims sMVN after depositing 2LP')
         print('rewards:')
         print(aliceClaimedRewards)
 
@@ -1169,7 +1169,7 @@ class FarmContract(TestCase):
         self.assertEqual(aliceClaimedRewards, suspectedRewards)
         self.assertEqual(aliceUnclaimedRewards, 0)
         print('----')
-        print('✅ Alice claims sMVK after depositing 2LP')
+        print('✅ Alice claims sMVN after depositing 2LP')
         print('rewards:')
         print(aliceClaimedRewards)
         
@@ -1207,7 +1207,7 @@ class FarmContract(TestCase):
         self.assertEqual(aliceClaimedRewards, suspectedRewards)
         self.assertEqual(aliceUnclaimedRewards, suspectedRewards)
         print('----')
-        print('✅ Alice claims sMVK without having deposit at all')
+        print('✅ Alice claims sMVN without having deposit at all')
         print('rewards:')
         print(aliceClaimedRewards)
         

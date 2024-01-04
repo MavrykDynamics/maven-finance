@@ -175,32 +175,32 @@ export const calculateScaledTokenBalance = (initialTokenBalance, initialUserRewa
 export const calculateVaultCollateralValue = (tokenOracles, collateralBalanceLedger) => {
     
     let usdtBalance                 = collateralBalanceLedger.get('usdt') == undefined ? 0 : collateralBalanceLedger.get('usdt');
-    let eurlBalance                 = collateralBalanceLedger.get('eurl') == undefined ? 0 : collateralBalanceLedger.get('eurl');
+    let eurtBalance                 = collateralBalanceLedger.get('eurt') == undefined ? 0 : collateralBalanceLedger.get('eurt');
     let xtzBalance                  = collateralBalanceLedger.get('tez')  == undefined ? 0 : collateralBalanceLedger.get('tez');
-    let mvkBalance                  = collateralBalanceLedger.get("smvk") == undefined ? 0 : collateralBalanceLedger.get("smvk");
+    let mvnBalance                  = collateralBalanceLedger.get("smvn") == undefined ? 0 : collateralBalanceLedger.get("smvn");
 
     let usdtTokenPrice              = tokenOracles.find(o => o.name === "usdt").price;
-    let eurlTokenPrice              = tokenOracles.find(o => o.name === "eurl").price;
+    let eurtTokenPrice              = tokenOracles.find(o => o.name === "eurt").price;
     let tezPrice                    = tokenOracles.find(o => o.name === "tez").price;
-    let mvkPrice                    = tokenOracles.find(o => o.name === "smvk").price;
+    let mvnPrice                    = tokenOracles.find(o => o.name === "smvn").price;
 
     let usdtTokenPriceDecimals      = tokenOracles.find(o => o.name === "usdt").priceDecimals;
-    let eurlTokenPriceDecimals      = tokenOracles.find(o => o.name === "eurl").priceDecimals;
+    let eurtTokenPriceDecimals      = tokenOracles.find(o => o.name === "eurt").priceDecimals;
     let tezPriceDecimals            = tokenOracles.find(o => o.name === "tez").priceDecimals;
-    let mvkPriceDecimals            = tokenOracles.find(o => o.name === "smvk").priceDecimals;
+    let mvnPriceDecimals            = tokenOracles.find(o => o.name === "smvn").priceDecimals;
 
     let usdtTokenDecimals           = tokenOracles.find(o => o.name === "usdt").tokenDecimals;
-    let eurlTokenDecimals           = tokenOracles.find(o => o.name === "eurl").tokenDecimals;
+    let eurtTokenDecimals           = tokenOracles.find(o => o.name === "eurt").tokenDecimals;
     let tezTokenDecimals            = tokenOracles.find(o => o.name === "tez").tokenDecimals;
-    let mvkTokenDecimals            = tokenOracles.find(o => o.name === "smvk").tokenDecimals;
+    let mvnTokenDecimals            = tokenOracles.find(o => o.name === "smvn").tokenDecimals;
 
     // rebased to no decimals (Math.floor to simulate smart contract division)
     let vaultMockFa12TokenValue     = Math.floor(Math.floor(usdtBalance  / (10 ** usdtTokenDecimals )) * usdtTokenPrice  ) / (10 ** usdtTokenPriceDecimals);
-    let vaultMockFa2TokenValue      = Math.floor(Math.floor(eurlBalance  / (10 ** eurlTokenDecimals )) * eurlTokenPrice  ) / (10 ** eurlTokenPriceDecimals);
+    let vaultMockFa2TokenValue      = Math.floor(Math.floor(eurtBalance  / (10 ** eurtTokenDecimals )) * eurtTokenPrice  ) / (10 ** eurtTokenPriceDecimals);
     let vaultXtzValue               = Math.floor(Math.floor(xtzBalance   / (10 ** tezTokenDecimals  )) * tezPrice        ) / (10 ** tezPriceDecimals);
-    let vaultMvkValue               = Math.floor(Math.floor(mvkBalance   / (10 ** mvkTokenDecimals  )) * mvkPrice        ) / (10 ** mvkPriceDecimals);
+    let vaultMvnValue               = Math.floor(Math.floor(mvnBalance   / (10 ** mvnTokenDecimals  )) * mvnPrice        ) / (10 ** mvnPriceDecimals);
     
-    let vaultCollateralValue        = vaultMockFa12TokenValue + vaultMockFa2TokenValue + vaultXtzValue + vaultMvkValue;
+    let vaultCollateralValue        = vaultMockFa12TokenValue + vaultMockFa2TokenValue + vaultXtzValue + vaultMvnValue;
 
     return vaultCollateralValue
 }
@@ -365,7 +365,7 @@ export const defaultPriceObservations = [
     },
 
     {
-        "name": "eurl",
+        "name": "eurt",
         "medianPrice": 3500000, // 3,500,000 -> $3.50
         "observations" : [
             {
@@ -404,7 +404,7 @@ export const defaultPriceObservations = [
 
 
     {
-        "name": "smvk",
+        "name": "smvn",
         "medianPrice": 1000000000, // 1,000,000,000 -> $1
         "observations" : [ 
             {
@@ -448,7 +448,7 @@ export const priceDecreaseObservations = [
     },
 
     {
-        "name": "eurl",
+        "name": "eurt",
         "medianPrice": 1166666, // 1,166,666 -> $1.16
         "observations" : [
             {
@@ -486,7 +486,7 @@ export const priceDecreaseObservations = [
     },
 
     {
-        "name": "smvk",
+        "name": "smvn",
         "medianPrice": 333333333, // 333,333,333 -> $0.33
         "observations" : [
             {
@@ -531,7 +531,7 @@ export const priceIncreaseObservations = [
     },
 
     {
-        "name": "eurl",
+        "name": "eurt",
         "medianPrice": 5833333, // 5,833,333 -> $5.83
         "observations" : [
             {
@@ -569,7 +569,7 @@ export const priceIncreaseObservations = [
     },
 
     {
-        "name": "smvk",
+        "name": "smvn",
         "medianPrice": 1666666666, // 1,666,666,666 -> $1.66
         "observations" : [
             {
