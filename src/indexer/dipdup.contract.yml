@@ -87,10 +87,10 @@ contracts:
     kind: tezos
     address: KT1FE56hosMPx2LzdpYcDACAwSEvE3zYEqyK
     typename: treasury_factory
-  lending_controller:
-    kind: tezos
-    address: KT1TVPaqstLKvkvTiK9cGGN4JCfHTpWB7S55
-    typename: lending_controller
+  # lending_controller:
+  #   kind: tezos
+  #   address: KT1TVPaqstLKvkvTiK9cGGN4JCfHTpWB7S55
+  #   typename: lending_controller
   lending_controller_mock_time:
     kind: tezos
     address: KT1Pa7qrYA7CxC9dTkRmF3TLh5KUa6sdTmvG
