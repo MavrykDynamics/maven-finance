@@ -2,7 +2,7 @@ import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import assert from "assert";
 import { BigNumber } from 'bignumber.js'
 
-import { MVK, TEZ, Utils, zeroAddress } from "./helpers/Utils";
+import { MVN, TEZ, Utils, zeroAddress } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -26,8 +26,7 @@ import {
     almostEqual,
     fa2Transfer,
     updateOperators,
-    updateGeneralContracts,
-    getStorageMapValue
+    updateGeneralContracts
 } from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -55,7 +54,7 @@ describe("Lending Controller tests", async () => {
 
     let doormanInstance
     let delegationInstance
-    let mvkTokenInstance
+    let mvnTokenInstance
     
     let mockFa12TokenInstance
     let mockFa2TokenInstance
@@ -63,10 +62,10 @@ describe("Lending Controller tests", async () => {
     let mockUsdMockFa12TokenAggregatorInstance
     let mockUsdMockFa2TokenAggregatorInstance
     let mockUsdXtzAggregatorInstance
-    let mockUsdMvkAggregatorInstance
+    let mockUsdMvnAggregatorInstance
 
     let mTokenUsdtInstance
-    let mTokenEurlInstance
+    let mTokenEurtInstance
     let mTokenXtzInstance
 
     let governanceInstance
@@ -77,7 +76,7 @@ describe("Lending Controller tests", async () => {
 
     let doormanStorage
     let delegationStorage
-    let mvkTokenStorage
+    let mvnTokenStorage
     let mockFa12TokenStorage
     let mockFa2TokenStorage
     let governanceStorage
@@ -106,27 +105,27 @@ describe("Lending Controller tests", async () => {
 
         doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
         delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
-        mvkTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
-        mockFa12TokenInstance                   = await utils.tezos.contract.at(contractDeployments.mavrykFa12Token.address);
-        mockFa2TokenInstance                    = await utils.tezos.contract.at(contractDeployments.mavrykFa2Token.address);
+        mvnTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
+        mockFa12TokenInstance                   = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
+        mockFa2TokenInstance                    = await utils.tezos.contract.at(contractDeployments.mavenFa2Token.address);
         governanceInstance                      = await utils.tezos.contract.at(contractDeployments.governance.address);
         governanceProxyInstance                 = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
 
         mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
-        mTokenEurlInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurl.address);
+        mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
         mTokenXtzInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenXtz.address);
 
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
         mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdXtzAggregator.address);
-        mockUsdMvkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvkAggregator.address);
+        mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress);
         vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
 
         doormanStorage                          = await doormanInstance.storage();
         delegationStorage                       = await delegationInstance.storage();
-        mvkTokenStorage                         = await mvkTokenInstance.storage();
+        mvnTokenStorage                         = await mvnTokenInstance.storage();
         mockFa12TokenStorage                    = await mockFa12TokenInstance.storage();
         mockFa2TokenStorage                     = await mockFa2TokenInstance.storage();
         governanceStorage                       = await governanceInstance.storage();
@@ -155,9 +154,9 @@ describe("Lending Controller tests", async () => {
         // ------------------------------------------------------------------
         await signerFactory(tezos, bob.sk);
 
-        const mockFa12LoanToken = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', "usdt"); 
-        const mockFa2LoanToken  = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', "eurl"); 
-        const tezLoanToken      = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', "tez");
+        const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("usdt"); 
+        const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("eurt"); 
+        const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez");
 
         if(!(mockFa12LoanToken == undefined || mockFa12LoanToken == null)){
             // zero transfer to update token reward index
@@ -167,7 +166,7 @@ describe("Lending Controller tests", async () => {
 
         if(!(mockFa2LoanToken == undefined || mockFa2LoanToken == null)){
             // zero transfer to update token reward index
-            updateTokenRewardIndexOperation = await fa2Transfer(mTokenEurlInstance, bob.pkh, eve.pkh, 0, 0);
+            updateTokenRewardIndexOperation = await fa2Transfer(mTokenEurtInstance, bob.pkh, eve.pkh, 0, 0);
             await updateTokenRewardIndexOperation.confirmation();
         }
 
@@ -195,7 +194,7 @@ describe("Lending Controller tests", async () => {
 
                 const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "usdt";
-                const tokenContractAddress                  = contractDeployments.mavrykFa12Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa12Token.address;
                 const tokenType                             = "fa12";
                 const tokenDecimals                         = 6;
 
@@ -214,7 +213,7 @@ describe("Lending Controller tests", async () => {
                 const minRepaymentAmount                    = 10000;
 
                 // check if loan token exists
-                const checkLoanTokenExists   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                 // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
                 if(checkLoanTokenExists === undefined){
@@ -247,7 +246,7 @@ describe("Lending Controller tests", async () => {
                     await adminSetMockFa12LoanTokenOperation.confirmation();
 
                     lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const mockFa12LoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                    const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                     assert.equal(mockFa12LoanToken.tokenName              , tokenName);
                     // assert.equal(mockFa12LoanToken.tokenContractAddress   , tokenContractAddress);
@@ -272,7 +271,7 @@ describe("Lending Controller tests", async () => {
                 } else {
 
                     lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const mockFa12LoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                    const mockFa12LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
                 
                     // other variables will be affected by repeated tests
                     assert.equal(mockFa12LoanToken.tokenName, tokenName);
@@ -292,14 +291,14 @@ describe("Lending Controller tests", async () => {
                 await signerFactory(tezos, bob.sk);
 
                 const setLoanTokenActionType                = "createLoanToken";
-                const tokenName                             = "eurl";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenName                             = "eurt";
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
 
-                const mTokenContractAddress                 = contractDeployments.mTokenEurl.address;
+                const mTokenContractAddress                 = contractDeployments.mTokenEurt.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -311,7 +310,7 @@ describe("Lending Controller tests", async () => {
 
                 const minRepaymentAmount                    = 10000;
 
-                const checkLoanTokenExists   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                 // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
                 if(checkLoanTokenExists === undefined){
@@ -345,7 +344,7 @@ describe("Lending Controller tests", async () => {
                     await adminSetMockFa2LoanTokenOperation.confirmation();
 
                     lendingControllerStorage = await lendingControllerInstance.storage();
-                    const mockFa2LoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                    const mockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
 
@@ -369,7 +368,7 @@ describe("Lending Controller tests", async () => {
                 } else {
 
                     lendingControllerStorage = await lendingControllerInstance.storage();
-                    const mockFa2LoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                    const mockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                     // other variables will be affected by repeated tests
                     assert.equal(mockFa2LoanToken.tokenName, tokenName);
@@ -410,7 +409,7 @@ describe("Lending Controller tests", async () => {
                 const minRepaymentAmount                    = 10000;
 
                 // check if loan token exists
-                const checkLoanTokenExists   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                 // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
                 if(checkLoanTokenExists === undefined){
@@ -442,7 +441,7 @@ describe("Lending Controller tests", async () => {
                     await adminSeTezLoanTokenOperation.confirmation();
 
                     lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const tezLoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                    const tezLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
                 
                     assert.equal(tezLoanToken.tokenName              , tokenName);
                     assert.equal(tezLoanToken.tokenDecimals          , tokenDecimals);
@@ -468,7 +467,7 @@ describe("Lending Controller tests", async () => {
                 } else {
 
                     lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const tezLoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                    const tezLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
                 
                     // other variables will be affected by repeated tests
                     assert.equal(tezLoanToken.tokenName, tokenName);
@@ -490,13 +489,13 @@ describe("Lending Controller tests", async () => {
 
                 const createLoanTokenActionType             = "createLoanToken";
                 const tokenName                             = "testUpdateLoanToken";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
 
-                const mTokenContractAddress                = contractDeployments.mTokenEurl.address;
+                const mTokenContractAddress                = contractDeployments.mTokenEurt.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -508,7 +507,7 @@ describe("Lending Controller tests", async () => {
 
                 const minRepaymentAmount                    = 10000;
 
-                const checkLoanTokenExists   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                 // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
                 if(checkLoanTokenExists === undefined){
@@ -542,7 +541,7 @@ describe("Lending Controller tests", async () => {
                     await adminSetMockFa2LoanTokenOperation.confirmation();
 
                     lendingControllerStorage = await lendingControllerInstance.storage();
-                    const mockFa2LoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                    const mockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                     assert.equal(mockFa2LoanToken.tokenName              , tokenName);
 
@@ -566,7 +565,7 @@ describe("Lending Controller tests", async () => {
                 } else {
 
                     lendingControllerStorage = await lendingControllerInstance.storage();
-                    const mockFa2LoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                    const mockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                     // other variables will be affected by repeated tests
                     assert.equal(mockFa2LoanToken.tokenName, tokenName);
@@ -612,7 +611,7 @@ describe("Lending Controller tests", async () => {
                     await adminUpdateMockFa2LoanTokenOperation.confirmation();
 
                     lendingControllerStorage = await lendingControllerInstance.storage();
-                    const updatedMockFa2LoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                    const updatedMockFa2LoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                     assert.equal(updatedMockFa2LoanToken.tokenName              , tokenName);
 
@@ -650,13 +649,13 @@ describe("Lending Controller tests", async () => {
 
                 const setLoanTokenActionType                = "createLoanToken";
                 const tokenName                             = "failTestLoanToken";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
                 const tokenDecimals                         = 6;
 
                 const oracleAddress                         = contractDeployments.mockUsdMockFa2TokenAggregator.address;
 
-                const mTokenContractAddress                = contractDeployments.mTokenEurl.address;
+                const mTokenContractAddress                = contractDeployments.mTokenEurt.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -697,7 +696,7 @@ describe("Lending Controller tests", async () => {
 
                 // Final values
                 lendingControllerStorage = await lendingControllerInstance.storage();
-                const failTestLoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                const failTestLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                 // Assertions
                 assert.strictEqual(failTestLoanToken, undefined);
@@ -750,7 +749,7 @@ describe("Lending Controller tests", async () => {
 
                 // Final values
                 lendingControllerStorage = await lendingControllerInstance.storage();
-                const failTestLoanToken   = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', tokenName); 
+                const failTestLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                 // Assertions
                 assert.strictEqual(failTestLoanToken, undefined);
@@ -778,7 +777,7 @@ describe("Lending Controller tests", async () => {
 
                 const setCollateralTokenActionType      = "createCollateralToken";
                 const tokenName                         = "usdt";
-                const tokenContractAddress              = contractDeployments.mavrykFa12Token.address;
+                const tokenContractAddress              = contractDeployments.mavenFa12Token.address;
                 const tokenType                         = "fa12";
 
                 const tokenDecimals                     = 6;
@@ -792,7 +791,7 @@ describe("Lending Controller tests", async () => {
                 const maxDepositAmount                  = null;
                 
                 // check if collateral token exists
-                const checkCollateralTokenExists   = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName); 
+                const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                 // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
                 if(checkCollateralTokenExists === undefined){
@@ -824,7 +823,7 @@ describe("Lending Controller tests", async () => {
                 }
 
                 lendingControllerStorage        = await lendingControllerInstance.storage();
-                const mockFa12CollateralToken   = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName); 
+                const mockFa12CollateralToken   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
             
                 assert.equal(mockFa12CollateralToken.tokenName              , tokenName);
                 assert.equal(mockFa12CollateralToken.tokenDecimals          , tokenDecimals);
@@ -844,8 +843,8 @@ describe("Lending Controller tests", async () => {
                 await signerFactory(tezos, bob.sk);
 
                 const setCollateralTokenActionType          = "createCollateralToken";
-                const tokenName                             = "eurl";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenName                             = "eurt";
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
 
                 const tokenDecimals                         = 6;
@@ -859,7 +858,7 @@ describe("Lending Controller tests", async () => {
                 const maxDepositAmount                      = null;
                 
                 // check if collateral token exists
-                const checkCollateralTokenExists   = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName); 
+                const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                 // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
                 if(checkCollateralTokenExists === undefined){
@@ -892,7 +891,7 @@ describe("Lending Controller tests", async () => {
                 }
 
                 lendingControllerStorage        = await lendingControllerInstance.storage();
-                const mockFa2CollateralToken    = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName); 
+                const mockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                 assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
                 assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
@@ -928,7 +927,7 @@ describe("Lending Controller tests", async () => {
                 const maxDepositAmount                      = null;
                 
                 // check if collateral token exists
-                const checkCollateralTokenExists   = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName); 
+                const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                 // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
                 if(checkCollateralTokenExists === undefined){
@@ -961,7 +960,7 @@ describe("Lending Controller tests", async () => {
                 }
 
                 lendingControllerStorage        = await lendingControllerInstance.storage();
-                const mockFa2CollateralToken    = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName); 
+                const mockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                 assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
                 assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
@@ -975,7 +974,7 @@ describe("Lending Controller tests", async () => {
         });
 
 
-        it('admin can set staked MVK as a collateral token', async () => {
+        it('admin can set staked MVN as a collateral token', async () => {
 
             try{        
                 
@@ -983,13 +982,13 @@ describe("Lending Controller tests", async () => {
                 await signerFactory(tezos, bob.sk);
 
                 const setCollateralTokenActionType      = "createCollateralToken";
-                const tokenName                         = "smvk";
-                const tokenContractAddress              = contractDeployments.mvkToken.address;
+                const tokenName                         = "smvn";
+                const tokenContractAddress              = contractDeployments.mvnToken.address;
                 const tokenType                         = "fa2";
 
                 const tokenDecimals                     = 9;
-                const oracleAddress                     = contractDeployments.mockUsdMvkAggregator.address;
-                const tokenProtected                    = true; // sMVK is protected
+                const oracleAddress                     = contractDeployments.mockUsdMvnAggregator.address;
+                const tokenProtected                    = true; // sMVN is protected
 
                 const isScaledToken                     = false;
                 const isStakedToken                     = true;
@@ -998,7 +997,7 @@ describe("Lending Controller tests", async () => {
                 const maxDepositAmount                  = null;
                 
                 // check if collateral token exists
-                const checkCollateralTokenExists   = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName); 
+                const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                 // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
                 if(checkCollateralTokenExists === undefined){
@@ -1031,12 +1030,12 @@ describe("Lending Controller tests", async () => {
                 }
 
                 lendingControllerStorage   = await lendingControllerInstance.storage();
-                const stakedMvkCollateralTokenRecord       = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName); 
+                const stakedMvnCollateralTokenRecord       = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
             
-                assert.equal(stakedMvkCollateralTokenRecord.tokenName              , tokenName);
-                assert.equal(stakedMvkCollateralTokenRecord.tokenDecimals          , tokenDecimals);
-                assert.equal(stakedMvkCollateralTokenRecord.oracleAddress          , oracleAddress);
-                assert.equal(stakedMvkCollateralTokenRecord.protected              , tokenProtected);
+                assert.equal(stakedMvnCollateralTokenRecord.tokenName              , tokenName);
+                assert.equal(stakedMvnCollateralTokenRecord.tokenDecimals          , tokenDecimals);
+                assert.equal(stakedMvnCollateralTokenRecord.oracleAddress          , oracleAddress);
+                assert.equal(stakedMvnCollateralTokenRecord.protected              , tokenProtected);
                 
 
             } catch(e){
@@ -1054,7 +1053,7 @@ describe("Lending Controller tests", async () => {
 
                 const createCollateralTokenActionType       = "createCollateralToken";
                 const tokenName                             = "testUpdateCollateralToken";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
 
                 const tokenDecimals                         = 6;
@@ -1068,7 +1067,7 @@ describe("Lending Controller tests", async () => {
                 const maxDepositAmount                      = null;
                 
                 // check if collateral token exists
-                const checkCollateralTokenExists   = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName); 
+                const checkCollateralTokenExists   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                 // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
                 if(checkCollateralTokenExists === undefined){
@@ -1099,7 +1098,7 @@ describe("Lending Controller tests", async () => {
                     await adminSetMockFa2CollateralTokenOperation.confirmation();
 
                     lendingControllerStorage        = await lendingControllerInstance.storage();
-                    const mockFa2CollateralToken    = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName); 
+                    const mockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
     
                     assert.equal(mockFa2CollateralToken.tokenName              , tokenName);
                     assert.equal(mockFa2CollateralToken.tokenDecimals          , tokenDecimals);
@@ -1132,7 +1131,7 @@ describe("Lending Controller tests", async () => {
                     await adminSetMockFa2CollateralTokenOperation.confirmation();
 
                     lendingControllerStorage               = await lendingControllerInstance.storage();
-                    const updatedMockFa2CollateralToken    = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName); 
+                    const updatedMockFa2CollateralToken    = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                     // oracle address should be updated, and there should be no changes to other variables
                     assert.equal(updatedMockFa2CollateralToken.oracleAddress   , newOracleAddress);
@@ -1157,7 +1156,7 @@ describe("Lending Controller tests", async () => {
 
                 const setCollateralTokenActionType          = "createCollateralToken";
                 const tokenName                             = "failTestCollateralToken";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
 
                 const tokenDecimals                         = 6;
@@ -1196,7 +1195,7 @@ describe("Lending Controller tests", async () => {
 
                 // Final values
                 lendingControllerStorage        = await lendingControllerInstance.storage();
-                const failTestCollateralToken   = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName); 
+                const failTestCollateralToken   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                 // Assertions
                 assert.strictEqual(failTestCollateralToken, undefined);
@@ -1215,7 +1214,7 @@ describe("Lending Controller tests", async () => {
 
                 const setCollateralTokenActionType          = "updateCollateralToken";
                 const tokenName                             = "failTestCollateralToken";
-                const tokenContractAddress                  = contractDeployments.mavrykFa2Token.address;
+                const tokenContractAddress                  = contractDeployments.mavenFa2Token.address;
                 const tokenType                             = "fa2";
 
                 const tokenDecimals                         = 6;
@@ -1239,7 +1238,7 @@ describe("Lending Controller tests", async () => {
 
                 // Final values
                 lendingControllerStorage        = await lendingControllerInstance.storage();
-                const failTestCollateralToken   = await getStorageMapValue(lendingControllerStorage, 'collateralTokenLedger', tokenName); 
+                const failTestCollateralToken   = await lendingControllerStorage.collateralTokenLedger.get(tokenName); 
 
                 // Assertions
                 assert.strictEqual(failTestCollateralToken, undefined);
@@ -1377,7 +1376,7 @@ describe("Lending Controller tests", async () => {
                     "id"    : vaultId,
                     "owner" : vaultOwner
                 };
-                const vaultRecord = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
+                const vaultRecord = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 
                 assert.equal(vaultRecord.loanToken              , loanTokenName);
                 assert.equal(vaultRecord.loanOutstandingTotal   , 0);
@@ -1426,7 +1425,7 @@ describe("Lending Controller tests", async () => {
                     "id"    : vaultId,
                     "owner" : vaultOwner
                 }
-                const vaultRecord = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
+                const vaultRecord = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 
                 assert.equal(vaultRecord.loanToken              , loanTokenName);
                 assert.equal(vaultRecord.loanOutstandingTotal   , 0);
@@ -1458,7 +1457,7 @@ describe("Lending Controller tests", async () => {
                 const vaultId                   = vaultFactoryStorage.vaultCounter.toNumber();
                 const vaultOwner                = mallory.pkh;
                 const vaultName                 = "newVault";
-                const loanTokenName             = "eurl";
+                const loanTokenName             = "eurt";
 
                 const depositorsConfig          = "any";
 
@@ -1476,7 +1475,7 @@ describe("Lending Controller tests", async () => {
                     "id"    : vaultId,
                     "owner" : vaultOwner
                 };
-                const vaultRecord = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
+                const vaultRecord = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 
                 assert.equal(vaultRecord.loanToken              , loanTokenName);
                 assert.equal(vaultRecord.loanOutstandingTotal   , 0);
@@ -1506,7 +1505,7 @@ describe("Lending Controller tests", async () => {
                 const vaultId                   = vaultFactoryStorage.vaultCounter.toNumber();
                 const vaultOwner                = eve.pkh;
                 const vaultName                 = "newVault";
-                const loanTokenName             = "eurl";
+                const loanTokenName             = "eurt";
 
                 const depositorsConfig          = "whitelist";
 
@@ -1525,7 +1524,7 @@ describe("Lending Controller tests", async () => {
                     "id"    : vaultId,
                     "owner" : vaultOwner
                 }
-                const vaultRecord = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
+                const vaultRecord = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 
                 assert.equal(vaultRecord.loanToken              , loanTokenName);
                 assert.equal(vaultRecord.loanOutstandingTotal   , 0);
@@ -1576,7 +1575,7 @@ describe("Lending Controller tests", async () => {
                     "id"    : vaultId,
                     "owner" : vaultOwner
                 }
-                const vaultRecord = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
+                const vaultRecord = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 
                 assert.equal(vaultRecord.loanToken              , loanTokenName);
                 assert.equal(vaultRecord.loanOutstandingTotal   , 0);
@@ -1621,7 +1620,7 @@ describe("Lending Controller tests", async () => {
             };
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get vault contract
             const vaultAddress             = vault.address;
@@ -1636,8 +1635,8 @@ describe("Lending Controller tests", async () => {
             await eveDepositTezOperation.confirmation();
 
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedVault                    = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const tezCollateralBalance            = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', 'tez');
+            const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
             
             assert.equal(tezCollateralBalance, TEZ(depositAmountTez));
 
@@ -1650,7 +1649,7 @@ describe("Lending Controller tests", async () => {
                 "owner"  : vaultOwner
             };
 
-            const secondVault                    = await getStorageMapValue(lendingControllerStorage, 'vaults', secondVaultHandle);
+            const secondVault                    = await lendingControllerStorage.vaults.get(secondVaultHandle);
 
             // get vault contract
             const secondVaultAddress             = secondVault.address;
@@ -1669,7 +1668,7 @@ describe("Lending Controller tests", async () => {
                 "owner"  : vaultOwner
             };
 
-            const thirdVault                    = await getStorageMapValue(lendingControllerStorage, 'vaults', thirdVaultHandle);
+            const thirdVault                    = await lendingControllerStorage.vaults.get(thirdVaultHandle);
 
             // get vault contract
             const thirdVaultAddress             = thirdVault.address;
@@ -1701,8 +1700,8 @@ describe("Lending Controller tests", async () => {
             };
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
-            const initialTezCollateralBalance   = await getStorageMapValue(vault, 'collateralBalanceLedger', 'tez');
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+            const initialTezCollateralBalance   = await vault.collateralBalanceLedger.get('tez');
 
             // check that initial tez collateral balance is now ten tez
             assert.equal(initialTezCollateralBalance, TEZ(10));
@@ -1720,8 +1719,8 @@ describe("Lending Controller tests", async () => {
             await malloryDepositTezIntoEveVaultOperation.confirmation();
 
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedVault                    = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const tezCollateralBalance            = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', 'tez');
+            const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
             
             // check that tez balance is now 20 tez
             assert.equal(tezCollateralBalance, TEZ(finalAmountTez));
@@ -1744,7 +1743,7 @@ describe("Lending Controller tests", async () => {
             };
     
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
     
             // get vault contract
             const vaultAddress             = vault.address;
@@ -1759,8 +1758,8 @@ describe("Lending Controller tests", async () => {
             await malloryDepositTezOperation.confirmation();
     
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedVault                    = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const tezCollateralBalance            = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', 'tez');
+            const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
             
             assert.equal(tezCollateralBalance, TEZ(depositAmountTez));
     
@@ -1783,8 +1782,8 @@ describe("Lending Controller tests", async () => {
             };
     
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
-            const initialTezCollateralBalance   = await getStorageMapValue(vault, 'collateralBalanceLedger', 'tez');
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+            const initialTezCollateralBalance   = await vault.collateralBalanceLedger.get('tez');
     
             // check that initial tez collateral balance is now ten tez (from previous test)
             assert.equal(initialTezCollateralBalance, TEZ(10));
@@ -1831,7 +1830,7 @@ describe("Lending Controller tests", async () => {
                 "owner"  : vaultOwner
             };
             
-            const vault                     = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                     = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get vault contract
             const vaultAddress              = vault.address;
@@ -1841,11 +1840,11 @@ describe("Lending Controller tests", async () => {
             const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
             
             // get initial eve's Mock FA12 Token balance
-            const eveMockFa12Ledger                 = await getStorageMapValue(mockFa12TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
             // get initial vault's Mock FA12 Token balance
-            const vaultMockFa12Ledger                = await getStorageMapValue(mockFa12TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(vaultAddress);            
             const vaultInitialMockFa12TokenBalance   = vaultMockFa12Ledger == undefined ? 0 : vaultMockFa12Ledger.balance.toNumber();
 
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
@@ -1872,19 +1871,19 @@ describe("Lending Controller tests", async () => {
             await eveDepositMockFa12TokenOperation.confirmation();
 
             const updatedLendingControllerStorage   = await lendingControllerInstance.storage();
-            const updatedVault                      = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const mockFa12TokenCollateralBalance    = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const mockFa12TokenCollateralBalance    = await updatedVault.collateralBalanceLedger.get(tokenName);
 
             // vault Mock FA12 Token Collateral Balance
             assert.equal(mockFa12TokenCollateralBalance, depositAmount);
 
             // check Eve's Mock FA12 Token balance
             const updatedMockFa12TokenStorage      = await mockFa12TokenInstance.storage();
-            const updatedEveMockFa12Ledger         = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveMockFa12Ledger.balance, eveInitialMockFa12TokenBalance - depositAmount);
 
             // check vault's Mock FA12 Token Balance
-            const vaultMockFa12Account             = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa12Account             = await updatedMockFa12TokenStorage.ledger.get(vaultAddress);            
             assert.equal(vaultMockFa12Account.balance, vaultInitialMockFa12TokenBalance + depositAmount);
 
         });
@@ -1909,7 +1908,7 @@ describe("Lending Controller tests", async () => {
             };
 
             // get vault from Lending Controller
-            const vault                    = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                    = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get vault contract
             const vaultAddress             = vault.address;
@@ -1919,11 +1918,11 @@ describe("Lending Controller tests", async () => {
             const mockFa12TokenStorage     = await mockFa12TokenInstance.storage();
 
             // get initial mallory's mock fa12 token balance
-            const malloryMockFa12Ledger              = await getStorageMapValue(mockFa12TokenStorage, 'ledger', mallory.pkh);            
+            const malloryMockFa12Ledger              = await mockFa12TokenStorage.ledger.get(mallory.pkh);            
             const malloryInitialMockFa12TokenBalance = malloryMockFa12Ledger == undefined ? 0 : malloryMockFa12Ledger.balance.toNumber();
 
             // get initial vault's Mock FA12 Token balance
-            const vaultMockFa12Ledger                = await getStorageMapValue(mockFa12TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(vaultAddress);            
             const vaultInitialMockFa12TokenBalance   = vaultMockFa12Ledger == undefined ? 0 : vaultMockFa12Ledger.balance.toNumber();        
 
             // mallory resets mock FA12 tokens allowance then set new allowance to deposit amount
@@ -1950,8 +1949,8 @@ describe("Lending Controller tests", async () => {
             await malloryDepositMockFa12TokenOperation.confirmation();
 
             const updatedLendingControllerStorage   = await lendingControllerInstance.storage();
-            const updatedVault                      = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const mockFa12TokenCollateralBalance    = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const mockFa12TokenCollateralBalance    = await updatedVault.collateralBalanceLedger.get(tokenName);
             
             // vault Mock FA12 Token Collateral Balance
             const vaultTokenCollateralBalance = depositAmount + depositAmount;
@@ -1961,11 +1960,11 @@ describe("Lending Controller tests", async () => {
             const updatedMockFa12TokenStorage      = await mockFa12TokenInstance.storage();
 
             // check that mallory now has the correct Mock FA12 Token balance
-            const updatedMalloryMockFa12Ledger     = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', mallory.pkh);            
+            const updatedMalloryMockFa12Ledger     = await updatedMockFa12TokenStorage.ledger.get(mallory.pkh);            
             assert.equal(updatedMalloryMockFa12Ledger.balance, malloryInitialMockFa12TokenBalance - depositAmount);
 
             // check that vault has the correct Mock FA12 Token Balance
-            const vaultMockFa12Account     = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa12Account     = await updatedMockFa12TokenStorage.ledger.get(vaultAddress);            
             assert.equal(vaultMockFa12Account.balance, vaultInitialMockFa12TokenBalance + depositAmount);
 
         });
@@ -1989,7 +1988,7 @@ describe("Lending Controller tests", async () => {
             };
     
             lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                   = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                   = await lendingControllerStorage.vaults.get(vaultHandle);
     
             // get vault contract
             const vaultAddress             = vault.address;
@@ -2041,7 +2040,7 @@ describe("Lending Controller tests", async () => {
             };
 
             // get vault from Lending Controller
-            const vault                   = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                   = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get vault contract
             const vaultAddress             = vault.address;
@@ -2051,11 +2050,11 @@ describe("Lending Controller tests", async () => {
             const mockFa12TokenStorage     = await mockFa12TokenInstance.storage();
 
             // get initial mallory's mock fa12 token balance
-            const malloryMockFa12Ledger              = await getStorageMapValue(mockFa12TokenStorage, 'ledger', mallory.pkh);            
+            const malloryMockFa12Ledger              = await mockFa12TokenStorage.ledger.get(mallory.pkh);            
             const malloryInitialMockFa12TokenBalance = malloryMockFa12Ledger == undefined ? 0 : malloryMockFa12Ledger.balance.toNumber();
 
             // get initial vault's Mock FA12 Token balance
-            const vaultMockFa12Ledger                = await getStorageMapValue(mockFa12TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(vaultAddress);            
             const vaultInitialMockFa12TokenBalance   = vaultMockFa12Ledger == undefined ? 0 : vaultMockFa12Ledger.balance.toNumber();        
             
             // mallory resets mock FA12 tokens allowance then set new allowance to deposit amount
@@ -2082,8 +2081,8 @@ describe("Lending Controller tests", async () => {
             await malloryDepositMockFa12TokenOperation.confirmation();
 
             const updatedLendingControllerStorage   = await lendingControllerInstance.storage();
-            const updatedVault                      = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const mockFa12TokenCollateralBalance    = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                      = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const mockFa12TokenCollateralBalance    = await updatedVault.collateralBalanceLedger.get(tokenName);
             
             // vault Mock FA12 Token Collateral Balance
             const vaultTokenCollateralBalance = depositAmount;
@@ -2091,10 +2090,10 @@ describe("Lending Controller tests", async () => {
 
             // check that mallory has the correct amount of Mock FA12 Token balance
             const updatedMockFa12TokenStorage      = await mockFa12TokenInstance.storage();
-            const updatedEveMockFa12Ledger         = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', mallory.pkh);            
+            const updatedEveMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(mallory.pkh);            
             assert.equal(updatedEveMockFa12Ledger.balance, malloryInitialMockFa12TokenBalance - depositAmount);
 
-            const vaultMockFa12Account = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa12Account = await updatedMockFa12TokenStorage.ledger.get(vaultAddress);            
             assert.equal(vaultMockFa12Account.balance, vaultInitialMockFa12TokenBalance + depositAmount);
 
         });
@@ -2118,7 +2117,7 @@ describe("Lending Controller tests", async () => {
             };
     
             // get vault from Lending Controller        
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
     
             // get vault contract
             const vaultAddress             = vault.address;
@@ -2168,7 +2167,7 @@ describe("Lending Controller tests", async () => {
             };
     
             // get vault from Lending Controller        
-            const vault = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault = await lendingControllerStorage.vaults.get(vaultHandle);
     
             // get vault contract
             const vaultAddress   = vault.address;
@@ -2215,7 +2214,7 @@ describe("Lending Controller tests", async () => {
             await signerFactory(tezos, eve.sk);
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
-            const tokenName          = "eurl";
+            const tokenName          = "eurt";
             const tokenType          = "fa2";
             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2228,7 +2227,7 @@ describe("Lending Controller tests", async () => {
             };
 
             // get vault from Lending Controller        
-            const vault = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get vault contract
             const vaultAddress             = vault.address;
@@ -2238,11 +2237,11 @@ describe("Lending Controller tests", async () => {
             const mockFa2TokenStorage       = await mockFa2TokenInstance.storage();
             
             // get initial eve's Mock FA2 Token balance
-            const eveMockFa2Ledger                 = await getStorageMapValue(mockFa2TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
             // get initial vault's Mock FA2 Token balance
-            const vaultMockFa2Ledger                = await getStorageMapValue(mockFa2TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(vaultAddress);            
             const vaultInitialMockFa2TokenBalance   = vaultMockFa2Ledger == undefined ? 0 : vaultMockFa2Ledger.toNumber();
 
             // get initial vault collateral token balance
@@ -2261,19 +2260,19 @@ describe("Lending Controller tests", async () => {
             await eveDepositTokenOperation.confirmation();
 
             const updatedLendingControllerStorage       = await lendingControllerInstance.storage();
-            const updatedVault                          = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const vaultMockFa2TokenCollateralBalance    = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                          = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const vaultMockFa2TokenCollateralBalance    = await updatedVault.collateralBalanceLedger.get(tokenName);
 
             // vault Mock FA2 Token Collateral Balance
             assert.equal(vaultMockFa2TokenCollateralBalance, vaultInitialTokenCollateralBalance + depositAmount);
 
             // check Eve's Mock FA2 Token balance
             const updatedMockFa2TokenStorage      = await mockFa2TokenInstance.storage();
-            const updatedEveMockFa2Ledger         = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveMockFa2Ledger, eveInitialMockFa2TokenBalance - depositAmount);
 
             // check vault's Mock FA2 Token Balance
-            const vaultMockFa2Account             = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa2Account             = await updatedMockFa2TokenStorage.ledger.get(vaultAddress);            
             assert.equal(vaultMockFa2Account, vaultInitialMockFa2TokenBalance + depositAmount);
 
         });
@@ -2285,7 +2284,7 @@ describe("Lending Controller tests", async () => {
             await signerFactory(tezos, mallory.sk);
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
-            const tokenName          = "eurl";
+            const tokenName          = "eurt";
             const tokenType          = "fa2";
             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2298,7 +2297,7 @@ describe("Lending Controller tests", async () => {
             };
 
             // get vault from Lending Controller        
-            const vault = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get vault contract
             const vaultAddress             = vault.address;
@@ -2308,11 +2307,11 @@ describe("Lending Controller tests", async () => {
             const mockFa2TokenStorage       = await mockFa2TokenInstance.storage();
             
             // get initial mallory's Mock FA2 Token balance
-            const malloryMockFa2Ledger                 = await getStorageMapValue(mockFa2TokenStorage, 'ledger', mallory.pkh);            
+            const malloryMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(mallory.pkh);            
             const malloryInitialMockFa2TokenBalance    = malloryMockFa2Ledger == undefined ? 0 : malloryMockFa2Ledger.toNumber();
 
             // get initial vault's Mock FA2 Token balance
-            const vaultMockFa2Ledger                = await getStorageMapValue(mockFa2TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(vaultAddress);            
             const vaultInitialMockFa2TokenBalance   = vaultMockFa2Ledger == undefined ? 0 : vaultMockFa2Ledger.toNumber();
 
             // get initial vault collateral token balance
@@ -2331,19 +2330,19 @@ describe("Lending Controller tests", async () => {
             await malloryDepositTokenOperation.confirmation();
 
             const updatedLendingControllerStorage     = await lendingControllerInstance.storage();
-            const updatedVault                        = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const vaultMockFa2TokenCollateralBalance  = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                        = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const vaultMockFa2TokenCollateralBalance  = await updatedVault.collateralBalanceLedger.get(tokenName);
 
             // vault Mock FA2 Token Collateral Balance
             assert.equal(vaultMockFa2TokenCollateralBalance, vaultInitialTokenCollateralBalance + depositAmount);
 
             // check Mallory's Mock FA2 Token balance
             const updatedMockFa2TokenStorage      = await mockFa2TokenInstance.storage();
-            const updatedMalloryMockFa2Ledger     = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', mallory.pkh);            
+            const updatedMalloryMockFa2Ledger     = await updatedMockFa2TokenStorage.ledger.get(mallory.pkh);            
             assert.equal(updatedMalloryMockFa2Ledger, malloryInitialMockFa2TokenBalance - depositAmount);
 
             // check vault's Mock FA2 Token Balance
-            const vaultMockFa2Account             = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa2Account             = await updatedMockFa2TokenStorage.ledger.get(vaultAddress);            
             assert.equal(vaultMockFa2Account, vaultInitialMockFa2TokenBalance + depositAmount);
 
         });
@@ -2354,7 +2353,7 @@ describe("Lending Controller tests", async () => {
             await signerFactory(tezos, eve.sk);
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
-            const tokenName          = "eurl";
+            const tokenName          = "eurt";
             const tokenType          = "fa2";
             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2367,7 +2366,7 @@ describe("Lending Controller tests", async () => {
             };
     
             // get vault from Lending Controller        
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
     
             // get vault contract
             const vaultAddress             = vault.address;
@@ -2394,7 +2393,7 @@ describe("Lending Controller tests", async () => {
             await signerFactory(tezos, mallory.sk);
             const vaultId            = malloryVaultSet[0];
             const vaultOwner         = mallory.pkh;
-            const tokenName          = "eurl";
+            const tokenName          = "eurt";
             const tokenType          = "fa2";
             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2407,7 +2406,7 @@ describe("Lending Controller tests", async () => {
             };
 
             // get vault from Lending Controller        
-            const vault = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get vault contract
             const vaultAddress             = vault.address;
@@ -2417,11 +2416,11 @@ describe("Lending Controller tests", async () => {
             const mockFa2TokenStorage       = await mockFa2TokenInstance.storage();
             
             // get initial mallory's Mock FA2 Token balance
-            const malloryMockFa2Ledger                 = await getStorageMapValue(mockFa2TokenStorage, 'ledger', mallory.pkh);            
+            const malloryMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(mallory.pkh);            
             const malloryInitialMockFa2TokenBalance    = malloryMockFa2Ledger == undefined ? 0 : malloryMockFa2Ledger.toNumber();
 
             // get initial vault's Mock FA2 Token balance
-            const vaultMockFa2Ledger                = await getStorageMapValue(mockFa2TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(vaultAddress);            
             const vaultInitialMockFa2TokenBalance   = vaultMockFa2Ledger == undefined ? 0 : vaultMockFa2Ledger.toNumber();
 
             // get initial vault collateral token balance
@@ -2440,19 +2439,19 @@ describe("Lending Controller tests", async () => {
             await malloryDepositTokenOperation.confirmation();
 
             const updatedLendingControllerStorage     = await lendingControllerInstance.storage();
-            const updatedVault                        = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const vaultMockFa2TokenCollateralBalance  = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                        = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const vaultMockFa2TokenCollateralBalance  = await updatedVault.collateralBalanceLedger.get(tokenName);
             
             // vault Mock FA2 Token Collateral Balance
             assert.equal(vaultMockFa2TokenCollateralBalance, vaultInitialTokenCollateralBalance + depositAmount);
 
             // check Mallory's Mock FA2 Token balance
             const updatedMockFa2TokenStorage      = await mockFa2TokenInstance.storage();
-            const updatedMalloryMockFa2Ledger     = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', mallory.pkh);            
+            const updatedMalloryMockFa2Ledger     = await updatedMockFa2TokenStorage.ledger.get(mallory.pkh);            
             assert.equal(updatedMalloryMockFa2Ledger, malloryInitialMockFa2TokenBalance - depositAmount);
 
             // check vault's Mock FA2 Token Balance
-            const vaultMockFa2Account             = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa2Account             = await updatedMockFa2TokenStorage.ledger.get(vaultAddress);            
             assert.equal(vaultMockFa2Account, vaultInitialMockFa2TokenBalance + depositAmount);
 
         });
@@ -2464,7 +2463,7 @@ describe("Lending Controller tests", async () => {
             await signerFactory(tezos, eve.sk);
             const vaultId            = malloryVaultSet[0];
             const vaultOwner         = mallory.pkh;
-            const tokenName          = "eurl";
+            const tokenName          = "eurt";
             const tokenType          = "fa2";
             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2477,7 +2476,7 @@ describe("Lending Controller tests", async () => {
             };
     
             // get vault from Lending Controller        
-            const vault                    = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                    = await lendingControllerStorage.vaults.get(vaultHandle);
     
             // get vault contract
             const vaultAddress             = vault.address;
@@ -2505,7 +2504,7 @@ describe("Lending Controller tests", async () => {
             const vaultId            = malloryVaultSet[0];
             const vaultOwner         = mallory.pkh;
 
-            const tokenName          = "eurl";
+            const tokenName          = "eurt";
             const tokenType          = "fa2";
             const depositAmount      = 10000000;   // 10 Mock FA2 Tokens
 
@@ -2518,7 +2517,7 @@ describe("Lending Controller tests", async () => {
             };
     
             // get vault from Lending Controller        
-            const vault                    = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                    = await lendingControllerStorage.vaults.get(vaultHandle);
     
             // get vault contract
             const vaultAddress             = vault.address;
@@ -2562,19 +2561,19 @@ describe("Lending Controller tests", async () => {
             const mTokenPoolMockFa12TokenStorage      = await mTokenUsdtInstance.storage();
             
             // get initial eve's Mock FA12 Token balance
-            const eveMockFa12Ledger                   = await getStorageMapValue(mockFa12TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa12Ledger                   = await mockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa12TokenBalance      = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
-            // get initial eve's mEurl Token - Mock FA12 Token - balance
-            const eveMUsdtTokenLedger                 = await getStorageMapValue(mTokenPoolMockFa12TokenStorage, 'ledger', eve.pkh);            
+            // get initial eve's mEurt Token - Mock FA12 Token - balance
+            const eveMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMUsdtTokenTokenBalance    = eveMUsdtTokenLedger == undefined ? 0 : eveMUsdtTokenLedger.toNumber();
 
             // get initial lending controller's Mock FA12 Token balance
-            const lendingControllerMockFa12Ledger                = await getStorageMapValue(mockFa12TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress);            
             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
 
             // get initial lending controller token pool total
-            const initialLoanTokenRecord                 = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
@@ -2605,19 +2604,19 @@ describe("Lending Controller tests", async () => {
             const updatedMUsdtTokenTokenStorage  = await mTokenUsdtInstance.storage();
 
             // check new balance for loan token pool total
-            const updatedLoanTokenRecord           = await getStorageMapValue(updatedLendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
 
             // check Eve's Mock FA12 Token balance
-            const updatedEveMockFa12Ledger         = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveMockFa12Ledger.balance, eveInitialMockFa12TokenBalance - liquidityAmount);
 
             // check Lending Controller's Mock FA12 Token Balance
-            const lendingControllerMockFa12Account  = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress);            
             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + liquidityAmount);
 
             // check Eve's mUsdt Token Token balance
-            const updatedEveMUsdtTokenLedger        = await getStorageMapValue(updatedMUsdtTokenTokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMUsdtTokenLedger        = await updatedMUsdtTokenTokenStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveMUsdtTokenLedger, eveInitialMUsdtTokenTokenBalance + liquidityAmount);        
 
             } catch (e) {
@@ -2629,29 +2628,29 @@ describe("Lending Controller tests", async () => {
     
             // init variables
             await signerFactory(tezos, eve.sk);
-            const loanTokenName = "eurl";
+            const loanTokenName = "eurt";
             const liquidityAmount = 10000000; // 10 Mock FA2 Tokens
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             
             // get mock fa2 token storage and lp token pool mock fa2 token storage
             const mockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-            const mTokenPoolMockFa2TokenStorage   = await mTokenEurlInstance.storage();
+            const mTokenPoolMockFa2TokenStorage   = await mTokenEurtInstance.storage();
             
             // get initial eve's Mock FA2 Token balance
-            const eveMockFa2Ledger                 = await getStorageMapValue(mockFa2TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
-            // get initial eve's mEurl Token - Mock FA2 Token - balance
-            const eveMEurlTokenLedger                 = await getStorageMapValue(mTokenPoolMockFa2TokenStorage, 'ledger', eve.pkh);            
-            const eveInitialMEurlTokenTokenBalance    = eveMEurlTokenLedger == undefined ? 0 : eveMEurlTokenLedger.toNumber();
+            // get initial eve's mEurt Token - Mock FA2 Token - balance
+            const eveMEurtTokenLedger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+            const eveInitialMEurtTokenTokenBalance    = eveMEurtTokenLedger == undefined ? 0 : eveMEurtTokenLedger.toNumber();
 
             // get initial lending controller's Mock FA2 Token balance
-            const lendingControllerMockFa2Ledger                = await getStorageMapValue(mockFa2TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress);            
             const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : lendingControllerMockFa2Ledger.toNumber();
 
             // get initial lending controller token pool total
-            const initialLoanTokenRecord                 = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // update operators for vault
@@ -2669,23 +2668,23 @@ describe("Lending Controller tests", async () => {
             const updatedLendingControllerStorage  = await lendingControllerInstance.storage();
             const updatedMockFa2TokenStorage       = await mockFa2TokenInstance.storage();
             
-            const updatedMEurlTokenTokenStorage     = await mTokenEurlInstance.storage();
+            const updatedMEurtTokenTokenStorage     = await mTokenEurtInstance.storage();
 
             // check new balance for loan token pool total
-            const updatedLoanTokenRecord           = await getStorageMapValue(updatedLendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
 
             // check Eve's Mock FA12 Token balance
-            const updatedEveMockFa2Ledger          = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa2Ledger          = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveMockFa2Ledger, eveInitialMockFa2TokenBalance - liquidityAmount);
 
             // check Lending Controller's Mock FA2 Token Balance
-            const lendingControllerMockFa2Account             = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa2Account             = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress);            
             assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance + liquidityAmount);
 
-            // check Eve's mEurl Token Token balance
-            const updatedEveMEurlTokenLedger        = await getStorageMapValue(updatedMEurlTokenTokenStorage, 'ledger', eve.pkh);            
-            assert.equal(updatedEveMEurlTokenLedger, eveInitialMEurlTokenTokenBalance + liquidityAmount);        
+            // check Eve's mEurt Token Token balance
+            const updatedEveMEurtTokenLedger        = await updatedMEurtTokenTokenStorage.ledger.get(eve.pkh);            
+            assert.equal(updatedEveMEurtTokenLedger, eveInitialMEurtTokenTokenBalance + liquidityAmount);        
 
         });
 
@@ -2706,8 +2705,8 @@ describe("Lending Controller tests", async () => {
             const eveInitialXtzLedger   = await utils.tezos.tz.getBalance(eve.pkh);
             const eveInitialXtzBalance  = eveInitialXtzLedger.toNumber();
 
-            // get initial eve's mEurl Token - Tez - balance
-            const eveMXtzTokenLedger            = await getStorageMapValue(mTokenPoolXtzStorage, 'ledger', eve.pkh);            
+            // get initial eve's mEurt Token - Tez - balance
+            const eveMXtzTokenLedger            = await mTokenPoolXtzStorage.ledger.get(eve.pkh);            
             const eveInitialMXtzTokenBalance    = eveMXtzTokenLedger == undefined ? 0 : eveMXtzTokenLedger.toNumber();
 
             // get initial lending controller's XTZ balance
@@ -2715,7 +2714,7 @@ describe("Lending Controller tests", async () => {
             const lendingControllerInitialXtzBalance  = lendingControllerInitialXtzLedger.toNumber();
 
             // get initial lending controller token pool total
-            const initialLoanTokenRecord                 = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // eve deposits mock XTZ into lending controller token pool
@@ -2730,7 +2729,7 @@ describe("Lending Controller tests", async () => {
             const updatedMXtzTokenStorage     = await mTokenXtzInstance.storage();
 
             // check new balance for loan token pool total
-            const updatedLoanTokenRecord           = await getStorageMapValue(updatedLendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
 
             // check Lending Controller's XTZ Balance
@@ -2738,7 +2737,7 @@ describe("Lending Controller tests", async () => {
             assert.equal(lendingControllerXtzBalance, lendingControllerInitialXtzBalance + liquidityAmount);
 
             // check Eve's mTokenXtz balance
-            const updatedEveMXtzTokenLedger        = await getStorageMapValue(updatedMXtzTokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMXtzTokenLedger        = await updatedMXtzTokenStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveMXtzTokenLedger, eveInitialMXtzTokenBalance + liquidityAmount);        
 
             // check Eve's XTZ Balance and account for gas cost in transaction with almostEqual
@@ -2770,19 +2769,19 @@ describe("Lending Controller tests", async () => {
             const mTokenPoolMockFa12TokenStorage   = await mTokenUsdtInstance.storage();
             
             // get initial eve's Mock FA12 Token balance
-            const eveMockFa12Ledger                 = await getStorageMapValue(mockFa12TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
-            // get initial eve's mEurl Token - Mock FA12 Token - balance
-            const eveMUsdtTokenLedger                 = await getStorageMapValue(mTokenPoolMockFa12TokenStorage, 'ledger', eve.pkh);            
+            // get initial eve's mEurt Token - Mock FA12 Token - balance
+            const eveMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMUsdtTokenTokenBalance    = eveMUsdtTokenLedger == undefined ? 0 : eveMUsdtTokenLedger.toNumber();
 
             // get initial lending controller's Mock FA12 Token balance
-            const lendingControllerMockFa12Ledger                = await getStorageMapValue(mockFa12TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress);            
             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
 
             // get initial lending controller token pool total
-            const initialLoanTokenRecord                 = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // eve withdraws mock FA12 tokens liquidity from lending controller token pool
@@ -2804,19 +2803,19 @@ describe("Lending Controller tests", async () => {
             // 4) User Token Balance - increase
 
             // 1) check new balance for loan token pool total
-            const updatedLoanTokenRecord           = await getStorageMapValue(updatedLendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal - withdrawAmount);
 
             // 2) check Lending Controller's Mock FA12 Token Balance
-            const lendingControllerMockFa12Account  = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress);            
             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance - withdrawAmount);
 
             // 3) check Eve's mUsdt Token Token balance
-            const updatedEveMUsdtTokenLedger        = await getStorageMapValue(updatedMUsdtTokenTokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMUsdtTokenLedger        = await updatedMUsdtTokenTokenStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveMUsdtTokenLedger, eveInitialMUsdtTokenTokenBalance - withdrawAmount);        
 
             // 4) check Eve's Mock FA12 Token balance
-            const updatedEveMockFa12Ledger         = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveMockFa12Ledger.balance, eveInitialMockFa12TokenBalance + withdrawAmount);
 
 
@@ -2827,29 +2826,29 @@ describe("Lending Controller tests", async () => {
     
             // init variables
             await signerFactory(tezos, eve.sk);
-            const loanTokenName = "eurl";
+            const loanTokenName = "eurt";
             const withdrawAmount = 5000000; // 5 Mock FA2 Tokens
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             
             // get mock fa12 token storage and lp token pool mock fa2 token storage
             const mockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-            const mTokenPoolMockFa2TokenStorage   = await mTokenEurlInstance.storage();
+            const mTokenPoolMockFa2TokenStorage   = await mTokenEurtInstance.storage();
             
             // get initial eve's Mock FA2 Token balance
-            const eveMockFa2Ledger                 = await getStorageMapValue(mockFa2TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
-            // get initial eve's mEurl Token - Mock FA2 Token - balance
-            const eveMEurlTokenLedger                 = await getStorageMapValue(mTokenPoolMockFa2TokenStorage, 'ledger', eve.pkh);            
-            const eveInitialMEurlTokenTokenBalance    = eveMEurlTokenLedger == undefined ? 0 : eveMEurlTokenLedger.toNumber();
+            // get initial eve's mEurt Token - Mock FA2 Token - balance
+            const eveMEurtTokenLedger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+            const eveInitialMEurtTokenTokenBalance    = eveMEurtTokenLedger == undefined ? 0 : eveMEurtTokenLedger.toNumber();
 
             // get initial lending controller's Mock FA2 Token balance
-            const lendingControllerMockFa2Ledger                = await getStorageMapValue(mockFa2TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress);            
             const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : lendingControllerMockFa2Ledger.toNumber();
 
             // get initial lending controller token pool total
-            const initialLoanTokenRecord                 = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // eve withdraws mock FA2 tokens liquidity from lending controller token pool
@@ -2862,7 +2861,7 @@ describe("Lending Controller tests", async () => {
             // get updated storages
             const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
             const updatedMockFa2TokenStorage              = await mockFa2TokenInstance.storage();
-            const updatedMEurlTokenTokenStorage   = await mTokenEurlInstance.storage();
+            const updatedMEurtTokenTokenStorage   = await mTokenEurtInstance.storage();
 
             // Summary - Liquidity Removed for Mock FA2 Token
             // 1) Loan Token Pool Record Balance - decrease
@@ -2871,19 +2870,19 @@ describe("Lending Controller tests", async () => {
             // 4) User Token Balance - increase
 
             // 1) check new balance for loan token pool total
-            const updatedLoanTokenRecord           = await getStorageMapValue(updatedLendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal - withdrawAmount);
 
             // 2) check Lending Controller's Mock FA2 Token Balance
-            const lendingControllerMockFa2Account  = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa2Account  = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress);            
             assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance - withdrawAmount);
 
-            // 3) check Eve's mEurl Token Token balance
-            const updatedEveMEurlTokenLedger        = await getStorageMapValue(updatedMEurlTokenTokenStorage, 'ledger', eve.pkh);            
-            assert.equal(updatedEveMEurlTokenLedger, eveInitialMEurlTokenTokenBalance - withdrawAmount);        
+            // 3) check Eve's mEurt Token Token balance
+            const updatedEveMEurtTokenLedger        = await updatedMEurtTokenTokenStorage.ledger.get(eve.pkh);            
+            assert.equal(updatedEveMEurtTokenLedger, eveInitialMEurtTokenTokenBalance - withdrawAmount);        
 
             // 4) check Eve's Mock FA2 Token balance
-            const updatedEveMockFa2Ledger         = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveMockFa2Ledger, eveInitialMockFa2TokenBalance + withdrawAmount);
 
         });
@@ -2906,8 +2905,8 @@ describe("Lending Controller tests", async () => {
             const eveInitialXtzLedger   = await utils.tezos.tz.getBalance(eve.pkh);
             const eveInitialXtzBalance  = eveInitialXtzLedger.toNumber();
 
-            // get initial eve's mEurl Token - Tez - balance
-            const eveMXtzTokenLedger            = await getStorageMapValue(mTokenPoolXtzStorage, 'ledger', eve.pkh);            
+            // get initial eve's mEurt Token - Tez - balance
+            const eveMXtzTokenLedger            = await mTokenPoolXtzStorage.ledger.get(eve.pkh);            
             const eveInitialMXtzTokenBalance    = eveMXtzTokenLedger == undefined ? 0 : eveMXtzTokenLedger.toNumber();
 
             // get initial lending controller's Xtz balance
@@ -2915,7 +2914,7 @@ describe("Lending Controller tests", async () => {
             const lendingControllerInitialXtzBalance  = lendingControllerInitialXtzLedger.toNumber();
 
             // get initial lending controller token pool total
-            const initialLoanTokenRecord                 = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // eve withdraws tez from lending controller token pool
@@ -2936,7 +2935,7 @@ describe("Lending Controller tests", async () => {
             // 4) User Token Balance - increase
 
             // 1) check new balance for loan token pool total
-            const updatedLoanTokenRecord = await getStorageMapValue(updatedLendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const updatedLoanTokenRecord = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal - withdrawAmount);
 
             // 2) check Lending Controller's XTZ Balance
@@ -2944,7 +2943,7 @@ describe("Lending Controller tests", async () => {
             assert.equal(lendingControllerXtzBalance, lendingControllerInitialXtzBalance - withdrawAmount);
 
             // 3) check Eve's mTokenXtz balance
-            const updatedEveMXtzTokenLedger = await getStorageMapValue(updatedMXtzTokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMXtzTokenLedger = await updatedMXtzTokenStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveMXtzTokenLedger, eveInitialMXtzTokenBalance - withdrawAmount);        
 
             // 4) check Eve's XTZ Balance and account for gas cost in transaction with almostEqual
@@ -2962,8 +2961,8 @@ describe("Lending Controller tests", async () => {
 
             const mTokenPoolMockFa12TokenStorage   = await mTokenUsdtInstance.storage();
 
-            // get initial eve's mEurl Token - Mock FA12 Token - balance
-            const eveMUsdtTokenLedger                 = await getStorageMapValue(mTokenPoolMockFa12TokenStorage, 'ledger', eve.pkh);            
+            // get initial eve's mEurt Token - Mock FA12 Token - balance
+            const eveMUsdtTokenLedger                 = await mTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMUsdtTokenTokenBalance    = eveMUsdtTokenLedger == undefined ? 0 : eveMUsdtTokenLedger.toNumber();
 
             const withdrawMoreThanBalanceAmount = eveInitialMUsdtTokenTokenBalance + incrementAmount;
@@ -2982,16 +2981,16 @@ describe("Lending Controller tests", async () => {
     
             // init variables
             await signerFactory(tezos, eve.sk);
-            const loanTokenName = "eurl";
+            const loanTokenName = "eurt";
             const incrementAmount = 10000000; // Increment user balance by 10 Mock FA2 Tokens
 
-            const mTokenPoolMockFa2TokenStorage   = await mTokenEurlInstance.storage();
+            const mTokenPoolMockFa2TokenStorage   = await mTokenEurtInstance.storage();
 
-            // get initial eve's mEurl Token - Mock FA2 Token - balance
-            const eveMEurlTokenLedger                 = await getStorageMapValue(mTokenPoolMockFa2TokenStorage, 'ledger', eve.pkh);            
-            const eveInitialMEurlTokenTokenBalance    = eveMEurlTokenLedger == undefined ? 0 : eveMEurlTokenLedger.toNumber();
+            // get initial eve's mEurt Token - Mock FA2 Token - balance
+            const eveMEurtTokenLedger                 = await mTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+            const eveInitialMEurtTokenTokenBalance    = eveMEurtTokenLedger == undefined ? 0 : eveMEurtTokenLedger.toNumber();
 
-            const withdrawMoreThanBalanceAmount = eveInitialMEurlTokenTokenBalance + incrementAmount;
+            const withdrawMoreThanBalanceAmount = eveInitialMEurtTokenTokenBalance + incrementAmount;
 
             // fail: eve has insufficient mock FA2 tokens in token pool
             const failEveWithdrawTokenOperation  = await lendingControllerInstance.methods.removeLiquidity(
@@ -3051,7 +3050,7 @@ describe("Lending Controller tests", async () => {
                 "id"    : vaultId,
                 "owner" : vaultOwner
             };
-            const vaultRecord = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get initial loan variables
             const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();
@@ -3059,7 +3058,7 @@ describe("Lending Controller tests", async () => {
             const initialLoanInterestTotal      = vaultRecord.loanInterestTotal.toNumber();
 
             // get initial eve's Mock FA12 Token balance
-            const eveMockFa12Ledger                 = await getStorageMapValue(mockFa12TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
             // borrow operation
@@ -3068,9 +3067,9 @@ describe("Lending Controller tests", async () => {
 
             // get updated storage
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedVaultRecord              = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
+            const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const updatedMockFa12TokenStorage     = await mockFa12TokenInstance.storage();
-            const updatedEveMockFa12Ledger        = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa12Ledger        = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
             const updatedEveMockFa12Balance       = updatedEveMockFa12Ledger.balance.toNumber();
 
             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
@@ -3105,7 +3104,7 @@ describe("Lending Controller tests", async () => {
                 "id"    : vaultId,
                 "owner" : vaultOwner
             };
-            const vaultRecord = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get initial variables
             const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();
@@ -3113,7 +3112,7 @@ describe("Lending Controller tests", async () => {
             const initialLoanInterestTotal      = vaultRecord.loanInterestTotal.toNumber();
 
             // get initial eve's Mock FA2 Token balance
-            const eveMockFa2Ledger                 = await getStorageMapValue(mockFa2TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
             const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
@@ -3121,14 +3120,14 @@ describe("Lending Controller tests", async () => {
 
             // get updated storage
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedVaultRecord              = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
+            const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 
             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
             const updatedLoanPrincipalTotal       = updatedVaultRecord.loanPrincipalTotal;
             const updatedLoanInterestTotal        = updatedVaultRecord.loanInterestTotal;
 
             const updatedMockFa2TokenStorage      = await mockFa2TokenInstance.storage();
-            const updatedEveMockFa2Ledger         = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
             const updatedEveMockFa2TokenBalance   = updatedEveMockFa2Ledger.toNumber();
 
             assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal + borrowAmount);
@@ -3158,7 +3157,7 @@ describe("Lending Controller tests", async () => {
                 "id"    : vaultId,
                 "owner" : vaultOwner
             };
-            const vaultRecord = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get initial variables
             const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();
@@ -3175,7 +3174,7 @@ describe("Lending Controller tests", async () => {
 
             // get updated storage
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedVaultRecord              = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
+            const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 
             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
             const updatedLoanPrincipalTotal       = updatedVaultRecord.loanPrincipalTotal;
@@ -3210,7 +3209,7 @@ describe("Lending Controller tests", async () => {
                 "id"    : vaultId,
                 "owner" : vaultOwner
             };
-            const vaultRecord = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get initial loan variables
             const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();
@@ -3218,7 +3217,7 @@ describe("Lending Controller tests", async () => {
             const initialLoanInterestTotal      = vaultRecord.loanInterestTotal.toNumber();
 
             // get initial eve's Mock FA12 Token balance
-            const eveMockFa12Ledger                 = await getStorageMapValue(mockFa12TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
             // borrow operation
@@ -3227,9 +3226,9 @@ describe("Lending Controller tests", async () => {
 
             // get updated storage
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedVaultRecord              = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
+            const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const updatedMockFa12TokenStorage     = await mockFa12TokenInstance.storage();
-            const updatedEveMockFa12Ledger        = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa12Ledger        = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
             const updatedEveMockFa12Balance       = updatedEveMockFa12Ledger.balance.toNumber();
 
             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
@@ -3303,18 +3302,18 @@ describe("Lending Controller tests", async () => {
             const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
             
             // get initial eve's Mock FA12 Token balance
-            const eveMockFa12Ledger                 = await getStorageMapValue(mockFa12TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
-            // get initial eve's mEurl Token - Mock FA12 Token - balance
+            // get initial eve's mEurt Token - Mock FA12 Token - balance
             const eveInitialMUsdtTokenTokenBalance    = await mTokenUsdtInstance.contractViews.get_balance({ 0 : eve.pkh, 1 : 0}).executeView({ viewCaller : bob.pkh});
 
             // get initial lending controller's Mock FA12 Token balance
-            const lendingControllerMockFa12Ledger                = await getStorageMapValue(mockFa12TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress);            
             const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : lendingControllerMockFa12Ledger.balance.toNumber();
 
             // get initial lending controller token pool total
-            const initialLoanTokenRecord                 = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
             // eve resets mock FA12 tokens allowance then set new allowance to deposit amount
@@ -3344,15 +3343,15 @@ describe("Lending Controller tests", async () => {
             const updatedMockFa12TokenStorage             = await mockFa12TokenInstance.storage();
 
             // check new balance for loan token pool total
-            const updatedLoanTokenRecord           = await getStorageMapValue(updatedLendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + depositAmount);
 
             // check Eve's Mock FA12 Token balance
-            const updatedEveMockFa12Ledger         = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveMockFa12Ledger.balance, eveInitialMockFa12TokenBalance - depositAmount);
 
             // check Lending Controller's Mock FA12 Token Balance
-            const lendingControllerMockFa12Account  = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', lendingControllerAddress);            
+            const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress);            
             assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance + depositAmount);
 
             // check Eve's mUsdt Token Token balance
@@ -3380,7 +3379,7 @@ describe("Lending Controller tests", async () => {
                 "id"    : vaultId,
                 "owner" : vaultOwner
             };
-            const vaultRecord = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get initial loan variables
             const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();
@@ -3388,7 +3387,7 @@ describe("Lending Controller tests", async () => {
             const initialLoanInterestTotal      = vaultRecord.loanInterestTotal.toNumber();
 
             // get initial eve's Mock FA12 Token balance
-            const eveMockFa12Ledger                 = await getStorageMapValue(mockFa12TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
             // borrow operation
@@ -3397,9 +3396,9 @@ describe("Lending Controller tests", async () => {
 
             // get updated storage
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedVaultRecord              = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
+            const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const updatedMockFa12TokenStorage     = await mockFa12TokenInstance.storage();
-            const updatedEveMockFa12Ledger        = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa12Ledger        = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
             const updatedEveMockFa12Balance       = updatedEveMockFa12Ledger.balance.toNumber();
 
             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
@@ -3462,7 +3461,7 @@ describe("Lending Controller tests", async () => {
             const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
             
             // get initial eve's Mock FA12 Token balance
-            const eveMockFa12Ledger                 = await getStorageMapValue(mockFa12TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
             // setup vault handle and vault record
@@ -3470,7 +3469,7 @@ describe("Lending Controller tests", async () => {
                 "id"    : vaultId,
                 "owner" : vaultOwner
             };
-            const vaultRecord = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get initial loan variables
             const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();
@@ -3498,9 +3497,9 @@ describe("Lending Controller tests", async () => {
 
             // get updated storage
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedVaultRecord              = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
+            const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             const updatedMockFa12TokenStorage     = await mockFa12TokenInstance.storage();
-            const updatedEveMockFa12Ledger        = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa12Ledger        = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
             const updatedEveMockFa12TokenBalance       = updatedEveMockFa12Ledger.balance.toNumber();
 
             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
@@ -3527,7 +3526,7 @@ describe("Lending Controller tests", async () => {
             const mockFa2TokenStorage              = await mockFa2TokenInstance.storage();
             
             // get initial eve's Mock FA2 Token balance
-            const eveMockFa2Ledger                 = await getStorageMapValue(mockFa2TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
             // setup vault handle and vault record
@@ -3535,7 +3534,7 @@ describe("Lending Controller tests", async () => {
                 "id"    : vaultId,
                 "owner" : vaultOwner
             };
-            const vaultRecord = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get initial loan variables
             const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();
@@ -3552,10 +3551,10 @@ describe("Lending Controller tests", async () => {
 
             // get updated storage
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedVaultRecord              = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
+            const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             
             const updatedMockFa2TokenStorage      = await mockFa2TokenInstance.storage();
-            const updatedEveMockFa2Ledger         = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
             const updatedEveMockFa2TokenBalance   = updatedEveMockFa2Ledger.toNumber();
 
             const updatedLoanOutstandingTotal     = updatedVaultRecord.loanOutstandingTotal;
@@ -3588,7 +3587,7 @@ describe("Lending Controller tests", async () => {
                 "id"    : vaultId,
                 "owner" : vaultOwner
             };
-            const vaultRecord = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get initial loan variables
             const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();
@@ -3601,7 +3600,7 @@ describe("Lending Controller tests", async () => {
 
             // get updated storage
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-            const updatedVaultRecord              = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
+            const updatedVaultRecord              = await updatedLendingControllerStorage.vaults.get(vaultHandle);
             
             // check Eve's XTZ Balance and account for gas cost in transaction with almostEqual
             const updatedEveXtzLedger = await utils.tezos.tz.getBalance(eve.pkh);
@@ -3626,7 +3625,7 @@ describe("Lending Controller tests", async () => {
             await signerFactory(tezos, eve.sk);
         
             const mockFa12LoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("usdt").executeView({ viewCaller : bob.pkh});
-            const mockFa2LoanTokenRecordView  = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("eurl").executeView({ viewCaller : bob.pkh});
+            const mockFa2LoanTokenRecordView  = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("eurt").executeView({ viewCaller : bob.pkh});
             const tezLoanTokenRecordView      = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("tez").executeView({ viewCaller : bob.pkh});
 
             const mockFa12LoanTokenMinRepaymentAmount = mockFa12LoanTokenRecordView.Some.minRepaymentAmount;
@@ -3676,9 +3675,9 @@ describe("Lending Controller tests", async () => {
             };
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const initialVaultCollateralTokenBalance   = await getStorageMapValue(vault, 'collateralBalanceLedger', tokenName);
+            const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
 
             // get vault contract
             const vaultAddress = vault.address;
@@ -3702,8 +3701,8 @@ describe("Lending Controller tests", async () => {
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage       = await lendingControllerInstance.storage();
-            const updatedVault                          = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const updatedVaultCollateralTokenBalance    = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                          = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenBalance    = await updatedVault.collateralBalanceLedger.get(tokenName);
 
             // get updated XTZ balance for Eve and Vault
             const updatedEveXtzLedger             = await utils.tezos.tz.getBalance(eve.pkh);
@@ -3735,18 +3734,18 @@ describe("Lending Controller tests", async () => {
             };
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const initialVaultCollateralTokenBalance   = await getStorageMapValue(vault, 'collateralBalanceLedger', tokenName);
+            const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
 
             // get vault contract
             const vaultAddress = vault.address;
 
             // get initial balance for Eve and Vault
-            const eveMockFa12Ledger                 = await getStorageMapValue(mockFa12TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : eveMockFa12Ledger.balance.toNumber();
 
-            const vaultMockFa12Ledger               = await getStorageMapValue(mockFa12TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa12Ledger               = await mockFa12TokenStorage.ledger.get(vaultAddress);            
             const vaultInitialMockFa12TokenBalance  = vaultMockFa12Ledger == undefined ? 0 : vaultMockFa12Ledger.balance.toNumber();
 
             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
@@ -3761,15 +3760,15 @@ describe("Lending Controller tests", async () => {
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
-            const updatedVault                         = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const updatedVaultCollateralTokenBalance   = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenBalance   = await updatedVault.collateralBalanceLedger.get(tokenName);
             const updatedMockFa12TokenStorage          = await mockFa12TokenInstance.storage();
 
             // get updated balance for Eve and Vault
-            const updatedEveMockFa12Ledger             = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa12Ledger             = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
             const updatedEveMockFa12TokenBalance       = updatedEveMockFa12Ledger == undefined ? 0 : updatedEveMockFa12Ledger.balance.toNumber();
 
-            const updatedVaultMockFa12Ledger           = await getStorageMapValue(updatedMockFa12TokenStorage, 'ledger', vaultAddress);            
+            const updatedVaultMockFa12Ledger           = await updatedMockFa12TokenStorage.ledger.get(vaultAddress);            
             const updatedVaultMockFa12TokenBalance     = updatedVaultMockFa12Ledger == undefined ? 0 : updatedVaultMockFa12Ledger.balance.toNumber();
             
 
@@ -3786,7 +3785,7 @@ describe("Lending Controller tests", async () => {
             const vaultId              = eveVaultSet[0]; 
             const vaultOwner           = eve.pkh;
             const withdrawAmount       = 1000000; // 1 mockFa2 token
-            const tokenName            = 'eurl';
+            const tokenName            = 'eurt';
 
             const vaultHandle = {
                 "id"     : vaultId,
@@ -3794,18 +3793,18 @@ describe("Lending Controller tests", async () => {
             };
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const initialVaultCollateralTokenBalance   = await getStorageMapValue(vault, 'collateralBalanceLedger', tokenName);
+            const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
 
             // get vault contract
             const vaultAddress = vault.address;
 
             // get initial balance for Eve and Vault
-            const eveMockFa2Ledger                  = await getStorageMapValue(mockFa2TokenStorage, 'ledger', eve.pkh);            
+            const eveMockFa2Ledger                  = await mockFa2TokenStorage.ledger.get(eve.pkh);            
             const eveInitialMockFa2TokenBalance     = eveMockFa2Ledger == undefined ? 0 : eveMockFa2Ledger.toNumber();
 
-            const vaultMockFa2Ledger                = await getStorageMapValue(mockFa2TokenStorage, 'ledger', vaultAddress);            
+            const vaultMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(vaultAddress);            
             const vaultInitialMockFa2TokenBalance   = vaultMockFa2Ledger == undefined ? 0 : vaultMockFa2Ledger.toNumber();
 
             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
@@ -3820,15 +3819,15 @@ describe("Lending Controller tests", async () => {
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
-            const updatedVault                         = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const updatedVaultCollateralTokenBalance   = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenBalance   = await updatedVault.collateralBalanceLedger.get(tokenName);
             const updatedMockFa2TokenStorage           = await mockFa2TokenInstance.storage();
 
             // get updated balance for Eve and Vault
-            const updatedEveMockFa2Ledger              = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', eve.pkh);            
+            const updatedEveMockFa2Ledger              = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
             const updatedEveMockFa2TokenBalance        = updatedEveMockFa2Ledger == undefined ? 0 : updatedEveMockFa2Ledger.toNumber();
 
-            const updatedVaultMockFa2Ledger            = await getStorageMapValue(updatedMockFa2TokenStorage, 'ledger', vaultAddress);            
+            const updatedVaultMockFa2Ledger            = await updatedMockFa2TokenStorage.ledger.get(vaultAddress);            
             const updatedVaultMockFa2TokenBalance      = updatedVaultMockFa2Ledger == undefined ? 0 : updatedVaultMockFa2Ledger.toNumber();
             
 
@@ -3855,7 +3854,7 @@ describe("Lending Controller tests", async () => {
             };
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
             // get vault contract
             const vaultAddress = vault.address;
@@ -3896,8 +3895,8 @@ describe("Lending Controller tests", async () => {
             };
 
             const lendingControllerStorage             = await lendingControllerInstance.storage();
-            const vault                                = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
-            const initialVaultCollateralTokenBalance   = await getStorageMapValue(vault, 'collateralBalanceLedger', tokenName);
+            const vault                                = await lendingControllerStorage.vaults.get(vaultHandle);
+            const initialVaultCollateralTokenBalance   = await vault.collateralBalanceLedger.get(tokenName);
 
             const withdrawAmount = initialVaultCollateralTokenBalance.toNumber() + 1000000; 
             
@@ -3925,14 +3924,14 @@ describe("Lending Controller tests", async () => {
     //
     describe('%vaultDepositStakedToken', function () {
 
-        it('user (eve) can deposit staked tokens (e.g. smvk) to her vault', async () => {
+        it('user (eve) can deposit staked tokens (e.g. smvn) to her vault', async () => {
 
             await signerFactory(tezos, eve.sk);
             const vaultId        = eveVaultSet[0]; 
             const vaultOwner     = eve.pkh;
-            const userStake      = MVK(10);
-            const depositAmount  = MVK(5);
-            const tokenName      = "smvk";
+            const userStake      = MVN(10);
+            const depositAmount  = MVN(5);
+            const tokenName      = "smvn";
 
             const vaultHandle = {
                 "id"     : vaultId,
@@ -3940,59 +3939,59 @@ describe("Lending Controller tests", async () => {
             };
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const initialVaultCollateralTokenLedger  = await getStorageMapValue(vault, 'collateralBalanceLedger', tokenName);
+            const initialVaultCollateralTokenLedger  = await vault.collateralBalanceLedger.get(tokenName);
             const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger.toNumber();
 
             // get vault contract
             const vaultAddress = vault.address;
 
             // get initial balance for Eve and Vault
-            const userMVKBalance = (await getStorageMapValue(mvkTokenStorage, 'ledger', eve.pkh)).toNumber();
+            const userMVNBalance = (await mvnTokenStorage.ledger.get(eve.pkh)).toNumber();
 
             const compoundOperation   = await doormanInstance.methods.compound([eve.pkh]).send();
             await compoundOperation.confirmation();
                 
-            const userStakeLedger = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', eve.pkh);
+            const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
 
-            const vaultStakeLedger = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', vaultAddress);
+            const vaultStakeLedger = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const vaultStakeBalance = vaultStakeLedger === undefined ? 0 : vaultStakeLedger.balance.toNumber();
     
-            const doormanSMVKTotalSupply = ((await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address))).toNumber();
+            const doormanSMVNTotalSupply = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
 
             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
             // ----------------------------------------------------------------------------------------------
-            // Eve staked some MVK to Doorman Contract
+            // Eve staked some MVN to Doorman Contract
             // ----------------------------------------------------------------------------------------------
 
             // Operator set
-            updateOperatorsOperation = await updateOperators(mvkTokenInstance, eve.pkh, contractDeployments.doorman.address, tokenId);
+            updateOperatorsOperation = await updateOperators(mvnTokenInstance, eve.pkh, contractDeployments.doorman.address, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // Operation
-            const stakeOperation = await doormanInstance.methods.stake(userStake).send();
+            const stakeOperation = await doormanInstance.methods.stakeMvn(userStake).send();
             await stakeOperation.confirmation();
 
             // Update storage
             doormanStorage = await doormanInstance.storage();
-            mvkTokenStorage = await mvkTokenInstance.storage();
+            mvnTokenStorage = await mvnTokenInstance.storage();
 
             // Final Values
-            const userMVKBalanceEnd = (await getStorageMapValue(mvkTokenStorage, 'ledger', eve.pkh)).toNumber();
-            const userStakeLedgerEnd = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', eve.pkh);
+            const userMVNBalanceEnd = (await mvnTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const userStakeLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const userStakeBalanceEnd = userStakeLedgerEnd.balance.toNumber()
-            const doormanSMVKTotalSupplyEnd = ((await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address))).toNumber();
+            const doormanSMVNTotalSupplyEnd = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
 
             // Assertion
-            assert.equal(doormanSMVKTotalSupply + userStake, doormanSMVKTotalSupplyEnd);
-            assert.equal(userMVKBalance - userStake, userMVKBalanceEnd);
+            assert.equal(doormanSMVNTotalSupply + userStake, doormanSMVNTotalSupplyEnd);
+            assert.equal(userMVNBalance - userStake, userMVNBalanceEnd);
             assert.equal(userStakeBalance + userStake, userStakeBalanceEnd);
 
             // ----------------------------------------------------------------------------------------------
-            // Eve's vault stake some MVK to Doorman Contract
+            // Eve's vault stake some MVN to Doorman Contract
             // ----------------------------------------------------------------------------------------------
 
             // eve set doorman as operator for vault
@@ -4022,35 +4021,35 @@ describe("Lending Controller tests", async () => {
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
-            const updatedVault                         = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const updatedVaultCollateralTokenLedger    = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenLedger    = await updatedVault.collateralBalanceLedger.get(tokenName);
             const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger.toNumber();
 
             // get updated balance for Eve and Vault
-            const updatedMvkTokenStorage   = await mvkTokenInstance.storage();
+            const updatedMvnTokenStorage   = await mvnTokenInstance.storage();
             const updatedDoormanStorage    = await doormanInstance.storage();
-            const updatedUserMVKBalance    = (await getStorageMapValue(updatedMvkTokenStorage, 'ledger', eve.pkh)).toNumber();
+            const updatedUserMVNBalance    = (await updatedMvnTokenStorage.ledger.get(eve.pkh)).toNumber();
                 
-            const updatedUserStakeLedger   = await getStorageMapValue(updatedDoormanStorage, 'userStakeBalanceLedger', eve.pkh);
+            const updatedUserStakeLedger   = await updatedDoormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const updatedUserStakeBalance  = updatedUserStakeLedger === undefined ? 0 : updatedUserStakeLedger.balance.toNumber()
 
-            const updatedVaultStakeLedger  = await getStorageMapValue(updatedDoormanStorage, 'userStakeBalanceLedger', vaultAddress);
+            const updatedVaultStakeLedger  = await updatedDoormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const updatedVaultStakeBalance = updatedVaultStakeLedger === undefined ? 0 : updatedVaultStakeLedger.balance.toNumber()
             
             assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance + depositAmount);
             assert.equal(updatedUserStakeBalance, userStakeBalanceEnd - depositAmount);
             assert.equal(updatedVaultStakeBalance, vaultStakeBalance + depositAmount);
-            assert.equal(updatedUserMVKBalance, userMVKBalanceEnd);
+            assert.equal(updatedUserMVNBalance, userMVNBalanceEnd);
 
         });
 
 
-        it('user (eve) cannot deposit more staked tokens (e.g. smvk) than she has to her vault', async () => {
+        it('user (eve) cannot deposit more staked tokens (e.g. smvn) than she has to her vault', async () => {
 
             await signerFactory(tezos, eve.sk);
             const vaultId        = eveVaultSet[0]; 
             const vaultOwner     = eve.pkh;
-            const tokenName      = "smvk";
+            const tokenName      = "smvn";
 
             const vaultHandle = {
                 "id"     : vaultId,
@@ -4058,33 +4057,33 @@ describe("Lending Controller tests", async () => {
             };
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const initialVaultCollateralTokenLedger  = await getStorageMapValue(vault, 'collateralBalanceLedger', tokenName);
+            const initialVaultCollateralTokenLedger  = await vault.collateralBalanceLedger.get(tokenName);
             const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger.toNumber();
 
             // get vault contract
             const vaultAddress = vault.address;
 
             // get initial balance for Eve and Vault                
-            const userMVKBalance = (await getStorageMapValue(mvkTokenStorage, 'ledger', eve.pkh)).toNumber();
+            const userMVNBalance = (await mvnTokenStorage.ledger.get(eve.pkh)).toNumber();
 
             const compoundOperation = await doormanInstance.methods.compound([eve.pkh]).send();
             await compoundOperation.confirmation();
 
-            const userStakeLedger = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', eve.pkh);
+            const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
 
             // set deposit amount to be slightly more than staked balance
             const depositAmount = userStakeBalance + 1;
 
-            const vaultStakeLedger = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', vaultAddress);
+            const vaultStakeLedger = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const vaultStakeBalance = vaultStakeLedger === undefined ? 0 : vaultStakeLedger.balance.toNumber();
 
-            const doormanSMVKTotalSupply = ((await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address))).toNumber();
+            const doormanSMVNTotalSupply = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
 
             // ----------------------------------------------------------------------------------------------
-            // Eve's vault stake some MVK to Doorman Contract
+            // Eve's vault stake some MVN to Doorman Contract
             // ----------------------------------------------------------------------------------------------
 
             // eve set doorman as operator for vault
@@ -4115,20 +4114,20 @@ describe("Lending Controller tests", async () => {
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
-            const updatedVault                         = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const updatedVaultCollateralTokenLedger    = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenLedger    = await updatedVault.collateralBalanceLedger.get(tokenName);
             const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger.toNumber();
 
             // // get updated balance for Eve and Vault
-            const updatedMvkTokenStorage     = await mvkTokenInstance.storage();
+            const updatedMvnTokenStorage     = await mvnTokenInstance.storage();
             const updatedDoormanStorage      = await doormanInstance.storage();
-            const doormanSMVKTotalSupplyEnd  = ((await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address))).toNumber();
-            const updatedUserMVKBalance      = (await getStorageMapValue(updatedMvkTokenStorage, 'ledger', eve.pkh)).toNumber();
+            const doormanSMVNTotalSupplyEnd  = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
+            const updatedUserMVNBalance      = (await updatedMvnTokenStorage.ledger.get(eve.pkh)).toNumber();
                 
-            const updatedUserStakeLedger     = await getStorageMapValue(updatedDoormanStorage, 'userStakeBalanceLedger', eve.pkh);
+            const updatedUserStakeLedger     = await updatedDoormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const updatedUserStakeBalance    = updatedUserStakeLedger === undefined ? 0 : updatedUserStakeLedger.balance.toNumber()
 
-            const updatedVaultStakeLedger    = await getStorageMapValue(updatedDoormanStorage, 'userStakeBalanceLedger', vaultAddress);
+            const updatedVaultStakeLedger    = await updatedDoormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const updatedVaultStakeBalance   = updatedVaultStakeLedger === undefined ? 0 : updatedVaultStakeLedger.balance.toNumber()
             
             // check that there are no changes to balances
@@ -4136,22 +4135,22 @@ describe("Lending Controller tests", async () => {
             assert.equal(updatedUserStakeBalance, userStakeBalance);
             assert.equal(updatedVaultStakeBalance, vaultStakeBalance);
 
-            // no changes to user's MVK balance, and doorman sMVK total supply
-            assert.equal(updatedUserMVKBalance, userMVKBalance);
-            assert.equal(doormanSMVKTotalSupply, doormanSMVKTotalSupplyEnd);
+            // no changes to user's MVN balance, and doorman sMVN total supply
+            assert.equal(updatedUserMVNBalance, userMVNBalance);
+            assert.equal(doormanSMVNTotalSupply, doormanSMVNTotalSupplyEnd);
 
         });
 
 
-        it('non-owner of the vault (user: mallory) cannot deposit staked tokens (e.g. smvk) into another user\'s (eve) vault', async () => {
+        it('non-owner of the vault (user: mallory) cannot deposit staked tokens (e.g. smvn) into another user\'s (eve) vault', async () => {
 
             await signerFactory(tezos, mallory.sk);
             const vaultId        = eveVaultSet[0]; 
             const vaultOwner     = eve.pkh;
             const initiator      = mallory.pkh;
-            const tokenName      = "smvk";
-            const userStake      = MVK(10);
-            const depositAmount  = MVK(5);
+            const tokenName      = "smvn";
+            const userStake      = MVN(10);
+            const depositAmount  = MVN(5);
 
             const vaultHandle = {
                 "id"     : vaultId,
@@ -4159,61 +4158,61 @@ describe("Lending Controller tests", async () => {
             };
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const initialVaultCollateralTokenLedger  = await getStorageMapValue(vault, 'collateralBalanceLedger', tokenName);
+            const initialVaultCollateralTokenLedger  = await vault.collateralBalanceLedger.get(tokenName);
             const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger.toNumber();
 
             // get vault contract
             const vaultAddress = vault.address;
 
             // get initial balance for Eve and Vault                
-            const eveMVKBalance       = (await getStorageMapValue(mvkTokenStorage, 'ledger', eve.pkh)).toNumber();
-            const initiatorMVKBalance = (await getStorageMapValue(mvkTokenStorage, 'ledger', initiator)).toNumber();
+            const eveMVNBalance       = (await mvnTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const initiatorMVNBalance = (await mvnTokenStorage.ledger.get(initiator)).toNumber();
 
             const compoundOperation = await doormanInstance.methods.compound([eve.pkh, initiator]).send();
             await compoundOperation.confirmation();
 
-            const eveStakeLedger      = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', eve.pkh);
+            const eveStakeLedger      = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const eveStakeBalance     = eveStakeLedger === undefined ? 0 : eveStakeLedger.balance.toNumber();
 
-            const initiatorStakeLedger  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', initiator);
+            const initiatorStakeLedger  = await doormanStorage.userStakeBalanceLedger.get(initiator);
             const initiatorStakeBalance = initiatorStakeLedger === undefined ? 0 : initiatorStakeLedger.balance.toNumber();
 
-            const vaultStakeLedger    = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', vaultAddress);
+            const vaultStakeLedger    = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const vaultStakeBalance   = vaultStakeLedger === undefined ? 0 : vaultStakeLedger.balance.toNumber();
 
-            const doormanSMVKTotalSupply = ((await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address))).toNumber();
+            const doormanSMVNTotalSupply = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
 
             // ----------------------------------------------------------------------------------------------
-            // Mallory stake some MVK to Doorman Contract
+            // Mallory stake some MVN to Doorman Contract
             // ----------------------------------------------------------------------------------------------
 
             // Operator set
-            updateOperatorsOperation = await updateOperators(mvkTokenInstance, initiator, contractDeployments.doorman.address, tokenId);
+            updateOperatorsOperation = await updateOperators(mvnTokenInstance, initiator, contractDeployments.doorman.address, tokenId);
             await updateOperatorsOperation.confirmation();
 
             // Operation
-            const stakeOperation = await doormanInstance.methods.stake(userStake).send();
+            const stakeOperation = await doormanInstance.methods.stakeMvn(userStake).send();
             await stakeOperation.confirmation();
 
             // Update storage
             doormanStorage = await doormanInstance.storage();
-            mvkTokenStorage = await mvkTokenInstance.storage();
+            mvnTokenStorage = await mvnTokenInstance.storage();
 
             // Final Values
-            const initiatorMVKBalanceEnd     = (await getStorageMapValue(mvkTokenStorage, 'ledger', initiator)).toNumber();
-            const initiatorStakeLedgerEnd    = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', initiator);
+            const initiatorMVNBalanceEnd     = (await mvnTokenStorage.ledger.get(initiator)).toNumber();
+            const initiatorStakeLedgerEnd    = await doormanStorage.userStakeBalanceLedger.get(initiator);
             const initiatorStakeBalanceEnd   = initiatorStakeLedgerEnd.balance.toNumber()
-            const doormanSMVKTotalSupplyEnd  = ((await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address))).toNumber();
+            const doormanSMVNTotalSupplyEnd  = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
 
             // Assertion
-            assert.equal(doormanSMVKTotalSupply + userStake, doormanSMVKTotalSupplyEnd);
-            assert.equal(initiatorMVKBalance - userStake, initiatorMVKBalanceEnd);
+            assert.equal(doormanSMVNTotalSupply + userStake, doormanSMVNTotalSupplyEnd);
+            assert.equal(initiatorMVNBalance - userStake, initiatorMVNBalanceEnd);
             assert.equal(initiatorStakeBalance + userStake, initiatorStakeBalanceEnd);
 
             // ----------------------------------------------------------------------------------------------
-            // Fail: Mallory deposit some MVK to Eve's vault
+            // Fail: Mallory deposit some MVN to Eve's vault
             // ----------------------------------------------------------------------------------------------
 
             // mallory set doorman as operator for vault
@@ -4233,7 +4232,7 @@ describe("Lending Controller tests", async () => {
             );
             await chai.expect(vaultUpdateTokenOperatorOperation.send()).to.be.rejected;  
 
-            // fail vault staked mvk operation
+            // fail vault staked mvn operation
             const malloryVaultDepositStakedTokenOperation  = await lendingControllerInstance.methods.vaultDepositStakedToken(
                 tokenName,
                 vaultId,                 
@@ -4243,25 +4242,25 @@ describe("Lending Controller tests", async () => {
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
-            const updatedVault                         = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const updatedVaultCollateralTokenLedger    = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenLedger    = await updatedVault.collateralBalanceLedger.get(tokenName);
             const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger.toNumber();
 
             // // get updated balance for Eve and Vault
-            const updatedMvkTokenStorage         = await mvkTokenInstance.storage();
+            const updatedMvnTokenStorage         = await mvnTokenInstance.storage();
             const updatedDoormanStorage          = await doormanInstance.storage();
-            const updatedDoormanSMVKTotalSupply  = ((await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address))).toNumber();
+            const updatedDoormanSMVNTotalSupply  = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
             
-            const updatedEveMVKBalance       = (await getStorageMapValue(updatedMvkTokenStorage, 'ledger', eve.pkh)).toNumber();
-            const updatedInitiatorMVKBalance = (await getStorageMapValue(updatedMvkTokenStorage, 'ledger', initiator)).toNumber();
+            const updatedEveMVNBalance       = (await updatedMvnTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const updatedInitiatorMVNBalance = (await updatedMvnTokenStorage.ledger.get(initiator)).toNumber();
                 
-            const updatedEveStakeLedger      = await getStorageMapValue(updatedDoormanStorage, 'userStakeBalanceLedger', eve.pkh);
+            const updatedEveStakeLedger      = await updatedDoormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const updatedEveStakeBalance     = updatedEveStakeLedger === undefined ? 0 : updatedEveStakeLedger.balance.toNumber()
 
-            const updatedInitiatorStakeLedger      = await getStorageMapValue(updatedDoormanStorage, 'userStakeBalanceLedger', initiator);
+            const updatedInitiatorStakeLedger      = await updatedDoormanStorage.userStakeBalanceLedger.get(initiator);
             const updatedInitiatorStakeBalance     = updatedInitiatorStakeLedger === undefined ? 0 : updatedInitiatorStakeLedger.balance.toNumber()
 
-            const updatedVaultStakeLedger    = await getStorageMapValue(updatedDoormanStorage, 'userStakeBalanceLedger', vaultAddress);
+            const updatedVaultStakeLedger    = await updatedDoormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const updatedVaultStakeBalance   = updatedVaultStakeLedger === undefined ? 0 : updatedVaultStakeLedger.balance.toNumber()
             
             // check that there are no changes to balances
@@ -4270,10 +4269,10 @@ describe("Lending Controller tests", async () => {
             assert.equal(updatedInitiatorStakeBalance, initiatorStakeBalanceEnd);
             assert.equal(updatedVaultStakeBalance, vaultStakeBalance);
 
-            // no changes to eve's and initiator's MVK balance, and doorman sMVK total supply
-            assert.equal(updatedEveMVKBalance, eveMVKBalance);
-            assert.equal(updatedDoormanSMVKTotalSupply, doormanSMVKTotalSupplyEnd);
-            assert.equal(updatedInitiatorMVKBalance, initiatorMVKBalanceEnd);
+            // no changes to eve's and initiator's MVN balance, and doorman sMVN total supply
+            assert.equal(updatedEveMVNBalance, eveMVNBalance);
+            assert.equal(updatedDoormanSMVNTotalSupply, doormanSMVNTotalSupplyEnd);
+            assert.equal(updatedInitiatorMVNBalance, initiatorMVNBalanceEnd);
 
         });
 
@@ -4286,13 +4285,13 @@ describe("Lending Controller tests", async () => {
     //
     describe('%vaultWithdrawStakedToken', function () {
 
-        it('user (eve) can withdraw staked tokens (e.g. smvk) from her vault to her user balance', async () => {
+        it('user (eve) can withdraw staked tokens (e.g. smvn) from her vault to her user balance', async () => {
 
             await signerFactory(tezos, eve.sk);
             const vaultId        = eveVaultSet[0]; 
             const vaultOwner     = eve.pkh;
-            const withdrawAmount = MVK(2);
-            const tokenName      = "smvk";
+            const withdrawAmount = MVN(2);
+            const tokenName      = "smvn";
 
             const vaultHandle = {
                 "id"     : vaultId,
@@ -4300,33 +4299,33 @@ describe("Lending Controller tests", async () => {
             };
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const initialVaultCollateralTokenLedger  = await getStorageMapValue(vault, 'collateralBalanceLedger', tokenName);
+            const initialVaultCollateralTokenLedger  = await vault.collateralBalanceLedger.get(tokenName);
             const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger.toNumber();
 
             // get vault contract
             const vaultAddress = vault.address;
 
             // get initial balance for Eve and Vault
-            const userMVKBalance = (await getStorageMapValue(mvkTokenStorage, 'ledger', eve.pkh)).toNumber();
+            const userMVNBalance = (await mvnTokenStorage.ledger.get(eve.pkh)).toNumber();
                 
             const compoundOperation = await doormanInstance.methods.compound([eve.pkh]).send();
             await compoundOperation.confirmation();
 
-            const userStakeLedger = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', eve.pkh);
+            const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const userStakeBalance = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
 
-            const vaultStakeLedger = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', vaultAddress);
+            const vaultStakeLedger = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const vaultStakeBalance = vaultStakeLedger === undefined ? 0 : vaultStakeLedger.balance.toNumber();
     
-            const doormanSMVKTotalSupply = ((await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address))).toNumber();
+            const doormanSMVNTotalSupply = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
 
             // ----------------------------------------------------------------------------------------------
-            // Eve's vault withdraw some staked MVK
+            // Eve's vault withdraw some staked MVN
             // ----------------------------------------------------------------------------------------------
 
-            // vault staked token (e.g. smvk) operation
+            // vault staked token (e.g. smvn) operation
             const eveVaultWithdrawStakedTokenOperation  = await lendingControllerInstance.methods.vaultWithdrawStakedToken(
                 tokenName,
                 vaultId,                 
@@ -4336,39 +4335,39 @@ describe("Lending Controller tests", async () => {
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
-            const updatedVault                         = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const updatedVaultCollateralTokenLedger    = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenLedger    = await updatedVault.collateralBalanceLedger.get(tokenName);
             const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger.toNumber();
 
             // get updated balance for Eve and Vault
-            const updatedMvkTokenStorage    = await mvkTokenInstance.storage();
+            const updatedMvnTokenStorage    = await mvnTokenInstance.storage();
             const updatedDoormanStorage     = await doormanInstance.storage();
-            const updatedUserMVKBalance     = (await getStorageMapValue(updatedMvkTokenStorage, 'ledger', eve.pkh)).toNumber();
-            const doormanSMVKTotalSupplyEnd = ((await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address))).toNumber();
+            const updatedUserMVNBalance     = (await updatedMvnTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const doormanSMVNTotalSupplyEnd = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
                 
-            const updatedUserStakeLedger    = await getStorageMapValue(updatedDoormanStorage, 'userStakeBalanceLedger', eve.pkh);
+            const updatedUserStakeLedger    = await updatedDoormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const updatedUserStakeBalance   = updatedUserStakeLedger === undefined ? 0 : updatedUserStakeLedger.balance.toNumber()
 
-            const updatedVaultStakeLedger   = await getStorageMapValue(updatedDoormanStorage, 'userStakeBalanceLedger', vaultAddress);
+            const updatedVaultStakeLedger   = await updatedDoormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const updatedVaultStakeBalance  = updatedVaultStakeLedger === undefined ? 0 : updatedVaultStakeLedger.balance.toNumber()
             
             assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
             assert.equal(updatedUserStakeBalance, userStakeBalance + withdrawAmount);
             assert.equal(updatedVaultStakeBalance, vaultStakeBalance - withdrawAmount);
             
-            // no changes to user's MVK balance, and doorman sMVK total supply
-            assert.equal(updatedUserMVKBalance, userMVKBalance);
-            assert.equal(doormanSMVKTotalSupply, doormanSMVKTotalSupplyEnd);
+            // no changes to user's MVN balance, and doorman sMVN total supply
+            assert.equal(updatedUserMVNBalance, userMVNBalance);
+            assert.equal(doormanSMVNTotalSupply, doormanSMVNTotalSupplyEnd);
 
         });
 
 
-        it('user (eve) cannot withdraw more staked tokens (e.g. smvk) than she has from her vault to her user balance', async () => {
+        it('user (eve) cannot withdraw more staked tokens (e.g. smvn) than she has from her vault to her user balance', async () => {
 
             await signerFactory(tezos, eve.sk);
             const vaultId        = eveVaultSet[0]; 
             const vaultOwner     = eve.pkh;
-            const tokenName      = "smvk";
+            const tokenName      = "smvn";
 
             const vaultHandle = {
                 "id"     : vaultId,
@@ -4376,33 +4375,33 @@ describe("Lending Controller tests", async () => {
             };
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const initialVaultCollateralTokenLedger  = await getStorageMapValue(vault, 'collateralBalanceLedger', tokenName);
+            const initialVaultCollateralTokenLedger  = await vault.collateralBalanceLedger.get(tokenName);
             const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger.toNumber();
 
             // get vault contract
             const vaultAddress = vault.address;
 
             // get initial balance for Eve and Vault                
-            const userMVKBalance    = (await getStorageMapValue(mvkTokenStorage, 'ledger', eve.pkh)).toNumber();
+            const userMVNBalance    = (await mvnTokenStorage.ledger.get(eve.pkh)).toNumber();
 
             const compoundOperation = await doormanInstance.methods.compound([eve.pkh]).send();
             await compoundOperation.confirmation();
 
-            const userStakeLedger   = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', eve.pkh);
+            const userStakeLedger   = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const userStakeBalance  = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
 
-            const vaultStakeLedger  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', vaultAddress);
+            const vaultStakeLedger  = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const vaultStakeBalance = vaultStakeLedger === undefined ? 0 : vaultStakeLedger.balance.toNumber();
 
-            const doormanSMVKTotalSupply = ((await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address))).toNumber();
+            const doormanSMVNTotalSupply = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
 
             // set withdraw amount to be slightly more than staked balance
             const withdrawAmount = vaultStakeBalance + 1;
 
             // ----------------------------------------------------------------------------------------------
-            // Eve's vault stake some MVK to Doorman Contract
+            // Eve's vault stake some MVN to Doorman Contract
             // ----------------------------------------------------------------------------------------------
 
             // fail vault staked token operation
@@ -4415,40 +4414,40 @@ describe("Lending Controller tests", async () => {
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
-            const updatedVault                         = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const updatedVaultCollateralTokenLedger    = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenLedger    = await updatedVault.collateralBalanceLedger.get(tokenName);
             const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger.toNumber();
 
             // // get updated balance for Eve and Vault
-            const updatedMvkTokenStorage    = await mvkTokenInstance.storage();
+            const updatedMvnTokenStorage    = await mvnTokenInstance.storage();
             const updatedDoormanStorage     = await doormanInstance.storage();
-            const updatedUserMVKBalance     = (await getStorageMapValue(updatedMvkTokenStorage, 'ledger', eve.pkh)).toNumber();
-            const doormanSMVKTotalSupplyEnd = ((await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address))).toNumber();
+            const updatedUserMVNBalance     = (await updatedMvnTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const doormanSMVNTotalSupplyEnd = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
                 
-            const updatedUserStakeLedger = await getStorageMapValue(updatedDoormanStorage, 'userStakeBalanceLedger', eve.pkh);
+            const updatedUserStakeLedger = await updatedDoormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const updatedUserStakeBalance = updatedUserStakeLedger === undefined ? 0 : updatedUserStakeLedger.balance.toNumber()
 
-            const updatedVaultStakeLedger = await getStorageMapValue(updatedDoormanStorage, 'userStakeBalanceLedger', vaultAddress);
+            const updatedVaultStakeLedger = await updatedDoormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const updatedVaultStakeBalance = updatedVaultStakeLedger === undefined ? 0 : updatedVaultStakeLedger.balance.toNumber()
             
             // check that there are no changes to balances
             assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance);
             assert.equal(updatedUserStakeBalance, userStakeBalance);
             assert.equal(updatedVaultStakeBalance, vaultStakeBalance);            
-            assert.equal(updatedUserMVKBalance, userMVKBalance);
-            assert.equal(doormanSMVKTotalSupply, doormanSMVKTotalSupplyEnd);
+            assert.equal(updatedUserMVNBalance, userMVNBalance);
+            assert.equal(doormanSMVNTotalSupply, doormanSMVNTotalSupplyEnd);
 
         });
 
 
 
-        it('non-owner of the vault (user: mallory) cannot deposit staked tokens (e.g. smvk) into another user\'s (eve) vault', async () => {
+        it('non-owner of the vault (user: mallory) cannot deposit staked tokens (e.g. smvn) into another user\'s (eve) vault', async () => {
 
             await signerFactory(tezos, mallory.sk);
             const vaultId        = eveVaultSet[0]; 
             const vaultOwner     = eve.pkh;
             const initiator      = mallory.pkh;
-            const tokenName      = "smvk";
+            const tokenName      = "smvn";
 
             const vaultHandle = {
                 "id"     : vaultId,
@@ -4456,33 +4455,33 @@ describe("Lending Controller tests", async () => {
             };
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
-            const vault                         = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const initialVaultCollateralTokenLedger  = await getStorageMapValue(vault, 'collateralBalanceLedger', tokenName);
+            const initialVaultCollateralTokenLedger  = await vault.collateralBalanceLedger.get(tokenName);
             const initialVaultCollateralTokenBalance = initialVaultCollateralTokenLedger === undefined? 0 : initialVaultCollateralTokenLedger.toNumber();
 
             // get vault contract
             const vaultAddress = vault.address;
 
             // get initial balance for Eve and Vault                
-            const userMVKBalance    = (await getStorageMapValue(mvkTokenStorage, 'ledger', eve.pkh)).toNumber();
+            const userMVNBalance    = (await mvnTokenStorage.ledger.get(eve.pkh)).toNumber();
 
             const compoundOperation = await doormanInstance.methods.compound([eve.pkh]).send();
             await compoundOperation.confirmation();
 
-            const userStakeLedger   = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', eve.pkh);
+            const userStakeLedger   = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const userStakeBalance  = userStakeLedger === undefined ? 0 : userStakeLedger.balance.toNumber();
 
-            const vaultStakeLedger  = await getStorageMapValue(doormanStorage, 'userStakeBalanceLedger', vaultAddress);
+            const vaultStakeLedger  = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const vaultStakeBalance = vaultStakeLedger === undefined ? 0 : vaultStakeLedger.balance.toNumber();
 
-            const doormanSMVKTotalSupply = ((await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address))).toNumber();
+            const doormanSMVNTotalSupply = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
 
             // set withdraw amount to be slightly more than staked balance
             const withdrawAmount = vaultStakeBalance + 1;
 
             // ----------------------------------------------------------------------------------------------
-            // Eve's vault stake some MVK to Doorman Contract
+            // Eve's vault stake some MVN to Doorman Contract
             // ----------------------------------------------------------------------------------------------
 
             // fail vault staked token operation
@@ -4495,28 +4494,28 @@ describe("Lending Controller tests", async () => {
 
             // get updated storages for lending controller and vault
             const updatedLendingControllerStorage      = await lendingControllerInstance.storage();
-            const updatedVault                         = await getStorageMapValue(updatedLendingControllerStorage, 'vaults', vaultHandle);
-            const updatedVaultCollateralTokenLedger    = await getStorageMapValue(updatedVault, 'collateralBalanceLedger', tokenName);
+            const updatedVault                         = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const updatedVaultCollateralTokenLedger    = await updatedVault.collateralBalanceLedger.get(tokenName);
             const updatedVaultCollateralTokenBalance   = updatedVaultCollateralTokenLedger === undefined ? 0 : updatedVaultCollateralTokenLedger.toNumber();
 
             // // get updated balance for Eve and Vault
-            const updatedMvkTokenStorage    = await mvkTokenInstance.storage();
+            const updatedMvnTokenStorage    = await mvnTokenInstance.storage();
             const updatedDoormanStorage     = await doormanInstance.storage();
-            const updatedUserMVKBalance     = (await getStorageMapValue(updatedMvkTokenStorage, 'ledger', eve.pkh)).toNumber();
-            const doormanSMVKTotalSupplyEnd = ((await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await getStorageMapValue(mvkTokenStorage, 'ledger', contractDeployments.doorman.address))).toNumber();
+            const updatedUserMVNBalance     = (await updatedMvnTokenStorage.ledger.get(eve.pkh)).toNumber();
+            const doormanSMVNTotalSupplyEnd = ((await mvnTokenStorage.ledger.get(contractDeployments.doorman.address)) === undefined ? new BigNumber(0) : (await mvnTokenStorage.ledger.get(contractDeployments.doorman.address))).toNumber();
                 
-            const updatedUserStakeLedger = await getStorageMapValue(updatedDoormanStorage, 'userStakeBalanceLedger', eve.pkh);
+            const updatedUserStakeLedger = await updatedDoormanStorage.userStakeBalanceLedger.get(eve.pkh);
             const updatedUserStakeBalance = updatedUserStakeLedger === undefined ? 0 : updatedUserStakeLedger.balance.toNumber()
 
-            const updatedVaultStakeLedger = await getStorageMapValue(updatedDoormanStorage, 'userStakeBalanceLedger', vaultAddress);
+            const updatedVaultStakeLedger = await updatedDoormanStorage.userStakeBalanceLedger.get(vaultAddress);
             const updatedVaultStakeBalance = updatedVaultStakeLedger === undefined ? 0 : updatedVaultStakeLedger.balance.toNumber()
             
             // check that there are no changes to balances
             assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance);
             assert.equal(updatedUserStakeBalance, userStakeBalance);
             assert.equal(updatedVaultStakeBalance, vaultStakeBalance);            
-            assert.equal(updatedUserMVKBalance, userMVKBalance);
-            assert.equal(doormanSMVKTotalSupply, doormanSMVKTotalSupplyEnd);
+            assert.equal(updatedUserMVNBalance, userMVNBalance);
+            assert.equal(doormanSMVNTotalSupply, doormanSMVNTotalSupplyEnd);
 
         });
 
@@ -5236,7 +5235,7 @@ describe("Lending Controller tests", async () => {
     
                     lendingControllerStorage = await lendingControllerInstance.storage();
 
-                    const newVaultRecord = await getStorageMapValue(lendingControllerStorage, 'vaults', vaultHandle);
+                    const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
                     const vaultAddress   = newVaultRecord.address;
                     const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
     
@@ -5270,7 +5269,7 @@ describe("Lending Controller tests", async () => {
                             const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, loanOutstandingTotal).send();
                             await eveRepayOperation.confirmation();
 
-                        } else if(loanToken == "eurl"){
+                        } else if(loanToken == "eurt"){
 
                             // update operators for vault
                             updateOperatorsOperation = await updateOperators(mockFa2TokenInstance, eve.pkh, vaultAddress, tokenId);
@@ -5299,9 +5298,9 @@ describe("Lending Controller tests", async () => {
 
                         try {
                             
-                            if(collateralName == "smvk"){
+                            if(collateralName == "smvn"){
 
-                                // vault staked token (e.g. smvk) operation
+                                // vault staked token (e.g. smvn) operation
                                 const eveVaultWithdrawStakedTokenOperation  = await lendingControllerInstance.methods.vaultWithdrawStakedToken(
                                     collateralName,
                                     vaultId,                 
@@ -5343,10 +5342,10 @@ describe("Lending Controller tests", async () => {
             compoundOperation                         = await mTokenUsdtInstance.methods.compound([eve.pkh]).send();
             await compoundOperation.confirmation();
             const mTokenUsdtStorage                   = await mTokenUsdtInstance.storage();
-            const eveMTokenUsdtLedger                 = await getStorageMapValue(mTokenUsdtStorage, 'ledger', eve.pkh);            
+            const eveMTokenUsdtLedger                 = await mTokenUsdtStorage.ledger.get(eve.pkh);            
             const eveMTokenUsdtBalance                = eveMTokenUsdtLedger == undefined ? 0 : eveMTokenUsdtLedger.toNumber();
 
-            let loanTokenRecord                       = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            let loanTokenRecord                       = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             let loanTotal                             = loanTokenRecord.tokenPoolTotal.toNumber();
             let loanTotalRemaining                    = loanTokenRecord.totalRemaining.toNumber();
             
@@ -5361,23 +5360,23 @@ describe("Lending Controller tests", async () => {
 
 
 
-            loanTokenName                             = "eurl";
-            compoundOperation                         = await mTokenEurlInstance.methods.compound([eve.pkh]).send();
+            loanTokenName                             = "eurt";
+            compoundOperation                         = await mTokenEurtInstance.methods.compound([eve.pkh]).send();
             await compoundOperation.confirmation();
-            const mTokenEurlStorage                   = await mTokenEurlInstance.storage();
-            const eveMTokenEurlLedger                 = await getStorageMapValue(mTokenEurlStorage, 'ledger', eve.pkh);            
-            const eveMTokenEurlBalance                = eveMTokenEurlLedger == undefined ? 0 : eveMTokenEurlLedger.toNumber();
+            const mTokenEurtStorage                   = await mTokenEurtInstance.storage();
+            const eveMTokenEurtLedger                 = await mTokenEurtStorage.ledger.get(eve.pkh);            
+            const eveMTokenEurtBalance                = eveMTokenEurtLedger == undefined ? 0 : eveMTokenEurtLedger.toNumber();
 
-            loanTokenRecord                           = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            loanTokenRecord                           = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             loanTotal                                 = loanTokenRecord.tokenPoolTotal.toNumber();
             loanTotalRemaining                        = loanTokenRecord.totalRemaining.toNumber();
             
-            // console.log(`eveMTokenEurlBalance: ${eveMTokenEurlBalance}`);
+            // console.log(`eveMTokenEurtBalance: ${eveMTokenEurtBalance}`);
             // console.log(`loanTokenName: ${loanTokenName} | loanTotal: ${loanTotal} | loanTotalRemaining: ${loanTotalRemaining}`);
 
             removeLiquidityOperation  = await lendingControllerInstance.methods.removeLiquidity(
                 loanTokenName,
-                eveMTokenEurlBalance, 
+                eveMTokenEurtBalance, 
             ).send();
             await removeLiquidityOperation.confirmation();
 
@@ -5387,10 +5386,10 @@ describe("Lending Controller tests", async () => {
             compoundOperation                         = await mTokenXtzInstance.methods.compound([eve.pkh]).send();
             await compoundOperation.confirmation();
             const mTokenXtzStorage                    = await mTokenXtzInstance.storage();
-            const eveMTokenXtzLedger                  = await getStorageMapValue(mTokenXtzStorage, 'ledger', eve.pkh);            
+            const eveMTokenXtzLedger                  = await mTokenXtzStorage.ledger.get(eve.pkh);            
             const eveMTokenXtzBalance                 = eveMTokenXtzLedger == undefined ? 0 : eveMTokenXtzLedger.toNumber();
             
-            loanTokenRecord                           = await getStorageMapValue(lendingControllerStorage, 'loanTokenLedger', loanTokenName);
+            loanTokenRecord                           = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             loanTotal                                 = loanTokenRecord.tokenPoolTotal.toNumber();
             loanTotalRemaining                        = loanTokenRecord.totalRemaining.toNumber();
             

@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit);        // entrypoint should not receive any mav amount  
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount  
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -32,7 +32,7 @@ block {
 function lambdaSetGovernance(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit);        // entrypoint should not receive any mav amount  
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount  
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -323,7 +323,7 @@ block {
     // 1. Access Checks 
     //      -   Check that %setLoanToken entrypoint is not paused (e.g. glass broken)
     //      -   Check that sender is admin (Governance Proxy)
-    //      -   Check that no mav is sent
+    //      -   Check that no tez is sent
     // 2a. If variant is CreateLoanToken
     //      -   Check if loan token already exists
     //      -   Update loan token ledger with new loan token record
@@ -332,7 +332,7 @@ block {
     //      -   Update and save loan token record with new parameters
 
 
-    verifyNoAmountSent(Unit);           // entrypoint should not receive any mav amount  
+    verifyNoAmountSent(Unit);           // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin);       // verify that sender is admin
     
     // verify that %setLoanToken entrypoint is not paused (e.g. if glass broken)
@@ -379,7 +379,7 @@ block {
     // 1. Access Checks 
     //      -   Check that %setCollateralToken entrypoint is not paused (e.g. glass broken)
     //      -   Check that sender is admin (Governance Proxy)
-    //      -   Check that no mav is sent
+    //      -   Check that no tez is sent
     // 2a. If variant is CreateCollateralToken
     //      -   Check if collateral token already exists
     //      -   Update collateral token ledger with new collateral token record
@@ -387,7 +387,7 @@ block {
     //      -   Get collateral token record if exists
     //      -   Update and save collateral token record with new parameters
 
-    verifyNoAmountSent(Unit);                 // entrypoint should not receive any mav amount  
+    verifyNoAmountSent(Unit);                 // entrypoint should not receive any tez amount  
     verifySenderIsAdmin(s.admin);             // verify that sender is admin
     
     // Verify that %setCollateralToken entrypoint is not paused (e.g. if glass broken)
@@ -534,8 +534,8 @@ block {
                 loanTokenRecord.rawMTokensTotalSupply     := loanTokenRecord.rawMTokensTotalSupply + amount;
                 loanTokenRecord.totalRemaining   := loanTokenRecord.totalRemaining + amount;
 
-                // send tokens to token pool (self address) operation / skip if loan token name is mav
-                if loanTokenName = "mav" then {
+                // send tokens to token pool (self address) operation / skip if loan token name is tez
+                if loanTokenName = "tez" then {
 
                     if Mavryk.get_amount() = (amount * 1mumav) then skip else failwith(error_INCORRECT_LOAN_TOKEN_AMOUNT_SENT);
 
@@ -544,7 +544,7 @@ block {
                         initiator,                  // from_
                         Mavryk.get_self_address(),   // to_    
                         amount,                     // amount
-                        loanTokenRecord.tokenType   // token type (e.g. mav, fa12, fa2)
+                        loanTokenRecord.tokenType   // token type (e.g. tez, fa12, fa2)
                     );
                     operations := sendTokensToTokenPoolOperation # operations;
                 };
@@ -573,7 +573,7 @@ block {
 
     // Steps Overview: 
     // 1. Check that %removeLiquidity entrypoint is not paused (e.g. glass broken)
-    // 2. Check that no mav is sent
+    // 2. Check that no tez is sent
     // 2. Process remove liquidity operation
     //      -   Get loan token record
     //      -   Send tokens from token pool / lending controller (i.e. self address) to user
@@ -582,7 +582,7 @@ block {
     // 3. Get or create user's current token pool deposit balance 
     // 4. Update user rewards (based on user's current token pool deposit balance, and not the updated balance)
     
-    verifyNoAmountSent(Unit);                   // entrypoint should not receive any mav amount  
+    verifyNoAmountSent(Unit);                   // entrypoint should not receive any tez amount  
     
     // Verify that %removeLiquidity entrypoint is not paused (e.g. if glass broken)
     verifyEntrypointIsNotPaused(s.breakGlassConfig.removeLiquidityIsPaused, error_REMOVE_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
@@ -630,7 +630,7 @@ block {
                     Mavryk.get_self_address(),   // from_
                     initiator,                  // to_    
                     amount,                     // amount
-                    loanTokenType               // token type (e.g. mav, fa12, fa2)
+                    loanTokenType               // token type (e.g. tez, fa12, fa2)
                 );
                 operations := sendTokensToInitiatorOperation # operations;
 
@@ -696,10 +696,10 @@ block {
                     // init final token balance var
                     var finalTokenBalance  : nat := collateralTokenBalance;
                     
-                    if collateralTokenName = "mav" then block {
+                    if collateralTokenName = "tez" then block {
 
                         if finalTokenBalance > 0n then {
-                            const transferTezOperation : operation = transferTez( (Mavryk.get_contract_with_error(vaultOwner, "Error. Unable to send mav.") : contract(unit)), finalTokenBalance * 1mumav );
+                            const transferTezOperation : operation = transferTez( (Mavryk.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mumav );
                             operations := transferTezOperation # operations;
                         } else skip;
 
@@ -713,21 +713,21 @@ block {
 
                             // get user staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
                             // - for better accuracy, there should be a frontend call to compound rewards for the vault first
-                            // finalTokenBalance := getUserStakedMvkBalanceFromDoorman(vaultAddress, s);
+                            // finalTokenBalance := getUserStakedMvnBalanceFromDoorman(vaultAddress, s);
 
                             const stakingContractAddress : address = getStakingContractAddress(collateralTokenRecord.stakingContractAddress);
                             finalTokenBalance := getBalanceFromStakingContract(vaultAddress, stakingContractAddress);
 
-                            // for special case of sMVK
+                            // for special case of sMVN
                             if finalTokenBalance > 0n then {
-                                const withdrawAllStakedMvkOperation : operation = onWithdrawStakedTokenFromVaultOperation(
+                                const withdrawAllStakedMvnOperation : operation = onWithdrawStakedTokenFromVaultOperation(
                                     vaultOwner,                         // vault owner
                                     vaultAddress,                       // vault address
                                     finalTokenBalance,                  // withdraw amount
                                     stakingContractAddress              // staking contract address
                                 );
 
-                                operations := withdrawAllStakedMvkOperation # operations;
+                                operations := withdrawAllStakedMvnOperation # operations;
                             } else skip;
 
                         } else if collateralTokenRecord.isScaledToken then {
@@ -737,7 +737,7 @@ block {
                             // get updated scaled token balance (e.g. mToken)
                             finalTokenBalance := getBalanceFromScaledTokenContract(vaultAddress, collateralTokenRecord.tokenContractAddress);
 
-                            // for other collateral token types besides sMVK and scaled tokens
+                            // for other collateral token types besides sMVN and scaled tokens
                             if finalTokenBalance > 0n then {
                                 const withdrawTokenOperation : operation = liquidateFromVaultOperation(
                                     vaultOwner,                         // to_
@@ -750,7 +750,7 @@ block {
 
                         } else {
 
-                            // for other collateral token types besides sMVK and scaled tokens
+                            // for other collateral token types besides sMVN and scaled tokens
                             if finalTokenBalance > 0n then {
                                 const withdrawTokenOperation : operation = liquidateFromVaultOperation(
                                     vaultOwner,                         // to_
@@ -766,9 +766,9 @@ block {
                         // save and update balance for collateral token to zero
                         vault.collateralBalanceLedger[collateralTokenName]  := 0n;
 
-                    }; // end if/else check for mav/token
+                    }; // end if/else check for tez/token
 
-                }; // end loop for withdraw operations of mav/tokens in vault collateral 
+                }; // end loop for withdraw operations of tez/tokens in vault collateral 
 
 
                 // remove vault from storage
@@ -1181,7 +1181,7 @@ block {
                 // get collateral token record reference
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(tokenName, s);
 
-                // Verify that token name is not protected (e.g. smvk)
+                // Verify that token name is not protected (e.g. smvn)
                 verifyCollateralTokenIsNotProtected(collateralTokenRecord, error_CANNOT_REGISTER_DEPOSIT_FOR_PROTECTED_COLLATERAL_TOKEN);
 
                 // verify collateral token is not paused
@@ -1202,8 +1202,8 @@ block {
                 // Register token deposit in vault collateral balance ledger
                 // ------------------------------------------------------------------
                 
-                // Check if token is mav or exists in collateral token ledger
-                if tokenName = "mav" then skip else {
+                // Check if token is tez or exists in collateral token ledger
+                if tokenName = "tez" then skip else {
                     checkCollateralTokenExists(tokenName, s)    
                 };
 
@@ -1257,7 +1257,7 @@ block {
                 // get collateral token record reference
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(tokenName, s);
 
-                // Verify that token name is not protected (e.g. smvk)
+                // Verify that token name is not protected (e.g. smvn)
                 verifyCollateralTokenIsNotProtected(collateralTokenRecord, error_CANNOT_REGISTER_WITHDRAWAL_FOR_PROTECTED_COLLATERAL_TOKEN);
 
                 // ------------------------------------------------------------------
@@ -1718,7 +1718,7 @@ block {
     
     var operations : list(operation) := nil;
     
-    // Verify that %vaultDepositStakedMvk entrypoint is not paused (e.g. if glass broken)
+    // Verify that %vaultDepositStakedMvn entrypoint is not paused (e.g. if glass broken)
     verifyEntrypointIsNotPaused(s.breakGlassConfig.vaultDepositStakedTokenIsPaused, error_VAULT_DEPOSIT_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
     case lendingControllerLambdaAction of [
@@ -1732,7 +1732,7 @@ block {
 
                 var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
-                // Check if token (e.g. sMVK) exists in collateral token ledger
+                // Check if token (e.g. sMVN) exists in collateral token ledger
                 checkCollateralTokenExists(collateralTokenName, s);
 
                 // Verify that collateral token is of staked token type
@@ -1754,7 +1754,7 @@ block {
                 const vaultAddress      : address                               = vault.address;
 
                 // ------------------------------------------------------------------
-                // Register vaultDepositStakedMvk action on the Staking Contract (e.g. Doorman)
+                // Register vaultDepositStakedMvn action on the Staking Contract (e.g. Doorman)
                 // ------------------------------------------------------------------
                 
                 // get staking contract address
@@ -1818,7 +1818,7 @@ block {
 
                 var collateralTokenRecord : collateralTokenRecordType := getCollateralTokenRecord(collateralTokenName, s);
 
-                // Check if token (e.g. sMVK) exists in collateral token ledger
+                // Check if token (e.g. sMVN) exists in collateral token ledger
                 checkCollateralTokenExists(collateralTokenName, s);
 
                 // Verify that collateral token is of staked token type
@@ -1855,7 +1855,7 @@ block {
                 // - for better accuracy, there could be a frontend call to compound rewards for the vault first
                 const currentVaultStakedTokenBalance : nat = getBalanceFromStakingContract(vault.address, stakingContractAddress);
 
-                // Calculate new collateral balance - verify that withdrawAmount is less than currentVaultStakedMvkBalance
+                // Calculate new collateral balance - verify that withdrawAmount is less than currentVaultStakedMvnBalance
                 verifyLessThanOrEqual(withdrawAmount, currentVaultStakedTokenBalance, error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE);
                 const newCollateralBalance : nat = abs(currentVaultStakedTokenBalance - withdrawAmount);
 

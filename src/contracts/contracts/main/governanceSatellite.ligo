@@ -118,7 +118,7 @@ type governanceSatelliteUnpackLambdaFunctionType is (governanceSatelliteLambdaAc
 function main (const action : governanceSatelliteAction; const s : governanceSatelliteStorageType) : return is
 block{
 
-    verifyNoAmountSent(Unit); // entrypoints should not receive any mav amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
 
 } with (
     

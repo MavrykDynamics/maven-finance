@@ -10,7 +10,7 @@ export type vaultFactoryStorageType = {
         vaultNameMaxLength   : BigNumber
     };
 
-    mvkTokenAddress       : string;
+    mvnTokenAddress       : string;
     governanceAddress     : string;
 
     generalContracts      : MichelsonMap<MichelsonMapKey, unknown>;

@@ -22,8 +22,8 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// MvkToken types for transfer
-#include "../partials/contractTypes/mvkTokenTypes.ligo"
+// MvnToken types for transfer
+#include "../partials/contractTypes/mvnTokenTypes.ligo"
 
 // Vesting types
 #include "../partials/contractTypes/vestingTypes.ligo"
@@ -95,7 +95,7 @@ type vestingUnpackLambdaFunctionType is (vestingLambdaActionType * vestingStorag
 function main (const action : vestingAction; const s : vestingStorageType) : return is
 block{
         
-    verifyNoAmountSent(unit); // entrypoints should not receive any mav amount  
+    verifyNoAmountSent(unit); // entrypoints should not receive any tez amount  
 
 } with (case action of [
 

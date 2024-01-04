@@ -46,7 +46,7 @@ describe('Aggregator', async () => {
             // Originate and deploy contracts
             //----------------------------
         
-            aggregatorStorage.mvkTokenAddress   = contractDeployments.mvkToken.address
+            aggregatorStorage.mvnTokenAddress   = contractDeployments.mvnToken.address
             aggregatorStorage.governanceAddress = contractDeployments.governance.address
             aggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
             await saveContractAddress('aggregatorAddress', aggregator.contract.address)

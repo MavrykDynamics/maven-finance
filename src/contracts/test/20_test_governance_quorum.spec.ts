@@ -1,6 +1,6 @@
 import assert from "assert";
 
-import { MVK, Utils } from "./helpers/Utils";
+import { MVN, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -21,7 +21,6 @@ import { bob, alice, eve, mallory, trudy, oscar, susie, david, ivan, isaac, bake
 import { mockSatelliteData, mockPackedLambdaData } from "./helpers/mockSampleData";
 import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
 import { 
-    getStorageMapValue,
     signerFactory, 
     updateOperators
 } from './helpers/helperFunctions'
@@ -73,7 +72,7 @@ describe("Governance quorum tests", async () => {
 
     let doormanInstance;
     let delegationInstance;
-    let mvkTokenInstance;
+    let mvnTokenInstance;
     let councilInstance;
     let governanceInstance;
     let governanceFinancialInstance;
@@ -88,7 +87,7 @@ describe("Governance quorum tests", async () => {
 
     let doormanStorage;
     let delegationStorage;
-    let mvkTokenStorage;
+    let mvnTokenStorage;
     let councilStorage;
     let governanceStorage;
     let governanceFinancialStorage;
@@ -121,7 +120,7 @@ describe("Governance quorum tests", async () => {
     
             doormanInstance                 = await utils.tezos.contract.at(doormanAddress);
             delegationInstance              = await utils.tezos.contract.at(contractDeployments.delegation.address);
-            mvkTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvkToken.address);
+            mvnTokenInstance                = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
             councilInstance                 = await utils.tezos.contract.at(contractDeployments.council.address);
             governanceInstance              = await utils.tezos.contract.at(contractDeployments.governance.address);
             governanceFinancialInstance     = await utils.tezos.contract.at(contractDeployments.governanceFinancial.address);
@@ -136,7 +135,7 @@ describe("Governance quorum tests", async () => {
                 
             doormanStorage                  = await doormanInstance.storage();
             delegationStorage               = await delegationInstance.storage();
-            mvkTokenStorage                 = await mvkTokenInstance.storage();
+            mvnTokenStorage                 = await mvnTokenInstance.storage();
             councilStorage                  = await councilInstance.storage();
             governanceStorage               = await governanceInstance.storage();
             governanceFinancialStorage      = await governanceFinancialInstance.storage();
@@ -275,18 +274,18 @@ describe("Governance quorum tests", async () => {
 
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
 
                 // get current cycle and relevant config variables
-                var minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
-                var minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
+                const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
+                const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
                 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                const totalStakedMvnSupply  = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
-                // calculation on required sMVK and yay votes
-                const minQuorumStakedMvkTotal   = Math.floor(totalStakedMvkSupply * (minQuorumPercentage / 10000));
-                const minYayVoteRequired        = Math.floor(minQuorumStakedMvkTotal * (minYayVotePercentage / 10000));
+                // calculation on required sMVN and yay votes
+                const minQuorumStakedMvnTotal   = Math.floor(totalStakedMvnSupply * (minQuorumPercentage / 10000));
+                const minYayVoteRequired        = Math.floor(minQuorumStakedMvnTotal * (minYayVotePercentage / 10000));
                 
                 // proposal details
                 await signerFactory(tezos, satelliteOneSk);
@@ -337,8 +336,8 @@ describe("Governance quorum tests", async () => {
                 governanceStorage                   = await governanceInstance.storage();
                 currentCycle                        = governanceStorage.cycleId;
 
-                const firstSatelliteSnapshot        = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
-                const secondSatelliteSnapshot       = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
+                const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
 
                 // Restart the cycle
                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
@@ -353,21 +352,21 @@ describe("Governance quorum tests", async () => {
                 const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
                 const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
 
-                const proposal                          = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
-                minYayVotePercentage                    = proposal.minYayVotePercentage.toNumber();
-                minQuorumPercentage                     = proposal.minQuorumPercentage.toNumber();
-                const quorumStakedMvkTotal              = proposal.quorumStakedMvkTotal.toNumber();
-                const proposalMinQuorumStakedMvkTotal   = proposal.minQuorumStakedMvkTotal.toNumber();
+                const proposal                          = await governanceStorage.proposalLedger.get(proposalId);
+                const minYayVotePercentage              = proposal.minYayVotePercentage.toNumber();
+                const minQuorumPercentage               = proposal.minQuorumPercentage.toNumber();
+                const quorumStakedMvnTotal              = proposal.quorumStakedMvnTotal.toNumber();
+                const proposalMinQuorumStakedMvnTotal   = proposal.minQuorumStakedMvnTotal.toNumber();
 
                 // Assertions
                 // console.log("PROPOSAL: ", proposal);
                 // console.log("FIRST SNAPSHOT: ", firstSatelliteSnapshot);
                 // console.log("SECOND SNAPSHOT: ", secondSatelliteSnapshot);
-                // console.log("SMVK: ", totalStakedMvkSupply);
+                // console.log("SMVN: ", totalStakedMvnSupply);
                 
                 assert.equal(minYayVoteRequired < totalSatelliteVotingPower, true)
-                assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
-                assert.equal(minQuorumStakedMvkTotal, proposalMinQuorumStakedMvkTotal)
+                assert.equal(totalSatelliteVotingPower, quorumStakedMvnTotal)
+                assert.equal(minQuorumStakedMvnTotal, proposalMinQuorumStakedMvnTotal)
 
                 assert.equal(proposal.executed, true)
 
@@ -389,18 +388,18 @@ describe("Governance quorum tests", async () => {
 
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
                 
                 // get current cycle and relevant config variables
-                var minQuorumPercentage     = governanceStorage.config.minQuorumPercentage.toNumber();
-                var minYayVotePercentage    = governanceStorage.config.minYayVotePercentage.toNumber();
+                const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
+                const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
                 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                const totalStakedMvnSupply  = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
-                // calculation on required sMVK and yay votes
-                const minQuorumStakedMvkTotal   = Math.floor(totalStakedMvkSupply * (minQuorumPercentage / 10000));
-                const minYayVoteRequired        = Math.floor(minQuorumStakedMvkTotal * (minYayVotePercentage / 10000));
+                // calculation on required sMVN and yay votes
+                const minQuorumStakedMvnTotal   = Math.floor(totalStakedMvnSupply * (minQuorumPercentage / 10000));
+                const minYayVoteRequired        = Math.floor(minQuorumStakedMvnTotal * (minYayVotePercentage / 10000));
                 
                 // proposal details
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
@@ -450,8 +449,8 @@ describe("Governance quorum tests", async () => {
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
                 currentCycle                        = governanceStorage.cycleId;
-                const firstSatelliteSnapshot        = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
-                const secondSatelliteSnapshot       = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
+                const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
 
                 // Restart the cycle
                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
@@ -466,16 +465,16 @@ describe("Governance quorum tests", async () => {
                 const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
                 const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
                 
-                const proposal                          = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
-                minYayVotePercentage                    = proposal.minYayVotePercentage.toNumber();
-                minQuorumPercentage                     = proposal.minQuorumPercentage.toNumber();
-                const quorumStakedMvkTotal              = proposal.quorumStakedMvkTotal.toNumber();
-                const proposalMinQuorumStakedMvkTotal   = proposal.minQuorumStakedMvkTotal.toNumber();
+                const proposal                          = await governanceStorage.proposalLedger.get(proposalId);
+                const minYayVotePercentage              = proposal.minYayVotePercentage.toNumber();
+                const minQuorumPercentage               = proposal.minQuorumPercentage.toNumber();
+                const quorumStakedMvnTotal              = proposal.quorumStakedMvnTotal.toNumber();
+                const proposalMinQuorumStakedMvnTotal   = proposal.minQuorumStakedMvnTotal.toNumber();
 
                 // Assertions
                 assert.equal(minYayVoteRequired < totalSatelliteVotingPower, true)
-                assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
-                assert.equal(minQuorumStakedMvkTotal, proposalMinQuorumStakedMvkTotal)
+                assert.equal(totalSatelliteVotingPower, quorumStakedMvnTotal)
+                assert.equal(minQuorumStakedMvnTotal, proposalMinQuorumStakedMvnTotal)
                 
                 assert.equal(proposal.executed, true)
 
@@ -498,18 +497,18 @@ describe("Governance quorum tests", async () => {
 
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
                 
                 // get current cycle and relevant config variables
-                var minQuorumPercentage     = governanceStorage.config.minQuorumPercentage.toNumber();
-                var minYayVotePercentage    = governanceStorage.config.minYayVotePercentage.toNumber();
+                const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
+                const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
                 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                const totalStakedMvkSupply      = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                const totalStakedMvnSupply      = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
-                // calculation on required sMVK and yay votes
-                const minQuorumStakedMvkTotal   = Math.floor(totalStakedMvkSupply * (minQuorumPercentage / 10000));
-                const minYayVoteRequired        = Math.floor(minQuorumStakedMvkTotal * (minYayVotePercentage / 10000));
+                // calculation on required sMVN and yay votes
+                const minQuorumStakedMvnTotal   = Math.floor(totalStakedMvnSupply * (minQuorumPercentage / 10000));
+                const minYayVoteRequired        = Math.floor(minQuorumStakedMvnTotal * (minYayVotePercentage / 10000));
                 
                 // proposal details
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
@@ -557,7 +556,7 @@ describe("Governance quorum tests", async () => {
                 await votingRoundVoteOperation.confirmation();
 
                 governanceStorage                   = await governanceInstance.storage();
-                var proposalCheck                   = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                const proposalCheck                 = await governanceStorage.proposalLedger.get(proposalId);
                 if(proposalCheck.executed == false){
                     await signerFactory(tezos, satelliteThreeSk);
                     votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
@@ -565,7 +564,7 @@ describe("Governance quorum tests", async () => {
                 }
 
                 governanceStorage                   = await governanceInstance.storage();
-                proposalCheck                       = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
+                const proposalCheck                 = await governanceStorage.proposalLedger.get(proposalId);
                 if(proposalCheck.executed == false){
                     await signerFactory(tezos, satelliteFourSk);
                     votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
@@ -576,10 +575,10 @@ describe("Governance quorum tests", async () => {
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
                 currentCycle                        = governanceStorage.cycleId;
-                const firstSatelliteSnapshot        = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
-                const secondSatelliteSnapshot       = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
-                const thirdSatelliteSnapshot        = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteThree});
-                const fourthSatelliteSnapshot       = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteFour});
+                const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
+                const thirdSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteThree});
+                const fourthSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteFour});
 
                 // Restart the cycle
                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
@@ -597,16 +596,16 @@ describe("Governance quorum tests", async () => {
                 
                 const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower + thirdSatelliteVotingPower + fourthSatelliteVotingPower;
                 
-                const proposal                          = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
-                minYayVotePercentage                    = proposal.minYayVotePercentage.toNumber();
-                minQuorumPercentage                     = proposal.minQuorumPercentage.toNumber();
-                const quorumStakedMvkTotal              = proposal.quorumStakedMvkTotal.toNumber();
-                const proposalMinQuorumStakedMvkTotal   = proposal.minQuorumStakedMvkTotal.toNumber();
+                const proposal                          = await governanceStorage.proposalLedger.get(proposalId);
+                const minYayVotePercentage              = proposal.minYayVotePercentage.toNumber();
+                const minQuorumPercentage               = proposal.minQuorumPercentage.toNumber();
+                const quorumStakedMvnTotal              = proposal.quorumStakedMvnTotal.toNumber();
+                const proposalMinQuorumStakedMvnTotal   = proposal.minQuorumStakedMvnTotal.toNumber();
 
                 // Assertions
                 assert.equal(minYayVoteRequired < totalSatelliteVotingPower, true)
-                assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
-                assert.equal(minQuorumStakedMvkTotal, proposalMinQuorumStakedMvkTotal)
+                assert.equal(totalSatelliteVotingPower, quorumStakedMvnTotal)
+                assert.equal(minQuorumStakedMvnTotal, proposalMinQuorumStakedMvnTotal)
                 
                 assert.equal(proposal.executed, true)
 
@@ -632,18 +631,18 @@ describe("Governance quorum tests", async () => {
 
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
                 
                 // get current cycle and relevant config variables
-                var minQuorumPercentage     = governanceStorage.config.minQuorumPercentage.toNumber();
-                var minYayVotePercentage    = governanceStorage.config.minYayVotePercentage.toNumber();
+                const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
+                const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                const totalStakedMvnSupply  = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
-                // calculation on required sMVK and yay votes
-                const minQuorumStakedMvkTotal   = Math.floor(totalStakedMvkSupply * (minQuorumPercentage / 10000));
-                const minYayVoteRequired        = Math.floor(minQuorumStakedMvkTotal * (minYayVotePercentage / 10000));
+                // calculation on required sMVN and yay votes
+                const minQuorumStakedMvnTotal   = Math.floor(totalStakedMvnSupply * (minQuorumPercentage / 10000));
+                const minYayVoteRequired        = Math.floor(minQuorumStakedMvnTotal * (minYayVotePercentage / 10000));
 
                 // proposal details
                 await signerFactory(tezos, satelliteOneSk);
@@ -695,8 +694,8 @@ describe("Governance quorum tests", async () => {
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
                 currentCycle                        = governanceStorage.cycleId;
-                const firstSatelliteSnapshot        = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
-                const secondSatelliteSnapshot       = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
+                const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
 
                 // Restart the cycle
                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
@@ -711,20 +710,20 @@ describe("Governance quorum tests", async () => {
                 const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
                 const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
                 
-                const proposal                          = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
-                minYayVotePercentage                    = proposal.minYayVotePercentage.toNumber();
-                minQuorumPercentage                     = proposal.minQuorumPercentage.toNumber();
-                const quorumStakedMvkTotal              = proposal.quorumStakedMvkTotal.toNumber();
-                const proposalMinQuorumStakedMvkTotal   = proposal.minQuorumStakedMvkTotal.toNumber();
+                const proposal                          = await governanceStorage.proposalLedger.get(proposalId);
+                const minYayVotePercentage              = proposal.minYayVotePercentage.toNumber();
+                const minQuorumPercentage               = proposal.minQuorumPercentage.toNumber();
+                const quorumStakedMvnTotal              = proposal.quorumStakedMvnTotal.toNumber();
+                const proposalMinQuorumStakedMvnTotal   = proposal.minQuorumStakedMvnTotal.toNumber();
                 
                 // Assertions
                 // console.log("PROPOSAL: ", proposal);
                 // console.log("FIRST SNAPSHOT: ", firstSatelliteSnapshot);
                 // console.log("SECOND SNAPSHOT: ", secondSatelliteSnapshot);
-                // console.log("SMVK: ", smvkTotalSupply);
+                // console.log("SMVN: ", smvnTotalSupply);
                 assert.equal(minYayVoteRequired < totalSatelliteVotingPower, false)
-                assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
-                assert.equal(minQuorumStakedMvkTotal, proposalMinQuorumStakedMvkTotal)
+                assert.equal(totalSatelliteVotingPower, quorumStakedMvnTotal)
+                assert.equal(minQuorumStakedMvnTotal, proposalMinQuorumStakedMvnTotal)
                 
                 assert.equal(proposal.executed, false)
 
@@ -746,18 +745,18 @@ describe("Governance quorum tests", async () => {
 
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
 
                 // get current cycle and relevant config variables
-                var minQuorumPercentage     = governanceStorage.config.minQuorumPercentage.toNumber();
-                var minYayVotePercentage    = governanceStorage.config.minYayVotePercentage.toNumber();
+                const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
+                const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
                 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                const totalStakedMvnSupply  = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
-                // calculation on required sMVK and yay votes
-                const minQuorumStakedMvkTotal   = Math.floor(totalStakedMvkSupply * (minQuorumPercentage / 10000));
-                const minYayVoteRequired        = Math.floor(minQuorumStakedMvkTotal * (minYayVotePercentage / 10000));
+                // calculation on required sMVN and yay votes
+                const minQuorumStakedMvnTotal   = Math.floor(totalStakedMvnSupply * (minQuorumPercentage / 10000));
+                const minYayVoteRequired        = Math.floor(minQuorumStakedMvnTotal * (minYayVotePercentage / 10000));
 
                 // proposal details
                 await signerFactory(tezos, satelliteOneSk);
@@ -809,8 +808,8 @@ describe("Governance quorum tests", async () => {
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
                 currentCycle                        = governanceStorage.cycleId;
-                const firstSatelliteSnapshot        = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
-                const secondSatelliteSnapshot       = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
+                const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
 
                 // Restart the cycle
                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
@@ -825,20 +824,20 @@ describe("Governance quorum tests", async () => {
                 const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
                 const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
                 
-                const proposal                          = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
-                minYayVotePercentage                    = proposal.minYayVotePercentage.toNumber();
-                minQuorumPercentage                     = proposal.minQuorumPercentage.toNumber();
-                const quorumStakedMvkTotal              = proposal.quorumStakedMvkTotal.toNumber();
-                const proposalMinQuorumStakedMvkTotal   = proposal.minQuorumStakedMvkTotal.toNumber();
+                const proposal                          = await governanceStorage.proposalLedger.get(proposalId);
+                const minYayVotePercentage              = proposal.minYayVotePercentage.toNumber();
+                const minQuorumPercentage               = proposal.minQuorumPercentage.toNumber();
+                const quorumStakedMvnTotal              = proposal.quorumStakedMvnTotal.toNumber();
+                const proposalMinQuorumStakedMvnTotal   = proposal.minQuorumStakedMvnTotal.toNumber();
                 
                 // Assertions
                 // console.log("PROPOSAL: ", proposal);
                 // console.log("FIRST SNAPSHOT: ", firstSatelliteSnapshot);
                 // console.log("SECOND SNAPSHOT: ", secondSatelliteSnapshot);
-                // console.log("SMVK: ", smvkTotalSupply);
+                // console.log("SMVN: ", smvnTotalSupply);
                 assert.equal(minYayVoteRequired < totalSatelliteVotingPower, true)
-                assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
-                assert.equal(minQuorumStakedMvkTotal, proposalMinQuorumStakedMvkTotal)
+                assert.equal(totalSatelliteVotingPower, quorumStakedMvnTotal)
+                assert.equal(minQuorumStakedMvnTotal, proposalMinQuorumStakedMvnTotal)
                 
                 assert.equal(proposal.executed, false)
 
@@ -861,18 +860,18 @@ describe("Governance quorum tests", async () => {
 
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
-                mvkTokenStorage             = await mvkTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
 
                 // get current cycle and relevant config variables
-                var minQuorumPercentage     = governanceStorage.config.minQuorumPercentage.toNumber();
-                var minYayVotePercentage    = governanceStorage.config.minYayVotePercentage.toNumber();
+                const minQuorumPercentage   = governanceStorage.config.minQuorumPercentage.toNumber();
+                const minYayVotePercentage  = governanceStorage.config.minYayVotePercentage.toNumber();
                 
-                // get total staked mvk supply by calling get_balance view on MVK Token Contract with Doorman address
-                const totalStakedMvkSupply  = await mvkTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
+                // get total staked mvn supply by calling get_balance view on MVN Token Contract with Doorman address
+                const totalStakedMvnSupply  = await mvnTokenInstance.contractViews.get_balance({ "0": doormanAddress, "1": 0}).executeView({ viewCaller : admin});
 
-                // calculation on required sMVK and yay votes
-                const minQuorumStakedMvkTotal   = Math.floor(totalStakedMvkSupply * (minQuorumPercentage / 10000));
-                const minYayVoteRequired        = Math.floor(minQuorumStakedMvkTotal * (minYayVotePercentage / 10000));
+                // calculation on required sMVN and yay votes
+                const minQuorumStakedMvnTotal   = Math.floor(totalStakedMvnSupply * (minQuorumPercentage / 10000));
+                const minYayVoteRequired        = Math.floor(minQuorumStakedMvnTotal * (minYayVotePercentage / 10000));
                 
                 // proposal details
                 await signerFactory(tezos, satelliteOneSk);
@@ -924,8 +923,8 @@ describe("Governance quorum tests", async () => {
                 // mid values
                 governanceStorage                   = await governanceInstance.storage();
                 currentCycle                        = governanceStorage.cycleId;
-                const firstSatelliteSnapshot        = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteOne});
-                const secondSatelliteSnapshot       = await getStorageMapValue(governanceStorage, 'snapshotLedger', { 0: currentCycle, 1: satelliteTwo});
+                const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
+                const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteTwo});
 
                 // Restart the cycle
                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
@@ -940,20 +939,20 @@ describe("Governance quorum tests", async () => {
                 const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
                 const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
                 
-                const proposal                          = await getStorageMapValue(governanceStorage, 'proposalLedger', proposalId);
-                minYayVotePercentage                    = proposal.minYayVotePercentage.toNumber();
-                minQuorumPercentage                     = proposal.minQuorumPercentage.toNumber();
-                const quorumStakedMvkTotal              = proposal.quorumStakedMvkTotal.toNumber();
-                const proposalMinQuorumStakedMvkTotal   = proposal.minQuorumStakedMvkTotal.toNumber();
+                const proposal                          = await governanceStorage.proposalLedger.get(proposalId);
+                const minYayVotePercentage              = proposal.minYayVotePercentage.toNumber();
+                const minQuorumPercentage               = proposal.minQuorumPercentage.toNumber();
+                const quorumStakedMvnTotal              = proposal.quorumStakedMvnTotal.toNumber();
+                const proposalMinQuorumStakedMvnTotal   = proposal.minQuorumStakedMvnTotal.toNumber();
                 
                 // Assertions
                 // console.log("PROPOSAL: ", proposal);
                 // console.log("FIRST SNAPSHOT: ", firstSatelliteSnapshot);
                 // console.log("SECOND SNAPSHOT: ", secondSatelliteSnapshot);
-                // console.log("SMVK: ", smvkTotalSupply);
+                // console.log("SMVN: ", smvnTotalSupply);
                 assert.equal(minYayVoteRequired < totalSatelliteVotingPower, true)
-                assert.equal(totalSatelliteVotingPower, quorumStakedMvkTotal)
-                assert.equal(minQuorumStakedMvkTotal, proposalMinQuorumStakedMvkTotal)
+                assert.equal(totalSatelliteVotingPower, quorumStakedMvnTotal)
+                assert.equal(minQuorumStakedMvnTotal, proposalMinQuorumStakedMvnTotal)
                 
                 assert.equal(proposal.executed, false)
 

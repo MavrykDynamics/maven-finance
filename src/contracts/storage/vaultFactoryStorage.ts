@@ -7,9 +7,9 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: 'MAVRYK Vault Factory Contract',
+        name: 'MAVEN Vault Factory Contract',
         version: 'v1.0.0',
-        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        authors: ['MAVEN Dev Team <info@mavryk.io>'],
         }),
         'ascii',
     ).toString('hex'),
@@ -20,9 +20,9 @@ const vaultMetadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: 'MAVRYK Vault Contract',
+        name: 'MAVEN Vault Contract',
         version: 'v1.0.0',
-        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        authors: ['MAVEN Dev Team <info@mavryk.io>'],
         }),
         'ascii',
     ).toString('hex'),
@@ -37,7 +37,7 @@ export const vaultFactoryStorage: vaultFactoryStorageType = {
         vaultNameMaxLength     : new BigNumber(100)
     },
 
-    mvkTokenAddress       : "",
+    mvnTokenAddress       : "",
     governanceAddress     : "",
     
     generalContracts      : MichelsonMap.fromLiteral({}),

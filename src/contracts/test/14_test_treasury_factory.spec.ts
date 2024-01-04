@@ -50,23 +50,23 @@ describe("Treasury Factory tests", async () => {
     let treasuryAddress 
     let treasuryFactoryAddress 
     let governanceAddress 
-    let mvkTokenAddress 
-    let mavrykFa12TokenAddress
-    let mavrykFa2TokenAddress
+    let mvnTokenAddress 
+    let mavenFa12TokenAddress
+    let mavenFa2TokenAddress
 
     let treasuryInstance;
     let treasuryFactoryInstance;
-    let mvkTokenInstance;
+    let mvnTokenInstance;
     let governanceInstance;
-    let mavrykFa12TokenInstance;
-    let mavrykFa2TokenInstance;
+    let mavenFa12TokenInstance;
+    let mavenFa2TokenInstance;
 
     let treasuryStorage;
     let treasuryFactoryStorage;
-    let mvkTokenStorage;
+    let mvnTokenStorage;
     let governanceStorage;
-    let mavrykFa12TokenStorage;
-    let mavrykFa2TokenStorage;
+    let mavenFa12TokenStorage;
+    let mavenFa2TokenStorage;
 
     // operations
     let transferOperation
@@ -101,23 +101,23 @@ describe("Treasury Factory tests", async () => {
         treasuryAddress             = contractDeployments.treasury.address;
         treasuryFactoryAddress      = contractDeployments.treasuryFactory.address;
         governanceAddress           = contractDeployments.governance.address;
-        mvkTokenAddress             = contractDeployments.mvkToken.address;
-        mavrykFa12TokenAddress      = contractDeployments.mavrykFa12Token.address;
-        mavrykFa2TokenAddress       = contractDeployments.mavrykFa2Token.address;
+        mvnTokenAddress             = contractDeployments.mvnToken.address;
+        mavenFa12TokenAddress      = contractDeployments.mavenFa12Token.address;
+        mavenFa2TokenAddress       = contractDeployments.mavenFa2Token.address;
 
         treasuryInstance            = await utils.tezos.contract.at(treasuryAddress);
         treasuryFactoryInstance     = await utils.tezos.contract.at(treasuryFactoryAddress);
-        mvkTokenInstance            = await utils.tezos.contract.at(mvkTokenAddress);
+        mvnTokenInstance            = await utils.tezos.contract.at(mvnTokenAddress);
         governanceInstance          = await utils.tezos.contract.at(governanceAddress);
-        mavrykFa12TokenInstance     = await utils.tezos.contract.at(mavrykFa12TokenAddress);
-        mavrykFa2TokenInstance      = await utils.tezos.contract.at(mavrykFa2TokenAddress);
+        mavenFa12TokenInstance     = await utils.tezos.contract.at(mavenFa12TokenAddress);
+        mavenFa2TokenInstance      = await utils.tezos.contract.at(mavenFa2TokenAddress);
 
         treasuryStorage             = await treasuryInstance.storage();
         treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
-        mvkTokenStorage             = await mvkTokenInstance.storage();
+        mvnTokenStorage             = await mvnTokenInstance.storage();
         governanceStorage           = await governanceInstance.storage();
-        mavrykFa12TokenStorage      = await mavrykFa12TokenInstance.storage();
-        mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
+        mavenFa12TokenStorage      = await mavenFa12TokenInstance.storage();
+        mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
 
         console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
         
@@ -203,7 +203,7 @@ describe("Treasury Factory tests", async () => {
                 // Final values
                 treasuryFactoryStorage       = await treasuryFactoryInstance.storage();            
 
-                const updatedData       = await getStorageMapValue(treasuryFactoryStorage, 'metadata', key);
+                const updatedData       = await treasuryFactoryStorage.metadata.get(key);
                 assert.equal(hash, updatedData);
 
             } catch(e){
@@ -345,20 +345,20 @@ describe("Treasury Factory tests", async () => {
                 user              = mallory.pkh;
                 userSk            = mallory.sk;
 
-                // Mistaken Operation - user (mallory) send 10 MavrykFa2Tokens to Contract
+                // Mistaken Operation - user (mallory) send 10 MavenFa2Tokens to Contract
                 await signerFactory(tezos, userSk);
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, user, contractDeployments.treasuryFactory.address, tokenId, tokenAmount);
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, user, contractDeployments.treasuryFactory.address, tokenId, tokenAmount);
                 await transferOperation.confirmation();
                 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const initialUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber()
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const initialUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber()
 
                 await signerFactory(tezos, bob.sk);
-                mistakenTransferOperation = await mistakenTransferFa2Token(treasuryFactoryInstance, user, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount).send();
+                mistakenTransferOperation = await mistakenTransferFa2Token(treasuryFactoryInstance, user, contractDeployments.mavenFa2Token.address, tokenId, tokenAmount).send();
                 await mistakenTransferOperation.confirmation();
 
-                mavrykFa2TokenStorage       = await mavrykFa2TokenInstance.storage();
-                const updatedUserBalance    = (await getStorageMapValue(mavrykFa2TokenStorage, 'ledger', user)).toNumber();
+                mavenFa2TokenStorage       = await mavenFa2TokenInstance.storage();
+                const updatedUserBalance    = (await mavenFa2TokenStorage.ledger.get(user)).toNumber();
 
                 // increase in updated balance
                 assert.equal(updatedUserBalance, initialUserBalance + tokenAmount);
@@ -491,7 +491,7 @@ describe("Treasury Factory tests", async () => {
                 const updatedTrackedTreasuriesCount         = updatedTrackedTreasuries.length;
 
                 assert.strictEqual(treasuryStorage.admin, admin);
-                assert.strictEqual(treasuryStorage.mvkTokenAddress, mvkTokenAddress);
+                assert.strictEqual(treasuryStorage.mvnTokenAddress, mvnTokenAddress);
                 
                 assert.equal(initialTrackedTreasuries.includes(treasuryAddress), false);
                 assert.equal(updatedTrackedTreasuries.includes(treasuryAddress), true);
@@ -637,7 +637,7 @@ describe("Treasury Factory tests", async () => {
                 const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
 
                 treasuryFactoryStorage = await treasuryFactoryInstance.storage();   
-                const initialMetadata    = await getStorageMapValue(treasuryFactoryStorage, 'metadata', key);
+                const initialMetadata    = await treasuryFactoryStorage.metadata.get(key);
 
                 // Operation
                 const updateOperation = await treasuryFactoryInstance.methods.updateMetadata(key, hash);
@@ -645,7 +645,7 @@ describe("Treasury Factory tests", async () => {
 
                 // Final values
                 treasuryFactoryStorage = await treasuryFactoryInstance.storage();            
-                const updatedData        = await getStorageMapValue(treasuryFactoryStorage, 'metadata', key);
+                const updatedData        = await treasuryFactoryStorage.metadata.get(key);
 
                 // check that there is no change in metadata
                 assert.equal(updatedData, initialMetadata);
@@ -731,12 +731,12 @@ describe("Treasury Factory tests", async () => {
                 // Initial values
                 const tokenAmount = 10;
 
-                // Mistaken Operation - send 10 MavrykFa2Tokens to Contract
-                transferOperation = await fa2Transfer(mavrykFa2TokenInstance, mallory.pkh, contractDeployments.treasuryFactory.address, tokenId, tokenAmount);
+                // Mistaken Operation - send 10 MavenFa2Tokens to Contract
+                transferOperation = await fa2Transfer(mavenFa2TokenInstance, mallory.pkh, contractDeployments.treasuryFactory.address, tokenId, tokenAmount);
                 await transferOperation.confirmation();
 
                 // mistaken transfer operation
-                mistakenTransferOperation = await mistakenTransferFa2Token(treasuryFactoryInstance, mallory.pkh, contractDeployments.mavrykFa2Token.address, tokenId, tokenAmount);
+                mistakenTransferOperation = await mistakenTransferFa2Token(treasuryFactoryInstance, mallory.pkh, contractDeployments.mavenFa2Token.address, tokenId, tokenAmount);
                 await chai.expect(mistakenTransferOperation.send()).to.be.rejected;
 
             } catch (e) {

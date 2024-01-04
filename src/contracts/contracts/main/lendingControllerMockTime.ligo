@@ -22,8 +22,8 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// Mavryk FA2 Token Types 
-#include "../partials/contractTypes/mavrykFa2TokenTypes.ligo"
+// Maven FA2 Token Types 
+#include "../partials/contractTypes/mavenFa2TokenTypes.ligo"
 
 // Doorman Types
 #include "../partials/contractTypes/doormanTypes.ligo"

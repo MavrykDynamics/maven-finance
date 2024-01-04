@@ -22,8 +22,8 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// MvkToken types
-#include "../partials/contractTypes/mvkTokenTypes.ligo"
+// MvnToken types
+#include "../partials/contractTypes/mvnTokenTypes.ligo"
 
 // Treasury types
 #include "../partials/contractTypes/treasuryTypes.ligo"
@@ -35,7 +35,7 @@
 // Factory Create Model (Treasury) Type
 // ------------------------------------------------------------------------------
 
-type createTreasuryFuncType is (option(key_hash) * mav * treasuryStorageType) -> (operation * address)
+type createTreasuryFuncType is (option(key_hash) * tez * treasuryStorageType) -> (operation * address)
 const createTreasuryFunc: createTreasuryFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
@@ -115,7 +115,7 @@ type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType
 function main (const action : treasuryFactoryAction; var s : treasuryFactoryStorageType) : return is
 block{
     
-    verifyNoAmountSent(Unit); // entrypoints should not receive any mav amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
 
 } with(
 

@@ -81,7 +81,7 @@ block {
 
                 case updateConfigAction of [
                         ConfigDelegationRatio (_v)         -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.delegationRatio          := updateConfigNewValue
-                    |   ConfigMinimumStakedMvkBalance (_v) -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW) else s.config.minimumStakedMvkBalance  := updateConfigNewValue
+                    |   ConfigMinimumStakedMvnBalance (_v) -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW) else s.config.minimumStakedMvnBalance  := updateConfigNewValue
                     |   ConfigMaxSatellites (_v)           -> s.config.maxSatellites                     := updateConfigNewValue
                     |   ConfigSatNameMaxLength (_v)        -> s.config.satelliteNameMaxLength            := updateConfigNewValue
                     |   ConfigSatDescMaxLength (_v)        -> s.config.satelliteDescriptionMaxLength     := updateConfigNewValue
@@ -275,10 +275,10 @@ block {
     //        - Create operation to delegate to new satellite
     //        - Create operation to undelegate from previous satellite
     //    - User is not delegated to a satellite
-    //        - Get user's staked MVK balance from the Doorman Contract
+    //        - Get user's staked MVN balance from the Doorman Contract
     //        - Create and save new delegate record for user
     //        - Update or create new rewards record for user (delegate)
-    //        - Update satellite's total delegated amount (increment by user's staked MVK balance)
+    //        - Update satellite's total delegated amount (increment by user's staked MVN balance)
     //        - Update satellite record in storage
 
     verifyEntrypointIsNotPaused(s.breakGlassConfig.delegateToSatelliteIsPaused, error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED);
@@ -343,14 +343,14 @@ block {
                     // User is not delegated to any satellite
                     // ------------------------------------------------
 
-                    // Get user's staked MVK balance from the Doorman Contract
-                    const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
+                    // Get user's staked MVN balance from the Doorman Contract
+                    const stakedMvnBalance : nat = getUserStakedMvnBalanceFromDoorman(userAddress, s);
 
                     // Get satellite record
                     var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
                     
                     // Create and save new delegate record for user
-                    s.delegateLedger[userAddress] := createDelegateRecord(satelliteAddress, satelliteRecord.registeredDateTime, stakedMvkBalance);
+                    s.delegateLedger[userAddress] := createDelegateRecord(satelliteAddress, satelliteRecord.registeredDateTime, stakedMvnBalance);
 
                     // Get satellite's rewards record
                     var satelliteRewardsRecord : satelliteRewardsType := getSatelliteRewardsRecord(satelliteAddress, s, error_SATELLITE_REWARDS_NOT_FOUND);
@@ -364,8 +364,8 @@ block {
                     );
                     s.satelliteRewardsLedger[userAddress] := delegateRewardsRecord;
 
-                    // Update satellite's total delegated amount (increment by user's staked MVK balance)
-                    satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + stakedMvkBalance; 
+                    // Update satellite's total delegated amount (increment by user's staked MVN balance)
+                    satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + stakedMvnBalance; 
                     
                     // Update satellite record in storage
                     s.satelliteLedger[satelliteAddress] := satelliteRecord;
@@ -389,11 +389,11 @@ block {
     // 3. Update unclaimed rewards for user
     // 4. Get user's delegate record
     // 5. Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-    // 6. Get user's staked MVK balance from the Doorman Contract
+    // 6. Get user's staked MVN balance from the Doorman Contract
     // 7. Get satellite record
     // 8. Check if satellite exists and status is not "INACTIVE" - temporary check
-    //    - Check that user's staked MVK balance does not exceed satellite's total delegated amount
-    //    - Update satellite total delegated amount (decrement by user's staked MVK balance)
+    //    - Check that user's staked MVN balance does not exceed satellite's total delegated amount
+    //    - Update satellite total delegated amount (decrement by user's staked MVN balance)
     //    - Update satellite record in storage
     // 9. Remove user's address from delegateLedger
 
@@ -419,8 +419,8 @@ block {
                 // Update unclaimed rewards for user
                 s := updateRewards(userAddress, s);
 
-                // Get user's staked MVK balance from the Doorman Contract
-                const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
+                // Get user's staked MVN balance from the Doorman Contract
+                const stakedMvnBalance : nat = getUserStakedMvnBalanceFromDoorman(userAddress, s);
 
                 // Get satellite record
                 var satelliteRecord : satelliteRecordType := getOrDefaultSatelliteRecord(satelliteAddress, s);
@@ -429,11 +429,11 @@ block {
                 // - if satellite is suspended or banned, users should be able to undelegate from satellite 
                 if satelliteRecord.status =/= "INACTIVE" and satelliteRecord.registeredDateTime = delegateRecord.satelliteRegisteredDateTime then block {
                 
-                    // Verify that user's staked MVK balance does not exceed satellite's total delegated amount
-                    verifyLessThanOrEqual(stakedMvkBalance, satelliteRecord.totalDelegatedAmount, error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT);
+                    // Verify that user's staked MVN balance does not exceed satellite's total delegated amount
+                    verifyLessThanOrEqual(stakedMvnBalance, satelliteRecord.totalDelegatedAmount, error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT);
                     
-                    // Update satellite total delegated amount (decrement by user's staked MVK balance)
-                    satelliteRecord.totalDelegatedAmount := abs(satelliteRecord.totalDelegatedAmount - stakedMvkBalance); 
+                    // Update satellite total delegated amount (decrement by user's staked MVN balance)
+                    satelliteRecord.totalDelegatedAmount := abs(satelliteRecord.totalDelegatedAmount - stakedMvnBalance); 
                     
                     // Update satellite record in storage
                     s.satelliteLedger[satelliteAddress] := satelliteRecord;
@@ -468,9 +468,9 @@ block {
     // 2. Check if sender is not delegated to any satellite
     // 3. Update user's unclaimed rewards
     // 4. Check if max number of satellites limit has been reached
-    // 5. Check if user's staked MVK balance has reached the minimum staked MVK amount required to be a satellite
+    // 5. Check if user's staked MVN balance has reached the minimum staked MVN amount required to be a satellite
     //    - Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-    //    - Get user's staked MVK balance from the Doorman Contract
+    //    - Get user's staked MVN balance from the Doorman Contract
     // 6. Create new satellite record
     //    - Validate inputs (max length not exceeded)
     //    - Validate satellite fee input not exceeding 100%
@@ -633,7 +633,7 @@ block {
     //    - Calculate satellite fee portion of reward
     //    - Check that satellite fee does not exceed reward
     //    - Calculate total distribution amount for satellite's delegates (total reward amount - satellite fee amount)
-    //    - Calculate satellite's total staked MVK (total delegated amount from delegates + satellite's staked MVK amount)
+    //    - Calculate satellite's total staked MVN (total delegated amount from delegates + satellite's staked MVN amount)
     //    - Calculate increment to satellite accumulated rewards per share
     //    - Update satellite's rewards record (satelliteAccumulatedRewardsPerShare, unpaid amount)
 
@@ -650,9 +650,9 @@ block {
                 
             // Init variables from parameters (eligible satellites set, and total reward)
             const eligibleSatellites : set(address) = distributeRewardParams.eligibleSatellites;
-            const totalReward : nat = distributeRewardParams.totalStakedMvkReward;
+            const totalReward : nat = distributeRewardParams.totalStakedMvnReward;
 
-            // Distribute satellite rewards (transfers MVK token from Satellite Treasury contract to the doorman contract i.e. increases staked MVK supply)
+            // Distribute satellite rewards (transfers MVN token from Satellite Treasury contract to the doorman contract i.e. increases staked MVN supply)
             const distributeSatelliteRewardsOperation : operation = distributeSatelliteRewardsOperation(totalReward, s);
             operations := distributeSatelliteRewardsOperation # operations;
 
@@ -680,11 +680,11 @@ block {
                     // Calculate total distribution amount for satellite's delegates (total reward amount - satellite fee amount)
                     const totalDistributionAmountForDelegates : nat  = abs(rewardPerSatellite - satelliteFee);
 
-                    // Calculate satellite's total staked MVK (total delegated amount from delegates + satellite's staked MVK amount)
-                    const satelliteTotalStakedMvk : nat  = satelliteRecord.totalDelegatedAmount + satelliteRecord.stakedMvkBalance;
+                    // Calculate satellite's total staked MVN (total delegated amount from delegates + satellite's staked MVN amount)
+                    const satelliteTotalStakedMvn : nat  = satelliteRecord.totalDelegatedAmount + satelliteRecord.stakedMvnBalance;
 
                     // Calculate increment to satellite accumulated rewards per share
-                    const incrementRewardsPerShare : nat = totalDistributionAmountForDelegates / satelliteTotalStakedMvk;
+                    const incrementRewardsPerShare : nat = totalDistributionAmountForDelegates / satelliteTotalStakedMvn;
 
                     // Update satellite's rewards record (satelliteAccumulatedRewardsPerShare, unpaid amount)
                     satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare      := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare + incrementRewardsPerShare;
@@ -750,21 +750,21 @@ block {
     //    - Set user's participationRewardsPerShare to satellite's satelliteAccumulatedRewardsPerShare
     //    - Increment user's paid balance by his unpaid balance
     //    - Reset user's unpaid balance to 0
-    // 4. Update user's staked MVK balance depending if he is a satellite or delegator
+    // 4. Update user's staked MVN balance depending if he is a satellite or delegator
     //    - If user is a satellite
-    //        - Get user's staked MVK balance from the Doorman Contract
+    //        - Get user's staked MVN balance from the Doorman Contract
     //        - Get user's satellite record
-    //        - Update user's satellite record staked MVK balance and storage in satelliteLedger
+    //        - Update user's satellite record staked MVN balance and storage in satelliteLedger
     //    - If user is a delegator
     //        - Get user's delegate record
     //        - Check if user is delegated to an active satellite (e.g. satellite may have unregistered)
-    //            - Get user's staked MVK balance from the Doorman Contract
+    //            - Get user's staked MVN balance from the Doorman Contract
     //            - Get satellite record of satellite that user is delegated to
-    //            - Calculate difference between user's staked MVK balance in delegate record and his current staked MVK balance
-    //            - Check if there has been a positive or negative change in user's staked MVK balance and adjust satellite's total delegated amount correspondingly
-    //                - If there is a positive change in user's staked MVK balance, increment userSatellite's total delegated amount by the difference (stakeAmount)
+    //            - Calculate difference between user's staked MVN balance in delegate record and his current staked MVN balance
+    //            - Check if there has been a positive or negative change in user's staked MVN balance and adjust satellite's total delegated amount correspondingly
+    //                - If there is a positive change in user's staked MVN balance, increment userSatellite's total delegated amount by the difference (stakeAmount)
     //                - Else If stakeAmount is greater than userSatellite's total delegated amount then fail with error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT
-    //                - Else, there is a negative change in user's staked MVK balance, so decrement userSatellite's total delegated amount by the difference (stakeAmount)
+    //                - Else, there is a negative change in user's staked MVN balance, so decrement userSatellite's total delegated amount by the difference (stakeAmount)
     //            - Update storage (user's delegate record and his delegated satellite record)
     //        - Force User to undelegate if he does not have an active satellite anymore
     
@@ -819,19 +819,19 @@ block {
                     const userIsSatellite: bool = Big_map.mem(userAddress, s.satelliteLedger);
 
                     // ------------------------------------------------------------
-                    // Update user's staked MVK balance depending if he is a satellite or delegator
+                    // Update user's staked MVN balance depending if he is a satellite or delegator
                     // ------------------------------------------------------------
 
                     if userIsSatellite then block {
 
-                        // Get user's staked MVK balance from the Doorman Contract
-                        const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
+                        // Get user's staked MVN balance from the Doorman Contract
+                        const stakedMvnBalance : nat = getUserStakedMvnBalanceFromDoorman(userAddress, s);
 
                         // Get user's satellite record
                         var satelliteRecord: satelliteRecordType := getSatelliteRecord(userAddress, s);
 
-                        // Update user's satellite record staked MVK balance and storage in satelliteLedger
-                        satelliteRecord.stakedMvkBalance  := stakedMvkBalance;
+                        // Update user's satellite record staked MVN balance and storage in satelliteLedger
+                        satelliteRecord.stakedMvnBalance  := stakedMvnBalance;
                         s.satelliteLedger[userAddress]    := satelliteRecord;
                     }
 
@@ -862,20 +862,20 @@ block {
                             
                             else block {
 
-                                // Get user's staked MVK balance from the Doorman Contract
-                                const stakedMvkBalance : nat = getUserStakedMvkBalanceFromDoorman(userAddress, s);
+                                // Get user's staked MVN balance from the Doorman Contract
+                                const stakedMvnBalance : nat = getUserStakedMvnBalanceFromDoorman(userAddress, s);
 
                                 // Get satellite record of satellite that user is delegated to
                                 var userSatellite: satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
 
-                                // Calculate difference between user's staked MVK balance in delegate record and his current staked MVK balance
-                                const stakeAmount: nat = abs(delegatorRecord.delegatedStakedMvkBalance - stakedMvkBalance);
+                                // Calculate difference between user's staked MVN balance in delegate record and his current staked MVN balance
+                                const stakeAmount: nat = abs(delegatorRecord.delegatedStakedMvnBalance - stakedMvnBalance);
 
-                                // Check if there has been a positive or negative change in user's staked MVK balance and adjust satellite's total delegated amount correspondingly
-                                // - If there is a positive change in user's staked MVK balance, increment userSatellite's total delegated amount by the difference (stakeAmount)
+                                // Check if there has been a positive or negative change in user's staked MVN balance and adjust satellite's total delegated amount correspondingly
+                                // - If there is a positive change in user's staked MVN balance, increment userSatellite's total delegated amount by the difference (stakeAmount)
                                 // - Else If stakeAmount is greater than userSatellite's total delegated amount then fail with error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT
-                                // - Else, there is a negative change in user's staked MVK balance, so decrement userSatellite's total delegated amount by the difference (stakeAmount)
-                                if stakedMvkBalance > delegatorRecord.delegatedStakedMvkBalance then userSatellite.totalDelegatedAmount := userSatellite.totalDelegatedAmount + stakeAmount
+                                // - Else, there is a negative change in user's staked MVN balance, so decrement userSatellite's total delegated amount by the difference (stakeAmount)
+                                if stakedMvnBalance > delegatorRecord.delegatedStakedMvnBalance then userSatellite.totalDelegatedAmount := userSatellite.totalDelegatedAmount + stakeAmount
                                 else if stakeAmount > userSatellite.totalDelegatedAmount then failwith(error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT)
                                 else userSatellite.totalDelegatedAmount := abs(userSatellite.totalDelegatedAmount - stakeAmount);
 
@@ -883,7 +883,7 @@ block {
                                 satellitesToUpdate  := Set.add(satelliteAddress, satellitesToUpdate);
 
                                 // Update storage (user's delegate record and his delegated satellite record)
-                                delegatorRecord.delegatedStakedMvkBalance  := stakedMvkBalance;
+                                delegatorRecord.delegatedStakedMvnBalance  := stakedMvnBalance;
 
                                 s.delegateLedger[userAddress]        := delegatorRecord;
                                 s.satelliteLedger[satelliteAddress]  := userSatellite;

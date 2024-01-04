@@ -34,19 +34,19 @@ block{
 function verifyAllEntrypointsPaused(const s : doormanStorageType) : unit is 
 block {
     
-    if s.breakGlassConfig.stakeIsPaused and s.breakGlassConfig.unstakeIsPaused and s.breakGlassConfig.compoundIsPaused and s.breakGlassConfig.farmClaimIsPaused then skip
+    if s.breakGlassConfig.stakeMvnIsPaused and s.breakGlassConfig.unstakeMvnIsPaused and s.breakGlassConfig.compoundIsPaused and s.breakGlassConfig.farmClaimIsPaused then skip
     else failwith(error_ALL_DOORMAN_CONTRACT_ENTRYPOINTS_SHOULD_BE_PAUSED_TO_MIGRATE_FUNDS);
 
 } with unit
 
 
 
-// helper function to verify min MVK amount reached
-function verifyMinMvkAmountReached(const stakeAmount : nat; const s : doormanStorageType) : unit is 
+// helper function to verify min MVN amount reached
+function verifyMinMvnAmountReached(const stakeAmount : nat; const s : doormanStorageType) : unit is 
 block {
     
-    // verify first value (stakeAmount) is greater than second value (minMvkAmount)
-    verifyGreaterThanOrEqual(stakeAmount, s.config.minMvkAmount, error_MIN_MVK_AMOUNT_NOT_REACHED);
+    // verify first value (stakeAmount) is greater than second value (minMvnAmount)
+    verifyGreaterThanOrEqual(stakeAmount, s.config.minMvnAmount, error_MIN_MVN_AMOUNT_NOT_REACHED);
 
 } with unit 
 
@@ -57,18 +57,18 @@ function verifySufficientWithdrawalBalance(const unstakeAmount : nat; const user
 block {
 
     // verify first value (unstakeAmount) is less than second value (user balance)
-    verifyLessThanOrEqual(unstakeAmount, userStakeBalanceRecord.balance, error_INSUFFICIENT_STAKED_MVK_BALANCE);
+    verifyLessThanOrEqual(unstakeAmount, userStakeBalanceRecord.balance, error_INSUFFICIENT_STAKED_MVN_BALANCE);
 
 } with unit
 
 
 
 // helper function to verify unstake amount is less than total staked supply
-function verifyUnstakeAmountLessThanStakedTotalSupply(const unstakeAmount : nat; const stakedMvkTotalSupply : nat) : unit is 
+function verifyUnstakeAmountLessThanStakedTotalSupply(const unstakeAmount : nat; const stakedMvnTotalSupply : nat) : unit is 
 block {
 
-    // verify first value (unstakeAmount) is less than second value (staked MVK total supply)
-    verifyLessThanOrEqual(unstakeAmount, stakedMvkTotalSupply, error_UNSTAKE_AMOUNT_CANNOT_BE_GREATER_THAN_STAKED_MVK_TOTAL_SUPPLY);
+    // verify first value (unstakeAmount) is less than second value (staked MVN total supply)
+    verifyLessThanOrEqual(unstakeAmount, stakedMvnTotalSupply, error_UNSTAKE_AMOUNT_CANNOT_BE_GREATER_THAN_STAKED_MVN_TOTAL_SUPPLY);
 
 } with unit
 
@@ -115,11 +115,11 @@ function pauseAllDoormanEntrypoints(var s : doormanStorageType) : doormanStorage
 block {
 
     // set all pause configs to True
-    if s.breakGlassConfig.stakeIsPaused then skip
-    else s.breakGlassConfig.stakeIsPaused := True;
+    if s.breakGlassConfig.stakeMvnIsPaused then skip
+    else s.breakGlassConfig.stakeMvnIsPaused := True;
 
-    if s.breakGlassConfig.unstakeIsPaused then skip
-    else s.breakGlassConfig.unstakeIsPaused := True;
+    if s.breakGlassConfig.unstakeMvnIsPaused then skip
+    else s.breakGlassConfig.unstakeMvnIsPaused := True;
 
     if s.breakGlassConfig.exitIsPaused then skip
     else s.breakGlassConfig.exitIsPaused := True;
@@ -148,10 +148,10 @@ function unpauseAllDoormanEntrypoints(var s : doormanStorageType) : doormanStora
 block {
 
     // set all pause configs to False
-    if s.breakGlassConfig.stakeIsPaused then s.breakGlassConfig.stakeIsPaused := False
+    if s.breakGlassConfig.stakeMvnIsPaused then s.breakGlassConfig.stakeMvnIsPaused := False
     else skip;
 
-    if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
+    if s.breakGlassConfig.unstakeMvnIsPaused then s.breakGlassConfig.unstakeMvnIsPaused := False
     else skip;
 
     if s.breakGlassConfig.exitIsPaused then s.breakGlassConfig.exitIsPaused := False
@@ -231,25 +231,25 @@ block {
 
 
 
-// helper function to mint MVK and transfer from Treasury
-function mintMvkAndTransferOperation(const claimAmount : nat; const s : doormanStorageType) : operation is 
+// helper function to mint MVN and transfer from Treasury
+function mintMvnAndTransferOperation(const claimAmount : nat; const s : doormanStorageType) : operation is 
 block {
 
     // Get Farm Treasury Contract Address from the General Contracts Map on the Governance Contract
     const treasuryAddress : address = getContractAddressFromGovernanceContract("farmTreasury", s.governanceAddress, error_FARM_TREASURY_CONTRACT_NOT_FOUND);
 
-    const mintMvkAndTransferParams : mintMvkAndTransferType = record [
+    const mintMvnAndTransferParams : mintMvnAndTransferType = record [
         to_  = Mavryk.get_self_address();
         amt  = claimAmount;
     ];
 
-    const mintMvkAndTransferOperation : operation = Mavryk.transaction(
-        mintMvkAndTransferParams, 
+    const mintMvnAndTransferOperation : operation = Mavryk.transaction(
+        mintMvnAndTransferParams, 
         0mav, 
-        sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
+        sendMintMvnAndTransferOperationToTreasury(treasuryAddress)
     );
 
-} with mintMvkAndTransferOperation
+} with mintMvnAndTransferOperation
 
 
 
@@ -264,7 +264,7 @@ block {
         record [
             to_   = Mavryk.get_self_address();
             token = (Fa2 (record [
-                tokenContractAddress  = s.mvkTokenAddress;
+                tokenContractAddress  = s.mvnTokenAddress;
                 tokenId               = 0n;
             ]) : tokenType);
             amount = transferAmount;
@@ -285,11 +285,11 @@ block {
 function migrateFundsOperation(const destinationAddress : address; const s : doormanStorageType) : operation is 
 block {
 
-    // Get Doorman MVK balance from MVK Token Contract - equivalent to total staked MVK supply
-    const balanceView : option (nat) = Mavryk.call_view ("get_balance", (Mavryk.get_self_address(), 0n), s.mvkTokenAddress);
+    // Get Doorman MVN balance from MVN Token Contract - equivalent to total staked MVN supply
+    const balanceView : option (nat) = Mavryk.call_view ("get_balance", (Mavryk.get_self_address(), 0n), s.mvnTokenAddress);
     const doormanBalance: nat = case balanceView of [
             Some (value) -> value
-        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND) : nat)
     ];
 
     // Create a transfer to transfer all funds to an upgraded Doorman Contract
@@ -309,7 +309,7 @@ block {
     const migrateFundsOperation: operation = Mavryk.transaction(
         transferParameters,
         0mav,
-        getTransferEntrypointFromTokenAddress(s.mvkTokenAddress)
+        getTransferEntrypointFromTokenAddress(s.mvnTokenAddress)
     );
 
 } with migrateFundsOperation
@@ -324,45 +324,45 @@ block {
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get mvk total supply 
-function getMvkTotalSupply(const s : doormanStorageType) : nat is 
+// helper function to get mvn total supply 
+function getMvnTotalSupply(const s : doormanStorageType) : nat is 
 block {
 
-    const mvkTotalSupplyView : option (nat) = Mavryk.call_view ("total_supply", 0n, s.mvkTokenAddress);
-    const mvkTotalSupply: nat = case mvkTotalSupplyView of [
+    const mvnTotalSupplyView : option (nat) = Mavryk.call_view ("total_supply", 0n, s.mvnTokenAddress);
+    const mvnTotalSupply: nat = case mvnTotalSupplyView of [
             Some (value) -> value
-        |   None         -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+        |   None         -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND) : nat)
     ];
 
-} with mvkTotalSupply 
+} with mvnTotalSupply 
 
 
 
-// helper function to get staked mvk total supply (equivalent to balance of the Doorman contract on the MVK Token contract)
-function getStakedMvkTotalSupply(const s : doormanStorageType) : nat is 
+// helper function to get staked mvn total supply (equivalent to balance of the Doorman contract on the MVN Token contract)
+function getStakedMvnTotalSupply(const s : doormanStorageType) : nat is 
 block {
 
-    const getBalanceView : option (nat) = Mavryk.call_view ("get_balance", (Mavryk.get_self_address(), 0n), s.mvkTokenAddress);
-    const stakedMvkTotalSupply: nat = case getBalanceView of [
+    const getBalanceView : option (nat) = Mavryk.call_view ("get_balance", (Mavryk.get_self_address(), 0n), s.mvnTokenAddress);
+    const stakedMvnTotalSupply: nat = case getBalanceView of [
             Some (value) -> value
-        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND) : nat)
     ];
 
-} with stakedMvkTotalSupply 
+} with stakedMvnTotalSupply 
 
 
 
-// helper function to get mvk maximum total supply 
-function getMvkMaximumTotalSupply(const s : doormanStorageType) : nat is 
+// helper function to get mvn maximum total supply 
+function getMvnMaximumTotalSupply(const s : doormanStorageType) : nat is 
 block {
 
-    const getMaximumSupplyView : option (nat) = Mavryk.call_view ("getMaximumSupply", unit, s.mvkTokenAddress);
-    const mvkMaximumSupply : (nat) = case getMaximumSupplyView of [
+    const getMaximumSupplyView : option (nat) = Mavryk.call_view ("getMaximumSupply", unit, s.mvnTokenAddress);
+    const mvnMaximumSupply : (nat) = case getMaximumSupplyView of [
             Some (_totalSupply) -> _totalSupply
-        |   None                -> (failwith (error_GET_MAXIMUM_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+        |   None                -> (failwith (error_GET_MAXIMUM_SUPPLY_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND) : nat)
     ];
 
-} with mvkMaximumSupply 
+} with mvnMaximumSupply 
 
 
 
@@ -405,7 +405,7 @@ block {
     // Calculate what fees the user missed since his/her last claim
     const currentFeesPerShare : nat = abs(s.accumulatedFeesPerShare - userStakeBalanceRecord.participationFeesPerShare);
 
-    // Calculate the user reward based on his sMVK
+    // Calculate the user reward based on his sMVN
     const exitFeeRewards : nat = (currentFeesPerShare * userStakeBalanceRecord.balance) / fixedPointAccuracy;
 
 } with exitFeeRewards 
@@ -413,11 +413,11 @@ block {
 
 
 // helper function to increment accumulated fees per share
-function incrementAccumulatedFeesPerShare(const paidFee : nat; const unstakeAmount : nat; const stakedMvkTotalSupply : nat; var s : doormanStorageType) : doormanStorageType is 
+function incrementAccumulatedFeesPerShare(const paidFee : nat; const unstakeAmount : nat; const stakedMvnTotalSupply : nat; var s : doormanStorageType) : doormanStorageType is 
 block {
 
     // calculate staked total without unstakeamount
-    const stakedTotalWithoutUnstake : nat = abs(stakedMvkTotalSupply - unstakeAmount);
+    const stakedTotalWithoutUnstake : nat = abs(stakedMvnTotalSupply - unstakeAmount);
 
     if stakedTotalWithoutUnstake > 0n then s.accumulatedFeesPerShare := s.accumulatedFeesPerShare + (paidFee / stakedTotalWithoutUnstake)
     else skip;
@@ -430,15 +430,15 @@ block {
 function calculateExitFee(const s : doormanStorageType) : nat is 
 block {
 
-    // get MVK and staked MVK total supply
-    const mvkTotalSupply        : nat = getMvkTotalSupply(s);
-    const stakedMvkTotalSupply  : nat = getStakedMvkTotalSupply(s);
+    // get MVN and staked MVN total supply
+    const mvnTotalSupply        : nat = getMvnTotalSupply(s);
+    const stakedMvnTotalSupply  : nat = getStakedMvnTotalSupply(s);
 
-    // Calculate MVK Loyalty Index
-    const mvkLoyaltyIndex : nat = (stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
+    // Calculate MVN Loyalty Index
+    const mvnLoyaltyIndex : nat = (stakedMvnTotalSupply * 100n * fixedPointAccuracy) / mvnTotalSupply;
     
     // Calculate Exit Fee
-    const exitFeeWithoutFloatingPoint : nat = abs((300_000n * fixedPointAccuracy - 5_250n * mvkLoyaltyIndex) * fixedPointAccuracy + (25n * mvkLoyaltyIndex * mvkLoyaltyIndex));
+    const exitFeeWithoutFloatingPoint : nat = abs((300_000n * fixedPointAccuracy - 5_250n * mvnLoyaltyIndex) * fixedPointAccuracy + (25n * mvnLoyaltyIndex * mvnLoyaltyIndex));
     const exitFee                     : nat = exitFeeWithoutFloatingPoint / (10_000n * fixedPointAccuracy);
 
 } with exitFee
@@ -507,7 +507,7 @@ block{
     // Get the user's stake balance record
     var userStakeBalanceRecord : userStakeBalanceRecordType := getOrCreateUserStakeBalanceRecord(userAddress, s);
 
-    // Check if the user has more than 0 staked MVK. If he/she hasn't, he cannot earn rewards
+    // Check if the user has more than 0 staked MVN. If he/she hasn't, he cannot earn rewards
     if userStakeBalanceRecord.balance > 0n then {
 
         // Check if user has any satellite rewards

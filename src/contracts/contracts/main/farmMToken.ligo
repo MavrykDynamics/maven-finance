@@ -111,7 +111,7 @@ type farmUnpackLambdaFunctionType is (farmLambdaActionType * farmMTokenStorageTy
 function main (const action : farmAction; var s: farmMTokenStorageType) : return is
 block{
 
-    verifyNoAmountSent(Unit); // entrypoints should not receive any mav amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
 
 } with (
 

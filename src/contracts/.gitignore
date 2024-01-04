@@ -12,5 +12,3 @@ contractDeployments.json
 **/.idea/**
 .VSCodeCounter/
 .ligo-work
-scripts/proxyLambdaFunctionMaker/governanceProxyLambdaFunction.ligo
-*_tmp.json

@@ -56,7 +56,7 @@ services:
     logging: *bcd-logging
 
   flextesa:
-    container_name: mavryk-sandbox
+    container_name: maven-sandbox
     restart: always
     image: registry.gitlab.com/mavryk-network/flextesa:6cab38e5-run
     command: atlasbox start

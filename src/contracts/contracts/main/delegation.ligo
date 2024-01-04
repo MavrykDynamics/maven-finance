@@ -28,8 +28,8 @@
 // Delegation Types
 #include "../partials/contractTypes/delegationTypes.ligo"
 
-// MVK Token Type
-#include "../partials/contractTypes/mvkTokenTypes.ligo"
+// MVN Token Type
+#include "../partials/contractTypes/mvnTokenTypes.ligo"
 
 // Treasury Type
 #include "../partials/contractTypes/treasuryTypes.ligo"
@@ -63,7 +63,7 @@ type delegationAction is
     |   RegisterAsSatellite               of registerAsSatelliteParamsType
     |   UnregisterAsSatellite             of (address)
     |   UpdateSatelliteRecord             of updateSatelliteRecordType
-    |   DistributeReward                  of distributeRewardStakedMvkType
+    |   DistributeReward                  of distributeRewardStakedMvnType
     |   TakeSatellitesSnapshot            of takeSatellitesSnapshotType
 
         // General Entrypoints
@@ -117,7 +117,7 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 function main (const action : delegationAction; const s : delegationStorageType) : return is 
 block{
 
-    verifyNoAmountSent(unit); // entrypoints should not receive any mav amount  
+    verifyNoAmountSent(unit); // entrypoints should not receive any tez amount  
 
 } with (case action of [    
 

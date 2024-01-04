@@ -1,0 +1,46 @@
+from maven.utils.error_reporting import save_error_report
+from dipdup.context import HandlerContext
+from dipdup.models.tezos_tzkt import TzktTransaction
+from maven.types.farm_factory.tezos_parameters.set_product_lambda import SetProductLambdaParameter, FarmTypeItem as Farm, FarmTypeItem1 as MFarm
+from maven.types.farm_factory.tezos_storage import FarmFactoryStorage
+import maven.models as models
+
+async def set_product_lambda(
+    ctx: HandlerContext,
+    set_product_lambda: TzktTransaction[SetProductLambdaParameter, FarmFactoryStorage],
+) -> None:
+
+    try:
+        # Get operation values
+        contract_address        = set_product_lambda.data.target_address
+        timestamp               = set_product_lambda.data.timestamp
+        lambda_bytes            = set_product_lambda.parameter.func_bytes
+        lambda_name             = set_product_lambda.parameter.name
+        farm_type               = type(set_product_lambda.parameter.farmType)
+    
+        # Save / Update record
+        contract                = await models.FarmFactory.get(
+            network     = ctx.datasource.name.replace('tzkt_',''),
+            address     = contract_address
+        )
+        contract.last_updated_at            = timestamp
+        await contract.save()
+        contract_lambda         = None
+        if farm_type == Farm:
+            contract_lambda, _  = await models.FarmFactoryFarmLambda.get_or_create(
+                contract        = contract,
+                lambda_name     = lambda_name,
+            )
+        elif farm_type == MFarm:
+            contract_lambda, _  = await models.FarmFactoryMFarmLambda.get_or_create(
+                contract        = contract,
+                lambda_name     = lambda_name,
+            )
+        if contract_lambda:
+            contract_lambda.last_updated_at     = timestamp
+            contract_lambda.lambda_bytes        = lambda_bytes
+            await contract_lambda.save()
+
+    except BaseException as e:
+        await save_error_report(e)
+

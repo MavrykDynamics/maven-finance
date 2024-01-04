@@ -79,7 +79,7 @@ type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType
 function main (const action : governanceProxyAction; const s : governanceProxyStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit); // entrypoints should not receive any mav amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
 
 } with (
 
