@@ -1488,7 +1488,7 @@ describe("Test: Doorman Contract", async () => {
                 
                 // pause operations
 
-                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("stake", true).send(); 
+                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("stakeMvn", true).send(); 
                 await pauseOperation.confirmation();
                 
                 pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("unstakeMvn", true).send(); 
@@ -1527,7 +1527,7 @@ describe("Test: Doorman Contract", async () => {
 
                 // unpause operations
 
-                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("stake", false).send();
+                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("stakeMvn", false).send();
                 await unpauseOperation.confirmation();
                 
                 unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("unstakeMvn", false).send();

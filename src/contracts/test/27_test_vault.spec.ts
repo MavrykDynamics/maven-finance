@@ -847,7 +847,7 @@ describe("Vault tests", async () => {
                 const loanTokenName         = "usdt";
                 const vaultName             = "newVaultAlice";
                 const depositorsConfig      = "any";
-                const depositAmountMutez    = 1030000;
+                const depositAmountMumav    = 1030000;
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     baker.pkh,              // delegate to
@@ -855,12 +855,12 @@ describe("Vault tests", async () => {
                     vaultName,              // vault name
                     [
                         {
-                            amount: depositAmountMutez,
+                            amount: depositAmountMumav,
                             tokenName: "tez"
                         }
                     ],
                     depositorsConfig       // depositors config type - any / whitelist
-                ).send({ mumav : true, amount : depositAmountMutez });
+                ).send({ mumav : true, amount : depositAmountMumav });
                 await userCreatesNewVaultOperation.confirmation();
 
                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
@@ -876,7 +876,7 @@ describe("Vault tests", async () => {
                 assert.equal(vaultRecord.loanInterestTotal      , 0);
 
                 const vaultTezCollateralBalance = vaultRecord.collateralBalanceLedger.get("tez");
-                assert.equal(vaultTezCollateralBalance.toNumber(), depositAmountMutez);
+                assert.equal(vaultTezCollateralBalance.toNumber(), depositAmountMumav);
 
                 const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
                 const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
@@ -906,7 +906,7 @@ describe("Vault tests", async () => {
                 const loanTokenName         = "usdt";
                 const vaultName             = "failVaultAlice";
                 const depositorsConfig      = "any";
-                const depositAmountMutez    = 1030000;
+                const depositAmountMumav    = 1030000;
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     null,                   // delegate to
@@ -914,7 +914,7 @@ describe("Vault tests", async () => {
                     vaultName,              // vault name
                     [
                         {
-                            amount: depositAmountMutez,
+                            amount: depositAmountMumav,
                             tokenName: "tez"
                         }
                     ],
@@ -942,8 +942,8 @@ describe("Vault tests", async () => {
                 const vaultName             = "failVaultAlice";
                 const depositorsConfig      = "any";
                 
-                const depositAmountMutez      = 1500000;
-                const wrongDepositAmountMutez = 1000000;
+                const depositAmountMumav      = 1500000;
+                const wrongdepositAmountMumav = 1000000;
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     null,                   // delegate to
@@ -951,13 +951,13 @@ describe("Vault tests", async () => {
                     vaultName,              // vault name
                     [
                         {
-                            amount: depositAmountMutez,
+                            amount: depositAmountMumav,
                             tokenName: "tez"
                         }
                     ],
                     depositorsConfig       // depositors config type - any / whitelist
                 );
-                await chai.expect(userCreatesNewVaultOperation.send({ mumav : true, amount : wrongDepositAmountMutez })).to.be.rejected;
+                await chai.expect(userCreatesNewVaultOperation.send({ mumav : true, amount : wrongdepositAmountMumav })).to.be.rejected;
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -1064,7 +1064,7 @@ describe("Vault tests", async () => {
                 const vaultName             = "newVaultBob";
                 const depositorsConfig      = "any";
                 
-                const depositAmountMutez    = 1030000;
+                const depositAmountMumav    = 1030000;
                 const depositAmountToken    = 900000;
 
                 // reset token allowance
@@ -1091,7 +1091,7 @@ describe("Vault tests", async () => {
                     vaultName,              // vault name
                     [
                         {
-                            amount: depositAmountMutez,
+                            amount: depositAmountMumav,
                             tokenName: "tez"
                         },
                         {
@@ -1104,7 +1104,7 @@ describe("Vault tests", async () => {
                         },
                     ],
                     depositorsConfig,       // depositors config type - any / whitelist
-                ).send({ mumav : true, amount : depositAmountMutez });
+                ).send({ mumav : true, amount : depositAmountMumav });
                 await userCreatesNewVaultOperation.confirmation();
 
                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1123,7 +1123,7 @@ describe("Vault tests", async () => {
                 const vaultMockFa12TokenCollateralBalance = vaultRecord.collateralBalanceLedger.get("mockFa12");
                 const vaultMockFa2TokenCollateralBalance  = vaultRecord.collateralBalanceLedger.get("mockFa2");
 
-                assert.equal(vaultTezCollateralBalance.toNumber(), depositAmountMutez);
+                assert.equal(vaultTezCollateralBalance.toNumber(), depositAmountMumav);
                 assert.equal(vaultMockFa12TokenCollateralBalance.toNumber(), depositAmountToken);
                 assert.equal(vaultMockFa2TokenCollateralBalance.toNumber(), depositAmountToken);
 
@@ -1156,7 +1156,7 @@ describe("Vault tests", async () => {
                 const vaultName             = "newVaultBob";
                 const depositorsConfig      = "any";
                 
-                const depositAmountMutez    = 1030000;
+                const depositAmountMumav    = 1030000;
                 const depositAmountToken    = 900000;
 
                 // reset token allowance
@@ -1183,7 +1183,7 @@ describe("Vault tests", async () => {
                     vaultName,              // vault name
                     [
                         {
-                            amount: depositAmountMutez,
+                            amount: depositAmountMumav,
                             tokenName: "tez"
                         },
                         {
@@ -1219,8 +1219,8 @@ describe("Vault tests", async () => {
                 const vaultName             = "newVaultBob";
                 const depositorsConfig      = "any";
                 
-                const depositAmountMutez        = 1500000;
-                const wrongDepositAmountMutez   = 1000000;
+                const depositAmountMumav        = 1500000;
+                const wrongdepositAmountMumav   = 1000000;
                 const depositAmountToken        = 900000;
 
                 // reset token allowance
@@ -1247,7 +1247,7 @@ describe("Vault tests", async () => {
                     vaultName,              // vault name
                     [
                         {
-                            amount: depositAmountMutez,
+                            amount: depositAmountMumav,
                             tokenName: "tez"
                         },
                         {
@@ -1261,7 +1261,7 @@ describe("Vault tests", async () => {
                     ],
                     depositorsConfig,       // depositors config type - any / whitelist
                 );
-                await chai.expect(userCreatesNewVaultOperation.send({ mumav : true, amount : wrongDepositAmountMutez })).to.be.rejected;
+                await chai.expect(userCreatesNewVaultOperation.send({ mumav : true, amount : wrongdepositAmountMumav })).to.be.rejected;
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -1406,7 +1406,7 @@ describe("Vault tests", async () => {
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
 
-            const depositAmountMutez = 10000000;
+            const depositAmountMumav = 10000000;
 
             const vaultHandle = {
                 "id"    : vaultId,
@@ -1423,9 +1423,9 @@ describe("Vault tests", async () => {
 
             const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
                 "deposit",
-                depositAmountMutez,                   // amt
+                depositAmountMumav,                   // amt
                 "tez"                                 // token
-            ).send({ mumav : true, amount : depositAmountMutez });
+            ).send({ mumav : true, amount : depositAmountMumav });
             await malloryDepositTezIntoEveVaultOperation.confirmation();
 
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1433,7 +1433,7 @@ describe("Vault tests", async () => {
             const tezCollateralBalance            = updatedVault.collateralBalanceLedger.get('tez') == undefined ? 0 : updatedVault.collateralBalanceLedger.get('tez');
             
             // check that mav balance is now 20 tez
-            assert.equal(tezCollateralBalance, initialTezCollateralBalance + depositAmountMutez);
+            assert.equal(tezCollateralBalance, initialTezCollateralBalance + depositAmountMumav);
 
         });
 
@@ -1494,7 +1494,7 @@ describe("Vault tests", async () => {
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
 
-            const depositAmountMutez = 10000000;
+            const depositAmountMumav = 10000000;
 
             const vaultHandle = {
                 "id"    : vaultId,
@@ -1511,9 +1511,9 @@ describe("Vault tests", async () => {
 
             const aliceDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
                 "deposit",              // vault action
-                depositAmountMutez,     // amt
+                depositAmountMumav,     // amt
                 "tez"                   // token
-            ).send({ mumav : true, amount : depositAmountMutez });
+            ).send({ mumav : true, amount : depositAmountMumav });
             await aliceDepositTezIntoEveVaultOperation.confirmation();
 
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1521,16 +1521,16 @@ describe("Vault tests", async () => {
             const tezCollateralBalance            = updatedVault.collateralBalanceLedger.get('tez') == undefined ? 0 : updatedVault.collateralBalanceLedger.get('tez');
             
             // check that mav balance is now 20 tez
-            assert.equal(tezCollateralBalance, initialTezCollateralBalance + depositAmountMutez);
+            assert.equal(tezCollateralBalance, initialTezCollateralBalance + depositAmountMumav);
 
             // check that mallory is not able to deposit into the vault now
             await signerFactory(tezos, mallory.sk);
             const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
                 "deposit",              // vault action
-                depositAmountMutez,     // amt
+                depositAmountMumav,     // amt
                 "tez"                   // token
             );
-            await chai.expect(malloryDepositTezIntoEveVaultOperation.send({ mumav : true, amount : depositAmountMutez })).to.be.rejected;
+            await chai.expect(malloryDepositTezIntoEveVaultOperation.send({ mumav : true, amount : depositAmountMumav })).to.be.rejected;
 
         });
 

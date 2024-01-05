@@ -14,7 +14,7 @@ const config = {
     minQuorumPercentage                 : 1000,
     minYayVotePercentage                : 5100,
 
-    proposalSubmissionFeeMutez          : 1000000, // 1 tez
+    proposalSubmissionFeeMumav          : 1000000, // 1 tez
     maxProposalsPerSatellite            : 20,
 
     newBlockTimeLevel                   : 0,

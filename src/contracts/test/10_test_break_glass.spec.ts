@@ -624,7 +624,7 @@ describe("Test: Break Glass Contract", async () => {
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
 
-                const requiredFeeMutez           = emergencyGovernanceStorage.config.requiredFeeMutez;
+                const requiredFeeMumav           = emergencyGovernanceStorage.config.requiredFeeMumav;
 
                 initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
@@ -657,7 +657,7 @@ describe("Test: Break Glass Contract", async () => {
                 await signerFactory(tezos, userSk)
                 const emergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                     emergencyTitle, emergencyDesc
-                ).send({amount: requiredFeeMutez, mumav: true});
+                ).send({amount: requiredFeeMumav, mumav: true});
                 await emergencyControlOperation.confirmation();
 
                 // update storage

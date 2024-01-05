@@ -110,7 +110,7 @@ describe("Governance Satellite tests", async () => {
     let currentCycle
     let delegationRatio
     let approvalPercentage
-    let proposalSubmissionFeeMutez
+    let proposalSubmissionFeeMumav
     let governanceSatellitePercentageDecimals
 
     let doormanInstance
@@ -223,7 +223,7 @@ describe("Governance Satellite tests", async () => {
             delegationRatio = delegationStorage.config.delegationRatio;
             
             // set governance proposal submission fee mumav
-            proposalSubmissionFeeMutez = governanceStorage.config.proposalSubmissionFeeMutez;
+            proposalSubmissionFeeMumav = governanceStorage.config.proposalSubmissionFeeMumav;
 
             // -----------------------------------------------
             //
@@ -2799,7 +2799,7 @@ describe("Governance Satellite tests", async () => {
                         proposalSourceCode, 
                         proposalData
                     );
-                    await chai.expect(proposeOperation.send({amount: proposalSubmissionFeeMutez, mumav: true})).to.be.rejected;
+                    await chai.expect(proposeOperation.send({amount: proposalSubmissionFeeMumav, mumav: true})).to.be.rejected;
                     
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -2846,7 +2846,7 @@ describe("Governance Satellite tests", async () => {
                         proposalIpfs, 
                         proposalSourceCode, 
                         proposalData
-                    ).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    ).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     // Admin - set satellite status back to SUSPENDED
@@ -2986,7 +2986,7 @@ describe("Governance Satellite tests", async () => {
                         proposalIpfs, 
                         proposalSourceCode,
                         proposalData
-                    ).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    ).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
                 
                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -3103,7 +3103,7 @@ describe("Governance Satellite tests", async () => {
                         proposalSourceCode, 
                         proposalData,
                         proposalPaymentData
-                    ).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    ).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     // lock proposal 
@@ -3739,7 +3739,7 @@ describe("Governance Satellite tests", async () => {
                         proposalSourceCode, 
                         proposalData
                     );
-                    await chai.expect(proposeOperation.send({amount: proposalSubmissionFeeMutez, mumav: true})).to.be.rejected;
+                    await chai.expect(proposeOperation.send({amount: proposalSubmissionFeeMumav, mumav: true})).to.be.rejected;
                     
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -3786,7 +3786,7 @@ describe("Governance Satellite tests", async () => {
                         proposalIpfs, 
                         proposalSourceCode, 
                         proposalData
-                    ).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    ).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     // Admin - set satellite status back to BANNED
@@ -3926,7 +3926,7 @@ describe("Governance Satellite tests", async () => {
                         proposalIpfs, 
                         proposalSourceCode,
                         proposalData
-                    ).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    ).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
                 
                     const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -4043,7 +4043,7 @@ describe("Governance Satellite tests", async () => {
                         proposalSourceCode, 
                         proposalData,
                         proposalPaymentData
-                    ).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    ).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     // lock proposal 
