@@ -201,12 +201,12 @@ describe("Stress tests", async () => {
                 mvnTokenStorage         = await mvnTokenInstance.storage();
                 var minimalCost         = {
                     batchIndex: 0,
-                    totalCostMutez: MVN(999999),
+                    totalCostMumav: MVN(999999),
                     estimations: []
                 }
                 var maximalCost         = {
                     batchIndex: 0,
-                    totalCostMutez: 0,
+                    totalCostMumav: 0,
                     estimations: []
                 }
 
@@ -287,7 +287,7 @@ describe("Stress tests", async () => {
                         batchOpEstimate.forEach((estimate: Estimate) => {
                             batchTotalCost.push({
                                 estimate: estimate,
-                                totalCostMutez: estimate.totalCost
+                                totalCostMumav: estimate.totalCost
                             })
                             totalCost   += estimate.totalCost
                         })
@@ -298,12 +298,12 @@ describe("Stress tests", async () => {
                         const maximalRegisteringCost    = maximalCost.estimations.length > 0 ? maximalCost.estimations[maximalCost.estimations.length-1].totalCost : 0;
                         minimalCost         = {
                             batchIndex: minimalRegisteringCost > registeringCost ? index : minimalCost.batchIndex,
-                            totalCostMutez: minimalRegisteringCost > registeringCost ? totalCost : minimalCost.totalCostMutez,
+                            totalCostMumav: minimalRegisteringCost > registeringCost ? totalCost : minimalCost.totalCostMumav,
                             estimations: minimalRegisteringCost > registeringCost ? batchTotalCost : minimalCost.estimations
                         }
                         maximalCost         = {
                             batchIndex: maximalRegisteringCost < registeringCost ? index : maximalCost.batchIndex,
-                            totalCostMutez: maximalRegisteringCost < registeringCost ? totalCost : maximalCost.totalCostMutez,
+                            totalCostMumav: maximalRegisteringCost < registeringCost ? totalCost : maximalCost.totalCostMumav,
                             estimations: maximalRegisteringCost < registeringCost ? batchTotalCost : maximalCost.estimations
                         }
 
@@ -368,7 +368,7 @@ describe("Stress tests", async () => {
                 // Print Estimation
                 const operationTotalCost    = {
                     estimate: operationEstimation,
-                    totalCostMutez: operationEstimation.totalCost
+                    totalCostMumav: operationEstimation.totalCost
                 }
                 console.log("Round: ", currentRound)
                 console.log("Operation total cost: ", operationTotalCost)
@@ -396,7 +396,7 @@ describe("Stress tests", async () => {
                 // Print Estimation
                 const operationTotalCost    = {
                     estimate: operationEstimation,
-                    totalCostMutez: operationEstimation.totalCost
+                    totalCostMumav: operationEstimation.totalCost
                 }
                 console.log("Operation total cost: ", operationTotalCost)
 
@@ -450,7 +450,7 @@ describe("Stress tests", async () => {
                 // Print Estimation
                 const firstVoteTotalCost    = {
                     estimate: firstVoteEstimation,
-                    totalCostMutez: firstVoteEstimation.totalCost
+                    totalCostMumav: firstVoteEstimation.totalCost
                 }
                 console.log("First council vote operation total cost: ", firstVoteTotalCost)
 
@@ -465,7 +465,7 @@ describe("Stress tests", async () => {
                 // Print Estimation
                 const secondVoteTotalCost    = {
                     estimate: secondVoteEstimation,
-                    totalCostMutez: secondVoteEstimation.totalCost
+                    totalCostMumav: secondVoteEstimation.totalCost
                 }
                 console.log("Second council vote operation total cost: ", secondVoteTotalCost)
 
@@ -510,7 +510,7 @@ describe("Stress tests", async () => {
                 const distributeRewardEstimation    = await utils.tezos.estimate.transfer(distributeRewardParams);
                 const distributeRewardTotalCost     = {
                     estimate: distributeRewardEstimation,
-                    totalCostMutez: distributeRewardEstimation.totalCost
+                    totalCostMumav: distributeRewardEstimation.totalCost
                 }
                 console.log("Estimate: ", distributeRewardTotalCost)
 
@@ -631,7 +631,7 @@ describe("Stress tests", async () => {
                     batchOpEstimate.forEach((estimate: Estimate) => {
                         batchTotalCost.push({
                             estimate: estimate,
-                            totalCostMutez: estimate.totalCost
+                            totalCostMumav: estimate.totalCost
                         })
                     })
 
@@ -854,7 +854,7 @@ describe("Stress tests", async () => {
                     const proposalVoteEstimation    = await utils.tezos.estimate.transfer(proposalVoteParams);
                     const proposalVoteTotalCost     = {
                         estimate: proposalVoteEstimation,
-                        totalCostMutez: proposalVoteEstimation.totalCost
+                        totalCostMumav: proposalVoteEstimation.totalCost
                     }
                     var voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                     await voteOperation.confirmation();
@@ -872,7 +872,7 @@ describe("Stress tests", async () => {
                     const votingVoteEstimation      = await utils.tezos.estimate.transfer(votingVoteParams);
                     const votingVoteTotalCost       = {
                         estimate: votingVoteEstimation,
-                        totalCostMutez: votingVoteEstimation.totalCost
+                        totalCostMumav: votingVoteEstimation.totalCost
                     }
 
                     var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
@@ -886,7 +886,7 @@ describe("Stress tests", async () => {
                 var startNextRoundEstimation    = await utils.tezos.estimate.transfer(startNextRoundParams);
                 var startNextRoundTotalCost     = {
                     estimate: startNextRoundEstimation,
-                    totalCostMutez: startNextRoundEstimation.totalCost
+                    totalCostMumav: startNextRoundEstimation.totalCost
                 }
                 console.log("startNextRound #1 estimation: ", startNextRoundTotalCost)
 
@@ -897,7 +897,7 @@ describe("Stress tests", async () => {
                 startNextRoundEstimation        = await utils.tezos.estimate.transfer(startNextRoundParams);
                 var startNextRoundTotalCost     = {
                     estimate: startNextRoundEstimation,
-                    totalCostMutez: startNextRoundEstimation.totalCost
+                    totalCostMumav: startNextRoundEstimation.totalCost
                 }
 
                 console.log("startNextRound #2 estimation: ", startNextRoundTotalCost)
@@ -963,7 +963,7 @@ describe("Stress tests", async () => {
                         batchOpEstimate.forEach((estimate: Estimate) => {
                             batchTotalCost.push({
                                 estimate: estimate,
-                                totalCostMutez: estimate.totalCost
+                                totalCostMumav: estimate.totalCost
                             })
                         })
         

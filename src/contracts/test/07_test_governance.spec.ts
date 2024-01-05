@@ -84,7 +84,7 @@ describe("Governance tests", async () => {
     let governanceProxyAddress
     let tokenId = 0
     let zeroBlocksPerRound
-    let proposalSubmissionFeeMutez
+    let proposalSubmissionFeeMumav
     let delegationRatio
     let currentCycle
 
@@ -267,7 +267,7 @@ describe("Governance tests", async () => {
             // set proposal submission fee mumav
             // -------------------
 
-            proposalSubmissionFeeMutez   = governanceStorage.config.proposalSubmissionFeeMutez;
+            proposalSubmissionFeeMumav   = governanceStorage.config.proposalSubmissionFeeMumav;
 
             // -------------------
             // set admin of council contract to governance proxy contract for subsequent proposal testing 
@@ -485,7 +485,7 @@ describe("Governance tests", async () => {
                     ]
 
                     // Operation
-                    const proposeOperation = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    const proposeOperation = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const lockProposalOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -541,7 +541,7 @@ describe("Governance tests", async () => {
                     ]
 
                     // Operation
-                    const proposeOperation = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    const proposeOperation = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     // Increase user stake if they cannot exceed the votes needed to switch to the voting round
@@ -644,7 +644,7 @@ describe("Governance tests", async () => {
                     ]
 
                     // Operation
-                    const proposeOperation = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    const proposeOperation = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const lockProposalOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -799,7 +799,7 @@ describe("Governance tests", async () => {
                     ]
 
                     // Operation
-                    const proposeOperation = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    const proposeOperation = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     // Final values
@@ -891,7 +891,7 @@ describe("Governance tests", async () => {
                     ]
 
                     // Operation
-                    const proposeOperation = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData, paymentData).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    const proposeOperation = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalData, paymentData).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     // Final values
@@ -963,7 +963,7 @@ describe("Governance tests", async () => {
 
                     // Operation
                     await signerFactory(tezos, userSk);
-                    await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true})).to.be.rejected;
+                    await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true})).to.be.rejected;
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
@@ -1051,7 +1051,7 @@ describe("Governance tests", async () => {
                         assert.equal(updatedSatelliteRecord.status,                         "ACTIVE");
                     }
 
-                    await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true})).to.be.rejected;
+                    await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true})).to.be.rejected;
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
@@ -1742,7 +1742,7 @@ describe("Governance tests", async () => {
 
                     // Operation
                     await signerFactory(tezos, satelliteOneSk)
-                    var proposeOperation                = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation                = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const lockProposalOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2303,7 +2303,7 @@ describe("Governance tests", async () => {
 
                     // Propose a new proposal 
                     await signerFactory(tezos, satelliteOneSk)
-                    const proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    const proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     // Operation
@@ -2525,11 +2525,11 @@ describe("Governance tests", async () => {
                     const firstProposalSourceCode    = "Proposal Source Code";
 
                     // Create first proposal operation
-                    const createFirstProposalOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    const createFirstProposalOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await createFirstProposalOperation.confirmation();
 
                     // Create second proposal operation - fail as max proposal is one
-                    await chai.expect(governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true})).to.be.rejected; 
+                    await chai.expect(governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true})).to.be.rejected; 
 
                     // rest config back to initial values
                     await signerFactory(tezos, adminSk);
@@ -2635,7 +2635,7 @@ describe("Governance tests", async () => {
                     const postregisteringSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: newSatellite})
 
                     // Operation
-                    await chai.expect(governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true})).to.be.rejected; 
+                    await chai.expect(governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true})).to.be.rejected; 
 
                     // Assertions
                     assert.strictEqual(preregisteringSnapshot, undefined);
@@ -2698,7 +2698,7 @@ describe("Governance tests", async () => {
                     ]
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2717,7 +2717,7 @@ describe("Governance tests", async () => {
                     assert.strictEqual(currentCycleInfoRoundString, "voting");
 
                     // Operation
-                    await chai.expect(governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true})).to.be.rejected; 
+                    await chai.expect(governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true})).to.be.rejected; 
 
                 } catch(e){
                     console.dir(e, {depth: 5})
@@ -2765,7 +2765,7 @@ describe("Governance tests", async () => {
                     ]
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     // Operation
@@ -2833,7 +2833,7 @@ describe("Governance tests", async () => {
                     ]
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2896,7 +2896,7 @@ describe("Governance tests", async () => {
                     ]
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     // Operation
@@ -2953,7 +2953,7 @@ describe("Governance tests", async () => {
                     ]
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     // Operation
@@ -3039,7 +3039,7 @@ describe("Governance tests", async () => {
 
                     // Operation
                     await signerFactory(tezos, satelliteOneSk)
-                    var proposeOperation                = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation                = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const lockProposalOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -3115,7 +3115,7 @@ describe("Governance tests", async () => {
                     ]
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode, proposalData).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const lockProposalOperation  = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -3191,7 +3191,7 @@ describe("Governance tests", async () => {
                     const firstProposalSourceCode    = "Proposal Source Code";
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
@@ -3271,7 +3271,7 @@ describe("Governance tests", async () => {
                     const firstProposalSourceCode    = "Proposal Source Code";
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
@@ -3353,7 +3353,7 @@ describe("Governance tests", async () => {
                     const firstProposalSourceCode    = "Proposal Source Code";
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
@@ -3462,7 +3462,7 @@ describe("Governance tests", async () => {
                 const firstProposalSourceCode    = "Proposal Source Code";
 
                 // Operation
-                var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true});
                 await proposeOperation.confirmation();
 
                 // Create a real lambda function to reset the admin
@@ -3558,7 +3558,7 @@ describe("Governance tests", async () => {
                     const firstProposalSourceCode    = "Proposal Source Code";
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
@@ -3632,7 +3632,7 @@ describe("Governance tests", async () => {
                     const firstProposalSourceCode    = "Proposal Source Code";
 
                     // First cycle operations
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     var addDataOperation = await governanceInstance.methods.updateProposalData(firstProposalId, [
@@ -3676,7 +3676,7 @@ describe("Governance tests", async () => {
                     const midValuesProposal       = await governanceStorage.proposalLedger.get(firstProposalId);
 
                     // Second cycle operations
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     addDataOperation = await governanceInstance.methods.updateProposalData(secondProposalId, [
@@ -3755,7 +3755,7 @@ describe("Governance tests", async () => {
                     const firstProposalSourceCode    = "Proposal Source Code";
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
@@ -3814,7 +3814,7 @@ describe("Governance tests", async () => {
                     const firstProposalSourceCode    = "Proposal Source Code";
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
@@ -3884,7 +3884,7 @@ describe("Governance tests", async () => {
                     const firstProposalSourceCode    = "Proposal Source Code";
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
@@ -3957,7 +3957,7 @@ describe("Governance tests", async () => {
                     const firstProposalSourceCode    = "Proposal Source Code";
 
                     // Operation
-                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMutez, mumav: true});
+                    var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: proposalSubmissionFeeMumav, mumav: true});
                     await proposeOperation.confirmation();
 
                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, [
@@ -4120,7 +4120,7 @@ describe("Governance tests", async () => {
                 updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configMinYayVotePercentage").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configProposeFeeMutez").send();
+                updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configProposeFeeMumav").send();
                 await updateConfigOperation.confirmation();
 
                 updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configMaxProposalsPerSatellite").send();
@@ -4160,7 +4160,7 @@ describe("Governance tests", async () => {
                 assert.equal(updatedConfig.minProposalRoundVotePercentage       , lowTestValue);
                 assert.equal(updatedConfig.minQuorumPercentage                  , lowTestValue);
                 assert.equal(updatedConfig.minYayVotePercentage                 , lowTestValue);
-                assert.equal(updatedConfig.proposalSubmissionFeeMutez           , lowTestValue);
+                assert.equal(updatedConfig.proposalSubmissionFeeMumav           , lowTestValue);
                 assert.equal(updatedConfig.maxProposalsPerSatellite             , lowTestValue);
 
                 assert.equal(updatedConfig.blocksPerProposalRound               , zeroTestValue);
@@ -4190,7 +4190,7 @@ describe("Governance tests", async () => {
                 resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.minYayVotePercentage, "configMinYayVotePercentage").send();
                 await resetConfigOperation.confirmation();
 
-                resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.proposalSubmissionFeeMutez, "configProposeFeeMutez").send();
+                resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.proposalSubmissionFeeMumav, "configProposeFeeMumav").send();
                 await resetConfigOperation.confirmation();
 
                 resetConfigOperation = await governanceInstance.methods.updateConfig(initialConfig.maxProposalsPerSatellite, "configMaxProposalsPerSatellite").send();
@@ -4229,7 +4229,7 @@ describe("Governance tests", async () => {
                 assert.equal(resetConfig.minProposalRoundVotePercentage.toNumber(),     initialConfig.minProposalRoundVotePercentage.toNumber());
                 assert.equal(resetConfig.minQuorumPercentage.toNumber(),                initialConfig.minQuorumPercentage.toNumber());
                 assert.equal(resetConfig.minYayVotePercentage.toNumber(),               initialConfig.minYayVotePercentage.toNumber());
-                assert.equal(resetConfig.proposalSubmissionFeeMutez.toNumber(),         initialConfig.proposalSubmissionFeeMutez.toNumber());
+                assert.equal(resetConfig.proposalSubmissionFeeMumav.toNumber(),         initialConfig.proposalSubmissionFeeMumav.toNumber());
                 assert.equal(resetConfig.maxProposalsPerSatellite.toNumber(),           initialConfig.maxProposalsPerSatellite.toNumber());
 
                 assert.equal(resetConfig.blocksPerProposalRound.toNumber(),             initialConfig.blocksPerProposalRound.toNumber());
@@ -4543,7 +4543,7 @@ describe("Governance tests", async () => {
                 updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configMinYayVotePercentage");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
-                updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configProposeFeeMutez");
+                updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "ConfigProposeFeeMumav");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 updateConfigOperation = await governanceInstance.methods.updateConfig(lowTestValue, "configMaxProposalsPerSatellite");
@@ -4582,7 +4582,7 @@ describe("Governance tests", async () => {
                 assert.equal(updatedConfig.minProposalRoundVotePercentage.toNumber(),     initialConfig.minProposalRoundVotePercentage.toNumber());
                 assert.equal(updatedConfig.minQuorumPercentage.toNumber(),                initialConfig.minQuorumPercentage.toNumber());
                 assert.equal(updatedConfig.minYayVotePercentage.toNumber(),               initialConfig.minYayVotePercentage.toNumber());
-                assert.equal(updatedConfig.proposalSubmissionFeeMutez.toNumber(),         initialConfig.proposalSubmissionFeeMutez.toNumber());
+                assert.equal(updatedConfig.proposalSubmissionFeeMumav.toNumber(),         initialConfig.proposalSubmissionFeeMumav.toNumber());
                 assert.equal(updatedConfig.maxProposalsPerSatellite.toNumber(),           initialConfig.maxProposalsPerSatellite.toNumber());
 
                 assert.equal(updatedConfig.blocksPerProposalRound.toNumber(),             initialConfig.blocksPerProposalRound.toNumber());

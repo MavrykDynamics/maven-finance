@@ -2745,7 +2745,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates propose fee mumav', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.updateConfig(1000000, "configProposeFeeMutez").send();
+                const operation = await governanceInstance.methods.updateConfig(1000000, "ConfigProposeFeeMumav").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3473,7 +3473,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates required fee mumav to trigger emergency', async () => {
             try{
                 // Operation
-                const operation = await emergencyGovernanceInstance.methods.updateConfig(1000000, "configRequiredFeeMutez").send();
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(1000000, "configrequiredFeeMumav").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4366,14 +4366,14 @@ describe("Testnet interactions helper", async () => {
         it('Admin deposits into the new vault', async () => {
             try{
                 // Initial values
-                const depositAmountMutez    = 10000000;
+                const depositAmountMumav    = 10000000;
 
                 console.log("ADDRESS:",createdVaultAddress)
 
                 const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
                 // Operation
-                const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mumav : true, amount : depositAmountMutez });
+                const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMumav, "tez").send({ mumav : true, amount : depositAmountMumav });
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4398,11 +4398,11 @@ describe("Testnet interactions helper", async () => {
         it('Admin withdraws from the new vault', async () => {
             try{
                 // Initial values
-                const withdrawAmountMutez   = 1000000;
+                const withdrawAmountMumav   = 1000000;
                 const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
                 // Operation
-                const operation = await newVaultInstance.methods.initVaultAction("withdraw", withdrawAmountMutez, "tez").send();
+                const operation = await newVaultInstance.methods.initVaultAction("withdraw", withdrawAmountMumav, "tez").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5094,14 +5094,14 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin deposits into the new vault', async () => {
     //         try{
     //             // Initial values
-    //             const depositAmountMutez    = 10000000;
+    //             const depositAmountMumav    = 10000000;
 
     //             console.log("ADDRESS:",createdVaultAddress)
 
     //             const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
     //             // Operation
-    //             const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mumav : true, amount : depositAmountMutez });
+    //             const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMumav, "tez").send({ mumav : true, amount : depositAmountMumav });
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
@@ -5126,11 +5126,11 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin withdraws from the new vault', async () => {
     //         try{
     //             // Initial values
-    //             const withdrawAmountMutez   = 1000000;
+    //             const withdrawAmountMumav   = 1000000;
     //             const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
     //             // Operation
-    //             const operation = await newVaultInstance.methods.initVaultAction("withdraw", withdrawAmountMutez, "tez").send();
+    //             const operation = await newVaultInstance.methods.initVaultAction("withdraw", withdrawAmountMumav, "tez").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})

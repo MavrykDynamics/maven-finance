@@ -215,7 +215,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 await signerFactory(tezos, eve.sk);
                 const vaultId            = eveVaultSet[0];
                 const vaultOwner         = eve.pkh;
-                const depositAmountMutez = 10000000;
+                const depositAmountMumav = 10000000;
                 const depositAmountTez   = 10;
 
                 const vaultHandle = {
@@ -233,9 +233,9 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
                 const eveDepositTezOperation  = await eveVaultInstance.methods.initVaultAction(
                     "deposit",
-                    depositAmountMutez,                   // amt
+                    depositAmountMumav,                   // amt
                     "tez"                                 // token
-                ).send({ mumav : true, amount : depositAmountMutez });
+                ).send({ mumav : true, amount : depositAmountMumav });
                 await eveDepositTezOperation.confirmation();
 
                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
@@ -958,7 +958,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const vaultId            = eveVaultSet[0]; // vault with mockFa2 loan token
                 const vaultOwner         = eve.pkh;
                 const depositAmountTez   = 1;
-                const depositAmountMutez = 1000000;
+                const depositAmountMumav = 1000000;
 
                 const vaultHandle = {
                     "id"     : vaultId,
@@ -976,9 +976,9 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
                 const eveDepositTezOperation   = await eveVaultInstance.methods.initVaultAction(
                     "deposit",              // vault action type
-                    depositAmountMutez,     // amt
+                    depositAmountMumav,     // amt
                     "tez"                   // token
-                ).send({ mumav : true, amount : depositAmountMutez });
+                ).send({ mumav : true, amount : depositAmountMumav });
                 await eveDepositTezOperation.confirmation();
 
                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
