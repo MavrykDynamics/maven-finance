@@ -8,7 +8,7 @@ import { emergencyGovernanceStorageType } from './storageTypes/emergencyGovernan
 const config = {
     decimals                        : 4,
     durationInMinutes               : 4320, // 3 days
-    requiredFeeMutez                : 10000000,
+    requiredFeeMumav                : 10000000,
     stakedMvnPercentageRequired     : 5000,         // prod should be 10% or 1000   
     minStakedMvnRequiredToVote      : MVN(1),
     minStakedMvnRequiredToTrigger   : MVN(11),

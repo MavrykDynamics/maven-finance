@@ -150,7 +150,7 @@ block {
 function verifyCorrectSubmissionFee(const s : governanceStorageType) : unit is
 block {
 
-    if Mavryk.get_amount() =/= s.config.proposalSubmissionFeeMutez 
+    if Mavryk.get_amount() =/= s.config.proposalSubmissionFeeMumav 
     then failwith(error_INCORRECT_TEZ_FEE) 
     else skip;
 

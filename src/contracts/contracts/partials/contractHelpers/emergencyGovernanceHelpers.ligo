@@ -151,7 +151,7 @@ block {
 function verifyCorrectFee(const s : emergencyGovernanceStorageType) : unit is 
 block {
 
-    if Mavryk.get_amount() =/= s.config.requiredFeeMutez 
+    if Mavryk.get_amount() =/= s.config.requiredFeeMumav 
     then failwith(error_INCORRECT_TEZ_FEE) 
     else skip;
 

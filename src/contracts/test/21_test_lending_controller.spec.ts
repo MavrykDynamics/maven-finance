@@ -1611,7 +1611,7 @@ describe("Lending Controller tests", async () => {
             await signerFactory(tezos, eve.sk);
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
-            const depositAmountMutez = 10000000;
+            const depositAmountMumav = 10000000;
             const depositAmountTez   = 10;
 
             const vaultHandle = {
@@ -1629,9 +1629,9 @@ describe("Lending Controller tests", async () => {
 
             const eveDepositTezOperation  = await eveVaultInstance.methods.initVaultAction(
                 "deposit",             // vault action types     
-                depositAmountMutez,    // amt
+                depositAmountMumav,    // amt
                 "tez"                  // token
-            ).send({ mumav : true, amount : depositAmountMutez });
+            ).send({ mumav : true, amount : depositAmountMumav });
             await eveDepositTezOperation.confirmation();
 
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1656,9 +1656,9 @@ describe("Lending Controller tests", async () => {
             const eveSecondVaultInstance         = await utils.tezos.contract.at(secondVaultAddress);
             const eveDepositTezIntoSecondVaultOperation  = await eveSecondVaultInstance.methods.initVaultAction(
                 "deposit",              // vault action type
-                depositAmountMutez,     // amt
+                depositAmountMumav,     // amt
                 "tez"                   // token
-            ).send({ mumav : true, amount : depositAmountMutez });
+            ).send({ mumav : true, amount : depositAmountMumav });
             await eveDepositTezIntoSecondVaultOperation.confirmation();
 
             // third vault
@@ -1675,9 +1675,9 @@ describe("Lending Controller tests", async () => {
             const eveThirdVaultInstance         = await utils.tezos.contract.at(thirdVaultAddress);
             const eveDepositTezIntoThirdVaultOperation  = await eveThirdVaultInstance.methods.initVaultAction(
                 "deposit",                  // vault action type
-                depositAmountMutez,         // amt
+                depositAmountMumav,         // amt
                 "tez"                       // token
-            ).send({ mumav : true, amount : depositAmountMutez });
+            ).send({ mumav : true, amount : depositAmountMumav });
             await eveDepositTezIntoThirdVaultOperation.confirmation();
 
         });
@@ -1689,9 +1689,9 @@ describe("Lending Controller tests", async () => {
             const vaultId            = eveVaultSet[0];
             const vaultOwner         = eve.pkh;
 
-            const depositAmountMutez = 10000000;
+            const depositAmountMumav = 10000000;
             const depositAmountTez   = 10;
-            const finalAmountMutez   = 20000000;
+            const finalAmountMumav   = 20000000;
             const finalAmountTez     = 20;
 
             const vaultHandle = {
@@ -1713,9 +1713,9 @@ describe("Lending Controller tests", async () => {
 
             const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
                 "deposit",            // vault action type  
-                depositAmountMutez,   // amt
+                depositAmountMumav,   // amt
                 "tez"                 // token
-            ).send({ mumav : true, amount : depositAmountMutez });
+            ).send({ mumav : true, amount : depositAmountMumav });
             await malloryDepositTezIntoEveVaultOperation.confirmation();
 
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1734,7 +1734,7 @@ describe("Lending Controller tests", async () => {
             const vaultId            = malloryVaultSet[0];
             const vaultOwner         = mallory.pkh;
     
-            const depositAmountMutez = 10000000;
+            const depositAmountMumav = 10000000;
             const depositAmountTez   = 10;
     
             const vaultHandle = {
@@ -1752,9 +1752,9 @@ describe("Lending Controller tests", async () => {
     
             const malloryDepositTezOperation  = await vaultInstance.methods.initVaultAction(
                 "deposit",              // vault action type
-                depositAmountMutez,     // amt
+                depositAmountMumav,     // amt
                 "tez"                   // token
-            ).send({ mumav : true, amount : depositAmountMutez });
+            ).send({ mumav : true, amount : depositAmountMumav });
             await malloryDepositTezOperation.confirmation();
     
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1771,9 +1771,9 @@ describe("Lending Controller tests", async () => {
             await signerFactory(tezos, eve.sk);
             const vaultId            = malloryVaultSet[0];
             const vaultOwner         = mallory.pkh;
-            const depositAmountMutez = 10000000;
+            const depositAmountMumav = 10000000;
             const depositAmountTez   = 10;
-            const finalAmountMutez   = 20000000;
+            const finalAmountMumav   = 20000000;
             const finalAmountTez     = 20;
     
             const vaultHandle = {
@@ -1795,10 +1795,10 @@ describe("Lending Controller tests", async () => {
     
             const failEveDepositTezIntoMalloryVaultOperation  = await vaultInstance.methods.initVaultAction(
                 "deposit",              // vault action type
-                depositAmountMutez,     // amt
+                depositAmountMumav,     // amt
                 "tez"                   // token
             );
-            await chai.expect(failEveDepositTezIntoMalloryVaultOperation.send({ mumav : true, amount : depositAmountMutez })).to.be.rejected;    
+            await chai.expect(failEveDepositTezIntoMalloryVaultOperation.send({ mumav : true, amount : depositAmountMumav })).to.be.rejected;    
     
         });
 

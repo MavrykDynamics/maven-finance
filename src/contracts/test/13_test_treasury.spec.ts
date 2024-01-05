@@ -139,7 +139,7 @@ describe("Treasury tests", async () => {
                 
                 // Alice transfers 8 XTZ to Treasury
                 const depositAmount             = 8;
-                const depositAmountMutez        = 8000000;
+                const depositAmountMumav        = 8000000;
                 const initTreasuryTezBalance    = await utils.tezos.tz.getBalance(treasuryAddress);
                 
                 await signerFactory(tezos, alice.sk)
@@ -147,7 +147,7 @@ describe("Treasury tests", async () => {
                 await aliceTransferTezToTreasuryOperation.confirmation();
 
                 const treasuryTezBalance        = await utils.tezos.tz.getBalance(treasuryAddress);
-                assert.deepEqual(treasuryTezBalance, initTreasuryTezBalance.plus(depositAmountMutez));
+                assert.deepEqual(treasuryTezBalance, initTreasuryTezBalance.plus(depositAmountMumav));
 
             } catch(e){
                 console.dir(e, {depth:  5});
