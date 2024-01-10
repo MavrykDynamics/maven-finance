@@ -47,7 +47,7 @@ datasources:
     network: ghostnet
   tzkt_ghostnet:
     kind: tezos.tzkt
-    url: https://api.ghostnet.tzkt.io
+    url: http://localhost:8080
     merge_subscriptions: true
   tzkt_mainnet:
     kind: tezos.tzkt
