@@ -16,7 +16,7 @@ async def origination(
         address                         = emergency_governance_origination.data.originated_contract_address
         admin                           = emergency_governance_origination.storage.admin
         decimals                        = int(emergency_governance_origination.storage.config.decimals)
-        required_fee                    = int(emergency_governance_origination.storage.config.requiredFeeMutez)
+        required_fee                    = int(emergency_governance_origination.storage.config.requiredFeeMumav)
         min_smvn_required_to_trigger    = float(emergency_governance_origination.storage.config.minStakedMvnRequiredToTrigger)
         min_smvn_required_to_vote       = float(emergency_governance_origination.storage.config.minStakedMvnRequiredToVote)
         proposal_desc_max_length        = int(emergency_governance_origination.storage.config.proposalDescMaxLength)
@@ -49,7 +49,7 @@ async def origination(
             min_smvn_required_to_vote       = min_smvn_required_to_vote,
             proposal_desc_max_length        = proposal_desc_max_length,
             proposal_title_max_length       = proposal_title_max_length,
-            required_fee_mutez              = required_fee,
+            required_fee_mumav              = required_fee,
             smvn_percentage_required        = smvn_percentage_required,
             duration_in_minutes             = duration_in_minutes,
             current_emergency_record_id     = current_emergency_record_id,

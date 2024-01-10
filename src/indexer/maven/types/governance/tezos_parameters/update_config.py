@@ -103,7 +103,7 @@ class UpdateConfigActionItem13(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposeFeeMutez: Dict[str, Any]
+    configProposeFeeMumav: Dict[str, Any]
 
 
 class UpdateConfigActionItem14(BaseModel):
