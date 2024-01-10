@@ -29,7 +29,7 @@ module.exports = {
       port: 8732,
     },
     basenet: {
-      rpc: "https://basenet-rolling-node.mavryk.network",
+      rpc: "https://basenet-baking-node.mavryk.network",
       network_id: "*",
       secretKey: bob.sk,
       port: 443,

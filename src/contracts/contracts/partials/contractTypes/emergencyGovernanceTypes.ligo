@@ -53,7 +53,7 @@ type emergencyConfigType is record [
 type emergencyUpdateConfigNewValueType is nat
 type emergencyUpdateConfigActionType is 
         ConfigDurationInMinutes         of unit
-    |   ConfigrequiredFeeMumav          of unit
+    |   ConfigRequiredFeeMumav          of unit
     |   ConfigStakedMvnPercentRequired  of unit
     |   ConfigMinStakedMvnForVoting     of unit
     |   ConfigMinStakedMvnToTrigger     of unit

@@ -1042,7 +1042,7 @@ describe("Emergency Governance tests", async () => {
                 var updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configDurationInMinutes").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configrequiredFeeMumav").send();
+                updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configRequiredFeeMumav").send();
                 await updateConfigOperation.confirmation();
 
                 updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configStakedMvnPercentRequired").send();
@@ -1077,7 +1077,7 @@ describe("Emergency Governance tests", async () => {
                 var resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.durationInMinutes, "configDurationInMinutes").send();
                 await resetConfigOperation.confirmation();
 
-                resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.requiredFeeMumav, "configrequiredFeeMumav").send();
+                resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.requiredFeeMumav, "configRequiredFeeMumav").send();
                 await resetConfigOperation.confirmation();
                 
                 resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.stakedMvnPercentageRequired, "configStakedMvnPercentRequired").send();
@@ -1331,7 +1331,7 @@ describe("Emergency Governance tests", async () => {
                 var updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configDurationInMinutes");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
-                updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configrequiredFeeMumav");
+                updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configRequiredFeeMumav");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configStakedMvnPercentRequired");
