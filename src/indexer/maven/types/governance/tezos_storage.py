@@ -17,7 +17,7 @@ class Config(BaseModel):
     minProposalRoundVotePercentage: str
     minQuorumPercentage: str
     minYayVotePercentage: str
-    proposalSubmissionFeeMutez: str
+    proposalSubmissionFeeMumav: str
     maxProposalsPerSatellite: str
     blocksPerProposalRound: str
     blocksPerVotingRound: str
