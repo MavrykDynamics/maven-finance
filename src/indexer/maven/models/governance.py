@@ -13,7 +13,7 @@ class Governance(MavenContract, Model):
     proposal_round_vote_percentage          = fields.SmallIntField(default=0)
     min_quorum_percentage                   = fields.SmallIntField(default=0)
     min_yay_vote_percentage                 = fields.SmallIntField(default=0)
-    proposal_submission_fee_mutez           = fields.BigIntField(default=0)
+    proposal_submission_fee_mumav           = fields.BigIntField(default=0)
     max_proposal_per_satellite              = fields.SmallIntField(default=0)
     blocks_per_proposal_round               = fields.BigIntField(default=0)
     blocks_per_voting_round                 = fields.BigIntField(default=0)

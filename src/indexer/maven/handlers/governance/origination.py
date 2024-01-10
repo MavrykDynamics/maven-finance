@@ -22,7 +22,7 @@ async def origination(
         proposal_round_vote_percentage          = int(governance_origination.storage.config.minProposalRoundVotePercentage)
         min_quorum_percentage                   = int(governance_origination.storage.config.minQuorumPercentage)
         min_yay_vote_percentage                 = int(governance_origination.storage.config.minYayVotePercentage)
-        proposal_submission_fee                 = int(governance_origination.storage.config.proposalSubmissionFeeMutez)
+        proposal_submission_fee                 = int(governance_origination.storage.config.proposalSubmissionFeeMumav)
         max_proposals_per_delegate              = int(governance_origination.storage.config.maxProposalsPerSatellite)
         blocks_per_Proposal_round               = int(governance_origination.storage.config.blocksPerProposalRound)
         blocks_per_voting_round                 = int(governance_origination.storage.config.blocksPerVotingRound)
@@ -75,7 +75,7 @@ async def origination(
             proposal_round_vote_percentage          = proposal_round_vote_percentage,
             min_quorum_percentage                   = min_quorum_percentage,
             min_yay_vote_percentage                 = min_yay_vote_percentage,
-            proposal_submission_fee_mutez           = proposal_submission_fee,
+            proposal_submission_fee_mumav           = proposal_submission_fee,
             max_proposal_per_satellite              = max_proposals_per_delegate,
             blocks_per_proposal_round               = blocks_per_Proposal_round,
             blocks_per_voting_round                 = blocks_per_voting_round,
@@ -175,17 +175,17 @@ async def origination(
         )
 
         # Start Liquidity Baking indexer
-        liquidity_baking_enable_indexer = os.getenv("LIQUIDITY_BAKING_ENABLE_INDEXER")
-        if str(liquidity_baking_enable_indexer).upper() == "TRUE":
-            await ctx.add_index(
-                name="liquidity_baking",
-                template="liquidity_baking_template",
-                values=dict(
-                    liquidity_baking_contract="liquidity_baking",
-                    sirius_contract="sirius",
-                    tzbtc_contract="tzbtc"
-                )
-            )
+        # liquidity_baking_enable_indexer = os.getenv("LIQUIDITY_BAKING_ENABLE_INDEXER")
+        # if str(liquidity_baking_enable_indexer).upper() == "TRUE":
+        #     await ctx.add_index(
+        #         name="liquidity_baking",
+        #         template="liquidity_baking_template",
+        #         values=dict(
+        #             liquidity_baking_contract="liquidity_baking",
+        #             sirius_contract="sirius",
+        #             tzbtc_contract="tzbtc"
+        #         )
+        #     )
 
     except BaseException as e:
         await save_error_report(e)

@@ -27,7 +27,7 @@ async def update_config(
             proposal_round_vote_percentage      = update_config.storage.config.minProposalRoundVotePercentage,
             min_quorum_percentage               = update_config.storage.config.minQuorumPercentage,
             min_yay_vote_percentage             = update_config.storage.config.minYayVotePercentage,
-            proposal_submission_fee_mutez       = update_config.storage.config.proposalSubmissionFeeMutez,
+            proposal_submission_fee_mumav       = update_config.storage.config.proposalSubmissionFeeMumav,
             max_proposal_per_satellite          = update_config.storage.config.maxProposalsPerSatellite,
             blocks_per_proposal_round           = update_config.storage.config.blocksPerProposalRound,
             blocks_per_voting_round             = update_config.storage.config.blocksPerVotingRound,

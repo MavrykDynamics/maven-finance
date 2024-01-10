@@ -12,7 +12,7 @@ class EmergencyGovernance(MavenContract, Model):
     min_smvn_required_to_vote               = fields.FloatField(default=0)
     proposal_desc_max_length                = fields.SmallIntField(default=0)
     proposal_title_max_length               = fields.SmallIntField(default=0)
-    required_fee_mutez                      = fields.BigIntField(default=0)
+    required_fee_mumav                      = fields.BigIntField(default=0)
     smvn_percentage_required                = fields.SmallIntField(default=0)
     duration_in_minutes                     = fields.BigIntField(default=0)
     current_emergency_record_id             = fields.BigIntField(default=0)
