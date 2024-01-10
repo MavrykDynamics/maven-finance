@@ -80,7 +80,7 @@ block {
 
                 case updateConfigAction of [
                         ConfigDurationInMinutes (_v)                  -> s.config.durationInMinutes               := updateConfigNewValue
-                    |   ConfigrequiredFeeMumav (_v)                   -> s.config.requiredFeeMumav                := updateConfigNewValue * 1mumav
+                    |   ConfigRequiredFeeMumav (_v)                   -> s.config.requiredFeeMumav                := updateConfigNewValue * 1mumav
                     |   ConfigStakedMvnPercentRequired (_v)           -> if updateConfigNewValue > 10_000n     then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.stakedMvnPercentageRequired     := updateConfigNewValue  
                     |   ConfigMinStakedMvnForVoting (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvnRequiredToVote      := updateConfigNewValue
                     |   ConfigMinStakedMvnToTrigger (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvnRequiredToTrigger   := updateConfigNewValue
