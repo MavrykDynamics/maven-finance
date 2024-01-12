@@ -47,7 +47,7 @@ datasources:
     network: ghostnet
   tzkt_ghostnet:
     kind: tezos.tzkt
-    url: http://localhost:8080
+    url: https://api.mavryk.network
     merge_subscriptions: true
   tzkt_mainnet:
     kind: tezos.tzkt
