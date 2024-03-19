@@ -78,6 +78,11 @@ block {
 // helper function to create a new vestee record
 function createVesteeRecord(const vesteeAddress : address; const totalAllocatedAmount : nat; const vestingInMonths : nat; const cliffInMonths : nat; const s : vestingStorageType) : vesteeRecordType is 
 block {
+    
+    var nextRedemptionTimestamp : timestamp := Tezos.get_now();
+    if cliffInMonths > 0n then {
+        nextRedemptionTimestamp := nextRedemptionTimestamp + (cliffInMonths * thirty_days);
+    }  else skip;
 
     const newVesteeRecord : vesteeRecordType = case s.vesteeLedger[vesteeAddress] of [
             Some(_record) -> failwith(error_VESTEE_ALREADY_EXISTS)
@@ -107,8 +112,8 @@ block {
             monthsClaimed            = 0n;                                        // claimed number of months   
             monthsRemaining          = vestingInMonths;                           // remaining number of months   
             
-            nextRedemptionTimestamp  = Tezos.get_now();                                 // timestamp of when vestee will be able to claim again (claim at start of period; if cliff exists, will be the same as end of cliff timestamp)
-            lastClaimedTimestamp     = Tezos.get_now();                                 // timestamp of when vestee last claimed
+            nextRedemptionTimestamp  = nextRedemptionTimestamp;                   // timestamp of when vestee will be able to claim again (claim at start of period; if cliff exists, will be the same as end of cliff timestamp)
+            lastClaimedTimestamp     = Tezos.get_now();                           // timestamp of when vestee last claimed
         ]
     ];    
 
