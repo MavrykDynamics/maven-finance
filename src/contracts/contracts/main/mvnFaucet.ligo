@@ -26,7 +26,7 @@
 
 type action is
 
-        // Default Entrypoint to Receive Tez
+        // Default Entrypoint to Receive Mav
         Default     of unit
 
         // Housekeeping Entrypoints
@@ -133,7 +133,7 @@ block{
     
     case action of [
             
-            // Default Entrypoint to Receive Tez
+            // Default Entrypoint to Receive Mav
             Default(_parameters)                -> ((nil : list(operation)), s)
             
             // Housekeeping Entrypoints

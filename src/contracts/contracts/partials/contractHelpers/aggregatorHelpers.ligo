@@ -151,8 +151,8 @@ block {
     if s.breakGlassConfig.updateDataIsPaused then skip
     else s.breakGlassConfig.updateDataIsPaused := True;
 
-    if s.breakGlassConfig.withdrawRewardXtzIsPaused then skip
-    else s.breakGlassConfig.withdrawRewardXtzIsPaused := True;
+    if s.breakGlassConfig.withdrawRewardMvrkIsPaused then skip
+    else s.breakGlassConfig.withdrawRewardMvrkIsPaused := True;
 
     if s.breakGlassConfig.withdrawRewardStakedMvnIsPaused then skip
     else s.breakGlassConfig.withdrawRewardStakedMvnIsPaused := True;
@@ -169,7 +169,7 @@ block {
     if s.breakGlassConfig.updateDataIsPaused then s.breakGlassConfig.updateDataIsPaused := False
     else skip;
 
-    if s.breakGlassConfig.withdrawRewardXtzIsPaused then s.breakGlassConfig.withdrawRewardXtzIsPaused := False
+    if s.breakGlassConfig.withdrawRewardMvrkIsPaused then s.breakGlassConfig.withdrawRewardMvrkIsPaused := False
     else skip;
 
     if s.breakGlassConfig.withdrawRewardStakedMvnIsPaused then s.breakGlassConfig.withdrawRewardStakedMvnIsPaused := False
@@ -187,13 +187,13 @@ block {
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get distributeRewardXtz entrypoint in factory contract
-function getDistributeRewardXtzInFactoryEntrypoint(const contractAddress : address) : contract(distributeRewardXtzType) is
+// helper function to get distributeRewardMvrk entrypoint in factory contract
+function getDistributeRewardMvrkInFactoryEntrypoint(const contractAddress : address) : contract(distributeRewardMvrkType) is
     case (Mavryk.get_entrypoint_opt(
-        "%distributeRewardXtz",
-        contractAddress) : option(contract(distributeRewardXtzType))) of [
+        "%distributeRewardMvrk",
+        contractAddress) : option(contract(distributeRewardMvrkType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(distributeRewardXtzType))
+            |   None -> (failwith(error_DISTRIBUTE_REWARD_MVRK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(distributeRewardMvrkType))
         ];
 
 
@@ -228,24 +228,24 @@ function getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(const contract
 // Operation Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to distribute xtz rewards
-function distributeRewardXtzOperation(const oracleAddress : address; const rewardAmount : nat; const s : aggregatorStorageType) : operation is
+// helper function to distribute mvrk rewards
+function distributeRewardMvrkOperation(const oracleAddress : address; const rewardAmount : nat; const s : aggregatorStorageType) : operation is
 block {
 
     const factoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
     
-    const distributeRewardXtzParams : distributeRewardXtzType = record [
+    const distributeRewardMvrkParams : distributeRewardMvrkType = record [
         recipient = oracleAddress;
         reward    = rewardAmount;
     ];
 
-    const distributeRewardXtzOperation : operation = Mavryk.transaction(
-        distributeRewardXtzParams,
+    const distributeRewardMvrkOperation : operation = Mavryk.transaction(
+        distributeRewardMvrkParams,
         0mav,
-        getDistributeRewardXtzInFactoryEntrypoint(factoryAddress)
+        getDistributeRewardMvrkInFactoryEntrypoint(factoryAddress)
     );
 
-} with distributeRewardXtzOperation
+} with distributeRewardMvrkOperation
 
 
 
@@ -315,16 +315,16 @@ block {
 
 
 
-// helper function to get current oracle xtz rewards
-function getOracleXtzRewards(const oracleAddress : address; const s : aggregatorStorageType) : nat is 
+// helper function to get current oracle mvrk rewards
+function getOracleMvrkRewards(const oracleAddress : address; const s : aggregatorStorageType) : nat is 
 block {
 
-    const oracleXtzRewards : nat = case s.oracleRewardXtz[oracleAddress] of [
+    const oracleMvrkRewards : nat = case s.oracleRewardMvrk[oracleAddress] of [
             Some (_amount) -> (_amount) 
         |   None           -> 0n 
     ];
 
-} with oracleXtzRewards
+} with oracleMvrkRewards
 
 
 
@@ -616,19 +616,19 @@ block {
 
 
 
-// helper function to update sender's XTZ rewards
-function updateRewardsXtz (var s : aggregatorStorageType) : aggregatorStorageType is 
+// helper function to update sender's MVRK rewards
+function updateRewardsMvrk (var s : aggregatorStorageType) : aggregatorStorageType is 
 block {
     
-    // Set XTZ reward for oracle
-    const rewardAmountXtz : nat  = s.config.rewardAmountXtz;
-    if rewardAmountXtz > 0n then {
+    // Set MVRK reward for oracle
+    const rewardAmountMvrk : nat  = s.config.rewardAmountMvrk;
+    if rewardAmountMvrk > 0n then {
 
-        // get current oracle xtz rewards
-        const currentOracleXtzRewards : nat = getOracleXtzRewards(Mavryk.get_sender(), s);
+        // get current oracle mvrk rewards
+        const currentOracleMvrkRewards : nat = getOracleMvrkRewards(Mavryk.get_sender(), s);
 
         // increment oracle rewards in storage
-        s.oracleRewardXtz[Mavryk.get_sender()] := currentOracleXtzRewards + rewardAmountXtz;
+        s.oracleRewardMvrk[Mavryk.get_sender()] := currentOracleMvrkRewards + rewardAmountMvrk;
 
     } else skip;
 
@@ -736,7 +736,7 @@ block {
     // If the sender is still an oracle, the rewards can be calculated
     if Map.mem(satelliteAddress, s.oracleLedger) then {
         s   := updateRewardsStakedMvn(updateDataParams.oracleObservations, tempOracleVotingPowerMap, totalVotingPower, s);
-        s   := updateRewardsXtz(s);
+        s   := updateRewardsMvrk(s);
     }
 
 } with (updateDataParams, s)

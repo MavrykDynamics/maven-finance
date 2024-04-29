@@ -179,8 +179,8 @@ block {
                 if s.breakGlassConfig.distributeRewardStakedMvnIsPaused then skip
                 else s.breakGlassConfig.distributeRewardStakedMvnIsPaused := True;
 
-                if s.breakGlassConfig.distributeRewardXtzIsPaused then skip
-                else s.breakGlassConfig.distributeRewardXtzIsPaused := True;
+                if s.breakGlassConfig.distributeRewardMvrkIsPaused then skip
+                else s.breakGlassConfig.distributeRewardMvrkIsPaused := True;
 
                 for aggregatorAddress in set s.trackedAggregators
                 block {
@@ -223,7 +223,7 @@ block {
                 if s.breakGlassConfig.distributeRewardStakedMvnIsPaused then s.breakGlassConfig.distributeRewardStakedMvnIsPaused := False
                 else skip;
 
-                if s.breakGlassConfig.distributeRewardXtzIsPaused then s.breakGlassConfig.distributeRewardXtzIsPaused := False
+                if s.breakGlassConfig.distributeRewardMvrkIsPaused then s.breakGlassConfig.distributeRewardMvrkIsPaused := False
                 else skip;
 
                 for aggregatorAddress in set s.trackedAggregators
@@ -256,7 +256,7 @@ block {
                         CreateAggregator (_v)             -> s.breakGlassConfig.createAggregatorIsPaused := _v
                     |   UntrackAggregator (_v)            -> s.breakGlassConfig.untrackAggregatorIsPaused := _v
                     |   TrackAggregator (_v)              -> s.breakGlassConfig.trackAggregatorIsPaused := _v
-                    |   DistributeRewardXtz (_v)          -> s.breakGlassConfig.distributeRewardXtzIsPaused := _v
+                    |   DistributeRewardMvrk (_v)          -> s.breakGlassConfig.distributeRewardMvrkIsPaused := _v
                     |   DistributeRewardStakedMvn (_v)    -> s.breakGlassConfig.distributeRewardStakedMvnIsPaused := _v
                 ]
                 
@@ -433,36 +433,36 @@ block{
 // Aggregator Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(*  distributeRewardXtz lambda  *)
-function lambdaDistributeRewardXtz(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
+(*  distributeRewardMvrk lambda  *)
+function lambdaDistributeRewardMvrk(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block{
 
     // Steps Overview:
     // 1. Standard checks
-    //      -   Check that %distributeRewardXtz entrypoint is not paused (e.g. glass broken)
+    //      -   Check that %distributeRewardMvrk entrypoint is not paused (e.g. glass broken)
     //      -   Check that sender is from a tracked Aggregator Contract
     // 2. Get Aggregator Treasury Contract Address from the General Contracts Map on the Governance Contract
-    // 3. Create operation to transfer XTZ reward from Aggregator Treasury to oracle recipient
+    // 3. Create operation to transfer MVRK reward from Aggregator Treasury to oracle recipient
 
 
-    // Check that %distributeRewardXtz entrypoint is not paused (e.g. glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.distributeRewardXtzIsPaused, error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED);
+    // Check that %distributeRewardMvrk entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.distributeRewardMvrkIsPaused, error_DISTRIBUTE_REWARD_MVRK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
     case aggregatorFactoryLambdaAction of [
-        |   LambdaDistributeRewardXtz(distributeRewardXtzParams) -> {
+        |   LambdaDistributeRewardMvrk(distributeRewardMvrkParams) -> {
                 
                 // Verify that sender is from a tracked Aggregator Contract
                 verifySenderIsTrackedAggregators(s);
 
                 // init params
-                const recipient          : address    = distributeRewardXtzParams.recipient;
-                const reward             : nat        = distributeRewardXtzParams.reward;
+                const recipient          : address    = distributeRewardMvrkParams.recipient;
+                const reward             : nat        = distributeRewardMvrkParams.reward;
 
-                // Create operation to distribute XTZ reward from Aggregator Treasury to oracle recipient (satellite)
-                const distributeRewardXtzOperation : operation = distributeRewardXtzOperation(recipient, reward, s);
-                operations := distributeRewardXtzOperation # operations;
+                // Create operation to distribute MVRK reward from Aggregator Treasury to oracle recipient (satellite)
+                const distributeRewardMvrkOperation : operation = distributeRewardMvrkOperation(recipient, reward, s);
+                operations := distributeRewardMvrkOperation # operations;
 
             }
         |   _ -> skip

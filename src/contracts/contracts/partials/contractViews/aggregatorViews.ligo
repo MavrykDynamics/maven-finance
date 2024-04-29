@@ -64,9 +64,9 @@
 
 
 
-(* View: get oracle reward xtz opt *)
-[@view] function getOracleRewardXtzOpt(const oracleAddress : address; const s : aggregatorStorageType) : option(nat) is
-    Big_map.find_opt(oracleAddress, s.oracleRewardXtz)
+(* View: get oracle reward mvrk opt *)
+[@view] function getOracleRewardMvrkOpt(const oracleAddress : address; const s : aggregatorStorageType) : option(nat) is
+    Big_map.find_opt(oracleAddress, s.oracleRewardMvrk)
 
 
 

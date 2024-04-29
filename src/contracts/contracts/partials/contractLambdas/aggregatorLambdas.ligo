@@ -146,7 +146,7 @@ block{
                     |   ConfigHeartbeatSeconds (_v)          -> s.config.heartbeatSeconds                     := updateConfigNewValue
                     
                     |   ConfigRewardAmountStakedMvn (_v)     -> s.config.rewardAmountStakedMvn                := updateConfigNewValue
-                    |   ConfigRewardAmountXtz (_v)           -> s.config.rewardAmountXtz                      := updateConfigNewValue
+                    |   ConfigRewardAmountMvrk (_v)           -> s.config.rewardAmountMvrk                      := updateConfigNewValue
                 ];
             }
         |   _ -> skip
@@ -360,7 +360,7 @@ block {
 
                 case params.targetEntrypoint of [
                         UpdateData (_v)                     -> s.breakGlassConfig.updateDataIsPaused                  := _v
-                    |   WithdrawRewardXtz (_v)              -> s.breakGlassConfig.withdrawRewardXtzIsPaused           := _v
+                    |   WithdrawRewardMvrk (_v)              -> s.breakGlassConfig.withdrawRewardMvrkIsPaused           := _v
                     |   WithdrawRewardStakedMvn (_v)        -> s.breakGlassConfig.withdrawRewardStakedMvnIsPaused     := _v
                 ]
                 
@@ -461,43 +461,43 @@ block{
 // Reward Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(*  withdrawRewardXtz entrypoint  *)
-function lambdaWithdrawRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
+(*  withdrawRewardMvrk entrypoint  *)
+function lambdaWithdrawRewardMvrk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
   // Steps Overview:
     // 1. Standard checks
-    //    - Check that %withdrawRewardXtz entrypoint is not paused (e.g. glass broken)
+    //    - Check that %withdrawRewardMvrk entrypoint is not paused (e.g. glass broken)
     //    - Check that entrypoint should not receive any mav amount   
     //    - Check that sender is an oracle registered on the aggregator
     //    - Check that satellite is not suspended or banned
-    // 2. Get oracle's XTZ reward amount 
+    // 2. Get oracle's MVRK reward amount 
     // 3. If reward amount is greater than 0, create an operation to the Aggregator Factory Contract to distribute the rewards
-    //    - Reset oracle XTZ rewards to zero and update storage
+    //    - Reset oracle MVRK rewards to zero and update storage
 
-    // Check that %withdrawRewardXtz entrypoint is not paused (e.g. glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.withdrawRewardXtzIsPaused, error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED);
+    // Check that %withdrawRewardMvrk entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.withdrawRewardMvrkIsPaused, error_WITHDRAW_REWARD_MVRK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [
-        |   LambdaWithdrawRewardXtz(oracleAddress) -> {
+        |   LambdaWithdrawRewardMvrk(oracleAddress) -> {
 
                 // Verify that satellite is not suspended or banned
                 verifySatelliteIsNotSuspendedOrBanned(oracleAddress, s);
                 
-                // Get oracle's XTZ reward amount 
-                const reward : nat = getOracleXtzRewards(oracleAddress, s);
+                // Get oracle's MVRK reward amount 
+                const reward : nat = getOracleMvrkRewards(oracleAddress, s);
 
                 // If reward amount is greater than 0, create an operation to the Aggregator Factory Contract to distribute the rewards
                 if (reward > 0n) then {
 
-                    // distribute reward xtz operation to oracle
-                    const distributeRewardXtzOperation : operation = distributeRewardXtzOperation(oracleAddress, reward, s);
-                    operations := distributeRewardXtzOperation # operations;
+                    // distribute reward mvrk operation to oracle
+                    const distributeRewardMvrkOperation : operation = distributeRewardMvrkOperation(oracleAddress, reward, s);
+                    operations := distributeRewardMvrkOperation # operations;
                     
-                    // Reset oracle XTZ rewards to zero and update storage
-                    s.oracleRewardXtz[oracleAddress] := 0n;
+                    // Reset oracle MVRK rewards to zero and update storage
+                    s.oracleRewardMvrk[oracleAddress] := 0n;
 
                 } else skip;
             }

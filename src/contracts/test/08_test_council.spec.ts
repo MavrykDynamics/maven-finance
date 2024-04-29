@@ -804,7 +804,7 @@ describe("Test: Council Contract", async () => {
             }
         });
 
-        it('%councilActionTransfer         - council member (eve) should not be able to  not be able to create a new council action for transfers if the given tokenType is not FA12, FA2 or XTZ', async () => {
+        it('%councilActionTransfer         - council member (eve) should not be able to  not be able to create a new council action for transfers if the given tokenType is not FA12, FA2 or MVRK', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -895,7 +895,7 @@ describe("Test: Council Contract", async () => {
         });
 
 
-        it('%councilActionRequestTokens    - council member (eve) should not be able to create a new council action for the request of tokens if the given tokenType is not FA12, FA2 or XTZ', async () => {
+        it('%councilActionRequestTokens    - council member (eve) should not be able to create a new council action for the request of tokens if the given tokenType is not FA12, FA2 or MVRK', async () => {
             try{
                 // Initial Values
                 councilStorage              = await councilInstance.storage();
@@ -3127,7 +3127,7 @@ describe("Test: Council Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await councilInstance.methods.updateMetadata(key, hash).send();
@@ -3403,7 +3403,7 @@ describe("Test: Council Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 councilStorage       = await councilInstance.storage();   
                 const initialMetadata   = await councilStorage.metadata.get(key);

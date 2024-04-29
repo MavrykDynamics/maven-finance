@@ -534,8 +534,8 @@ block {
                 loanTokenRecord.rawMTokensTotalSupply     := loanTokenRecord.rawMTokensTotalSupply + amount;
                 loanTokenRecord.totalRemaining   := loanTokenRecord.totalRemaining + amount;
 
-                // send tokens to token pool (self address) operation / skip if loan token name is tez
-                if loanTokenName = "tez" then {
+                // send tokens to token pool (self address) operation / skip if loan token name is mav
+                if loanTokenName = "mav" then {
 
                     if Mavryk.get_amount() = (amount * 1mumav) then skip else failwith(error_INCORRECT_LOAN_TOKEN_AMOUNT_SENT);
 
@@ -544,7 +544,7 @@ block {
                         initiator,                  // from_
                         Mavryk.get_self_address(),   // to_    
                         amount,                     // amount
-                        loanTokenRecord.tokenType   // token type (e.g. tez, fa12, fa2)
+                        loanTokenRecord.tokenType   // token type (e.g. mav, fa12, fa2)
                     );
                     operations := sendTokensToTokenPoolOperation # operations;
                 };
@@ -630,7 +630,7 @@ block {
                     Mavryk.get_self_address(),   // from_
                     initiator,                  // to_    
                     amount,                     // amount
-                    loanTokenType               // token type (e.g. tez, fa12, fa2)
+                    loanTokenType               // token type (e.g. mav, fa12, fa2)
                 );
                 operations := sendTokensToInitiatorOperation # operations;
 
@@ -696,11 +696,11 @@ block {
                     // init final token balance var
                     var finalTokenBalance  : nat := collateralTokenBalance;
                     
-                    if collateralTokenName = "tez" then block {
+                    if collateralTokenName = "mav" then block {
 
                         if finalTokenBalance > 0n then {
-                            const transferTezOperation : operation = transferTez( (Mavryk.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), finalTokenBalance * 1mumav );
-                            operations := transferTezOperation # operations;
+                            const transferMavOperation : operation = transferMav( (Mavryk.get_contract_with_error(vaultOwner, "Error. Unable to send mav.") : contract(unit)), finalTokenBalance * 1mumav );
+                            operations := transferMavOperation # operations;
                         } else skip;
 
                         vault.collateralBalanceLedger[collateralTokenName]  := 0n;
@@ -766,9 +766,9 @@ block {
                         // save and update balance for collateral token to zero
                         vault.collateralBalanceLedger[collateralTokenName]  := 0n;
 
-                    }; // end if/else check for tez/token
+                    }; // end if/else check for mav/token
 
-                }; // end loop for withdraw operations of tez/tokens in vault collateral 
+                }; // end loop for withdraw operations of mav/tokens in vault collateral 
 
 
                 // remove vault from storage
@@ -1203,7 +1203,7 @@ block {
                 // ------------------------------------------------------------------
                 
                 // Check if token is mav or exists in collateral token ledger
-                if tokenName = "tez" then skip else {
+                if tokenName = "mav" then skip else {
                     checkCollateralTokenExists(tokenName, s)    
                 };
 

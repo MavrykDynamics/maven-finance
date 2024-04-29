@@ -154,7 +154,7 @@ block {
                     block{
 
                         const transferTokenOperation : operation = case transferParam.token of [
-                            |   Tez         -> transferTez((Mavryk.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mumav)
+                            |   Mav         -> transferMav((Mavryk.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mumav)
                             |   Fa12(token) -> transferFa12Token(Mavryk.get_self_address(), transferParam.to_, transferParam.amount, token)
                             |   Fa2(token)  -> transferFa2Token(Mavryk.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                         ];
@@ -341,7 +341,7 @@ block{
                     const tokenType : tokenType = collateralTokenRecord.tokenType;
 
                     // if mav is sent, check that it matches the amount listed
-                    if tokenName = "tez" then {
+                    if tokenName = "mav" then {
                         if Mavryk.get_amount() = (amount * 1mumav) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
                     } else skip;
 
@@ -354,7 +354,7 @@ block{
                     ) # operationList;
 
                     // process deposit from sender to vault address
-                    if tokenName =/= "tez" then {
+                    if tokenName =/= "mav" then {
                         
                         const processVaultDepositOperation : operation = processVaultCollateralTransfer(
                             Mavryk.get_sender(),         // from_
