@@ -572,11 +572,11 @@ block {
 
     const tokenPoolTransferOperation : operation = case token of [
         
-        |   Tez(_tez) -> {
+        |   Mav(_mav) -> {
 
-                const transferTezOperation : operation = transferTez( (Mavryk.get_contract_with_error(to_, "Error. Unable to send tez.") : contract(unit)), amount * 1mumav );
+                const transferMavOperation : operation = transferMav( (Mavryk.get_contract_with_error(to_, "Error. Unable to send mav.") : contract(unit)), amount * 1mumav );
             
-            } with transferTezOperation
+            } with transferMavOperation
 
         |   Fa12(_token) -> {
 

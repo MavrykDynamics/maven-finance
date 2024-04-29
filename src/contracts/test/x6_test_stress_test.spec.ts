@@ -134,12 +134,12 @@ describe("Stress tests", async () => {
                 }
             }
 
-            // Transfer TEZ and MVN for each user
+            // Transfer MAV and MVN for each user
             await signerFactory(tezos, adminSk);
             mvnTokenStorage             = await mvnTokenInstance.storage();
             const mainUserMVNBalance    = await mvnTokenStorage.ledger.get(admin);
             const batchSize             = 50
-            const tezAmount             = 50
+            const mavAmount             = 50
             const userAmount            = randomUserAccounts.length;
             const mvnAmount             = Math.trunc((mainUserMVNBalance.div(userAmount + 1)).div(MVN()).toNumber());
             const batchesCount          = Math.ceil(userAmount / batchSize);
@@ -161,11 +161,11 @@ describe("Stress tests", async () => {
                             token_id: 0,
                             amount: MVN(mvnAmount),
                         })
-                        // Transfer only if receiver has less than 1XTZ
+                        // Transfer only if receiver has less than 1MVRK
                         const userBalance   = await utils.tezos.tz.getBalance(account.pkh);
-                        if(userBalance.toNumber() < tezAmount){
-                            batch.withTransfer({ to: account.pkh, amount: tezAmount })
-                            const transferEstimation    = await utils.tezos.estimate.transfer({ to: account.pkh, amount: tezAmount })
+                        if(userBalance.toNumber() < mavAmount){
+                            batch.withTransfer({ to: account.pkh, amount: mavAmount })
+                            const transferEstimation    = await utils.tezos.estimate.transfer({ to: account.pkh, amount: mavAmount })
                             console.log("Transfer estimation for",account.pkh,":",transferEstimation)
                         }
                     }
@@ -548,7 +548,7 @@ describe("Stress tests", async () => {
                         const account: any  = randomUserAccounts[index];
 
                         if ((index) < (batchSize * (i + 1)) && ((index) >= batchSize * i)){
-                            // Transfer only if receiver as less than 1XTZ
+                            // Transfer only if receiver as less than 1MVRK
                             const userLPRecord  = await lpTokenStorage.ledger.get(account.pkh);
                             const userLPBalance = userLPRecord !== undefined ? userLPRecord.balance.toNumber() : 0;
                             if(userLPBalance < 1){

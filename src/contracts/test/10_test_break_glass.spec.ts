@@ -2613,7 +2613,7 @@ describe("Test: Break Glass Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await breakGlassInstance.methods.updateMetadata(key, hash).send();
@@ -2898,7 +2898,7 @@ describe("Test: Break Glass Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 breakGlassStorage  = await breakGlassInstance.storage();   
                 const initialMetadata       = await breakGlassStorage.metadata.get(key);

@@ -73,7 +73,7 @@ function checkSenderIsAdmin(const s : mTokenStorageType) : unit is
 
 
 function checkNoAmount(const _p : unit) : unit is
-    if Mavryk.get_amount() =/= 0mav then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
+    if Mavryk.get_amount() =/= 0mav then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_MAV)
     else unit
 
 
@@ -430,7 +430,7 @@ block {
         block{
 
             const transferTokenOperation : operation = case transferParam.token of [
-                |   Tez         -> transferTez((Mavryk.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mumav)
+                |   Mav         -> transferMav((Mavryk.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mumav)
                 |   Fa12(token) -> transferFa12Token(Mavryk.get_self_address(), transferParam.to_, transferParam.amount, token)
                 |   Fa2(token)  -> transferFa2Token(Mavryk.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
             ];
@@ -748,7 +748,7 @@ block {
 function main (const action : action; const s : mTokenStorageType) : return is
 block{
 
-    checkNoAmount(Unit); // Check that sender didn't send any tezos while calling an entrypoint
+    checkNoAmount(Unit); // Check that sender didn't send any mavryk while calling an entrypoint
 
 } with(
     

@@ -47,11 +47,11 @@ block {
 
 
 
-// helper function to validate token type (FA12, FA2, TEZ)
+// helper function to validate token type (FA12, FA2, MAV)
 function validateTokenType(const tokenType : string) : unit is 
 block {
 
-    if tokenType = "FA12" or tokenType = "FA2" or tokenType = "TEZ" 
+    if tokenType = "FA12" or tokenType = "FA2" or tokenType = "MAV" 
     then skip
     else failwith(error_WRONG_TOKEN_TYPE_PROVIDED);
 
@@ -63,8 +63,8 @@ block {
 function validateWhitelistedToken(const tokenType : string; const tokenContractAddress : address; const s : governanceFinancialStorageType) : unit is
 block {
     
-    // fail if token type is not tez, and not whitelisted 
-    if tokenType =/= "TEZ" and not checkInWhitelistTokenContracts(tokenContractAddress, s.whitelistTokenContracts) 
+    // fail if token type is not mav, and not whitelisted 
+    if tokenType =/= "MAV" and not checkInWhitelistTokenContracts(tokenContractAddress, s.whitelistTokenContracts) 
     then failwith(error_TOKEN_NOT_WHITELISTED) 
     else skip;
 
@@ -204,7 +204,7 @@ block{
 
     if requestType = "TRANSFER" or requestType = "MINT" then  block {
 
-        // Validate token type : has to match one standard (FA12, FA2, TEZ)
+        // Validate token type : has to match one standard (FA12, FA2, MAV)
         validateTokenType(tokenType);
 
         // If token, validate that token is whitelisted (security measure to prevent interacting with potentially malicious contracts)
@@ -271,8 +271,8 @@ block{
 function formatTokenTransferType(const financialRequestRecord : financialRequestRecordType) : tokenType is 
 block {
 
-    // init token transfer type to tez
-    var tokenTransferType : tokenType := Tez;
+    // init token transfer type to mav
+    var tokenTransferType : tokenType := Mav;
 
     // set to FA12 or FA2 token type depending on request record's token type
     if  financialRequestRecord.tokenType = "FA12" 

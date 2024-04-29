@@ -7,7 +7,7 @@ import { aggregatorStorageType } from './storageTypes/aggregatorStorageType'
 
 const breakGlassConfig = {
     updateDataIsPaused                 : false,
-    withdrawRewardXtzIsPaused           : false,
+    withdrawRewardMvrkIsPaused           : false,
     withdrawRewardStakedMvnIsPaused     : false
 }
 
@@ -19,11 +19,11 @@ const config = {
     heartbeatSeconds                    : new BigNumber(300),
     
     rewardAmountStakedMvn               : new BigNumber(10000000), // 0.01 MVN
-    rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 mav 
+    rewardAmountMvrk                     : new BigNumber(1300),     // ~0.0013 mav 
 }
 
 const metadata = MichelsonMap.fromLiteral({
-    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
         name: 'MAVEN Aggregator Contract',
@@ -63,7 +63,7 @@ export const aggregatorStorage: aggregatorStorageType = {
     lastCompletedData         : lastCompletedData,
 
     oracleRewardStakedMvn     : MichelsonMap.fromLiteral({}),
-    oracleRewardXtz           : MichelsonMap.fromLiteral({}),
+    oracleRewardMvrk           : MichelsonMap.fromLiteral({}),
 
     lambdaLedger              : MichelsonMap.fromLiteral({}),
 

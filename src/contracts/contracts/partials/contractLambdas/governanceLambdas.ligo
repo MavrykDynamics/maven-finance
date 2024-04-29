@@ -584,7 +584,7 @@ block {
     //      -   Check that satellite exists and is not suspended or banned
     //      -   Check that satellite snapshot exists (taken when proposal round was started)
     // 3. Process Proposal Submission Fee
-    //      -   Check if Tez sent is equal to the required proposal submission fee
+    //      -   Check if Mav sent is equal to the required proposal submission fee
     //      -   Get Tax Treasury from General Contracts map
     //      -   Create operation to transfer submission fee to treasury
     // 4. Validation Checks
@@ -640,7 +640,7 @@ block {
 
                 // Create operation to transfer submission fee to treasury
                 const treasuryContract : contract(unit) = Mavryk.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
-                const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Mavryk.get_amount());
+                const transferFeeToTreasuryOperation : operation = transferMav(treasuryContract, Mavryk.get_amount());
                 
                 operations := transferFeeToTreasuryOperation # operations;
                 

@@ -40,10 +40,10 @@ describe('Lending Controller Supporting Contracts', async () => {
     var utils: Utils
     var mTokenUsdt                      
     var mTokenEurt                      
-    var mTokenXtz                       
+    var mTokenMvrk                       
     var mTokenTzBtc
 
-    var mockUsdXtzAggregator            
+    var mockUsdMvrkAggregator            
     var mockUsdMockFa12TokenAggregator  
     var mockUsdMockFa2TokenAggregator   
     var mockUsdMvnAggregator            
@@ -85,13 +85,13 @@ describe('Lending Controller Supporting Contracts', async () => {
             await saveContractAddress("mTokenEurtAddress", mTokenEurt.contract.address)
 
 
-            // mToken for XTZ in Lending Controller Token Pool 
-            mTokenStorage.loanToken      = mTokenMockData.mTokenTez.loanToken;
-            mTokenStorage.metadata       = mTokenMockData.mTokenTez.metadata;
-            mTokenStorage.token_metadata = mTokenMockData.mTokenTez.token_metadata;
+            // mToken for MVRK in Lending Controller Token Pool 
+            mTokenStorage.loanToken      = mTokenMockData.mTokenMav.loanToken;
+            mTokenStorage.metadata       = mTokenMockData.mTokenMav.metadata;
+            mTokenStorage.token_metadata = mTokenMockData.mTokenMav.token_metadata;
 
-            mTokenXtz = await GeneralContract.originate(utils.tezos, "mTokenXtz", mTokenStorage);
-            await saveContractAddress("mTokenXtzAddress", mTokenXtz.contract.address)
+            mTokenMvrk = await GeneralContract.originate(utils.tezos, "mTokenMvrk", mTokenStorage);
+            await saveContractAddress("mTokenMvrkAddress", mTokenMvrk.contract.address)
 
 
             // mToken for tzBtc in Lending Controller Token Pool 
@@ -130,7 +130,7 @@ describe('Lending Controller Supporting Contracts', async () => {
                 heartbeatSeconds                    : new BigNumber(30),
                 
                 rewardAmountStakedMvn               : new BigNumber(10000000), // 0.01 MVN
-                rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 mav 
+                rewardAmountMvrk                     : new BigNumber(1300),     // ~0.0013 mav 
             };
             aggregatorStorage.oracleLedger      = oracleMap;
             aggregatorStorage.mvnTokenAddress   = contractDeployments.mvnToken.address;
@@ -163,7 +163,7 @@ describe('Lending Controller Supporting Contracts', async () => {
             await saveContractAddress('mockUsdMockFa2TokenAggregatorAddress', mockUsdMockFa2TokenAggregator.contract.address)
 
 
-            // Mock USD/Xtz Aggregator
+            // Mock USD/Mvrk Aggregator
             aggregatorStorage.lastCompletedData = {
                 round                   : new BigNumber(0),
                 epoch                   : new BigNumber(0),
@@ -172,8 +172,8 @@ describe('Lending Controller Supporting Contracts', async () => {
                 lastUpdatedAt           : '1'
             };
 
-            mockUsdXtzAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
-            await saveContractAddress('mockUsdXtzAggregatorAddress', mockUsdXtzAggregator.contract.address)
+            mockUsdMvrkAggregator = await GeneralContract.originate(utils.tezos, "aggregator", aggregatorStorage);
+            await saveContractAddress('mockUsdMvrkAggregatorAddress', mockUsdMvrkAggregator.contract.address)
 
 
             //----------------------------
@@ -202,7 +202,7 @@ describe('Lending Controller Supporting Contracts', async () => {
             // Aggregator Setup Lambdas
             await setGeneralContractLambdas(tezos, "aggregator", mockUsdMockFa12TokenAggregator.contract);
             await setGeneralContractLambdas(tezos, "aggregator", mockUsdMockFa2TokenAggregator.contract);
-            await setGeneralContractLambdas(tezos, "aggregator", mockUsdXtzAggregator.contract);
+            await setGeneralContractLambdas(tezos, "aggregator", mockUsdMvrkAggregator.contract);
             await setGeneralContractLambdas(tezos, "aggregator", mockUsdMvnAggregator.contract);
           
         } catch(e){

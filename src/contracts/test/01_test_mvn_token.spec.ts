@@ -1094,7 +1094,7 @@ describe('Test: MVN Token Contract', async () => {
             }
         })
 
-        it("user (eve) should not be able to send Tez and mint MVN to another user (alice) in a single transaction even if she is whitelisted", async () => {
+        it("user (eve) should not be able to send Mav and mint MVN to another user (alice) in a single transaction even if she is whitelisted", async () => {
             try {
                 
                 // init
