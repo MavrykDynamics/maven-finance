@@ -42,7 +42,7 @@
 // Council Main Entrypoint Actions
 type councilAction is 
 
-        // Default Entrypoint to Receive Tez
+        // Default Entrypoint to Receive Mav
         Default                                     of unit
 
         // Housekeeping Actions
@@ -124,7 +124,7 @@ function main (const action : councilAction; const s : councilStorageType) : ret
 
     case action of [
       
-            // Default Entrypoint to Receive Tez
+            // Default Entrypoint to Receive Mav
             Default(_parameters)                          -> ((nil : list(operation)), s)
 
             // Housekeeping Actions

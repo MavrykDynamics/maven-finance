@@ -152,7 +152,7 @@ function verifyCorrectFee(const s : emergencyGovernanceStorageType) : unit is
 block {
 
     if Mavryk.get_amount() =/= s.config.requiredFeeMumav 
-    then failwith(error_INCORRECT_TEZ_FEE) 
+    then failwith(error_INCORRECT_MAV_FEE) 
     else skip;
 
 } with unit
@@ -265,7 +265,7 @@ block {
 
     // Transfer fee to Treasury
     const treasuryContract : contract(unit) = Mavryk.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
-    const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Mavryk.get_amount());
+    const transferFeeToTreasuryOperation : operation = transferMav(treasuryContract, Mavryk.get_amount());
 
 } with transferFeeToTreasuryOperation
 

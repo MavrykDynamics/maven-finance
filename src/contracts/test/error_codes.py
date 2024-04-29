@@ -4,8 +4,8 @@
 
 
 
-error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                                                 = 0
-error_INCORRECT_TEZ_FEE                                                                                 = 1
+error_ENTRYPOINT_SHOULD_NOT_RECEIVE_MAV                                                                 = 0
+error_INCORRECT_MAV_FEE                                                                                 = 1
 
 error_LAMBDA_NOT_FOUND                                                                                  = 2
 error_UNABLE_TO_UNPACK_LAMBDA                                                                           = 3
@@ -835,7 +835,7 @@ error_ORACLE_NOT_PRESENT_IN_AGGREGATOR                                          
 
 
 error_UPDATE_DATA_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                              = 603
-error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 604
+error_WITHDRAW_REWARD_MVRK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 604
 error_WITHDRAW_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                               = 605
 
 
@@ -856,7 +856,7 @@ error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND       
 
 error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                   = 619
 error_SET_OBSERVATION_REVEAL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                = 620
-error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                   = 621
+error_WITHDRAW_REWARD_MVRK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                   = 621
 error_WITHDRAW_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                            = 622
 error_MISTAKEN_TRANSFER_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                     = 623
 error_SET_LAMBDA_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                            = 624
@@ -870,7 +870,7 @@ error_GET_WHITELIST_CONTRACTS_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND             
 error_GET_GENERAL_CONTRACTS_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                       = 630
 error_GET_ORACLE_ADDRESSES_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                        = 631
 error_GET_ORACLE_REWARDS_STAKED_MVN_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                               = 632
-error_GET_ORACLE_REWARDS_XTZ_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                      = 633
+error_GET_ORACLE_REWARDS_MVRK_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                      = 633
 error_GET_LAST_COMPLETED_DATA_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                     = 634
 error_GET_DECIMALS_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                                = 635
 error_GET_CONTRACT_NAME_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                           = 636
@@ -909,7 +909,7 @@ error_ROUND_SHOULD_BE_GREATER_THAN_PREVIOUS_RESULT                              
 error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                                = 657
 error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                                 = 658
 error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                               = 659
-error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                            = 660
+error_DISTRIBUTE_REWARD_MVRK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                            = 660
 error_DISTRIBUTE_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                     = 661
 
 
@@ -925,7 +925,7 @@ error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUN
 error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                             = 671
 error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                              = 672
 error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                            = 673
-error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                         = 674
+error_DISTRIBUTE_REWARD_MVRK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                         = 674
 error_DISTRIBUTE_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                  = 675
 error_MISTAKEN_TRANSFER_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                             = 676
 error_SET_LAMBDA_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                                    = 677
@@ -1132,7 +1132,7 @@ error_VAULT_LAMBDA_NOT_FOUND_IN_VAULT_FACTORY_VAULT_LAMBDA_LEDGER               
 error_SET_ADMIN_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                  = 806
 error_SET_GOVERNANCE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                             = 807
 error_UPDATE_METADATA_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                            = 808
-error_DELEGATE_TEZ_TO_BAKER_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                      = 809
+error_DELEGATE_MAV_TO_BAKER_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                      = 809
 error_VAULT_DELEGATE_MVN_TO_SATELLITE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                            = 810
 error_VAULT_DEPOSIT_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                              = 811
 error_WITHDRAW_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                   = 812
@@ -1213,7 +1213,7 @@ error_REPAY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                    
 error_VAULT_DEPOSIT_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                       = 860
 error_VAULT_WITHDRAW_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                      = 861
 
-error_VAULT_DELEGATE_TEZ_TO_BAKER_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 862
+error_VAULT_DELEGATE_MAV_TO_BAKER_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 862
 error_VAULT_DELEGATE_MVN_TO_SAT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                   = 863
 error_VAULT_DEPOSIT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                               = 864
 error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                              = 865
@@ -1268,7 +1268,7 @@ error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS                           
 error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE                                                               = 900
 error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE                                                           = 901
 
-error_TEZOS_SENT_IS_NOT_EQUAL_TO_WITHDRAW_AMOUNT                                                        = 902
+error_MAVOS_SENT_IS_NOT_EQUAL_TO_WITHDRAW_AMOUNT                                                        = 902
 
 error_CANNOT_LIQUIDATE_MORE_THAN_TOTAL_COLLATERAL_BALANCE                                               = 903
 

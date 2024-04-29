@@ -4,7 +4,7 @@ import { BigNumber } from "bignumber.js"
 import { farmFactoryStorageType } from "./storageTypes/farmFactoryStorageType"
 
 const metadata = MichelsonMap.fromLiteral({
-    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
         name: 'MAVEN Farm Factory Contract',

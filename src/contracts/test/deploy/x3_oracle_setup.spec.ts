@@ -83,9 +83,9 @@ describe('Oracle Setup', async () => {
                     'ascii',
                 ).toString('hex')
 
-                const xtzUsdMetadata = Buffer.from(
+                const mvrkUsdMetadata = Buffer.from(
                     JSON.stringify({
-                        name: 'XTZ/USD Aggregator Contract',
+                        name: 'MVRK/USD Aggregator Contract',
                         icon: 'https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW',
                         version: 'v1.0.0',
                         authors: ['Maven Dev Team <info@mavryk.io>'],
@@ -132,14 +132,14 @@ describe('Oracle Setup', async () => {
                         new BigNumber(300),            // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvn
-                        new BigNumber(1300),          // rewardAmountXtz
+                        new BigNumber(1300),          // rewardAmountMvrk
                         
                         btcUsdMetadata                // metadata
 
                     ))
                     .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
         
-                        'XTZ/USD',
+                        'MVRK/USD',
                         true,
                         
                         oracleMap,
@@ -151,9 +151,9 @@ describe('Oracle Setup', async () => {
                         new BigNumber(300),           // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvn
-                        new BigNumber(1300),          // rewardAmountXtz
+                        new BigNumber(1300),          // rewardAmountMvrk
                         
-                        xtzUsdMetadata                // metadata
+                        mvrkUsdMetadata                // metadata
 
                     ))
                     .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
@@ -170,7 +170,7 @@ describe('Oracle Setup', async () => {
                         new BigNumber(300),           // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvn
-                        new BigNumber(1300),          // rewardAmountXtz
+                        new BigNumber(1300),          // rewardAmountMvrk
                         
                         usdtUsdMetadata               // metadata bytes
                         
@@ -189,7 +189,7 @@ describe('Oracle Setup', async () => {
                         new BigNumber(300),           // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvn
-                        new BigNumber(1300),          // rewardAmountXtz
+                        new BigNumber(1300),          // rewardAmountMvrk
                         
                         eurtUsdMetadata              // metadata
                         

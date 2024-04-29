@@ -70,7 +70,7 @@
 #include "../../contracts/partials/contractTypes/vaultFactoryTypes.ligo"
 
 type actionType is 
-        // Default Entrypoint to Receive Tez
+        // Default Entrypoint to Receive Mav
         Default                       of unit
     |   Empty                         of unit
 

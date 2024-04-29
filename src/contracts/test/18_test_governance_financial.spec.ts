@@ -686,7 +686,7 @@ describe("Test: Governance Financial Contract", async () => {
             } 
         });
 
-        it('%requestTokens                      - satellites should be able to approve a financial request to transfer XTZ to the Council', async () => {
+        it('%requestTokens                      - satellites should be able to approve a financial request to transfer MVRK to the Council', async () => {
             try{        
                 
                 // initial storage
@@ -701,7 +701,7 @@ describe("Test: Governance Financial Contract", async () => {
                 currentCycle                    = governanceStorage.cycleId;
 
                 // get initial mav balance
-                const initialCouncilTezBalance  = (await utils.tezos.tz.getBalance(councilAddress)).toNumber();
+                const initialCouncilMavBalance  = (await utils.tezos.tz.getBalance(councilAddress)).toNumber();
 
                 // get initial values of satellites
                 const initialSatelliteOneStakeRecord            = await doormanStorage.userStakeBalanceLedger.get(satelliteOne);
@@ -723,15 +723,15 @@ describe("Test: Governance Financial Contract", async () => {
                 const initialSatelliteThreeTotalVotingPower     = calcTotalVotingPower(delegationRatio, initialSatelliteThreeStakedBalance, initialSatelliteThreeTotalDelegatedAmount);
 
                 // request tokens params
-                const tokenAmount                   = 5000000; // 5 XTZ
+                const tokenAmount                   = 5000000; // 5 MVRK
                 const zeroAddress                   = "mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d";
                 const treasury                      = contractDeployments.treasury.address;
                 const receiverAddress               = councilAddress;
                 const tokenContractAddress          = zeroAddress;
-                const tokenName                     = "XTZ";
-                const tokenType                     = "TEZ";
+                const tokenName                     = "MVRK";
+                const tokenType                     = "MAV";
                 const tokenId                       = 0;
-                const purpose                       = "Test Council Request Transfer of 5 XTZ";            
+                const purpose                       = "Test Council Request Transfer of 5 MVRK";            
 
                 // Council member (eve) requests for MVN to be minted
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
@@ -842,7 +842,7 @@ describe("Test: Governance Financial Contract", async () => {
                 const updatedGovernanceFinancialRequest            = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
 
                 // get updated mav balance for council
-                const updatedCouncilTezBalance                     = (await utils.tezos.tz.getBalance(councilAddress)).toNumber();
+                const updatedCouncilMavBalance                     = (await utils.tezos.tz.getBalance(councilAddress)).toNumber();
                 
                 // check details of financial request snapshot ledger
                 const satelliteOneFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: satelliteOne});
@@ -866,8 +866,8 @@ describe("Test: Governance Financial Contract", async () => {
                 assert.equal(updatedGovernanceFinancialRequest.status,                               true);
                 assert.equal(updatedGovernanceFinancialRequest.executed,                             true);
 
-                // check that council now has 100 XTZ in its balance
-                assert.equal(updatedCouncilTezBalance, initialCouncilTezBalance + tokenAmount);
+                // check that council now has 100 MVRK in its balance
+                assert.equal(updatedCouncilMavBalance, initialCouncilMavBalance + tokenAmount);
 
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2906,7 +2906,7 @@ describe("Test: Governance Financial Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await governanceFinancialInstance.methods.updateMetadata(key, hash).send();
@@ -3555,7 +3555,7 @@ describe("Test: Governance Financial Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 governanceFinancialStorage       = await governanceFinancialInstance.storage();   
                 const initialMetadata   = await governanceFinancialStorage.metadata.get(key);

@@ -13,14 +13,14 @@ export const mockTokenData = {
     "mvnToken" : {
 
         "metadata": MichelsonMap.fromLiteral({
-            '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+            '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
             data: Buffer.from(
                 JSON.stringify({
                     name: 'MAVEN',
                     description: 'MAVEN Token',
                     authors: ['MAVEN Dev Team <info@mavryk.io>'],
                     source: {
-                        tools: ['Ligo', 'Flextesa'],
+                        tools: ['Ligo', 'Flexmasa'],
                         location: 'https://ligolang.org/',
                     },
                     interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
@@ -47,7 +47,7 @@ export const mockTokenData = {
                 description: 'MAVEN Token',
                 authors: ['MAVEN Dev Team <info@mavryk.io>'],
                 source: {
-                tools: ['Ligo', 'Flextesa'],
+                tools: ['Ligo', 'Flexmasa'],
                 location: 'https://ligolang.org/',
                 },
                 interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
@@ -76,14 +76,14 @@ export const mTokenMockData = {
 
         "loanToken": "usdt",
         "metadata": MichelsonMap.fromLiteral({
-            '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+            '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
             data: Buffer.from(
                 JSON.stringify({
                 version: 'v1.0.0',
                 description: 'Maven mUSDT Token',
                 authors: ['Maven Dev Team <info@mavryk.io>'],
                 source: {
-                    tools: ['Ligo', 'Flextesa'],
+                    tools: ['Ligo', 'Flexmasa'],
                     location: 'https://ligolang.org/',
                 },
                 interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
@@ -122,14 +122,14 @@ export const mTokenMockData = {
 
         "loanToken": "eurt",
         "metadata": MichelsonMap.fromLiteral({
-            '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+            '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
             data: Buffer.from(
                 JSON.stringify({
                 version: 'v1.0.0',
                 description: 'Maven mEURT Token',
                 authors: ['Maven Dev Team <info@mavryk.io>'],
                 source: {
-                    tools: ['Ligo', 'Flextesa'],
+                    tools: ['Ligo', 'Flexmasa'],
                     location: 'https://ligolang.org/',
                 },
                 interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
@@ -164,18 +164,18 @@ export const mTokenMockData = {
         })
     },
 
-    "mTokenTez": {
+    "mTokenMav": {
 
-        "loanToken": "tez",
+        "loanToken": "mav",
         "metadata": MichelsonMap.fromLiteral({
-            '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+            '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
             data: Buffer.from(
                 JSON.stringify({
                 version: 'v1.0.0',
-                description: 'Maven mXTZ Token',
+                description: 'Maven mMVRK Token',
                 authors: ['Maven Dev Team <info@mavryk.io>'],
                 source: {
-                    tools: ['Ligo', 'Flextesa'],
+                    tools: ['Ligo', 'Flexmasa'],
                     location: 'https://ligolang.org/',
                 },
                 interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
@@ -183,8 +183,8 @@ export const mTokenMockData = {
                 views: [],
                 assets: [
                     {
-                    symbol: Buffer.from('mXTZ').toString('hex'),
-                    name: Buffer.from('mXTZ').toString('hex'),
+                    symbol: Buffer.from('mMVRK').toString('hex'),
+                    name: Buffer.from('mMVRK').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
                     icon: Buffer.from('https://infura-ipfs.io/ipfs/QmaHqm92e6rCgw4eNFZ8SxJ5s9hsSgS5tJS4r4Af4zcy89').toString('hex'),
                     shouldPreferSymbol: true,
@@ -199,8 +199,8 @@ export const mTokenMockData = {
             0: {
                 token_id: '0',
                 token_info: MichelsonMap.fromLiteral({
-                    symbol: Buffer.from('mXTZ').toString('hex'),
-                    name: Buffer.from('mXTZ').toString('hex'),
+                    symbol: Buffer.from('mMVRK').toString('hex'),
+                    name: Buffer.from('mMVRK').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
                     icon: Buffer.from('https://infura-ipfs.io/ipfs/QmaHqm92e6rCgw4eNFZ8SxJ5s9hsSgS5tJS4r4Af4zcy89').toString('hex'),
                     shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
@@ -214,14 +214,14 @@ export const mTokenMockData = {
 
         "loanToken": "tzBtc",
         "metadata": MichelsonMap.fromLiteral({
-            '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+            '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
             data: Buffer.from(
                 JSON.stringify({
                 version: 'v1.0.0',
                 description: 'Maven mTzBTC Token',
                 authors: ['Maven Dev Team <info@mavryk.io>'],
                 source: {
-                    tools: ['Ligo', 'Flextesa'],
+                    tools: ['Ligo', 'Flexmasa'],
                     location: 'https://ligolang.org/',
                 },
                 interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
@@ -268,7 +268,7 @@ export const mockMetadata = {
     "aggregator": Buffer.from(
         JSON.stringify({
             name: 'MAVEN Aggregator Contract',
-            icon: 'https://logo.chainbit.xyz/xtz',
+            icon: 'https://logo.chainbit.xyz/mvrk',
             version: 'v1.0.0',
             authors: ['MAVEN Dev Team <info@mavryk.io>'],
         }),
@@ -337,7 +337,7 @@ export const aggregatorMockData = {
         metadata : Buffer.from(
             JSON.stringify({
                 name: 'MAVEN Aggregator Contract',
-                icon: 'https://logo.chainbit.xyz/xtz',
+                icon: 'https://logo.chainbit.xyz/mvrk',
                 version: 'v1.0.0',
                 authors: ['MAVEN Dev Team <info@mavryk.io>'],
             }),

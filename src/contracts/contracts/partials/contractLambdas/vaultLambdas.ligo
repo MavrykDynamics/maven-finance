@@ -8,18 +8,18 @@
 // Vault Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(* depositXtz lambda *)
-function lambdaDepositXtz(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
+(* depositMvrk lambda *)
+function lambdaDepositMvrk(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
 
     var operations : list(operation) := nil;
 
     case vaultLambdaAction of [
-        |   LambdaDepositXtz(_params) -> {
+        |   LambdaDepositMvrk(_params) -> {
 
                 // init deposit operation params
                 const amount     : nat        = (Mavryk.get_amount() / 1mumav);
-                const tokenName  : string     = "tez";
+                const tokenName  : string     = "mav";
 
                 // get collateral token record from Lending Controller through on-chain view
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
@@ -70,9 +70,9 @@ block {
                             verifySenderIsVaultOwner(s);
                             
                             // Create delegate to mav baker operation
-                            const delegateToTezBakerOperation : operation = Mavryk.set_delegate(optionKeyHash);
+                            const delegateToMavBakerOperation : operation = Mavryk.set_delegate(optionKeyHash);
                             
-                            operations := delegateToTezBakerOperation # operations;
+                            operations := delegateToMavBakerOperation # operations;
 
                         }
                     |   DelegateToSatellite(satelliteAddress) -> {
@@ -126,7 +126,7 @@ block {
 
                                 operations := registerDepositOperation # operations;
 
-                                if collateralTokenRecord.tokenName = "tez" then {
+                                if collateralTokenRecord.tokenName = "mav" then {
                                     if Mavryk.get_amount() = (amount * 1mumav) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
                                 } else {
                                     const processVaultDepositOperation : operation = processVaultTransfer(

@@ -1751,7 +1751,7 @@ describe("Test: Delegation Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await delegationInstance.methods.updateMetadata(key, hash).send();
@@ -2104,7 +2104,7 @@ describe("Test: Delegation Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 delegationStorage       = await delegationInstance.storage();   
                 const initialMetadata   = await delegationStorage.metadata.get(key);
