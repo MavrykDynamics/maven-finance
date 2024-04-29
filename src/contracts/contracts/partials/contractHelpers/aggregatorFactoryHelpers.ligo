@@ -113,18 +113,18 @@ block {
 
 
 
-// helper function to distribute reward xtz
-function distributeRewardXtzOperation(const recipient : address; const rewardAmount : nat; const s : aggregatorFactoryStorageType) : operation is 
+// helper function to distribute reward mvrk
+function distributeRewardMvrkOperation(const recipient : address; const rewardAmount : nat; const s : aggregatorFactoryStorageType) : operation is 
 block {
 
     // Get Aggregator Treasury Contract Address from the General Contracts Map on the Governance Contract
     const treasuryAddress : address = getContractAddressFromGovernanceContract("aggregatorTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
-    // set token type to Tez
-    const tokenTransferType : tokenType = Tez;
+    // set token type to Mav
+    const tokenTransferType : tokenType = Mav;
     
-    // Create operation to transfer XTZ reward from Aggregator Treasury to oracle recipient (satellite)
-    const distributeRewardXtzParams : transferActionType = list[
+    // Create operation to transfer MVRK reward from Aggregator Treasury to oracle recipient (satellite)
+    const distributeRewardMvrkParams : transferActionType = list[
         record [
             to_        = recipient;
             token      = tokenTransferType;
@@ -132,13 +132,13 @@ block {
         ]
     ];
 
-    const distributeRewardXtzOperation : operation = Mavryk.transaction(
-        distributeRewardXtzParams, 
+    const distributeRewardMvrkOperation : operation = Mavryk.transaction(
+        distributeRewardMvrkParams, 
         0mav, 
         sendTransferOperationToTreasury(treasuryAddress)
     );
 
-} with distributeRewardXtzOperation
+} with distributeRewardMvrkOperation
 
 
 
@@ -198,7 +198,7 @@ block {
         percentOracleResponse     = 0n;
         lastUpdatedAt             = Mavryk.get_now();
     ];
-    const oracleRewardXtz        : oracleRewardXtzType        = Big_map.empty;
+    const oracleRewardMvrk        : oracleRewardMvrkType        = Big_map.empty;
     const oracleRewardStakedMvn  : oracleRewardStakedMvnType  = Big_map.empty;
 
     // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
@@ -216,7 +216,7 @@ block {
 
     const aggregatorBreakGlassConfig : aggregatorBreakGlassConfigType = record[
         updateDataIsPaused                  = False;
-        withdrawRewardXtzIsPaused           = False;
+        withdrawRewardMvrkIsPaused           = False;
         withdrawRewardStakedMvnIsPaused     = False;
     ];
 
@@ -249,7 +249,7 @@ block {
         
         lastCompletedData         = lastCompletedData;
                             
-        oracleRewardXtz           = oracleRewardXtz;
+        oracleRewardMvrk           = oracleRewardMvrk;
         oracleRewardStakedMvn     = oracleRewardStakedMvn;      
 
         lambdaLedger              = aggregatorLambdaLedger;

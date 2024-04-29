@@ -68,7 +68,7 @@ type aggregatorFactoryAction is
     |   UntrackAggregator               of (address)
 
         // Aggregator Entrypoints
-    |   DistributeRewardXtz             of distributeRewardXtzType
+    |   DistributeRewardMvrk             of distributeRewardMvrkType
     |   DistributeRewardStakedMvn       of distributeRewardStakedMvnType
 
         // Lambda Entrypoints
@@ -143,7 +143,7 @@ block{
         |   UntrackAggregator (parameters)                -> untrackAggregator(parameters, s)
 
             // Aggregator Entrypoints
-        |   DistributeRewardXtz (parameters)              -> distributeRewardXtz(parameters, s)
+        |   DistributeRewardMvrk (parameters)              -> distributeRewardMvrk(parameters, s)
         |   DistributeRewardStakedMvn (parameters)        -> distributeRewardStakedMvn(parameters, s)
 
             // Lambda Entrypoints

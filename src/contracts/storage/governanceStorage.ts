@@ -14,7 +14,7 @@ const config = {
     minQuorumPercentage                 : 1000,
     minYayVotePercentage                : 5100,
 
-    proposalSubmissionFeeMumav          : 1000000, // 1 tez
+    proposalSubmissionFeeMumav          : 1000000, // 1 mav
     maxProposalsPerSatellite            : 20,
 
     newBlockTimeLevel                   : 0,
@@ -31,7 +31,7 @@ const config = {
 }
 
 const metadata = MichelsonMap.fromLiteral({
-    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
         name: 'MAVEN Governance Contract',

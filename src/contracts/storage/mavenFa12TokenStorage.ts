@@ -10,14 +10,14 @@ const initialSupply    = new BigNumber(totalSupply); // 20,000 MOCK FA12 Tokens 
 const singleUserSupply = new BigNumber(totalSupply / 4);
 
 const metadata = MichelsonMap.fromLiteral({
-    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
             version: 'v1.0.0',
             description: 'MAVEN FA12 TOKEN',
             authors: ['MAVEN Dev Team <info@mavryk.io>'],
             source: {
-                tools: ['Ligo', 'Flextesa'],
+                tools: ['Ligo', 'Flexmasa'],
                 location: 'https://ligolang.org/',
             },
             interfaces: ['TZIP-7'],

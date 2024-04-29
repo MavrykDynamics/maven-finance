@@ -310,7 +310,7 @@ block {
 
     if  tokenType = "FA12" or
         tokenType = "FA2"  or
-        tokenType = "TEZ" then skip
+        tokenType = "MAV" then skip
     else failwith(error_WRONG_TOKEN_TYPE_PROVIDED);
 
 } with unit
@@ -859,11 +859,11 @@ block {
     const amt    : nat       = tokenAmount;
     
     // ---- initialise and set token type ----
-    var _tokenTransferType : tokenType := Tez;
+    var _tokenTransferType : tokenType := Mav;
 
-    if tokenType = "TEZ" then block {
+    if tokenType = "MAV" then block {
         
-        _tokenTransferType      := (Tez: tokenType); 
+        _tokenTransferType      := (Mav: tokenType); 
 
     } else if tokenType = "FA12" then block {
         
@@ -881,7 +881,7 @@ block {
 
     // create transferTokenOperation
     const transferTokenOperation : operation = case _tokenTransferType of [ 
-        |   Tez         -> transferTez((Mavryk.get_contract_with_error(to_, "Error. Contract not found at given address") : contract(unit)), amt * 1mumav)
+        |   Mav         -> transferMav((Mavryk.get_contract_with_error(to_, "Error. Contract not found at given address") : contract(unit)), amt * 1mumav)
         |   Fa12(token) -> transferFa12Token(from_, to_, amt, token)
         |   Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
     ];

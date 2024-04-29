@@ -1163,7 +1163,7 @@ describe("Test: Doorman Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await doormanInstance.methods.updateMetadata(key, hash).send();
@@ -1626,7 +1626,7 @@ describe("Test: Doorman Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 doormanStorage          = await doormanInstance.storage();   
                 const initialMetadata   = await doormanStorage.metadata.get(key);

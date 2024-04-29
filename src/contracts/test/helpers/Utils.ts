@@ -74,8 +74,8 @@ export const MVN = (value : number = 1) => {
 
 
 
-// TEZ Formatter
-export const TEZ = (value: number = 1) => {
+// MAV Formatter
+export const MAV = (value: number = 1) => {
   return value * 10**6
 }
 

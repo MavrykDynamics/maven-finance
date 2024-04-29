@@ -10,7 +10,7 @@
 // Transfer Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function transferTez(const to_ : contract(unit); const amt : mav) : operation is Mavryk.transaction(unit, amt, to_)
+function transferMav(const to_ : contract(unit); const amt : mav) : operation is Mavryk.transaction(unit, amt, to_)
 
 
 function transferFa12Token(const from_ : address; const to_ : address; const tokenAmount : nat; const tokenContractAddress : address) : operation is
@@ -100,7 +100,7 @@ block {
 
     for transferDestination in list transferParams block {
         case transferDestination.token of [
-            |   Tez         -> skip
+            |   Mav         -> skip
             |   Fa12(token) -> if token = invalidTokenAddress then failwith(errorCode) else skip
             |   Fa2(token)  -> if token.tokenContractAddress = invalidTokenAddress then failwith(errorCode) else skip
         ]
@@ -115,7 +115,7 @@ function transferOperationFold(const transferParams : transferDestinationType; v
 block {
 
     const transferTokenOperation : operation = case transferParams.token of [
-        |   Tez         -> transferTez((Mavryk.get_contract_with_error(transferParams.to_, "Error. Contract not found at given address") : contract(unit)), transferParams.amount * 1mumav)
+        |   Mav         -> transferMav((Mavryk.get_contract_with_error(transferParams.to_, "Error. Contract not found at given address") : contract(unit)), transferParams.amount * 1mumav)
         |   Fa12(token) -> transferFa12Token(Mavryk.get_self_address(), transferParams.to_, transferParams.amount, token)
         |   Fa2(token)  -> transferFa2Token(Mavryk.get_self_address(), transferParams.to_, transferParams.amount, token.tokenId, token.tokenContractAddress)
     ];

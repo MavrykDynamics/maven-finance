@@ -1,5 +1,5 @@
 import assert from "assert";
-import { Utils, zeroAddress, TEZ } from "./helpers/Utils";
+import { Utils, zeroAddress, MAV } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -35,7 +35,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
     var utils: Utils
     let tezos
 
-    //  - eve: first vault loan token: mockFa12, second vault loan token: mockFa2, third vault loan token - tez
+    //  - eve: first vault loan token: mockFa12, second vault loan token: mockFa2, third vault loan token - mav
     //  - mallory: first vault loan token: mockFa12, second vault loan token: mockFa2
     var eveVaultSet : Array<Number>     = []
     var malloryVaultSet : Array<Number> = [] 
@@ -53,12 +53,12 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
     let mockUsdMockFa12TokenAggregatorInstance
     let mockUsdMockFa2TokenAggregatorInstance
-    let mockUsdXtzAggregatorInstance
+    let mockUsdMvrkAggregatorInstance
     let mockUsdMvnAggregatorInstance
 
     let mTokenUsdtInstance
     let mTokenEurtInstance
-    let mTokenXtzInstance
+    let mTokenMvrkInstance
 
     let governanceInstance
     let governanceProxyInstance
@@ -95,11 +95,11 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
         mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
         mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
-        mTokenXtzInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenXtz.address);
+        mTokenMvrkInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
 
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
-        mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdXtzAggregator.address);
+        mockUsdMvrkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
         mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
@@ -125,7 +125,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("usdt"); 
         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("eurt"); 
-        const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez");
+        const mavLoanToken      = await lendingControllerStorage.loanTokenLedger.get("mav");
 
         if(!(mockFa12LoanToken == undefined || mockFa12LoanToken == null)){
             updateTokenRewardIndexOperation = await mTokenUsdtInstance.methods.compound([bob.pkh, eve.pkh]).send();
@@ -137,15 +137,15 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
             await updateTokenRewardIndexOperation.confirmation();
         }
 
-        if(!(tezLoanToken == undefined || tezLoanToken == null)){
-            updateTokenRewardIndexOperation = await mTokenXtzInstance.methods.compound([bob.pkh, eve.pkh]).send();
+        if(!(mavLoanToken == undefined || mavLoanToken == null)){
+            updateTokenRewardIndexOperation = await mTokenMvrkInstance.methods.compound([bob.pkh, eve.pkh]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
     });
 
     // 
-    // Test: Create vaults - loan token - loan tokens: MockFA12 Tokens, MockFA2 Tokens, Tez
+    // Test: Create vaults - loan token - loan tokens: MockFA12 Tokens, MockFA2 Tokens, Mav
     //
     describe('setup vaults and context for pause tests below', function () {
 
@@ -216,7 +216,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const vaultId            = eveVaultSet[0];
                 const vaultOwner         = eve.pkh;
                 const depositAmountMumav = 10000000;
-                const depositAmountTez   = 10;
+                const depositAmountMav   = 10;
 
                 const vaultHandle = {
                     "id"     : vaultId,
@@ -231,18 +231,18 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
                 const eveVaultInstanceStorage  = await eveVaultInstance.storage();
 
-                const eveDepositTezOperation  = await eveVaultInstance.methods.initVaultAction(
+                const eveDepositMavOperation  = await eveVaultInstance.methods.initVaultAction(
                     "deposit",
                     depositAmountMumav,                   // amt
-                    "tez"                                 // token
+                    "mav"                                 // token
                 ).send({ mumav : true, amount : depositAmountMumav });
-                await eveDepositTezOperation.confirmation();
+                await eveDepositMavOperation.confirmation();
 
                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
                 const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-                const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
+                const mavCollateralBalance            = await updatedVault.collateralBalanceLedger.get('mav');
                 
-                assert.equal(tezCollateralBalance, TEZ(depositAmountTez));
+                assert.equal(mavCollateralBalance, MAV(depositAmountMav));
 
             });
 
@@ -611,8 +611,8 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 await signerFactory(tezos, eve.sk);
                 const vaultId              = eveVaultSet[0]; 
                 const vaultOwner           = eve.pkh;
-                const withdrawAmount       = 1000000; // 1 tez
-                const tokenName            = 'tez';
+                const withdrawAmount       = 1000000; // 1 mav
+                const tokenName            = 'mav';
 
                 const vaultHandle = {
                     "id"     : vaultId,
@@ -627,12 +627,12 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 // get vault contract
                 const vaultAddress = vault.address;
 
-                // get initial XTZ balance for Eve and Vault
-                const eveXtzLedger             = await utils.tezos.tz.getBalance(eve.pkh);
-                const eveInitialXtzBalance     = eveXtzLedger.toNumber();
+                // get initial MVRK balance for Eve and Vault
+                const eveMvrkLedger             = await utils.tezos.tz.getBalance(eve.pkh);
+                const eveInitialMvrkBalance     = eveMvrkLedger.toNumber();
 
-                const vaultXtzLedger           = await utils.tezos.tz.getBalance(vaultAddress);
-                const vaultInitialXtzBalance   = vaultXtzLedger.toNumber();
+                const vaultMvrkLedger           = await utils.tezos.tz.getBalance(vaultAddress);
+                const vaultInitialMvrkBalance   = vaultMvrkLedger.toNumber();
 
                 const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
@@ -649,18 +649,18 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const updatedVault                          = await updatedLendingControllerStorage.vaults.get(vaultHandle);
                 const updatedVaultCollateralTokenBalance    = await updatedVault.collateralBalanceLedger.get(tokenName);
 
-                // get updated XTZ balance for Eve and Vault
-                const updatedEveXtzLedger             = await utils.tezos.tz.getBalance(eve.pkh);
-                const updatedEveXtzBalance            = updatedEveXtzLedger.toNumber();
+                // get updated MVRK balance for Eve and Vault
+                const updatedEveMvrkLedger             = await utils.tezos.tz.getBalance(eve.pkh);
+                const updatedEveMvrkBalance            = updatedEveMvrkLedger.toNumber();
 
-                const updatedVaultXtzLedger           = await utils.tezos.tz.getBalance(vaultAddress);
-                const updatedVaultXtzBalance          = updatedVaultXtzLedger.toNumber();
+                const updatedVaultMvrkLedger           = await utils.tezos.tz.getBalance(vaultAddress);
+                const updatedVaultMvrkBalance          = updatedVaultMvrkLedger.toNumber();
 
                 assert.equal(updatedVaultCollateralTokenBalance, initialVaultCollateralTokenBalance - withdrawAmount);
-                assert.equal(updatedVaultXtzBalance, vaultInitialXtzBalance - withdrawAmount);
+                assert.equal(updatedVaultMvrkBalance, vaultInitialMvrkBalance - withdrawAmount);
 
                 // account for minute differences from gas in sending transaction
-                assert.equal(almostEqual(updatedEveXtzBalance, eveInitialXtzBalance + withdrawAmount, 0.0001), true)            
+                assert.equal(almostEqual(updatedEveMvrkBalance, eveInitialMvrkBalance + withdrawAmount, 0.0001), true)            
 
             });
 
@@ -957,7 +957,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
                 const vaultId            = eveVaultSet[0]; // vault with mockFa2 loan token
                 const vaultOwner         = eve.pkh;
-                const depositAmountTez   = 1;
+                const depositAmountMav   = 1;
                 const depositAmountMumav = 1000000;
 
                 const vaultHandle = {
@@ -972,20 +972,20 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
                 const eveVaultInstanceStorage  = await eveVaultInstance.storage();
 
-                const initialTezCollateralBalance   = await vault.collateralBalanceLedger.get('tez');
+                const initialMavCollateralBalance   = await vault.collateralBalanceLedger.get('mav');
 
-                const eveDepositTezOperation   = await eveVaultInstance.methods.initVaultAction(
+                const eveDepositMavOperation   = await eveVaultInstance.methods.initVaultAction(
                     "deposit",              // vault action type
                     depositAmountMumav,     // amt
-                    "tez"                   // token
+                    "mav"                   // token
                 ).send({ mumav : true, amount : depositAmountMumav });
-                await eveDepositTezOperation.confirmation();
+                await eveDepositMavOperation.confirmation();
 
                 const updatedLendingControllerStorage = await lendingControllerInstance.storage();
                 const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-                const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
+                const mavCollateralBalance            = await updatedVault.collateralBalanceLedger.get('mav');
                 
-                assert.equal(tezCollateralBalance, initialTezCollateralBalance.toNumber() + TEZ(depositAmountTez));
+                assert.equal(mavCollateralBalance, initialMavCollateralBalance.toNumber() + MAV(depositAmountMav));
                 
             } catch(e){
                 console.log(e);

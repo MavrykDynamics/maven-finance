@@ -8,14 +8,14 @@ const vaultHandle = {
 }
 
 const metadata = MichelsonMap.fromLiteral({
-    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
         name: 'MAVEN Vault',
         version: 'v1.0.0',
         authors: ['MAVEN Dev Team <info@mavryk.io>'],
         source: {
-            tools: ['Ligo', 'Flextesa'],
+            tools: ['Ligo', 'Flexmasa'],
             location: 'https://ligolang.org/',
         },
         }),

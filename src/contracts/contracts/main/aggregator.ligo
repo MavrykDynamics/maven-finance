@@ -71,7 +71,7 @@ type aggregatorAction is
     |   UpdateData                           of updateDataType
     
         // Reward Entrypoints
-    |   WithdrawRewardXtz                    of withdrawRewardXtzType
+    |   WithdrawRewardMvrk                    of withdrawRewardMvrkType
     |   WithdrawRewardStakedMvn              of withdrawRewardStakedMvnType
 
         // Lambda Entrypoints
@@ -149,7 +149,7 @@ block {
         |   UpdateData (parameters)                         -> updateData(parameters, s)
 
             // Reward Entrypoints
-        |   WithdrawRewardXtz (parameters)                  -> withdrawRewardXtz(parameters, s)
+        |   WithdrawRewardMvrk (parameters)                  -> withdrawRewardMvrk(parameters, s)
         |   WithdrawRewardStakedMvn (parameters)            -> withdrawRewardStakedMvn(parameters, s)
 
             // Lambda Entrypoints

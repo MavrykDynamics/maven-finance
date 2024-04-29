@@ -4,8 +4,8 @@
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                                                 = 0n;
-[@inline] const error_INCORRECT_TEZ_FEE                                                                                 = 1n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_MAV                                                                 = 0n;
+[@inline] const error_INCORRECT_MAV_FEE                                                                                 = 1n;
 
 [@inline] const error_LAMBDA_NOT_FOUND                                                                                  = 2n;
 [@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                                           = 3n;
@@ -835,7 +835,7 @@
 
 // ENTRYPOINTS PAUSED ERRORS
 [@inline] const error_UPDATE_DATA_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                              = 603n;
-[@inline] const error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 604n;
+[@inline] const error_WITHDRAW_REWARD_MVRK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 604n;
 [@inline] const error_WITHDRAW_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                               = 605n;
 
 // ENTRYPOINTS NOT FOUND ERRORS
@@ -856,7 +856,7 @@
 
 [@inline] const error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                   = 619n;
 [@inline] const error_SET_OBSERVATION_REVEAL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                = 620n;
-[@inline] const error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                   = 621n;
+[@inline] const error_WITHDRAW_REWARD_MVRK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                   = 621n;
 [@inline] const error_WITHDRAW_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                            = 622n;
 [@inline] const error_MISTAKEN_TRANSFER_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                     = 623n;
 [@inline] const error_SET_LAMBDA_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                            = 624n;
@@ -870,7 +870,7 @@
 [@inline] const error_GET_GENERAL_CONTRACTS_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                       = 630n;
 [@inline] const error_GET_ORACLE_ADDRESSES_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                        = 631n;
 [@inline] const error_GET_ORACLE_REWARDS_STAKED_MVN_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                               = 632n;
-[@inline] const error_GET_ORACLE_REWARDS_XTZ_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                      = 633n;
+[@inline] const error_GET_ORACLE_REWARDS_MVRK_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                      = 633n;
 [@inline] const error_GET_LAST_COMPLETED_DATA_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                     = 634n;
 [@inline] const error_GET_DECIMALS_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                                = 635n;
 [@inline] const error_GET_CONTRACT_NAME_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                           = 636n;
@@ -909,7 +909,7 @@
 [@inline] const error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                                = 657n;
 [@inline] const error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                                 = 658n;
 [@inline] const error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                               = 659n;
-[@inline] const error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                            = 660n;
+[@inline] const error_DISTRIBUTE_REWARD_MVRK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                            = 660n;
 [@inline] const error_DISTRIBUTE_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                     = 661n;
 
 // ENTRYPOINTS NOT FOUND ERRORS
@@ -925,7 +925,7 @@
 [@inline] const error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                             = 671n;
 [@inline] const error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                              = 672n;
 [@inline] const error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                            = 673n;
-[@inline] const error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                         = 674n;
+[@inline] const error_DISTRIBUTE_REWARD_MVRK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                         = 674n;
 [@inline] const error_DISTRIBUTE_REWARD_STAKED_MVN_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                  = 675n;
 [@inline] const error_MISTAKEN_TRANSFER_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                             = 676n;
 [@inline] const error_SET_LAMBDA_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                                    = 677n;
@@ -1132,7 +1132,7 @@
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                  = 806n;
 [@inline] const error_SET_GOVERNANCE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                             = 807n;
 [@inline] const error_UPDATE_METADATA_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                            = 808n;
-[@inline] const error_DELEGATE_TEZ_TO_BAKER_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                      = 809n;
+[@inline] const error_DELEGATE_MAV_TO_BAKER_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                      = 809n;
 [@inline] const error_VAULT_DELEGATE_MVN_TO_SATELLITE_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                            = 810n;
 [@inline] const error_VAULT_DEPOSIT_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                              = 811n;
 [@inline] const error_WITHDRAW_ENTRYPOINT_IN_VAULT_CONTRACT_NOT_FOUND                                                   = 812n;
@@ -1213,7 +1213,7 @@
 [@inline] const error_VAULT_DEPOSIT_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                       = 860n;
 [@inline] const error_VAULT_WITHDRAW_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                      = 861n;
 
-[@inline] const error_VAULT_DELEGATE_TEZ_TO_BAKER_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 862n;
+[@inline] const error_VAULT_DELEGATE_MAV_TO_BAKER_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                 = 862n;
 [@inline] const error_VAULT_DELEGATE_MVN_TO_SAT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                   = 863n;
 [@inline] const error_VAULT_DEPOSIT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                               = 864n;
 [@inline] const error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED                                              = 865n;
@@ -1268,7 +1268,7 @@
 [@inline] const error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE                                                               = 900n;
 [@inline] const error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE                                                           = 901n;
 
-[@inline] const error_TEZOS_SENT_IS_NOT_EQUAL_TO_WITHDRAW_AMOUNT                                                        = 902n;
+[@inline] const error_MAVOS_SENT_IS_NOT_EQUAL_TO_WITHDRAW_AMOUNT                                                        = 902n;
 
 [@inline] const error_CANNOT_LIQUIDATE_MORE_THAN_TOTAL_COLLATERAL_BALANCE                                               = 903n;
 

@@ -319,7 +319,7 @@ describe("Governance Satellite tests", async () => {
             //     const aggregatorMetadataBase = Buffer.from(
             //         JSON.stringify({
             //             name: 'MAVEN Aggregator Contract',
-            //             icon: 'https://logo.chainbit.xyz/xtz',
+            //             icon: 'https://logo.chainbit.xyz/mvrk',
             //             version: 'v1.0.0',
             //             authors: ['MAVEN Dev Team <info@mavryk.io>'],
             //         }),
@@ -342,12 +342,12 @@ describe("Governance Satellite tests", async () => {
             //         new BigNumber(30),            // heartbeatSeconds
 
             //         new BigNumber(10000000),      // rewardAmountStakedMvn
-            //         new BigNumber(1300),          // rewardAmountXtz
+            //         new BigNumber(1300),          // rewardAmountMvrk
                     
             //         aggregatorMetadataBase        // metadata bytes
             //     ))
             //     .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-            //         'USD/XTZ',
+            //         'USD/MVRK',
             //         true,
 
             //         oracleMap,
@@ -359,7 +359,7 @@ describe("Governance Satellite tests", async () => {
             //         new BigNumber(30),            // heartbeatSeconds
 
             //         new BigNumber(10000000),      // rewardAmountStakedMvn
-            //         new BigNumber(1300),          // rewardAmountXtz
+            //         new BigNumber(1300),          // rewardAmountMvrk
                     
             //         aggregatorMetadataBase        // metadata bytes
             //     ))
@@ -376,7 +376,7 @@ describe("Governance Satellite tests", async () => {
             //         new BigNumber(30),            // heartbeatSeconds
 
             //         new BigNumber(10000000),      // rewardAmountStakedMvn
-            //         new BigNumber(1300),          // rewardAmountXtz
+            //         new BigNumber(1300),          // rewardAmountMvrk
                     
             //         aggregatorMetadataBase        // metadata bytes
             //     ))
@@ -1303,27 +1303,27 @@ describe("Governance Satellite tests", async () => {
                 const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[0];
 
                 // get aggregator address from pair key
-                const usdXtzAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[1];
+                const usdMvrkAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[1];
 
                 // get aggregator address from pair key
                 const usdDogeAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators[2];
                 
                 // get aggregator contracts
                 const usdBtcAggregatorInstance       = await utils.tezos.contract.at(usdBtcAggregatorAddress);
-                const usdXtzAggregatorInstance       = await utils.tezos.contract.at(usdXtzAggregatorAddress);
+                const usdMvrkAggregatorInstance       = await utils.tezos.contract.at(usdMvrkAggregatorAddress);
                 const usdDogeAggregatorInstance      = await utils.tezos.contract.at(usdDogeAggregatorAddress);
                 
                 const usdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
-                const usdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
+                const usdMvrkAggregatorStorage   : aggregatorStorageType  = await usdMvrkAggregatorInstance.storage();
                 const usdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
 
                 // check that user is not in aggregator oracleLedger set
                 const usdBtcAggregatorOracles        = await usdBtcAggregatorStorage.oracleLedger.get(targetSatellite);
-                const usdXtzAggregatorOracles        = await usdXtzAggregatorStorage.oracleLedger.get(targetSatellite);
+                const usdMvrkAggregatorOracles        = await usdMvrkAggregatorStorage.oracleLedger.get(targetSatellite);
                 const usdDogeAggregatorOracles       = await usdDogeAggregatorStorage.oracleLedger.get(targetSatellite);
                 
                 assert.equal(usdBtcAggregatorOracles,      undefined);
-                assert.equal(usdXtzAggregatorOracles,      undefined);
+                assert.equal(usdMvrkAggregatorOracles,      undefined);
                 assert.equal(usdDogeAggregatorOracles,     undefined);
 
                 // --------------------------------------------------------
@@ -1396,7 +1396,7 @@ describe("Governance Satellite tests", async () => {
 
                 createGovernanceSatelliteActionOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
                         targetSatellite,
-                        usdXtzAggregatorAddress,
+                        usdMvrkAggregatorAddress,
                         purpose
                     ).send();
                 await createGovernanceSatelliteActionOperation.confirmation();
@@ -1484,16 +1484,16 @@ describe("Governance Satellite tests", async () => {
                 const updatedTargetSatelliteOracleRecord   = await governanceSatelliteStorage.satelliteAggregatorLedger.get(targetSatellite);
 
                 const usdBtcOracleAggregatorRecord         = await updatedTargetSatelliteOracleRecord.get(usdBtcAggregatorAddress);
-                const usdXtzOracleAggregatorRecord         = await updatedTargetSatelliteOracleRecord.get(usdXtzAggregatorAddress);
+                const usdMvrkOracleAggregatorRecord         = await updatedTargetSatelliteOracleRecord.get(usdMvrkAggregatorAddress);
                 const usdDogeOracleAggregatorRecord        = await updatedTargetSatelliteOracleRecord.get(usdDogeAggregatorAddress);
 
                 const updatedUsdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
-                const updatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
+                const updatedUsdMvrkAggregatorStorage   : aggregatorStorageType  = await usdMvrkAggregatorInstance.storage();
                 const updatedUsdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
 
                 // check that user is not in aggregator oracleLedger set
                 const updatedUsdBtcAggregatorOracles : any        = await updatedUsdBtcAggregatorStorage.oracleLedger.get(targetSatellite);
-                const updatedUsdXtzAggregatorOracles : any        = await updatedUsdXtzAggregatorStorage.oracleLedger.get(targetSatellite);
+                const updatedUsdMvrkAggregatorOracles : any        = await updatedUsdMvrkAggregatorStorage.oracleLedger.get(targetSatellite);
                 const updatedUsdDogeAggregatorOracles : any       = await updatedUsdDogeAggregatorStorage.oracleLedger.get(targetSatellite);
                 
                 // check that governance action has been executed
@@ -1512,15 +1512,15 @@ describe("Governance Satellite tests", async () => {
 
                 // check that target oracle aggregator record is updated
                 assert.notEqual(usdBtcOracleAggregatorRecord,  undefined);
-                assert.notEqual(usdXtzOracleAggregatorRecord,  undefined);
+                assert.notEqual(usdMvrkOracleAggregatorRecord,  undefined);
                 assert.notEqual(usdDogeOracleAggregatorRecord, undefined);
 
                 // check that bob is now added to aggregator oracleLedger Set
                 assert.equal(updatedUsdBtcAggregatorOracles.oraclePeerId,       targetSatellitePeerId);
                 assert.equal(updatedUsdBtcAggregatorOracles.oraclePublicKey,    targetSatellitePk);
 
-                assert.equal(updatedUsdXtzAggregatorOracles.oraclePeerId,       targetSatellitePeerId);
-                assert.equal(updatedUsdXtzAggregatorOracles.oraclePublicKey,    targetSatellitePk);
+                assert.equal(updatedUsdMvrkAggregatorOracles.oraclePeerId,       targetSatellitePeerId);
+                assert.equal(updatedUsdMvrkAggregatorOracles.oraclePublicKey,    targetSatellitePk);
 
                 assert.equal(updatedUsdDogeAggregatorOracles.oraclePeerId,      targetSatellitePeerId);
                 assert.equal(updatedUsdDogeAggregatorOracles.oraclePublicKey,   targetSatellitePk);
@@ -1580,16 +1580,16 @@ describe("Governance Satellite tests", async () => {
 
                 const finalUpdatedTargetSatelliteOracleRecord   = await governanceSatelliteStorage.satelliteAggregatorLedger.get(targetSatellite);
                 const finalUsdBtcOracleAggregatorRecord         = await finalUpdatedTargetSatelliteOracleRecord.get(usdBtcAggregatorAddress);
-                const finalUsdXtzOracleAggregatorRecord         = await finalUpdatedTargetSatelliteOracleRecord.get(usdXtzAggregatorAddress);
+                const finalUsdMvrkOracleAggregatorRecord         = await finalUpdatedTargetSatelliteOracleRecord.get(usdMvrkAggregatorAddress);
                 const finalUsdDogeOracleAggregatorRecord        = await finalUpdatedTargetSatelliteOracleRecord.get(usdDogeAggregatorAddress);
 
                 const finalUpdatedUsdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
-                const finalUpdatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
+                const finalUpdatedUsdMvrkAggregatorStorage   : aggregatorStorageType  = await usdMvrkAggregatorInstance.storage();
                 const finalUpdatedUsdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
 
                 // check that user is not in aggregator oracleLedger set
                 const finalUpdatedUsdBtcAggregatorOracles        = await finalUpdatedUsdBtcAggregatorStorage.oracleLedger.get(targetSatellite);
-                const finalUpdatedUsdXtzAggregatorOracles        = await finalUpdatedUsdXtzAggregatorStorage.oracleLedger.get(targetSatellite);
+                const finalUpdatedUsdMvrkAggregatorOracles        = await finalUpdatedUsdMvrkAggregatorStorage.oracleLedger.get(targetSatellite);
                 const finalUpdatedUsdDogeAggregatorOracles       = await finalUpdatedUsdDogeAggregatorStorage.oracleLedger.get(targetSatellite);
                 
                 // check that governance action has been executed
@@ -1600,12 +1600,12 @@ describe("Governance Satellite tests", async () => {
 
                 // check that target oracle aggregator record is updated
                 assert.equal(finalUsdBtcOracleAggregatorRecord,      undefined);
-                assert.equal(finalUsdXtzOracleAggregatorRecord,      undefined);
+                assert.equal(finalUsdMvrkOracleAggregatorRecord,      undefined);
                 assert.equal(finalUsdDogeOracleAggregatorRecord,     undefined);
 
                 // check that target satellite is now removed from aggregator oracleLedger Set
                 assert.equal(finalUpdatedUsdBtcAggregatorOracles,    undefined);
-                assert.equal(finalUpdatedUsdXtzAggregatorOracles,    undefined);
+                assert.equal(finalUpdatedUsdMvrkAggregatorOracles,    undefined);
                 assert.equal(finalUpdatedUsdDogeAggregatorOracles,   undefined);
             
             } catch(e){
@@ -1647,7 +1647,7 @@ describe("Governance Satellite tests", async () => {
                 aggregatorStorage              = await aggregatorInstance.storage();
                 
                 assert.equal(aggregatorStorage.breakGlassConfig.updateDataIsPaused, false);
-                assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused, false);
+                assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardMvrkIsPaused, false);
                 assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvnIsPaused, false);
 
                 // governance satellite action params
@@ -1745,7 +1745,7 @@ describe("Governance Satellite tests", async () => {
                 // check that aggregator is now inactive
                 aggregatorStorage              = await aggregatorInstance.storage();
                 assert.equal(aggregatorStorage.breakGlassConfig.updateDataIsPaused,                 true);
-                assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardXtzIsPaused,          true);
+                assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardMvrkIsPaused,          true);
                 assert.equal(aggregatorStorage.breakGlassConfig.withdrawRewardStakedMvnIsPaused,    true);
             
             } catch(e){
@@ -2340,7 +2340,7 @@ describe("Governance Satellite tests", async () => {
                 }
             })
 
-            it('%withdrawRewardXtz                - suspended satellite (oscar) should not be able to withdraw XTZ rewards', async () => {
+            it('%withdrawRewardMvrk                - suspended satellite (oscar) should not be able to withdraw MVRK rewards', async () => {
                 try{
                     
                     aggregatorStorage               = await aggregatorInstance.storage()
@@ -2351,8 +2351,8 @@ describe("Governance Satellite tests", async () => {
 
                     // Operation
                     await signerFactory(tezos, suspendedSatelliteSk);
-                    const withdrawRewardXtzOperation = aggregatorInstance.methods.withdrawRewardXtz(suspendedSatellite);
-                    await chai.expect(withdrawRewardXtzOperation.send()).to.be.rejected;
+                    const withdrawRewardMvrkOperation = aggregatorInstance.methods.withdrawRewardMvrk(suspendedSatellite);
+                    await chai.expect(withdrawRewardMvrkOperation.send()).to.be.rejected;
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -3282,7 +3282,7 @@ describe("Governance Satellite tests", async () => {
                 }
             })
 
-            it('%withdrawRewardXtz                - banned satellite (susie) should not be able to withdraw XTZ rewards', async () => {
+            it('%withdrawRewardMvrk                - banned satellite (susie) should not be able to withdraw MVRK rewards', async () => {
                 try{
                     
                     aggregatorStorage               = await aggregatorInstance.storage()
@@ -3293,8 +3293,8 @@ describe("Governance Satellite tests", async () => {
 
                     // Operation
                     await signerFactory(tezos, bannedSatelliteSk);
-                    const withdrawRewardXtzOperation = aggregatorInstance.methods.withdrawRewardXtz(bannedSatellite);
-                    await chai.expect(withdrawRewardXtzOperation.send()).to.be.rejected;
+                    const withdrawRewardMvrkOperation = aggregatorInstance.methods.withdrawRewardMvrk(bannedSatellite);
+                    await chai.expect(withdrawRewardMvrkOperation.send()).to.be.rejected;
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -4190,7 +4190,7 @@ describe("Governance Satellite tests", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await governanceSatelliteInstance.methods.updateMetadata(key, hash).send();
@@ -4486,7 +4486,7 @@ describe("Governance Satellite tests", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 governanceSatelliteStorage       = await governanceSatelliteInstance.storage();   
                 const initialMetadata   = await governanceSatelliteStorage.metadata.get(key);

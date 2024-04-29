@@ -1,0 +1,32 @@
+{
+    "alice": {
+        "pkh": "mv1QLvaAnh2fR2iffiMCHTWgJNu8NwNWRakT",
+        "sk": "edsk3kBXiYPHwbTtMunn7FouFKnD794MGHNELuZ5j1hzHrqV31uxjS",
+        "pk": "edpkuprQbBc5mg8nm1RN2M2mpDmu7b3XNeB9KzCSUFx7nZbqVJj3AM",
+        "peerId": "12D3KooWK87KmBGJZZMP3keux62VF515mFRbNRFwbYxib7wWQR34"
+    },
+    "bob": {
+        "pkh": "mv1LQMn58AoSyit3YXDhDyLqJx4j5U6crgPR",
+        "sk": "edsk3ahP914oz9StJD3zkezfqBwNbapGiPhZetLwFF1Bs1e6BKisf6",
+        "pk": "edpkurC3L4Y3v3WXK8HMSLGeUfgVbdwYTstt4FUqhPzZD8MFeB6Ymn",
+        "peerId": "12D3KooWJQWBQvefFGj3uAzKGhpZYWYGKtj2fNQAG47aov4uj9p1"
+    },
+    "eve": {
+        "pkh": "mv1FVuPj34FvgBHnjyNMkmHe4S9Cmnw4aZMz",
+        "sk": "edsk4Pi7dejfASKVAa3nNzhXWtNgFQTweaVwWCUjoNjYSSeHwTetmM",
+        "pk": "edpkuX5ihBUVb9nNqLYixvGiVJ5VXxnVk5hnf9ZMkTkvP5UsRsBWX6",
+        "peerId": "12D3KooWBpgAXhUAgjPAwEk5FJ9DRB2kFbuj8KLkPPmqKKmzrXz2"
+    },
+    "mallory": {
+        "pkh": "mv1VJ1Xa7BcSfPCNdfhZBHeLvSdjAhebQb2R",
+        "sk": "edsk4DLixKSarHSE2NUW9S6ii1QMWGew4aLpadNc8jw9kxX7Cztjc4",
+        "pk": "edpku7okdYQQcNNtVhtZSWDSTHsCyMh8BHQ23MGxJe1HWnTqske7X2",
+        "peerId": "12D3KooWLL2Y1JmrAXkY7r8xbuSRtasfJLAarXmAaZPYxPnzgAJ3"
+    },
+    "oscar": {
+        "pkh": "mv1PQehjFdGkijrW6T5MmYTqrYzCyXMWELgw",
+        "sk": "edsk3GTFYchH9H9s9oeVVyaCA3nXTAoa2MnEiqn9buwPNvUVQCcm55",
+        "pk": "edpkutgoG8KknR6EFViM33SfALiptofnbBRTthPU28VXzs4mCwjxNU",
+        "peerId": "12D3KooWDgabT39cFp5j5mvJgiGPEppMuVgDCsNtBCh1Q8ejBCA5"
+    }
+}

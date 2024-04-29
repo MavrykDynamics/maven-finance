@@ -189,7 +189,7 @@ block {
     // 3. Take snapshot of current total staked MVN supply 
     // 4. Calculate staked MVN votes required for approval based on config's financial request approval percentage
     // 5. Validation checks
-    //      -   Check if token type provided matches the standard (FA12, FA2, TEZ)
+    //      -   Check if token type provided matches the standard (FA12, FA2, MAV)
     //      -   If tokens are requested, check if token contract is whitelisted (security measure to prevent interacting with potentially malicious contracts)
     // 6. Create new financial request record - "TRANSFER"
     // 7. Update storage with new records
