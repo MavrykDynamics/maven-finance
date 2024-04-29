@@ -4077,7 +4077,7 @@ describe("Governance tests", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await governanceInstance.methods.updateMetadata(key, hash).send();
@@ -4495,7 +4495,7 @@ describe("Governance tests", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 governanceStorage       = await governanceInstance.storage();   
                 const initialMetadata   = await governanceStorage.metadata.get(key);

@@ -1090,7 +1090,7 @@ describe("Test: Maven FA2 Token Contract", async () => {
             }
         })
 
-        it("user (eve) should not be able to send Tez and mint tokens to another user (alice) in a single transaction even if she is whitelisted", async () => {
+        it("user (eve) should not be able to send Mav and mint tokens to another user (alice) in a single transaction even if she is whitelisted", async () => {
             try {
                 
                 // init

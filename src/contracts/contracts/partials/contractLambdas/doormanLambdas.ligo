@@ -167,7 +167,7 @@ block {
 
     // Steps Overview:    
     // 1. Check that sender is admin 
-    // 2. Check that no Tez is sent to the entrypoint 
+    // 2. Check that no Mav is sent to the entrypoint 
     // 3. Check that all entrypoints are paused
     // 4. Get Doorman MVN balance from MVN Token Contract - equivalent to total staked MVN supply
     // 5. Create a transfer to transfer all funds to an upgraded Doorman Contract

@@ -18,7 +18,7 @@ services:
 
   api:
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-api:4.7.2
+    image: ghcr.io/mavryk-network/bcdhub-api:4.7.6
     environment:
       - BCD_ENV=sandbox
       - GIN_MODE=debug
@@ -33,14 +33,14 @@ services:
     volumes:
       - bcdshare:/etc/bcd
     links:
-      - 'flextesa:sandbox'
+      - 'flexmasa:sandbox'
     expose:
       - 14000/tcp
     logging: *bcd-logging
 
   indexer:
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-indexer:4.7.2
+    image: ghcr.io/mavryk-network/bcdhub-indexer:4.7.6
     environment:
       - BCD_ENV=sandbox
       - POSTGRES_USER=root
@@ -50,19 +50,19 @@ services:
     depends_on:
       - db
     links:
-      - 'flextesa:sandbox'
+      - 'flexmasa:sandbox'
     volumes:
       - bcdshare:/etc/bcd
     logging: *bcd-logging
 
-  flextesa:
+  flexmasa:
     container_name: maven-sandbox
     restart: always
-    image: registry.gitlab.com/mavryk-network/flextesa:6cab38e5-run
+    image: registry.gitlab.com/mavryk-network/flexmasa:atlas-update-run
     command: atlasbox start
     environment:
       - block_time=3
-      - flextesa_node_cors_origin=*
+      - flexmasa_node_cors_origin=*
     ports:
       - 127.0.0.1:20000:20000
       - 127.0.0.1:8732:20000
@@ -74,7 +74,7 @@ services:
   gui:
     container_name: sandbox-gui
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-gui:4.7.2
+    image: ghcr.io/mavryk-network/bcdhub-gui:4.7.6
     depends_on:
       - api
     ports:

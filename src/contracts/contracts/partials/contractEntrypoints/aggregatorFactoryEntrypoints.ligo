@@ -255,15 +255,15 @@ block {
 // Aggregator Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(*  distributeRewardXtz entrypoint  *)
-function distributeRewardXtz(const distributeRewardXtzParams : distributeRewardXtzType; var s: aggregatorFactoryStorageType) : return is
+(*  distributeRewardMvrk entrypoint  *)
+function distributeRewardMvrk(const distributeRewardMvrkParams : distributeRewardMvrkType; var s: aggregatorFactoryStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaDistributeRewardXtz", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaDistributeRewardMvrk", s.lambdaLedger);
 
     // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaDistributeRewardXtz(distributeRewardXtzParams);
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaDistributeRewardMvrk(distributeRewardMvrkParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);

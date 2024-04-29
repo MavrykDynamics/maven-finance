@@ -31,7 +31,7 @@ import {
 
 // For setup of aggregators for subsequent tests
 //   - USD/BTC 
-//   - USD/XTZ 
+//   - USD/MVRK 
 //   - USD/DOGE 
 //   - USD/MVN 
 
@@ -112,7 +112,7 @@ describe("Setup: Mock Aggregators", async () => {
                     const aggregatorStorage: any    = await aggregatorInstance.storage();
                     switch(aggregatorStorage.name){
                         case 'USD/BTC':
-                        case 'USD/XTZ':
+                        case 'USD/MVRK':
                         case 'USD/DOGE':
                         case 'USD/MVN':
                             break;
@@ -150,7 +150,7 @@ describe("Setup: Mock Aggregators", async () => {
                         new BigNumber(30),            // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvn
-                        new BigNumber(1300),          // rewardAmountXtz
+                        new BigNumber(1300),          // rewardAmountMvrk
                         
                         aggregatorMetadataBase        // metadata bytes
                     ).send();
@@ -163,10 +163,10 @@ describe("Setup: Mock Aggregators", async () => {
             }
         });
 
-        it('setup USD/XTZ aggregator', async () => {
+        it('setup USD/MVRK aggregator', async () => {
             try{
                 
-                const aggregatorName = 'USD/XTZ';
+                const aggregatorName = 'USD/MVRK';
                 const aggregatorRecord = await governanceSatelliteStorage.aggregatorLedger.get(aggregatorName);
                 if(aggregatorRecord == undefined){
 
@@ -186,7 +186,7 @@ describe("Setup: Mock Aggregators", async () => {
                         new BigNumber(30),            // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvn
-                        new BigNumber(1300),          // rewardAmountXtz
+                        new BigNumber(1300),          // rewardAmountMvrk
                         
                         aggregatorMetadataBase        // metadata bytes
                     ).send();
@@ -222,7 +222,7 @@ describe("Setup: Mock Aggregators", async () => {
                         new BigNumber(30),            // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvn
-                        new BigNumber(1300),          // rewardAmountXtz
+                        new BigNumber(1300),          // rewardAmountMvrk
                         
                         aggregatorMetadataBase        // metadata bytes
                     ).send();
@@ -258,7 +258,7 @@ describe("Setup: Mock Aggregators", async () => {
                         new BigNumber(30),            // heartbeatSeconds
 
                         new BigNumber(10000000),      // rewardAmountStakedMvn
-                        new BigNumber(1300),          // rewardAmountXtz
+                        new BigNumber(1300),          // rewardAmountMvrk
                         
                         aggregatorMetadataBase        // metadata bytes
                     ).send();

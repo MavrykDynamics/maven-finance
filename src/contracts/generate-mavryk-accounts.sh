@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get the generation script
-GENERATION_SCRIPT="./generate_tezos_accounts_helper.ligo"
+GENERATION_SCRIPT="./generate_mavryk_accounts_helper.ligo"
 TEMP_GENERATED_FILE="./temp.ligo_accounts"
 STRING_TO_REMOVE="Everything at the top-level was executed."
 JSON_FILE="./test/helpers/random_accounts.json"

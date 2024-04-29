@@ -204,7 +204,7 @@ block {
                   block{
                     // Check if token is not MVN (it would break SMVN) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
-                        | Tez         -> transferTez((Mavryk.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mumav)
+                        | Mav         -> transferMav((Mavryk.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mumav)
                         | Fa12(token) -> if token = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa12Token(Mavryk.get_self_address(), transferParam.to_, transferParam.amount, token)
                         | Fa2(token)  -> if token.tokenContractAddress = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Mavryk.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];

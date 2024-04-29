@@ -1,7 +1,7 @@
 import assert from "assert";
 import { BigNumber } from 'bignumber.js'
 
-import { MVN, TEZ, Utils, zeroAddress } from "./helpers/Utils";
+import { MVN, MAV, Utils, zeroAddress } from "./helpers/Utils";
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -38,7 +38,7 @@ describe("Vault tests", async () => {
     let tezos 
 
     //  - bob: vault with collateral deposit
-    //  - eve: first vault loan token: mockFa12, second vault loan token: mockFa2, third vault loan token - tez
+    //  - eve: first vault loan token: mockFa12, second vault loan token: mockFa2, third vault loan token - mav
     //  - mallory: first vault loan token: mockFa12, second vault loan token: mockFa2
     var aliceVaultSet : Array<Number>   = []
     var bobVaultSet : Array<Number>     = []
@@ -66,12 +66,12 @@ describe("Vault tests", async () => {
 
     let mockUsdMockFa12TokenAggregatorInstance
     let mockUsdMockFa2TokenAggregatorInstance
-    let mockUsdXtzAggregatorInstance
+    let mockUsdMvrkAggregatorInstance
     let mockUsdMvnAggregatorInstance
 
     let mTokenUsdtInstance
     let mTokenEurtInstance
-    let mTokenXtzInstance
+    let mTokenMvrkInstance
 
     let governanceInstance
     let governanceProxyInstance
@@ -113,11 +113,11 @@ describe("Vault tests", async () => {
 
         mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
         mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
-        mTokenXtzInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenXtz.address);
+        mTokenMvrkInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
 
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
-        mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdXtzAggregator.address);
+        mockUsdMvrkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
         mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress);
@@ -154,7 +154,7 @@ describe("Vault tests", async () => {
 
         const mockFa12LoanToken = await lendingControllerStorage.loanTokenLedger.get("usdt"); 
         const mockFa2LoanToken  = await lendingControllerStorage.loanTokenLedger.get("eurt"); 
-        const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez");
+        const mavLoanToken      = await lendingControllerStorage.loanTokenLedger.get("mav");
 
         if(!(mockFa12LoanToken == undefined || mockFa12LoanToken == null)){
             updateTokenRewardIndexOperation = await mTokenUsdtInstance.methods.compound([bob.pkh, eve.pkh]).send();
@@ -166,8 +166,8 @@ describe("Vault tests", async () => {
             await updateTokenRewardIndexOperation.confirmation();
         }
 
-        if(!(tezLoanToken == undefined || tezLoanToken == null)){
-            updateTokenRewardIndexOperation = await mTokenXtzInstance.methods.compound([bob.pkh, eve.pkh]).send();
+        if(!(mavLoanToken == undefined || mavLoanToken == null)){
+            updateTokenRewardIndexOperation = await mTokenMvrkInstance.methods.compound([bob.pkh, eve.pkh]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
@@ -385,13 +385,13 @@ describe("Vault tests", async () => {
                 await signerFactory(tezos, adminSk);
 
                 const setLoanTokenActionType                = "createLoanToken";
-                const tokenName                             = "tez";
-                const tokenType                             = "tez";
+                const tokenName                             = "mav";
+                const tokenType                             = "mav";
                 const tokenDecimals                         = 6;
 
-                const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
+                const oracleAddress                         = contractDeployments.mockUsdMvrkAggregator.address;
 
-                const mTokenContractAddress                = contractDeployments.mTokenXtz.address;
+                const mTokenContractAddress                = contractDeployments.mTokenMvrk.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 3000; // 30% reserves (4 decimals)
@@ -409,7 +409,7 @@ describe("Vault tests", async () => {
                 // only test for first run, as govProxy will be admin instead of bob for subsequent continuous testing 
                 if(checkLoanTokenExists === undefined){
 
-                    const adminSeTezLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+                    const adminSeMavLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
 
                         setLoanTokenActionType,
                         
@@ -433,39 +433,39 @@ describe("Vault tests", async () => {
                         tokenType
 
                     ).send();
-                    await adminSeTezLoanTokenOperation.confirmation();
+                    await adminSeMavLoanTokenOperation.confirmation();
 
                     lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const tezLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+                    const mavLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
                 
-                    assert.equal(tezLoanToken.tokenName              , tokenName);
-                    assert.equal(tezLoanToken.tokenDecimals          , tokenDecimals);
+                    assert.equal(mavLoanToken.tokenName              , tokenName);
+                    assert.equal(mavLoanToken.tokenDecimals          , tokenDecimals);
 
-                    assert.equal(tezLoanToken.rawMTokensTotalSupply           , 0);
-                    assert.equal(tezLoanToken.mTokenAddress          , mTokenContractAddress);
+                    assert.equal(mavLoanToken.rawMTokensTotalSupply           , 0);
+                    assert.equal(mavLoanToken.mTokenAddress          , mTokenContractAddress);
     
-                    assert.equal(tezLoanToken.reserveRatio           , reserveRatio);
-                    assert.equal(tezLoanToken.tokenPoolTotal         , 0);
-                    assert.equal(tezLoanToken.totalBorrowed          , 0);
-                    assert.equal(tezLoanToken.totalRemaining         , 0);
+                    assert.equal(mavLoanToken.reserveRatio           , reserveRatio);
+                    assert.equal(mavLoanToken.tokenPoolTotal         , 0);
+                    assert.equal(mavLoanToken.totalBorrowed          , 0);
+                    assert.equal(mavLoanToken.totalRemaining         , 0);
     
-                    assert.equal(tezLoanToken.optimalUtilisationRate , optimalUtilisationRate);
-                    assert.equal(tezLoanToken.baseInterestRate       , baseInterestRate);
-                    assert.equal(tezLoanToken.maxInterestRate        , maxInterestRate);
+                    assert.equal(mavLoanToken.optimalUtilisationRate , optimalUtilisationRate);
+                    assert.equal(mavLoanToken.baseInterestRate       , baseInterestRate);
+                    assert.equal(mavLoanToken.maxInterestRate        , maxInterestRate);
                     
-                    assert.equal(tezLoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
-                    assert.equal(tezLoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
+                    assert.equal(mavLoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
+                    assert.equal(mavLoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
 
-                    assert.equal(tezLoanToken.minRepaymentAmount       , minRepaymentAmount);
+                    assert.equal(mavLoanToken.minRepaymentAmount       , minRepaymentAmount);
     
 
                 } else {
 
                     lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const tezLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+                    const mavLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
                 
                     // other variables will be affected by repeated tests
-                    assert.equal(tezLoanToken.tokenName, tokenName);
+                    assert.equal(mavLoanToken.tokenName, tokenName);
                     
                 }
 
@@ -627,12 +627,12 @@ describe("Vault tests", async () => {
                 await signerFactory(tezos, adminSk);
 
                 const setCollateralTokenActionType          = "createCollateralToken";
-                const tokenName                             = "tez";
+                const tokenName                             = "mav";
                 const tokenContractAddress                  = zeroAddress;
-                const tokenType                             = "tez";
+                const tokenType                             = "mav";
 
                 const tokenDecimals                         = 6;
-                const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
+                const oracleAddress                         = contractDeployments.mockUsdMvrkAggregator.address;
                 const tokenProtected                        = false;
 
                 const isScaledToken                         = false;
@@ -856,7 +856,7 @@ describe("Vault tests", async () => {
                     [
                         {
                             amount: depositAmountMumav,
-                            tokenName: "tez"
+                            tokenName: "mav"
                         }
                     ],
                     depositorsConfig       // depositors config type - any / whitelist
@@ -875,8 +875,8 @@ describe("Vault tests", async () => {
                 assert.equal(vaultRecord.loanPrincipalTotal     , 0);
                 assert.equal(vaultRecord.loanInterestTotal      , 0);
 
-                const vaultTezCollateralBalance = vaultRecord.collateralBalanceLedger.get("tez");
-                assert.equal(vaultTezCollateralBalance.toNumber(), depositAmountMumav);
+                const vaultMavCollateralBalance = vaultRecord.collateralBalanceLedger.get("mav");
+                assert.equal(vaultMavCollateralBalance.toNumber(), depositAmountMumav);
 
                 const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
                 const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
@@ -915,7 +915,7 @@ describe("Vault tests", async () => {
                     [
                         {
                             amount: depositAmountMumav,
-                            tokenName: "tez"
+                            tokenName: "mav"
                         }
                     ],
                     depositorsConfig       // depositors config type - any / whitelist
@@ -952,7 +952,7 @@ describe("Vault tests", async () => {
                     [
                         {
                             amount: depositAmountMumav,
-                            tokenName: "tez"
+                            tokenName: "mav"
                         }
                     ],
                     depositorsConfig       // depositors config type - any / whitelist
@@ -1092,7 +1092,7 @@ describe("Vault tests", async () => {
                     [
                         {
                             amount: depositAmountMumav,
-                            tokenName: "tez"
+                            tokenName: "mav"
                         },
                         {
                             amount: depositAmountToken,
@@ -1119,11 +1119,11 @@ describe("Vault tests", async () => {
                 assert.equal(vaultRecord.loanPrincipalTotal     , 0);
                 assert.equal(vaultRecord.loanInterestTotal      , 0);
 
-                const vaultTezCollateralBalance           = vaultRecord.collateralBalanceLedger.get("tez");
+                const vaultMavCollateralBalance           = vaultRecord.collateralBalanceLedger.get("mav");
                 const vaultMockFa12TokenCollateralBalance = vaultRecord.collateralBalanceLedger.get("mockFa12");
                 const vaultMockFa2TokenCollateralBalance  = vaultRecord.collateralBalanceLedger.get("mockFa2");
 
-                assert.equal(vaultTezCollateralBalance.toNumber(), depositAmountMumav);
+                assert.equal(vaultMavCollateralBalance.toNumber(), depositAmountMumav);
                 assert.equal(vaultMockFa12TokenCollateralBalance.toNumber(), depositAmountToken);
                 assert.equal(vaultMockFa2TokenCollateralBalance.toNumber(), depositAmountToken);
 
@@ -1184,7 +1184,7 @@ describe("Vault tests", async () => {
                     [
                         {
                             amount: depositAmountMumav,
-                            tokenName: "tez"
+                            tokenName: "mav"
                         },
                         {
                             amount: depositAmountToken,
@@ -1248,7 +1248,7 @@ describe("Vault tests", async () => {
                     [
                         {
                             amount: depositAmountMumav,
-                            tokenName: "tez"
+                            tokenName: "mav"
                         },
                         {
                             amount: depositAmountToken,
@@ -1415,25 +1415,25 @@ describe("Vault tests", async () => {
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
             const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
-            const initialTezCollateralBalance   = vault.collateralBalanceLedger.get('tez') == undefined ? 0 : vault.collateralBalanceLedger.get('tez').toNumber();
+            const initialMavCollateralBalance   = vault.collateralBalanceLedger.get('mav') == undefined ? 0 : vault.collateralBalanceLedger.get('mav').toNumber();
 
             // get vault contract
             const vaultAddress             = vault.address;
             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
-            const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
+            const malloryDepositMavIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
                 "deposit",
                 depositAmountMumav,                   // amt
-                "tez"                                 // token
+                "mav"                                 // token
             ).send({ mumav : true, amount : depositAmountMumav });
-            await malloryDepositTezIntoEveVaultOperation.confirmation();
+            await malloryDepositMavIntoEveVaultOperation.confirmation();
 
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
             const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-            const tezCollateralBalance            = updatedVault.collateralBalanceLedger.get('tez') == undefined ? 0 : updatedVault.collateralBalanceLedger.get('tez');
+            const mavCollateralBalance            = updatedVault.collateralBalanceLedger.get('mav') == undefined ? 0 : updatedVault.collateralBalanceLedger.get('mav');
             
-            // check that mav balance is now 20 tez
-            assert.equal(tezCollateralBalance, initialTezCollateralBalance + depositAmountMumav);
+            // check that mav balance is now 20 mav
+            assert.equal(mavCollateralBalance, initialMavCollateralBalance + depositAmountMumav);
 
         });
 
@@ -1503,34 +1503,34 @@ describe("Vault tests", async () => {
 
             const lendingControllerStorage      = await lendingControllerInstance.storage();
             const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
-            const initialTezCollateralBalance   = vault.collateralBalanceLedger.get('tez') == undefined ? 0 : vault.collateralBalanceLedger.get('tez').toNumber();
+            const initialMavCollateralBalance   = vault.collateralBalanceLedger.get('mav') == undefined ? 0 : vault.collateralBalanceLedger.get('mav').toNumber();
 
             // get vault contract
             const vaultAddress             = vault.address;
             const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
 
-            const aliceDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
+            const aliceDepositMavIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
                 "deposit",              // vault action
                 depositAmountMumav,     // amt
-                "tez"                   // token
+                "mav"                   // token
             ).send({ mumav : true, amount : depositAmountMumav });
-            await aliceDepositTezIntoEveVaultOperation.confirmation();
+            await aliceDepositMavIntoEveVaultOperation.confirmation();
 
             const updatedLendingControllerStorage = await lendingControllerInstance.storage();
             const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-            const tezCollateralBalance            = updatedVault.collateralBalanceLedger.get('tez') == undefined ? 0 : updatedVault.collateralBalanceLedger.get('tez');
+            const mavCollateralBalance            = updatedVault.collateralBalanceLedger.get('mav') == undefined ? 0 : updatedVault.collateralBalanceLedger.get('mav');
             
-            // check that mav balance is now 20 tez
-            assert.equal(tezCollateralBalance, initialTezCollateralBalance + depositAmountMumav);
+            // check that mav balance is now 20 mav
+            assert.equal(mavCollateralBalance, initialMavCollateralBalance + depositAmountMumav);
 
             // check that mallory is not able to deposit into the vault now
             await signerFactory(tezos, mallory.sk);
-            const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
+            const malloryDepositMavIntoEveVaultOperation  = await eveVaultInstance.methods.initVaultAction(
                 "deposit",              // vault action
                 depositAmountMumav,     // amt
-                "tez"                   // token
+                "mav"                   // token
             );
-            await chai.expect(malloryDepositTezIntoEveVaultOperation.send({ mumav : true, amount : depositAmountMumav })).to.be.rejected;
+            await chai.expect(malloryDepositMavIntoEveVaultOperation.send({ mumav : true, amount : depositAmountMumav })).to.be.rejected;
 
         });
 
@@ -1635,12 +1635,12 @@ describe("Vault tests", async () => {
             ).send();
             await eveSetNewTokenAllowance.confirmation();
 
-            const eveDepositTezIntoEveVaultOperation  = await vaultInstance.methods.initVaultAction(
+            const eveDepositMavIntoEveVaultOperation  = await vaultInstance.methods.initVaultAction(
                 "deposit",
                 depositAmount,                   // amt
                 tokenName                        // token
             );
-            await chai.expect(eveDepositTezIntoEveVaultOperation.send()).to.be.rejected;
+            await chai.expect(eveDepositMavIntoEveVaultOperation.send()).to.be.rejected;
 
         });
 

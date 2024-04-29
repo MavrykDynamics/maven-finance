@@ -182,11 +182,11 @@ block {
 
 
 
-// verify that no Tezos is sent to the entrypoint
+// verify that no Mavryk is sent to the entrypoint
 function verifyNoAmountSent(const _p : unit) : unit is
 block {
     
-    if (Mavryk.get_amount() = 0mav) then skip else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+    if (Mavryk.get_amount() = 0mav) then skip else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_MAV);
 
 } with unit 
     

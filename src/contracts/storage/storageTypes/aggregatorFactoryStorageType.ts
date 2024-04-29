@@ -9,7 +9,7 @@ export type aggregatorFactoryStorageType = {
         createAggregatorIsPaused              : boolean;
         trackAggregatorIsPaused               : boolean;
         untrackAggregatorIsPaused             : boolean;
-        distributeRewardXtzIsPaused           : boolean;
+        distributeRewardMvrkIsPaused           : boolean;
         distributeRewardStakedMvnIsPaused     : boolean;
     };
     config                    : {
