@@ -25,7 +25,6 @@ prometheus:
   update_interval: 5
 
 advanced:
-  crash_reporting: false
   scheduler:
     apscheduler.job_defaults.coalesce: true
     apscheduler.job_defaults.max_instances: 1
