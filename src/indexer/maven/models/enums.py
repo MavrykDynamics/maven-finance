@@ -11,8 +11,8 @@ class MintOrBurnType(IntEnum):
 class DexType(IntEnum):
     ADD_LIQUIDITY                   = 0
     REMOVE_LIQUIDITY                = 1
-    XTZ_TO_TOKEN                    = 2
-    TOKEN_TO_XTZ                    = 3
+    MVRK_TO_TOKEN                    = 2
+    TOKEN_TO_MVRK                    = 3
     TOKEN_TO_TOKEN                  = 4
     DEFAULT                         = 5
 
@@ -52,13 +52,13 @@ class GovernanceVoteType(IntEnum):
     PASS                            = 2
 
 class TokenType(IntEnum):
-    XTZ                             = 0
+    MVRK                             = 0
     FA12                            = 1
     FA2                             = 2
     OTHER                           = 3
 
 class RewardType(IntEnum):
-    XTZ                             = 0
+    MVRK                             = 0
     SMVN                            = 1
 
 class VaultAllowance(IntEnum):

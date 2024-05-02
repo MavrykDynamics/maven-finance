@@ -52,7 +52,7 @@ async def set_collateral_token(
             token, _                                    = await models.Token.get_or_create(
                 token_address       = collateral_token_address,
                 token_id            = collateral_token_id,
-                network             = ctx.datasource.name.replace('tzkt_','')
+                network             = ctx.datasource.name.replace('mvkt_','')
             )
             if token_contract_metadata:
                 token.metadata          = token_contract_metadata
@@ -61,10 +61,10 @@ async def set_collateral_token(
     
             # Create / Update record
             lending_controller          = await models.LendingController.get(
-                network         = ctx.datasource.name.replace('tzkt_',''),
+                network         = ctx.datasource.name.replace('mvkt_',''),
                 address         = lending_controller_address,
             )
-            oracle                      = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=collateral_token_oracle_address)
+            oracle                      = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=collateral_token_oracle_address)
             lending_controller_collateral_token, _  = await models.LendingControllerCollateralToken.get_or_create(
                 lending_controller  = lending_controller,
                 token               = token,

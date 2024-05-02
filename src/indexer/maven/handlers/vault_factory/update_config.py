@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.VaultFactory.filter(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = vault_factory_address
         ).update(
             last_updated_at         = timestamp,

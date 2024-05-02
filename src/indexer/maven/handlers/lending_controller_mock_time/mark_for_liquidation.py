@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
+from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as mav
 from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.lending_controller_mock_time.tezos_parameters.mark_for_liquidation import MarkForLiquidationParameter
@@ -25,10 +25,10 @@ async def mark_for_liquidation(
     
         # Update records
         lending_controller          = await models.LendingController.get(
-            network         = ctx.datasource.name.replace('tzkt_',''),
+            network         = ctx.datasource.name.replace('mvkt_',''),
             address         = lending_controller_address,
         )
-        vault_owner                 = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=vault_owner_address)
+        vault_owner                 = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vault_owner_address)
     
         for vault_storage in vaults_storage:
             if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:
@@ -80,7 +80,7 @@ async def mark_for_liquidation(
                 await loan_token.save()
     
                 # Save history data
-                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=sender_address)
+                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

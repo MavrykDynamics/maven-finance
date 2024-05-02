@@ -23,7 +23,7 @@ async def drop_financial_request(
             status_timestamp    = None
     
         # Update record
-        governance_financial    = await models.GovernanceFinancial.get(network=ctx.datasource.name.replace('tzkt_',''), address= financial_address)
+        governance_financial    = await models.GovernanceFinancial.get(network=ctx.datasource.name.replace('mvkt_',''), address= financial_address)
         await models.GovernanceFinancialRequest.filter(
             governance_financial    = governance_financial,
             internal_id             = request_id

@@ -8,12 +8,12 @@ from maven.models.enums import DexType
 
 class LiquidityBaking(MavenContract, Model):
     token_pool                              = fields.BigIntField(default=0)
-    xtz_pool                                = fields.BigIntField(default=0)
+    mvrk_pool                                = fields.BigIntField(default=0)
     lqt_total                               = fields.BigIntField(default=0)
     token_address                           = fields.CharField(max_length=36, default="")
     lqt_address                             = fields.CharField(max_length=36, default="")
     share_price                             = fields.FloatField(default=0.0)
-    xtz_decimals                            = fields.SmallIntField(default=6)
+    mvrk_decimals                            = fields.SmallIntField(default=6)
     token_decimals                          = fields.SmallIntField(default=8)
 
     class Meta:
@@ -39,12 +39,12 @@ class LiquidityBakingHistoryData(Model):
     type                                    = fields.IntEnumField(enum_type=DexType, index=True)
     token_price                             = fields.FloatField(default=0.0)
     token_price_usd                         = fields.FloatField(null=True)
-    xtz_qty                                 = fields.FloatField(default=0.0)
+    mvrk_qty                                 = fields.FloatField(default=0.0)
     token_qty                               = fields.FloatField(default=0.0)
     lqt_qty                                 = fields.FloatField(default=0.0)
     slippage                                = fields.FloatField(default=0.0)
     token_pool                              = fields.BigIntField(default=0)
-    xtz_pool                                = fields.BigIntField(default=0)
+    mvrk_pool                                = fields.BigIntField(default=0)
     lqt_total                               = fields.BigIntField(default=0)
 
     class Meta:

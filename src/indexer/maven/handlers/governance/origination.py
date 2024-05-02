@@ -65,7 +65,7 @@ async def origination(
         # Create record
         governance          = models.Governance(
             address                                 = address,
-            network                                 = ctx.datasource.name.replace('tzkt_',''),
+            network                                 = ctx.datasource.name.replace('mvkt_',''),
             metadata                                = contract_metadata,
             admin                                   = admin,
             last_updated_at                         = timestamp,
@@ -102,7 +102,7 @@ async def origination(
     
         # Add whitelisted developers
         for whitelisted_developer_address in whitelisted_developers:
-            user                                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=whitelisted_developer_address)
+            user                                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=whitelisted_developer_address)
             whitelist_developer, _                  = await models.WhitelistDeveloper.get_or_create(
                 governance  = governance,
                 developer   = user
@@ -120,10 +120,10 @@ async def origination(
 
         # Start the MToken indexing
         await ctx.add_index(
-            name="m_token_xtz",
+            name="m_token_mvrk",
             template="m_token_template",
             values=dict(
-                m_token_contract="m_token_xtz"
+                m_token_contract="m_token_mvrk"
             )
         )
         await ctx.add_index(

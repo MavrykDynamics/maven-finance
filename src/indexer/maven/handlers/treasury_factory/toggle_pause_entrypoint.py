@@ -16,7 +16,7 @@ async def toggle_pause_entrypoint(
         treasury_factory_address    = toggle_pause_entrypoint.data.target_address
     
         # Update record
-        await models.TreasuryFactory.filter(network=ctx.datasource.name.replace('tzkt_',''), address=treasury_factory_address).update(
+        await models.TreasuryFactory.filter(network=ctx.datasource.name.replace('mvkt_',''), address=treasury_factory_address).update(
             create_treasury_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.createTreasuryIsPaused,
             track_treasury_paused      = toggle_pause_entrypoint.storage.breakGlassConfig.trackTreasuryIsPaused,
             untrack_treasury_paused    = toggle_pause_entrypoint.storage.breakGlassConfig.untrackTreasuryIsPaused
