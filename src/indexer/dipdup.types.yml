@@ -17,7 +17,7 @@ jobs:
 templates:
   m_token_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - origination
     - transaction
@@ -60,13 +60,13 @@ templates:
 indexes:
   treasury_token_transfer_receiver:
     kind: tezos.tzkt.token_transfers
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     handlers:
     - callback: treasury.token_transfer_receiver
       to: doorman
   farm:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -132,7 +132,7 @@ indexes:
         entrypoint: setLambda
   m_farm:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -198,7 +198,7 @@ indexes:
         entrypoint: setLambda
   aggregator:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -258,10 +258,10 @@ indexes:
       pattern:
       - destination: aggregator
         entrypoint: updateData
-    - callback: aggregator.withdraw_reward_xtz
+    - callback: aggregator.withdraw_reward_mvrk
       pattern:
       - destination: aggregator
-        entrypoint: withdrawRewardXtz
+        entrypoint: withdrawRewardMvrk
     - callback: aggregator.withdraw_reward_staked_mvn
       pattern:
       - destination: aggregator
@@ -272,7 +272,7 @@ indexes:
         entrypoint: setLambda
   treasury:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -326,7 +326,7 @@ indexes:
         entrypoint: setLambda
   vault:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -344,7 +344,7 @@ indexes:
         entrypoint: updateVaultName
   governance_satellite_snapshot:
     kind: tezos.tzkt.big_maps
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     skip_history: never
     handlers:
     - callback: governance.snapshot_ledger_update
@@ -377,20 +377,20 @@ indexes:
         entrypoint: transfer
       - source: liquidity_baking
         type: transaction
-    - callback: liquidity_baking.token_to_xtz
+    - callback: liquidity_baking.token_to_mvrk
       pattern:
       - destination: liquidity_baking
-        entrypoint: tokenToXtz
+        entrypoint: tokenToMvrk
       - destination: tzbtc
         entrypoint: transfer
       - source: liquidity_baking
         type: transaction
       - source: liquidity_baking
         type: transaction
-    - callback: liquidity_baking.xtz_to_token
+    - callback: liquidity_baking.mvrk_to_token
       pattern:
       - destination: liquidity_baking
-        entrypoint: xtzToToken
+        entrypoint: mvrkToToken
       - destination: tzbtc
         entrypoint: transfer
     - callback: liquidity_baking.default
@@ -412,7 +412,7 @@ indexes:
         entrypoint: transfer
   initializer:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - origination
     - transaction
@@ -1558,10 +1558,10 @@ indexes:
     #   pattern:
     #   - destination: lending_controller_mock_time
     #     entrypoint: setLambda
-  m_token_xtz:
+  m_token_mvrk:
     template: m_token_template
     values:
-      m_token_contract: m_token_xtz
+      m_token_contract: m_token_mvrk
   m_token_eurt:
     template: m_token_template
     values:

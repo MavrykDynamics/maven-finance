@@ -18,11 +18,11 @@ async def untrack_farm(
     
         # Update record
         farm_factory            = await models.FarmFactory.get(
-            network             = ctx.datasource.name.replace('tzkt_',''),
+            network             = ctx.datasource.name.replace('mvkt_',''),
             address             = farm_factory_address
         )
         farm            = await models.Farm.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             factory = farm_factory,
             address = farm_address
         )

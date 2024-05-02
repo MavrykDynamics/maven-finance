@@ -31,7 +31,7 @@ async def exit(
         accumulated_fees_per_share              = float(exit.storage.accumulatedFeesPerShare)
 
         # Get or create the interacting user
-        user                                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=initiator_address)
+        user                                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=initiator_address)
         user.mvn_balance                        = mvn_balance
         user.smvn_balance                       = smvn_balance
         await user.save()

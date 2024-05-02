@@ -32,7 +32,7 @@ async def create_treasury(
     
         # Check treasury does not already exists
         treasury_exists                     = await models.Treasury.filter(
-            network     = ctx.datasource.name.replace('tzkt_',''),
+            network     = ctx.datasource.name.replace('mvkt_',''),
             address     = treasury_address
         ).exists()
     
@@ -74,15 +74,15 @@ async def create_treasury(
     
             # Create record
             treasury_factory    = await models.TreasuryFactory.get(
-                network = ctx.datasource.name.replace('tzkt_',''),
+                network = ctx.datasource.name.replace('mvkt_',''),
                 address = treasury_factory_address
             )
             governance          = await models.Governance.get(
-                network = ctx.datasource.name.replace('tzkt_','')
+                network = ctx.datasource.name.replace('mvkt_','')
             )
             treasury            = models.Treasury(
                 address                         = treasury_address,
-                network                         = ctx.datasource.name.replace('tzkt_',''),
+                network                         = ctx.datasource.name.replace('mvkt_',''),
                 metadata                        = contract_metadata,
                 governance                      = governance,
                 admin                           = admin,
@@ -98,7 +98,7 @@ async def create_treasury(
     
             # Create a baker or not
             if baker_address:
-                baker       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=baker_address)
+                baker       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=baker_address)
                 treasury.baker = baker
     
             await treasury.save()
