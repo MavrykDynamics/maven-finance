@@ -23,7 +23,7 @@ async def close_farm(
         min_block_time_snapshot         = int(close_farm.storage.minBlockTimeSnapshot)
     
         # Update record
-        await models.Farm.filter(network=ctx.datasource.name.replace('tzkt_',''), address= farm_address).update(
+        await models.Farm.filter(network=ctx.datasource.name.replace('mvkt_',''), address= farm_address).update(
             last_block_update              = last_block_update,
             open                           = open,
             accumulated_rewards_per_share  = accumulated_rewards_per_share,

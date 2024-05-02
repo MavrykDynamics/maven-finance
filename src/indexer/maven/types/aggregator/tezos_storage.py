@@ -17,7 +17,7 @@ class Config(BaseModel):
     percentOracleThreshold: str
     heartbeatSeconds: str
     rewardAmountStakedMvn: str
-    rewardAmountXtz: str
+    rewardAmountMvrk: str
 
 
 class BreakGlassConfig(BaseModel):
@@ -25,7 +25,7 @@ class BreakGlassConfig(BaseModel):
         extra = Extra.forbid
 
     updateDataIsPaused: bool
-    withdrawRewardXtzIsPaused: bool
+    withdrawRewardMvrkIsPaused: bool
     withdrawRewardStakedMvnIsPaused: bool
 
 
@@ -64,5 +64,5 @@ class AggregatorStorage(BaseModel):
     oracleLedger: Dict[str, OracleLedger]
     lastCompletedData: LastCompletedData
     oracleRewardStakedMvn: Dict[str, str]
-    oracleRewardXtz: Dict[str, str]
+    oracleRewardMvrk: Dict[str, str]
     lambdaLedger: Dict[str, str]

@@ -25,7 +25,7 @@ class AggregatorConfig(BaseModel):
     percentOracleThreshold: str
     heartbeatSeconds: str
     rewardAmountStakedMvn: str
-    rewardAmountXtz: str
+    rewardAmountMvrk: str
 
 
 class CreateAggregatorParameter(BaseModel):

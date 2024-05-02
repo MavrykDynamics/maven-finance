@@ -17,7 +17,7 @@ async def council_action_remove_member(
         # Save the old member in a temp record in case the action is executed
         council_address                 = council_action_remove_member.data.target_address
         old_council_member_address      = council_action_remove_member.parameter.__root__
-        council                         = await models.Council.get(network=ctx.datasource.name.replace('tzkt_',''), address=council_address)
+        council                         = await models.Council.get(network=ctx.datasource.name.replace('mvkt_',''), address=council_address)
         council_action_id               = council.action_counter - 1
         council_action                  = await models.CouncilAction.get(
             internal_id = council_action_id,

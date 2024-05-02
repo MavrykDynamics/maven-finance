@@ -18,7 +18,7 @@ templates:
   # Treasury token balance template
   treasury_token_transfer_receiver_template:
     kind: tezos.tzkt.token_transfers
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     handlers:
     - callback: treasury.token_transfer_receiver
       to: <treasury_contract>
@@ -27,7 +27,7 @@ templates:
   # Farm template
   farm_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -95,7 +95,7 @@ templates:
   # MFarm template
   m_farm_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -163,7 +163,7 @@ templates:
   # Treasury template
   treasury_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -219,7 +219,7 @@ templates:
   # Aggregator template
   aggregator_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -279,10 +279,10 @@ templates:
       pattern:
       - destination: <aggregator_contract>
         entrypoint: updateData
-    - callback: aggregator.withdraw_reward_xtz
+    - callback: aggregator.withdraw_reward_mvrk
       pattern:
       - destination: <aggregator_contract>
-        entrypoint: withdrawRewardXtz
+        entrypoint: withdrawRewardMvrk
     - callback: aggregator.withdraw_reward_staked_mvn
       pattern:
       - destination: <aggregator_contract>
@@ -295,7 +295,7 @@ templates:
   # Vault template
   vault_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -314,7 +314,7 @@ templates:
   # MToken template
   m_token_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - origination
     - transaction
@@ -357,7 +357,7 @@ templates:
   # Index the snapshot ledger bigmap of the governance contract
   governance_satellite_snapshot_template:
     kind: tezos.tzkt.big_maps
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     skip_history: never
     handlers:
     - callback: governance.snapshot_ledger_update
@@ -367,7 +367,7 @@ templates:
   # Ran after the governance origination and index the entire dApp
   maven_finance_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - origination
     - transaction
@@ -1541,20 +1541,20 @@ templates:
         entrypoint: transfer
       - source: <liquidity_baking_contract>
         type: transaction
-    - callback: liquidity_baking.token_to_xtz
+    - callback: liquidity_baking.token_to_mvrk
       pattern:
       - destination: <liquidity_baking_contract>
-        entrypoint: tokenToXtz
+        entrypoint: tokenToMvrk
       - destination: <tzbtc_contract>
         entrypoint: transfer
       - source: <liquidity_baking_contract>
         type: transaction
       - source: <liquidity_baking_contract>
         type: transaction
-    - callback: liquidity_baking.xtz_to_token
+    - callback: liquidity_baking.mvrk_to_token
       pattern:
       - destination: <liquidity_baking_contract>
-        entrypoint: xtzToToken
+        entrypoint: mvrkToToken
       - destination: <tzbtc_contract>
         entrypoint: transfer
     - callback: liquidity_baking.default
@@ -1568,9 +1568,9 @@ templates:
         entrypoint: transfer
 
 indexes:
-  maven_finance_ghostnet_init:
+  maven_finance_atlasnet_init:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - origination
     contracts:

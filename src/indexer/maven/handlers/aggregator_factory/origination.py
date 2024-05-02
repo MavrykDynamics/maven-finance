@@ -18,7 +18,7 @@ async def origination(
         create_aggregator_paused        = aggregator_factory_origination.storage.breakGlassConfig.createAggregatorIsPaused
         track_aggregator_paused         = aggregator_factory_origination.storage.breakGlassConfig.trackAggregatorIsPaused
         untrack_aggregator_paused       = aggregator_factory_origination.storage.breakGlassConfig.untrackAggregatorIsPaused
-        distribute_reward_xtz_paused    = aggregator_factory_origination.storage.breakGlassConfig.distributeRewardXtzIsPaused
+        distribute_reward_mvrk_paused   = aggregator_factory_origination.storage.breakGlassConfig.distributeRewardMvrkIsPaused
         distribute_reward_smvn_paused   = aggregator_factory_origination.storage.breakGlassConfig.distributeRewardStakedMvnIsPaused
     
         # Get contract metadata
@@ -28,19 +28,19 @@ async def origination(
         )
     
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('tzkt_',''))
+        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
     
         # Create record
         aggregator_factory          = models.AggregatorFactory(
             address                         = aggregator_factory_address,
-            network                         = ctx.datasource.name.replace('tzkt_',''),
+            network                         = ctx.datasource.name.replace('mvkt_',''),
             metadata                        = contract_metadata,
             admin                           = admin,
             governance                      = governance,
             create_aggregator_paused        = create_aggregator_paused,
             track_aggregator_paused         = track_aggregator_paused,
             untrack_aggregator_paused       = untrack_aggregator_paused,
-            distribute_reward_xtz_paused    = distribute_reward_xtz_paused,
+            distribute_reward_mvrk_paused   = distribute_reward_mvrk_paused,
             distribute_reward_smvn_paused   = distribute_reward_smvn_paused
         )
         await aggregator_factory.save()

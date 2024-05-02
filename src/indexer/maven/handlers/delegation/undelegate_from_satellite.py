@@ -23,10 +23,10 @@ async def undelegate_from_satellite(
             total_delegated_amount      = float(satellite_storage.totalDelegatedAmount)
         
             # Create and/or update record
-            user                                                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=user_address)
-            satellite                                                       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=satellite_address)
+            user                                                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=user_address)
+            satellite                                                       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=satellite_address)
             delegation                                                      = await models.Delegation.get(
-                network = ctx.datasource.name.replace('tzkt_',''),
+                network = ctx.datasource.name.replace('mvkt_',''),
                 address = delegation_address
             )
             satellite_record                                                = await models.Satellite.get(

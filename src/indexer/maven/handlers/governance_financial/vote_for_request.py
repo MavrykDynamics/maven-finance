@@ -37,8 +37,8 @@ async def vote_for_request(
             vote_type       = models.GovernanceVoteType.PASS
     
         # Create and update records
-        governance              = await models.Governance.get(network=ctx.datasource.name.replace('tzkt_',''), address= governance_address)
-        governance_financial    = await models.GovernanceFinancial.get(network=ctx.datasource.name.replace('tzkt_',''), address= financial_address)
+        governance              = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
+        governance_financial    = await models.GovernanceFinancial.get(network=ctx.datasource.name.replace('mvkt_',''), address= financial_address)
         await models.GovernanceFinancialRequest.filter(
             governance_financial    = governance_financial,
             internal_id             = request_id
@@ -56,7 +56,7 @@ async def vote_for_request(
                 execution_datetime    = execution_datetime
             )
     
-        voter                   = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=voter_address)
+        voter                   = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=voter_address)
     
         # Register vote
         satellite_snapshot, _   = await models.GovernanceSatelliteSnapshot.get_or_create(

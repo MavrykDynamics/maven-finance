@@ -16,7 +16,7 @@ async def unpause_all(
         farm_factory_address    = unpause_all.data.target_address
     
         # Update record
-        await models.FarmFactory.filter(network=ctx.datasource.name.replace('tzkt_',''), address=farm_factory_address).update(
+        await models.FarmFactory.filter(network=ctx.datasource.name.replace('mvkt_',''), address=farm_factory_address).update(
             create_farm_paused         = unpause_all.storage.breakGlassConfig.createFarmIsPaused,
             create_farm_m_token_paused = unpause_all.storage.breakGlassConfig.createFarmMTokenIsPaused,
             track_farm_paused          = unpause_all.storage.breakGlassConfig.trackFarmIsPaused,

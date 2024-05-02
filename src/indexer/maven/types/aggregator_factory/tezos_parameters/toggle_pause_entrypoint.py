@@ -26,7 +26,7 @@ class TargetEntrypointItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    distributeRewardXtz: bool
+    distributeRewardMvrk: bool
 
 
 class TargetEntrypointItem3(BaseModel):
