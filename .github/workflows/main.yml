@@ -10,7 +10,7 @@ on:
     branches:
       - 'main'
       - 'staging'
-      - 'maven-migration'
+      - 'mavryk-protocol-contracts-update'
 jobs:
   build-docker-image:
     name: Build indexer image
