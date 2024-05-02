@@ -29,19 +29,19 @@ module.exports = {
       port: 8732,
     },
     atlasnet: {
-      rpc: "https://rpc.mavryk.network/atlasnet",
+      rpc: "https://atlasnet.rpc.mavryk.network",
       network_id: "*",
       secretKey: bob.sk,
       port: 443,
     },
     basenet: {
-      rpc: "https://rpc.mavryk.network/basenet",
+      rpc: "https://basenet.rpc.mavryk.network",
       network_id: "*",
       secretKey: bob.sk,
       port: 443,
     },
     mainnet: {
-      rpc: "https://rpc.mavryk.network/mainnet",
+      rpc: "https://mainnet.rpc.mavryk.network",
       port: 443,
       network_id: "*",
       secretKey: bob.sk,

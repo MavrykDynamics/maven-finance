@@ -34,7 +34,7 @@ async def vote_for_emergency_control(
                 execution_level     = int(emergency_storage.executedLevel)
         
             # Create and update record
-            emergency                   = await models.EmergencyGovernance.get(network=ctx.datasource.name.replace('tzkt_',''), address= emergency_address)
+            emergency                   = await models.EmergencyGovernance.get(network=ctx.datasource.name.replace('mvkt_',''), address= emergency_address)
             emergency_record            = await models.EmergencyGovernanceRecord.get(
                 emergency_governance        = emergency,
                 internal_id                 = int(emergency_id)
@@ -45,7 +45,7 @@ async def vote_for_emergency_control(
             emergency_record.execution_level       = execution_level
             await emergency_record.save()
         
-            voter                       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=voter_address)
+            voter                       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=voter_address)
 
             emergency_vote_record       = models.EmergencyGovernanceVote(
                 timestamp                   = timestamp,

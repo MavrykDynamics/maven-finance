@@ -15,6 +15,7 @@
 # Python
 __pycache__/
 venv/
+.python-version
 
 # Windows
 **/Thumbs.db

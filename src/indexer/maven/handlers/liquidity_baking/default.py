@@ -19,7 +19,7 @@ async def default(
     
         # Create / Update record
         liquidity_baking, _ = await models.LiquidityBaking.get_or_create(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = liquidity_baking_address
         )
 

@@ -19,8 +19,8 @@ async def update_oracle(
         oracle_peer_id          = oracle_storage.oraclePeerId
     
         # Create record
-        oracle                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=oracle_address)
-        aggregator              = await models.Aggregator.get(network=ctx.datasource.name.replace('tzkt_',''), address=aggregator_address)
+        oracle                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=oracle_address)
+        aggregator              = await models.Aggregator.get(network=ctx.datasource.name.replace('mvkt_',''), address=aggregator_address)
         await models.AggregatorOracle.filter(
             aggregator  = aggregator,
             user        = oracle

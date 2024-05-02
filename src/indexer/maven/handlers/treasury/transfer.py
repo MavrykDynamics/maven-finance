@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from maven.utils.contracts import get_contract_token_metadata, get_token_standard
-from maven.types.treasury.tezos_parameters.transfer import TransferParameter, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as tez
+from maven.types.treasury.tezos_parameters.transfer import TransferParameter, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as mav
 from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.treasury.tezos_storage import TreasuryStorage
@@ -17,7 +17,7 @@ async def transfer(
         treasury_address    = transfer.data.target_address
         txs                 = transfer.parameter.__root__
         timestamp           = transfer.data.timestamp
-        treasury            = await models.Treasury.get(network=ctx.datasource.name.replace('tzkt_',''), address= treasury_address)
+        treasury            = await models.Treasury.get(network=ctx.datasource.name.replace('mvkt_',''), address= treasury_address)
         await treasury.save()
     
         # Create records
@@ -34,7 +34,7 @@ async def transfer(
             elif type(token) == fa2:
                 token_contract_address  = token.fa2.tokenContractAddress
                 token_id                = int(token.fa2.tokenId)
-            elif type(token) == tez:
+            elif type(token) == mav:
                 token_contract_address  = "mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d"
 
             token_standard = await get_token_standard(
@@ -47,7 +47,7 @@ async def transfer(
                 contract            = treasury,
                 contract_address    = token_contract_address
             )
-            if token_standard == "tez":
+            if token_standard == "mav":
                 whitelisted         = True
     
             # Persist Token Metadata
@@ -57,7 +57,7 @@ async def transfer(
                 token_id=str(token_id)
             )
     
-            receiver                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=receiver_address)
+            receiver                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=receiver_address)
             treasury_transfer_data  = models.TreasuryTransferHistoryData(
                 timestamp                       = timestamp,
                 treasury                        = treasury,
@@ -71,14 +71,14 @@ async def transfer(
             token, _                = await models.Token.get_or_create(
                 token_address   = token_contract_address,
                 token_id        = token_id,
-                network         = ctx.datasource.name.replace('tzkt_','')
+                network         = ctx.datasource.name.replace('mvkt_','')
             )
             if token_contract_metadata:
                 token.metadata          = token_contract_metadata
-            elif type(token) == tez:
+            elif type(token) == mav:
                 token.metadata          = {
                     "name": "Tezos",
-                    "symbol": "XTZ",
+                    "symbol": "MVRK",
                     "decimals": "6",
                     "icon": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
                     "thumbnailUri": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",

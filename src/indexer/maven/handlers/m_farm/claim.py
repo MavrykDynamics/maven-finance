@@ -27,7 +27,7 @@ async def claim(
 
         # Update farm
         farm                            = await models.Farm.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = farm_address
         )
         farm.total_rewards              = total_rewards
@@ -51,7 +51,7 @@ async def claim(
             unclaimed_rewards               = float(depositor_storage.unclaimedRewards)
             token_reward_index              = float(depositor_storage.tokenRewardIndex)
         
-            user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=depositor_address)
+            user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=depositor_address)
         
             farm_account, _                 = await models.FarmAccount.get_or_create(
                 user = user,

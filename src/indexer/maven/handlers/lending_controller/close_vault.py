@@ -23,10 +23,10 @@ async def close_vault(
     
         # Update record
         lending_controller          = await models.LendingController.get(
-            network             = ctx.datasource.name.replace('tzkt_',''),
+            network             = ctx.datasource.name.replace('mvkt_',''),
             address             = lending_controller_address,
         )
-        owner                       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=vault_owner_address)
+        owner                       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vault_owner_address)
         lending_controller_vault    = await models.LendingControllerVault.get(
             lending_controller  = lending_controller,
             owner               = owner,
@@ -43,7 +43,7 @@ async def close_vault(
             await vault_collateral_balance.save()
     
         # Save history data
-        sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=sender_address)
+        sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
         history_data                            = models.LendingControllerHistoryData(
             lending_controller  = lending_controller,
             loan_token          = loan_token,

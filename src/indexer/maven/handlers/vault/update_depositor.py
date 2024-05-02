@@ -19,7 +19,7 @@ async def update_depositor(
     
         # Update record
         vault               = await models.Vault.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = vault_address
         )
     
@@ -36,7 +36,7 @@ async def update_depositor(
             allowance_type      = models.VaultAllowance.WHITELIST
             depositor_address   = depositor.whitelist.address
             add_depositor       = depositor.whitelist.bool
-            user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=depositor_address)
+            user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=depositor_address)
             vault_depositor, _  = await models.VaultDepositor.get_or_create(
                 vault       = vault,
                 depositor   = user

@@ -4,7 +4,7 @@ from dipdup.context import HandlerContext
 from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.utils.contracts import get_contract_token_metadata, get_token_standard
 from maven.types.lending_controller.tezos_parameters.set_loan_token import SetLoanTokenParameter, ActionItem as createLoanToken
-from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
+from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as mav
 import maven.models as models
 
 async def set_loan_token(
@@ -51,7 +51,7 @@ async def set_loan_token(
         elif type(loan_token_type_storage) == fa2:
             loan_token_address              = loan_token_type_storage.fa2.tokenContractAddress
             loan_token_id                   = loan_token_type_storage.fa2.tokenId
-        elif type(loan_token_type_storage) == tez:
+        elif type(loan_token_type_storage) == mav:
             loan_token_address              = "mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d"
     
         token_contract_metadata = None
@@ -65,7 +65,7 @@ async def set_loan_token(
         else:
             token_contract_metadata = {
                 "name": "Tezos",
-                "symbol": "XTZ",
+                "symbol": "MVRK",
                 "decimals": "6",
                 "icon": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
                 "thumbnailUri": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
@@ -73,17 +73,17 @@ async def set_loan_token(
     
         # Create / Update record
         lending_controller                  = await models.LendingController.get(
-            network         = ctx.datasource.name.replace('tzkt_',''),
+            network         = ctx.datasource.name.replace('mvkt_',''),
             address         = lending_controller_address,
         )
-        oracle                              = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=loan_token_oracle_address)
+        oracle                              = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=loan_token_oracle_address)
         token                               = await models.Token.get(
-            network         = ctx.datasource.name.replace('tzkt_',''),
+            network         = ctx.datasource.name.replace('mvkt_',''),
             token_address   = loan_token_m_token_address,
             token_id        = 0
         )
         m_token, _                          = await models.MToken.get_or_create(
-            network         = ctx.datasource.name.replace('tzkt_',''),
+            network         = ctx.datasource.name.replace('mvkt_',''),
             address         = loan_token_m_token_address,
             token           = token
         )
@@ -98,7 +98,7 @@ async def set_loan_token(
         token, _                            = await models.Token.get_or_create(
             token_address       = loan_token_address,
             token_id            = loan_token_id,
-            network             = ctx.datasource.name.replace('tzkt_','')
+            network             = ctx.datasource.name.replace('mvkt_','')
         )
         token.metadata          = token_contract_metadata
         token.token_standard    = standard
