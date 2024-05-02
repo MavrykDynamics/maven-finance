@@ -21,8 +21,8 @@ async def update_council_member_info(
         image                   = council_member_storage.image
     
         # Update record
-        break_glass             = await models.BreakGlass.get(network=ctx.datasource.name.replace('tzkt_',''), address= break_glass_address)
-        user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=council_member_address)
+        break_glass             = await models.BreakGlass.get(network=ctx.datasource.name.replace('mvkt_',''), address= break_glass_address)
+        user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=council_member_address)
         council_member          = await models.BreakGlassCouncilMember.get(
             break_glass = break_glass,
             user        = user

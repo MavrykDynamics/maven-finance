@@ -18,7 +18,7 @@ async def origination(
         # Create record
         mvn_faucet          = models.MVNFaucet(
             address             = address,
-            network             = ctx.datasource.name.replace('tzkt_',''),
+            network             = ctx.datasource.name.replace('mvkt_',''),
             mvn_token_address   = mvn_token_address,
             amount_per_user     = amount_per_user
         )

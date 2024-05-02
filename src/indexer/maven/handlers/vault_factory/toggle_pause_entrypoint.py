@@ -18,7 +18,7 @@ async def toggle_pause_entrypoint(
     
         # Update record
         await models.VaultFactory.filter(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = vault_factory_address
         ).update(
             create_vault_paused   = create_vault_paused

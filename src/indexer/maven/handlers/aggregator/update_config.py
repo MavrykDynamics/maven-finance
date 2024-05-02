@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.Aggregator.filter(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = aggregator_address
         ).update(
             last_updated_at  = timestamp,
@@ -27,7 +27,7 @@ async def update_config(
             pct_oracle_threshold = update_config.storage.config.percentOracleThreshold,
             heart_beat_seconds = update_config.storage.config.heartbeatSeconds,
             reward_amount_smvn = update_config.storage.config.rewardAmountStakedMvn,
-            reward_amount_xtz = update_config.storage.config.rewardAmountXtz,
+            reward_amount_mvrk = update_config.storage.config.rewardAmountMvrk,
         )
 
     except BaseException as e:

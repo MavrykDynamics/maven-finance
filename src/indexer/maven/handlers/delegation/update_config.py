@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.Delegation.filter(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = delegation_address
         ).update(
             last_updated_at                     = timestamp,

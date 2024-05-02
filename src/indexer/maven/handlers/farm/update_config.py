@@ -29,7 +29,7 @@ async def update_config(
 
         # Update contract
         farm    = await models.Farm.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = farm_address
         )
         farm.last_updated_at                = timestamp

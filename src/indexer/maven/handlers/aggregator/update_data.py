@@ -19,7 +19,7 @@ async def update_data(
         timestamp                       = update_data.data.timestamp
         last_completed_data             = update_data.storage.lastCompletedData
         aggregator                      = await models.Aggregator.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = aggregator_address
         )
         
@@ -37,19 +37,19 @@ async def update_data(
             aggregator.last_completed_data_last_updated_at  = parser.parse(last_completed_data.lastUpdatedAt)
             await aggregator.save()
         
-            user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=oracle_address)
+            user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=oracle_address)
             oracle                          = await models.AggregatorOracle.get(
                 aggregator  = aggregator,
                 user        = user
             )
             await oracle.save()
-            oracle_reward_xtz, _            = await models.AggregatorOracleReward.get_or_create(
+            oracle_reward_mvrk, _            = await models.AggregatorOracleReward.get_or_create(
                 oracle      = oracle,
-                type        = models.RewardType.XTZ
+                type        = models.RewardType.MVRK
             )
-            if oracle_address in update_data.storage.oracleRewardXtz:
-                oracle_reward_xtz.reward    = float(update_data.storage.oracleRewardXtz[oracle_address])
-            await oracle_reward_xtz.save()
+            if oracle_address in update_data.storage.oracleRewardMvrk:
+                oracle_reward_mvrk.reward    = float(update_data.storage.oracleRewardMvrk[oracle_address])
+            await oracle_reward_mvrk.save()
             oracle_reward_smvn, _            = await models.AggregatorOracleReward.get_or_create(
                 oracle      = oracle,
                 type        = models.RewardType.SMVN
@@ -78,7 +78,7 @@ async def update_data(
                 round                           = int(oracle_observation.round)
         
                 # Create observation records
-                user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=oracle_address)
+                user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=oracle_address)
                 oracle                          = await models.AggregatorOracle.get(
                     aggregator  = aggregator,
                     user        = user

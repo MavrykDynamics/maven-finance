@@ -27,10 +27,10 @@ async def vault_deposit_staked_token(
     
         # Update record
         lending_controller          = await models.LendingController.get(
-            network             = ctx.datasource.name.replace('tzkt_',''),
+            network             = ctx.datasource.name.replace('mvkt_',''),
             address             = lending_controller_address,
         )
-        vault_owner                 = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=vault_owner_address)
+        vault_owner                 = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vault_owner_address)
     
         for vault_storage in vaults_storage:
             if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:
@@ -101,7 +101,7 @@ async def vault_deposit_staked_token(
 
                 # Get the related token
                 token, _                                = await models.Token.get_or_create(
-                    network             = ctx.datasource.name.replace('tzkt_',''),
+                    network             = ctx.datasource.name.replace('mvkt_',''),
                     token_address       = collateral_token_address,
                     token_id            = token_id
                 )
@@ -123,7 +123,7 @@ async def vault_deposit_staked_token(
                 await lending_controller_collateral_balance.save()
     
                 # Save history data
-                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=sender_address)
+                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

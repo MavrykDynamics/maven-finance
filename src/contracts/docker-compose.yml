@@ -18,7 +18,7 @@ services:
 
   api:
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-api:4.7.6
+    image: ghcr.io/mavryk-network/bcdhub-api:4.7.7
     environment:
       - BCD_ENV=sandbox
       - GIN_MODE=debug
@@ -40,7 +40,7 @@ services:
 
   indexer:
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-indexer:4.7.6
+    image: ghcr.io/mavryk-network/bcdhub-indexer:4.7.7
     environment:
       - BCD_ENV=sandbox
       - POSTGRES_USER=root
@@ -74,7 +74,7 @@ services:
   gui:
     container_name: sandbox-gui
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-gui:4.7.6
+    image: ghcr.io/mavryk-network/bcdhub-gui:4.7.7
     depends_on:
       - api
     ports:

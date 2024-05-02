@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from maven.utils.contracts import get_token_standard, get_contract_token_metadata
-from maven.types.governance.tezos_storage import GovernanceStorage, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as tez
+from maven.types.governance.tezos_storage import GovernanceStorage, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as mav
 from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.governance.tezos_parameters.update_proposal_data import UpdateProposalDataParameter
@@ -21,7 +21,7 @@ async def update_proposal_data(
         payment_data_storage    = storage_proposal.paymentData
         
         # Update or create record
-        governance      = await models.Governance.get(network=ctx.datasource.name.replace('tzkt_',''), address= governance_address)
+        governance      = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
         proposal        = await models.GovernanceProposal.get(
             internal_id         = proposal_id,
             governance          = governance
@@ -72,7 +72,7 @@ async def update_proposal_data(
                 elif type(token) == fa2:
                     token_address   = token.fa2.tokenContractAddress
                     token_id        = int(token.fa2.tokenId)
-                elif type(token) == tez:
+                elif type(token) == mav:
                     token_address   = "mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d"
         
                 # Persist loan Token Metadata
@@ -84,8 +84,8 @@ async def update_proposal_data(
                     )
                 else:
                     token_contract_metadata = {
-                        "name": "Tezos",
-                        "symbol": "XTZ",
+                        "name": "Mavryk",
+                        "symbol": "MVRK",
                         "decimals": "6",
                         "icon": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
                         "thumbnailUri": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
@@ -101,7 +101,7 @@ async def update_proposal_data(
                 token, _            = await models.Token.get_or_create(
                     token_address       = token_address,
                     token_id            = token_id,
-                    network             = ctx.datasource.name.replace('tzkt_','')
+                    network             = ctx.datasource.name.replace('mvkt_','')
                 )
                 token.metadata          = token_contract_metadata
                 token.token_standard    = standard
@@ -109,7 +109,7 @@ async def update_proposal_data(
 
                 # Get receiver
                 receiver_address                = payment_single_data.transaction.to_
-                receiver                        = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=receiver_address)
+                receiver                        = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=receiver_address)
 
                 # Save the payment record
                 payment_data.title              = payment_single_data.title
