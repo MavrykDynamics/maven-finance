@@ -4,7 +4,9 @@ import { BigNumber } from "bignumber.js";
 export type mvnFaucetStorageType = {
   
     mvnTokenAddress           : string;
+    fakeUsdtTokenAddress      : string;
     metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
-    amountPerUser             : BigNumber;
+    mvnAmountPerUser          : BigNumber;
+    fakeUsdtAmountPerUser     : BigNumber;
     requesters                : MichelsonMap<MichelsonMapKey, unknown>;
 };

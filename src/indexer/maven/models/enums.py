@@ -82,3 +82,7 @@ class LendingControllerOperationType(IntEnum):
 class MTokenOperationType(IntEnum):
     TRANSFER                        = 0
     MINT_OR_BURN                    = 1
+
+class FaucetRequestType(IntEnum):
+    MVN                             = 0
+    FAKE_USDT                       = 1

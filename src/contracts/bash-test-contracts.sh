@@ -267,7 +267,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         mvnFaucet)
             echo "Running tests for mvnFaucet"
-            COMMANDS+=("yarn ts-mocha --paths test/35_test_mvn_faucet.spec.ts --bail --timeout 9000000 --exit")
+            COMMANDS+=("yarn ts-mocha --paths test/37_test_mvn_faucet.spec.ts --bail --timeout 9000000 --exit")
             ;;
         *)
             echo "Unknown contract test: $contract_test"

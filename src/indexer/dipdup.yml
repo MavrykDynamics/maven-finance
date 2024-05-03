@@ -510,6 +510,10 @@ templates:
       pattern:
       - destination: <mvn_faucet_contract>
         entrypoint: requestMvn
+    - callback: mvn_faucet.request_fake_usdt
+      pattern:
+      - destination: <mvn_faucet_contract>
+        entrypoint: requestFakeUsdt
 
     # Governance Proxy Handlers
     - callback: governance_proxy.set_admin
@@ -1541,20 +1545,20 @@ templates:
         entrypoint: transfer
       - source: <liquidity_baking_contract>
         type: transaction
-    - callback: liquidity_baking.token_to_mvrk
+    - callback: liquidity_baking.token_to_xtz
       pattern:
       - destination: <liquidity_baking_contract>
-        entrypoint: tokenToMvrk
+        entrypoint: tokenToXtz
       - destination: <tzbtc_contract>
         entrypoint: transfer
       - source: <liquidity_baking_contract>
         type: transaction
       - source: <liquidity_baking_contract>
         type: transaction
-    - callback: liquidity_baking.mvrk_to_token
+    - callback: liquidity_baking.xtz_to_token
       pattern:
       - destination: <liquidity_baking_contract>
-        entrypoint: mvrkToToken
+        entrypoint: xtzToToken
       - destination: <tzbtc_contract>
         entrypoint: transfer
     - callback: liquidity_baking.default

@@ -17,7 +17,7 @@ contracts:
     typename: mvn_token
   mvn_faucet:
     kind: tezos
-    address: KT1FFtqRpsSY82ndd4caogwwuxmJR3tjMvhK
+    address: KT1NV5ctPkwy7wFYBsPw2P7qEWxmdCsgcbWi
     typename: mvn_faucet
   governance_proxy:
     kind: tezos
