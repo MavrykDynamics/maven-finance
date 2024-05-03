@@ -18,7 +18,8 @@ import contractDeployments from '../contractDeployments.json'
 import { bob } from "../../scripts/sandbox/accounts";
 import accounts from "../../scripts/sandbox/accounts";
 import * as helperFunctions from '../helpers/helperFunctions'
-import { ledger } from "../../storage/mvnTokenStorage";
+import { ledger as mvnLedger } from "../../storage/mvnTokenStorage";
+import { ledger as fakeUsdtLedger } from "../../storage/mavenFa2TokenStorage";
 
 // ------------------------------------------------------------------------------
 // Testnet Setup
@@ -34,6 +35,7 @@ describe("Testnet setup helper", async () => {
     let doormanInstance;
     let delegationInstance;
     let mvnTokenInstance;
+    let fakeUSDTTokenInstance;
     let governanceInstance;
     let governanceProxyInstance;
     let emergencyGovernanceInstance;
@@ -58,6 +60,7 @@ describe("Testnet setup helper", async () => {
     let doormanStorage;
     let delegationStorage;
     let mvnTokenStorage;
+    let fakeUSDTTokenStorage;
     let governanceStorage;
     let governanceProxyStorage;
     let emergencyGovernanceStorage;
@@ -91,6 +94,7 @@ describe("Testnet setup helper", async () => {
             doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
             delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
             mvnTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
+            fakeUSDTTokenInstance                   = await utils.tezos.contract.at(contractDeployments.fakeUSDtToken.address);
             governanceInstance                      = await utils.tezos.contract.at(contractDeployments.governance.address);
             governanceProxyInstance                 = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
             emergencyGovernanceInstance             = await utils.tezos.contract.at(contractDeployments.emergencyGovernance.address);
@@ -109,11 +113,12 @@ describe("Testnet setup helper", async () => {
             lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
             lendingControllerMockTimeInstance       = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
-            mavenFa12TokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
+            mavenFa12TokenInstance                  = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
     
             doormanStorage                          = await doormanInstance.storage();
             delegationStorage                       = await delegationInstance.storage();
             mvnTokenStorage                         = await mvnTokenInstance.storage();
+            fakeUSDTTokenStorage                    = await fakeUSDTTokenInstance.storage();
             governanceStorage                       = await governanceInstance.storage();
             governanceProxyStorage                  = await governanceProxyInstance.storage();
             emergencyGovernanceStorage              = await emergencyGovernanceInstance.storage();
@@ -138,6 +143,7 @@ describe("Testnet setup helper", async () => {
             console.log('Doorman Contract deployed at:'                         , contractDeployments.doorman.address);
             console.log('Delegation Contract deployed at:'                      , contractDeployments.delegation.address);
             console.log('MVN Token Contract deployed at:'                       , contractDeployments.mvnToken.address);
+            console.log('Fake USDT Token Contract deployed at:'                 , contractDeployments.fakeUSDtToken.address);
             console.log('Governance Contract deployed at:'                      , contractDeployments.governance.address);
             console.log('Emergency Governance Contract deployed at:'            , contractDeployments.emergencyGovernance.address);
             console.log('Vesting Contract deployed at:'                         , contractDeployments.vesting.address);
@@ -165,11 +171,13 @@ describe("Testnet setup helper", async () => {
             await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
-        it('Faucet gets all MVN', async () => {
+        it('Faucet gets all MVN & Fake Tether', async () => {
             try{
                 for(let accountName in accounts){
                     let account = accounts[accountName];
-                    if(ledger.has(account.pkh)){
+
+                    // MVN Transfer
+                    if(mvnLedger.has(account.pkh)){
                         let balance = await mvnTokenStorage.ledger.get(account.pkh);
                         if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== mvnFaucetAddress){
                             // Transfer all funds to bob
@@ -177,6 +185,31 @@ describe("Testnet setup helper", async () => {
                             console.log("account:", account)
                             console.log("balance:", balance)
                             let operation = await mvnTokenInstance.methods.transfer([
+                                {
+                                    from_: account.pkh,
+                                    txs: [
+                                    {
+                                        to_: mvnFaucetAddress,
+                                        token_id: 0,
+                                        amount: balance.toNumber(),
+                                    }
+                                    ],
+                                },
+                                ])
+                                .send()
+                            await operation.confirmation();
+                        }
+                    }
+
+                    // FakeUSDt Transfer
+                    if(fakeUsdtLedger.has(account.pkh)){
+                        let balance = await fakeUSDTTokenStorage.ledger.get(account.pkh);
+                        if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== mvnFaucetAddress){
+                            // Transfer all funds to bob
+                            await helperFunctions.signerFactory(tezos, account.sk);
+                            console.log("account:", account)
+                            console.log("balance:", balance)
+                            let operation = await fakeUSDTTokenInstance.methods.transfer([
                                 {
                                     from_: account.pkh,
                                     txs: [
