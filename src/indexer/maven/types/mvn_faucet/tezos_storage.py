@@ -12,7 +12,9 @@ class MvnFaucetStorage(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    amountPerUser: str
+    mvnAmountPerUser: str
+    fakeUsdtAmountPerUser: str
     metadata: Dict[str, str]
     mvnTokenAddress: str
+    fakeUsdtTokenAddress: str
     requesters: Dict[str, Dict[str, Any]]

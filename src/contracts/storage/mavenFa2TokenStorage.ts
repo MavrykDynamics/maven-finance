@@ -38,7 +38,7 @@ const metadata = MichelsonMap.fromLiteral({
     ).toString('hex'),
   })
 
-const ledger = MichelsonMap.fromLiteral({
+export const ledger = MichelsonMap.fromLiteral({
     [bob.pkh]: singleUserSupply,
     [alice.pkh]: singleUserSupply,
     [eve.pkh]: singleUserSupply,
