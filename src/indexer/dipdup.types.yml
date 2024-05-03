@@ -377,20 +377,20 @@ indexes:
         entrypoint: transfer
       - source: liquidity_baking
         type: transaction
-    - callback: liquidity_baking.token_to_mvrk
+    - callback: liquidity_baking.token_to_xtz
       pattern:
       - destination: liquidity_baking
-        entrypoint: tokenToMvrk
+        entrypoint: tokenToXtz
       - destination: tzbtc
         entrypoint: transfer
       - source: liquidity_baking
         type: transaction
       - source: liquidity_baking
         type: transaction
-    - callback: liquidity_baking.mvrk_to_token
+    - callback: liquidity_baking.xtz_to_token
       pattern:
       - destination: liquidity_baking
-        entrypoint: mvrkToToken
+        entrypoint: xtzToToken
       - destination: tzbtc
         entrypoint: transfer
     - callback: liquidity_baking.default
@@ -559,6 +559,10 @@ indexes:
       pattern:
       - destination: mvn_faucet
         entrypoint: requestMvn
+    - callback: mvn_faucet.request_fake_usdt
+      pattern:
+      - destination: mvn_faucet
+        entrypoint: requestFakeUsdt
 
     # Governance Proxy Handlers
     - callback: governance_proxy.set_admin
