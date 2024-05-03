@@ -16,9 +16,8 @@ import contractDeployments from '../contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { GeneralContract, setGeneralContractLambdas, setGeneralContractProductLambdas }  from '../helpers/deploymentTestHelper'
+import { GeneralContract }  from '../helpers/deploymentTestHelper'
 import { bob } from '../../scripts/sandbox/accounts'
-import * as helperFunctions from '../helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
 // Contract Storage
@@ -47,6 +46,7 @@ describe('MVN Faucet', async () => {
       //----------------------------
   
       mvnFaucetStorage.mvnTokenAddress  = contractDeployments.mvnToken.address
+      mvnFaucetStorage.fakeUsdtTokenAddress = contractDeployments.fakeUSDtToken.address
       mvnFaucet = await GeneralContract.originate(utils.tezos, "mvnFaucet", mvnFaucetStorage);
   
       await saveContractAddress('mvnFaucetAddress', mvnFaucet.contract.address)

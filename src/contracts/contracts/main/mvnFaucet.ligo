@@ -27,10 +27,11 @@
 type action is
 
         // Default Entrypoint to Receive Mav
-        Default     of unit
+        Default         of unit
 
         // Housekeeping Entrypoints
-    |   RequestMvn  of unit
+    |   RequestMvn      of unit
+    |   RequestFakeUsdt of unit
 
 
 type return is list (operation) * mvnFaucetStorageType
@@ -57,15 +58,23 @@ const noOperations : list (operation) = nil;
 function verifyUserPreviousMvnRequest(var s : mvnFaucetStorageType) : unit is
 block {
 
-    if Big_map.mem(Mavryk.get_sender(), s.requesters) 
+    if Big_map.mem((Mavryk.get_sender(), (Mvn : requestVariantType)), s.requesters) 
     then failwith("MVN_REQUEST_LIMIT_REACHED")
 
 } with unit
 
-function saveUserMvnRequest(var s : mvnFaucetStorageType) : mvnFaucetStorageType is
+function verifyUserPreviousFakeUsdtRequest(var s : mvnFaucetStorageType) : unit is
 block {
 
-    s.requesters    := Big_map.update(Mavryk.get_sender(), Some(unit), s.requesters);
+    if Big_map.mem((Mavryk.get_sender(), (FakeUsdt : requestVariantType)), s.requesters) 
+    then failwith("FAKE_USDT_REQUEST_LIMIT_REACHED")
+
+} with unit
+
+function saveUserRequest(const request : requestVariantType; var s : mvnFaucetStorageType) : mvnFaucetStorageType is
+block {
+
+    s.requesters    := Big_map.update((Mavryk.get_sender(), request), Some(unit), s.requesters);
 
 } with (s)
 
@@ -93,14 +102,44 @@ block {
     verifyUserPreviousMvnRequest(s);
 
     // save user request in the storage
-    s   := saveUserMvnRequest(s);
+    s   := saveUserRequest((Mvn : requestVariantType), s);
 
     // assign params to constants for better code readability
     const from_: address                = Mavryk.get_self_address();
     const to_: address                  = Mavryk.get_sender();
-    const amountPerUser: nat            = s.amountPerUser;
+    const amountPerUser: nat            = s.mvnAmountPerUser;
     const tokenId: nat                  = 0n;
     const tokenContractAddress: address = s.mvnTokenAddress;
+
+    // create the transfer operation
+    const operations: list(operation)   = list[
+        transferFa2Token(
+            from_,
+            to_,
+            amountPerUser,
+            tokenId,
+            tokenContractAddress
+        )
+    ];
+
+} with (operations, s)
+
+(* RequestFakeUSDt entrypoint *)
+function requestFakeUsdt(var s : mvnFaucetStorageType) : return is
+block {
+
+    // verify user didn't already make a request
+    verifyUserPreviousFakeUsdtRequest(s);
+
+    // save user request in the storage
+    s   := saveUserRequest((FakeUsdt : requestVariantType), s);
+
+    // assign params to constants for better code readability
+    const from_: address                = Mavryk.get_self_address();
+    const to_: address                  = Mavryk.get_sender();
+    const amountPerUser: nat            = s.fakeUsdtAmountPerUser;
+    const tokenId: nat                  = 0n;
+    const tokenContractAddress: address = s.fakeUsdtTokenAddress;
 
     // create the transfer operation
     const operations: list(operation)   = list[
@@ -138,6 +177,7 @@ block{
             
             // Housekeeping Entrypoints
         |   RequestMvn (_params)                -> requestMvn(s)
+        |   RequestFakeUsdt (_params)           -> requestFakeUsdt(s)
 
     ]
 
