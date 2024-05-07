@@ -430,25 +430,25 @@ describe("Testnet setup helper", async () => {
                 await setCollateralTokenOperation.confirmation();
                 
                 // rwa
-                // setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
-                //     "createCollateralToken",
+                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
 
-                //     "cove",
-                //     contractDeployments.rwaToken.address,
-                //     2,
+                    "cove",
+                    "KT1VbzPcAh7KMXRNJ4NgibDr44SSWNrGHTJe",
+                    2,
 
-                //     rwaAggregator,
-                //     false,
-                //     false,
-                //     false,
-                //     null,
-                //     null, // Max deposit amount
+                    rwaAggregator,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null, // Max deposit amount
 
-                //     "fa2",
-                //     contractDeployments.rwaToken.address,
-                //     0
-                // ).send();
-                // await setCollateralTokenOperation.confirmation();
+                    "fa2",
+                    "KT1VbzPcAh7KMXRNJ4NgibDr44SSWNrGHTJe",
+                    0
+                ).send();
+                await setCollateralTokenOperation.confirmation();
 
             } catch(e) {
                 console.dir(e, {depth: 5});
