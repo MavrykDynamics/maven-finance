@@ -78,7 +78,7 @@ describe('Oracle Setup', async () => {
                         icon: 'https://infura-ipfs.io/ipfs/QmNyMFPuh43K9wkYHV6shtLYMusqXf3YCkes9aWAgird6u',
                         version: 'v1.0.0',
                         authors: ['Maven Dev Team <info@mavryk.io>'],
-                                    category: 'cryptocurrency'
+                        category: 'cryptocurrency'
                     }),
                     'ascii',
                 ).toString('hex')
@@ -86,7 +86,7 @@ describe('Oracle Setup', async () => {
                 const mvrkUsdMetadata = Buffer.from(
                     JSON.stringify({
                         name: 'MVRK/USD Aggregator Contract',
-                        icon: 'https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW',
+                        icon: '',
                         version: 'v1.0.0',
                         authors: ['Maven Dev Team <info@mavryk.io>'],
                         category: 'cryptocurrency'
@@ -105,16 +105,27 @@ describe('Oracle Setup', async () => {
                     'ascii',
                 ).toString('hex')
 
-                const eurtUsdMetadata = Buffer.from(
+                const rwaUsdMetadata = Buffer.from(
                     JSON.stringify({
-                        name: 'EURT/USD Aggregator Contract',
-                        icon: 'https://www.circle.com/hubfs/euro-coin-lockup-sm.svg',
+                        name: 'COVE/USD Aggregator Contract',
+                        icon: 'https://infura-ipfs.io/ipfs/QmVvUnYu7jfKFR6KDVhPbPXC89tYCCajDvDHuYgPdH6unK',
                         version: 'v1.0.0',
                         authors: ['Maven Dev Team <info@mavryk.io>'],
-                        category: 'stablecoin'
+                        category: 'rwa'
                     }),
                     'ascii',
                 ).toString('hex')
+
+                // const eurtUsdMetadata = Buffer.from(
+                //     JSON.stringify({
+                //         name: 'EURT/USD Aggregator Contract',
+                //         icon: 'https://www.circle.com/hubfs/euro-coin-lockup-sm.svg',
+                //         version: 'v1.0.0',
+                //         authors: ['Maven Dev Team <info@mavryk.io>'],
+                //         category: 'stablecoin'
+                //     }),
+                //     'ascii',
+                // ).toString('hex')
         
                 const createAggregatorsBatch = await utils.tezos.wallet
                     .batch()
@@ -177,12 +188,12 @@ describe('Oracle Setup', async () => {
                     ))
                     .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
         
-                        'EURT/USD',
+                        'COVE/USD',
                         true,
                         
                         oracleMap,
-        
-                        new BigNumber(6),             // decimals
+
+                        new BigNumber(2),             // decimals
                         new BigNumber(2),             // alphaPercentPerThousand
                         
                         new BigNumber(60),            // percentOracleThreshold
@@ -191,9 +202,28 @@ describe('Oracle Setup', async () => {
                         new BigNumber(10000000),      // rewardAmountStakedMvn
                         new BigNumber(1300),          // rewardAmountMvrk
                         
-                        eurtUsdMetadata              // metadata
+                        rwaUsdMetadata               // metadata bytes
                         
                     ))
+                    // .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+        
+                    //     'EURT/USD',
+                    //     true,
+                        
+                    //     oracleMap,
+        
+                    //     new BigNumber(6),             // decimals
+                    //     new BigNumber(2),             // alphaPercentPerThousand
+                        
+                    //     new BigNumber(60),            // percentOracleThreshold
+                    //     new BigNumber(300),           // heartbeatSeconds
+
+                    //     new BigNumber(10000000),      // rewardAmountStakedMvn
+                    //     new BigNumber(1300),          // rewardAmountMvrk
+                        
+                    //     eurtUsdMetadata              // metadata
+                        
+                    // ))
         
                 const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
                 await createAggregatorsBatchOperation.confirmation();
