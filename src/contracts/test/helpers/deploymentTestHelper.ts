@@ -303,7 +303,7 @@ export class GeneralContract {
             "mTokenUsdt",
             "mTokenEurt",
             "mTokenMvrk",
-            "mTokenTzBtc"
+            "mTokenWBtc"
         ];
 
         // For Token MultiAsset contracts

@@ -41,7 +41,7 @@ describe('Lending Controller Supporting Contracts', async () => {
     var mTokenUsdt                      
     var mTokenEurt                      
     var mTokenMvrk                       
-    var mTokenTzBtc
+    var mTokenWBtc
 
     var mockUsdMvrkAggregator            
     var mockUsdMockFa12TokenAggregator  
@@ -77,12 +77,12 @@ describe('Lending Controller Supporting Contracts', async () => {
 
 
             // mToken for Mock FA12 Token in Lending Controller Token Pool 
-            mTokenStorage.loanToken      = mTokenMockData.mTokenEurt.loanToken;
-            mTokenStorage.metadata       = mTokenMockData.mTokenEurt.metadata;
-            mTokenStorage.token_metadata = mTokenMockData.mTokenEurt.token_metadata;
+            // mTokenStorage.loanToken      = mTokenMockData.mTokenEurt.loanToken;
+            // mTokenStorage.metadata       = mTokenMockData.mTokenEurt.metadata;
+            // mTokenStorage.token_metadata = mTokenMockData.mTokenEurt.token_metadata;
             
-            mTokenEurt = await GeneralContract.originate(utils.tezos, "mTokenEurt", mTokenStorage);
-            await saveContractAddress("mTokenEurtAddress", mTokenEurt.contract.address)
+            // mTokenEurt = await GeneralContract.originate(utils.tezos, "mTokenEurt", mTokenStorage);
+            // await saveContractAddress("mTokenEurtAddress", mTokenEurt.contract.address)
 
 
             // mToken for MVRK in Lending Controller Token Pool 
@@ -95,12 +95,12 @@ describe('Lending Controller Supporting Contracts', async () => {
 
 
             // mToken for tzBtc in Lending Controller Token Pool 
-            mTokenStorage.loanToken      = mTokenMockData.mTokenTzBtc.loanToken;
-            mTokenStorage.metadata       = mTokenMockData.mTokenTzBtc.metadata;
-            mTokenStorage.token_metadata = mTokenMockData.mTokenTzBtc.token_metadata;
+            mTokenStorage.loanToken      = mTokenMockData.mTokenWBtc.loanToken;
+            mTokenStorage.metadata       = mTokenMockData.mTokenWBtc.metadata;
+            mTokenStorage.token_metadata = mTokenMockData.mTokenWBtc.token_metadata;
 
-            mTokenTzBtc = await GeneralContract.originate(utils.tezos, "mTokenTzBtc", mTokenStorage);
-            await saveContractAddress("mTokenTzbtcAddress", mTokenTzBtc.contract.address)
+            mTokenWBtc = await GeneralContract.originate(utils.tezos, "mTokenWBtc", mTokenStorage);
+            await saveContractAddress("mTokenWbtcAddress", mTokenWBtc.contract.address)
 
             //----------------------------
             // Mock Oracles
