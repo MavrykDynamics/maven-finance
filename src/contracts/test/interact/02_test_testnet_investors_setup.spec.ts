@@ -56,6 +56,7 @@ describe("Testnet setup helper", async () => {
     let usdtAggregator;
     let mvrkAggregator;
     let btcAggregator;
+    let rwaAggregator;
 
     before("setup", async () => {
         try{
@@ -109,14 +110,17 @@ describe("Testnet setup helper", async () => {
                     case "USDT/USD":
                         usdtAggregator  = aggregatorAddress;
                         break;
-                    case "EURT/USD":
-                        eurtAggregator  = aggregatorAddress;
-                        break;
+                    // case "EURT/USD":
+                    //     eurtAggregator  = aggregatorAddress;
+                    //     break;
                     case "MVRK/USD":
                         mvrkAggregator   = aggregatorAddress;
                         break;
                     case "BTC/USD":
                         btcAggregator   = aggregatorAddress;
+                        break;
+                    case "RWA/USD":
+                        rwaAggregator   = aggregatorAddress;
                         break;
                     default: 
                         break
@@ -249,7 +253,7 @@ describe("Testnet setup helper", async () => {
             }
         });
 
-        it('Creation of 3 loan tokens', async () => {
+        it('Creation of 2 loan tokens', async () => {
             try{
 
                 // Get aggregators addresses
@@ -257,29 +261,29 @@ describe("Testnet setup helper", async () => {
                 const interestRateDecimals                  = 27;
 
                 // EURT
-                var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
-                    "createLoanToken",
+                // var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+                //     "createLoanToken",
 
-                    "eurt",
-                    6,
+                //     "eurt",
+                //     6,
 
-                    eurtAggregator,
+                //     eurtAggregator,
 
-                    contractDeployments.mTokenEurt.address,
+                //     contractDeployments.mTokenEurt.address,
                     
-                    3000,
-                    30 * 10 ** (interestRateDecimals - 2),
-                    5 * 10 ** (interestRateDecimals - 2),
-                    25 * 10 ** (interestRateDecimals - 2),
-                    10 * 10 ** (interestRateDecimals - 2),
-                    20 * 10 ** (interestRateDecimals - 2),
-                    10000,
+                //     3000,
+                //     30 * 10 ** (interestRateDecimals - 2),
+                //     5 * 10 ** (interestRateDecimals - 2),
+                //     25 * 10 ** (interestRateDecimals - 2),
+                //     10 * 10 ** (interestRateDecimals - 2),
+                //     20 * 10 ** (interestRateDecimals - 2),
+                //     10000,
 
-                    "fa2",
-                    "KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS",
-                    0
-                ).send();
-                await setLoanTokenOperation.confirmation();
+                //     "fa2",
+                //     "KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS",
+                //     0
+                // ).send();
+                // await setLoanTokenOperation.confirmation();
 
                 // MVRK
                 var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
@@ -324,7 +328,7 @@ describe("Testnet setup helper", async () => {
                     10000,
 
                     "fa2",
-                    "KT1WNrZ7pEbpmYBGPib1e7UVCeC6GA6TkJYR",
+                    contractDeployments.fakeUSDtToken.address,
                     0
                 ).send();
                 await setLoanTokenOperation.confirmation();
@@ -341,30 +345,30 @@ describe("Testnet setup helper", async () => {
                 aggregatorFactoryStorage     	            = await aggregatorFactoryInstance.storage();
 
                 // Eurt
-                var setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
-                    "createCollateralToken",
+                // var setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                //     "createCollateralToken",
 
-                    "eurt",
-                    'KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS',
-                    6,
+                //     "eurt",
+                //     'KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS',
+                //     6,
 
-                    eurtAggregator,
-                    false,
-                    false,
-                    false,
-                    null,
-                    null, // Max deposit amount
+                //     eurtAggregator,
+                //     false,
+                //     false,
+                //     false,
+                //     null,
+                //     null, // Max deposit amount
 
-                    // fa12 token type - token contract address
-                    "fa2",
-                    "KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS",
-                    0
+                //     // fa12 token type - token contract address
+                //     "fa2",
+                //     "KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS",
+                //     0
 
-                ).send();
-                await setCollateralTokenOperation.confirmation();
+                // ).send();
+                // await setCollateralTokenOperation.confirmation();
 
                 // MVRK
-                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                var setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
                     "createCollateralToken",
 
                     "mav",
@@ -383,12 +387,12 @@ describe("Testnet setup helper", async () => {
                 ).send();
                 await setCollateralTokenOperation.confirmation();
                 
-                // tzbtc
+                // wbtc
                 setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
                     "createCollateralToken",
 
-                    "tzbtc",
-                    'KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS',
+                    "wbtc",
+                    contractDeployments.fakeWBTCToken.address,
                     8,
 
                     btcAggregator,
@@ -398,8 +402,9 @@ describe("Testnet setup helper", async () => {
                     null,
                     null, // Max deposit amount
 
-                    "fa12",
-                    "KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS"
+                    "fa2",
+                    contractDeployments.fakeWBTCToken.address,
+                    0
                 ).send();
                 await setCollateralTokenOperation.confirmation();
                 
@@ -408,7 +413,7 @@ describe("Testnet setup helper", async () => {
                     "createCollateralToken",
 
                     "usdt",
-                    'KT1WNrZ7pEbpmYBGPib1e7UVCeC6GA6TkJYR',
+                    contractDeployments.fakeUSDtToken.address,
                     6,
 
                     usdtAggregator,
@@ -419,10 +424,31 @@ describe("Testnet setup helper", async () => {
                     null, // Max deposit amount
 
                     "fa2",
-                    "KT1WNrZ7pEbpmYBGPib1e7UVCeC6GA6TkJYR",
+                    contractDeployments.fakeUSDtToken.address,
                     0
                 ).send();
                 await setCollateralTokenOperation.confirmation();
+                
+                // rwa
+                // setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                //     "createCollateralToken",
+
+                //     "cove",
+                //     contractDeployments.rwaToken.address,
+                //     2,
+
+                //     rwaAggregator,
+                //     false,
+                //     false,
+                //     false,
+                //     null,
+                //     null, // Max deposit amount
+
+                //     "fa2",
+                //     contractDeployments.rwaToken.address,
+                //     0
+                // ).send();
+                // await setCollateralTokenOperation.confirmation();
 
             } catch(e) {
                 console.dir(e, {depth: 5});
