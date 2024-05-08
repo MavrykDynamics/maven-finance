@@ -8,7 +8,7 @@
 **/screenshots
 **/yarn-error.log
 **/error.log
-**/compiled/*.tz
+**/compiled/*.mv
 .ligoproject
 ._.DS_Store
 
