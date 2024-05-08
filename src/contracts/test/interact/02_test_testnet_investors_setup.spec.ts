@@ -433,7 +433,7 @@ describe("Testnet setup helper", async () => {
                 setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
                     "createCollateralToken",
 
-                    "cove",
+                    "ocean",
                     "KT1VbzPcAh7KMXRNJ4NgibDr44SSWNrGHTJe",
                     2,
 
