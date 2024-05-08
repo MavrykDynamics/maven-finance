@@ -39,7 +39,7 @@ type createTreasuryFuncType is (option(key_hash) * mav * treasuryStorageType) ->
 const createTreasuryFunc: createTreasuryFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
-#include "../compiled/treasury.tz"
+#include "../compiled/treasury.mv"
         ;
           PAIR } |}
 : createTreasuryFuncType)];
