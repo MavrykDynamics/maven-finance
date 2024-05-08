@@ -107,10 +107,10 @@ describe('Oracle Setup', async () => {
 
                 const rwaUsdMetadata = Buffer.from(
                     JSON.stringify({
-                        name: 'COVE/USD Aggregator Contract',
+                        name: 'OCEAN/USD Aggregator Contract',
                         icon: 'https://infura-ipfs.io/ipfs/QmVvUnYu7jfKFR6KDVhPbPXC89tYCCajDvDHuYgPdH6unK',
                         version: 'v1.0.0',
-                        authors: ['Maven Dev Team <info@mavryk.io>'],
+                        authors: ['Equiteez <info@mavryk.io>'],
                         category: 'rwa'
                     }),
                     'ascii',
@@ -188,7 +188,7 @@ describe('Oracle Setup', async () => {
                     ))
                     .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
         
-                        'COVE/USD',
+                        'OCEAN/USD',
                         true,
                         
                         oracleMap,
