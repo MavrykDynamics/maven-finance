@@ -41,7 +41,7 @@ type createAggregatorFuncType is (option(key_hash) * mav * aggregatorStorageType
 const createAggregatorFunc: createAggregatorFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
-#include "../compiled/aggregator.tz"
+#include "../compiled/aggregator.mv"
         ;
           PAIR } |}
 : createAggregatorFuncType)];
