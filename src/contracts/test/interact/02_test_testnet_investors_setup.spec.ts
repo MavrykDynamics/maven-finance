@@ -119,7 +119,7 @@ describe("Testnet setup helper", async () => {
                     case "BTC/USD":
                         btcAggregator   = aggregatorAddress;
                         break;
-                    case "RWA/USD":
+                    case "OCEAN/USD":
                         rwaAggregator   = aggregatorAddress;
                         break;
                     default: 
@@ -434,7 +434,7 @@ describe("Testnet setup helper", async () => {
                     "createCollateralToken",
 
                     "ocean",
-                    "KT1VbzPcAh7KMXRNJ4NgibDr44SSWNrGHTJe",
+                    "KT1SN16yJrcCsoxpX2dTqwNv4eriyz4ep9Ti",
                     2,
 
                     rwaAggregator,
@@ -445,7 +445,7 @@ describe("Testnet setup helper", async () => {
                     null, // Max deposit amount
 
                     "fa2",
-                    "KT1VbzPcAh7KMXRNJ4NgibDr44SSWNrGHTJe",
+                    "KT1SN16yJrcCsoxpX2dTqwNv4eriyz4ep9Ti",
                     0
                 ).send();
                 await setCollateralTokenOperation.confirmation();
@@ -587,6 +587,9 @@ describe("Testnet setup helper", async () => {
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1WNrZ7pEbpmYBGPib1e7UVCeC6GA6TkJYR", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS", "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.fakeUSDtToken.address, "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.fakeWBTCToken.address, "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1SN16yJrcCsoxpX2dTqwNv4eriyz4ep9Ti", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvnToken.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenEurt.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenMvrk.address, "update"))
