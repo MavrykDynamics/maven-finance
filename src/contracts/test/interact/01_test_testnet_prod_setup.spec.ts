@@ -158,7 +158,7 @@ describe("Testnet setup helper", async () => {
             console.log('Lending Controller Contract deployed at:'              , contractDeployments.lendingController.address);
             console.log('Lending Controller Mock Time Contract deployed at:'    , contractDeployments.lendingControllerMockTime.address);
             console.log('Vault Factory Contract deployed at:'                   , contractDeployments.vaultFactory.address);
-            console.log('Maven FA12 Token Contract deployed at:'               , contractDeployments.mavenFa12Token.address);
+            console.log('Maven FA12 Token Contract deployed at:'                , contractDeployments.mavenFa12Token.address);
 
         } catch(e){
             console.log(e)
