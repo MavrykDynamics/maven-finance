@@ -111,7 +111,7 @@ export const mTokenMockData = {
                     name: Buffer.from('mUSDT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
                     icon: Buffer.from('https://infura-ipfs.io/ipfs/QmSErQjxGbXwztNVNmgvaVZTTdgxCaNxEGixz9WviiK7Ry').toString('hex'),
-                    shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
+                    shouldPreferSymbol: '74727565',
                     thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/QmSErQjxGbXwztNVNmgvaVZTTdgxCaNxEGixz9WviiK7Ry').toString('hex')
                 }),
             },
@@ -157,7 +157,7 @@ export const mTokenMockData = {
                     name: Buffer.from('mEURT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
                     icon: Buffer.from('https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex'),
-                    shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
+                    shouldPreferSymbol: '74727565',
                     thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex')
                 }),
             },
@@ -203,7 +203,7 @@ export const mTokenMockData = {
                     name: Buffer.from('mMVRK').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
                     icon: Buffer.from('https://infura-ipfs.io/ipfs/QmYLzyknkPv6SzA9kcCysGHLTeCReNPk1Gncc5QrQW5zVF').toString('hex'),
-                    shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
+                    shouldPreferSymbol: '74727565',
                     thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/QmYLzyknkPv6SzA9kcCysGHLTeCReNPk1Gncc5QrQW5zVF').toString('hex')
                 }),
             },
@@ -249,7 +249,7 @@ export const mTokenMockData = {
                     name: Buffer.from('mWBTC').toString('hex'),
                     decimals: Buffer.from('8').toString('hex'),
                     icon: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex'),
-                    shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
+                    shouldPreferSymbol: '74727565',
                     thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex')
                 }),
             },
