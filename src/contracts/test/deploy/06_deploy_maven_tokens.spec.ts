@@ -163,9 +163,9 @@ describe('Maven Token', async () => {
                         symbol: Buffer.from('USDt').toString('hex'),
                         decimals: Buffer.from('6').toString('hex'),
                         thumbnailUri: Buffer.from('ipfs://QmRymVGWEudMfLrbjaEiXxngCRTDgWCsscjQMwizy4ZJjX').toString('hex'),
-                        isTransferable: Buffer.from(new Uint8Array([1])).toString('hex'),
+                        isTransferable: '74727565',
                         isBooleanAmount: Buffer.from(new Uint8Array([0])).toString('hex'),
-                        shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex')
+                        shouldPreferSymbol: '74727565'
                     }),
                 },
             })
@@ -216,9 +216,9 @@ describe('Maven Token', async () => {
                         symbol: Buffer.from('WBTC').toString('hex'),
                         decimals: Buffer.from('8').toString('hex'),
                         thumbnailUri: Buffer.from('ipfs://QmRymVGWEudMfLrbjaEiXxngCRTDgWCsscjQMwizy4ZJjX').toString('hex'),
-                        isTransferable: Buffer.from(new Uint8Array([1])).toString('hex'),
+                        isTransferable: '74727565',
                         isBooleanAmount: Buffer.from(new Uint8Array([0])).toString('hex'),
-                        shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex')
+                        shouldPreferSymbol: '74727565'
                     }),
                 },
             })
