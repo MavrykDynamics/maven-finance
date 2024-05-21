@@ -3,7 +3,7 @@ from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.lending_controller_mock_time.tezos_parameters.vault_withdraw_staked_token import VaultWithdrawStakedTokenParameter
-from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenTypeItem1 as Fa2
+from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenType1 as Fa2
 import maven.models as models
 from dateutil import parser
 

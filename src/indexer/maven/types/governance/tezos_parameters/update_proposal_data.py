@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Extra
 
@@ -14,25 +14,25 @@ class AddOrSetProposalData(BaseModel):
 
     title: str
     encodedCode: str
-    codeDescription: Optional[str]
-    index: Optional[str]
+    codeDescription: str | None
+    index: str | None
 
 
-class ProposalDatum(BaseModel):
+class ProposalData(BaseModel):
     class Config:
         extra = Extra.forbid
 
     addOrSetProposalData: AddOrSetProposalData
 
 
-class ProposalDatum1(BaseModel):
+class ProposalData1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     removeProposalData: str
 
 
-class TokenItem(BaseModel):
+class Token(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -47,14 +47,14 @@ class Fa2(BaseModel):
     tokenId: str
 
 
-class TokenItem1(BaseModel):
+class Token1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     fa2: Fa2
 
 
-class TokenItem2(BaseModel):
+class Token2(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -67,7 +67,7 @@ class Transaction(BaseModel):
 
     to_: str
     amount: str
-    token: Union[TokenItem, TokenItem1, TokenItem2]
+    token: Token | Token1 | Token2
 
 
 class AddOrSetPaymentData(BaseModel):
@@ -76,17 +76,17 @@ class AddOrSetPaymentData(BaseModel):
 
     title: str
     transaction: Transaction
-    index: Optional[str]
+    index: str | None
 
 
-class PaymentDatum(BaseModel):
+class PaymentData(BaseModel):
     class Config:
         extra = Extra.forbid
 
     addOrSetPaymentData: AddOrSetPaymentData
 
 
-class PaymentDatum1(BaseModel):
+class PaymentData1(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -98,5 +98,5 @@ class UpdateProposalDataParameter(BaseModel):
         extra = Extra.forbid
 
     proposalId: str
-    proposalData: Optional[List[Union[ProposalDatum, ProposalDatum1]]]
-    paymentData: Optional[List[Union[PaymentDatum, PaymentDatum1]]]
+    proposalData: List[ProposalData | ProposalData1] | None
+    paymentData: List[PaymentData | PaymentData1] | None

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Extra, Field
 
@@ -32,7 +32,7 @@ class FinancialRequestLedger(BaseModel):
     tokenType: str
     tokenId: str
     requestPurpose: str
-    keyHash: Optional[str]
+    keyHash: str | None
     yayVoteStakedMvnTotal: str
     nayVoteStakedMvnTotal: str
     passVoteStakedMvnTotal: str
@@ -42,7 +42,7 @@ class FinancialRequestLedger(BaseModel):
     stakedMvnRequiredForApproval: str
     requestedDateTime: str
     expiryDateTime: str
-    executedDateTime: Optional[str]
+    executedDateTime: str | None
 
 
 class Key(BaseModel):
@@ -53,21 +53,21 @@ class Key(BaseModel):
     address: str
 
 
-class ValueItem(BaseModel):
+class Value(BaseModel):
     class Config:
         extra = Extra.forbid
 
     nay: Dict[str, Any]
 
 
-class ValueItem1(BaseModel):
+class Value1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     pass_: Dict[str, Any] = Field(..., alias='pass')
 
 
-class ValueItem2(BaseModel):
+class Value2(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -79,7 +79,7 @@ class FinancialRequestVoter(BaseModel):
         extra = Extra.forbid
 
     key: Key
-    value: Union[ValueItem, ValueItem1, ValueItem2]
+    value: Value | Value1 | Value2
 
 
 class GovernanceFinancialStorage(BaseModel):
