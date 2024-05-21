@@ -3,12 +3,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
 
-class TokenTypeItem(BaseModel):
+class TokenType(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -23,14 +23,14 @@ class Fa2(BaseModel):
     tokenId: str
 
 
-class TokenTypeItem1(BaseModel):
+class TokenType1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     fa2: Fa2
 
 
-class TokenTypeItem2(BaseModel):
+class TokenType2(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -48,12 +48,12 @@ class CreateCollateralToken(BaseModel):
     protected: bool
     isScaledToken: bool
     isStakedToken: bool
-    stakingContractAddress: Optional[str]
-    maxDepositAmount: Optional[str]
-    tokenType: Union[TokenTypeItem, TokenTypeItem1, TokenTypeItem2]
+    stakingContractAddress: str | None
+    maxDepositAmount: str | None
+    tokenType: TokenType | TokenType1 | TokenType2
 
 
-class ActionItem(BaseModel):
+class Action(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -67,11 +67,11 @@ class UpdateCollateralToken(BaseModel):
     tokenName: str
     oracleAddress: str
     isPaused: bool
-    stakingContractAddress: Optional[str]
-    maxDepositAmount: Optional[str]
+    stakingContractAddress: str | None
+    maxDepositAmount: str | None
 
 
-class ActionItem1(BaseModel):
+class Action1(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -82,5 +82,5 @@ class SetCollateralTokenParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    action: Union[ActionItem, ActionItem1]
+    action: Action | Action1
     empty: Dict[str, Any]

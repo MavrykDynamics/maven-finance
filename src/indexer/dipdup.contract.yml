@@ -95,14 +95,14 @@ contracts:
     kind: tezos
     address: KT1Gvx8k7Br5dhZ7AfQRvjfZCy9WoSfZZgjq
     typename: m_token
-  m_token_eurt:
-    kind: tezos
-    address: KT1VSgGaBWMvu5DhZK1qexaYFiyRFdxy6VFC
-    typename: m_token
-  m_token_tzbtc:
-    kind: tezos
-    address: KT1DQv2gEVao8gr3aompXp1YqnAtJCWdVUGT
-    typename: m_token
+  # m_token_eurt:
+  #   kind: tezos
+  #   address: KT1VSgGaBWMvu5DhZK1qexaYFiyRFdxy6VFC
+  #   typename: m_token
+  # m_token_tzbtc:
+  #   kind: tezos
+  #   address: KT1DQv2gEVao8gr3aompXp1YqnAtJCWdVUGT
+  #   typename: m_token
   m_token_usdt:
     kind: tezos
     address: KT1HfmNaNQkehCPBTcMSVAVky2hUnZMii4tk

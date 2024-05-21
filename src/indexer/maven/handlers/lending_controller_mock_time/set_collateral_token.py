@@ -4,7 +4,7 @@ from maven.utils.contracts import get_contract_token_metadata, get_token_standar
 from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
 from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
-from maven.types.lending_controller_mock_time.tezos_parameters.set_collateral_token import SetCollateralTokenParameter, ActionItem as createCollateralToken
+from maven.types.lending_controller_mock_time.tezos_parameters.set_collateral_token import SetCollateralTokenParameter, Action as createCollateralToken
 import maven.models as models
 
 async def set_collateral_token(

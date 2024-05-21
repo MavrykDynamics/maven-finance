@@ -4,7 +4,7 @@ from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from maven.types.lending_controller.tezos_parameters.register_deposit import RegisterDepositParameter
 from dipdup.models.tezos_tzkt import TzktTransaction
-from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem1 as Fa2
+from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenType1 as Fa2
 from dateutil import parser
 import maven.models as models
 

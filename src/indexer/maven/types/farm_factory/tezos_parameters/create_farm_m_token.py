@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
@@ -16,14 +16,14 @@ class PlannedRewards(BaseModel):
     currentRewardPerBlock: str
 
 
-class TokenStandardItem(BaseModel):
+class TokenStandard(BaseModel):
     class Config:
         extra = Extra.forbid
 
     fa12: Dict[str, Any]
 
 
-class TokenStandardItem1(BaseModel):
+class TokenStandard1(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -36,7 +36,7 @@ class LpToken(BaseModel):
 
     tokenAddress: str
     tokenId: str
-    tokenStandard: Union[TokenStandardItem, TokenStandardItem1]
+    tokenStandard: TokenStandard | TokenStandard1
 
 
 class CreateFarmMTokenParameter(BaseModel):

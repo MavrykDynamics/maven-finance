@@ -3,26 +3,26 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra, Field
 
 
-class VoteItem(BaseModel):
+class Vote(BaseModel):
     class Config:
         extra = Extra.forbid
 
     nay: Dict[str, Any]
 
 
-class VoteItem1(BaseModel):
+class Vote1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     pass_: Dict[str, Any] = Field(..., alias='pass')
 
 
-class VoteItem2(BaseModel):
+class Vote2(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -34,4 +34,4 @@ class VoteForRequestParameter(BaseModel):
         extra = Extra.forbid
 
     requestId: str
-    vote: Union[VoteItem, VoteItem1, VoteItem2]
+    vote: Vote | Vote1 | Vote2
