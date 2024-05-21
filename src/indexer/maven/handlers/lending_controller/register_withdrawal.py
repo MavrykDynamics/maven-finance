@@ -4,7 +4,7 @@ from dipdup.context import HandlerContext
 from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.utils.contracts import get_token_standard
 from maven.types.lending_controller.tezos_parameters.register_withdrawal import RegisterWithdrawalParameter
-from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem1 as Fa2
+from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenType1 as Fa2
 import maven.models as models
 from dateutil import parser
 

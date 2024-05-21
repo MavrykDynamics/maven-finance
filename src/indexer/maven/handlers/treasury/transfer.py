@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from maven.utils.contracts import get_contract_token_metadata, get_token_standard
-from maven.types.treasury.tezos_parameters.transfer import TransferParameter, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as mav
+from maven.types.treasury.tezos_parameters.transfer import TransferParameter, Token as fa12, Token1 as fa2, Token2 as mav
 from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.treasury.tezos_storage import TreasuryStorage

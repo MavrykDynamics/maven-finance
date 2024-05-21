@@ -3,19 +3,19 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Extra
 
 
-class Depositor(BaseModel):
+class Depositors(BaseModel):
     class Config:
         extra = Extra.forbid
 
     any: Dict[str, Any]
 
 
-class Depositor1(BaseModel):
+class Depositors1(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -35,6 +35,6 @@ class VaultStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
-    depositors: Union[Depositor, Depositor1]
+    depositors: Depositors | Depositors1
     handle: Handle
     name: str
