@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from maven.utils.contracts import get_token_standard, get_contract_token_metadata
-from maven.types.governance.tezos_storage import GovernanceStorage, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as mav
+from maven.types.governance.tezos_storage import GovernanceStorage, Token as fa12, Token1 as fa2, Token2 as mav
 from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.governance.tezos_parameters.update_proposal_data import UpdateProposalDataParameter

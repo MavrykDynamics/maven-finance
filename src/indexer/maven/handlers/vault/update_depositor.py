@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from maven.types.vault.tezos_parameters.update_depositor import UpdateDepositorParameter, AllowanceItem as Any, AllowanceItem1 as Whitelist
+from maven.types.vault.tezos_parameters.update_depositor import UpdateDepositorParameter, Allowance as Any, Allowance1 as Whitelist
 from dipdup.context import HandlerContext
 from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.vault.tezos_storage import VaultStorage

@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from maven.utils.contracts import get_contract_metadata
-from maven.types.governance.tezos_storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
+from maven.types.governance.tezos_storage import GovernanceStorage, Round as proposal, Round1 as timelock, Round2 as voting
 from dipdup.context import HandlerContext
 from dipdup.models.tezos_tzkt import TzktOrigination
 import maven.models as models
@@ -126,20 +126,20 @@ async def origination(
                 m_token_contract="m_token_mvrk"
             )
         )
-        await ctx.add_index(
-            name="m_token_eurt",
-            template="m_token_template",
-            values=dict(
-                m_token_contract="m_token_eurt"
-            )
-        )
-        await ctx.add_index(
-            name="m_token_tzbtc",
-            template="m_token_template",
-            values=dict(
-                m_token_contract="m_token_tzbtc"
-            )
-        )
+        # await ctx.add_index(
+        #     name="m_token_eurt",
+        #     template="m_token_template",
+        #     values=dict(
+        #         m_token_contract="m_token_eurt"
+        #     )
+        # )
+        # await ctx.add_index(
+        #     name="m_token_tzbtc",
+        #     template="m_token_template",
+        #     values=dict(
+        #         m_token_contract="m_token_tzbtc"
+        #     )
+        # )
         await ctx.add_index(
             name="m_token_usdt",
             template="m_token_template",

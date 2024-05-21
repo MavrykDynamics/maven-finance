@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from dipdup.models.tezos_tzkt import TzktTransaction
-from maven.types.farm_factory.tezos_parameters.set_product_lambda import SetProductLambdaParameter, FarmTypeItem as Farm, FarmTypeItem1 as MFarm
+from maven.types.farm_factory.tezos_parameters.set_product_lambda import SetProductLambdaParameter, FarmType as Farm, FarmType1 as MFarm
 from maven.types.farm_factory.tezos_storage import FarmFactoryStorage
 import maven.models as models
 
