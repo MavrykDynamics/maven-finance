@@ -3,12 +3,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Extra
 
 
-class TokenItem(BaseModel):
+class Token(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -23,14 +23,14 @@ class Fa2(BaseModel):
     tokenId: str
 
 
-class TokenItem1(BaseModel):
+class Token1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     fa2: Fa2
 
 
-class TokenItem2(BaseModel):
+class Token2(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -43,7 +43,7 @@ class TransferListItem(BaseModel):
 
     to_: str
     amount: str
-    token: Union[TokenItem, TokenItem1, TokenItem2]
+    token: Token | Token1 | Token2
 
 
 class FixMistakenTransferParameter(BaseModel):

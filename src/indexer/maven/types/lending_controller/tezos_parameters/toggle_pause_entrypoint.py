@@ -3,124 +3,124 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
 
-class TargetEntrypointItem(BaseModel):
+class TargetEntrypoint(BaseModel):
     class Config:
         extra = Extra.forbid
 
     addLiquidity: bool
 
 
-class TargetEntrypointItem1(BaseModel):
+class TargetEntrypoint1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     borrow: bool
 
 
-class TargetEntrypointItem2(BaseModel):
+class TargetEntrypoint2(BaseModel):
     class Config:
         extra = Extra.forbid
 
     closeVault: bool
 
 
-class TargetEntrypointItem3(BaseModel):
+class TargetEntrypoint3(BaseModel):
     class Config:
         extra = Extra.forbid
 
     liquidateVault: bool
 
 
-class TargetEntrypointItem4(BaseModel):
+class TargetEntrypoint4(BaseModel):
     class Config:
         extra = Extra.forbid
 
     markForLiquidation: bool
 
 
-class TargetEntrypointItem5(BaseModel):
+class TargetEntrypoint5(BaseModel):
     class Config:
         extra = Extra.forbid
 
     registerDeposit: bool
 
 
-class TargetEntrypointItem6(BaseModel):
+class TargetEntrypoint6(BaseModel):
     class Config:
         extra = Extra.forbid
 
     registerVaultCreation: bool
 
 
-class TargetEntrypointItem7(BaseModel):
+class TargetEntrypoint7(BaseModel):
     class Config:
         extra = Extra.forbid
 
     registerWithdrawal: bool
 
 
-class TargetEntrypointItem8(BaseModel):
+class TargetEntrypoint8(BaseModel):
     class Config:
         extra = Extra.forbid
 
     removeLiquidity: bool
 
 
-class TargetEntrypointItem9(BaseModel):
+class TargetEntrypoint9(BaseModel):
     class Config:
         extra = Extra.forbid
 
     repay: bool
 
 
-class TargetEntrypointItem10(BaseModel):
+class TargetEntrypoint10(BaseModel):
     class Config:
         extra = Extra.forbid
 
     setCollateralToken: bool
 
 
-class TargetEntrypointItem11(BaseModel):
+class TargetEntrypoint11(BaseModel):
     class Config:
         extra = Extra.forbid
 
     setLoanToken: bool
 
 
-class TargetEntrypointItem12(BaseModel):
+class TargetEntrypoint12(BaseModel):
     class Config:
         extra = Extra.forbid
 
     vaultDeposit: bool
 
 
-class TargetEntrypointItem13(BaseModel):
+class TargetEntrypoint13(BaseModel):
     class Config:
         extra = Extra.forbid
 
     vaultDepositStakedToken: bool
 
 
-class TargetEntrypointItem14(BaseModel):
+class TargetEntrypoint14(BaseModel):
     class Config:
         extra = Extra.forbid
 
     vaultOnLiquidate: bool
 
 
-class TargetEntrypointItem15(BaseModel):
+class TargetEntrypoint15(BaseModel):
     class Config:
         extra = Extra.forbid
 
     vaultWithdraw: bool
 
 
-class TargetEntrypointItem16(BaseModel):
+class TargetEntrypoint16(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -131,23 +131,23 @@ class TogglePauseEntrypointParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    targetEntrypoint: Union[
-        TargetEntrypointItem,
-        TargetEntrypointItem1,
-        TargetEntrypointItem2,
-        TargetEntrypointItem3,
-        TargetEntrypointItem4,
-        TargetEntrypointItem5,
-        TargetEntrypointItem6,
-        TargetEntrypointItem7,
-        TargetEntrypointItem8,
-        TargetEntrypointItem9,
-        TargetEntrypointItem10,
-        TargetEntrypointItem11,
-        TargetEntrypointItem12,
-        TargetEntrypointItem13,
-        TargetEntrypointItem14,
-        TargetEntrypointItem15,
-        TargetEntrypointItem16,
-    ]
+    targetEntrypoint: (
+        TargetEntrypoint
+        | TargetEntrypoint1
+        | TargetEntrypoint2
+        | TargetEntrypoint3
+        | TargetEntrypoint4
+        | TargetEntrypoint5
+        | TargetEntrypoint6
+        | TargetEntrypoint7
+        | TargetEntrypoint8
+        | TargetEntrypoint9
+        | TargetEntrypoint10
+        | TargetEntrypoint11
+        | TargetEntrypoint12
+        | TargetEntrypoint13
+        | TargetEntrypoint14
+        | TargetEntrypoint15
+        | TargetEntrypoint16
+    )
     empty: Dict[str, Any]

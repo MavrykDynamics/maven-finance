@@ -1,8 +1,8 @@
 from maven.utils.error_reporting import save_error_report
 
 from maven.utils.contracts import get_contract_token_metadata, get_token_standard
-from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as mav
-from maven.types.lending_controller_mock_time.tezos_parameters.set_loan_token import SetLoanTokenParameter, ActionItem as createLoanToken
+from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenType3 as fa12, TokenType4 as fa2, TokenType5 as mav
+from maven.types.lending_controller_mock_time.tezos_parameters.set_loan_token import SetLoanTokenParameter, Action as createLoanToken
 from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 import maven.models as models

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import List, Union
+from typing import List
 
 from pydantic import BaseModel, Extra
 
@@ -17,7 +17,7 @@ class AddOperator(BaseModel):
     token_id: str
 
 
-class UpdateOperatorsParameterItem(BaseModel):
+class UpdateOperatorsParameter1(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -33,7 +33,7 @@ class RemoveOperator(BaseModel):
     token_id: str
 
 
-class UpdateOperatorsParameterItem1(BaseModel):
+class UpdateOperatorsParameter2(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -41,4 +41,4 @@ class UpdateOperatorsParameterItem1(BaseModel):
 
 
 class UpdateOperatorsParameter(BaseModel):
-    __root__: List[Union[UpdateOperatorsParameterItem, UpdateOperatorsParameterItem1]]
+    __root__: List[UpdateOperatorsParameter1 | UpdateOperatorsParameter2]
