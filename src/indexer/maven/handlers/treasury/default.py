@@ -16,11 +16,11 @@ async def default(
         token_standard      = "mav"
         amount              = float(default.data.amount)
         metadata            = {
-          "name": "Tezos",
+          "name": "Mavryk",
           "symbol": "MVRK",
           "decimals": "6",
-          "icon": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
-          "thumbnailUri": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
+          "icon": "ipfs://QmbHaFX2gyFEzdwp54vqtf7McL74BvT7r4pw6UVyfEdKhu",
+          "thumbnailUri": "ipfs://QmbHaFX2gyFEzdwp54vqtf7McL74BvT7r4pw6UVyfEdKhu",
         }
 
         # Create the MVRK token record
