@@ -13,99 +13,91 @@ contracts:
     typename: tzbtc
   mvn_token:
     kind: tezos
-    address: KT1SVdHi9rGZHLzSvtcg2YGoiBf67ZUKebBX
+    address: KT1QrAYznViLcSt4RDcSu7yLYxBCRJWswa3f
     typename: mvn_token
   mvn_faucet:
     kind: tezos
-    address: KT1APnnufBaF825iAUM2ffm2XW2URdbMzBjQ
+    address: KT1Q9stKLmWvJ4PjqvBcJn4QkUZWEsT86N5k
     typename: mvn_faucet
   governance_proxy:
     kind: tezos
-    address: KT1TNAc761EbGAmMPHqFYspTTSTo5z8SZrKh
+    address: KT1NNYQsHchbmNPWHSkX9QhGkn2gqj99BX3f
     typename: governance_proxy
   governance:
     kind: tezos
-    address: KT1LTHbHggADviariCSJVCTMEM734yfVMG1W
+    address: KT1Ue6vrdgf3J9qd5AYR8jfDjQLkion51Xf3
     typename: governance
   doorman:
     kind: tezos
-    address: KT1Jr2HS9Pa4D7s9zKDrCS36DVjBGjy3N8xi
+    address: KT1PYYS84dRJYGpZbW5CnF3289NvAdqbEyfR
     typename: doorman
   farm:
     kind: tezos
-    code_hash: KT1WVyYbx8gxuFfx81PZggtHcNYqsDtrzSmR
+    code_hash: KT1Duwhb5ynq42RpXzRoXRMA9KsYRVWkWSAF
     typename: farm
   farm_m_token:
     kind: tezos
-    code_hash: KT1XP13PgmgkVSivuVjuNBn2mZdJA8bSjWV7
+    code_hash: KT1MwyQGAHXxDEkn4UhDxCB4QV98RY8uLYbQ
     typename: m_farm
   farm_factory:
     kind: tezos
-    address: KT1LzcK4akQz4wJuDBrWhvtNeku126tbL1Fe
+    address: KT1JZkJ2E9tz6G7F3ZtyWqTcPx4CCFqdDznS
     typename: farm_factory
   delegation:
     kind: tezos
-    address: KT1SnfMNTiyosKTXbMecF8a9K1ytzQiPREEp
+    address: KT1EWqjhgatrpFFYmotQXfYPpJ1g5JKrdKH7
     typename: delegation
   vesting:
     kind: tezos
-    address: KT1QSHMQehni779w96t34h5cqB7Awv1vWKzV
+    address: KT1M2HP5rR9GB7wKAS7xRUzPDztaqpwhHPSi
     typename: vesting
   emergency_governance:
     kind: tezos
-    address: KT1A3ZMi1EwHLmAFCTHkPXxnYc3qVV7CVQWe
+    address: KT1G4YwKjyfUT1J18szGq1PihWWDFdG3WfEZ
     typename: emergency_governance
   council:
     kind: tezos
-    address: KT1AUXj5TiBVMha2kCfaBoJfWkM6D31qsn1L
+    address: KT1PzyBBPazqLckZTnNN2u7nzRUitiE3WmBC
     typename: council
   break_glass:
     kind: tezos
-    address: KT1CmwLkeCnWcWgRpPM6zh7SLHsPtV3bLZv2
+    address: KT1X4csmAjxXrsmxnPrtHHLKvAQ7Dr4Qc4ox
     typename: break_glass
   governance_financial:
     kind: tezos
-    address: KT1Ecsc6paJa2nNzzdD85oEcvH1jBxa7Wm2V
+    address: KT1GUfq2u64S4QuNDWzNBpZL7JTip1rFQgPZ
     typename: governance_financial
   governance_satellite:
     kind: tezos
-    address: KT1UFX77ZxC1Kb9Dn4aXpFd1nsAHD5n1iDLh
+    address: KT1NhrqEcLzE7haxZ2Zu4kbuTz3QftGiCvoU
     typename: governance_satellite
   aggregator:
     kind: tezos
-    code_hash: KT1Dp3hV3avMKCSvbjH4LNeD12bXsUcpxrKB
+    code_hash: KT1UQ8U7WgRTxJozLFXYT43sftLCzb9VvGeK
     typename: aggregator
   aggregator_factory:
     kind: tezos
-    address: KT1PcRf82uDNombeg4Vv4YEkFt5hm68mAisb
+    address: KT1TbCP88ZmrMPuYrZH8bvWhHb6qramjekvL
     typename: aggregator_factory
   treasury:
     kind: tezos
-    code_hash: KT1KCWKP5ojfHz3zVfap8H18F1xBGZNY3uus
+    code_hash: KT1Q8TZqYsM3mLctnUvLZ1uXPx6dHdzjvmex
     typename: treasury
   treasury_factory:
     kind: tezos
-    address: KT1XeuN844K2KoYiYdBULfNvSu5uH38QfG18
+    address: KT1NVfUtCe5ogeGfsNM8mjqBvk9TxCWS92jT
     typename: treasury_factory
   lending_controller:
     kind: tezos
-    address: KT1CoobxzU3GNELmmBQ6uMpKL5gmEUyRMGfr
+    address: KT1UL1ANT8GWW7YRakB4QbNpvPP7KE4czS2x
     typename: lending_controller
   m_token_mvrk:
     kind: tezos
-    address: KT1Gvx8k7Br5dhZ7AfQRvjfZCy9WoSfZZgjq
+    address: KT1URijQtZC1tuxyoJBR3iQEVw8zGDGY2Fry
     typename: m_token
-  # m_token_eurt:
-  #   kind: tezos
-  #   address: KT1VSgGaBWMvu5DhZK1qexaYFiyRFdxy6VFC
-  #   typename: m_token
-  # m_token_tzbtc:
-  #   kind: tezos
-  #   address: KT1DQv2gEVao8gr3aompXp1YqnAtJCWdVUGT
-  #   typename: m_token
   m_token_usdt:
     kind: tezos
-    address: KT1HfmNaNQkehCPBTcMSVAVky2hUnZMii4tk
+    address: KT1R5GGJa5ehZyLFLS848EjS4D7mHoW28SkU
     typename: m_token
   vault:
     kind: tezos
@@ -113,5 +105,5 @@ contracts:
     typename: vault
   vault_factory:
     kind: tezos
-    address: KT1C5RSTgbx3axgLbYe3kdd2KNLFFBSmM31f
+    address: KT1KNudG55NzbfmNiDXovAGU8rV9wL2Np9mH
     typename: vault_factory

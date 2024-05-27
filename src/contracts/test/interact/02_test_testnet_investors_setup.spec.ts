@@ -438,7 +438,7 @@ describe("Testnet setup helper", async () => {
                     "createCollateralToken",
 
                     "ocean",
-                    "KT19S7YeHEnKaBysuGuTBq4QgmxEZNptvBJS",
+                    "KT1J9HnaBnjxgxDCaQcFMKnpQCzhiYaHyAFX",
                     3,
 
                     oceanAggregator,
@@ -449,7 +449,7 @@ describe("Testnet setup helper", async () => {
                     null, // Max deposit amount
 
                     "fa2",
-                    "KT19S7YeHEnKaBysuGuTBq4QgmxEZNptvBJS",
+                    "KT1J9HnaBnjxgxDCaQcFMKnpQCzhiYaHyAFX",
                     0
                 ).send();
                 await setCollateralTokenOperation.confirmation();
@@ -459,7 +459,7 @@ describe("Testnet setup helper", async () => {
                     "createCollateralToken",
 
                     "mars1",
-                    "KT1RH2fB6bANvSGPKHsBdzSVA4ef7PSQWn2A",
+                    "KT1Jj7hxqYHZysxNSpp3L1xBTQ46Y7RsMmxu",
                     3,
 
                     mars1Aggregator,
@@ -470,7 +470,7 @@ describe("Testnet setup helper", async () => {
                     null, // Max deposit amount
 
                     "fa2",
-                    "KT1RH2fB6bANvSGPKHsBdzSVA4ef7PSQWn2A",
+                    "KT1Jj7hxqYHZysxNSpp3L1xBTQ46Y7RsMmxu",
                     0
                 ).send();
                 await setCollateralTokenOperation.confirmation();
@@ -614,8 +614,8 @@ describe("Testnet setup helper", async () => {
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.fakeUSDtToken.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.fakeWBTCToken.address, "update"))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT19S7YeHEnKaBysuGuTBq4QgmxEZNptvBJS", "update"))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1RH2fB6bANvSGPKHsBdzSVA4ef7PSQWn2A", "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1J9HnaBnjxgxDCaQcFMKnpQCzhiYaHyAFX", "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1Jj7hxqYHZysxNSpp3L1xBTQ46Y7RsMmxu", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvnToken.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenEurt.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenMvrk.address, "update"))
