@@ -31,9 +31,9 @@ export const mockTokenData = {
                         symbol: Buffer.from('MVN').toString('hex'),
                         name: Buffer.from('MAVEN').toString('hex'),
                         decimals: Buffer.from(mvnTokenDecimals.toString()).toString('hex'),
-                        icon: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex'),
+                        icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
                         shouldPreferSymbol: true,
-                        thumbnailUri: 'https://mavenfinance.io/logo192.png',
+                        thumbnailUri: 'https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg',
                         },
                     ],
                 }),
@@ -58,9 +58,9 @@ export const mockTokenData = {
                     symbol: Buffer.from('MVN').toString('hex'),
                     name: Buffer.from('MAVEN').toString('hex'),
                     decimals: Buffer.from("9").toString('hex'),
-                    icon: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex'),
+                    icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
                     shouldPreferSymbol: true,
-                    thumbnailUri: 'https://mavenfinance.io/logo192.png',
+                    thumbnailUri: 'https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg',
                 },
                 ],
             }),
@@ -94,9 +94,9 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mUSDT').toString('hex'),
                     name: Buffer.from('mUSDT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/QmSErQjxGbXwztNVNmgvaVZTTdgxCaNxEGixz9WviiK7Ry').toString('hex'),
+                    icon: Buffer.from('ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD').toString('hex'),
                     shouldPreferSymbol: true,
-                    thumbnailUri: 'https://infura-ipfs.io/ipfs/QmSErQjxGbXwztNVNmgvaVZTTdgxCaNxEGixz9WviiK7Ry'
+                    thumbnailUri: 'ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD'
                     }
                 ]
                 }),
@@ -110,9 +110,9 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mUSDT').toString('hex'),
                     name: Buffer.from('mUSDT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/QmSErQjxGbXwztNVNmgvaVZTTdgxCaNxEGixz9WviiK7Ry').toString('hex'),
+                    icon: Buffer.from('ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD').toString('hex'),
                     shouldPreferSymbol: '74727565',
-                    thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/QmSErQjxGbXwztNVNmgvaVZTTdgxCaNxEGixz9WviiK7Ry').toString('hex')
+                    thumbnailUri: Buffer.from('ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD').toString('hex')
                 }),
             },
         })
@@ -186,9 +186,9 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mMVRK').toString('hex'),
                     name: Buffer.from('mMVRK').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/QmYLzyknkPv6SzA9kcCysGHLTeCReNPk1Gncc5QrQW5zVF').toString('hex'),
+                    icon: Buffer.from('ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n').toString('hex'),
                     shouldPreferSymbol: true,
-                    thumbnailUri: 'https://infura-ipfs.io/ipfs/QmYLzyknkPv6SzA9kcCysGHLTeCReNPk1Gncc5QrQW5zVF'
+                    thumbnailUri: 'ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n'
                     }
                 ]
                 }),
@@ -202,9 +202,9 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mMVRK').toString('hex'),
                     name: Buffer.from('mMVRK').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/QmYLzyknkPv6SzA9kcCysGHLTeCReNPk1Gncc5QrQW5zVF').toString('hex'),
+                    icon: Buffer.from('ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n').toString('hex'),
                     shouldPreferSymbol: '74727565',
-                    thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/QmYLzyknkPv6SzA9kcCysGHLTeCReNPk1Gncc5QrQW5zVF').toString('hex')
+                    thumbnailUri: Buffer.from('ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n').toString('hex')
                 }),
             },
         })
