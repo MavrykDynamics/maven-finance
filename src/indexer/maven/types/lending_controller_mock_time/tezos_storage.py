@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Extra
 
@@ -126,10 +126,10 @@ class CollateralTokenLedger(BaseModel):
     protected: bool
     isScaledToken: bool
     isStakedToken: bool
-    stakingContractAddress: Optional[str]
+    stakingContractAddress: str | None
     totalDeposited: str
-    maxDepositAmount: Optional[str]
-    tokenType: Union[TokenType, TokenType1, TokenType2]
+    maxDepositAmount: str | None
+    tokenType: TokenType | TokenType1 | TokenType2
     isPaused: bool
 
 
@@ -159,7 +159,7 @@ class LoanTokenLedger(BaseModel):
         extra = Extra.forbid
 
     tokenName: str
-    tokenType: Union[TokenType3, TokenType4, TokenType5]
+    tokenType: TokenType3 | TokenType4 | TokenType5
     tokenDecimals: str
     oracleAddress: str
     rawMTokensTotalSupply: str

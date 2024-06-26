@@ -1,10 +1,10 @@
 from maven.utils.error_reporting import save_error_report
 
-from maven.utils.contracts import get_contract_token_metadata, get_token_standard
-from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenType3 as fa12, TokenType4 as fa2, TokenType5 as mav
-from maven.types.lending_controller_mock_time.tezos_parameters.set_loan_token import SetLoanTokenParameter, Action as createLoanToken
-from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
+from dipdup.models.tezos_tzkt import TzktTransaction
+from maven.utils.contracts import get_contract_token_metadata, get_token_standard
+from maven.types.lending_controller_mock_time.tezos_parameters.set_loan_token import SetLoanTokenParameter, Action as createLoanToken
+from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenType3 as fa12, TokenType4 as fa2, TokenType5 as mav
 import maven.models as models
 
 async def set_loan_token(
@@ -12,7 +12,7 @@ async def set_loan_token(
     set_loan_token: TzktTransaction[SetLoanTokenParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
-    try:    
+    try:
         # Get operation info
         action_class                                        = type(set_loan_token.parameter.action)
         if action_class == createLoanToken:
@@ -37,7 +37,7 @@ async def set_loan_token(
         loan_token_interest_rate_above_optimal_utilisation  = float(loan_token_storage.interestRateAboveOptimalUtilisation)
         loan_token_current_interest_rate                    = float(loan_token_storage.currentInterestRate)
         loan_token_last_updated_block_level                 = int(loan_token_storage.lastUpdatedBlockLevel)
-        loan_token_token_reward_index                       = float(loan_token_storage.tokenRewardIndex) 
+        loan_token_token_reward_index                       = float(loan_token_storage.tokenRewardIndex)
         loan_token_borrow_index                             = float(loan_token_storage.borrowIndex)
         loan_token_min_repayment_amount                     = float(loan_token_storage.minRepaymentAmount)
         loan_token_paused                                   = loan_token_storage.isPaused
@@ -95,7 +95,7 @@ async def set_loan_token(
         )
 
         # Get the related token
-        token, _                                    = await models.Token.get_or_create(
+        token, _                            = await models.Token.get_or_create(
             token_address       = loan_token_address,
             token_id            = loan_token_id,
             network             = ctx.datasource.name.replace('mvkt_','')
@@ -103,7 +103,7 @@ async def set_loan_token(
         token.metadata          = token_contract_metadata
         token.token_standard    = standard
         await token.save()
-    
+
         await m_token.save()
         lending_controller_loan_token, _    = await models.LendingControllerLoanToken.get_or_create(
             lending_controller  = lending_controller,

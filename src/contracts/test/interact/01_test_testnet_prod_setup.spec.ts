@@ -231,131 +231,131 @@ describe("Testnet setup helper", async () => {
             }
         });
 
-        it('Admin sets admin and whitelist of all contracts', async () => {
-            try{
-                // Set general contracts admin
-                governanceStorage             = await governanceInstance.storage();
-                var generalContracts          = [
-                    contractDeployments.aggregatorFactory.address,
-                    contractDeployments.breakGlass.address,
-                    contractDeployments.council.address,
-                    contractDeployments.delegation.address,
-                    contractDeployments.doorman.address,
-                    contractDeployments.emergencyGovernance.address,
-                    contractDeployments.farmFactory.address,
-                    contractDeployments.vesting.address,
-                    contractDeployments.treasuryFactory.address,
-                    contractDeployments.lendingController.address,
-                    contractDeployments.vaultFactory.address,
-                    contractDeployments.governance.address,
-                ]
+        // it('Admin sets admin and whitelist of all contracts', async () => {
+        //     try{
+        //         // Set general contracts admin
+        //         governanceStorage             = await governanceInstance.storage();
+        //         var generalContracts          = [
+        //             contractDeployments.aggregatorFactory.address,
+        //             contractDeployments.breakGlass.address,
+        //             contractDeployments.council.address,
+        //             contractDeployments.delegation.address,
+        //             contractDeployments.doorman.address,
+        //             contractDeployments.emergencyGovernance.address,
+        //             contractDeployments.farmFactory.address,
+        //             contractDeployments.vesting.address,
+        //             contractDeployments.treasuryFactory.address,
+        //             contractDeployments.lendingController.address,
+        //             contractDeployments.vaultFactory.address,
+        //             contractDeployments.governance.address,
+        //         ]
                 
-                for (let entry of generalContracts){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry);
-                    var storage:any     = await contract.storage();
+        //         for (let entry of generalContracts){
+        //             // Get contract storage
+        //             var contract        = await utils.tezos.contract.at(entry);
+        //             var storage:any     = await contract.storage();
 
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
-                }
+        //             // Check admin
+        //             if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+        //                 var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+        //                 await setAdminOperation.confirmation()
+        //             }
+        //         }
 
-                // Set farm contracts admin
-                farmFactoryStorage              = await farmFactoryInstance.storage();
-                var trackedFarms                = farmFactoryStorage.trackedFarms.entries();
-                for (let entry of trackedFarms){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
-                    var storage:any     = await contract.storage();
+        //         // Set farm contracts admin
+        //         farmFactoryStorage              = await farmFactoryInstance.storage();
+        //         var trackedFarms                = farmFactoryStorage.trackedFarms.entries();
+        //         for (let entry of trackedFarms){
+        //             // Get contract storage
+        //             var contract        = await utils.tezos.contract.at(entry[1]);
+        //             var storage:any     = await contract.storage();
 
-                    // Check whitelist [Council, Factory]
-                    if(storage.hasOwnProperty('whitelistContracts')){
-                        if(await storage.whitelistContracts.get(contractDeployments.council.address) === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.council.address, 'update').send()
-                            await operation.confirmation()
-                        }
-                        if(await storage.whitelistContracts.get(contractDeployments.farmFactory.address) === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.farmFactory.address, 'update').send()
-                            await operation.confirmation()
-                        }
-                    }
+        //             // Check whitelist [Council, Factory]
+        //             if(storage.hasOwnProperty('whitelistContracts')){
+        //                 if(await storage.whitelistContracts.get(contractDeployments.council.address) === undefined){
+        //                     var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.council.address, 'update').send()
+        //                     await operation.confirmation()
+        //                 }
+        //                 if(await storage.whitelistContracts.get(contractDeployments.farmFactory.address) === undefined){
+        //                     var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.farmFactory.address, 'update').send()
+        //                     await operation.confirmation()
+        //                 }
+        //             }
 
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
-                }
+        //             // Check admin
+        //             if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+        //                 var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+        //                 await setAdminOperation.confirmation()
+        //             }
+        //         }
 
-                // Set treasury contracts admin
-                treasuryFactoryStorage          = await treasuryFactoryInstance.storage();
-                var trackedTreasuries           = treasuryFactoryStorage.trackedTreasuries.entries();
-                for (let entry of trackedTreasuries){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
-                    var storage:any     = await contract.storage();
+        //         // Set treasury contracts admin
+        //         treasuryFactoryStorage          = await treasuryFactoryInstance.storage();
+        //         var trackedTreasuries           = treasuryFactoryStorage.trackedTreasuries.entries();
+        //         for (let entry of trackedTreasuries){
+        //             // Get contract storage
+        //             var contract        = await utils.tezos.contract.at(entry[1]);
+        //             var storage:any     = await contract.storage();
 
-                    // Check whitelist [Gov proxy, Factory]
-                    if(storage.hasOwnProperty('whitelistContracts')){
-                        if(storage.whitelistContracts.get(contractDeployments.governanceProxy.address) === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.governanceProxy.address, 'update').send()
-                            await operation.confirmation()
-                        }
-                        if(storage.whitelistContracts.get(contractDeployments.treasuryFactory.address) === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.treasuryFactory.address, 'update').send()
-                            await operation.confirmation()
-                        }
-                    }
+        //             // Check whitelist [Gov proxy, Factory]
+        //             if(storage.hasOwnProperty('whitelistContracts')){
+        //                 if(storage.whitelistContracts.get(contractDeployments.governanceProxy.address) === undefined){
+        //                     var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.governanceProxy.address, 'update').send()
+        //                     await operation.confirmation()
+        //                 }
+        //                 if(storage.whitelistContracts.get(contractDeployments.treasuryFactory.address) === undefined){
+        //                     var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.treasuryFactory.address, 'update').send()
+        //                     await operation.confirmation()
+        //                 }
+        //             }
 
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
-                }
+        //             // Check admin
+        //             if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+        //                 var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+        //                 await setAdminOperation.confirmation()
+        //             }
+        //         }
 
-                // Set aggregator contracts admin
-                aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
-                var trackedAggregators          = aggregatorFactoryStorage.trackedAggregators.entries();
-                for (let entry of trackedAggregators){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry[1]);
-                    var storage:any     = await contract.storage();
+        //         // Set aggregator contracts admin
+        //         aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
+        //         var trackedAggregators          = aggregatorFactoryStorage.trackedAggregators.entries();
+        //         for (let entry of trackedAggregators){
+        //             // Get contract storage
+        //             var contract        = await utils.tezos.contract.at(entry[1]);
+        //             var storage:any     = await contract.storage();
 
-                    // Check whitelist [Gov satellite, Factory]
-                    if(storage.hasOwnProperty('whitelistContracts')){
-                        if(storage.whitelistContracts.get(contractDeployments.governanceSatellite.address) === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.governanceSatellite.address, 'update').send()
-                            await operation.confirmation()
-                        }
-                        if(storage.whitelistContracts.get(contractDeployments.aggregatorFactory.address) === undefined){
-                            var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address, 'update').send()
-                            await operation.confirmation()
-                        }
-                    }
+        //             // Check whitelist [Gov satellite, Factory]
+        //             if(storage.hasOwnProperty('whitelistContracts')){
+        //                 if(storage.whitelistContracts.get(contractDeployments.governanceSatellite.address) === undefined){
+        //                     var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.governanceSatellite.address, 'update').send()
+        //                     await operation.confirmation()
+        //                 }
+        //                 if(storage.whitelistContracts.get(contractDeployments.aggregatorFactory.address) === undefined){
+        //                     var operation   = await contract.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address, 'update').send()
+        //                     await operation.confirmation()
+        //                 }
+        //             }
 
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
-                }
+        //             // Check admin
+        //             if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+        //                 var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+        //                 await setAdminOperation.confirmation()
+        //             }
+        //         }
 
-                // Set governance proxy admin, governance admin and mvnToken admin
-                setAdminOperation   = await governanceProxyInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                await setAdminOperation.confirmation()
+        //         // Set governance proxy admin, governance admin and mvnToken admin
+        //         setAdminOperation   = await governanceProxyInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+        //         await setAdminOperation.confirmation()
 
-                // setAdminOperation   = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                // await setAdminOperation.confirmation()
+        //         // setAdminOperation   = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+        //         // await setAdminOperation.confirmation()
                 
-                setAdminOperation   = await mvnTokenInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                await setAdminOperation.confirmation()
+        //         setAdminOperation   = await mvnTokenInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+        //         await setAdminOperation.confirmation()
                 
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+        //     } catch(e){
+        //         console.dir(e, {depth: 5})
+        //     }
+        // });
     })
 });

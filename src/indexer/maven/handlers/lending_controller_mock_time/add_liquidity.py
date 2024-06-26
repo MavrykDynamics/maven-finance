@@ -1,10 +1,10 @@
 from maven.utils.contracts import get_token_standard
 from maven.utils.error_reporting import save_error_report
 
-from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenType3 as fa12, TokenType4 as fa2, TokenType5 as mav
-from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.lending_controller_mock_time.tezos_parameters.add_liquidity import AddLiquidityParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenType3 as fa12, TokenType4 as fa2, TokenType5 as mav
 import maven.models as models
 
 async def add_liquidity(
@@ -12,7 +12,7 @@ async def add_liquidity(
     add_liquidity: TzktTransaction[AddLiquidityParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
-    try:    
+    try:
         # Get operation info
         lending_controller_address              = add_liquidity.data.target_address
         timestamp                               = add_liquidity.data.timestamp
@@ -54,7 +54,7 @@ async def add_liquidity(
             )
 
             # Get the related token
-            token, _            = await models.Token.get_or_create(
+            token, _                                = await models.Token.get_or_create(
                 network             = ctx.datasource.name.replace('mvkt_',''),
                 token_address       = loan_token_address,
                 token_id            = loan_token_id

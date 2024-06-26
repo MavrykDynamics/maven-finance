@@ -1,5 +1,6 @@
 from maven.utils.contracts import get_token_standard
 from maven.utils.error_reporting import save_error_report
+
 from maven.types.lending_controller.tezos_parameters.remove_liquidity import RemoveLiquidityParameter
 from dipdup.context import HandlerContext
 from dipdup.models.tezos_tzkt import TzktTransaction

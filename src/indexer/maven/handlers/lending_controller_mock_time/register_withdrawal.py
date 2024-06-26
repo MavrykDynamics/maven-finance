@@ -1,10 +1,10 @@
-from maven.utils.contracts import get_token_standard
 from maven.utils.error_reporting import save_error_report
 
+from dipdup.context import HandlerContext
+from dipdup.models.tezos_tzkt import TzktTransaction
+from maven.utils.contracts import get_token_standard
 from maven.types.lending_controller_mock_time.tezos_parameters.register_withdrawal import RegisterWithdrawalParameter
 from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenType1 as Fa2
-from dipdup.models.tezos_tzkt import TzktTransaction
-from dipdup.context import HandlerContext
 import maven.models as models
 from dateutil import parser
 

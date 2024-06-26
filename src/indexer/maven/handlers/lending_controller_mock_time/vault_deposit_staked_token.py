@@ -67,7 +67,7 @@ async def vault_deposit_staked_token(
                 loan_token                              = await lending_controller_vault.loan_token
                 loan_token_name                         = loan_token.loan_token_name
                 loan_token_storage                      = vault_deposit_staked_token.storage.loanTokenLedger[loan_token_name]
-                loan_token_token_reward_index           = float(loan_token_storage.tokenRewardIndex) 
+                loan_token_token_reward_index           = float(loan_token_storage.tokenRewardIndex)
                 m_token                                 = await loan_token.m_token
                 if loan_token_token_reward_index > m_token.token_reward_index:
                     m_token.token_reward_index          = loan_token_token_reward_index

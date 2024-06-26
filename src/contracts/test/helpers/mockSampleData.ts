@@ -232,9 +232,9 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mWBTC').toString('hex'),
                     name: Buffer.from('mWBTC').toString('hex'),
                     decimals: Buffer.from('8').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex'),
+                    icon: Buffer.from('ipfs://QmPVXGasG5bZWR5o28AyHTE7zJoLecC1qoJqbxD5EekHib').toString('hex'),
                     shouldPreferSymbol: true,
-                    thumbnailUri: 'https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME'
+                    thumbnailUri: 'ipfs://QmPVXGasG5bZWR5o28AyHTE7zJoLecC1qoJqbxD5EekHib'
                     }
                 ]
                 }),
@@ -248,9 +248,9 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mWBTC').toString('hex'),
                     name: Buffer.from('mWBTC').toString('hex'),
                     decimals: Buffer.from('8').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex'),
+                    icon: Buffer.from('ipfs://QmPVXGasG5bZWR5o28AyHTE7zJoLecC1qoJqbxD5EekHib').toString('hex'),
                     shouldPreferSymbol: '74727565',
-                    thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex')
+                    thumbnailUri: Buffer.from('ipfs://QmPVXGasG5bZWR5o28AyHTE7zJoLecC1qoJqbxD5EekHib').toString('hex')
                 }),
             },
         })
