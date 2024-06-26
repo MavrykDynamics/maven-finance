@@ -48,7 +48,7 @@ describe('Lending Controller Mock Time', async () => {
             lendingControllerMockTimeStorage.governanceAddress = contractDeployments.governance.address
             lendingControllerMockTimeStorage.mvnTokenAddress   = contractDeployments.mvnToken.address
             lendingControllerMockTime = await GeneralContract.originate(utils.tezos, "lendingControllerMockTime", lendingControllerMockTimeStorage);
-            await saveContractAddress('lendingControllerMockTimeAddress', lendingControllerMockTime.contract.address)
+            await saveContractAddress('lendingControllerAddress', lendingControllerMockTime.contract.address)
 
             //----------------------------
             // Set Lambdas
