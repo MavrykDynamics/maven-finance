@@ -1,12 +1,12 @@
 from maven.utils.contracts import get_token_standard
 from maven.utils.error_reporting import save_error_report
 
-from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenType1 as Fa2
+from dipdup.context import HandlerContext
 from maven.types.lending_controller_mock_time.tezos_parameters.register_deposit import RegisterDepositParameter
 from dipdup.models.tezos_tzkt import TzktTransaction
-from dipdup.context import HandlerContext
-import maven.models as models
+from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
 from dateutil import parser
+import maven.models as models
 
 async def register_deposit(
     ctx: HandlerContext,

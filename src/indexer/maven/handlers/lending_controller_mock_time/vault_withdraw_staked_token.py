@@ -67,7 +67,7 @@ async def vault_withdraw_staked_token(
                 loan_token                              = await lending_controller_vault.loan_token
                 loan_token_name                         = loan_token.loan_token_name
                 loan_token_storage                      = vault_withdraw_staked_token.storage.loanTokenLedger[loan_token_name]
-                loan_token_token_reward_index           = float(loan_token_storage.tokenRewardIndex) 
+                loan_token_token_reward_index           = float(loan_token_storage.tokenRewardIndex)
                 m_token                                 = await loan_token.m_token
                 if loan_token_token_reward_index > m_token.token_reward_index:
                     m_token.token_reward_index          = loan_token_token_reward_index
@@ -115,7 +115,7 @@ async def vault_withdraw_staked_token(
                 lending_controller_collateral_token.total_deposited = collateral_token_total_deposited
                 await lending_controller_collateral_token.save()
 
-                lending_controller_collateral_balance, _= await models.LendingControllerVaultCollateralBalance.get_or_create(
+                lending_controller_collateral_balance, _ = await models.LendingControllerVaultCollateralBalance.get_or_create(
                     lending_controller_vault    = lending_controller_vault,
                     collateral_token            = lending_controller_collateral_token
                 )

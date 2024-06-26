@@ -1,9 +1,9 @@
 from maven.utils.error_reporting import save_error_report
 
+from dipdup.context import HandlerContext
 from maven.utils.persisters import persist_governance
 from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
 from dipdup.models.tezos_tzkt import TzktTransaction
-from dipdup.context import HandlerContext
 from maven.types.lending_controller_mock_time.tezos_parameters.set_governance import SetGovernanceParameter
 import maven.models as models
 

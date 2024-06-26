@@ -1,4 +1,5 @@
 from maven.utils.error_reporting import save_error_report
+
 from maven.utils.contracts import get_contract_token_metadata, get_token_standard
 from maven.types.lending_controller.tezos_parameters.set_collateral_token import SetCollateralTokenParameter, Action as createCollateralToken
 from dipdup.models.tezos_tzkt import TzktTransaction

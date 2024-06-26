@@ -1,10 +1,10 @@
 from maven.utils.error_reporting import save_error_report
 
-from maven.utils.persisters import persist_lambda
-from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
+from maven.utils.persisters import persist_lambda
 from maven.types.lending_controller_mock_time.tezos_parameters.set_lambda import SetLambdaParameter
+from dipdup.models.tezos_tzkt import TzktTransaction
+from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
 import maven.models as models
 
 async def set_lambda(

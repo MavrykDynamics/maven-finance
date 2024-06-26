@@ -1,9 +1,9 @@
 from maven.utils.error_reporting import save_error_report
 
+from dipdup.context import HandlerContext
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
 from maven.types.lending_controller_mock_time.tezos_parameters.toggle_pause_entrypoint import TogglePauseEntrypointParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
-from dipdup.context import HandlerContext
 import maven.models as models
 
 async def toggle_pause_entrypoint(

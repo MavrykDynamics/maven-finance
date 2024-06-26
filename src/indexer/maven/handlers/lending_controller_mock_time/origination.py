@@ -1,8 +1,9 @@
 from maven.utils.error_reporting import save_error_report
+
+from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.context import HandlerContext
 from maven.utils.contracts import get_contract_metadata
 from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
-from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktOrigination
 import maven.models as models
 
 async def origination(
@@ -67,8 +68,8 @@ async def origination(
             admin_liquidation_fee_pct               = admin_liquidation_fee_pct,
             minimum_loan_fee_pct                    = minimum_loan_fee_pct,
             minimum_loan_treasury_share             = minimum_loan_treasury_share,
-            last_completed_data_max_delay           = last_completed_data_max_delay,
             interest_treasury_share                 = interest_treasury_share,
+            last_completed_data_max_delay           = last_completed_data_max_delay,
             decimals                                = decimals,
             interest_rate_decimals                  = interest_rate_decimals,
             max_decimals_for_calculation            = max_decimals_for_calculation,
