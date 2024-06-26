@@ -162,7 +162,7 @@ describe('Maven Token', async () => {
                         name: Buffer.from('Tether USD').toString('hex'),
                         symbol: Buffer.from('USDt').toString('hex'),
                         decimals: Buffer.from('6').toString('hex'),
-                        thumbnailUri: Buffer.from('ipfs://QmRymVGWEudMfLrbjaEiXxngCRTDgWCsscjQMwizy4ZJjX').toString('hex'),
+                        thumbnailUri: Buffer.from('ipfs://QmdsFRYNuJX6HRamC2pXp3FiuEa4jB9uCZdg3sr3HD6KT7').toString('hex'),
                         isTransferable: '74727565',
                         isBooleanAmount: Buffer.from(new Uint8Array([0])).toString('hex'),
                         shouldPreferSymbol: '74727565'
@@ -215,7 +215,7 @@ describe('Maven Token', async () => {
                         name: Buffer.from('Wrapped Bitcoin').toString('hex'),
                         symbol: Buffer.from('WBTC').toString('hex'),
                         decimals: Buffer.from('8').toString('hex'),
-                        thumbnailUri: Buffer.from('ipfs://QmRymVGWEudMfLrbjaEiXxngCRTDgWCsscjQMwizy4ZJjX').toString('hex'),
+                        thumbnailUri: Buffer.from('ipfs://Qmcyup81ob9a77vfFsd11R1i5jS5x58TtZBtsiec2fcEYG').toString('hex'),
                         isTransferable: '74727565',
                         isBooleanAmount: Buffer.from(new Uint8Array([0])).toString('hex'),
                         shouldPreferSymbol: '74727565'
