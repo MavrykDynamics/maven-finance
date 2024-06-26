@@ -109,22 +109,27 @@ describe("Testnet setup helper", async () => {
 
                 switch(aggregatorName){
                     case "USDT/USD":
-                        usdtAggregator  = aggregatorAddress;
+                        // usdtAggregator  = aggregatorAddress;
+                        usdtAggregator  = "KT1LXtigQdv8WfF1T8uTtjB75C1uCyE9Ty6G";
                         break;
                     // case "EURT/USD":
                     //     eurtAggregator  = aggregatorAddress;
                     //     break;
                     case "MVRK/USD":
-                        mvrkAggregator   = aggregatorAddress;
+                        // mvrkAggregator   = aggregatorAddress;
+                        mvrkAggregator   = "KT1UZ4pxidJUVeCixmp8WjGUL2GuGCfLM3dp";
                         break;
                     case "BTC/USD":
-                        btcAggregator   = aggregatorAddress;
+                        // btcAggregator   = aggregatorAddress;
+                        btcAggregator   = "KT1KuboiXGVbok9nFCgwKiUw8MbJA9mT5amT";
                         break;
                     case "OCEAN/USD":
-                        oceanAggregator   = aggregatorAddress;
+                        // oceanAggregator   = aggregatorAddress;
+                        oceanAggregator   = "KT1DF7gcTusnYRks9AHdRGncEt2ZQd2GrkZG";
                         break;
                     case "MARS1/USD":
-                        mars1Aggregator   = aggregatorAddress;
+                        // mars1Aggregator   = aggregatorAddress;
+                        mars1Aggregator   = "KT1J27dgN5U5Zo73pXyq74VmudcnHQq3uTEK";
                         break;
                     default: 
                         break
@@ -332,7 +337,8 @@ describe("Testnet setup helper", async () => {
                     10000,
 
                     "fa2",
-                    contractDeployments.fakeUSDtToken.address,
+                    // contractDeployments.fakeUSDtToken.address,
+                    "KT1StUZzJ34MhSNjkQMSyvZVrR9ppkHMFdFf",
                     0
                 ).send();
                 await setLoanTokenOperation.confirmation();
@@ -396,7 +402,8 @@ describe("Testnet setup helper", async () => {
                     "createCollateralToken",
 
                     "wbtc",
-                    contractDeployments.fakeWBTCToken.address,
+                    // contractDeployments.fakeWBTCToken.address,
+                    "KT1C69d3yp4VaMW5v9dNoR6rBwTtg6x7h9K2",
                     8,
 
                     btcAggregator,
@@ -407,7 +414,8 @@ describe("Testnet setup helper", async () => {
                     null, // Max deposit amount
 
                     "fa2",
-                    contractDeployments.fakeWBTCToken.address,
+                    // contractDeployments.fakeWBTCToken.address,
+                    "KT1C69d3yp4VaMW5v9dNoR6rBwTtg6x7h9K2s",
                     0
                 ).send();
                 await setCollateralTokenOperation.confirmation();
@@ -417,7 +425,8 @@ describe("Testnet setup helper", async () => {
                     "createCollateralToken",
 
                     "usdt",
-                    contractDeployments.fakeUSDtToken.address,
+                    // contractDeployments.fakeUSDtToken.address,
+                    "KT1StUZzJ34MhSNjkQMSyvZVrR9ppkHMFdFf",
                     6,
 
                     usdtAggregator,
@@ -428,7 +437,8 @@ describe("Testnet setup helper", async () => {
                     null, // Max deposit amount
 
                     "fa2",
-                    contractDeployments.fakeUSDtToken.address,
+                    // contractDeployments.fakeUSDtToken.address,
+                    "KT1StUZzJ34MhSNjkQMSyvZVrR9ppkHMFdFf",
                     0
                 ).send();
                 await setCollateralTokenOperation.confirmation();
@@ -438,7 +448,7 @@ describe("Testnet setup helper", async () => {
                     "createCollateralToken",
 
                     "ocean",
-                    "KT1J9HnaBnjxgxDCaQcFMKnpQCzhiYaHyAFX",
+                    "KT1J1p1f1owAEjJigKGXhwzu3tVCvRPVgGCh",
                     3,
 
                     oceanAggregator,
@@ -449,7 +459,7 @@ describe("Testnet setup helper", async () => {
                     null, // Max deposit amount
 
                     "fa2",
-                    "KT1J9HnaBnjxgxDCaQcFMKnpQCzhiYaHyAFX",
+                    "KT1J1p1f1owAEjJigKGXhwzu3tVCvRPVgGCh",
                     0
                 ).send();
                 await setCollateralTokenOperation.confirmation();
@@ -459,7 +469,7 @@ describe("Testnet setup helper", async () => {
                     "createCollateralToken",
 
                     "mars1",
-                    "KT1Jj7hxqYHZysxNSpp3L1xBTQ46Y7RsMmxu",
+                    "KT1CgLvrzj5MziwPWWzPkZj1eDeEpRAsYvQ9",
                     3,
 
                     mars1Aggregator,
@@ -470,7 +480,7 @@ describe("Testnet setup helper", async () => {
                     null, // Max deposit amount
 
                     "fa2",
-                    "KT1Jj7hxqYHZysxNSpp3L1xBTQ46Y7RsMmxu",
+                    "KT1CgLvrzj5MziwPWWzPkZj1eDeEpRAsYvQ9",
                     0
                 ).send();
                 await setCollateralTokenOperation.confirmation();
@@ -612,10 +622,10 @@ describe("Testnet setup helper", async () => {
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1WNrZ7pEbpmYBGPib1e7UVCeC6GA6TkJYR", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS", "update"))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.fakeUSDtToken.address, "update"))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.fakeWBTCToken.address, "update"))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1J9HnaBnjxgxDCaQcFMKnpQCzhiYaHyAFX", "update"))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1Jj7hxqYHZysxNSpp3L1xBTQ46Y7RsMmxu", "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1StUZzJ34MhSNjkQMSyvZVrR9ppkHMFdFf", "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1C69d3yp4VaMW5v9dNoR6rBwTtg6x7h9K2", "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1J1p1f1owAEjJigKGXhwzu3tVCvRPVgGCh", "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1CgLvrzj5MziwPWWzPkZj1eDeEpRAsYvQ9", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvnToken.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenEurt.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenMvrk.address, "update"))
