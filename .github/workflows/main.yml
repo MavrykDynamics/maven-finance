@@ -2,16 +2,12 @@ name: Maven Indexer Builder
 on:
   push:
     branches:
-      - 'main'
-      - 'staging'
-      - 'mavryk-protocol-contracts-update'
+      - '*'
     tags:
       - '*.*.*'
   pull_request:
     branches:
-      - 'main'
-      - 'staging'
-      - 'mavryk-protocol-contracts-update'
+      - '*'
 jobs:
   build-docker-image:
     name: Build indexer image
