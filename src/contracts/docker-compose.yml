@@ -58,7 +58,7 @@ services:
   flexmasa:
     container_name: maven-sandbox
     restart: always
-    image: registry.gitlab.com/mavryk-network/flexmasa:atlas-update-run
+    image: mavrykdynamics/flexmasa:atlas-update-run
     command: atlasbox start
     environment:
       - block_time=3
