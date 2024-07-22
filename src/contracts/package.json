@@ -42,7 +42,9 @@
     "test-net-setup": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=atlasnet PRODUCTION=true ts-mocha --paths test/interact/01_test_testnet_prod_setup.spec.ts --bail --timeout 900000",
     "pytest": "yarn migrate && pytest -s",
     "pytest-only": "pytest -s",
-    "setup-prod-environment": "yarn test-net-deploy-prod && yarn test-net-setup"
+    "setup-prod-environment": "yarn test-net-deploy-prod && yarn test-net-setup",
+
+    "atlasnet-bugfix": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=atlasnet ts-mocha --paths test/interact/03_atlasnet_bugfix.spec.ts --bail --timeout 900000"
   },
   "author": "devteam@mavenfinance.io",
   "license": "MIT",
