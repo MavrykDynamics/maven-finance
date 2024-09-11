@@ -25,9 +25,9 @@ async def update_satellite_record(
         rewards_record          = update_satellite_record.storage.satelliteRewardsLedger[satellite_address]
     
         # Create and/or update record
-        user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=satellite_address)
+        user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=satellite_address)
         delegation = await models.Delegation.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = delegation_address
         )
         await models.Satellite.filter(

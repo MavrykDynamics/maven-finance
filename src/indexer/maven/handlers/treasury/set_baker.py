@@ -18,8 +18,8 @@ async def set_baker(
         # Update record
         baker               = None
         if baker_address:
-            baker   = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=baker_address)
-        await models.Treasury.filter(network=ctx.datasource.name.replace('tzkt_',''), address= treasury_address).update(
+            baker   = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=baker_address)
+        await models.Treasury.filter(network=ctx.datasource.name.replace('mvkt_',''), address= treasury_address).update(
             baker   = baker
         )
 

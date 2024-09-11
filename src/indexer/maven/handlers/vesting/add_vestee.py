@@ -36,9 +36,9 @@ async def add_vestee(
             locked    = True
     
         # Create and update records
-        user    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=vestee_address)
+        user    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vestee_address)
         vesting = await models.Vesting.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = vesting_address
         )
         vestee_record   = models.VestingVestee(

@@ -15,13 +15,13 @@ async def pause_all(
         # Get operation info
         aggregator_address                                  = pause_all.data.target_address
         update_data_paused                                  = pause_all.storage.breakGlassConfig.updateDataIsPaused
-        withdraw_reward_xtz_paused                          = pause_all.storage.breakGlassConfig.withdrawRewardXtzIsPaused
+        withdraw_reward_mvrk_paused                         = pause_all.storage.breakGlassConfig.withdrawRewardMvrkIsPaused
         withdraw_reward_smvn_paused                         = pause_all.storage.breakGlassConfig.withdrawRewardStakedMvnIsPaused
     
         # Update record
-        await models.Aggregator.filter(network=ctx.datasource.name.replace('tzkt_',''), address= aggregator_address).update(
+        await models.Aggregator.filter(network=ctx.datasource.name.replace('mvkt_',''), address= aggregator_address).update(
             update_data_paused                       = update_data_paused,
-            withdraw_reward_xtz_paused               = withdraw_reward_xtz_paused,
+            withdraw_reward_mvrk_paused              = withdraw_reward_mvrk_paused,
             withdraw_reward_smvn_paused              = withdraw_reward_smvn_paused,
         )
 

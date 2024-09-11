@@ -25,12 +25,12 @@ async def transfer(
     
         # Update record
         liquidity_baking, _         = await models.LiquidityBaking.get_or_create(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = liquidity_baking_address
         )
         await liquidity_baking.save()
     
-        sender                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=sender_address)
+        sender                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
         sender_position, _      = await models.LiquidityBakingPosition.get_or_create(
             liquidity_baking    = liquidity_baking,
             trader              = sender
@@ -38,7 +38,7 @@ async def transfer(
         sender_position.shares_qty      = sender_balance
         await sender_position.save()
     
-        receiver                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=receiver_address)
+        receiver                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=receiver_address)
         receiver_position, _    = await models.LiquidityBakingPosition.get_or_create(
             liquidity_baking    = liquidity_baking,
             trader              = receiver

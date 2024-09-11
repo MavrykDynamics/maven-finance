@@ -52,7 +52,7 @@ block {
         | LambdaSetName(updatedName) -> {
 
                 // Get farm factory address
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
+                const generalContractsOptView : option (option(address)) = Mavryk.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
                 const farmFactoryAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
                             Some (_contract)    -> _contract
@@ -62,7 +62,7 @@ block {
                 ];
 
                 // Get the farm factory config
-                const configView : option (farmFactoryConfigType) = Tezos.call_view ("getConfig", unit, farmFactoryAddress);
+                const configView : option (farmFactoryConfigType) = Mavryk.call_view ("getConfig", unit, farmFactoryAddress);
                 const farmFactoryConfig: farmFactoryConfigType = case configView of [
                     Some (_config) -> _config
                 |   None -> failwith (error_GET_CONFIG_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND)
@@ -204,9 +204,9 @@ block {
                   block{
                     // Check if token is not MVN (it would break SMVN) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
-                        | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> if token = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> if token.tokenContractAddress = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        | Mav         -> transferMav((Mavryk.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mumav)
+                        | Fa12(token) -> if token = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa12Token(Mavryk.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> if token.tokenContractAddress = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Mavryk.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 
@@ -297,7 +297,7 @@ block{
                 
                 // Update farmSingleTokenStorageType
                 s := updateFarm(s);
-                s.initBlock := Tezos.get_level();
+                s.initBlock := Mavryk.get_level();
                 s.config.infinite := initFarmParams.infinite;
                 s.config.forceRewardFromTransfer := initFarmParams.forceRewardFromTransfer;
                 s.config.plannedRewards.currentRewardPerBlock := initFarmParams.currentRewardPerBlock;
@@ -454,7 +454,7 @@ block{
                 checkFarmIsOpen(s);
 
                 // Depositor address
-                const depositor     : depositorType = Tezos.get_sender();
+                const depositor     : depositorType = Mavryk.get_sender();
 
                 // Check if sender as already a record
                 const existingDepositor: bool = Big_map.mem(depositor, s.depositors);
@@ -489,7 +489,7 @@ block{
                 s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
                 // Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
-                const transferOperation: operation = transferLP(depositor, Tezos.get_self_address(), tokenAmount, s.config.lpToken.tokenId, s.config.lpToken.tokenStandard, s.config.lpToken.tokenAddress);
+                const transferOperation: operation = transferLP(depositor, Mavryk.get_self_address(), tokenAmount, s.config.lpToken.tokenId, s.config.lpToken.tokenStandard, s.config.lpToken.tokenAddress);
 
                 operations := transferOperation # operations;
 
@@ -519,7 +519,7 @@ block{
                 // Update pool farmSingleTokenStorageType
                 s := updateFarm(s);     
 
-                const depositor: depositorType = Tezos.get_sender();
+                const depositor: depositorType = Mavryk.get_sender();
 
                 // Prepare to update user's unclaimedRewards if user already deposited tokens
                 s := updateUnclaimedRewards(depositor, s);
@@ -540,7 +540,7 @@ block{
                 
                 // Transfer LP tokens to the user from the farm balance in the LP Contract
                 const transferOperation: operation = transferLP(
-                    Tezos.get_self_address(),
+                    Mavryk.get_self_address(),
                     depositor,
                     tokenAmount,
                     s.config.lpToken.tokenId, 

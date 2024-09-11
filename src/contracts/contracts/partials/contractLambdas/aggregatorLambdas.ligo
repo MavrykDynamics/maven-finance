@@ -49,7 +49,7 @@ function lambdaSetName(const aggregatorLambdaAction : aggregatorLambdaActionType
 block {
 
     // Steps Overview: 
-    // 1. Check that no tez is sent to this entrypoint
+    // 1. Check that no mav is sent to this entrypoint
     // 2. Check that sender is admin (i.e. Governance Proxy Contract address)
     // 3. Get Aggregator Factory address
     // 4. Get Config from Aggregator Factory through on-chain views, and get aggregatorNameMaxLength variable
@@ -69,14 +69,14 @@ block {
 
                 // Update the reference in the governanceSatellite contract
                 const setAggregatorReferenceParams : setAggregatorReferenceType = record [
-                    aggregatorAddress   = Tezos.get_self_address();
+                    aggregatorAddress   = Mavryk.get_self_address();
                     oldName             = s.name;
                     newName             = updatedName;
                 ];
 
-                operations :=  Tezos.transaction(
+                operations :=  Mavryk.transaction(
                     setAggregatorReferenceParams,
-                    0tez,
+                    0mav,
                     getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
                 ) # operations;
 
@@ -84,7 +84,7 @@ block {
                 const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
             
                 // Get aggregator name max length from factory contract
-                const aggregatorFactoryConfigView : option (aggregatorFactoryConfigType) = Tezos.call_view ("getConfig", unit, aggregatorFactoryAddress);
+                const aggregatorFactoryConfigView : option (aggregatorFactoryConfigType) = Mavryk.call_view ("getConfig", unit, aggregatorFactoryAddress);
                 const aggregatorNameMaxLength : nat = case aggregatorFactoryConfigView of [
                         Some (_config) -> _config.aggregatorNameMaxLength
                     |   None           -> failwith (error_GET_CONFIG_VIEW_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
@@ -146,7 +146,7 @@ block{
                     |   ConfigHeartbeatSeconds (_v)          -> s.config.heartbeatSeconds                     := updateConfigNewValue
                     
                     |   ConfigRewardAmountStakedMvn (_v)     -> s.config.rewardAmountStakedMvn                := updateConfigNewValue
-                    |   ConfigRewardAmountXtz (_v)           -> s.config.rewardAmountXtz                      := updateConfigNewValue
+                    |   ConfigRewardAmountMvrk (_v)           -> s.config.rewardAmountMvrk                      := updateConfigNewValue
                 ];
             }
         |   _ -> skip
@@ -261,10 +261,10 @@ block {
                 verifySenderIsRegisteredOracle(s);
                 
                 // Get oracle infromation from the delegation contract
-                const oracleInformation : oracleInformationType = getOracleInformation(Tezos.get_sender(), s);
+                const oracleInformation : oracleInformationType = getOracleInformation(Mavryk.get_sender(), s);
                 
                 // Update storage
-                s.oracleLedger[Tezos.get_sender()]  := oracleInformation;
+                s.oracleLedger[Mavryk.get_sender()]  := oracleInformation;
 
             }
         |   _ -> skip
@@ -360,7 +360,7 @@ block {
 
                 case params.targetEntrypoint of [
                         UpdateData (_v)                     -> s.breakGlassConfig.updateDataIsPaused                  := _v
-                    |   WithdrawRewardXtz (_v)              -> s.breakGlassConfig.withdrawRewardXtzIsPaused           := _v
+                    |   WithdrawRewardMvrk (_v)              -> s.breakGlassConfig.withdrawRewardMvrkIsPaused           := _v
                     |   WithdrawRewardStakedMvn (_v)        -> s.breakGlassConfig.withdrawRewardStakedMvnIsPaused     := _v
                 ]
                 
@@ -387,7 +387,7 @@ block{
     // Steps Overview:
     // 1. Standard checks
     //    - Check that %updateData entrypoint is not paused (e.g. glass broken)
-    //    - Check that entrypoint should not receive any tez amount   
+    //    - Check that entrypoint should not receive any mav amount   
     //    - Check that sender is oracle
     //    - Check that satellite is not suspended or banned
     // 2. Verify the observations and signatures maps sizes
@@ -408,7 +408,7 @@ block{
                 s                                                                               := refreshedLedgerAndObservations.1;
 
                 // if the sender isn't an oracle anymore, skip the call
-                if Map.mem(Tezos.get_sender(), s.oracleLedger) then{
+                if Map.mem(Mavryk.get_sender(), s.oracleLedger) then{
 
                     // verify obervations and signatures have the same size
                     verifyEqualMapSizes(updatedUpdateDataParams, s);
@@ -432,7 +432,7 @@ block{
                         epoch                   = epochAndRound.0;
                         data                    = median;
                         percentOracleResponse   = percentOracleResponse;
-                        lastUpdatedAt           = Tezos.get_now();
+                        lastUpdatedAt           = Mavryk.get_now();
                     ];
 
                     // -----------------------------------------
@@ -461,43 +461,43 @@ block{
 // Reward Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(*  withdrawRewardXtz entrypoint  *)
-function lambdaWithdrawRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
+(*  withdrawRewardMvrk entrypoint  *)
+function lambdaWithdrawRewardMvrk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
   // Steps Overview:
     // 1. Standard checks
-    //    - Check that %withdrawRewardXtz entrypoint is not paused (e.g. glass broken)
-    //    - Check that entrypoint should not receive any tez amount   
+    //    - Check that %withdrawRewardMvrk entrypoint is not paused (e.g. glass broken)
+    //    - Check that entrypoint should not receive any mav amount   
     //    - Check that sender is an oracle registered on the aggregator
     //    - Check that satellite is not suspended or banned
-    // 2. Get oracle's XTZ reward amount 
+    // 2. Get oracle's MVRK reward amount 
     // 3. If reward amount is greater than 0, create an operation to the Aggregator Factory Contract to distribute the rewards
-    //    - Reset oracle XTZ rewards to zero and update storage
+    //    - Reset oracle MVRK rewards to zero and update storage
 
-    // Check that %withdrawRewardXtz entrypoint is not paused (e.g. glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.withdrawRewardXtzIsPaused, error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED);
+    // Check that %withdrawRewardMvrk entrypoint is not paused (e.g. glass broken)
+    verifyEntrypointIsNotPaused(s.breakGlassConfig.withdrawRewardMvrkIsPaused, error_WITHDRAW_REWARD_MVRK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED);
 
     var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [
-        |   LambdaWithdrawRewardXtz(oracleAddress) -> {
+        |   LambdaWithdrawRewardMvrk(oracleAddress) -> {
 
                 // Verify that satellite is not suspended or banned
                 verifySatelliteIsNotSuspendedOrBanned(oracleAddress, s);
                 
-                // Get oracle's XTZ reward amount 
-                const reward : nat = getOracleXtzRewards(oracleAddress, s);
+                // Get oracle's MVRK reward amount 
+                const reward : nat = getOracleMvrkRewards(oracleAddress, s);
 
                 // If reward amount is greater than 0, create an operation to the Aggregator Factory Contract to distribute the rewards
                 if (reward > 0n) then {
 
-                    // distribute reward xtz operation to oracle
-                    const distributeRewardXtzOperation : operation = distributeRewardXtzOperation(oracleAddress, reward, s);
-                    operations := distributeRewardXtzOperation # operations;
+                    // distribute reward mvrk operation to oracle
+                    const distributeRewardMvrkOperation : operation = distributeRewardMvrkOperation(oracleAddress, reward, s);
+                    operations := distributeRewardMvrkOperation # operations;
                     
-                    // Reset oracle XTZ rewards to zero and update storage
-                    s.oracleRewardXtz[oracleAddress] := 0n;
+                    // Reset oracle MVRK rewards to zero and update storage
+                    s.oracleRewardMvrk[oracleAddress] := 0n;
 
                 } else skip;
             }
@@ -515,7 +515,7 @@ block{
     // Steps Overview:
     // 1. Standard checks
     //    - Check that %withdrawRewardStakedMvn entrypoint is not paused (e.g. glass broken)
-    //    - Check that entrypoint should not receive any tez amount   
+    //    - Check that entrypoint should not receive any mav amount   
     //    - Check that sender is an oracle registered on the aggregator
     //    - Check that satellite is not suspended or banned
     // 2. Get oracle's staked MVN reward amount 

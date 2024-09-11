@@ -4,7 +4,6 @@
   "description": "Indexer scripts",
   "scripts": {
     "setup-env": "poetry install",
-    "install-deps": "git submodule sync --recursive && git submodule update --init --recursive --remote",
     "start-sandbox": "docker compose -f maven/deploy/docker-compose.yml up -d",
     "clear-sandbox": "docker compose -f maven/deploy/docker-compose.yml down -v --remove-orphans",
     "init-types": "poetry run dipdup -c dipdup.local.yml -c dipdup.contract.yml -c dipdup.types.yml init -f",

@@ -18,12 +18,12 @@ async def update_operators(
     
         # Update records
         token               = await models.Token.get(
-            network         = ctx.datasource.name.replace('tzkt_',''),
+            network         = ctx.datasource.name.replace('mvkt_',''),
             token_address   = m_token_address,
             token_id        = 0
         )
         m_token             = await models.MToken.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = m_token_address,
             token   = token
         )
@@ -32,8 +32,8 @@ async def update_operators(
                 owner_address       = operatorChange.add_operator.owner
                 operator_address    = operatorChange.add_operator.operator
                 
-                owner               = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=owner_address)            
-                operator            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=operator_address)
+                owner               = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=owner_address)            
+                operator            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=operator_address)
     
                 operator_record, _  = await models.MTokenOperator.get_or_create(
                     m_token     = m_token,
@@ -45,8 +45,8 @@ async def update_operators(
                 owner_address       = operatorChange.remove_operator.owner
                 operator_address    = operatorChange.remove_operator.operator
                 
-                owner               = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=owner_address)
-                operator            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=operator_address)
+                owner               = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=owner_address)
+                operator            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=operator_address)
     
                 operator_record, _  = await models.MTokenOperator.get_or_create(
                     m_token     = m_token,

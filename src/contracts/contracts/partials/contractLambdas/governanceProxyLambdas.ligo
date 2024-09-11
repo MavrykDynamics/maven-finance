@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case governanceProxyLambdaAction of [
@@ -30,7 +30,7 @@ block {
 function lambdaSetGovernance(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case governanceProxyLambdaAction of [
@@ -48,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit);      // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);      // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin);  // verify that sender is admin
     
     case governanceProxyLambdaAction of [

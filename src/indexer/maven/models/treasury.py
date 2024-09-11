@@ -61,7 +61,7 @@ class TreasuryBalance(Model):
     id                                      = fields.BigIntField(pk=True)
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='balances')
     token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_balances')
-    tzkt_token_id                           = fields.BigIntField(default=0)
+    mvkt_token_id                           = fields.BigIntField(default=0)
     balance                                 = fields.FloatField(default=0.0)
     whitelisted                             = fields.BooleanField(default=False)
 

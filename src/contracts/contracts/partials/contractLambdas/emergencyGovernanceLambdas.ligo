@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case emergencyGovernanceLambdaAction of [
@@ -30,7 +30,7 @@ block {
 function lambdaSetGovernance(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
 
     case emergencyGovernanceLambdaAction of [
@@ -69,7 +69,7 @@ block {
 function lambdaUpdateConfig(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is 
 block {
 
-  verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
+  verifyNoAmountSent(Unit);   // entrypoint should not receive any mav amount  
   verifySenderIsAdmin(s.admin); // verify that sender is admin
 
   case emergencyGovernanceLambdaAction of [
@@ -80,7 +80,7 @@ block {
 
                 case updateConfigAction of [
                         ConfigDurationInMinutes (_v)                  -> s.config.durationInMinutes               := updateConfigNewValue
-                    |   ConfigRequiredFeeMutez (_v)                   -> s.config.requiredFeeMutez                := updateConfigNewValue * 1mutez
+                    |   ConfigRequiredFeeMumav (_v)                   -> s.config.requiredFeeMumav                := updateConfigNewValue * 1mumav
                     |   ConfigStakedMvnPercentRequired (_v)           -> if updateConfigNewValue > 10_000n     then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.stakedMvnPercentageRequired     := updateConfigNewValue  
                     |   ConfigMinStakedMvnForVoting (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvnRequiredToVote      := updateConfigNewValue
                     |   ConfigMinStakedMvnToTrigger (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvnRequiredToTrigger   := updateConfigNewValue
@@ -170,7 +170,7 @@ block {
 
     // Steps Overview:
     // 1. Check that there is no currently active emergency governance being voted on
-    // 2. Check if tez sent is equal to the required fee
+    // 2. Check if mav sent is equal to the required fee
     // 3. Transfer required fee to the Tax Treasury
     //    - Get Tax Treasury Contract Address from the General Contracts Map on the Governance Contract
     // 4. Check if user has sufficient staked MVN to trigger emergency control
@@ -187,12 +187,12 @@ block {
     case emergencyGovernanceLambdaAction of [
         |   LambdaTriggerEmergencyControl(triggerEmergencyControlParams) -> {
 
-                const userAddress: address  = Tezos.get_sender();
+                const userAddress: address  = Mavryk.get_sender();
                     
                 // Verify that there is no currently active emergency governance
                 verifyNoActiveEmergencyGovernance(s);
 
-                // Verify that tez sent is equal to the required fee
+                // Verify that mav sent is equal to the required fee
                 verifyCorrectFee(s);
 
                 // Transfer fee to Treasury
@@ -265,14 +265,14 @@ block {
     //    - Trigger break glass in Governance contract  - set Governance Contract admin to Break Glass Contract address
     // 7. Update storage - emergency governance record
 
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount  
 
     var operations : list(operation) := nil;
 
     case emergencyGovernanceLambdaAction of [
         |   LambdaVoteForEmergencyControl(_parameters) -> {
 
-                const userAddress: address  = Tezos.get_sender();
+                const userAddress: address  = Mavryk.get_sender();
                 
                 // Verify that there is an active emergency governance
                 verifyOngoingActiveEmergencyGovernance(s);
@@ -298,7 +298,7 @@ block {
                 // Update emergency governance record with new votes
                 _emergencyGovernance.totalStakedMvnVotes := totalStakedMvnVotes;
                 s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
-                s.emergencyGovernanceVoters := Big_map.add((s.currentEmergencyGovernanceId, userAddress), (stakedMvnBalance, Tezos.get_now()), s.emergencyGovernanceVoters);
+                s.emergencyGovernanceVoters := Big_map.add((s.currentEmergencyGovernanceId, userAddress), (stakedMvnBalance, Mavryk.get_now()), s.emergencyGovernanceVoters);
 
                 // Check if total votes has exceed threshold - if yes, trigger operation to break glass contract
                 if totalStakedMvnVotes > _emergencyGovernance.stakedMvnRequiredForBreakGlass then block {
@@ -309,8 +309,8 @@ block {
 
                     // Update emergency governance record
                     _emergencyGovernance.executed            := True;
-                    _emergencyGovernance.executedDateTime    := Some(Tezos.get_now());
-                    _emergencyGovernance.executedLevel       := Some(Tezos.get_level());
+                    _emergencyGovernance.executedDateTime    := Some(Mavryk.get_now());
+                    _emergencyGovernance.executedLevel       := Some(Mavryk.get_level());
                     
                     // Save emergency governance record
                     s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;

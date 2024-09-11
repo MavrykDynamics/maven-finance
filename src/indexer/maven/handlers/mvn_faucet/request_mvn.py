@@ -19,17 +19,18 @@ async def request_mvn(
     
         # Create request record
         mvn_faucet          = await models.MVNFaucet.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = mvn_faucet_address
         )
-        user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), 
+        user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), 
             address = requester_address
         )
         requester           = models.MVNFaucetRequester(
-            mvn_faucet  = mvn_faucet,
-            user        = user,
-            timestamp   = timestamp,
-            level       = level
+            mvn_faucet      = mvn_faucet,
+            request_type    = models.FaucetRequestType.MVN,
+            user            = user,
+            timestamp       = timestamp,
+            level           = level
         )
         await requester.save()
 

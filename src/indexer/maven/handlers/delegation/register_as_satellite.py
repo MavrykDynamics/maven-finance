@@ -29,24 +29,15 @@ async def register_as_satellite(
         total_delegated_amount  = float(satellite_storage.totalDelegatedAmount)
     
         # Create and/or update record
-        user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=satellite_address)
+        user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=satellite_address)
         delegation = await models.Delegation.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = delegation_address
         )
         satellite_record, _ = await models.Satellite.get_or_create(
             user                    = user,
             delegation              = delegation,
         )
-        # tz1Y2tUUooW6QT6pQCeqz9ep9wCkX5bnKeTs
-        # tz1T8S68igxa6uWZbeoWWwbcuRHEDQSzknEX
-        # tz1gvYDynpK667R9VM8hwTxKmRmkcK94aqQy
-        # tz1byTGaUKjJqkwSXPnM3dpf9N39pYwRfnTm
-        # tz1b3BQ8wFyQ9U5Gx8WWXimphY8ER8qorm7m
-        # tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ
-        # tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
-        # tz1Zgg2vLeyYLwQCtChXKjYDAXCRowQTzEGw
-        # tz2JRm5mucJvvkT15e7Q6yMaMF6tuGUXJFFA
         satellite_record.registration_timestamp         = registration_timestamp
         satellite_record.public_key                     = public_key
         satellite_record.peer_id                        = peer_id

@@ -23,7 +23,7 @@ async def pause_all(
         take_satellites_snapshot_paused     = pause_all.storage.breakGlassConfig.takeSatellitesSnapshotPaused
 
         # Update contract
-        await models.Delegation.filter(network=ctx.datasource.name.replace('tzkt_',''), address=delegation_address).update(
+        await models.Delegation.filter(network=ctx.datasource.name.replace('mvkt_',''), address=delegation_address).update(
             delegate_to_satellite_paused        = delegate_to_satellite_paused,
             undelegate_from_satellite_paused    = undelegate_from_satellite_paused,
             register_as_satellite_paused        = register_as_satellite_paused,

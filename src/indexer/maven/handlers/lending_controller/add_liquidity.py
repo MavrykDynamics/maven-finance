@@ -4,7 +4,7 @@ from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from maven.types.lending_controller.tezos_parameters.add_liquidity import AddLiquidityParameter
 from dipdup.models.tezos_tzkt import TzktTransaction
-from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as tez
+from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as mav
 import maven.models as models
 
 async def add_liquidity(
@@ -41,8 +41,8 @@ async def add_liquidity(
         elif type(loan_token_type_storage) == fa2:
             loan_token_address  = loan_token_type_storage.fa2.tokenContractAddress
             loan_token_id       = int(loan_token_type_storage.fa2.tokenId)
-        elif type(loan_token_type_storage) == tez:
-            loan_token_address  = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg"
+        elif type(loan_token_type_storage) == mav:
+            loan_token_address  = "mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d"
 
         token                                   = None
         if loan_token_address:
@@ -55,7 +55,7 @@ async def add_liquidity(
 
             # Get the related token
             token, _                                = await models.Token.get_or_create(
-                network             = ctx.datasource.name.replace('tzkt_',''),
+                network             = ctx.datasource.name.replace('mvkt_',''),
                 token_address       = loan_token_address,
                 token_id            = loan_token_id
             )
@@ -64,9 +64,8 @@ async def add_liquidity(
     
         # Create / Update record
         lending_controller                      = await models.LendingController.get(
-            network     = ctx.datasource.name.replace('tzkt_',''),
+            network     = ctx.datasource.name.replace('mvkt_',''),
             address     = lending_controller_address,
-            mock_time   = False
         )
         lending_controller_loan_token           = await models.LendingControllerLoanToken.get(
             lending_controller  = lending_controller,
@@ -89,7 +88,7 @@ async def add_liquidity(
         await lending_controller_loan_token.save()
     
         # Save history data
-        sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=sender_address)
+        sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
         history_data                            = models.LendingControllerHistoryData(
             lending_controller  = lending_controller,
             loan_token          = lending_controller_loan_token,

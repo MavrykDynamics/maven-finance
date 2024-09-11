@@ -23,7 +23,7 @@ class BreakGlassConfig(BaseModel):
     createAggregatorIsPaused: bool
     trackAggregatorIsPaused: bool
     untrackAggregatorIsPaused: bool
-    distributeRewardXtzIsPaused: bool
+    distributeRewardMvrkIsPaused: bool
     distributeRewardStakedMvnIsPaused: bool
 
 

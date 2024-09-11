@@ -8,18 +8,18 @@
 // Vault Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(* depositXtz lambda *)
-function lambdaDepositXtz(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
+(* depositMvrk lambda *)
+function lambdaDepositMvrk(const vaultLambdaAction : vaultLambdaActionType; var s : vaultStorageType) : return is
 block {
 
     var operations : list(operation) := nil;
 
     case vaultLambdaAction of [
-        |   LambdaDepositXtz(_params) -> {
+        |   LambdaDepositMvrk(_params) -> {
 
                 // init deposit operation params
-                const amount     : nat        = (Tezos.get_amount() / 1mutez);
-                const tokenName  : string     = "tez";
+                const amount     : nat        = (Mavryk.get_amount() / 1mumav);
+                const tokenName  : string     = "mav";
 
                 // get collateral token record from Lending Controller through on-chain view
                 const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
@@ -44,7 +44,7 @@ block {
                 operations := registerDepositOperation # operations;
 
                 // process deposit from sender to vault
-                if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
+                if Mavryk.get_amount() = (amount * 1mumav) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
                 
             }   
         |   _ -> skip
@@ -69,10 +69,10 @@ block {
                             // verify sender is vault owner
                             verifySenderIsVaultOwner(s);
                             
-                            // Create delegate to tez baker operation
-                            const delegateToTezBakerOperation : operation = Tezos.set_delegate(optionKeyHash);
+                            // Create delegate to mav baker operation
+                            const delegateToMavBakerOperation : operation = Mavryk.set_delegate(optionKeyHash);
                             
-                            operations := delegateToTezBakerOperation # operations;
+                            operations := delegateToMavBakerOperation # operations;
 
                         }
                     |   DelegateToSatellite(satelliteAddress) -> {
@@ -126,12 +126,12 @@ block {
 
                                 operations := registerDepositOperation # operations;
 
-                                if collateralTokenRecord.tokenName = "tez" then {
-                                    if Tezos.get_amount() = (amount * 1mutez) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
+                                if collateralTokenRecord.tokenName = "mav" then {
+                                    if Mavryk.get_amount() = (amount * 1mumav) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
                                 } else {
                                     const processVaultDepositOperation : operation = processVaultTransfer(
-                                        Tezos.get_sender(),         // from_
-                                        Tezos.get_self_address(),   // to_
+                                        Mavryk.get_sender(),         // from_
+                                        Mavryk.get_self_address(),   // to_
                                         amount,                     // amount
                                         tokenType                   // tokenType
                                     );
@@ -171,8 +171,8 @@ block {
 
                                 // process withdrawal from vault to sender
                                 const processVaultWithdrawalOperation : operation = processVaultTransfer(
-                                    Tezos.get_self_address(),   // from_
-                                    Tezos.get_sender(),         // to_
+                                    Mavryk.get_self_address(),   // from_
+                                    Mavryk.get_sender(),         // to_
                                     amount,                     // amount
                                     tokenType                   // tokenType
                                 );
@@ -206,7 +206,7 @@ block {
                             // process withdrawal from vault to liquidator
                             if amount > 0n then {
                                 const processVaultWithdrawalOperation : operation = processVaultTransfer(
-                                    Tezos.get_self_address(),   // from_
+                                    Mavryk.get_self_address(),   // from_
                                     receiver,                   // to_
                                     amount,                     // amount
                                     tokenType                   // tokenType

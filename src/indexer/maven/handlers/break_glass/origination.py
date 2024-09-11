@@ -34,12 +34,12 @@ async def origination(
         )
     
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('tzkt_',''))
+        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
     
         # Create record
         break_glass  = models.BreakGlass(
             address                             = address,
-            network                             = ctx.datasource.name.replace('tzkt_',''),
+            network                             = ctx.datasource.name.replace('mvkt_',''),
             metadata                            = contract_metadata,
             admin                               = admin,
             last_updated_at                     = timestamp,
@@ -56,7 +56,7 @@ async def origination(
         await break_glass.save()
     
         for member_address in council_members:
-            user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=member_address)
+            user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=member_address)
             memberInfo          = council_members[member_address]
             council_member      = models.BreakGlassCouncilMember(
                 user        = user,

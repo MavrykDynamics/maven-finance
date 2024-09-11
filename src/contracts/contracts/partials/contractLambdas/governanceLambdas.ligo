@@ -91,13 +91,13 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Validation check for new admin address
     //      -   Check if the new admin address is a whitelisted developer or the current Governance Proxy Contract address
     //      -   Check if the new admin address is the Break Glass Contract
     // 4. Set new admin address
 
-    verifyNoAmountSent(Unit);    // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);    // check that no mav is sent to the entrypoint
     verifySenderIsAdmin(s.admin); // verify that sender is admin (e.g. Governance Proxy contract)
     
     case governanceLambdaAction of [
@@ -123,10 +123,10 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Set new Governance Proxy Contract address
     
-    verifyNoAmountSent(Unit);    // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);    // check that no mav is sent to the entrypoint
     verifySenderIsAdmin(s.admin); // verify that sender is admin
     
     case governanceLambdaAction of [
@@ -145,10 +145,10 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Set new contract metadata
 
-    verifyNoAmountSent(Unit);    // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);    // check that no mav is sent to the entrypoint
     verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case governanceLambdaAction of [
@@ -172,10 +172,10 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Update config with new input (validate if necessary)
 
-    verifyNoAmountSent(Unit);   // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);   // check that no mav is sent to the entrypoint
     verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case governanceLambdaAction of [
@@ -184,7 +184,7 @@ block {
                 const updateConfigAction    : governanceUpdateConfigActionType     = updateConfigParams.updateConfigAction;
                 const updateConfigNewValue  : governanceUpdateConfigNewValueType   = updateConfigParams.updateConfigNewValue;
 
-                const blocksPerMinute   : nat = 60n / Tezos.get_min_block_time();
+                const blocksPerMinute   : nat = 60n / Mavryk.get_min_block_time();
                 const maxRoundDuration  : nat = 10_080n * blocksPerMinute; // one week in block levels
 
                 case updateConfigAction of [
@@ -193,11 +193,11 @@ block {
                     |   ConfigMinProposalRoundVotePct (_v)                -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minProposalRoundVotePercentage := updateConfigNewValue
                     |   ConfigMinQuorumPercentage (_v)                    -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minQuorumPercentage            := updateConfigNewValue
                     |   ConfigMinYayVotePercentage (_v)                   -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minYayVotePercentage           := updateConfigNewValue
-                    |   ConfigProposeFeeMutez (_v)                        -> s.config.proposalSubmissionFeeMutez              := updateConfigNewValue * 1mutez                    
+                    |   ConfigProposeFeeMumav (_v)                        -> s.config.proposalSubmissionFeeMumav              := updateConfigNewValue * 1mumav                    
                     |   ConfigMaxProposalsPerSatellite (_v)               -> s.config.maxProposalsPerSatellite                := updateConfigNewValue
-                    |   ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerProposalRound     := updateConfigNewValue
-                    |   ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerVotingRound       := updateConfigNewValue
-                    |   ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerTimelockRound     := updateConfigNewValue
+                    |   ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Mavryk.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerProposalRound     := updateConfigNewValue
+                    |   ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Mavryk.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerVotingRound       := updateConfigNewValue
+                    |   ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Mavryk.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerTimelockRound     := updateConfigNewValue
                     |   ConfigDataTitleMaxLength (_v)                     -> s.config.proposalDataTitleMaxLength              := updateConfigNewValue
                     |   ConfigProposalTitleMaxLength (_v)                 -> s.config.proposalTitleMaxLength                  := updateConfigNewValue
                     |   ConfigProposalDescMaxLength (_v)                  -> s.config.proposalDescriptionMaxLength            := updateConfigNewValue
@@ -219,11 +219,11 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin or whitelisted (e.g. Factory contracts)
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Update whitelist contracts map
 
     verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
-    verifyNoAmountSent(Unit);            // verify that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);            // verify that no mav is sent to the entrypoint
     
     case governanceLambdaAction of [
         |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -242,11 +242,11 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin or whitelisted (e.g. Factory contracts)
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Update general contracts map
 
     verifySenderIsWhitelistedOrAdmin(s); // verify that sender is admin or whitelisted (e.g. Factory contracts)
-    verifyNoAmountSent(Unit);            // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);            // check that no mav is sent to the entrypoint
     
     case governanceLambdaAction of [
         |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -265,12 +265,12 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Remove developer address if it is already present in the whitelist developers set, otherwise add developer address
     //      -   Check that there will always be at least one whitelisted developer address present
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin
-    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint
+    verifyNoAmountSent(Unit);     // check that no mav is sent to the entrypoint
 
     case governanceLambdaAction of [
             LambdaUpdateWhitelistDevelopers(developer) -> 
@@ -329,11 +329,11 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Create operation to set new admin of contract
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin
-    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint    
+    verifyNoAmountSent(Unit);     // check that no mav is sent to the entrypoint    
 
     var operations : list(operation) := nil;
 
@@ -357,11 +357,11 @@ block {
 
     // Steps Overview:
     // 1. Check that sender is admin 
-    // 2. Check that no tez is sent to the entrypoint
+    // 2. Check that no mav is sent to the entrypoint
     // 3. Create operation to set new Governance Address of contract
 
     verifySenderIsAdmin(s.admin); // verify that sender is admin
-    verifyNoAmountSent(Unit);     // check that no tez is sent to the entrypoint    
+    verifyNoAmountSent(Unit);     // check that no mav is sent to the entrypoint    
 
     // Operations list
     var operations : list(operation) := nil;
@@ -456,7 +456,7 @@ block {
                 // ------------------------------------------------------------------
 
                 const currentCycleEndLevel  : nat = s.currentCycleInfo.cycleEndLevel;
-                const currentBlockLevel     : nat = Tezos.get_level();
+                const currentBlockLevel     : nat = Mavryk.get_level();
                 const blocksPerFullCycle    : nat = s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
 
                 // calculate number of cycles that have passed if any
@@ -554,7 +554,7 @@ block {
                                     s.proposalLedger[s.timelockProposalId]          := proposalToExecute;
 
                                     // Execute the timelock proposal if the boolean was set to true
-                                    if executePastProposal then operations := Tezos.transaction((s.timelockProposalId), 0tez, getExecuteProposalEntrypoint(Tezos.get_self_address())) # operations 
+                                    if executePastProposal then operations := Mavryk.transaction((s.timelockProposalId), 0mav, getExecuteProposalEntrypoint(Mavryk.get_self_address())) # operations 
                                     else skip;
                                     
                                 } else skip;
@@ -584,7 +584,7 @@ block {
     //      -   Check that satellite exists and is not suspended or banned
     //      -   Check that satellite snapshot exists (taken when proposal round was started)
     // 3. Process Proposal Submission Fee
-    //      -   Check if Tez sent is equal to the required proposal submission fee
+    //      -   Check if Mav sent is equal to the required proposal submission fee
     //      -   Get Tax Treasury from General Contracts map
     //      -   Create operation to transfer submission fee to treasury
     // 4. Validation Checks
@@ -622,25 +622,25 @@ block {
                 // ------------------------------------------------------------------
 
                 // Verify that satellite exists and is not suspended or banned
-                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                verifySatelliteIsNotSuspendedOrBanned(Mavryk.get_sender(), s);
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
-                s := checkSatelliteSnapshot(Tezos.get_sender(), s);
+                s := checkSatelliteSnapshot(Mavryk.get_sender(), s);
                 const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getCurrentSatelliteSnapshot(s);
 
                 // ------------------------------------------------------------------
                 // Process Proposal Submission Fee
                 // ------------------------------------------------------------------
 
-                // check if tez sent is equal to the required fee
+                // check if mav sent is equal to the required fee
                 verifyCorrectSubmissionFee(s);
 
                 // Get Tax Treasury from General Contracts map
                 const treasuryAddress : address = getAddressFromGeneralContracts("taxTreasury", s, error_PROPOSE_TAX_TREASURY_CONTRACT_NOT_FOUND);
 
                 // Create operation to transfer submission fee to treasury
-                const treasuryContract : contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
-                const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.get_amount());
+                const treasuryContract : contract(unit) = Mavryk.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
+                const transferFeeToTreasuryOperation : operation = transferMav(treasuryContract, Mavryk.get_amount());
                 
                 operations := transferFeeToTreasuryOperation # operations;
                 
@@ -655,7 +655,7 @@ block {
                 verifySatelliteHasSufficientStakedMvn(satelliteSnapshot.totalStakedMvnBalance, minimumStakedMvnRequirement);
 
                 // Get total number of proposals from satellite for current cycle
-                var satelliteProposals : set(nat) := getSatelliteProposals(Tezos.get_sender(), s.cycleId, s);
+                var satelliteProposals : set(nat) := getSatelliteProposals(Mavryk.get_sender(), s.cycleId, s);
 
                 // Verify that satellite's total number of proposals does not exceed the maximum set in config (spam check)
                 verifyMaxProposalsPerSatelliteNotReached(satelliteProposals, s);
@@ -676,7 +676,7 @@ block {
 
                 // Add new proposal to satellite's proposals set
                 satelliteProposals                                      := Set.add(proposalId, satelliteProposals);
-                s.cycleProposers[(s.cycleId,Tezos.get_sender())]        := satelliteProposals;
+                s.cycleProposers[(s.cycleId,Mavryk.get_sender())]        := satelliteProposals;
 
                 // ------------------------------------------------------------------
                 // Add Proposal Metadata and Payment Metadata 
@@ -883,10 +883,10 @@ block {
                 // ------------------------------------------------------------------
 
                 // Verify that satellite exists and is not suspended or banned
-                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                verifySatelliteIsNotSuspendedOrBanned(Mavryk.get_sender(), s);
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
-                s := checkSatelliteSnapshot(Tezos.get_sender(), s);
+                s := checkSatelliteSnapshot(Mavryk.get_sender(), s);
                 const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getCurrentSatelliteSnapshot(s);
 
                 // ------------------------------------------------------------------
@@ -910,7 +910,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check if satellite has voted
-                const checkIfSatelliteHasVotedFlag : bool = checkIfSatelliteHasVoted(Tezos.get_sender(), s);
+                const checkIfSatelliteHasVotedFlag : bool = checkIfSatelliteHasVoted(Mavryk.get_sender(), s);
 
                 // Compute satellite's votes 
                 if checkIfSatelliteHasVotedFlag = False then block {
@@ -933,7 +933,7 @@ block {
                     s.cycleProposals[proposalId]    := _proposal.proposalVoteStakedMvnTotal;
 
                     // Update current round votes with satellite
-                    s.roundVotes[(s.cycleId, Tezos.get_sender())] := (Proposal (proposalId): roundVoteType);
+                    s.roundVotes[(s.cycleId, Mavryk.get_sender())] := (Proposal (proposalId): roundVoteType);
 
                 } else block {
 
@@ -942,7 +942,7 @@ block {
                     // -------------------------------------------
 
                     // Check if satellite already voted for this proposal (double-counting check) and get the previous proposal ID
-                    const previousVotedProposalId : nat = case s.roundVotes[(s.cycleId, Tezos.get_sender())] of [
+                    const previousVotedProposalId : nat = case s.roundVotes[(s.cycleId, Mavryk.get_sender())] of [
                             Some (_voteRound)   -> case _voteRound of [
                                     Proposal (_proposalId)  -> if _proposalId = proposalId then failwith(error_VOTE_ALREADY_RECORDED) else _proposalId
                                 |   Voting (_voteType)      -> failwith(error_VOTE_NOT_FOUND)
@@ -988,7 +988,7 @@ block {
                     s.cycleProposals[previousVotedProposalId]       := _previousProposal.proposalVoteStakedMvnTotal;
 
                     // Update current round votes with satellite
-                    s.roundVotes[(s.cycleId, Tezos.get_sender())] := (Proposal (proposalId) : roundVoteType);
+                    s.roundVotes[(s.cycleId, Mavryk.get_sender())] := (Proposal (proposalId) : roundVoteType);
                 };
 
                 // Update the current round highest voted proposal
@@ -1046,10 +1046,10 @@ block {
                 // ------------------------------------------------------------------
 
                 // Verify that satellite exists and is not suspended or banned
-                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                verifySatelliteIsNotSuspendedOrBanned(Mavryk.get_sender(), s);
                 
                 // Check that satellite snapshot exists (taken when proposal round was started)
-                s := checkSatelliteSnapshot(Tezos.get_sender(), s);
+                s := checkSatelliteSnapshot(Mavryk.get_sender(), s);
                 const satelliteSnapshot : governanceSatelliteSnapshotRecordType = getCurrentSatelliteSnapshot(s);
 
                 // ------------------------------------------------------------------
@@ -1072,7 +1072,7 @@ block {
                 //  i.e. (satelliteAddress, voteType - Yay | Nay | Pass)
 
                 // Check if satellite has voted
-                const previousVoteOpt : option(voteType) = case Big_map.find_opt((s.cycleId, Tezos.get_sender()), s.roundVotes) of [
+                const previousVoteOpt : option(voteType) = case Big_map.find_opt((s.cycleId, Mavryk.get_sender()), s.roundVotes) of [
                         Some (_voteRound)   -> case _voteRound of [
                                 Proposal (_proposalId)  -> (None : option(voteType))
                             |   Voting (_voteType)      -> (Some (_voteType) : option(voteType))
@@ -1092,8 +1092,8 @@ block {
                             else skip;
 
                             // Save new vote
-                            s.roundVotes        := Big_map.update((s.cycleId, Tezos.get_sender()), Some (Voting (voteType)), s.roundVotes);
-                            s.proposalVoters    := Big_map.update((s.cycleHighestVotedProposalId, Tezos.get_sender()), Some(voteType), s.proposalVoters);
+                            s.roundVotes        := Big_map.update((s.cycleId, Mavryk.get_sender()), Some (Voting (voteType)), s.roundVotes);
+                            s.proposalVoters    := Big_map.update((s.cycleHighestVotedProposalId, Mavryk.get_sender()), Some(voteType), s.proposalVoters);
 
                             // Set proposal record based on vote type 
                             var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
@@ -1112,8 +1112,8 @@ block {
                             // -------------------------------------------
                             
                             // Save new vote
-                            s.roundVotes        := Big_map.update((s.cycleId, Tezos.get_sender()), Some (Voting (voteType)), s.roundVotes);
-                            s.proposalVoters    := Big_map.add((s.cycleHighestVotedProposalId, Tezos.get_sender()), voteType, s.proposalVoters);
+                            s.roundVotes        := Big_map.update((s.cycleId, Mavryk.get_sender()), Some (Voting (voteType)), s.roundVotes);
+                            s.proposalVoters    := Big_map.add((s.cycleHighestVotedProposalId, Mavryk.get_sender()), voteType, s.proposalVoters);
 
                             // Set proposal record based on vote type 
                             var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
@@ -1192,7 +1192,7 @@ block {
 
                 // Update proposal and set "executed" boolean to True
                 proposal.executed               := True;
-                proposal.executedDateTime       := Some(Tezos.get_now());
+                proposal.executedDateTime       := Some(Mavryk.get_now());
                 s.proposalLedger[proposalId]    := proposal;
 
                 // ------------------------------------------------------------------
@@ -1425,7 +1425,7 @@ block {
                     proposal.executed           := True;
                     
                     // Update the execution datetime
-                    proposal.executedDateTime   := Some(Tezos.get_now());
+                    proposal.executedDateTime   := Some(Mavryk.get_now());
 
                     // Send reward to proposer
                     operations                  := sendRewardToProposer(s) # operations;
@@ -1541,7 +1541,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check if sender is proposer or admin 
-                if proposal.proposerAddress = Tezos.get_sender() or Tezos.get_sender() = s.admin then block {
+                if proposal.proposerAddress = Mavryk.get_sender() or Mavryk.get_sender() = s.admin then block {
 
                     // Set proposal status to "DROPPED"
                     proposal.status               := "DROPPED";

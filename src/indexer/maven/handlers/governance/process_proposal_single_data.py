@@ -24,7 +24,7 @@ async def process_proposal_single_data(
             execution_datetime  = parser.parse(storage_proposal.executedDateTime)
     
         # Update record
-        governance          = await models.Governance.get(network=ctx.datasource.name.replace('tzkt_',''), address= governance_address)
+        governance          = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
         await models.GovernanceProposal.filter(
             governance  = governance,
             internal_id = proposal_id

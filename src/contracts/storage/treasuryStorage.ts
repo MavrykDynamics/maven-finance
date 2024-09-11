@@ -1,10 +1,10 @@
-import { MichelsonMap } from "@taquito/michelson-encoder"
+import { MichelsonMap } from "@mavrykdynamics/taquito-michelson-encoder"
 import { bob } from '../scripts/sandbox/accounts'
 import { treasuryStorageType } from "./storageTypes/treasuryStorageType"
 
 const config = {
     minMvnAmount            : 0,
-    maxXtzAmount            : 1000000000,
+    maxMvrkAmount            : 1000000000,
 }
 
 const breakGlassConfig = {
@@ -14,7 +14,7 @@ const breakGlassConfig = {
 }
 
 const metadata = MichelsonMap.fromLiteral({
-    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
             name: 'MAVEN Farm Treasury',

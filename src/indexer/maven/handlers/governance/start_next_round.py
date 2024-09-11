@@ -41,7 +41,7 @@ async def start_next_round(
             current_round_type = models.GovernanceRoundType.VOTING
     
         # Update record
-        governance  = await models.Governance.get(network=ctx.datasource.name.replace('tzkt_',''), address= governance_address)
+        governance  = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
         governance.current_round                            = current_round_type
         governance.current_blocks_per_proposal_round        = current_blocks_proposal_round
         governance.current_blocks_per_voting_round          = current_block_voting_round

@@ -9,7 +9,7 @@ async def fetch_liquidity_baking_prices(
 ) -> None:
 
     # Print in console
-    print("Fetching XTZUSD prices for liquidity baking history data")
+    print("Fetching MVRKUSD prices for liquidity baking history data")
 
     # Set USD Prices for records
     history_data    = await models.LiquidityBakingHistoryData.filter(token_price_usd=None).order_by('level').all()
@@ -35,12 +35,12 @@ async def fetch_liquidity_baking_prices(
                 # Set quote for current batch
                 for quote in quotes:
                     level               = quote.level
-                    xtz_usd             = float(quote.usd)
+                    mvrk_usd             = float(quote.usd)
 
                     # Update history data prices
                     data_sub_set        = await models.LiquidityBakingHistoryData.filter(token_price_usd=None, level=level).order_by('level').all()
                     for data in data_sub_set:
-                        data.token_price_usd    = data.token_price * xtz_usd
+                        data.token_price_usd    = data.token_price * mvrk_usd
                         await data.save()
                 
                 # Reset vars

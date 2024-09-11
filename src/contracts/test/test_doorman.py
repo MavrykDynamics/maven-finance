@@ -76,7 +76,7 @@ print('Farm Factory Contract Deployed at: ' + farmFactoryAddress)
 
 alice = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
 admin = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
-bob = 'tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD'
+bob = 'mv1TMgthRwT69X8WMqRyeMYLPEcoEfCKqX2w'
 eve = 'tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6'
 fox = 'tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L'
 

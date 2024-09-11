@@ -9,7 +9,7 @@ type oracleInformationType is [@layout:comb] record [
 ];
 type oracleLedgerType            is map (address, oracleInformationType);
 type oracleRewardStakedMvnType   is big_map (address, nat);
-type oracleRewardXtzType         is big_map (address, nat);
+type oracleRewardMvrkType         is big_map (address, nat);
 
 type aggregatorConfigType is [@layout:comb] record [
     decimals                            : nat;
@@ -19,12 +19,12 @@ type aggregatorConfigType is [@layout:comb] record [
     heartbeatSeconds                    : nat;
 
     rewardAmountStakedMvn               : nat;
-    rewardAmountXtz                     : nat;
+    rewardAmountMvrk                     : nat;
 ];
 
 type aggregatorBreakGlassConfigType is [@layout:comb] record [
     updateDataIsPaused                  : bool;
-    withdrawRewardXtzIsPaused           : bool;
+    withdrawRewardMvrkIsPaused           : bool;
     withdrawRewardStakedMvnIsPaused     : bool;
 ]
 
@@ -67,7 +67,7 @@ type updateDataType is   [@layout:comb] record [
     signatures: map (address, signature);
 ];
 
-type withdrawRewardXtzType            is address;
+type withdrawRewardMvrkType            is address;
 type withdrawRewardStakedMvnType      is address;
 
 type addOracleType                    is address;
@@ -84,7 +84,7 @@ type aggregatorUpdateConfigActionType is
     |   ConfigHeartbeatSeconds              of unit
 
     |   ConfigRewardAmountStakedMvn         of unit
-    |   ConfigRewardAmountXtz               of unit
+    |   ConfigRewardAmountMvrk               of unit
 
 type aggregatorUpdateConfigParamsType is [@layout:comb] record [
     updateConfigNewValue  : aggregatorUpdateConfigNewValueType; 
@@ -93,7 +93,7 @@ type aggregatorUpdateConfigParamsType is [@layout:comb] record [
 
 type aggregatorPausableEntrypointType is
         UpdateData                    of bool
-    |   WithdrawRewardXtz             of bool
+    |   WithdrawRewardMvrk             of bool
     |   WithdrawRewardStakedMvn       of bool
 
 type aggregatorTogglePauseEntrypointType is [@layout:comb] record [
@@ -133,7 +133,7 @@ type aggregatorLambdaActionType is
     |   LambdaUpdateData                   of updateDataType
     
         // Reward Entrypoints
-    |   LambdaWithdrawRewardXtz             of withdrawRewardXtzType
+    |   LambdaWithdrawRewardMvrk             of withdrawRewardMvrkType
     |   LambdaWithdrawRewardStakedMvn       of withdrawRewardStakedMvnType
 
 
@@ -161,7 +161,7 @@ type aggregatorStorageType is [@layout:comb] record [
     lastCompletedData         : lastCompletedDataType;
 
     oracleRewardStakedMvn     : oracleRewardStakedMvnType;
-    oracleRewardXtz           : oracleRewardXtzType;
+    oracleRewardMvrk           : oracleRewardMvrkType;
     
     lambdaLedger              : lambdaLedgerType;
 ];

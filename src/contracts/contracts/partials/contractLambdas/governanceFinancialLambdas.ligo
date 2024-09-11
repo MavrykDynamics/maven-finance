@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
     
     case governanceFinancialLambdaAction of [
@@ -30,7 +30,7 @@ block {
 function lambdaSetGovernance(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit); // entrypoint should not receive any mav amount
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress); // verify that sender is admin or the Governance Contract address
     
     case governanceFinancialLambdaAction of [
@@ -69,7 +69,7 @@ block {
 function lambdaUpdateConfig(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is 
 block {
 
-  verifyNoAmountSent(Unit);   // entrypoint should not receive any tez amount  
+  verifyNoAmountSent(Unit);   // entrypoint should not receive any mav amount  
   verifySenderIsAdmin(s.admin); // verify that sender is admin
 
   case governanceFinancialLambdaAction of [
@@ -189,7 +189,7 @@ block {
     // 3. Take snapshot of current total staked MVN supply 
     // 4. Calculate staked MVN votes required for approval based on config's financial request approval percentage
     // 5. Validation checks
-    //      -   Check if token type provided matches the standard (FA12, FA2, TEZ)
+    //      -   Check if token type provided matches the standard (FA12, FA2, MAV)
     //      -   If tokens are requested, check if token contract is whitelisted (security measure to prevent interacting with potentially malicious contracts)
     // 6. Create new financial request record - "TRANSFER"
     // 7. Update storage with new records
@@ -373,7 +373,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Verify that satellite exists and is not suspended or banned
-                verifySatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                verifySatelliteIsNotSuspendedOrBanned(Mavryk.get_sender(), s);
 
                 // init financial request id
                 const financialRequestId    : nat       = voteForRequest.requestId;
@@ -391,7 +391,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Get the satellite total voting power and check if it needs to be updated for the current cycle or not
-                const totalVotingPowerAndSatelliteUpdate: (nat * list(operation))   = getTotalVotingPowerAndUpdateSnapshot(Tezos.get_sender(), governanceCycleId, operations, s);
+                const totalVotingPowerAndSatelliteUpdate: (nat * list(operation))   = getTotalVotingPowerAndUpdateSnapshot(Mavryk.get_sender(), governanceCycleId, operations, s);
                 const totalVotingPower : nat                                        = totalVotingPowerAndSatelliteUpdate.0;
 
                 // Update the satellite snapshot on the governance contract if it needs to
@@ -413,7 +413,7 @@ block {
                     // Execute financial request, and set executed boolean to true
                     operations := executeFinancialRequest(financialRequestRecord, operations, s);
                     financialRequestRecord.executed         := True;
-                    financialRequestRecord.executedDateTime := Some(Tezos.get_now());
+                    financialRequestRecord.executedDateTime := Some(Mavryk.get_now());
 
                 } else skip;
 
@@ -421,7 +421,7 @@ block {
                 s.financialRequestLedger[financialRequestId] := financialRequestRecord;
                 
                 // Save financial request map of voters with new vote
-                s.financialRequestVoters[ (financialRequestId, Tezos.get_sender()) ] := newVote;
+                s.financialRequestVoters[ (financialRequestId, Mavryk.get_sender()) ] := newVote;
 
             }
         |   _ -> skip

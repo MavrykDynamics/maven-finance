@@ -208,7 +208,7 @@ describe("FarmFactory", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await farmFactoryInstance.methods.updateMetadata(key, hash).send();
@@ -618,7 +618,7 @@ describe("FarmFactory", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 farmFactoryStorage          = await farmFactoryInstance.storage();   
                 const initialMetadata   = await farmFactoryStorage.metadata.get(key);

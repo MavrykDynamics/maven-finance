@@ -11,16 +11,20 @@ async def origination(
 
     try:    
         # Get operation values
-        address             = mvn_faucet_origination.data.originated_contract_address
-        mvn_token_address   = mvn_faucet_origination.storage.mvnTokenAddress
-        amount_per_user     = float(mvn_faucet_origination.storage.amountPerUser)
+        address                     = mvn_faucet_origination.data.originated_contract_address
+        mvn_token_address           = mvn_faucet_origination.storage.mvnTokenAddress
+        fake_usdt_token_address     = mvn_faucet_origination.storage.fakeUsdtTokenAddress
+        mvn_amount_per_user         = float(mvn_faucet_origination.storage.mvnAmountPerUser)
+        fake_usdt_amount_per_user   = float(mvn_faucet_origination.storage.fakeUsdtAmountPerUser)
     
         # Create record
         mvn_faucet          = models.MVNFaucet(
-            address             = address,
-            network             = ctx.datasource.name.replace('tzkt_',''),
-            mvn_token_address   = mvn_token_address,
-            amount_per_user     = amount_per_user
+            address                     = address,
+            network                     = ctx.datasource.name.replace('mvkt_',''),
+            mvn_token_address           = mvn_token_address,
+            fake_usdt_token_address     = fake_usdt_token_address,
+            mvn_amount_per_user         = mvn_amount_per_user,
+            fake_usdt_amount_per_user   = fake_usdt_amount_per_user
         )
         await mvn_faucet.save()
 

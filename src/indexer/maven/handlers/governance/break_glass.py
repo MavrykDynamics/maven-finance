@@ -17,7 +17,7 @@ async def break_glass(
         admin               = break_glass.storage.admin
     
         # Update record
-        governance  = await models.Governance.get(network=ctx.datasource.name.replace('tzkt_',''), address= governance_address)
+        governance  = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
         governance.admin    = admin
         await governance.save()
 
