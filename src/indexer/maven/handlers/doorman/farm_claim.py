@@ -15,7 +15,7 @@ async def farm_claim(
         # Get operation info
         doorman_address                 = farm_claim.data.target_address
         user_claim_records              = farm_claim.parameter.set
-        doorman                         = await models.Doorman.get(network=ctx.datasource.name.replace('tzkt_',''), address=doorman_address)
+        doorman                         = await models.Doorman.get(network=ctx.datasource.name.replace('mvkt_',''), address=doorman_address)
 
         # Update doorman
         unclaimed_rewards                   = float(farm_claim.storage.unclaimedRewards)
@@ -36,7 +36,7 @@ async def farm_claim(
             timestamp                       = farm_claim.data.timestamp
         
             # Get or create the interacting user
-            user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=user_address)
+            user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=user_address)
             amount                          = smvn_balance - user.smvn_balance
             user.smvn_balance               = smvn_balance
             await user.save()

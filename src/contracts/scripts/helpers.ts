@@ -1,5 +1,5 @@
-import { OriginationOperation, TezosToolkit } from '@taquito/taquito'
-import { char2Bytes } from '@taquito/utils'
+import { OriginationOperation, TezosToolkit } from '@mavrykdynamics/taquito'
+import { char2Bytes } from '@mavrykdynamics/taquito-utils'
 import { execSync } from 'child_process'
 import * as fs from 'fs'
 
@@ -113,9 +113,9 @@ export const getLigo = (
 
     if (isDockerizedLigo) {
         if (isAppleM1) {
-            path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
+            path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
         } else {
-            path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
+            path = `docker run -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
         }
 
         try {
@@ -132,9 +132,9 @@ export const getLigo = (
         } catch (err) {
 
             if (isAppleM1) {
-                path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
+                path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
             } else {
-                path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
+                path = `docker run -v $PWD:$PWD --rm -i mavrykdynamics/ligo:${ligoVersion}`
             }
 
             execSync(`${path}  --help`)
@@ -174,7 +174,7 @@ export const oldCompileContract = async (
             let res: object = {};
 
             const michelsonFormat: string = execSync(
-                `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --protocol kathmandu`,
+                `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --protocol atlas`,
                 { 
                     maxBuffer: 1024 * 1024 * 1024 * 1024,
                     timeout: 1024 * 1024 * 1024 * 1024
@@ -182,7 +182,7 @@ export const oldCompileContract = async (
             ).toString()
 
             const jsonFormat: string = execSync(
-                `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --michelson-format json --protocol kathmandu`,
+                `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --michelson-format json --protocol atlas`,
                 { 
                     maxBuffer: 1024 * 1024,
                     timeout: 1024 * 1024
@@ -230,7 +230,7 @@ export const oldCompileContract = async (
                 for (const lambda of lambdas) {
                     
                     const michelson = execSync(
-                        `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/contracts/main/${contract}.ligo --protocol kathmandu`,
+                        `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/contracts/main/${contract}.ligo --protocol atlas`,
                         { 
                             maxBuffer: 1024 * 1024,
                             timeout: 1024 * 1024

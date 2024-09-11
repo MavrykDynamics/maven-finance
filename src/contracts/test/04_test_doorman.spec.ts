@@ -1163,7 +1163,7 @@ describe("Test: Doorman Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await doormanInstance.methods.updateMetadata(key, hash).send();
@@ -1488,7 +1488,7 @@ describe("Test: Doorman Contract", async () => {
                 
                 // pause operations
 
-                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("stake", true).send(); 
+                pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("stakeMvn", true).send(); 
                 await pauseOperation.confirmation();
                 
                 pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("unstakeMvn", true).send(); 
@@ -1527,7 +1527,7 @@ describe("Test: Doorman Contract", async () => {
 
                 // unpause operations
 
-                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("stake", false).send();
+                unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("stakeMvn", false).send();
                 await unpauseOperation.confirmation();
                 
                 unpauseOperation = await doormanInstance.methods.togglePauseEntrypoint("unstakeMvn", false).send();
@@ -1626,7 +1626,7 @@ describe("Test: Doorman Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 doormanStorage          = await doormanInstance.storage();   
                 const initialMetadata   = await doormanStorage.metadata.get(key);

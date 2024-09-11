@@ -50,24 +50,24 @@ const noOperations : list (operation) = nil;
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAllowed(var s : mavenFa12TokenStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    if (Mavryk.get_sender() = s.admin or Mavryk.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 function checkSenderIsAdmin(const s : mavenFa12TokenStorageType) : unit is
-    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+    if Mavryk.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
 
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : mavenFa12TokenStorageType) : unit is
 block{
 
-  if Tezos.get_sender() = s.admin then skip
+  if Mavryk.get_sender() = s.admin then skip
   else {
     const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
     
-    if Tezos.get_sender() = governanceSatelliteAddress then skip
+    if Mavryk.get_sender() = governanceSatelliteAddress then skip
     else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
 
   }
@@ -257,15 +257,15 @@ block {
     else skip;
 
     (* Check this address can spend the tokens *)
-    if from_ =/= Tezos.get_sender() then block {
-        const spenderAllowance : tokenBalanceType = getAllowance(senderAccount, Tezos.get_sender(), s);
+    if from_ =/= Mavryk.get_sender() then block {
+        const spenderAllowance : tokenBalanceType = getAllowance(senderAccount, Mavryk.get_sender(), s);
 
         if spenderAllowance < value then
             failwith("NotEnoughAllowance")
         else skip;
 
         (* Decrease any allowances *)
-        senderAccount.allowances[Tezos.get_sender()] := abs(spenderAllowance - value);
+        senderAccount.allowances[Mavryk.get_sender()] := abs(spenderAllowance - value);
     } else skip;
 
     (* Update sender balance *)
@@ -292,7 +292,7 @@ function approve (const spender : address; const value : tokenBalanceType; var s
 block {
 
     (* Create or get sender account *)
-    var senderAccount : accountType := getAccount(Tezos.get_sender(), s);
+    var senderAccount : accountType := getAccount(Mavryk.get_sender(), s);
 
     (* Get current spender allowance *)
     const spenderAllowance : tokenBalanceType = getAllowance(senderAccount, spender, s);
@@ -306,7 +306,7 @@ block {
     senderAccount.allowances[spender] := value;
 
     (* Update mavenFa12TokenStorageType *)
-    s.ledger[Tezos.get_sender()] := senderAccount;
+    s.ledger[Mavryk.get_sender()] := senderAccount;
 
   } with (noOperations, s)
 
@@ -316,7 +316,7 @@ block {
 function getBalance (const owner : address; const contr : contract(tokenBalanceType); var s : mavenFa12TokenStorageType) : return is
 block {
     const ownerAccount : accountType = getAccount(owner, s);
-} with (list [Tezos.transaction(ownerAccount.balance, 0tz, contr)], s)
+} with (list [Mavryk.transaction(ownerAccount.balance, 0tz, contr)], s)
 
 
 
@@ -325,13 +325,13 @@ function getAllowance (const owner : address; const spender : address; const con
 block {
     const ownerAccount : accountType = getAccount(owner, s);
     const spenderAllowance : tokenBalanceType = getAllowance(ownerAccount, spender, s);
-} with (list [Tezos.transaction(spenderAllowance, 0tz, contr)], s)
+} with (list [Mavryk.transaction(spenderAllowance, 0tz, contr)], s)
 
 (* View function that forwards the totalSupply to a contract *)
 function getTotalSupply (const contr : contract(tokenBalanceType); var s : mavenFa12TokenStorageType) : return is
 block {
     skip
-} with (list [Tezos.transaction(s.totalSupply, 0tz, contr)], s)
+} with (list [Mavryk.transaction(s.totalSupply, 0tz, contr)], s)
 
 // ------------------------------------------------------------------------------
 // FA12 Entrypoints End
@@ -346,7 +346,7 @@ function mintOrBurn(const mintOrBurnParams: mintOrBurnType; var s : mavenFa12Tok
 block {
 
     // check sender is whitelisted
-    if checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+    if checkInWhitelistContracts(Mavryk.get_sender(), s.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
     const quantity        : int       = mintOrBurnParams.quantity;
     const targetAddress   : address   = mintOrBurnParams.target;
@@ -418,7 +418,7 @@ block {
 function main (const action : action; const s : mavenFa12TokenStorageType) : return is
 block{
 
-    verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // // entrypoints should not receive any mav amount  
 
 } with(
     

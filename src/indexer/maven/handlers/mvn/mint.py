@@ -22,17 +22,17 @@ async def mint(
         total_supply        = float(mint.storage.totalSupply)
 
         # Get mint account
-        user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=mint_address)
+        user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=mint_address)
         user.mvn_balance    = new_user_balance
         await user.save()
     
         # Create record
         token               = await models.Token.get(
-            network         = ctx.datasource.name.replace('tzkt_',''),
+            network         = ctx.datasource.name.replace('mvkt_',''),
             token_address   = mvn_token_address,
             token_id        = 0
         )
-        mvn_token               = await models.MVNToken.get(network=ctx.datasource.name.replace('tzkt_',''), address= mvn_token_address, token=token)
+        mvn_token               = await models.MVNToken.get(network=ctx.datasource.name.replace('mvkt_',''), address= mvn_token_address, token=token)
         mvn_token.total_supply  = total_supply
         await mvn_token.save()
         

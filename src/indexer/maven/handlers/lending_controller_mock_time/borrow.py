@@ -23,9 +23,8 @@ async def borrow(
         vault_internal_id                       = int(borrow.parameter.vaultId)
         vaults_storage                          = borrow.storage.vaults
         lending_controller                      = await models.LendingController.get(
-            network             = ctx.datasource.name.replace('tzkt_',''),
+            network             = ctx.datasource.name.replace('mvkt_',''),
             address             = lending_controller_address,
-            mock_time           = True
         )
         lending_controller_vault                = await models.LendingControllerVault.get(
             lending_controller  = lending_controller,
@@ -86,7 +85,7 @@ async def borrow(
                 await lending_controller_vault.save()
     
                 # Save history data
-                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=sender_address)
+                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

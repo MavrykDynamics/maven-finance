@@ -46,7 +46,7 @@ block {
     
     // Add FarmFactory Address and Council Address to whitelistContracts map of created Farm
     const farmWhitelistContract : whitelistContractsType = big_map[
-        (Tezos.get_self_address())  -> unit;
+        (Mavryk.get_self_address())  -> unit;
         (councilAddress)            -> unit;
     ];
     
@@ -121,15 +121,15 @@ block {
 
         breakGlassConfig            = farmBreakGlassConfig;
 
-        lastBlockUpdate             = Tezos.get_level();
+        lastBlockUpdate             = Mavryk.get_level();
         accumulatedRewardsPerShare  = 0n;
         claimedRewards              = farmClaimedRewards;
         depositorLedger             = big_map[];
         open                        = True;
         init                        = True;
-        initBlock                   = Tezos.get_level();
+        initBlock                   = Mavryk.get_level();
 
-        minBlockTimeSnapshot        = Tezos.get_min_block_time();
+        minBlockTimeSnapshot        = Mavryk.get_min_block_time();
 
         lambdaLedger                = farmLambdaLedger;
     ];
@@ -147,7 +147,7 @@ block {
     
     // Add FarmFactory Address and Council Address to whitelistContracts map of created Farm
     const farmWhitelistContract : whitelistContractsType = big_map[
-        (Tezos.get_self_address())  -> unit;
+        (Mavryk.get_self_address())  -> unit;
         (councilAddress)            -> unit
     ];
     
@@ -223,15 +223,15 @@ block {
 
         breakGlassConfig            = farmBreakGlassConfig;
 
-        lastBlockUpdate             = Tezos.get_level();
+        lastBlockUpdate             = Mavryk.get_level();
         accumulatedRewardsPerShare  = 0n;
         claimedRewards              = farmClaimedRewards;
         depositorLedger             = big_map[];
         open                        = True;
         init                        = True;
-        initBlock                   = Tezos.get_level();
+        initBlock                   = Mavryk.get_level();
 
-        minBlockTimeSnapshot        = Tezos.get_min_block_time();
+        minBlockTimeSnapshot        = Mavryk.get_min_block_time();
 
         lambdaLedger                = farmLambdaLedger;
     ];
@@ -251,9 +251,9 @@ block {
     ];
 
     // Create and send updateGeneralContractsMap operation to the Governance Contract
-    const updateGeneralContractsOperation : operation = Tezos.transaction(
+    const updateGeneralContractsOperation : operation = Mavryk.transaction(
         updateGeneralMapRecord,
-        0tez, 
+        0mav, 
         getUpdateGeneralContractsEntrypoint(s.governanceAddress)
     );
 

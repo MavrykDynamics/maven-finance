@@ -111,7 +111,7 @@ type doormanUnpackLambdaFunctionType is (doormanLambdaActionType * doormanStorag
 function main (const action : doormanAction; const s : doormanStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any mav amount  
 
 } with(
 
@@ -133,7 +133,7 @@ block {
         |   TogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
 
             // Doorman Entrypoints
-        |   StakeMvn(parameters)                  -> stakeMvn(parameters, s)  #todo
+        |   StakeMvn(parameters)                  -> stakeMvn(parameters, s) 
         |   UnstakeMvn(parameters)                -> unstakeMvn(parameters, s)
         |   Exit(_parameters)                     -> exit(s)
         |   Compound(parameters)                  -> compound(parameters, s)

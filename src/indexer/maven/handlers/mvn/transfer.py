@@ -21,14 +21,14 @@ async def transfer(
         mvn_total_supply    = float(transfer.storage.totalSupply)
     
         # Get MVN Token
-        mvn_token = await models.MVNToken.get(network=ctx.datasource.name.replace('tzkt_',''), address=mvn_address)
+        mvn_token = await models.MVNToken.get(network=ctx.datasource.name.replace('mvkt_',''), address=mvn_address)
     
         for entry in transaction_batch:
             sender_address = entry.from_
             transactions = entry.txs
     
             # Get or create sender
-            sender    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=sender_address)
+            sender    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
             sender.mvn_balance = user_ledger[sender_address]
             await sender.save()
     
@@ -37,7 +37,7 @@ async def transfer(
                 amount = int(transaction.amount)
     
                 # Get or create receiver
-                receiver    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=receiver_address)
+                receiver    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=receiver_address)
                 receiver.mvn_balance = user_ledger[receiver_address]
                 await receiver.save()
     
@@ -52,8 +52,8 @@ async def transfer(
                 await transfer_record.save()
     
                 # Check if doorman
-                doorman_sender      = await models.Doorman.get_or_none(network=ctx.datasource.name.replace('tzkt_',''), address= sender_address)
-                doorman_receiver    = await models.Doorman.get_or_none(network=ctx.datasource.name.replace('tzkt_',''), address= receiver_address)
+                doorman_sender      = await models.Doorman.get_or_none(network=ctx.datasource.name.replace('mvkt_',''), address= sender_address)
+                doorman_receiver    = await models.Doorman.get_or_none(network=ctx.datasource.name.replace('mvkt_',''), address= receiver_address)
                 if doorman_sender or doorman_receiver:
                     smvn_total_supply   = 0
                     doorman             = None

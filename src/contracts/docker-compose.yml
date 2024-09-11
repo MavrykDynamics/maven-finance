@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   db:
-    image: postgres:14
+    image: timescale/timescaledb:latest-pg15
     shm_size: 1g
     restart: always
     environment:
@@ -18,7 +18,7 @@ services:
 
   api:
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-api:${TAG}
+    image: ghcr.io/mavryk-network/bcdhub-api:4.7.7
     environment:
       - BCD_ENV=sandbox
       - GIN_MODE=debug
@@ -33,12 +33,14 @@ services:
     volumes:
       - bcdshare:/etc/bcd
     links:
-      - 'flextesa:sandbox'
+      - 'flexmasa:sandbox'
+    expose:
+      - 14000/tcp
     logging: *bcd-logging
 
   indexer:
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-indexer:${TAG}
+    image: ghcr.io/mavryk-network/bcdhub-indexer:4.7.7
     environment:
       - BCD_ENV=sandbox
       - POSTGRES_USER=root
@@ -48,19 +50,19 @@ services:
     depends_on:
       - db
     links:
-      - 'flextesa:sandbox'
+      - 'flexmasa:sandbox'
     volumes:
       - bcdshare:/etc/bcd
     logging: *bcd-logging
 
-  flextesa:
+  flexmasa:
     container_name: maven-sandbox
     restart: always
-    image: oxheadalpha/flextesa:20230607
-    command: mumbaibox start
+    image: registry.gitlab.com/mavryk-network/flexmasa:atlas-update-run
+    command: atlasbox start
     environment:
       - block_time=3
-      - flextesa_node_cors_origin=*
+      - flexmasa_node_cors_origin=*
     ports:
       - 127.0.0.1:20000:20000
       - 127.0.0.1:8732:20000
@@ -72,11 +74,11 @@ services:
   gui:
     container_name: sandbox-gui
     restart: always
-    image: ghcr.io/baking-bad/bcdhub-gui:${TAG}
+    image: ghcr.io/mavryk-network/bcdhub-gui:4.7.7
     depends_on:
       - api
     ports:
-      - 127.0.0.1:8000:80
+      - 127.0.0.1:8080:80
     logging: *bcd-logging
 
 volumes:

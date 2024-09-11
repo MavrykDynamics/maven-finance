@@ -49,13 +49,13 @@ const noOperations : list (operation) = nil;
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAllowed(var s : mavenFa2TokenStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    if (Mavryk.get_sender() = s.admin or Mavryk.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 function checkSenderIsAdmin(const s : mavenFa2TokenStorageType) : unit is
-    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+    if Mavryk.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
 
@@ -63,11 +63,11 @@ function checkSenderIsAdmin(const s : mavenFa2TokenStorageType) : unit is
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : mavenFa2TokenStorageType) : unit is
 block{
 
-  if Tezos.get_sender() = s.admin then skip
+  if Mavryk.get_sender() = s.admin then skip
   else {
     const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
     
-    if Tezos.get_sender() = governanceSatelliteAddress then skip
+    if Mavryk.get_sender() = governanceSatelliteAddress then skip
     else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
 
   }
@@ -96,13 +96,13 @@ function checkBalance(const spenderBalance : tokenBalanceType; const tokenAmount
 
 
 function checkOwnership(const owner : ownerType) : unit is
-    if Tezos.get_sender() =/= owner then failwith("FA2_NOT_OWNER")
+    if Mavryk.get_sender() =/= owner then failwith("FA2_NOT_OWNER")
     else unit
 
 
 
 function checkOperator(const owner : ownerType; const token_id : tokenIdType; const operators : operatorsType) : unit is
-    if owner = Tezos.get_sender() or Big_map.mem((owner, Tezos.get_sender(), token_id), operators) then unit
+    if owner = Mavryk.get_sender() or Big_map.mem((owner, Mavryk.get_sender(), token_id), operators) then unit
     else failwith ("FA2_NOT_OPERATOR")
 
 
@@ -381,7 +381,7 @@ block{
       const requests   : list(balanceOfRequestType) = balanceOfParams.requests;
       const callback   : contract(list(balanceOfResponse)) = balanceOfParams.callback;
       const responses  : list(balanceOfResponse) = List.map(retrieveBalance, requests);
-      const operation  : operation = Tezos.transaction(responses, 0tez, callback);
+      const operation  : operation = Mavryk.transaction(responses, 0mav, callback);
 
 } with (list[operation],s)
 
@@ -417,7 +417,7 @@ function mintOrBurn(const mintOrBurnParams : mintOrBurnType; var s : mavenFa2Tok
 block {
 
     // check sender is whitelisted
-    if checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+    if checkInWhitelistContracts(Mavryk.get_sender(), s.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
     const quantity        : int             = mintOrBurnParams.quantity;
     const targetAddress   : address         = mintOrBurnParams.target;
@@ -479,7 +479,7 @@ block {
 function main (const action : action; const s : mavenFa2TokenStorageType) : return is
 block{
 
-    verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // // entrypoints should not receive any mav amount  
 
 } with(
     

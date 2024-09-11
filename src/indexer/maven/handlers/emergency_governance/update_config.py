@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.EmergencyGovernance.filter(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = emergency_address
         ).update(
             last_updated_at                 = timestamp,
@@ -27,7 +27,7 @@ async def update_config(
             min_smvn_required_to_vote       = update_config.storage.config.minStakedMvnRequiredToVote,
             proposal_desc_max_length        = update_config.storage.config.proposalDescMaxLength,
             proposal_title_max_length       = update_config.storage.config.proposalTitleMaxLength,
-            required_fee_mutez              = update_config.storage.config.requiredFeeMutez,
+            required_fee_mumav              = update_config.storage.config.requiredFeeMumav,
             smvn_percentage_required        = update_config.storage.config.stakedMvnPercentageRequired,
             duration_in_minutes             = update_config.storage.config.durationInMinutes
         )

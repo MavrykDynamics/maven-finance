@@ -2,9 +2,9 @@
 async def get_token_standard(ctx, contract_address):
     standard                = None
     
-    # XTZ case 
-    if contract_address == 'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg':
-        standard    = "tez"
+    # MVRK case 
+    if contract_address == 'mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d':
+        standard    = "mav"
     elif contract_address[0:3] == 'KT1' and len(contract_address) == 36:
         contract_summary        = None
         try:
@@ -26,7 +26,7 @@ async def get_token_standard(ctx, contract_address):
 
 # Get contract metadata
 async def get_contract_metadata(ctx, contract_address):
-    network                     = ctx.datasource.name.replace('tzkt_','')
+    network                     = ctx.datasource.name.replace('mvkt_','')
     metadata_datasource_name    = 'metadata_' + network.lower()
     metadata_datasource         = None
     contract_metadata           = None
@@ -46,7 +46,7 @@ async def get_contract_metadata(ctx, contract_address):
 
 # Get contract token metadata
 async def get_contract_token_metadata(ctx, token_address, token_id='0'):
-    network                     = ctx.datasource.name.replace('tzkt_','')
+    network                     = ctx.datasource.name.replace('mvkt_','')
     metadata_datasource_name    = 'metadata_' + network.lower()
     token_metadata              = None
 

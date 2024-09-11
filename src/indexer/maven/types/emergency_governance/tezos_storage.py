@@ -18,7 +18,7 @@ class Config(BaseModel):
     minStakedMvnRequiredToVote: str
     proposalDescMaxLength: str
     proposalTitleMaxLength: str
-    requiredFeeMutez: str
+    requiredFeeMumav: str
     stakedMvnPercentageRequired: str
 
 

@@ -1,4 +1,4 @@
-import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder"
+import { MichelsonMap, MichelsonMapKey } from "@mavrykdynamics/taquito-michelson-encoder"
 import { BigNumber } from "bignumber.js"
 
 export type aggregatorStorageType = {
@@ -14,13 +14,13 @@ export type aggregatorStorageType = {
         percentOracleThreshold              : BigNumber;
         heartbeatSeconds                    : BigNumber;
         
-        rewardAmountXtz                     : BigNumber;
+        rewardAmountMvrk                     : BigNumber;
         rewardAmountStakedMvn               : BigNumber;
     };
 
     breakGlassConfig          : {
         updateDataIsPaused                 : boolean;
-        withdrawRewardXtzIsPaused           : boolean;
+        withdrawRewardMvrkIsPaused           : boolean;
         withdrawRewardStakedMvnIsPaused     : boolean;
     };
 
@@ -41,7 +41,7 @@ export type aggregatorStorageType = {
     };
 
     oracleRewardStakedMvn     : MichelsonMap<MichelsonMapKey, unknown>;
-    oracleRewardXtz           : MichelsonMap<MichelsonMapKey, unknown>;
+    oracleRewardMvrk           : MichelsonMap<MichelsonMapKey, unknown>;
 
     lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
 

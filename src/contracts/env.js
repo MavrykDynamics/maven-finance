@@ -19,7 +19,7 @@ module.exports = {
   michelsonBuildDir : "contracts/compiled",
   contractsDir: "contracts/main",
   contractLambdasDir: "contracts/partials/contractLambdas",
-  ligoVersion: "0.62.0",
+  ligoVersion: "0.60.0",
   network: "development",
   networks: {
     development: {
@@ -28,38 +28,20 @@ module.exports = {
       secretKey: bob.sk,
       port: 8732,
     },
+    atlasnet: {
+      rpc: "https://atlasnet.rpc.mavryk.network",
+      network_id: "*",
+      secretKey: bob.sk,
+      port: 443,
+    },
     basenet: {
-      rpc: "https://basenet-baking-full-node.mavryk.network",
+      rpc: "https://basenet.rpc.mavryk.network",
       network_id: "*",
       secretKey: bob.sk,
       port: 443,
-    },
-    ghostnet: {
-      rpc: "https://uoi3x99n7c.ghostnet.tezosrpc.midl.dev",
-      port: 443,
-      network_id: "*",
-      secretKey: bob.sk,
-    },
-    jakartanet: {
-      rpc: "https://jakartanet.ecadinfra.com",
-      port: 443,
-      network_id: "*",
-      secretKey: bob.sk,
-    },
-    ithacanet: {
-      rpc: "https://ithacanet.ecadinfra.com",
-      port: 443,
-      network_id: "*",
-      secretKey: bob.sk,
-    },
-    hangzhounet: {
-      rpc: "https://hangzhounet.api.tez.ie/",
-      port: 443,
-      network_id: "*",
-      secretKey: bob.sk,
     },
     mainnet: {
-      rpc: "https://mainnet.api.tez.ie",
+      rpc: "https://mainnet.rpc.mavryk.network",
       port: 443,
       network_id: "*",
       secretKey: bob.sk,

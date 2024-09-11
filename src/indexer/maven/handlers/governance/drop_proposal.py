@@ -17,7 +17,7 @@ async def drop_proposal(
     
         # Update record
         governance  = await models.Governance.get(
-            network     = ctx.datasource.name.replace('tzkt_','')
+            network     = ctx.datasource.name.replace('mvkt_','')
         )
         await models.GovernanceProposal.filter(
             governance  = governance,

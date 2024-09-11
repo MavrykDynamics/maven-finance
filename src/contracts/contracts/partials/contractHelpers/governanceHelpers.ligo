@@ -44,7 +44,7 @@ block{
 function verifySenderIsWhitelistedOrAdmin(var s : governanceStorageType) : unit is
 block {
 
-    if (Tezos.get_sender() = s.admin) or checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) 
+    if (Mavryk.get_sender() = s.admin) or checkInWhitelistContracts(Mavryk.get_sender(), s.whitelistContracts) 
     then skip
     else failwith(error_ONLY_ADMINISTRATOR_OR_WHITELISTED_ADDRESSES_ALLOWED);
 
@@ -68,7 +68,7 @@ block {
 
 // Allowed Senders : Self
 function checkSenderIsSelf(const _p : unit) : unit is
-    if (Tezos.get_sender() = Tezos.get_self_address()) 
+    if (Mavryk.get_sender() = Mavryk.get_self_address()) 
     then unit
     else failwith(error_ONLY_SELF_ALLOWED);
 
@@ -127,7 +127,7 @@ block {
 function verifyRoundHasNotEnded(const s : governanceStorageType) : unit is
 block {
 
-    if Tezos.get_level() < s.currentCycleInfo.roundEndLevel
+    if Mavryk.get_level() < s.currentCycleInfo.roundEndLevel
     then failwith(error_CURRENT_ROUND_NOT_FINISHED) 
     else skip;
 
@@ -150,8 +150,8 @@ block {
 function verifyCorrectSubmissionFee(const s : governanceStorageType) : unit is
 block {
 
-    if Tezos.get_amount() =/= s.config.proposalSubmissionFeeMutez 
-    then failwith(error_INCORRECT_TEZ_FEE) 
+    if Mavryk.get_amount() =/= s.config.proposalSubmissionFeeMumav 
+    then failwith(error_INCORRECT_MAV_FEE) 
     else skip;
 
 } with unit
@@ -234,7 +234,7 @@ block {
 function verifySenderIsProposalCreator(const proposal : proposalRecordType) : unit is
 block {
     
-    if Tezos.get_sender() =/= proposal.proposerAddress 
+    if Mavryk.get_sender() =/= proposal.proposerAddress 
     then failwith(error_ONLY_PROPOSER_ALLOWED)
     else skip;
 
@@ -246,7 +246,7 @@ block {
 function verifySenderIsSelfOrProposalCreator(const proposal : proposalRecordType) : unit is
 block {
     
-    if proposal.proposerAddress =/= Tezos.get_sender() and Tezos.get_self_address() =/= Tezos.get_sender() 
+    if proposal.proposerAddress =/= Mavryk.get_sender() and Mavryk.get_self_address() =/= Mavryk.get_sender() 
     then failwith(error_ONLY_PROPOSER_ALLOWED)
     else skip;
 
@@ -374,7 +374,7 @@ block {
     const breakGlassAddress : address = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
 
     // Check if glass is broken on the Break Glass Contract
-    const glassBrokenView : option (bool) = Tezos.call_view ("getGlassBroken", unit, breakGlassAddress);
+    const glassBrokenView : option (bool) = Mavryk.call_view ("getGlassBroken", unit, breakGlassAddress);
     const glassBroken : bool = case glassBrokenView of [
             Some (_glassBroken) -> _glassBroken
         |   None                -> failwith (error_GET_GLASS_BROKEN_VIEW_IN_BREAK_GLASS_CONTRACT_NOT_FOUND)
@@ -402,7 +402,7 @@ function verifyProposalCanBeExecuted(const s : governanceStorageType) : unit is
 block {
 
     // Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
-    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) 
+    if (s.currentCycleInfo.round = (Timelock : roundType) and Mavryk.get_sender() =/= Mavryk.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) 
     then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
     else skip;
 
@@ -420,7 +420,7 @@ block {
 
 // helper function to %setAdmin entrypoint on a specified contract
 function getSetAdminEntrypoint(const contractAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%setAdmin",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
@@ -431,7 +431,7 @@ function getSetAdminEntrypoint(const contractAddress : address) : contract(addre
 
 // helper function to %setGovernance entrypoint on a specified contract
 function getSetGovernanceEntrypoint(const contractAddress : address) : contract(address) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%setGovernance",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
@@ -442,7 +442,7 @@ function getSetGovernanceEntrypoint(const contractAddress : address) : contract(
       
 // helper function to %executeGovernanceAction entrypoint on the Governance Proxy Contract
 function getExecuteGovernanceActionEntrypoint(const contractAddress : address) : contract(bytes) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%executeGovernanceAction",
         contractAddress) : option(contract(bytes))) of [
                 Some(contr) -> contr
@@ -453,7 +453,7 @@ function getExecuteGovernanceActionEntrypoint(const contractAddress : address) :
 
 // helper function to %executeProposal entrypoint on the Governance Contract
 function getExecuteProposalEntrypoint(const contractAddress : address) : contract(actionIdType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%executeProposal",
         contractAddress) : option(contract(actionIdType))) of [
                 Some(contr) -> contr
@@ -464,7 +464,7 @@ function getExecuteProposalEntrypoint(const contractAddress : address) : contrac
 
 // helper function to %updateProposalData entrypoint on the Governance Contract
 function getUpdateProposalDataEntrypoint(const contractAddress : address) : contract(updateProposalType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%updateProposalData",
         contractAddress) : option(contract(updateProposalType))) of [
                 Some(contr) -> contr
@@ -475,7 +475,7 @@ function getUpdateProposalDataEntrypoint(const contractAddress : address) : cont
 
 // helper function to %distributeRewards entrypoint on the Delegation Contract
 function getDistributeRewardEntrypoint(const contractAddress : address) : contract(set(address) * nat) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%distributeReward",
         contractAddress) : option(contract(set(address) * nat))) of [
                 Some(contr) -> contr
@@ -496,9 +496,9 @@ function getDistributeRewardEntrypoint(const contractAddress : address) : contra
 function setContractAdminOperation(const setContractAdminParams : setContractAdminType) : operation is 
 block {
 
-    const setContractAdminOperation : operation = Tezos.transaction(
+    const setContractAdminOperation : operation = Mavryk.transaction(
         (setContractAdminParams.newContractAdmin), 
-        0tez, 
+        0mav, 
         getSetAdminEntrypoint(setContractAdminParams.targetContractAddress)
     )
 
@@ -510,9 +510,9 @@ block {
 function setContractGovernanceOperation(const setContractGovernanceParams : setContractGovernanceType) : operation is 
 block {
 
-    const setContractGovernanceOperation : operation = Tezos.transaction(
+    const setContractGovernanceOperation : operation = Mavryk.transaction(
         (setContractGovernanceParams.newContractGovernance), 
-        0tez, 
+        0mav, 
         getSetGovernanceEntrypoint(setContractGovernanceParams.targetContractAddress)
     )
 
@@ -531,10 +531,10 @@ block {
     ];
 
     // Create operation
-    const updateProposalDataOperation : operation = Tezos.transaction(
+    const updateProposalDataOperation : operation = Mavryk.transaction(
         updateProposalDataParams,
-        0tez, 
-        getUpdateProposalDataEntrypoint(Tezos.get_self_address())
+        0mav, 
+        getUpdateProposalDataEntrypoint(Mavryk.get_self_address())
     );
 
 } with updateProposalDataOperation
@@ -548,9 +548,9 @@ block {
     const treasuryAddress : address = getAddressFromGeneralContracts("paymentTreasury", s, error_PAYMENT_TREASURY_CONTRACT_NOT_FOUND);
 
     // Create operation of paymentsData transfers
-    const processProposalPaymentOperation : operation = Tezos.transaction(
+    const processProposalPaymentOperation : operation = Mavryk.transaction(
         paymentsData,
-        0tez,
+        0mav,
         sendTransferOperationToTreasury(treasuryAddress)
     );
 
@@ -565,9 +565,9 @@ block {
     // Get Delegation Contract address from the general contracts map
     const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
 
-    const distributeRewardOperation : operation = Tezos.transaction(
+    const distributeRewardOperation : operation = Mavryk.transaction(
         (claimSatellites, rewardAmount), 
-        0tez, 
+        0mav, 
         getDistributeRewardEntrypoint(delegationAddress)
     );
 
@@ -579,9 +579,9 @@ block {
 function executeGovernanceActionOperation(const dataBytes : bytes; const s : governanceStorageType) : operation is
 block {
 
-    const executeGovernanceActionOperation : operation = Tezos.transaction(
+    const executeGovernanceActionOperation : operation = Mavryk.transaction(
         dataBytes, 
-        0tez, 
+        0mav, 
         getExecuteGovernanceActionEntrypoint(s.governanceProxyAddress)
     );
 
@@ -596,8 +596,8 @@ block {
     // Get Break Glass Contract address from the general contracts map
     const breakGlassAddress : address = getAddressFromGeneralContracts("breakGlass", s, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
 
-    case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-            Some(contr) -> operations := Tezos.transaction(breakGlassAddress, 0tez, contr) # operations
+    case (Mavryk.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
+            Some(contr) -> operations := Mavryk.transaction(breakGlassAddress, 0mav, contr) # operations
         |   None        -> skip
     ];
 
@@ -610,8 +610,8 @@ block {
 function pauseAllIfExistOperation(const contractAddress : address; var operations : list(operation)) : list(operation) is 
 block {
 
-    case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
-            Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+    case (Mavryk.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
+            Some(contr) -> operations := Mavryk.transaction(unit, 0mav, contr) # operations
         |   None        -> skip
     ];
 
@@ -667,7 +667,7 @@ block {
     // Get Doorman Contract from General Contracts Map
     const doormanAddress : address = getAddressFromGeneralContracts("doorman", s, error_DOORMAN_CONTRACT_NOT_FOUND);
 
-    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvnTokenAddress);
+    const getBalanceView : option (nat) = Mavryk.call_view ("get_balance", (doormanAddress, 0n), s.mvnTokenAddress);
     const stakedMvnTotalSupply: nat = case getBalanceView of [
             Some (value) -> value
         |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -698,7 +698,7 @@ block {
     const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
 
     // Get Delegation Contract Config
-    const delegationConfigView : option (delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+    const delegationConfigView : option (delegationConfigType)  = Mavryk.call_view ("getConfig", unit, delegationAddress);
     const delegationConfig : delegationConfigType               = case delegationConfigView of [
             Some (_config) -> _config
         |   None           -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -728,7 +728,7 @@ block {
 function getCurrentSatelliteSnapshot(const s : governanceStorageType) : governanceSatelliteSnapshotRecordType is 
 block {
 
-    const currentSatelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[(s.cycleId,Tezos.get_sender())] of [
+    const currentSatelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[(s.cycleId,Mavryk.get_sender())] of [
             None           -> failwith(error_SNAPSHOT_NOT_FOUND)
         |   Some(snapshot) -> snapshot
     ];
@@ -794,7 +794,7 @@ block {
     // create new proposal record
     const newProposalRecord : proposalRecordType = record [
 
-        proposerAddress                     = Tezos.get_sender();
+        proposerAddress                     = Mavryk.get_sender();
         proposalData                        = proposalData;
         proposalDataExecutionCounter        = 0n;
         paymentData                         = paymentData;
@@ -831,7 +831,7 @@ block {
         minYayVotePercentage                = s.config.minYayVotePercentage;                // log of min yay votes percentage - capture state at this point
         quorumCount                         = 0n;                                           // log of turnout for voting round - number of satellites who voted
         quorumStakedMvnTotal                = 0n;                                           // log of total positive votes in MVN  
-        startDateTime                       = Tezos.get_now();                              // log of when the proposal was proposed
+        startDateTime                       = Mavryk.get_now();                              // log of when the proposal was proposed
         executedDateTime                    = None;                                         // log of when the proposal was executed
 
         cycle                               = s.cycleId;
@@ -918,7 +918,7 @@ block {
     // Get Delegation Contract address from the General Contracts Map on the Governance Contract
     const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
 
-    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+    const satelliteOptView : option (option(satelliteRecordType)) = Mavryk.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
     const satelliteRecord : satelliteRecordType = case satelliteOptView of [
             Some (optionView) -> case optionView of [
                     Some(_satelliteRecord)      -> _satelliteRecord
@@ -938,7 +938,7 @@ block {
     // Get Delegation Contract address from the General Contracts Map on the Governance Contract
     const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
 
-    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", satelliteAddress, delegationAddress);
+    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Mavryk.call_view ("getSatelliteRewardsOpt", satelliteAddress, delegationAddress);
     const satelliteRewards : satelliteRewardsType = case satelliteRewardsOptView of [
             Some (optionView) -> case optionView of [
                     Some(_satelliteRewards)     -> _satelliteRewards
@@ -959,7 +959,7 @@ block {
     const delegationAddress : address = getAddressFromGeneralContracts("delegation", s, error_DELEGATION_CONTRACT_NOT_FOUND);
 
     // Get the delegation ratio
-    const configView : option (delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+    const configView : option (delegationConfigType)  = Mavryk.call_view ("getConfig", unit, delegationAddress);
     const delegationRatio : nat = case configView of [
             Some (_config) -> _config.delegationRatio
         |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -1236,9 +1236,9 @@ block {
     s.currentCycleInfo.blocksPerProposalRound        := s.config.blocksPerProposalRound;
     s.currentCycleInfo.blocksPerVotingRound          := s.config.blocksPerVotingRound;
     s.currentCycleInfo.blocksPerTimelockRound        := s.config.blocksPerTimelockRound;
-    s.currentCycleInfo.roundStartLevel               := Tezos.get_level();
-    s.currentCycleInfo.roundEndLevel                 := Tezos.get_level() + s.config.blocksPerProposalRound;
-    s.currentCycleInfo.cycleEndLevel                 := Tezos.get_level() + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
+    s.currentCycleInfo.roundStartLevel               := Mavryk.get_level();
+    s.currentCycleInfo.roundEndLevel                 := Mavryk.get_level() + s.config.blocksPerProposalRound;
+    s.currentCycleInfo.cycleEndLevel                 := Mavryk.get_level() + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
     s.currentCycleInfo.cycleTotalVotersReward        := s.config.cycleVotersReward;
     s.currentCycleInfo.minQuorumStakedMvnTotal       := minQuorumStakedMvnTotal;
     s.cycleProposals                                 := emptyProposalMap;    // flush proposals

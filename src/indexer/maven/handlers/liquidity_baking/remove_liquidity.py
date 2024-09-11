@@ -37,7 +37,7 @@ async def remove_liquidity(
     
         # Create / Update record
         liquidity_baking, _ = await models.LiquidityBaking.get_or_create(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = liquidity_baking_address
         )
     
@@ -49,7 +49,7 @@ async def remove_liquidity(
         if token_pool_decimals > 0:
             price   = xtz_pool_decimals / token_pool_decimals
         
-        trader                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=trader_address)
+        trader                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=trader_address)
     
         share_price             = 0
         if lqt_burned > 0:

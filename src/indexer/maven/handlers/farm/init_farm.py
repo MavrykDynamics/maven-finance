@@ -40,10 +40,10 @@ async def init_farm(
 
         # Create record
         governance      = await models.Governance.get(
-            network = ctx.datasource.name.replace('tzkt_','')
+            network = ctx.datasource.name.replace('mvkt_','')
         )
         await models.Farm.filter(
-            network                         = ctx.datasource.name.replace('tzkt_',''),
+            network                         = ctx.datasource.name.replace('mvkt_',''),
             address                         = farm_address
         ).update(
             start_timestamp                 = start_timestamp,

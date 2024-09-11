@@ -38,12 +38,12 @@ async def origination(
         )
         
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('tzkt_',''))
+        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
     
         # Create contract
         delegation = models.Delegation(
             address                             = address,
-            network                             = ctx.datasource.name.replace('tzkt_',''),
+            network                             = ctx.datasource.name.replace('mvkt_',''),
             metadata                            = contract_metadata,
             admin                               = admin,
             last_updated_at                     = timestamp,

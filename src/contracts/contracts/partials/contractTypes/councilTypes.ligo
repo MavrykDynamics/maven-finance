@@ -53,7 +53,7 @@ type councilActionRequestTokensType is [@layout:comb] record [
     tokenContractAddress        : address;       // token contract address
     tokenName                   : string;        // token name 
     tokenAmount                 : nat;           // token amount requested
-    tokenType                   : string;        // "XTZ", "FA12", "FA2"
+    tokenType                   : string;        // "MVRK", "FA12", "FA2"
     tokenId                     : nat;        
     purpose                     : string;        // financial request purpose
 ]
@@ -69,7 +69,7 @@ type councilActionTransferType is [@layout:comb] record [
     receiverAddress             : address;       // receiver address
     tokenContractAddress        : address;       // token contract address
     tokenAmount                 : nat;           // token amount requested
-    tokenType                   : string;        // "XTZ", "FA12", "FA2"
+    tokenType                   : string;        // "MVRK", "FA12", "FA2"
     tokenId                     : nat;  
     purpose                     : string;           
 ]

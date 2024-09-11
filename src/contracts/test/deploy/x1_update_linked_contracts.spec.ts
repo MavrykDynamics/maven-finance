@@ -1,4 +1,4 @@
-import { TransactionOperation } from "@taquito/taquito"
+import { TransactionOperation } from "@mavrykdynamics/taquito"
 
 import { MVN, Utils } from "../helpers/Utils"
 

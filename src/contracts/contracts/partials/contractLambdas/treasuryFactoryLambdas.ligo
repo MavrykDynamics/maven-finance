@@ -202,8 +202,8 @@ block {
 
                 for treasuryAddress in set s.trackedTreasuries
                 block {
-                    case (Tezos.get_entrypoint_opt("%pauseAll", treasuryAddress) : option(contract(unit))) of [
-                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                    case (Mavryk.get_entrypoint_opt("%pauseAll", treasuryAddress) : option(contract(unit))) of [
+                            Some(contr) -> operations := Mavryk.transaction(Unit, 0mav, contr) # operations
                         |   None -> skip
                     ];
                 };
@@ -244,8 +244,8 @@ block {
 
                 for treasuryAddress in set s.trackedTreasuries
                 block {
-                    case (Tezos.get_entrypoint_opt("%unpauseAll", treasuryAddress) : option(contract(unit))) of [
-                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                    case (Mavryk.get_entrypoint_opt("%unpauseAll", treasuryAddress) : option(contract(unit))) of [
+                            Some(contr) -> operations := Mavryk.transaction(Unit, 0mav, contr) # operations
                         |   None -> skip
                     ];
                 };
@@ -331,7 +331,7 @@ block{
                 // Create operation to originate Treasury
                 const treasuryOrigination: (operation * address) = createTreasuryFunc(
                     createTreasuryParams.baker, 
-                    0tez,
+                    0mav,
                     originatedTreasuryStorage
                 );
 

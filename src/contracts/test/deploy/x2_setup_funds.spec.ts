@@ -1,6 +1,6 @@
-import { TransactionOperation } from "@taquito/taquito"
+import { TransactionOperation } from "@mavrykdynamics/taquito"
 
-import { MVN, TEZ, Utils } from "../helpers/Utils"
+import { MVN, MAV, Utils } from "../helpers/Utils"
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -56,7 +56,7 @@ describe('Setup and deploy funds for relevant contracts', async () => {
 
                 var sender           = isaac.pkh;
                 const mvnTokenAmount = MVN(1000);
-                const tezAmount      = 100;
+                const mavAmount      = 100;
                 const tokenAmount    = 30000000; 
 
                 // ------------------------------------------------------------------
@@ -86,18 +86,18 @@ describe('Setup and deploy funds for relevant contracts', async () => {
                 await transferMvnTokens.confirmation();
 
                 // ------------------------------------------------------------------
-                // XTZ Transfer
+                // MVRK Transfer
                 // ------------------------------------------------------------------
 
-                // transfer xtz to Treasury
+                // transfer mvrk to Treasury
                 await signerFactory(tezos, bob.sk)
                 sender           = bob.pkh;
-                const transferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress, amount: tezAmount});
-                await transferTezToTreasuryOperation.confirmation();
+                const transferMavToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress, amount: mavAmount});
+                await transferMavToTreasuryOperation.confirmation();
 
-                // transfer xtz to Council
-                const transferTezToCouncilOperation = await utils.tezos.contract.transfer({ to: councilAddress, amount: tezAmount});
-                await transferTezToCouncilOperation.confirmation();
+                // transfer mvrk to Council
+                const transferMavToCouncilOperation = await utils.tezos.contract.transfer({ to: councilAddress, amount: mavAmount});
+                await transferMavToCouncilOperation.confirmation();
 
                 // ------------------------------------------------------------------
                 // Mock FA12 Token Transfer
