@@ -17,7 +17,7 @@ class Config(BaseModel):
     minProposalRoundVotePercentage: str
     minQuorumPercentage: str
     minYayVotePercentage: str
-    proposalSubmissionFeeMutez: str
+    proposalSubmissionFeeMumav: str
     maxProposalsPerSatellite: str
     blocksPerProposalRound: str
     blocksPerVotingRound: str
@@ -64,7 +64,7 @@ class TokenItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    tez: Dict[str, Any]
+    mav: Dict[str, Any]
 
 
 class Transaction(BaseModel):

@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Get the generation script
-GENERATION_SCRIPT="./generate_tezos_accounts_helper.ligo"
+GENERATION_SCRIPT="./generate_mavryk_accounts_helper.ligo"
 TEMP_GENERATED_FILE="./temp.ligo_accounts"
 STRING_TO_REMOVE="Everything at the top-level was executed."
 JSON_FILE="./test/helpers/random_accounts.json"
 
 # Generate multiple accounts
-docker run --rm -v "$PWD":"$PWD" -w "$PWD" ligolang/ligo:0.60.0 run test $GENERATION_SCRIPT | sed -e "s/$STRING_TO_REMOVE$//" | grep "\S" > $TEMP_GENERATED_FILE
+docker run --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:0.60.0 run test $GENERATION_SCRIPT | sed -e "s/$STRING_TO_REMOVE$//" | grep "\S" > $TEMP_GENERATED_FILE
 
 # Create the JSON account file
 JSON_TEXT=$(echo -e "[\n")

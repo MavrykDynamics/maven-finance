@@ -167,12 +167,12 @@ block {
 
     // Steps Overview:    
     // 1. Check that sender is admin 
-    // 2. Check that no Tez is sent to the entrypoint 
+    // 2. Check that no Mav is sent to the entrypoint 
     // 3. Check that all entrypoints are paused
     // 4. Get Doorman MVN balance from MVN Token Contract - equivalent to total staked MVN supply
     // 5. Create a transfer to transfer all funds to an upgraded Doorman Contract
     
-    verifyNoAmountSent(Unit);          // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);          // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin); // check that sender is admin 
 
     var operations : list(operation) := nil;
@@ -249,7 +249,7 @@ block {
 function lambdaTogglePauseEntrypoint(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit);          // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);          // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin); // check that sender is admin 
 
     case doormanLambdaAction of [
@@ -306,7 +306,7 @@ block {
         |   LambdaStakeMvn(stakeAmount) -> {
 
                 // Get params - userAddress
-                const userAddress : address = Tezos.get_sender();
+                const userAddress : address = Mavryk.get_sender();
                     
                 // Compound user rewards
                 s := compoundUserRewards(userAddress, s);
@@ -320,7 +320,7 @@ block {
 
                 const transferOperation : operation = transferFa2Token(
                     userAddress,                // from_
-                    Tezos.get_self_address(),   // to_
+                    Mavryk.get_self_address(),   // to_
                     stakeAmount,                // amount
                     0n,                         // tokenId
                     s.mvnTokenAddress           // tokenContractAddress
@@ -389,7 +389,7 @@ block {
         |   LambdaUnstakeMvn(unstakeAmount) -> {
 
                 // Get params - userAddress
-                const userAddress : address = Tezos.get_sender();
+                const userAddress : address = Mavryk.get_sender();
                 
                 // Verify that user is unstaking at least the min amount of MVN tokens required - note: amount should be converted on frontend to 10^9 decimals
                 verifyMinMvnAmountReached(unstakeAmount, s);
@@ -436,7 +436,7 @@ block {
                 // -------------------------------------------
 
                 const transferOperation : operation = transferFa2Token(
-                    Tezos.get_self_address(),   // from_
+                    Mavryk.get_self_address(),   // from_
                     userAddress,                // to_
                     finalUnstakeAmount,         // amount
                     0n,                         // tokenId
@@ -524,7 +524,7 @@ block {
         |   LambdaExit(_params) -> {
 
                 // Get params - userAddress
-                const userAddress : address = Tezos.get_sender();
+                const userAddress : address = Mavryk.get_sender();
 
                 // Compound user rewards
                 s := compoundUserRewards(userAddress, s);
@@ -580,7 +580,7 @@ block {
                     // -------------------------------------------
 
                     const transferOperation : operation = transferFa2Token(
-                        Tezos.get_self_address(),   // from_
+                        Mavryk.get_self_address(),   // from_
                         userAddress,                // to_
                         finalUnstakeAmount,         // amount
                         0n,                         // tokenId
@@ -688,7 +688,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 var totalTransferAmount : nat                           := 0n;
 
                 // Get farm address
-                const farmAddress : address = Tezos.get_sender();
+                const farmAddress : address = Mavryk.get_sender();
 
                 // ------------------------------------------------------------------
                 // Validation Checks
@@ -861,7 +861,7 @@ block{
                 s.userStakeBalanceLedger[vaultOwner]      := userBalanceInStakeBalanceLedger;
 
                 // update satellite balance if user/vault is delegated to a satellite
-                const onStakeChangeOperation : operation    = Tezos.transaction(set[(vaultAddress, vaultInitBalance); (vaultOwner, userInitBalance)]  , 0tez, delegationOnStakeChange(delegationAddress));
+                const onStakeChangeOperation : operation    = Mavryk.transaction(set[(vaultAddress, vaultInitBalance); (vaultOwner, userInitBalance)]  , 0mav, delegationOnStakeChange(delegationAddress));
 
                 operations  := list [onStakeChangeOperation];
             }
@@ -925,7 +925,7 @@ block{
                 s.userStakeBalanceLedger[vaultOwner]      := userBalanceInStakeBalanceLedger;
 
                 // update satellite balance if user/vault is delegated to a satellite
-                const onStakeChangeOperation : operation    = Tezos.transaction(set[(vaultAddress, vaultInitBalance); (vaultOwner, userInitBalance)]  , 0tez, delegationOnStakeChange(delegationAddress));
+                const onStakeChangeOperation : operation    = Mavryk.transaction(set[(vaultAddress, vaultInitBalance); (vaultOwner, userInitBalance)]  , 0mav, delegationOnStakeChange(delegationAddress));
 
                 operations  := list [onStakeChangeOperation]
             }
@@ -995,7 +995,7 @@ block{
                 s.userStakeBalanceLedger[liquidator]      := liquidatorStakeBalanceRecord;
 
                 // update satellite balance if user/vault is delegated to a satellite
-                const onStakeChangeOperation : operation    = Tezos.transaction(set[(vaultAddress, vaultInitBalance); (liquidator, userInitBalance)]  , 0tez, delegationOnStakeChange(delegationAddress));
+                const onStakeChangeOperation : operation    = Mavryk.transaction(set[(vaultAddress, vaultInitBalance); (liquidator, userInitBalance)]  , 0mav, delegationOnStakeChange(delegationAddress));
 
                 operations  := list [onStakeChangeOperation]
             }
@@ -1037,7 +1037,7 @@ block {
         |   LambdaUnstakeMvn(unstakeAmount) -> {
                 
                 // Get params
-                const userAddress : address = Tezos.get_sender();
+                const userAddress : address = Mavryk.get_sender();
                 
                 // Verify that user is unstaking at least the min amount of MVN tokens required - note: amount should be converted on frontend to 10^9 decimals
                 verifyMinMvnAmountReached(unstakeAmount, s);
@@ -1081,7 +1081,7 @@ block {
                 userStakeBalanceRecord.balance := abs(userInitBalance - unstakeAmount); 
 
                 const transferOperation : operation = transferFa2Token(
-                    Tezos.get_self_address(),   // from_
+                    Mavryk.get_self_address(),   // from_
                     userAddress,                // to_
                     finalUnstakeAmount,         // amount
                     0n,                         // tokenId

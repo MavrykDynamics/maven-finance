@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any mav amount
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -32,7 +32,7 @@ block {
 function lambdaSetGovernance(const councilLambdaAction : councilLambdaActionType;  var s : councilStorageType) : return is
 block {
     
-    verifyNoAmountSent(Unit);        // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit);        // entrypoint should not receive any mav amount
     
     // verify that sender is admin or the Governance Contract address
     verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
@@ -52,7 +52,7 @@ block {
 function lambdaUpdateMetadata(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit);     // entrypoint should not receive any tez amount
+    verifyNoAmountSent(Unit);     // entrypoint should not receive any mav amount
     verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
 
     case councilLambdaAction of [
@@ -74,7 +74,7 @@ block {
 function lambdaUpdateConfig(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    verifyNoAmountSent(Unit);     // entrypoint should not receive any tez amount  
+    verifyNoAmountSent(Unit);     // entrypoint should not receive any mav amount  
     verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case councilLambdaAction of [
@@ -148,7 +148,7 @@ block {
         |   LambdaUpdateCouncilMemberInfo(councilMemberInfo) -> {
                 
                 // Check if sender is a member of the council
-                var councilMember: councilMemberInfoType := case Big_map.find_opt(Tezos.get_sender(), s.councilMembers) of [
+                var councilMember: councilMemberInfoType := case Big_map.find_opt(Mavryk.get_sender(), s.councilMembers) of [
                         Some (_info) -> _info
                     |   None -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
                 ];
@@ -164,7 +164,7 @@ block {
                 councilMember.image     := councilMemberInfo.image;
 
                 // Update storage
-                s.councilMembers[Tezos.get_sender()]  := councilMember;   
+                s.councilMembers[Mavryk.get_sender()]  := councilMember;   
 
             }
         |   _ -> skip
@@ -862,12 +862,12 @@ block {
                 var councilActionRecord : councilActionRecordType := getCouncilActionRecord(actionId, s);
 
                 // check if council member has already signed for this action
-                if Big_map.mem((actionId, Tezos.get_sender()), s.councilActionsSigners) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
+                if Big_map.mem((actionId, Mavryk.get_sender()), s.councilActionsSigners) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for council action record
                 var signersCount : nat             := councilActionRecord.signersCount + 1n;
                 councilActionRecord.signersCount   := signersCount;
-                s.councilActionsSigners            := Big_map.add((actionId, Tezos.get_sender()), unit, s.councilActionsSigners);
+                s.councilActionsSigners            := Big_map.add((actionId, Mavryk.get_sender()), unit, s.councilActionsSigners);
                 s.councilActionsLedger[actionId]   := councilActionRecord;
 
                 // check if threshold has been reached

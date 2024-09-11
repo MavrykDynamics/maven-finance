@@ -26,7 +26,7 @@ class TargetEntrypointItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    withdrawRewardXtz: bool
+    withdrawRewardMvrk: bool
 
 
 class TogglePauseEntrypointParameter(BaseModel):

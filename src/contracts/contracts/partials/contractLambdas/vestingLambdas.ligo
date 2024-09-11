@@ -344,7 +344,7 @@ block {
         |   LambdaClaim(_parameters) -> {
                 
                 // Get sender's vestee record from ledger
-                var _vestee : vesteeRecordType := getVesteeRecord(Tezos.get_sender(), s);
+                var _vestee : vesteeRecordType := getVesteeRecord(Mavryk.get_sender(), s);
 
                 // check that vestee's status is not locked
                 if _vestee.status = "LOCKED" then failwith(error_VESTEE_LOCKED)
@@ -354,12 +354,12 @@ block {
                 verifyIsNotZero(_vestee.totalRemainder, error_NO_VESTING_REWARDS_TO_CLAIM);
 
                 // check that current timestamp is greater than vestee's next redemption timestamp
-                const timestampCheck : bool = Tezos.get_now() > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;
+                const timestampCheck : bool = Mavryk.get_now() > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;
 
                 if timestampCheck then block {
 
                     // calculate claim amount based on last redemption - calculate how many months has passed since last redemption if any
-                    var numberOfClaimMonths : nat := abs(abs(Tezos.get_now() - _vestee.lastClaimedTimestamp) / thirty_days);
+                    var numberOfClaimMonths : nat := abs(abs(Mavryk.get_now() - _vestee.lastClaimedTimestamp) / thirty_days);
 
                     // first claim month
                     if _vestee.lastClaimedTimestamp = _vestee.startTimestamp then numberOfClaimMonths   := numberOfClaimMonths + 1n else skip;
@@ -373,7 +373,7 @@ block {
 
                     // mint MVN Tokens based on total claim amount
                     const mintMvnTokensOperation : operation = mintTokens(
-                        Tezos.get_sender(),           // to address
+                        Mavryk.get_sender(),           // to address
                         totalClaimAmount,             // amount of mvn Tokens to be minted
                         s                             // storage
                     ); 
@@ -396,7 +396,7 @@ block {
 
                     // use vestee start period to calculate next redemption period
                     _vestee.nextRedemptionTimestamp  := _vestee.startTimestamp + (monthsClaimed * thirty_days);
-                    _vestee.lastClaimedTimestamp     := Tezos.get_now();    
+                    _vestee.lastClaimedTimestamp     := Mavryk.get_now();    
 
                     _vestee.totalClaimed             := _vestee.totalClaimed + totalClaimAmount;  
 
@@ -405,7 +405,7 @@ block {
                     else totalRemainder := abs(_vestee.totalAllocatedAmount - totalClaimAmount);
                     _vestee.totalRemainder           := totalRemainder;
 
-                    s.vesteeLedger[Tezos.get_sender()] := _vestee;
+                    s.vesteeLedger[Mavryk.get_sender()] := _vestee;
 
                     // update total vested amount in contract
                     s.totalVestedAmount := s.totalVestedAmount + totalClaimAmount;

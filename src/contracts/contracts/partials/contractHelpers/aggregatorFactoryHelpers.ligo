@@ -39,7 +39,7 @@ block {
 
 // helper function to get distributeReward entrypoint in delegation contract
 function getDistributeRewardInDelegationEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvnType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%distributeReward",
         contractAddress) : option(contract(distributeRewardStakedMvnType))) of [
                 Some(contr) -> contr
@@ -50,7 +50,7 @@ function getDistributeRewardInDelegationEntrypoint(const contractAddress : addre
 
 // helper function to get setAggregatorReference entrypoint in governanceSatellite contract
 function getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(const contractAddress : address) : contract(setAggregatorReferenceType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%setAggregatorReference",
         contractAddress) : option(contract(setAggregatorReferenceType))) of [
                 Some(contr) -> contr
@@ -78,9 +78,9 @@ block {
     ];
 
     // Create and send updateGeneralContractsMap operation to the Governance Contract
-    const updateGeneralContractsOperation : operation = Tezos.transaction(
+    const updateGeneralContractsOperation : operation = Mavryk.transaction(
         updateGeneralMapRecord,
-        0tez, 
+        0mav, 
         getUpdateGeneralContractsEntrypoint(s.governanceAddress)
     );
 
@@ -103,9 +103,9 @@ block {
     ];
 
     // Create and send setAggregatorReference operation to the Governance Contract
-    const setAggregatorReferenceOperation : operation = Tezos.transaction(
+    const setAggregatorReferenceOperation : operation = Mavryk.transaction(
         setAggregatorReferenceParams,
-        0tez,
+        0mav,
         getSetAggregatorReferenceInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
     );
 
@@ -113,18 +113,18 @@ block {
 
 
 
-// helper function to distribute reward xtz
-function distributeRewardXtzOperation(const recipient : address; const rewardAmount : nat; const s : aggregatorFactoryStorageType) : operation is 
+// helper function to distribute reward mvrk
+function distributeRewardMvrkOperation(const recipient : address; const rewardAmount : nat; const s : aggregatorFactoryStorageType) : operation is 
 block {
 
     // Get Aggregator Treasury Contract Address from the General Contracts Map on the Governance Contract
     const treasuryAddress : address = getContractAddressFromGovernanceContract("aggregatorTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
-    // set token type to Tez
-    const tokenTransferType : tokenType = Tez;
+    // set token type to Mav
+    const tokenTransferType : tokenType = Mav;
     
-    // Create operation to transfer XTZ reward from Aggregator Treasury to oracle recipient (satellite)
-    const distributeRewardXtzParams : transferActionType = list[
+    // Create operation to transfer MVRK reward from Aggregator Treasury to oracle recipient (satellite)
+    const distributeRewardMvrkParams : transferActionType = list[
         record [
             to_        = recipient;
             token      = tokenTransferType;
@@ -132,13 +132,13 @@ block {
         ]
     ];
 
-    const distributeRewardXtzOperation : operation = Tezos.transaction(
-        distributeRewardXtzParams, 
-        0tez, 
+    const distributeRewardMvrkOperation : operation = Mavryk.transaction(
+        distributeRewardMvrkParams, 
+        0mav, 
         sendTransferOperationToTreasury(treasuryAddress)
     );
 
-} with distributeRewardXtzOperation
+} with distributeRewardMvrkOperation
 
 
 
@@ -155,9 +155,9 @@ block {
         totalStakedMvnReward = rewardAmount;
     ];
 
-    const distributeRewardStakedMvnOperation : operation = Tezos.transaction(
+    const distributeRewardStakedMvnOperation : operation = Mavryk.transaction(
         rewardParams,
-        0tez,
+        0mav,
         getDistributeRewardInDelegationEntrypoint(delegationAddress)
     );
 
@@ -177,7 +177,7 @@ block {
 function getAggregatorName(const aggregatorAddress : address) : string is
 block {
 
-    const aggregatorNameView : option(string) = Tezos.call_view ("getName", unit, aggregatorAddress);
+    const aggregatorNameView : option(string) = Mavryk.call_view ("getName", unit, aggregatorAddress);
     const aggregatorName : string = case aggregatorNameView of [
                 Some (_name)    -> _name
             |   None            -> failwith (error_GET_NAME_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
@@ -196,9 +196,9 @@ block {
         epoch                     = 0n;
         data                      = 0n;
         percentOracleResponse     = 0n;
-        lastUpdatedAt             = Tezos.get_now();
+        lastUpdatedAt             = Mavryk.get_now();
     ];
-    const oracleRewardXtz        : oracleRewardXtzType        = Big_map.empty;
+    const oracleRewardMvrk        : oracleRewardMvrkType        = Big_map.empty;
     const oracleRewardStakedMvn  : oracleRewardStakedMvnType  = Big_map.empty;
 
     // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
@@ -206,7 +206,7 @@ block {
 
     // Add Aggregator Factory Contract and Governance Satellite Contract to Whitelisted Contracts Map on the new Aggregator Contract
     const aggregatorWhitelistContracts : whitelistContractsType = big_map[
-        (Tezos.get_self_address())   -> unit;
+        (Mavryk.get_self_address())   -> unit;
         (governanceSatelliteAddress) -> unit;
     ];
     
@@ -216,7 +216,7 @@ block {
 
     const aggregatorBreakGlassConfig : aggregatorBreakGlassConfigType = record[
         updateDataIsPaused                  = False;
-        withdrawRewardXtzIsPaused           = False;
+        withdrawRewardMvrkIsPaused           = False;
         withdrawRewardStakedMvnIsPaused     = False;
     ];
 
@@ -249,7 +249,7 @@ block {
         
         lastCompletedData         = lastCompletedData;
                             
-        oracleRewardXtz           = oracleRewardXtz;
+        oracleRewardMvrk           = oracleRewardMvrk;
         oracleRewardStakedMvn     = oracleRewardStakedMvn;      
 
         lambdaLedger              = aggregatorLambdaLedger;

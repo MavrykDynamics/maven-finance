@@ -82,7 +82,7 @@ block {
     const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
 
     // Check if farm address is known to the farmFactory
-    const checkFarmExistsView : option (bool) = Tezos.call_view ("checkFarmExists", farmAddress, farmFactoryAddress);
+    const checkFarmExistsView : option (bool) = Mavryk.call_view ("checkFarmExists", farmAddress, farmFactoryAddress);
     const checkFarmExists : bool = case checkFarmExistsView of [
             Some (value) -> value
         |   None         -> (failwith (error_CHECK_FARM_EXISTS_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : bool)
@@ -185,7 +185,7 @@ block {
 
 // helper function to %onStakeChange entrypoint in the Delegation Contract
 function delegationOnStakeChange(const delegationAddress : address) : contract(onStakeChangeType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%onStakeChange",
         delegationAddress) : option(contract(onStakeChangeType))) of [
                 Some(contr) -> contr
@@ -196,7 +196,7 @@ function delegationOnStakeChange(const delegationAddress : address) : contract(o
 
 // helper function to get transfer entrypoint
 function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : contract(fa2TransferType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%transfer",
         tokenAddress) : option(contract(fa2TransferType))) of [
                 Some(contr) -> contr
@@ -221,9 +221,9 @@ block {
     const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
     // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
-    const delegationOnStakeChangeOperation : operation = Tezos.transaction(
+    const delegationOnStakeChangeOperation : operation = Mavryk.transaction(
         (userAddresses),
-        0tez,
+        0mav,
         delegationOnStakeChange(delegationAddress)
     );
 
@@ -239,13 +239,13 @@ block {
     const treasuryAddress : address = getContractAddressFromGovernanceContract("farmTreasury", s.governanceAddress, error_FARM_TREASURY_CONTRACT_NOT_FOUND);
 
     const mintMvnAndTransferParams : mintMvnAndTransferType = record [
-        to_  = Tezos.get_self_address();
+        to_  = Mavryk.get_self_address();
         amt  = claimAmount;
     ];
 
-    const mintMvnAndTransferOperation : operation = Tezos.transaction(
+    const mintMvnAndTransferOperation : operation = Mavryk.transaction(
         mintMvnAndTransferParams, 
-        0tez, 
+        0mav, 
         sendMintMvnAndTransferOperationToTreasury(treasuryAddress)
     );
 
@@ -262,7 +262,7 @@ block {
 
     const transferFromTreasuryParams : transferActionType = list [
         record [
-            to_   = Tezos.get_self_address();
+            to_   = Mavryk.get_self_address();
             token = (Fa2 (record [
                 tokenContractAddress  = s.mvnTokenAddress;
                 tokenId               = 0n;
@@ -271,9 +271,9 @@ block {
         ]
     ];
 
-    const transferFromTreasuryOperation : operation = Tezos.transaction(
+    const transferFromTreasuryOperation : operation = Mavryk.transaction(
         transferFromTreasuryParams,
-        0tez,
+        0mav,
         sendTransferOperationToTreasury(treasuryAddress)
     );
 
@@ -286,7 +286,7 @@ function migrateFundsOperation(const destinationAddress : address; const s : doo
 block {
 
     // Get Doorman MVN balance from MVN Token Contract - equivalent to total staked MVN supply
-    const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.get_self_address(), 0n), s.mvnTokenAddress);
+    const balanceView : option (nat) = Mavryk.call_view ("get_balance", (Mavryk.get_self_address(), 0n), s.mvnTokenAddress);
     const doormanBalance: nat = case balanceView of [
             Some (value) -> value
         |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -295,7 +295,7 @@ block {
     // Create a transfer to transfer all funds to an upgraded Doorman Contract
     const transferParameters: fa2TransferType = list[
         record [
-            from_= Tezos.get_self_address();
+            from_= Mavryk.get_self_address();
             txs  = list [
                 record [
                     to_        = destinationAddress;
@@ -306,9 +306,9 @@ block {
         ]
     ];
 
-    const migrateFundsOperation: operation = Tezos.transaction(
+    const migrateFundsOperation: operation = Mavryk.transaction(
         transferParameters,
-        0tez,
+        0mav,
         getTransferEntrypointFromTokenAddress(s.mvnTokenAddress)
     );
 
@@ -328,7 +328,7 @@ block {
 function getMvnTotalSupply(const s : doormanStorageType) : nat is 
 block {
 
-    const mvnTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvnTokenAddress);
+    const mvnTotalSupplyView : option (nat) = Mavryk.call_view ("total_supply", 0n, s.mvnTokenAddress);
     const mvnTotalSupply: nat = case mvnTotalSupplyView of [
             Some (value) -> value
         |   None         -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -342,7 +342,7 @@ block {
 function getStakedMvnTotalSupply(const s : doormanStorageType) : nat is 
 block {
 
-    const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.get_self_address(), 0n), s.mvnTokenAddress);
+    const getBalanceView : option (nat) = Mavryk.call_view ("get_balance", (Mavryk.get_self_address(), 0n), s.mvnTokenAddress);
     const stakedMvnTotalSupply: nat = case getBalanceView of [
             Some (value) -> value
         |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -356,7 +356,7 @@ block {
 function getMvnMaximumTotalSupply(const s : doormanStorageType) : nat is 
 block {
 
-    const getMaximumSupplyView : option (nat) = Tezos.call_view ("getMaximumSupply", unit, s.mvnTokenAddress);
+    const getMaximumSupplyView : option (nat) = Mavryk.call_view ("getMaximumSupply", unit, s.mvnTokenAddress);
     const mvnMaximumSupply : (nat) = case getMaximumSupplyView of [
             Some (_totalSupply) -> _totalSupply
         |   None                -> (failwith (error_GET_MAXIMUM_SUPPLY_VIEW_IN_MVN_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -453,7 +453,7 @@ block {
     const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
     // Call the %getSatelliteRewardsOpt view on the Delegation Contract
-    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
+    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Mavryk.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
 
     // Check if user has any satellite rewards
     const userHasSatelliteRewards : bool = case satelliteRewardsOptView of [
@@ -476,7 +476,7 @@ block {
     const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
     // Call the %getSatelliteRewardsOpt view on the Delegation Contract
-    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
+    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Mavryk.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
 
     const satelliteRewardsOpt : option(satelliteRewardsType) = case satelliteRewardsOptView of [
             Some (value) -> value

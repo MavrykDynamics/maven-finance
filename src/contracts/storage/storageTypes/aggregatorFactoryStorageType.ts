@@ -1,4 +1,4 @@
-import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder"
+import { MichelsonMap, MichelsonMapKey } from "@mavrykdynamics/taquito-michelson-encoder"
 import { BigNumber } from "bignumber.js"
 
 export type aggregatorFactoryStorageType = {
@@ -9,7 +9,7 @@ export type aggregatorFactoryStorageType = {
         createAggregatorIsPaused              : boolean;
         trackAggregatorIsPaused               : boolean;
         untrackAggregatorIsPaused             : boolean;
-        distributeRewardXtzIsPaused           : boolean;
+        distributeRewardMvrkIsPaused           : boolean;
         distributeRewardStakedMvnIsPaused     : boolean;
     };
     config                    : {

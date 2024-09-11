@@ -18,7 +18,7 @@ templates:
   # Treasury token balance template
   treasury_token_transfer_receiver_template:
     kind: tezos.tzkt.token_transfers
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     handlers:
     - callback: treasury.token_transfer_receiver
       to: <treasury_contract>
@@ -27,7 +27,7 @@ templates:
   # Farm template
   farm_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -95,7 +95,7 @@ templates:
   # MFarm template
   m_farm_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -163,7 +163,7 @@ templates:
   # Treasury template
   treasury_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -219,7 +219,7 @@ templates:
   # Aggregator template
   aggregator_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -279,10 +279,10 @@ templates:
       pattern:
       - destination: <aggregator_contract>
         entrypoint: updateData
-    - callback: aggregator.withdraw_reward_xtz
+    - callback: aggregator.withdraw_reward_mvrk
       pattern:
       - destination: <aggregator_contract>
-        entrypoint: withdrawRewardXtz
+        entrypoint: withdrawRewardMvrk
     - callback: aggregator.withdraw_reward_staked_mvn
       pattern:
       - destination: <aggregator_contract>
@@ -295,7 +295,7 @@ templates:
   # Vault template
   vault_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -314,7 +314,7 @@ templates:
   # MToken template
   m_token_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - origination
     - transaction
@@ -357,7 +357,7 @@ templates:
   # Index the snapshot ledger bigmap of the governance contract
   governance_satellite_snapshot_template:
     kind: tezos.tzkt.big_maps
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     skip_history: never
     handlers:
     - callback: governance.snapshot_ledger_update
@@ -367,7 +367,7 @@ templates:
   # Ran after the governance origination and index the entire dApp
   maven_finance_template:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - origination
     - transaction
@@ -389,7 +389,7 @@ templates:
     - <treasury_factory_contract>
     - <vault_factory_contract>
     - <lending_controller_contract>
-    - <lending_controller_mock_time_contract>
+    # - <lending_controller_mock_time_contract>
     handlers:
     # Contracts origination
     # Index contracts originations first
@@ -457,10 +457,10 @@ templates:
       pattern:
       - type: origination
         originated_contract: <lending_controller_contract>
-    - callback: lending_controller_mock_time.origination
-      pattern:
-      - type: origination
-        originated_contract: <lending_controller_mock_time_contract>
+    # - callback: lending_controller_mock_time.origination
+    #   pattern:
+    #   - type: origination
+    #     originated_contract: <lending_controller_mock_time_contract>
 
     # Contracts entrypoints
     # MVN Token handlers
@@ -510,6 +510,10 @@ templates:
       pattern:
       - destination: <mvn_faucet_contract>
         entrypoint: requestMvn
+    - callback: mvn_faucet.request_fake_usdt
+      pattern:
+      - destination: <mvn_faucet_contract>
+        entrypoint: requestFakeUsdt
 
     # Governance Proxy Handlers
     - callback: governance_proxy.set_admin
@@ -1328,15 +1332,15 @@ templates:
       - source: <vault_factory_contract>
         destination: <lending_controller_contract>
         entrypoint: registerVaultCreation
-    - callback: vault_factory.create_vault_mock_time
-      pattern:
-      - destination: <vault_factory_contract>
-        entrypoint: createVault
-      - type: origination
-        originated_contract: vault
-      - source: <vault_factory_contract>
-        destination: <lending_controller_mock_time_contract>
-        entrypoint: registerVaultCreation
+    # - callback: vault_factory.create_vault_mock_time
+    #   pattern:
+    #   - destination: <vault_factory_contract>
+    #     entrypoint: createVault
+    #   - type: origination
+    #     originated_contract: vault
+    #   - source: <vault_factory_contract>
+    #     destination: <lending_controller_mock_time_contract>
+    #     entrypoint: registerVaultCreation
     - callback: vault_factory.set_lambda
       pattern:
       - destination: <vault_factory_contract>
@@ -1429,86 +1433,86 @@ templates:
         entrypoint: setLambda
 
     # Lending Controller Mock Time Handlers
-    - callback: lending_controller_mock_time.set_admin
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: setAdmin
-    - callback: lending_controller_mock_time.set_governance
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: setGovernance
-    - callback: lending_controller_mock_time.update_config
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: updateConfig
-    - callback: lending_controller_mock_time.pause_all
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: pauseAll
-    - callback: lending_controller_mock_time.unpause_all
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: unpauseAll
-    - callback: lending_controller_mock_time.toggle_pause_entrypoint
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: togglePauseEntrypoint
-    - callback: lending_controller_mock_time.set_loan_token
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: setLoanToken
-    - callback: lending_controller_mock_time.set_collateral_token
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: setCollateralToken
-    - callback: lending_controller_mock_time.add_liquidity
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: addLiquidity
-    - callback: lending_controller_mock_time.remove_liquidity
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: removeLiquidity
-    - callback: lending_controller_mock_time.close_vault
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: closeVault
-    - callback: lending_controller_mock_time.register_deposit
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: registerDeposit
-    - callback: lending_controller_mock_time.register_withdrawal
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: registerWithdrawal
-    - callback: lending_controller_mock_time.mark_for_liquidation
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: markForLiquidation
-    - callback: lending_controller_mock_time.liquidate_vault
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: liquidateVault
-    - callback: lending_controller_mock_time.borrow
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: borrow
-    - callback: lending_controller_mock_time.repay
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: repay
-    - callback: lending_controller_mock_time.vault_deposit_staked_token
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: vaultDepositStakedToken
-    - callback: lending_controller_mock_time.vault_withdraw_staked_token
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: vaultWithdrawStakedToken
-    - callback: lending_controller_mock_time.set_lambda
-      pattern:
-      - destination: <lending_controller_mock_time_contract>
-        entrypoint: setLambda
+    # - callback: lending_controller_mock_time.set_admin
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: setAdmin
+    # - callback: lending_controller_mock_time.set_governance
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: setGovernance
+    # - callback: lending_controller_mock_time.update_config
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: updateConfig
+    # - callback: lending_controller_mock_time.pause_all
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: pauseAll
+    # - callback: lending_controller_mock_time.unpause_all
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: unpauseAll
+    # - callback: lending_controller_mock_time.toggle_pause_entrypoint
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: togglePauseEntrypoint
+    # - callback: lending_controller_mock_time.set_loan_token
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: setLoanToken
+    # - callback: lending_controller_mock_time.set_collateral_token
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: setCollateralToken
+    # - callback: lending_controller_mock_time.add_liquidity
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: addLiquidity
+    # - callback: lending_controller_mock_time.remove_liquidity
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: removeLiquidity
+    # - callback: lending_controller_mock_time.close_vault
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: closeVault
+    # - callback: lending_controller_mock_time.register_deposit
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: registerDeposit
+    # - callback: lending_controller_mock_time.register_withdrawal
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: registerWithdrawal
+    # - callback: lending_controller_mock_time.mark_for_liquidation
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: markForLiquidation
+    # - callback: lending_controller_mock_time.liquidate_vault
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: liquidateVault
+    # - callback: lending_controller_mock_time.borrow
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: borrow
+    # - callback: lending_controller_mock_time.repay
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: repay
+    # - callback: lending_controller_mock_time.vault_deposit_staked_token
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: vaultDepositStakedToken
+    # - callback: lending_controller_mock_time.vault_withdraw_staked_token
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: vaultWithdrawStakedToken
+    # - callback: lending_controller_mock_time.set_lambda
+    #   pattern:
+    #   - destination: <lending_controller_mock_time_contract>
+    #     entrypoint: setLambda
   # Side Template - Liquidity Baking
   # Ran after the liquidity baking origination and index the entire dApp
   liquidity_baking_template:
@@ -1568,9 +1572,9 @@ templates:
         entrypoint: transfer
 
 indexes:
-  maven_finance_ghostnet_init:
+  maven_finance_atlasnet_init:
     kind: tezos.tzkt.operations
-    datasource: tzkt_ghostnet
+    datasource: mvkt_atlasnet
     types:
     - origination
     contracts:

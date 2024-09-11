@@ -27,7 +27,7 @@ WITH(TIMESCALEDB.CONTINUOUS) AS
 	    MAX(token_price) AS high,
 	    MIN(token_price) AS low,
 	    LAST(token_price, timestamp) AS "close",
-        SUM(xtz_qty) AS xtz_volume,
+        SUM(xtz_qty) AS mvrk_volume,
         SUM(token_qty) AS token_volume,
         COUNT(id) AS trades
 	FROM
@@ -55,7 +55,7 @@ WITH(TIMESCALEDB.CONTINUOUS) AS
 	    MAX(token_price) AS high,
 	    MIN(token_price) AS low,
 	    LAST(token_price, timestamp) AS "close",
-        SUM(xtz_qty) AS xtz_volume,
+        SUM(xtz_qty) AS mvrk_volume,
         SUM(token_qty) AS token_volume,
         COUNT(id) AS trades
 	FROM
@@ -83,7 +83,7 @@ WITH(TIMESCALEDB.CONTINUOUS) AS
 	    MAX(token_price) AS high,
 	    MIN(token_price) AS low,
 	    LAST(token_price, timestamp) AS "close",
-        SUM(xtz_qty) AS xtz_volume,
+        SUM(xtz_qty) AS mvrk_volume,
         SUM(token_qty) AS token_volume,
         COUNT(id) AS trades
 	FROM
@@ -111,7 +111,7 @@ WITH(TIMESCALEDB.CONTINUOUS) AS
 	    MAX(token_price) AS high,
 	    MIN(token_price) AS low,
 	    LAST(token_price, timestamp) AS "close",
-        SUM(xtz_qty) AS xtz_volume,
+        SUM(xtz_qty) AS mvrk_volume,
         SUM(token_qty) AS token_volume,
         COUNT(id) AS trades
 	FROM
@@ -139,7 +139,7 @@ WITH(TIMESCALEDB.CONTINUOUS) AS
 	    MAX(token_price) AS high,
 	    MIN(token_price) AS low,
 	    LAST(token_price, timestamp) AS "close",
-        SUM(xtz_qty) AS xtz_volume,
+        SUM(xtz_qty) AS mvrk_volume,
         SUM(token_qty) AS token_volume,
         COUNT(id) AS trades
 	FROM

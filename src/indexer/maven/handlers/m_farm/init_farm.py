@@ -33,10 +33,10 @@ async def init_farm(
     
         # Create record
         governance      = await models.Governance.get(
-            network = ctx.datasource.name.replace('tzkt_','')
+            network = ctx.datasource.name.replace('mvkt_','')
         )
         farm            = models.Farm(
-            network                         = ctx.datasource.name.replace('tzkt_',''),
+            network                         = ctx.datasource.name.replace('mvkt_',''),
             address                         = farm_address,
             admin                           = admin,
             governance                      = governance,

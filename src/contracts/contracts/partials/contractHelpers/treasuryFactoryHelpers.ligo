@@ -29,7 +29,7 @@ block{
 
 // helper function to %stakeMvn entrypoint on the Doorman contract
 function getUpdateGeneralContractsEntrypoint(const contractAddress : address) : contract(updateGeneralContractsType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%updateGeneralContracts",
         contractAddress) : option(contract(updateGeneralContractsType))) of [
                 Some(contr) -> contr
@@ -50,7 +50,7 @@ function getUpdateGeneralContractsEntrypoint(const contractAddress : address) : 
 function getGovernanceProxyAddress(const s : treasuryFactoryStorageType) : address is
 block {
 
-    const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+    const governanceProxyAddressView : option (address) = Mavryk.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
     const governanceProxyAddress : address = case governanceProxyAddressView of [
             Some (value) -> value
         |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
@@ -73,7 +73,7 @@ block {
 
     // Add TreasuryFactory Address and Governance Proxy Address to whitelistContracts of created treasury
     const treasuryWhitelistContracts : whitelistContractsType = big_map[
-        (Tezos.get_self_address())  -> unit;
+        (Mavryk.get_self_address())  -> unit;
         (governanceProxyAddress)    -> unit;
     ];
 
@@ -135,9 +135,9 @@ block {
     ];
 
     // Create and send updateGeneralContractsMap operation to the Governance Contract
-    const updateGeneralContractsOperation : operation = Tezos.transaction(
+    const updateGeneralContractsOperation : operation = Mavryk.transaction(
         updateGeneralMapRecord,
-        0tez, 
+        0mav, 
         getUpdateGeneralContractsEntrypoint(s.governanceAddress)
     );
 

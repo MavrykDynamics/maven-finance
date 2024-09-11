@@ -28,12 +28,12 @@ async def unstake_mvn(
         timestamp                               = unstake_mvn.data.timestamp
         desired_amount                          = float(unstake_mvn.parameter.__root__)
         final_amount                            = float(transfer.parameter.__root__[0].txs[0].amount)
-        doorman                                 = await models.Doorman.get(network=ctx.datasource.name.replace('tzkt_',''), address=doorman_address)
+        doorman                                 = await models.Doorman.get(network=ctx.datasource.name.replace('mvkt_',''), address=doorman_address)
         unclaimed_rewards                       = float(unstake_mvn.storage.unclaimedRewards)
         accumulated_fees_per_share              = float(unstake_mvn.storage.accumulatedFeesPerShare)
 
         # Get or create the interacting user
-        user                                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=initiator_address)
+        user                                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=initiator_address)
         user.mvn_balance                        = mvn_balance
         user.smvn_balance                       = smvn_balance
         await user.save()

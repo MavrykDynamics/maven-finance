@@ -18,7 +18,6 @@ prometheus:
   update_interval: 5
 
 advanced:
-  crash_reporting: false
   scheduler:
     apscheduler.job_defaults.coalesce: true
     apscheduler.job_defaults.max_instances: 1
@@ -34,13 +33,13 @@ datasources:
     kind: tzip_metadata
     url: https://metadata.dipdup.net
     network: mainnet
-  metadata_ghostnet:
+  metadata_atlasnet:
     kind: tzip_metadata
     url: https://metadata.dipdup.net
     network: ghostnet
-  tzkt_ghostnet:
+  mvkt_atlasnet:
     kind: tezos.tzkt
-    url: ${TZKT_GHOSTNET_URL:-changeme}
+    url: ${MVKT_ATLASNET_URL:-changeme}
     merge_subscriptions: true
   tzkt_mainnet:
     kind: tezos.tzkt

@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.AggregatorFactory.filter(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = aggregator_factory_address
         ).update(
             last_updated_at                 = timestamp,

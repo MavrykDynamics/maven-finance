@@ -22,7 +22,7 @@ async def origination(
         proposal_round_vote_percentage          = int(governance_origination.storage.config.minProposalRoundVotePercentage)
         min_quorum_percentage                   = int(governance_origination.storage.config.minQuorumPercentage)
         min_yay_vote_percentage                 = int(governance_origination.storage.config.minYayVotePercentage)
-        proposal_submission_fee                 = int(governance_origination.storage.config.proposalSubmissionFeeMutez)
+        proposal_submission_fee                 = int(governance_origination.storage.config.proposalSubmissionFeeMumav)
         max_proposals_per_delegate              = int(governance_origination.storage.config.maxProposalsPerSatellite)
         blocks_per_Proposal_round               = int(governance_origination.storage.config.blocksPerProposalRound)
         blocks_per_voting_round                 = int(governance_origination.storage.config.blocksPerVotingRound)
@@ -65,7 +65,7 @@ async def origination(
         # Create record
         governance          = models.Governance(
             address                                 = address,
-            network                                 = ctx.datasource.name.replace('tzkt_',''),
+            network                                 = ctx.datasource.name.replace('mvkt_',''),
             metadata                                = contract_metadata,
             admin                                   = admin,
             last_updated_at                         = timestamp,
@@ -75,7 +75,7 @@ async def origination(
             proposal_round_vote_percentage          = proposal_round_vote_percentage,
             min_quorum_percentage                   = min_quorum_percentage,
             min_yay_vote_percentage                 = min_yay_vote_percentage,
-            proposal_submission_fee_mutez           = proposal_submission_fee,
+            proposal_submission_fee_mumav           = proposal_submission_fee,
             max_proposal_per_satellite              = max_proposals_per_delegate,
             blocks_per_proposal_round               = blocks_per_Proposal_round,
             blocks_per_voting_round                 = blocks_per_voting_round,
@@ -102,7 +102,7 @@ async def origination(
     
         # Add whitelisted developers
         for whitelisted_developer_address in whitelisted_developers:
-            user                                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=whitelisted_developer_address)
+            user                                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=whitelisted_developer_address)
             whitelist_developer, _                  = await models.WhitelistDeveloper.get_or_create(
                 governance  = governance,
                 developer   = user
@@ -120,10 +120,10 @@ async def origination(
 
         # Start the MToken indexing
         await ctx.add_index(
-            name="m_token_xtz",
+            name="m_token_mvrk",
             template="m_token_template",
             values=dict(
-                m_token_contract="m_token_xtz"
+                m_token_contract="m_token_mvrk"
             )
         )
         await ctx.add_index(
@@ -170,22 +170,22 @@ async def origination(
                 treasury_factory_contract="treasury_factory",
                 vault_factory_contract="vault_factory",
                 lending_controller_contract="lending_controller",
-                lending_controller_mock_time_contract="lending_controller_mock_time"
+                # lending_controller_mock_time_contract="lending_controller_mock_time"
             )
         )
 
         # Start Liquidity Baking indexer
-        liquidity_baking_enable_indexer = os.getenv("LIQUIDITY_BAKING_ENABLE_INDEXER")
-        if str(liquidity_baking_enable_indexer).upper() == "TRUE":
-            await ctx.add_index(
-                name="liquidity_baking",
-                template="liquidity_baking_template",
-                values=dict(
-                    liquidity_baking_contract="liquidity_baking",
-                    sirius_contract="sirius",
-                    tzbtc_contract="tzbtc"
-                )
-            )
+        # liquidity_baking_enable_indexer = os.getenv("LIQUIDITY_BAKING_ENABLE_INDEXER")
+        # if str(liquidity_baking_enable_indexer).upper() == "TRUE":
+        #     await ctx.add_index(
+        #         name="liquidity_baking",
+        #         template="liquidity_baking_template",
+        #         values=dict(
+        #             liquidity_baking_contract="liquidity_baking",
+        #             sirius_contract="sirius",
+        #             tzbtc_contract="tzbtc"
+        #         )
+        #     )
 
     except BaseException as e:
         await save_error_report(e)

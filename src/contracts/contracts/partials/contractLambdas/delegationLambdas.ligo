@@ -485,7 +485,7 @@ block {
         |   LambdaRegisterAsSatellite(registerAsSatelliteParams) -> {
 
                 // Init user address
-                const userAddress : address  = Tezos.get_sender();
+                const userAddress : address  = Mavryk.get_sender();
 
                 // check that user is not a delegate
                 checkUserIsNotDelegate(userAddress, s);
@@ -589,7 +589,7 @@ block {
         |   LambdaUpdateSatelliteRecord(updateSatelliteRecordParams) -> {
 
                 // Init user address
-                const satelliteAddress : address  = Tezos.get_sender();
+                const satelliteAddress : address  = Mavryk.get_sender();
 
                 // check satellite is not banned
                 const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
@@ -643,7 +643,7 @@ block {
     var operations: list(operation) := nil;
 
     // Check sender is from a whitelisted contract (e.g. Governance, Governance Satellite, Aggregator Factory, Doorman, Treasury)
-    if checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
+    if checkInWhitelistContracts(Mavryk.get_sender(), s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
 
     case delegationLambdaAction of [
         |   LambdaDistributeReward(distributeRewardParams) -> {
@@ -919,7 +919,7 @@ block {
     // 4. Update storage - satellite record
 
     // Check sender is admin or from a whitelisted contract (e.g. Governance, Governance Satellite, Aggregator Factory, Doorman, Treasury)
-    if s.admin = Tezos.get_sender() or checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
+    if s.admin = Mavryk.get_sender() or checkInWhitelistContracts(Mavryk.get_sender(), s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
 
     var operations : list(operation) := nil;
 

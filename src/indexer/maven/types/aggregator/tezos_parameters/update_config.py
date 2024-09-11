@@ -47,7 +47,7 @@ class UpdateConfigActionItem5(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configRewardAmountXtz: Dict[str, Any]
+    configRewardAmountMvrk: Dict[str, Any]
 
 
 class UpdateConfigParameter(BaseModel):

@@ -54,7 +54,7 @@ describe("Testnet setup helper", async () => {
 
     let eurtAggregator;
     let usdtAggregator;
-    let xtzAggregator;
+    let mvrkAggregator;
     let btcAggregator;
 
     before("setup", async () => {
@@ -112,8 +112,8 @@ describe("Testnet setup helper", async () => {
                     case "EURT/USD":
                         eurtAggregator  = aggregatorAddress;
                         break;
-                    case "XTZ/USD":
-                        xtzAggregator   = aggregatorAddress;
+                    case "MVRK/USD":
+                        mvrkAggregator   = aggregatorAddress;
                         break;
                     case "BTC/USD":
                         btcAggregator   = aggregatorAddress;
@@ -281,16 +281,16 @@ describe("Testnet setup helper", async () => {
                 ).send();
                 await setLoanTokenOperation.confirmation();
 
-                // XTZ
+                // MVRK
                 var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                     "createLoanToken",
 
-                    "tez",
+                    "mav",
                     6,
 
-                    xtzAggregator,
+                    mvrkAggregator,
 
-                    contractDeployments.mTokenXtz.address,
+                    contractDeployments.mTokenMvrk.address,
                     
                     3000,
                     30 * 10 ** (interestRateDecimals - 2),
@@ -300,7 +300,7 @@ describe("Testnet setup helper", async () => {
                     20 * 10 ** (interestRateDecimals - 2),
                     10000,
 
-                    "tez",
+                    "mav",
                 ).send();
                 await setLoanTokenOperation.confirmation();
 
@@ -363,22 +363,22 @@ describe("Testnet setup helper", async () => {
                 ).send();
                 await setCollateralTokenOperation.confirmation();
 
-                // XTZ
+                // MVRK
                 setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
                     "createCollateralToken",
 
-                    "tez",
-                    'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg',
+                    "mav",
+                    'mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d',
                     6,
 
-                    xtzAggregator,
+                    mvrkAggregator,
                     false,
                     false,
                     false,
                     null,
                     null, // Max deposit amount
 
-                    "tez"
+                    "mav"
 
                 ).send();
                 await setCollateralTokenOperation.confirmation();
@@ -563,7 +563,7 @@ describe("Testnet setup helper", async () => {
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvnToken.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenEurt.address, "update"))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenXtz.address, "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenMvrk.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenUsdt.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.delegation.address, "update"))

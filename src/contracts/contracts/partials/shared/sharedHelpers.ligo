@@ -12,8 +12,8 @@
 // ------------------------------------------------------------------------------
 
 // helper functions - conversions
-function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
-function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
+function mumavToNatural(const amt : mav) : nat is amt / 1mumav;
+function naturalToMumav(const amt : nat) : mav is amt * 1mumav;
 function ceildiv(const numerator : nat; const denominator : nat) is abs( (- numerator) / (int (denominator)) );
 
 
@@ -39,7 +39,7 @@ block {
 function getContractAddressFromGovernanceContract(const contractName : string; const governanceAddress : address; const errorCode : nat) : address is 
 block {
  
-    const contractAddress : address = case Tezos.call_view("getGeneralContractOpt", contractName, governanceAddress) of [
+    const contractAddress : address = case Mavryk.call_view("getGeneralContractOpt", contractName, governanceAddress) of [
             Some (_optionContract) -> case _optionContract of [
                     Some (_contract)    -> _contract
                 |   None                -> failwith (errorCode)
@@ -182,11 +182,11 @@ block {
 
 
 
-// verify that no Tezos is sent to the entrypoint
+// verify that no Mavryk is sent to the entrypoint
 function verifyNoAmountSent(const _p : unit) : unit is
 block {
     
-    if (Tezos.get_amount() = 0tez) then skip else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+    if (Mavryk.get_amount() = 0mav) then skip else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_MAV);
 
 } with unit 
     
@@ -200,7 +200,7 @@ block {
 function verifySenderIsAdmin(const adminAddress : address) : unit is
 block {
 
-    const senderIsAdmin : bool = adminAddress = Tezos.get_sender();
+    const senderIsAdmin : bool = adminAddress = Mavryk.get_sender();
     if senderIsAdmin then skip else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 } with unit
@@ -211,7 +211,7 @@ block {
 function verifySenderIsAdminOrGovernance(const adminAddress : address; const governanceAddress : address) : unit is
 block {
 
-    const senderIsAdminOrGovernance : bool = adminAddress = Tezos.get_sender() or governanceAddress = Tezos.get_sender();
+    const senderIsAdminOrGovernance : bool = adminAddress = Mavryk.get_sender() or governanceAddress = Mavryk.get_sender();
     if senderIsAdminOrGovernance then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 } with unit
@@ -222,7 +222,7 @@ block {
 function verifySenderIsAllowed(const allowedSet : set(address); const errorCode : nat) : unit is
 block {
 
-    const senderIsAllowed : bool = allowedSet contains Tezos.get_sender();
+    const senderIsAllowed : bool = allowedSet contains Mavryk.get_sender();
     if senderIsAllowed then skip else failwith(errorCode);
 
 } with unit
@@ -233,7 +233,7 @@ block {
 function verifySenderIsSelf(const _p : unit) : unit is
 block {
 
-    if Tezos.get_sender() = Tezos.get_self_address() 
+    if Mavryk.get_sender() = Mavryk.get_self_address() 
     then skip 
     else failwith(error_ONLY_SELF_ALLOWED);
 
@@ -245,7 +245,7 @@ block {
 function verifySenderIsSelfOrAddress(const userAddress : address) : unit is
 block {
 
-    if Tezos.get_sender() = userAddress or Tezos.get_sender() = Tezos.get_self_address() 
+    if Mavryk.get_sender() = userAddress or Mavryk.get_sender() = Mavryk.get_self_address() 
     then skip 
     else failwith(error_ONLY_SELF_OR_SPECIFIED_ADDRESS_ALLOWED);
 
