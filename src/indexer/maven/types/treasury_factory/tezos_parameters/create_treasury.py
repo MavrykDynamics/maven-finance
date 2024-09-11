@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from pydantic import BaseModel, Extra
 
 
@@ -12,7 +10,7 @@ class CreateTreasuryParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    baker: Optional[str]
+    baker: str | None
     name: str
     addToGeneralContracts: bool
     metadata: str

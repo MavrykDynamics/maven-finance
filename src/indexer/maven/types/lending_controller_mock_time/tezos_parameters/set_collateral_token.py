@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional, Union
 from pydantic import BaseModel, Extra
 
 
-class TokenTypeItem(BaseModel):
+class TokenType(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -23,14 +23,14 @@ class Fa2(BaseModel):
     tokenId: str
 
 
-class TokenTypeItem1(BaseModel):
+class TokenType1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     fa2: Fa2
 
 
-class TokenTypeItem2(BaseModel):
+class TokenType2(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -50,7 +50,7 @@ class CreateCollateralToken(BaseModel):
     isStakedToken: bool
     stakingContractAddress: Optional[str]
     maxDepositAmount: Optional[str]
-    tokenType: Union[TokenTypeItem, TokenTypeItem1, TokenTypeItem2]
+    tokenType: Union[TokenType, TokenType1, TokenType2]
 
 
 class ActionItem(BaseModel):

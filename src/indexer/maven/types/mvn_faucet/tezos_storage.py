@@ -3,18 +3,48 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, Extra, Field
+
+
+class Or(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    fakeUsdt: Dict[str, Any]
+
+
+class Or1(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    mvn: Dict[str, Any]
+
+
+class Key(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    address: str
+    or_: Or | Or1 = Field(..., alias='or')
+
+
+class Requester(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    key: Key
+    value: Dict[str, Any]
 
 
 class MvnFaucetStorage(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    mvnAmountPerUser: str
     fakeUsdtAmountPerUser: str
-    metadata: Dict[str, str]
-    mvnTokenAddress: str
     fakeUsdtTokenAddress: str
-    requesters: Dict[str, Dict[str, Any]]
+    metadata: Dict[str, str]
+    mvnAmountPerUser: str
+    mvnTokenAddress: str
+    requesters: List[Requester]

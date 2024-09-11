@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from maven.utils.contracts import get_contract_token_metadata, get_token_standard
-from maven.types.treasury.tezos_parameters.transfer import TransferParameter, TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as mav
+from maven.types.treasury.tezos_parameters.transfer import TransferParameter, Token as fa12, Token1 as fa2, Token2 as mav
 from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.treasury.tezos_storage import TreasuryStorage
@@ -77,11 +77,11 @@ async def transfer(
                 token.metadata          = token_contract_metadata
             elif type(token) == mav:
                 token.metadata          = {
-                    "name": "Tezos",
+                    "name": "Mavryk",
                     "symbol": "MVRK",
                     "decimals": "6",
-                    "icon": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
-                    "thumbnailUri": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
+                    "icon": "ipfs://QmbHaFX2gyFEzdwp54vqtf7McL74BvT7r4pw6UVyfEdKhu",
+                    "thumbnailUri": "ipfs://QmbHaFX2gyFEzdwp54vqtf7McL74BvT7r4pw6UVyfEdKhu",
                 }
             token.token_standard    = token_standard
             await token.save()

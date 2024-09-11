@@ -1566,14 +1566,14 @@ indexes:
     template: m_token_template
     values:
       m_token_contract: m_token_mvrk
-  m_token_eurt:
-    template: m_token_template
-    values:
-      m_token_contract: m_token_eurt
-  m_token_tzbtc:
-    template: m_token_template
-    values:
-      m_token_contract: m_token_tzbtc
+  # m_token_eurt:
+  #   template: m_token_template
+  #   values:
+  #     m_token_contract: m_token_eurt
+  # m_token_tzbtc:
+  #   template: m_token_template
+  #   values:
+  #     m_token_contract: m_token_tzbtc
   m_token_usdt:
     template: m_token_template
     values:

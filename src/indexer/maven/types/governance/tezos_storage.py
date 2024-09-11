@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Extra, Field
 
@@ -29,7 +29,7 @@ class Config(BaseModel):
     proposalSourceCodeMaxLength: str
 
 
-class ProposalDatum(BaseModel):
+class ProposalData(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -38,7 +38,7 @@ class ProposalDatum(BaseModel):
     codeDescription: str
 
 
-class TokenItem(BaseModel):
+class Token(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -53,14 +53,14 @@ class Fa2(BaseModel):
     tokenId: str
 
 
-class TokenItem1(BaseModel):
+class Token1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     fa2: Fa2
 
 
-class TokenItem2(BaseModel):
+class Token2(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -73,10 +73,10 @@ class Transaction(BaseModel):
 
     to_: str
     amount: str
-    token: Union[TokenItem, TokenItem1, TokenItem2]
+    token: Token | Token1 | Token2
 
 
-class PaymentDatum(BaseModel):
+class PaymentData(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -89,9 +89,9 @@ class ProposalLedger(BaseModel):
         extra = Extra.forbid
 
     proposerAddress: str
-    proposalData: Dict[str, Optional[ProposalDatum]]
+    proposalData: Dict[str, ProposalData | None]
     proposalDataExecutionCounter: str
-    paymentData: Dict[str, Optional[PaymentDatum]]
+    paymentData: Dict[str, PaymentData | None]
     status: str
     title: str
     description: str
@@ -120,7 +120,7 @@ class ProposalLedger(BaseModel):
     quorumCount: str
     quorumStakedMvnTotal: str
     startDateTime: str
-    executedDateTime: Optional[str]
+    executedDateTime: str | None
     cycle: str
     currentCycleStartLevel: str
     currentCycleEndLevel: str
@@ -134,21 +134,21 @@ class Key(BaseModel):
     address: str
 
 
-class ValueItem(BaseModel):
+class Value(BaseModel):
     class Config:
         extra = Extra.forbid
 
     nay: Dict[str, Any]
 
 
-class ValueItem1(BaseModel):
+class Value1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     pass_: Dict[str, Any] = Field(..., alias='pass')
 
 
-class ValueItem2(BaseModel):
+class Value2(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -160,7 +160,7 @@ class ProposalVoter(BaseModel):
         extra = Extra.forbid
 
     key: Key
-    value: Union[ValueItem, ValueItem1, ValueItem2]
+    value: Value | Value1 | Value2
 
 
 class ProposalReward(BaseModel):
@@ -171,7 +171,7 @@ class ProposalReward(BaseModel):
     value: Dict[str, Any]
 
 
-class Value(BaseModel):
+class Value3(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -180,7 +180,7 @@ class Value(BaseModel):
     totalVotingPower: str
     accumulatedRewardsPerShare: str
     ready: bool
-    nextSnapshotCycleId: Optional[str]
+    nextSnapshotCycleId: str | None
 
 
 class SnapshotLedgerItem(BaseModel):
@@ -188,24 +188,24 @@ class SnapshotLedgerItem(BaseModel):
         extra = Extra.forbid
 
     key: Key
-    value: Value
+    value: Value3
 
 
-class RoundItem(BaseModel):
+class Round(BaseModel):
     class Config:
         extra = Extra.forbid
 
     proposal: Dict[str, Any]
 
 
-class RoundItem1(BaseModel):
+class Round1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     timelock: Dict[str, Any]
 
 
-class RoundItem2(BaseModel):
+class Round2(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -216,7 +216,7 @@ class CurrentCycleInfo(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    round: Union[RoundItem, RoundItem1, RoundItem2]
+    round: Round | Round1 | Round2
     blocksPerProposalRound: str
     blocksPerVotingRound: str
     blocksPerTimelockRound: str
@@ -235,28 +235,28 @@ class CycleProposer(BaseModel):
     value: List[str]
 
 
-class ValueItem3(BaseModel):
+class Value4(BaseModel):
     class Config:
         extra = Extra.forbid
 
     proposal: str
 
 
-class ValueItem4(BaseModel):
+class Value5(BaseModel):
     class Config:
         extra = Extra.forbid
 
     nay: Dict[str, Any]
 
 
-class ValueItem5(BaseModel):
+class Value6(BaseModel):
     class Config:
         extra = Extra.forbid
 
     pass_: Dict[str, Any] = Field(..., alias='pass')
 
 
-class ValueItem6(BaseModel):
+class Value7(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -268,7 +268,7 @@ class RoundVote(BaseModel):
         extra = Extra.forbid
 
     key: Key
-    value: Union[ValueItem3, ValueItem4, ValueItem5, ValueItem6]
+    value: Value4 | Value5 | Value6 | Value7
 
 
 class GovernanceStorage(BaseModel):

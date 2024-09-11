@@ -3,7 +3,7 @@ from maven.utils.error_reporting import save_error_report
 from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.governance_financial.tezos_storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
-from maven.types.governance_financial.tezos_parameters.vote_for_request import VoteForRequestParameter, VoteItem as nay, VoteItem1 as pass_, VoteItem2 as yay
+from maven.types.governance_financial.tezos_parameters.vote_for_request import VoteForRequestParameter, Vote as nay, Vote1 as pass_, Vote2 as yay
 import maven.models as models
 from dateutil import parser
 

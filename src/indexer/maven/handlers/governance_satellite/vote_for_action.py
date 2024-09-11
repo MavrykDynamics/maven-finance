@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.models.tezos_tzkt import TzktTransaction
-from maven.types.governance_satellite.tezos_parameters.vote_for_action import VoteForActionParameter, VoteItem as nay, VoteItem1 as pass_, VoteItem2 as yay
+from maven.types.governance_satellite.tezos_parameters.vote_for_action import VoteForActionParameter, Vote as nay, Vote1 as pass_, Vote2 as yay
 from dipdup.context import HandlerContext
 from maven.types.governance_satellite.tezos_storage import GovernanceSatelliteStorage
 import maven.models as models

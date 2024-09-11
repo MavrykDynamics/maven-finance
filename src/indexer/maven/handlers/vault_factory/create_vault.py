@@ -5,8 +5,8 @@ from dipdup.context import HandlerContext
 from dipdup.models.tezos_tzkt import TzktOrigination
 from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.lending_controller.tezos_parameters.register_vault_creation import RegisterVaultCreationParameter
-from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as mav
-from maven.types.vault.tezos_storage import VaultStorage, Depositor as Any, Depositor1 as Whitelist
+from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenType3 as fa12, TokenType4 as fa2, TokenType5 as mav
+from maven.types.vault.tezos_storage import VaultStorage, Depositors as Any, Depositors1 as Whitelist
 from maven.types.vault_factory.tezos_parameters.create_vault import CreateVaultParameter
 from maven.types.vault_factory.tezos_storage import VaultFactoryStorage
 from dateutil import parser

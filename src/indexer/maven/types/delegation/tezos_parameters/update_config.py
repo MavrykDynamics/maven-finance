@@ -3,54 +3,54 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
 
-class UpdateConfigActionItem(BaseModel):
+class UpdateConfigAction(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configDelegationRatio: Dict[str, Any]
 
 
-class UpdateConfigActionItem1(BaseModel):
+class UpdateConfigAction1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configMaxSatellites: Dict[str, Any]
 
 
-class UpdateConfigActionItem2(BaseModel):
+class UpdateConfigAction2(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configMinimumStakedMvnBalance: Dict[str, Any]
 
 
-class UpdateConfigActionItem3(BaseModel):
+class UpdateConfigAction3(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configSatDescMaxLength: Dict[str, Any]
 
 
-class UpdateConfigActionItem4(BaseModel):
+class UpdateConfigAction4(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configSatImageMaxLength: Dict[str, Any]
 
 
-class UpdateConfigActionItem5(BaseModel):
+class UpdateConfigAction5(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configSatNameMaxLength: Dict[str, Any]
 
 
-class UpdateConfigActionItem6(BaseModel):
+class UpdateConfigAction6(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -62,12 +62,12 @@ class UpdateConfigParameter(BaseModel):
         extra = Extra.forbid
 
     updateConfigNewValue: str
-    updateConfigAction: Union[
-        UpdateConfigActionItem,
-        UpdateConfigActionItem1,
-        UpdateConfigActionItem2,
-        UpdateConfigActionItem3,
-        UpdateConfigActionItem4,
-        UpdateConfigActionItem5,
-        UpdateConfigActionItem6,
-    ]
+    updateConfigAction: (
+        UpdateConfigAction
+        | UpdateConfigAction1
+        | UpdateConfigAction2
+        | UpdateConfigAction3
+        | UpdateConfigAction4
+        | UpdateConfigAction5
+        | UpdateConfigAction6
+    )

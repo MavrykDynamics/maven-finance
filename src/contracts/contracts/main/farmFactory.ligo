@@ -39,7 +39,7 @@ type createFarmFuncType is (option(key_hash) * mav * farmStorageType) -> (operat
 const createFarmFunc: createFarmFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
-#include "../compiled/farm.tz"
+#include "../compiled/farm.mv"
         ;
           PAIR } |}
 : createFarmFuncType)];
@@ -49,7 +49,7 @@ type createFarmMTokenFuncType is (option(key_hash) * mav * farmMTokenStorageType
 const createFarmMTokenFunc: createFarmMTokenFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
-#include "../compiled/farmMToken.tz"
+#include "../compiled/farmMToken.mv"
         ;
           PAIR } |}
 : createFarmMTokenFuncType)];
