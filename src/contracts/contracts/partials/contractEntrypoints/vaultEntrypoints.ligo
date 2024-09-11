@@ -9,10 +9,10 @@ function default(var s : vaultStorageType) : return is
 block {
 
     // get lambda bytes
-    const lambdaBytes : bytes = getVaultLambdaFromFactory("lambdaDepositXtz", s);
+    const lambdaBytes : bytes = getVaultLambdaFromFactory("lambdaDepositMvrk", s);
     
     // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaDepositXtz(unit);
+    const vaultLambdaAction : vaultLambdaActionType = LambdaDepositMvrk(unit);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);

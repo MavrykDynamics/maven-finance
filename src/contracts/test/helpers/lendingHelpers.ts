@@ -176,31 +176,31 @@ export const calculateVaultCollateralValue = (tokenOracles, collateralBalanceLed
     
     let usdtBalance                 = collateralBalanceLedger.get('usdt') == undefined ? 0 : collateralBalanceLedger.get('usdt');
     let eurtBalance                 = collateralBalanceLedger.get('eurt') == undefined ? 0 : collateralBalanceLedger.get('eurt');
-    let xtzBalance                  = collateralBalanceLedger.get('tez')  == undefined ? 0 : collateralBalanceLedger.get('tez');
+    let mvrkBalance                  = collateralBalanceLedger.get('mav')  == undefined ? 0 : collateralBalanceLedger.get('mav');
     let mvnBalance                  = collateralBalanceLedger.get("smvn") == undefined ? 0 : collateralBalanceLedger.get("smvn");
 
     let usdtTokenPrice              = tokenOracles.find(o => o.name === "usdt").price;
     let eurtTokenPrice              = tokenOracles.find(o => o.name === "eurt").price;
-    let tezPrice                    = tokenOracles.find(o => o.name === "tez").price;
+    let mavPrice                    = tokenOracles.find(o => o.name === "mav").price;
     let mvnPrice                    = tokenOracles.find(o => o.name === "smvn").price;
 
     let usdtTokenPriceDecimals      = tokenOracles.find(o => o.name === "usdt").priceDecimals;
     let eurtTokenPriceDecimals      = tokenOracles.find(o => o.name === "eurt").priceDecimals;
-    let tezPriceDecimals            = tokenOracles.find(o => o.name === "tez").priceDecimals;
+    let mavPriceDecimals            = tokenOracles.find(o => o.name === "mav").priceDecimals;
     let mvnPriceDecimals            = tokenOracles.find(o => o.name === "smvn").priceDecimals;
 
     let usdtTokenDecimals           = tokenOracles.find(o => o.name === "usdt").tokenDecimals;
     let eurtTokenDecimals           = tokenOracles.find(o => o.name === "eurt").tokenDecimals;
-    let tezTokenDecimals            = tokenOracles.find(o => o.name === "tez").tokenDecimals;
+    let mavTokenDecimals            = tokenOracles.find(o => o.name === "mav").tokenDecimals;
     let mvnTokenDecimals            = tokenOracles.find(o => o.name === "smvn").tokenDecimals;
 
     // rebased to no decimals (Math.floor to simulate smart contract division)
     let vaultMockFa12TokenValue     = Math.floor(Math.floor(usdtBalance  / (10 ** usdtTokenDecimals )) * usdtTokenPrice  ) / (10 ** usdtTokenPriceDecimals);
     let vaultMockFa2TokenValue      = Math.floor(Math.floor(eurtBalance  / (10 ** eurtTokenDecimals )) * eurtTokenPrice  ) / (10 ** eurtTokenPriceDecimals);
-    let vaultXtzValue               = Math.floor(Math.floor(xtzBalance   / (10 ** tezTokenDecimals  )) * tezPrice        ) / (10 ** tezPriceDecimals);
+    let vaultMvrkValue               = Math.floor(Math.floor(mvrkBalance   / (10 ** mavTokenDecimals  )) * mavPrice        ) / (10 ** mavPriceDecimals);
     let vaultMvnValue               = Math.floor(Math.floor(mvnBalance   / (10 ** mvnTokenDecimals  )) * mvnPrice        ) / (10 ** mvnPriceDecimals);
     
-    let vaultCollateralValue        = vaultMockFa12TokenValue + vaultMockFa2TokenValue + vaultXtzValue + vaultMvnValue;
+    let vaultCollateralValue        = vaultMockFa12TokenValue + vaultMockFa2TokenValue + vaultMvrkValue + vaultMvnValue;
 
     return vaultCollateralValue
 }
@@ -384,7 +384,7 @@ export const defaultPriceObservations = [
     },
 
     {
-        "name": "tez",
+        "name": "mav",
         "medianPrice": 1800000, // 1,800,000 -> $1.80
         "observations" : [
             {
@@ -467,7 +467,7 @@ export const priceDecreaseObservations = [
     },
 
     {
-        "name": "tez",
+        "name": "mav",
         "medianPrice": 600000, // 600,000 -> $0.60
         "observations" : [ 
             {
@@ -550,7 +550,7 @@ export const priceIncreaseObservations = [
     },
 
     {
-        "name": "tez",
+        "name": "mav",
         "medianPrice": 3000000, // 3,000,000 -> $3.00
         "observations" : [
             {

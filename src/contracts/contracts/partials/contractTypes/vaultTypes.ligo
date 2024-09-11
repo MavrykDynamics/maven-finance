@@ -80,7 +80,7 @@ type initVaultActionType is
 type vaultLambdaActionType is 
 
         // Vault Entrypoints
-    |   LambdaDepositXtz                 of unit
+    |   LambdaDepositMvrk                 of unit
     |   LambdaInitVaultAction            of initVaultActionType
 
 // ------------------------------------------------------------------------------

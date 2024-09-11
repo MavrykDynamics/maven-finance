@@ -1,5 +1,5 @@
 import { Utils } from './helpers/Utils';
-import { MichelsonMap } from '@taquito/michelson-encoder';
+import { MichelsonMap } from '@mavrykdynamics/taquito-michelson-encoder';
 import assert from "assert";
 import BigNumber from 'bignumber.js';
 
@@ -236,7 +236,7 @@ describe('AggregatorFactory', () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await aggregatorFactoryInstance.methods.updateMetadata(key, hash).send();
@@ -433,7 +433,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(30),            // heartbeatSeconds
         
                     new BigNumber(10000000),      // rewardAmountMvn ~ 0.01 MVN
-                    new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
+                    new BigNumber(1300),          // rewardAmountMvrk ~ 0.0013 mav
                     
                     mockMetadata.aggregator       // metadata
                 ).send();
@@ -534,7 +534,7 @@ describe('AggregatorFactory', () => {
 
                     
                     new BigNumber(10000000),      // rewardAmountMvn ~ 0.01 MVN
-                    new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
+                    new BigNumber(1300),          // rewardAmountMvrk ~ 0.0013 mav
                     
                     mockMetadata.aggregator       // metadata
                 ).send()).to.be.rejected;
@@ -581,7 +581,7 @@ describe('AggregatorFactory', () => {
 
                 await signerFactory(tezos, satelliteOneSk);
                 await chai.expect(aggregatorInstance.methods.updateData(oracleObservations, signatures).send()).to.be.rejected;
-                await chai.expect(aggregatorInstance.methods.withdrawRewardXtz(satelliteOne).send()).to.be.rejected;
+                await chai.expect(aggregatorInstance.methods.withdrawRewardMvrk(satelliteOne).send()).to.be.rejected;
                 await chai.expect(aggregatorInstance.methods.withdrawRewardStakedMvn(satelliteOne).send()).to.be.rejected;
 
             } catch(e){
@@ -627,7 +627,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(30),            // heartbeatSeconds
             
                     new BigNumber(10000000),      // rewardAmountMvn ~ 0.01 MVN
-                    new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
+                    new BigNumber(1300),          // rewardAmountMvrk ~ 0.0013 mav
                     
                     mockMetadata.aggregator       // metadata
 
@@ -663,7 +663,7 @@ describe('AggregatorFactory', () => {
                 pauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("trackAggregator", true).send(); 
                 await pauseOperation.confirmation();
 
-                pauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardXtz", true).send();
+                pauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardMvrk", true).send();
                 await pauseOperation.confirmation();
 
                 pauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvn", true).send();
@@ -688,7 +688,7 @@ describe('AggregatorFactory', () => {
                 unpauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("trackAggregator", false).send();
                 await unpauseOperation.confirmation();
 
-                unpauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardXtz", false).send();
+                unpauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardMvrk", false).send();
                 await unpauseOperation.confirmation();
 
                 unpauseOperation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvn", false).send();
@@ -765,7 +765,7 @@ describe('AggregatorFactory', () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 aggregatorFactoryStorage = await aggregatorFactoryInstance.storage();   
                 const initialMetadata    = await aggregatorFactoryStorage.metadata.get(key);
@@ -911,7 +911,7 @@ describe('AggregatorFactory', () => {
                 pauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("trackAggregator", true); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
 
-                pauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardXtz", true); 
+                pauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardMvrk", true); 
                 await chai.expect(pauseOperation.send()).to.be.rejected;
 
                 pauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvn", true); 
@@ -928,7 +928,7 @@ describe('AggregatorFactory', () => {
                 unpauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("trackAggregator", false); 
                 await chai.expect(unpauseOperation.send()).to.be.rejected;
 
-                unpauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardXtz", false); 
+                unpauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardMvrk", false); 
                 await chai.expect(unpauseOperation.send()).to.be.rejected;
 
                 unpauseOperation = aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvn", false); 
@@ -957,7 +957,7 @@ describe('AggregatorFactory', () => {
                     new BigNumber(30),            // heartbeatSeconds
         
                     new BigNumber(10000000),      // rewardAmountMvn ~ 0.01 MVN
-                    new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
+                    new BigNumber(1300),          // rewardAmountMvrk ~ 0.0013 mav
                     
                     mockMetadata.aggregator       // metadata
                 );

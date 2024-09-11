@@ -23,9 +23,8 @@ async def repay(
         vault_internal_id                       = int(repay.parameter.vaultId)
         vaults_storage                          = repay.storage.vaults
         lending_controller                      = await models.LendingController.get(
-            network             = ctx.datasource.name.replace('tzkt_',''),
+            network             = ctx.datasource.name.replace('mvkt_',''),
             address             = lending_controller_address,
-            mock_time           = False
         )
         lending_controller_vault                = await models.LendingControllerVault.get(
             lending_controller  = lending_controller,
@@ -99,7 +98,7 @@ async def repay(
                     final_repay_amount  = new_loan_outstanding_total
     
                 # Save history data
-                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=sender_address)
+                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

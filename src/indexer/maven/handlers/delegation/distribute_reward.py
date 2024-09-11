@@ -19,9 +19,9 @@ async def distribute_reward(
         reward_amount           = float(distribute_reward.parameter.totalStakedMvnReward)
     
         # Get and update records
-        delegation  = await models.Delegation.get(network=ctx.datasource.name.replace('tzkt_',''), address= delegation_address)
+        delegation  = await models.Delegation.get(network=ctx.datasource.name.replace('mvkt_',''), address= delegation_address)
         for satellite_address in elligible_satellites:
-            user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=satellite_address)
+            user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=satellite_address)
             rewards_record          = distribute_reward.storage.satelliteRewardsLedger[satellite_address]
             satellite_rewards, _    = await models.SatelliteRewards.get_or_create(
                 user        = user,
@@ -37,7 +37,7 @@ async def distribute_reward(
     
         # Create a stakeMvn record
         doorman         = await models.Doorman.get(
-            network     = ctx.datasource.name.replace('tzkt_','')
+            network     = ctx.datasource.name.replace('mvkt_','')
         )
         stake_record    = models.StakeHistoryData(
             timestamp           = timestamp,

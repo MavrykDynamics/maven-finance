@@ -1,4 +1,4 @@
-import { MichelsonMap } from '@taquito/michelson-encoder'
+import { MichelsonMap } from '@mavrykdynamics/taquito-michelson-encoder'
 import assert from "assert";
 import { BigNumber } from 'bignumber.js'
 
@@ -185,7 +185,7 @@ describe("Emergency Governance tests", async () => {
             await signerFactory(tezos, eve.sk)
         });
 
-        it('user (eve) should not be able to trigger emergency control if she did not send the required tez fees', async () => {
+        it('user (eve) should not be able to trigger emergency control if she did not send the required mav fees', async () => {
             try{
 
                 user   = eve.pkh;
@@ -222,7 +222,7 @@ describe("Emergency Governance tests", async () => {
             }
         });
 
-        it('user (eve) should not be able to trigger emergency control if she sends the wrong tez fees', async () => {
+        it('user (eve) should not be able to trigger emergency control if she sends the wrong mav fees', async () => {
             try{
 
                 user   = eve.pkh;
@@ -232,15 +232,15 @@ describe("Emergency Governance tests", async () => {
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
                 
-                const requiredFeeMutez          = emergencyGovernanceStorage.config.requiredFeeMutez;
+                const requiredFeeMumav          = emergencyGovernanceStorage.config.requiredFeeMumav;
                 const sMvnRequiredToTrigger     = emergencyGovernanceStorage.config.minStakedMvnRequiredToTrigger;
                 stakeAmount                     = sMvnRequiredToTrigger; 
 
                 initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
 
-                const belowRequiredFeeMutz      = requiredFeeMutez - 1;
-                const aboveRequiredFeeMutz      = requiredFeeMutez + 1;
+                const belowRequiredFeeMutz      = requiredFeeMumav - 1;
+                const aboveRequiredFeeMutz      = requiredFeeMumav + 1;
             
                 // ensure that user has enough staked MVN to trigger emergency governance
                 if(initialUserStakedBalance < sMvnRequiredToTrigger){
@@ -256,11 +256,11 @@ describe("Emergency Governance tests", async () => {
 
                 // fail: trigger emergency control operation
                 emergencyGovernanceOperation = emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc);
-                await chai.expect(emergencyGovernanceOperation.send({ amount : belowRequiredFeeMutz, mutez: true})).to.be.rejected;
+                await chai.expect(emergencyGovernanceOperation.send({ amount : belowRequiredFeeMutz, mumav: true})).to.be.rejected;
 
                 // fail: trigger emergency control operation
                 emergencyGovernanceOperation = emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc);
-                await chai.expect(emergencyGovernanceOperation.send({ amount : aboveRequiredFeeMutz, mutez: true})).to.be.rejected;
+                await chai.expect(emergencyGovernanceOperation.send({ amount : aboveRequiredFeeMutz, mumav: true})).to.be.rejected;
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -278,7 +278,7 @@ describe("Emergency Governance tests", async () => {
                 // Operation
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
-                const requiredFeeMutez          = emergencyGovernanceStorage.config.requiredFeeMutez;
+                const requiredFeeMumav          = emergencyGovernanceStorage.config.requiredFeeMumav;
                 const sMvnRequiredToTrigger     = emergencyGovernanceStorage.config.minStakedMvnRequiredToTrigger;
                 initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
@@ -294,7 +294,7 @@ describe("Emergency Governance tests", async () => {
 
                 // fail: trigger emergency control operation
                 emergencyGovernanceOperation = emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc);
-                await chai.expect(emergencyGovernanceOperation.send({amount : requiredFeeMutez, mutez: true})).to.be.rejected;
+                await chai.expect(emergencyGovernanceOperation.send({amount : requiredFeeMumav, mumav: true})).to.be.rejected;
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -313,7 +313,7 @@ describe("Emergency Governance tests", async () => {
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
 
-                const requiredFeeMutez           = emergencyGovernanceStorage.config.requiredFeeMutez;
+                const requiredFeeMumav           = emergencyGovernanceStorage.config.requiredFeeMumav;
                 const sMvnRequiredToTrigger      = emergencyGovernanceStorage.config.minStakedMvnRequiredToTrigger;
 
                 initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
@@ -342,7 +342,7 @@ describe("Emergency Governance tests", async () => {
                 // fail: trigger emergency control operation
                 await signerFactory(tezos, userSk);
                 emergencyGovernanceOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc);
-                await chai.expect(emergencyGovernanceOperation.send({amount : requiredFeeMutez, mutez: true})).to.be.rejected;
+                await chai.expect(emergencyGovernanceOperation.send({amount : requiredFeeMumav, mumav: true})).to.be.rejected;
 
                 // reset contracts in Governance General Contracts map
                 await signerFactory(tezos, adminSk);
@@ -358,7 +358,7 @@ describe("Emergency Governance tests", async () => {
         });
 
 
-        it('user (eve) should be able to trigger an emergency control with sufficient staked MVN and correct tez fees sent', async () => {
+        it('user (eve) should be able to trigger an emergency control with sufficient staked MVN and correct mav fees sent', async () => {
             try{
                 
                 user   = eve.pkh;
@@ -377,7 +377,7 @@ describe("Emergency Governance tests", async () => {
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
 
-                const requiredFeeMutez           = emergencyGovernanceStorage.config.requiredFeeMutez;
+                const requiredFeeMumav           = emergencyGovernanceStorage.config.requiredFeeMumav;
                 const sMvnRequiredToTrigger      = emergencyGovernanceStorage.config.minStakedMvnRequiredToTrigger;
                 const stakeMvnPercentageRequired = emergencyGovernanceStorage.config.stakedMvnPercentageRequired;
 
@@ -403,7 +403,7 @@ describe("Emergency Governance tests", async () => {
                 }
 
                 // Operation
-                emergencyGovernanceOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc).send({amount: requiredFeeMutez, mutez: true});
+                emergencyGovernanceOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc).send({amount: requiredFeeMumav, mumav: true});
                 await emergencyGovernanceOperation.confirmation();
 
                 // Final values
@@ -440,7 +440,7 @@ describe("Emergency Governance tests", async () => {
                 // Initial Values
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
                 doormanStorage              = await doormanInstance.storage();
-                const requiredFeeMutez      = emergencyGovernanceStorage.config.requiredFeeMutez;
+                const requiredFeeMumav      = emergencyGovernanceStorage.config.requiredFeeMumav;
                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
                 
                 // check that there is an existing emergency governance ongoing
@@ -448,7 +448,7 @@ describe("Emergency Governance tests", async () => {
 
                 // fail: vote for emergency control
                 emergencyGovernanceOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc);
-                await chai.expect(emergencyGovernanceOperation.send({amount: requiredFeeMutez, mutez: true})).to.be.rejected;
+                await chai.expect(emergencyGovernanceOperation.send({amount: requiredFeeMumav, mumav: true})).to.be.rejected;
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -468,7 +468,7 @@ describe("Emergency Governance tests", async () => {
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
 
-                const requiredFeeMutez           = emergencyGovernanceStorage.config.requiredFeeMutez;
+                const requiredFeeMumav           = emergencyGovernanceStorage.config.requiredFeeMumav;
                 const sMvnRequiredToTrigger      = emergencyGovernanceStorage.config.minStakedMvnRequiredToTrigger;
                 const stakeMvnPercentageRequired = emergencyGovernanceStorage.config.stakedMvnPercentageRequired;
 
@@ -494,7 +494,7 @@ describe("Emergency Governance tests", async () => {
                 }
 
                 // Operation
-                emergencyGovernanceOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc).send({amount: requiredFeeMutez, mutez: true});
+                emergencyGovernanceOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl(emergencyTitle, emergencyDesc).send({amount: requiredFeeMumav, mumav: true});
                 await emergencyGovernanceOperation.confirmation();
 
                 // Final values
@@ -583,7 +583,7 @@ describe("Emergency Governance tests", async () => {
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
 
-                const requiredFeeMutez          = emergencyGovernanceStorage.config.requiredFeeMutez;
+                const requiredFeeMumav          = emergencyGovernanceStorage.config.requiredFeeMumav;
                 const sMvnRequiredToVote        = emergencyGovernanceStorage.config.minStakedMvnRequiredToVote;
 
                 // get user staked balance
@@ -1011,7 +1011,7 @@ describe("Emergency Governance tests", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await emergencyGovernanceInstance.methods.updateMetadata(key, hash).send();
@@ -1042,7 +1042,7 @@ describe("Emergency Governance tests", async () => {
                 var updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configDurationInMinutes").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configRequiredFeeMutez").send();
+                updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configRequiredFeeMumav").send();
                 await updateConfigOperation.confirmation();
 
                 updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configStakedMvnPercentRequired").send();
@@ -1066,7 +1066,7 @@ describe("Emergency Governance tests", async () => {
 
                 // Assertions
                 assert.equal(updatedConfig.durationInMinutes                , lowTestValue);
-                assert.equal(updatedConfig.requiredFeeMutez                 , lowTestValue);
+                assert.equal(updatedConfig.requiredFeeMumav                 , lowTestValue);
                 assert.equal(updatedConfig.stakedMvnPercentageRequired      , lowTestValue);
                 assert.equal(updatedConfig.minStakedMvnRequiredToVote       , highTestValue);
                 assert.equal(updatedConfig.minStakedMvnRequiredToTrigger    , highTestValue);
@@ -1077,7 +1077,7 @@ describe("Emergency Governance tests", async () => {
                 var resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.durationInMinutes, "configDurationInMinutes").send();
                 await resetConfigOperation.confirmation();
 
-                resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.requiredFeeMutez, "configRequiredFeeMutez").send();
+                resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.requiredFeeMumav, "configRequiredFeeMumav").send();
                 await resetConfigOperation.confirmation();
                 
                 resetConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(initialConfig.stakedMvnPercentageRequired, "configStakedMvnPercentRequired").send();
@@ -1100,7 +1100,7 @@ describe("Emergency Governance tests", async () => {
                 const resetConfig           = emergencyGovernanceStorage.config;
 
                 assert.equal(resetConfig.durationInMinutes.toNumber(),              initialConfig.durationInMinutes.toNumber());
-                assert.equal(resetConfig.requiredFeeMutez.toNumber(),               initialConfig.requiredFeeMutez.toNumber());
+                assert.equal(resetConfig.requiredFeeMumav.toNumber(),               initialConfig.requiredFeeMumav.toNumber());
                 assert.equal(resetConfig.stakedMvnPercentageRequired.toNumber(),    initialConfig.stakedMvnPercentageRequired.toNumber());
                 assert.equal(resetConfig.minStakedMvnRequiredToVote.toNumber(),     initialConfig.minStakedMvnRequiredToVote.toNumber());
                 assert.equal(resetConfig.minStakedMvnRequiredToTrigger.toNumber(),  initialConfig.minStakedMvnRequiredToTrigger.toNumber());
@@ -1295,7 +1295,7 @@ describe("Emergency Governance tests", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();   
                 const initialMetadata       = await emergencyGovernanceStorage.metadata.get(key);
@@ -1331,7 +1331,7 @@ describe("Emergency Governance tests", async () => {
                 var updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configDurationInMinutes");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
-                updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configRequiredFeeMutez");
+                updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configRequiredFeeMumav");
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(lowTestValue, "configStakedMvnPercentRequired");
@@ -1355,7 +1355,7 @@ describe("Emergency Governance tests", async () => {
 
                 // check that there is no change to config
                 assert.equal(updatedConfig.durationInMinutes.toNumber(),              initialConfig.durationInMinutes.toNumber());
-                assert.equal(updatedConfig.requiredFeeMutez.toNumber(),               initialConfig.requiredFeeMutez.toNumber());
+                assert.equal(updatedConfig.requiredFeeMumav.toNumber(),               initialConfig.requiredFeeMumav.toNumber());
                 assert.equal(updatedConfig.stakedMvnPercentageRequired.toNumber(),    initialConfig.stakedMvnPercentageRequired.toNumber());
                 assert.equal(updatedConfig.minStakedMvnRequiredToVote.toNumber(),     initialConfig.minStakedMvnRequiredToVote.toNumber());
                 assert.equal(updatedConfig.minStakedMvnRequiredToTrigger.toNumber(),  initialConfig.minStakedMvnRequiredToTrigger.toNumber());

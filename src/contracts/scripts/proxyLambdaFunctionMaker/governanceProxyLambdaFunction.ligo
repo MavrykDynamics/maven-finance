@@ -70,7 +70,7 @@
 #include "../../contracts/partials/contractTypes/vaultFactoryTypes.ligo"
 
 type actionType is 
-        // Default Entrypoint to Receive Tez
+        // Default Entrypoint to Receive Mav
         Default                       of unit
     |   Empty                         of unit
 
@@ -80,13 +80,13 @@ type return is list (operation) * unit;
 (* lamdda function *)
 function lambdaFunction (const _ : unit) : list(operation) is
 block {
-    const contractOperation : operation = Tezos.transaction(
+    const contractOperation : operation = Mavryk.transaction(
         record [
             updateConfigNewValue    = 1234n; 
             updateConfigAction      = (ConfigActionExpiryDays(Unit) : councilUpdateConfigActionType)
         ],
-        0tez,
-        case (Tezos.get_entrypoint_opt(
+        0mav,
+        case (Mavryk.get_entrypoint_opt(
             "%updateConfig",
             ("KT1XPXDxZ3LusKbWnC7EH3HqKcwzwNbGVVe6" : address)) : option(contract(councilUpdateConfigParamsType))) of [
                     Some(contr) -> contr

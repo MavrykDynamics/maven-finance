@@ -25,12 +25,12 @@ async def mint_or_burn(
     
         # Update record
         token                       = await models.Token.get(
-            network         = ctx.datasource.name.replace('tzkt_',''),
+            network         = ctx.datasource.name.replace('mvkt_',''),
             token_address   = m_token_address,
             token_id        = 0
         )
         m_token                     = await models.MToken.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = m_token_address,
             token   = token
         )
@@ -38,7 +38,7 @@ async def mint_or_burn(
         m_token.total_supply        = total_supply
         await m_token.save()
     
-        user                        = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=user_address)
+        user                        = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=user_address)
         user_account, _             = await models.MTokenAccount.get_or_create(
             m_token = m_token,
             user    = user

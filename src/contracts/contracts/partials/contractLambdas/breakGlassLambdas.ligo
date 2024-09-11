@@ -200,7 +200,7 @@ block {
         |   LambdaUpdateCouncilMemberInfo(councilMemberInfo) -> {
 
                 // Check if sender is a member of the council
-                var councilMember : councilMemberInfoType := case Big_map.find_opt(Tezos.get_sender(), s.councilMembers) of [
+                var councilMember : councilMemberInfoType := case Big_map.find_opt(Mavryk.get_sender(), s.councilMembers) of [
                         Some (_info) -> _info
                     |   None         -> failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED)
                 ];
@@ -216,7 +216,7 @@ block {
                 councilMember.image     := councilMemberInfo.image;
 
                 // Update storage
-                s.councilMembers[Tezos.get_sender()]  := councilMember;
+                s.councilMembers[Mavryk.get_sender()]  := councilMember;
                 
             }
         |   _ -> skip
@@ -654,12 +654,12 @@ block {
                 validateAction(actionRecord);
 
                 // check if council member has already signed for this action
-                if Big_map.mem((actionId, Tezos.get_sender()), s.actionsSigners) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
+                if Big_map.mem((actionId, Mavryk.get_sender()), s.actionsSigners) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for Break Glass Council Action  record
                 var signersCount : nat             := actionRecord.signersCount + 1n;
                 actionRecord.signersCount          := signersCount;
-                s.actionsSigners                   := Big_map.add((actionId, Tezos.get_sender()), unit, s.actionsSigners);
+                s.actionsSigners                   := Big_map.add((actionId, Mavryk.get_sender()), unit, s.actionsSigners);
                 s.actionsLedger[actionId]          := actionRecord;
 
                 // check if threshold has been reached

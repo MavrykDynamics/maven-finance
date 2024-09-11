@@ -19,7 +19,7 @@ async def trigger_inflation(
         next_inflation_timestamp    = parser.parse(trigger_inflation.storage.nextInflationTimestamp)
     
         # Update record
-        await models.MVNToken.filter(network=ctx.datasource.name.replace('tzkt_',''), address= mvn_address).update(
+        await models.MVNToken.filter(network=ctx.datasource.name.replace('mvkt_',''), address= mvn_address).update(
             maximum_supply            = maximum_supply,
             next_inflation_timestamp  = next_inflation_timestamp
         )

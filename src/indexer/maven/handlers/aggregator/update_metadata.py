@@ -25,7 +25,7 @@ async def update_metadata(
         # Update record
         await models.Aggregator.filter(
             address = aggregator_address,
-            network = ctx.datasource.name.replace('tzkt_','')
+            network = ctx.datasource.name.replace('mvkt_','')
         ).update(
             metadata = contract_metadata
         )

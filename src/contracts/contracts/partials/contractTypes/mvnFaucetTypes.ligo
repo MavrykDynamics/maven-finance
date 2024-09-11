@@ -1,8 +1,10 @@
 // ------------------------------------------------------------------------------
 // Storage Types
 // ------------------------------------------------------------------------------
-
-type requestersType is big_map(address, unit);
+type requestVariantType is 
+    Mvn         of unit
+|   FakeUsdt    of unit
+type requestersType is big_map((address * requestVariantType), unit);
 
 // ------------------------------------------------------------------------------
 // Storage
@@ -11,7 +13,9 @@ type requestersType is big_map(address, unit);
 
 type mvnFaucetStorageType is record [
     mvnTokenAddress         : address;
+    fakeUsdtTokenAddress    : address;
     metadata                : metadataType;
-    amountPerUser           : nat;
+    mvnAmountPerUser        : nat;
+    fakeUsdtAmountPerUser   : nat;
     requesters              : requestersType;
 ]

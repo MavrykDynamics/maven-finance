@@ -54,12 +54,11 @@ async def origination(
         )
         
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('tzkt_',''))
+        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
         lending_controller          = models.LendingController(
             address                                 = lending_controller_address,
-            network                                 = ctx.datasource.name.replace('tzkt_',''),
+            network                                 = ctx.datasource.name.replace('mvkt_',''),
             metadata                                = contract_metadata,
-            mock_time                               = False,
             admin                                   = admin,
             last_updated_at                         = timestamp,
             governance                              = governance,

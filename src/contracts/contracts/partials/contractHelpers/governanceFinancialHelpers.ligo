@@ -41,17 +41,17 @@ block {
     if financialRequestRecord.executed = True  then failwith(error_FINANCIAL_REQUEST_EXECUTED) else skip;
 
     // Check if financial request has expired
-    if Tezos.get_now() > financialRequestRecord.expiryDateTime then failwith(error_FINANCIAL_REQUEST_EXPIRED) else skip;
+    if Mavryk.get_now() > financialRequestRecord.expiryDateTime then failwith(error_FINANCIAL_REQUEST_EXPIRED) else skip;
 
 } with (unit)
 
 
 
-// helper function to validate token type (FA12, FA2, TEZ)
+// helper function to validate token type (FA12, FA2, MAV)
 function validateTokenType(const tokenType : string) : unit is 
 block {
 
-    if tokenType = "FA12" or tokenType = "FA2" or tokenType = "TEZ" 
+    if tokenType = "FA12" or tokenType = "FA2" or tokenType = "MAV" 
     then skip
     else failwith(error_WRONG_TOKEN_TYPE_PROVIDED);
 
@@ -63,8 +63,8 @@ block {
 function validateWhitelistedToken(const tokenType : string; const tokenContractAddress : address; const s : governanceFinancialStorageType) : unit is
 block {
     
-    // fail if token type is not tez, and not whitelisted 
-    if tokenType =/= "TEZ" and not checkInWhitelistTokenContracts(tokenContractAddress, s.whitelistTokenContracts) 
+    // fail if token type is not mav, and not whitelisted 
+    if tokenType =/= "MAV" and not checkInWhitelistTokenContracts(tokenContractAddress, s.whitelistTokenContracts) 
     then failwith(error_TOKEN_NOT_WHITELISTED) 
     else skip;
 
@@ -93,7 +93,7 @@ block {
 
 // helper function to set baker for treasury
 function setTreasuryBaker(const contractAddress : address) : contract(setBakerType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%setBaker",
         contractAddress) : option(contract(setBakerType))) of [
                 Some(contr) -> contr
@@ -104,7 +104,7 @@ function setTreasuryBaker(const contractAddress : address) : contract(setBakerTy
 
 // helper function to %updateSatellitesSnapshot entrypoint on the Governance contract
 function sendUpdateSatellitesSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatellitesSnapshotType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%updateSatellitesSnapshot",
         governanceAddress) : option(contract(updateSatellitesSnapshotType))) of [
                 Some(contr) -> contr
@@ -126,7 +126,7 @@ function getCurrentCycleCounter(const s : governanceFinancialStorageType) : nat 
 block {
 
     // Get the current governance cycle counter from the governance contract
-    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
+    const cycleCounterView : option (nat) = Mavryk.call_view ("getCycleCounter", unit, s.governanceAddress);
     const currentCycle : nat = case cycleCounterView of [
             Some (_cycleCounter)   -> _cycleCounter
         |   None                   -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
@@ -153,7 +153,7 @@ block {
 function getStakedMvnSnapshotTotalSupply(const currentCycleId : nat; const s : governanceFinancialStorageType) : nat is 
 block {
 
-    const getStakedMvnSnapshotOptView : option(option(nat)) = Tezos.call_view ("getStakedMvnSnapshotOpt", currentCycleId, s.governanceAddress);
+    const getStakedMvnSnapshotOptView : option(option(nat)) = Mavryk.call_view ("getStakedMvnSnapshotOpt", currentCycleId, s.governanceAddress);
 
     const stakedMvnSnapshotView : option(nat) = case getStakedMvnSnapshotOptView of [
             Some (_view)  -> _view
@@ -204,7 +204,7 @@ block{
 
     if requestType = "TRANSFER" or requestType = "MINT" then  block {
 
-        // Validate token type : has to match one standard (FA12, FA2, TEZ)
+        // Validate token type : has to match one standard (FA12, FA2, MAV)
         validateTokenType(tokenType);
 
         // If token, validate that token is whitelisted (security measure to prevent interacting with potentially malicious contracts)
@@ -219,7 +219,7 @@ block{
     // Create new financial request record
     var newFinancialRequest : financialRequestRecordType := record [
 
-        requesterAddress                    = Tezos.get_sender();
+        requesterAddress                    = Mavryk.get_sender();
         requestType                         = requestType;
         status                              = True;                  // status : True - "ACTIVE", False - "INACTIVE/DROPPED"
         executed                            = False;
@@ -243,8 +243,8 @@ block{
         stakedMvnPercentageForApproval      = s.config.approvalPercentage; 
         stakedMvnRequiredForApproval        = stakedMvnRequiredForApproval; 
 
-        requestedDateTime                   = Tezos.get_now();
-        expiryDateTime                      = Tezos.get_now() + (86_400 * s.config.financialRequestDurationInDays);
+        requestedDateTime                   = Mavryk.get_now();
+        expiryDateTime                      = Mavryk.get_now() + (86_400 * s.config.financialRequestDurationInDays);
         executedDateTime                    = None;
 
     ];
@@ -271,8 +271,8 @@ block{
 function formatTokenTransferType(const financialRequestRecord : financialRequestRecordType) : tokenType is 
 block {
 
-    // init token transfer type to tez
-    var tokenTransferType : tokenType := Tez;
+    // init token transfer type to mav
+    var tokenTransferType : tokenType := Mav;
 
     // set to FA12 or FA2 token type depending on request record's token type
     if  financialRequestRecord.tokenType = "FA12" 
@@ -322,9 +322,9 @@ block {
         ]
     ];
 
-    const transferFromTreasuryToCouncilOperation : operation = Tezos.transaction(
+    const transferFromTreasuryToCouncilOperation : operation = Mavryk.transaction(
         transferParams, 
-        0tez, 
+        0mav, 
         sendTransferOperationToTreasury(treasuryAddress)
     );
 
@@ -346,9 +346,9 @@ block {
         amt  = financialRequestRecord.tokenAmount;
     ];
 
-    const mintMvnAndTransferOperation : operation = Tezos.transaction(
+    const mintMvnAndTransferOperation : operation = Mavryk.transaction(
         mintMvnAndTransferTokenParams, 
-        0tez, 
+        0mav, 
         sendMintMvnAndTransferOperationToTreasury(treasuryAddress)
     );
 
@@ -361,9 +361,9 @@ function setContractBakerOperation(const financialRequestRecord : financialReque
 block {
 
     const keyHash : option(key_hash) = financialRequestRecord.keyHash;
-    const setContractBakerOperation : operation = Tezos.transaction(
+    const setContractBakerOperation : operation = Mavryk.transaction(
         keyHash, 
-        0tez, 
+        0mav, 
         setTreasuryBaker(financialRequestRecord.treasuryAddress)
     );
 
@@ -383,7 +383,7 @@ block {
 function removePreviousVote(var financialRequestRecord : financialRequestRecordType; const financialRequestId : nat; const totalVotingPower : nat; var s : governanceFinancialStorageType) : financialRequestRecordType is 
 block {
 
-    case s.financialRequestVoters[(financialRequestId, Tezos.get_sender())] of [
+    case s.financialRequestVoters[(financialRequestId, Mavryk.get_sender())] of [
                     
             Some (_voteType) -> case _voteType of [
 
@@ -480,7 +480,7 @@ block {
     // Get Delegation Contract address from the General Contracts Map on the Governance Contract
     const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
-    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+    const satelliteOptView : option (option(satelliteRecordType)) = Mavryk.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
     const satelliteRecord : satelliteRecordType = case satelliteOptView of [
             Some (optionView) -> case optionView of [
                     Some(_satelliteRecord)      -> _satelliteRecord
@@ -500,7 +500,7 @@ block {
     // Get Delegation Contract address from the General Contracts Map on the Governance Contract
     const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
-    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", satelliteAddress, delegationAddress);
+    const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Mavryk.call_view ("getSatelliteRewardsOpt", satelliteAddress, delegationAddress);
     const satelliteRewards : satelliteRewardsType = case satelliteRewardsOptView of [
             Some (optionView) -> case optionView of [
                     Some(_satelliteRewards)     -> _satelliteRewards
@@ -522,7 +522,7 @@ block {
     const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
     // Get the delegation ratio
-    const configView : option (delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+    const configView : option (delegationConfigType)  = Mavryk.call_view ("getConfig", unit, delegationAddress);
     const delegationRatio : nat = case configView of [
             Some (_config) -> _config.delegationRatio
         |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -536,7 +536,7 @@ block {
 function createSatelliteSnapshotCheck(const currentCycle : nat; const satelliteAddress : address; const s : governanceFinancialStorageType) : bool is
 block {
 
-    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Mavryk.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
     const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
             Some (_snapshotOpt) -> _snapshotOpt
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
@@ -555,7 +555,7 @@ block {
 function getSatelliteTotalVotingPower(const currentCycle : nat; const satelliteAddress : address; const s : governanceFinancialStorageType) : nat is
 block {
 
-    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Mavryk.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
     const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
             Some (_snapshotOpt) -> _snapshotOpt
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
@@ -600,9 +600,9 @@ block {
     };
 
     // Send the snapshot to the governance contract
-    const updateSatellitesSnapshotOperation : operation   = Tezos.transaction(
+    const updateSatellitesSnapshotOperation : operation   = Mavryk.transaction(
         (satellitesSnapshots),
-        0tez, 
+        0mav, 
         sendUpdateSatellitesSnapshotOperationToGovernance(s.governanceAddress)
     );
 
@@ -614,7 +614,7 @@ block {
 function verifySatelliteSnapshotIsReady(const currentCycle : nat; const satelliteAddress : address; const s : governanceFinancialStorageType) : unit is
 block {
 
-    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Mavryk.call_view ("getSnapshotOpt", (currentCycle, satelliteAddress), s.governanceAddress);
     const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
             Some (_snapshotOpt) -> _snapshotOpt
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)

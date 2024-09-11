@@ -1103,7 +1103,7 @@ describe("Test: Farm Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await farmInstance.methods.updateMetadata(key, hash).send();
@@ -1474,7 +1474,7 @@ describe("Test: Farm Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 farmStorage          = await farmInstance.storage();   
                 const initialMetadata   = await farmStorage.metadata.get(key);

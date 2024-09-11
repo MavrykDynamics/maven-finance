@@ -20,7 +20,7 @@ async def set_product_lambda(
     
         # Save / Update record
         contract                = await models.FarmFactory.get(
-            network     = ctx.datasource.name.replace('tzkt_',''),
+            network     = ctx.datasource.name.replace('mvkt_',''),
             address     = contract_address
         )
         contract.last_updated_at            = timestamp

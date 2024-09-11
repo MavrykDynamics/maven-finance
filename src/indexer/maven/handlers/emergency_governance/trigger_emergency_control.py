@@ -37,14 +37,14 @@ async def trigger_emergency_control(
         
         # Create record
         emergency  = await models.EmergencyGovernance.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = emergency_address
         )
         emergency.current_emergency_record_id   = int(emergency_id)
         emergency.next_emergency_record_id      = int(emergency_next_id)
         await emergency.save()
     
-        proposer    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=proposer_address)
+        proposer    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=proposer_address)
     
         emergency_record = models.EmergencyGovernanceRecord(
             internal_id                     = emergency_id,

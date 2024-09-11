@@ -1,4 +1,4 @@
-import { MichelsonMap } from "@taquito/taquito";
+import { MichelsonMap } from "@mavrykdynamics/taquito";
 import assert from "assert";
 import BigNumber from 'bignumber.js';
 
@@ -94,7 +94,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
     let usdtTokenIndex
     let eurtTokenIndex
-    let tezIndex
+    let mavIndex
     let mvnIndex
 
     // ------------------------------------------------
@@ -111,12 +111,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
     let mockUsdMockFa12TokenAggregatorInstance
     let mockUsdMockFa2TokenAggregatorInstance
-    let mockUsdXtzAggregatorInstance
+    let mockUsdMvrkAggregatorInstance
     let mockUsdMvnAggregatorInstance
 
     let mUsdtTokenInstance
     let mEurtTokenInstance
-    let mXtzTokenInstance
+    let mMvrkTokenInstance
 
     let governanceInstance
     let governanceProxyInstance
@@ -140,7 +140,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
     let mockUsdMockFa12TokenAggregatorStorage
     let mockUsdMockFa2TokenAggregatorStorage
-    let mockUsdXtzAggregatorStorage
+    let mockUsdMvrkAggregatorStorage
     let mockUsdMvnAggregatorStorage
 
     let lendingControllerStorage
@@ -212,25 +212,25 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     let liquidationAmountWithFeesAndIncentive
     let liquidationAmountWithFeesAndIncentiveMockFa12
     let liquidationAmountWithFeesAndIncentiveMockFa2 
-    let liquidationAmountWithFeesAndIncentiveTez
+    let liquidationAmountWithFeesAndIncentiveMav
     let liquidationAmountWithFeesAndIncentiveMvn
 
     let totalLiquidationAmount
     let totalLiquidationAmountMockFa12
     let totalLiquidationAmountMockFa2 
-    let totalLiquidationAmountTez
+    let totalLiquidationAmountMav
     let totalLiquidationAmountMvn
 
     let liquidationAmountWithIncentive
     let liquidationAmountWithIncentiveMockFa12
     let liquidationAmountWithIncentiveMockFa2
-    let liquidationAmountWithIncentiveTez
+    let liquidationAmountWithIncentiveMav
     let liquidationAmountWithIncentiveMvn
 
     let adminLiquidationFee
     let adminLiquidationFeeMockFa12
     let adminLiquidationFeeMockFa2
-    let adminLiquidationFeeTez
+    let adminLiquidationFeeMav
     let adminLiquidationFeeMvn
 
     let interestSentToTreasury
@@ -240,30 +240,30 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     // Token accounts (ledger) for Lending Controller (i.e. token pool)
     let lendingControllerMockFa12TokenAccount
     let lendingControllerMockFa2TokenAccount
-    let lendingControllerTezAccount
+    let lendingControllerMavAccount
 
     // Token accounts (ledger) for Liquidator
     let liquidatorMockFa12TokenAccount
     let liquidatorMockFa2TokenAccount
-    let liquidatorTezAccount
+    let liquidatorMavAccount
     let liquidatorStakedMvnAccount
 
     // Token accounts (ledger) for vaults
     let vaultMockFa12TokenAccount
     let vaultMockFa2TokenAccount
-    let vaultTezAccount
+    let vaultMavAccount
     let vaultStakedMvnAccount
 
     // Token accounts (ledger) for vault owners
     let vaultOwnerMockFa12TokenAccount
     let vaultOwnerMockFa2TokenAccount
-    let vaultOwnerTezAccount
+    let vaultOwnerMavAccount
     let vaultOwnerStakedMvnAccount
 
     // Token accounts (ledger) for admin treasury
     let treasuryMockFa12TokenAccount
     let treasuryMockFa2TokenAccount
-    let treasuryTezAccount
+    let treasuryMavAccount
     let treasuryStakedMvnAccount
     // ------------------------------------------------
 
@@ -309,22 +309,22 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     // ------------------------------------------------
 
     // ------------------------------------------------
-    // Tez balances (initial and updated)
+    // Mav balances (initial and updated)
     // ------------------------------------------------
     
-    // Initial token balances for Tez
-    let initialLendingControllerTezBalance
-    let initialVaultTezBalance
-    let initialVaultOwnerTezBalance
-    let initialLiquidatorTezBalance
-    let initialTreasuryTezBalance
+    // Initial token balances for Mav
+    let initialLendingControllerMavBalance
+    let initialVaultMavBalance
+    let initialVaultOwnerMavBalance
+    let initialLiquidatorMavBalance
+    let initialTreasuryMavBalance
 
-    // Updated token balances for Tez
-    let updatedLendingControllerTezBalance
-    let updatedVaultTezBalance
-    let updatedVaultOwnerTezBalance
-    let updatedLiquidatorTezBalance
-    let updatedTreasuryTezBalance
+    // Updated token balances for Mav
+    let updatedLendingControllerMavBalance
+    let updatedVaultMavBalance
+    let updatedVaultOwnerMavBalance
+    let updatedLiquidatorMavBalance
+    let updatedTreasuryMavBalance
 
     // ------------------------------------------------
     // Staked MVN balances (initial and updated)
@@ -378,13 +378,13 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                     round,
                     aggregatorAddress: contractDeployments.mockUsdMockFa2TokenAggregator.address
                 });
-            } else if(tokenName == "tez"){
+            } else if(tokenName == "mav"){
                 // Set observations
                 oracleObservations.set(oracle, {
                     data,
                     epoch,
                     round,
-                    aggregatorAddress: contractDeployments.mockUsdXtzAggregator.address
+                    aggregatorAddress: contractDeployments.mockUsdMvrkAggregator.address
                 });
             } else if(tokenName == "smvn"){
                 // Set observations
@@ -418,9 +418,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             setPriceOperation = await mockUsdMockFa2TokenAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
 
-        } else if(tokenName == "tez"){
+        } else if(tokenName == "mav"){
 
-            setPriceOperation = await mockUsdXtzAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
+            setPriceOperation = await mockUsdMvrkAggregatorInstance.methods.updateData(oracleObservations, signatures).send();
             
         } else if(tokenName == "smvn"){
 
@@ -457,11 +457,11 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
         mUsdtTokenInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
         mEurtTokenInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
-        mXtzTokenInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenXtz.address);
+        mMvrkTokenInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
 
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
-        mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdXtzAggregator.address);
+        mockUsdMvrkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
         mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress);
@@ -482,7 +482,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         // set up token oracles for testing
         mockUsdMockFa12TokenAggregatorStorage   = await mockUsdMockFa12TokenAggregatorInstance.storage();
         mockUsdMockFa2TokenAggregatorStorage    = await mockUsdMockFa2TokenAggregatorInstance.storage();
-        mockUsdXtzAggregatorStorage             = await mockUsdXtzAggregatorInstance.storage();
+        mockUsdMvrkAggregatorStorage             = await mockUsdMvrkAggregatorInstance.storage();
         mockUsdMvnAggregatorStorage             = await mockUsdMvnAggregatorInstance.storage();
 
         // ------------------------------------------------------------------
@@ -524,7 +524,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         //
         // MockFA12 price -> 1,500,000 or $1.50
         // MockFA2 price  -> 3,500,000 or $3.50 
-        // Tez price      -> 1,800,000 or $1.80
+        // Mav price      -> 1,800,000 or $1.80
         // Mvn price      -> 1,000,000,000 or $1.00
         //
         // Note: oracle/aggregator prices follow the same default price set in Lending Helpers 
@@ -533,17 +533,17 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
         const mockUsdMockFa12TokenLastData      = await mockUsdMockFa12TokenAggregatorStorage.lastCompletedData.data;
         const mockUsdMockFa2TokenLastData       = await mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.data;
-        const mockUsdTezLastData                = await mockUsdXtzAggregatorStorage.lastCompletedData.data;
+        const mockUsdMavLastData                = await mockUsdMvrkAggregatorStorage.lastCompletedData.data;
         const mockUsdMvnLastData                = await mockUsdMvnAggregatorStorage.lastCompletedData.data;
 
         usdtTokenIndex                          = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "usdt"));
         eurtTokenIndex                          = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "eurt"));
-        tezIndex                                = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
+        mavIndex                                = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mav"));
         mvnIndex                                = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "smvn"));
 
         const defaultMockFa12TokenMedianPrice   = lendingHelper.defaultPriceObservations[usdtTokenIndex].medianPrice;
         const defaultMockFa2TokenMedianPrice    = lendingHelper.defaultPriceObservations[eurtTokenIndex].medianPrice;
-        const defaultTezMedianPrice             = lendingHelper.defaultPriceObservations[tezIndex].medianPrice;
+        const defaultMavMedianPrice             = lendingHelper.defaultPriceObservations[mavIndex].medianPrice;
         const defaultMvnMedianPrice             = lendingHelper.defaultPriceObservations[mvnIndex].medianPrice;
 
         // reset Mock FA12 token price
@@ -578,19 +578,19 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         }
 
 
-        // reset Tez price
-        if(mockUsdTezLastData != defaultTezMedianPrice){
+        // reset Mav price
+        if(mockUsdMavLastData != defaultMavMedianPrice){
 
-            epoch = await mockUsdXtzAggregatorStorage.lastCompletedData.epoch;
-            round = await mockUsdXtzAggregatorStorage.lastCompletedData.round;
+            epoch = await mockUsdMvrkAggregatorStorage.lastCompletedData.epoch;
+            round = await mockUsdMvrkAggregatorStorage.lastCompletedData.round;
             epoch = epoch.toNumber() + 1;
             round = round.toNumber() + 1;
 
-            // default observation data for xtz
-            defaultObservations = lendingHelper.defaultPriceObservations[tezIndex].observations;
+            // default observation data for mvrk
+            defaultObservations = lendingHelper.defaultPriceObservations[mavIndex].observations;
 
             // reset token price to default observations
-            await setTokenPrice(epoch, round, defaultObservations, "tez");
+            await setTokenPrice(epoch, round, defaultObservations, "mav");
         }
 
 
@@ -612,7 +612,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         // Update token oracles for local test calulations
         mockUsdMockFa12TokenAggregatorStorage   = await mockUsdMockFa12TokenAggregatorInstance.storage();
         mockUsdMockFa2TokenAggregatorStorage    = await mockUsdMockFa2TokenAggregatorInstance.storage();
-        mockUsdXtzAggregatorStorage             = await mockUsdXtzAggregatorInstance.storage();
+        mockUsdMvrkAggregatorStorage             = await mockUsdMvrkAggregatorInstance.storage();
         mockUsdMvnAggregatorStorage             = await mockUsdMvnAggregatorInstance.storage();
 
         tokenOracles.push({
@@ -630,9 +630,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         })
 
         tokenOracles.push({
-            'name': 'tez', 
-            'price': mockUsdXtzAggregatorStorage.lastCompletedData.data.toNumber(),
-            'priceDecimals': mockUsdXtzAggregatorStorage.config.decimals.toNumber(),
+            'name': 'mav', 
+            'price': mockUsdMvrkAggregatorStorage.lastCompletedData.data.toNumber(),
+            'priceDecimals': mockUsdMvrkAggregatorStorage.config.decimals.toNumber(),
             'tokenDecimals': 6
         })
 
@@ -653,7 +653,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
         const usdtLoanToken     = await lendingControllerStorage.loanTokenLedger.get("usdt"); 
         const eurtLoanToken     = await lendingControllerStorage.loanTokenLedger.get("eurt"); 
-        const tezLoanToken      = await lendingControllerStorage.loanTokenLedger.get("tez"); 
+        const mavLoanToken      = await lendingControllerStorage.loanTokenLedger.get("mav"); 
         
         if(!(usdtLoanToken == undefined || usdtLoanToken == null)){
             updateTokenRewardIndexOperation = await mUsdtTokenInstance.methods.compound([admin, satelliteOne, satelliteTwo, satelliteThree]).send();
@@ -665,8 +665,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await updateTokenRewardIndexOperation.confirmation();
         }
 
-        if(!(tezLoanToken == undefined || tezLoanToken == null)){
-            updateTokenRewardIndexOperation = await mXtzTokenInstance.methods.compound([admin, satelliteOne, satelliteTwo, satelliteThree]).send();
+        if(!(mavLoanToken == undefined || mavLoanToken == null)){
+            updateTokenRewardIndexOperation = await mMvrkTokenInstance.methods.compound([admin, satelliteOne, satelliteTwo, satelliteThree]).send();
             await updateTokenRewardIndexOperation.confirmation();
         }
 
@@ -879,7 +879,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         });
 
 
-        it('admin can set tez as a loan token', async () => {
+        it('admin can set mav as a loan token', async () => {
 
             try{        
                 
@@ -888,13 +888,13 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
                 const setLoanTokenActionType                = "createLoanToken";
 
-                const tokenName                             = "tez";
-                const tokenType                             = "tez";
+                const tokenName                             = "mav";
+                const tokenType                             = "mav";
                 const tokenDecimals                         = 6;
 
-                const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
+                const oracleAddress                         = contractDeployments.mockUsdMvrkAggregator.address;
 
-                const mTokenAddress                         = contractDeployments.mTokenXtz.address;
+                const mTokenAddress                         = contractDeployments.mTokenMvrk.address;
 
                 const interestRateDecimals                  = 27;
                 const reserveRatio                          = 1000; // 10% reserves (4 decimals)
@@ -907,15 +907,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                 const minRepaymentAmount                    = 10000;
 
                 // update token oracle with token decimals
-                const tezIndex = tokenOracles.findIndex((o => o.name === "tez"));
-                tokenOracles[tezIndex].tokenDecimals = tokenDecimals;
+                const mavIndex = tokenOracles.findIndex((o => o.name === "mav"));
+                tokenOracles[mavIndex].tokenDecimals = tokenDecimals;
 
                 // check if loan token exists
                 const checkLoanTokenExists   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
 
                 if(checkLoanTokenExists === undefined){
 
-                    const adminSeTezLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+                    const adminSeMavLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
                         
                         setLoanTokenActionType,
 
@@ -939,37 +939,37 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
                         tokenType
 
                     ).send();
-                    await adminSeTezLoanTokenOperation.confirmation();
+                    await adminSeMavLoanTokenOperation.confirmation();
 
                     lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const tezLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+                    const mavLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
                 
-                    assert.equal(tezLoanToken.tokenName                 , tokenName);
-                    assert.equal(tezLoanToken.tokenDecimals             , tokenDecimals);
+                    assert.equal(mavLoanToken.tokenName                 , tokenName);
+                    assert.equal(mavLoanToken.tokenDecimals             , tokenDecimals);
 
-                    assert.equal(tezLoanToken.rawMTokensTotalSupply     , 0);
-                    assert.equal(tezLoanToken.mTokenAddress             , mTokenAddress);
+                    assert.equal(mavLoanToken.rawMTokensTotalSupply     , 0);
+                    assert.equal(mavLoanToken.mTokenAddress             , mTokenAddress);
     
-                    assert.equal(tezLoanToken.reserveRatio              , reserveRatio);
-                    assert.equal(tezLoanToken.tokenPoolTotal            , 0);
-                    assert.equal(tezLoanToken.totalBorrowed             , 0);
-                    assert.equal(tezLoanToken.totalRemaining            , 0);
+                    assert.equal(mavLoanToken.reserveRatio              , reserveRatio);
+                    assert.equal(mavLoanToken.tokenPoolTotal            , 0);
+                    assert.equal(mavLoanToken.totalBorrowed             , 0);
+                    assert.equal(mavLoanToken.totalRemaining            , 0);
     
-                    assert.equal(tezLoanToken.optimalUtilisationRate    , optimalUtilisationRate);
-                    assert.equal(tezLoanToken.baseInterestRate          , baseInterestRate);
-                    assert.equal(tezLoanToken.maxInterestRate           , maxInterestRate);
+                    assert.equal(mavLoanToken.optimalUtilisationRate    , optimalUtilisationRate);
+                    assert.equal(mavLoanToken.baseInterestRate          , baseInterestRate);
+                    assert.equal(mavLoanToken.maxInterestRate           , maxInterestRate);
                     
-                    assert.equal(tezLoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
-                    assert.equal(tezLoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
+                    assert.equal(mavLoanToken.interestRateBelowOptimalUtilisation       , interestRateBelowOptimalUtilisation);
+                    assert.equal(mavLoanToken.interestRateAboveOptimalUtilisation       , interestRateAboveOptimalUtilisation);
     
 
                 } else {
 
                     lendingControllerStorage  = await lendingControllerInstance.storage();
-                    const tezLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
+                    const mavLoanToken   = await lendingControllerStorage.loanTokenLedger.get(tokenName); 
                 
                     // other variables will be affected from repeated tests
-                    assert.equal(tezLoanToken.tokenName              , tokenName);
+                    assert.equal(mavLoanToken.tokenName              , tokenName);
                     
                 }
 
@@ -1191,7 +1191,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             } 
         });
 
-        it('admin can set tez as a collateral token', async () => {
+        it('admin can set mav as a collateral token', async () => {
 
             try{        
                 
@@ -1200,12 +1200,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
                 const setCollateralTokenActionType          = "createCollateralToken";
 
-                const tokenName                             = "tez";
+                const tokenName                             = "mav";
                 const tokenContractAddress                  = zeroAddress;
-                const tokenType                             = "tez";
+                const tokenType                             = "mav";
 
                 const tokenDecimals                         = 6;
-                const oracleAddress                         = contractDeployments.mockUsdXtzAggregator.address;
+                const oracleAddress                         = contractDeployments.mockUsdMvrkAggregator.address;
                 const tokenProtected                        = false;
                 
                 const isScaledToken                         = false;
@@ -1585,60 +1585,60 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         });
 
 
-        it('user (eve) can add liquidity for tez into Lending Controller token pool (100 XTZ)', async () => {
+        it('user (eve) can add liquidity for mav into Lending Controller token pool (100 MVRK)', async () => {
     
             // init variables
             await signerFactory(tezos, eve.sk);
-            const loanTokenName = "tez";
-            const liquidityAmount = 100000000; // 100 XTZ
+            const loanTokenName = "mav";
+            const liquidityAmount = 100000000; // 100 MVRK
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             
-            // get mToken XTZ token storage (FA2 Token Standard)
-            const mXtzTokenStorage   = await mXtzTokenInstance.storage();
+            // get mToken MVRK token storage (FA2 Token Standard)
+            const mMvrkTokenStorage   = await mMvrkTokenInstance.storage();
 
-            // get initial eve XTZ balance
-            const eveInitialXtzLedger   = await utils.tezos.tz.getBalance(eve.pkh);
-            const eveInitialXtzBalance  = eveInitialXtzLedger.toNumber();
+            // get initial eve MVRK balance
+            const eveInitialMvrkLedger   = await utils.tezos.tz.getBalance(eve.pkh);
+            const eveInitialMvrkBalance  = eveInitialMvrkLedger.toNumber();
 
-            // get initial eve's mEurt Token - Tez - balance
-            const eveMXtzTokenLedger            = await mXtzTokenStorage.ledger.get(eve.pkh);            
-            const eveInitialMXtzTokenBalance    = eveMXtzTokenLedger == undefined ? 0 : eveMXtzTokenLedger.toNumber();
+            // get initial eve's mEurt Token - Mav - balance
+            const eveMMvrkTokenLedger            = await mMvrkTokenStorage.ledger.get(eve.pkh);            
+            const eveInitialMMvrkTokenBalance    = eveMMvrkTokenLedger == undefined ? 0 : eveMMvrkTokenLedger.toNumber();
             
-            // get initial lending controller's XTZ balance
-            const lendingControllerInitialXtzLedger   = await utils.tezos.tz.getBalance(lendingControllerAddress);
-            const lendingControllerInitialXtzBalance  = lendingControllerInitialXtzLedger.toNumber();
+            // get initial lending controller's MVRK balance
+            const lendingControllerInitialMvrkLedger   = await utils.tezos.tz.getBalance(lendingControllerAddress);
+            const lendingControllerInitialMvrkBalance  = lendingControllerInitialMvrkLedger.toNumber();
 
             // get initial lending controller token pool total
             const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             const lendingControllerInitialTokenPoolTotal = initialLoanTokenRecord.tokenPoolTotal.toNumber();
 
-            // eve deposits mock XTZ into lending controller token pool
+            // eve deposits mock MVRK into lending controller token pool
             const eveAddLiquidityOperation  = await lendingControllerInstance.methods.addLiquidity(
                 loanTokenName,
                 liquidityAmount, 
-            ).send({ mutez : true, amount: liquidityAmount });
+            ).send({ mumav : true, amount: liquidityAmount });
             await eveAddLiquidityOperation.confirmation();
 
             // get updated storages
             const updatedLendingControllerStorage  = await lendingControllerInstance.storage();
-            const updatedMXtzTokenStorage     = await mXtzTokenInstance.storage();
+            const updatedMMvrkTokenStorage     = await mMvrkTokenInstance.storage();
 
             // check new balance for loan token pool total
             const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
             assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal + liquidityAmount);
 
-            // check Lending Controller's XTZ Balance
-            const lendingControllerXtzBalance           = await utils.tezos.tz.getBalance(lendingControllerAddress);
-            assert.equal(lendingControllerXtzBalance, lendingControllerInitialXtzBalance + liquidityAmount);
+            // check Lending Controller's MVRK Balance
+            const lendingControllerMvrkBalance           = await utils.tezos.tz.getBalance(lendingControllerAddress);
+            assert.equal(lendingControllerMvrkBalance, lendingControllerInitialMvrkBalance + liquidityAmount);
 
-            // check Eve's mToken Pool XTZ balance
-            const updatedEveMXtzTokenLedger        = await updatedMXtzTokenStorage.ledger.get(eve.pkh);            
-            assert.equal(updatedEveMXtzTokenLedger, eveInitialMXtzTokenBalance + liquidityAmount);        
+            // check Eve's mToken Pool MVRK balance
+            const updatedEveMMvrkTokenLedger        = await updatedMMvrkTokenStorage.ledger.get(eve.pkh);            
+            assert.equal(updatedEveMMvrkTokenLedger, eveInitialMMvrkTokenBalance + liquidityAmount);        
 
-            // check Eve's XTZ Balance and account for gas cost in transaction with almostEqual
-            const eveXtzBalance = await utils.tezos.tz.getBalance(eve.pkh);
-            assert.equal(almostEqual(eveXtzBalance, eveInitialXtzBalance - liquidityAmount, 0.001), true)
+            // check Eve's MVRK Balance and account for gas cost in transaction with almostEqual
+            const eveMvrkBalance = await utils.tezos.tz.getBalance(eve.pkh);
+            assert.equal(almostEqual(eveMvrkBalance, eveInitialMvrkBalance - liquidityAmount, 0.001), true)
 
         });
     
@@ -2652,7 +2652,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
 
 
-        it('advanced multiple token test: user (mallory) can mark eve\'s vault for liquidation (oracle price shock for collateral token) and liquidate vault - [Collateral Token: Mock FA-12, Mock FA-2, Tez, MVN | Loan Token: Mock FA-2]', async () => {
+        it('advanced multiple token test: user (mallory) can mark eve\'s vault for liquidation (oracle price shock for collateral token) and liquidate vault - [Collateral Token: Mock FA-12, Mock FA-2, Mav, MVN | Loan Token: Mock FA-2]', async () => {
     
             // init variables and storage
             lendingControllerStorage = await lendingControllerInstance.storage();
@@ -2676,7 +2676,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // reset token prices
             usdtTokenIndex                      = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "usdt"));
             eurtTokenIndex                      = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "eurt"));
-            tezIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
+            mavIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mav"));
             mvnIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "smvn"));
 
             round = 0;
@@ -2718,22 +2718,22 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.deepEqual(mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
 
             // ---------------------------------
-            // Reset tez prices to default observation data
+            // Reset mav prices to default observation data
             // ---------------------------------
 
-            epoch = await mockUsdXtzAggregatorStorage.lastCompletedData.epoch;
+            epoch = await mockUsdMvrkAggregatorStorage.lastCompletedData.epoch;
             epoch = epoch.toNumber() + 1;            
-            defaultObservations = lendingHelper.defaultPriceObservations[tezIndex].observations;
-            await setTokenPrice(epoch, round, defaultObservations, "tez");
+            defaultObservations = lendingHelper.defaultPriceObservations[mavIndex].observations;
+            await setTokenPrice(epoch, round, defaultObservations, "mav");
 
-            const tezMedianPrice = lendingHelper.defaultPriceObservations[tezIndex].medianPrice;
-            tokenOracles[tezIndex].price = tezMedianPrice;
+            const mavMedianPrice = lendingHelper.defaultPriceObservations[mavIndex].medianPrice;
+            tokenOracles[mavIndex].price = mavMedianPrice;
 
-            mockUsdXtzAggregatorStorage = await mockUsdXtzAggregatorInstance.storage();
-            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.round,new BigNumber(round));
-            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
-            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.data,new BigNumber(tezMedianPrice));
-            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
+            mockUsdMvrkAggregatorStorage = await mockUsdMvrkAggregatorInstance.storage();
+            assert.deepEqual(mockUsdMvrkAggregatorStorage.lastCompletedData.round,new BigNumber(round));
+            assert.deepEqual(mockUsdMvrkAggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
+            assert.deepEqual(mockUsdMvrkAggregatorStorage.lastCompletedData.data,new BigNumber(mavMedianPrice));
+            assert.deepEqual(mockUsdMvrkAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
 
             // ---------------------------------
             // Reset mvn prices to default observation data
@@ -2796,7 +2796,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     
             const usdtDepositAmount     = 20000000;      // 20 Mock FA12 Tokens - USD $30.00
             const eurtDepositAmount     = 6000000;       // 6 Mock FA12 Tokens - USD $21.00
-            const tezDepositAmount      = 10000000;      // 10 Tez - USD $18.00
+            const mavDepositAmount      = 10000000;      // 10 Mav - USD $18.00
             const mvnDepositAmount      = 10000000000;   // 10 MVN - USD $10.00
     
             // Total: $79.00
@@ -2845,15 +2845,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await eveDepositMockFa2TokenOperation.confirmation();
     
             // ---------------------------------
-            // Deposit Tez
+            // Deposit Mav
             // ---------------------------------
     
-            const eveDepositTezOperation  = await vaultInstance.methods.initVaultAction(
+            const eveDepositMavOperation  = await vaultInstance.methods.initVaultAction(
                 "deposit",         // vault action
-                tezDepositAmount,  // amt
-                "tez"              // token
-            ).send({ mutez : true, amount : tezDepositAmount });
-            await eveDepositTezOperation.confirmation();
+                mavDepositAmount,  // amt
+                "mav"              // token
+            ).send({ mumav : true, amount : mavDepositAmount });
+            await eveDepositMavOperation.confirmation();
     
             // ---------------------------------
             // Deposit Staked MVN
@@ -2888,7 +2888,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             ).send();
             await eveVaultDepositStakedTokenOperation.confirmation();
     
-            // console.log('   - vault collateral deposited: Mock FA-12 Tokens: ' + usdtDepositAmount + " | Mock FA-2 Tokens: " + usdtDepositAmount + " | Tez: " + tezDepositAmount + " | sMVN: " + mvnDepositAmount);
+            // console.log('   - vault collateral deposited: Mock FA-12 Tokens: ' + usdtDepositAmount + " | Mock FA-2 Tokens: " + usdtDepositAmount + " | Mav: " + mavDepositAmount + " | sMVN: " + mvnDepositAmount);
     
             // ----------------------------------------------------------------------------------------------
             // Borrow with Vault
@@ -2917,12 +2917,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Vault Owner
             vaultOwnerMockFa12TokenAccount          = await usdtTokenStorage.ledger.get(vaultOwner);            
             vaultOwnerMockFa2TokenAccount           = await eurtTokenStorage.ledger.get(vaultOwner);            
-            vaultOwnerTezAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
+            vaultOwnerMavAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
             vaultOwnerStakedMvnAccount              = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
 
             initialVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
             initialVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : vaultOwnerMockFa2TokenAccount.toNumber();
-            initialVaultOwnerTezBalance             = vaultOwnerTezAccount.toNumber();
+            initialVaultOwnerMavBalance             = vaultOwnerMavAccount.toNumber();
             initialVaultOwnerStakedMvnBalance       = vaultOwnerStakedMvnAccount == undefined ? 0 : vaultOwnerStakedMvnAccount.balance.toNumber();
             
             // ----
@@ -2930,12 +2930,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Vault 
             vaultMockFa12TokenAccount               = await usdtTokenStorage.ledger.get(vaultAddress);            
             vaultMockFa2TokenAccount                = await eurtTokenStorage.ledger.get(vaultAddress);            
-            vaultTezAccount                         = await utils.tezos.tz.getBalance(vaultAddress);
+            vaultMavAccount                         = await utils.tezos.tz.getBalance(vaultAddress);
             vaultStakedMvnAccount                   = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
 
             initialVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
             initialVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : vaultMockFa2TokenAccount.toNumber();
-            initialVaultTezBalance                  = vaultTezAccount.toNumber();
+            initialVaultMavBalance                  = vaultMavAccount.toNumber();
             initialVaultStakedMvnBalance            = vaultStakedMvnAccount == undefined ? 0 : vaultStakedMvnAccount.balance.toNumber();
 
             // ----            
@@ -2943,12 +2943,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Liquidator
             liquidatorMockFa12TokenAccount          = await usdtTokenStorage.ledger.get(liquidator);            
             liquidatorMockFa2TokenAccount           = await eurtTokenStorage.ledger.get(liquidator);            
-            liquidatorTezAccount                    = await utils.tezos.tz.getBalance(liquidator);
+            liquidatorMavAccount                    = await utils.tezos.tz.getBalance(liquidator);
             liquidatorStakedMvnAccount              = await doormanStorage.userStakeBalanceLedger.get(liquidator);
 
             initialLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : liquidatorMockFa12TokenAccount.balance.toNumber();
             initialLiquidatorMockFa2TokenBalance    = liquidatorMockFa2TokenAccount == undefined ? 0 : liquidatorMockFa2TokenAccount.toNumber();
-            initialLiquidatorTezBalance             = liquidatorTezAccount.toNumber();
+            initialLiquidatorMavBalance             = liquidatorMavAccount.toNumber();
             initialLiquidatorStakedMvnBalance       = liquidatorStakedMvnAccount == undefined ? 0 : liquidatorStakedMvnAccount.balance.toNumber();
 
             // ----            
@@ -2956,12 +2956,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Treasury
             treasuryMockFa12TokenAccount            = await usdtTokenStorage.ledger.get(contractDeployments.treasury.address);            
             treasuryMockFa2TokenAccount             = await eurtTokenStorage.ledger.get(contractDeployments.treasury.address);            
-            treasuryTezAccount                      = await utils.tezos.tz.getBalance(contractDeployments.treasury.address);
+            treasuryMavAccount                      = await utils.tezos.tz.getBalance(contractDeployments.treasury.address);
             treasuryStakedMvnAccount                = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
 
             initialTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
             initialTreasuryMockFa2TokenBalance      = treasuryMockFa2TokenAccount == undefined ? 0 : treasuryMockFa2TokenAccount.toNumber();
-            initialTreasuryTezBalance               = treasuryTezAccount.toNumber();
+            initialTreasuryMavBalance               = treasuryMavAccount.toNumber();
             initialTreasuryStakedMvnBalance         = treasuryStakedMvnAccount == undefined ? 0 : treasuryStakedMvnAccount.balance.toNumber();
 
             // ----            
@@ -2969,11 +2969,11 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Lending Controller
             lendingControllerMockFa12TokenAccount         = await usdtTokenStorage.ledger.get(lendingControllerAddress);            
             lendingControllerMockFa2TokenAccount          = await eurtTokenStorage.ledger.get(lendingControllerAddress);            
-            lendingControllerTezAccount                   = await utils.tezos.tz.getBalance(lendingControllerAddress);
+            lendingControllerMavAccount                   = await utils.tezos.tz.getBalance(lendingControllerAddress);
 
             initialLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
             initialLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
-            initialLendingControllerTezBalance            = lendingControllerTezAccount.toNumber();
+            initialLendingControllerMavBalance            = lendingControllerMavAccount.toNumber();
 
             // ----            
     
@@ -2996,7 +2996,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // ----------------------------------------------------------------------------------------------
             // Set oracle price changes
             // - price shock for Mock FA-12 Token (collateral token) - price drops by 2/3
-            // - price shock for Tez (collateral token) - price drops by 2/3
+            // - price shock for Mav (collateral token) - price drops by 2/3
             // ----------------------------------------------------------------------------------------------
     
             await signerFactory(tezos, bob.sk); // temporarily set to tester to increase block levels
@@ -3033,9 +3033,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     
             // console.log('   - Mock FA-12 Token price change from ' + usdtTokenCurrentPrice + ' to ' + newMockFa12TokenMedianPrice);
 
-            mockUsdXtzAggregatorStorage   = await mockUsdXtzAggregatorInstance.storage();
-            lastEpoch                     = mockUsdXtzAggregatorStorage.lastCompletedData.epoch
-            lastRound                     = mockUsdXtzAggregatorStorage.lastCompletedData.round
+            mockUsdMvrkAggregatorStorage   = await mockUsdMvrkAggregatorInstance.storage();
+            lastEpoch                     = mockUsdMvrkAggregatorStorage.lastCompletedData.epoch
+            lastRound                     = mockUsdMvrkAggregatorStorage.lastCompletedData.round
             epoch                         = lastEpoch.toNumber() + 1;
             round                         = lastRound.toNumber() + 1;
     
@@ -3044,25 +3044,25 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             lastUpdatedBlockLevel        = vaultRecord.lastUpdatedBlockLevel;
     
             // local token oracles array map
-            const tezCurrentPrice           = tokenOracles[tezIndex].price;
+            const mavCurrentPrice           = tokenOracles[mavIndex].price;
 
             // price shock observation data for mock FA-12 token
-            const tezPriceShockObservations = lendingHelper.priceDecreaseObservations[tezIndex].observations;
-            const newTezMedianPrice         = lendingHelper.priceDecreaseObservations[tezIndex].medianPrice;
+            const mavPriceShockObservations = lendingHelper.priceDecreaseObservations[mavIndex].observations;
+            const newMavMedianPrice         = lendingHelper.priceDecreaseObservations[mavIndex].medianPrice;
 
             // set price shock for mock FA-12 token
-            await setTokenPrice(epoch, round, tezPriceShockObservations, "tez");
+            await setTokenPrice(epoch, round, mavPriceShockObservations, "mav");
     
             // Update price in token oracles array for local calculations
-            tokenOracles[tezIndex].price = newTezMedianPrice;
+            tokenOracles[mavIndex].price = newMavMedianPrice;
     
-            mockUsdXtzAggregatorStorage = await mockUsdXtzAggregatorInstance.storage();
-            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.round,new BigNumber(round));
-            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
-            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.data,new BigNumber(newTezMedianPrice));
-            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
+            mockUsdMvrkAggregatorStorage = await mockUsdMvrkAggregatorInstance.storage();
+            assert.deepEqual(mockUsdMvrkAggregatorStorage.lastCompletedData.round,new BigNumber(round));
+            assert.deepEqual(mockUsdMvrkAggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
+            assert.deepEqual(mockUsdMvrkAggregatorStorage.lastCompletedData.data,new BigNumber(newMavMedianPrice));
+            assert.deepEqual(mockUsdMvrkAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
     
-            // console.log('   - XTZ price change from ' + tezCurrentPrice + ' to ' + newTezMedianPrice);
+            // console.log('   - MVRK price change from ' + mavCurrentPrice + ' to ' + newMavMedianPrice);
     
             // ----------------------------------------------------------------------------------------------
             // Vault Marked for liquidation
@@ -3193,13 +3193,13 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const vaultCollateralValue          = lendingHelper.calculateVaultCollateralValue(tokenOracles, vaultRecord.collateralBalanceLedger);
             const usdtCollateralTokenValue  = lendingHelper.calculateTokenValue(usdtDepositAmount   , "usdt"    , tokenOracles);
             const eurtCollateralTokenValue   = lendingHelper.calculateTokenValue(eurtDepositAmount    , "eurt"     , tokenOracles);
-            const tezCollateralTokenValue       = lendingHelper.calculateTokenValue(tezDepositAmount        , "tez"         , tokenOracles);
+            const mavCollateralTokenValue       = lendingHelper.calculateTokenValue(mavDepositAmount        , "mav"         , tokenOracles);
             const mvnCollateralTokenValue       = lendingHelper.calculateTokenValue(mvnDepositAmount        , "smvn"         , tokenOracles);
 
             // calculate proportion of collateral based on their value
             const usdtTokenProportion       = lendingHelper.calculateTokenProportion(usdtCollateralTokenValue, vaultCollateralValue);
             const eurtTokenProportion        = lendingHelper.calculateTokenProportion(eurtCollateralTokenValue, vaultCollateralValue);
-            const tezProportion                 = lendingHelper.calculateTokenProportion(tezCollateralTokenValue, vaultCollateralValue);
+            const mavProportion                 = lendingHelper.calculateTokenProportion(mavCollateralTokenValue, vaultCollateralValue);
             const mvnProportion                 = lendingHelper.calculateTokenProportion(mvnCollateralTokenValue, vaultCollateralValue);
 
 
@@ -3226,8 +3226,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             adminLiquidationFeeMockFa2                      = eurtTokenProportion * adminLiquidationFee;
             adminLiquidationFeeMockFa2                      = lendingHelper.convertLoanTokenToCollateralToken("eurt", "eurt", tokenOracles, adminLiquidationFeeMockFa2);
 
-            adminLiquidationFeeTez                          = tezProportion * adminLiquidationFee;
-            adminLiquidationFeeTez                          = lendingHelper.convertLoanTokenToCollateralToken("eurt", "tez", tokenOracles, adminLiquidationFeeTez);
+            adminLiquidationFeeMav                          = mavProportion * adminLiquidationFee;
+            adminLiquidationFeeMav                          = lendingHelper.convertLoanTokenToCollateralToken("eurt", "mav", tokenOracles, adminLiquidationFeeMav);
                 
             adminLiquidationFeeMvn                          = mvnProportion * adminLiquidationFee;
             adminLiquidationFeeMvn                          = lendingHelper.convertLoanTokenToCollateralToken("eurt", "smvn", tokenOracles, adminLiquidationFeeMvn);
@@ -3239,8 +3239,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             liquidationAmountWithIncentiveMockFa2           = eurtTokenProportion * liquidationAmountWithIncentive
             liquidationAmountWithIncentiveMockFa2           = lendingHelper.convertLoanTokenToCollateralToken("eurt", "eurt", tokenOracles, liquidationAmountWithIncentiveMockFa2);
 
-            liquidationAmountWithIncentiveTez               = tezProportion * liquidationAmountWithIncentive
-            liquidationAmountWithIncentiveTez               = lendingHelper.convertLoanTokenToCollateralToken("eurt", "tez", tokenOracles, liquidationAmountWithIncentiveTez);
+            liquidationAmountWithIncentiveMav               = mavProportion * liquidationAmountWithIncentive
+            liquidationAmountWithIncentiveMav               = lendingHelper.convertLoanTokenToCollateralToken("eurt", "mav", tokenOracles, liquidationAmountWithIncentiveMav);
 
             liquidationAmountWithIncentiveMvn               = mvnProportion * liquidationAmountWithIncentive
             liquidationAmountWithIncentiveMvn               = lendingHelper.convertLoanTokenToCollateralToken("eurt", "smvn", tokenOracles, liquidationAmountWithIncentiveMvn);
@@ -3252,8 +3252,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             liquidationAmountWithFeesAndIncentiveMockFa2    = eurtTokenProportion * liquidationAmountWithFeesAndIncentive;            
             liquidationAmountWithFeesAndIncentiveMockFa2    = lendingHelper.convertLoanTokenToCollateralToken("eurt", "eurt", tokenOracles, liquidationAmountWithFeesAndIncentiveMockFa2);
     
-            liquidationAmountWithFeesAndIncentiveTez        = tezProportion * liquidationAmountWithFeesAndIncentive;
-            liquidationAmountWithFeesAndIncentiveTez        = lendingHelper.convertLoanTokenToCollateralToken("eurt", "tez", tokenOracles, liquidationAmountWithFeesAndIncentiveTez);
+            liquidationAmountWithFeesAndIncentiveMav        = mavProportion * liquidationAmountWithFeesAndIncentive;
+            liquidationAmountWithFeesAndIncentiveMav        = lendingHelper.convertLoanTokenToCollateralToken("eurt", "mav", tokenOracles, liquidationAmountWithFeesAndIncentiveMav);
 
             liquidationAmountWithFeesAndIncentiveMvn        = mvnProportion * liquidationAmountWithFeesAndIncentive;
             liquidationAmountWithFeesAndIncentiveMvn        = lendingHelper.convertLoanTokenToCollateralToken("eurt", "smvn", tokenOracles, liquidationAmountWithFeesAndIncentiveMvn);
@@ -3265,8 +3265,8 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             totalLiquidationAmountMockFa2                   = eurtTokenProportion * totalLiquidationAmount;
             totalLiquidationAmountMockFa2                   = lendingHelper.convertLoanTokenToCollateralToken("eurt", "eurt", tokenOracles, totalLiquidationAmountMockFa2);
 
-            totalLiquidationAmountTez                       = tezProportion * totalLiquidationAmount;
-            totalLiquidationAmountTez                       = lendingHelper.convertLoanTokenToCollateralToken("eurt", "tez", tokenOracles, totalLiquidationAmountTez);
+            totalLiquidationAmountMav                       = mavProportion * totalLiquidationAmount;
+            totalLiquidationAmountMav                       = lendingHelper.convertLoanTokenToCollateralToken("eurt", "mav", tokenOracles, totalLiquidationAmountMav);
 
             totalLiquidationAmountMvn                       = mvnProportion * totalLiquidationAmount;
             totalLiquidationAmountMvn                       = lendingHelper.convertLoanTokenToCollateralToken("eurt", "smvn", tokenOracles, totalLiquidationAmountMvn);
@@ -3339,12 +3339,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Vault Owner
             vaultOwnerMockFa12TokenAccount          = await usdtTokenStorage.ledger.get(vaultOwner);            
             vaultOwnerMockFa2TokenAccount           = await eurtTokenStorage.ledger.get(vaultOwner);            
-            vaultOwnerTezAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
+            vaultOwnerMavAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
             vaultOwnerStakedMvnAccount              = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
 
             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
             updatedVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : vaultOwnerMockFa2TokenAccount.toNumber();
-            updatedVaultOwnerTezBalance             = vaultOwnerTezAccount.toNumber();
+            updatedVaultOwnerMavBalance             = vaultOwnerMavAccount.toNumber();
             updatedVaultOwnerStakedMvnBalance       = vaultOwnerStakedMvnAccount == undefined ? 0 : vaultOwnerStakedMvnAccount.balance.toNumber();
     
             // ----
@@ -3352,12 +3352,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Vault 
             vaultMockFa12TokenAccount               = await usdtTokenStorage.ledger.get(vaultAddress);            
             vaultMockFa2TokenAccount                = await eurtTokenStorage.ledger.get(vaultAddress);            
-            vaultTezAccount                         = await utils.tezos.tz.getBalance(vaultAddress);
+            vaultMavAccount                         = await utils.tezos.tz.getBalance(vaultAddress);
             vaultStakedMvnAccount                   = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
 
             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
             updatedVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : vaultMockFa2TokenAccount.toNumber();
-            updatedVaultTezBalance                  = vaultTezAccount.toNumber();
+            updatedVaultMavBalance                  = vaultMavAccount.toNumber();
             updatedVaultStakedMvnBalance            = vaultStakedMvnAccount == undefined ? 0 : vaultStakedMvnAccount.balance.toNumber();
     
             // ----            
@@ -3365,12 +3365,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Liquidator
             liquidatorMockFa12TokenAccount          = await usdtTokenStorage.ledger.get(liquidator);            
             liquidatorMockFa2TokenAccount           = await eurtTokenStorage.ledger.get(liquidator);            
-            liquidatorTezAccount                    = await utils.tezos.tz.getBalance(liquidator);
+            liquidatorMavAccount                    = await utils.tezos.tz.getBalance(liquidator);
             liquidatorStakedMvnAccount              = await doormanStorage.userStakeBalanceLedger.get(liquidator);
 
             updatedLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : liquidatorMockFa12TokenAccount.balance.toNumber();
             updatedLiquidatorMockFa2TokenBalance    = liquidatorMockFa2TokenAccount == undefined ? 0 : liquidatorMockFa2TokenAccount.toNumber();
-            updatedLiquidatorTezBalance             = liquidatorTezAccount.toNumber();
+            updatedLiquidatorMavBalance             = liquidatorMavAccount.toNumber();
             updatedLiquidatorStakedMvnBalance       = liquidatorStakedMvnAccount == undefined ? 0 : liquidatorStakedMvnAccount.balance.toNumber();
     
             // ----            
@@ -3378,12 +3378,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Treasury
             treasuryMockFa12TokenAccount            = await usdtTokenStorage.ledger.get(contractDeployments.treasury.address);            
             treasuryMockFa2TokenAccount             = await eurtTokenStorage.ledger.get(contractDeployments.treasury.address);            
-            treasuryTezAccount                      = await utils.tezos.tz.getBalance(contractDeployments.treasury.address);
+            treasuryMavAccount                      = await utils.tezos.tz.getBalance(contractDeployments.treasury.address);
             treasuryStakedMvnAccount                = await doormanStorage.userStakeBalanceLedger.get(contractDeployments.treasury.address);
 
             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
             updatedTreasuryMockFa2TokenBalance      = treasuryMockFa2TokenAccount == undefined ? 0 : treasuryMockFa2TokenAccount.toNumber();
-            updatedTreasuryTezBalance               = treasuryTezAccount.toNumber();
+            updatedTreasuryMavBalance               = treasuryMavAccount.toNumber();
             updatedTreasuryStakedMvnBalance         = treasuryStakedMvnAccount == undefined ? 0 : treasuryStakedMvnAccount.balance.toNumber();
 
             // ----            
@@ -3391,11 +3391,11 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Lending Controller
             lendingControllerMockFa12TokenAccount         = await usdtTokenStorage.ledger.get(lendingControllerAddress);            
             lendingControllerMockFa2TokenAccount          = await eurtTokenStorage.ledger.get(lendingControllerAddress);            
-            lendingControllerTezAccount                   = await utils.tezos.tz.getBalance(lendingControllerAddress);
+            lendingControllerMavAccount                   = await utils.tezos.tz.getBalance(lendingControllerAddress);
 
             updatedLendingControllerMockFa12TokenBalance  = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
             updatedLendingControllerMockFa2TokenBalance   = lendingControllerMockFa2TokenAccount == undefined ? 0 : lendingControllerMockFa2TokenAccount.toNumber();
-            updatedLendingControllerTezBalance            = lendingControllerTezAccount.toNumber();
+            updatedLendingControllerMavBalance            = lendingControllerMavAccount.toNumber();
 
             
             // --------------------------------------------------------
@@ -3405,28 +3405,28 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // vault owner: check that there are no changes to the vault owner's balance
             assert.equal(updatedVaultOwnerMockFa12TokenBalance  , initialVaultOwnerMockFa12TokenBalance);
             assert.equal(updatedVaultOwnerMockFa2TokenBalance   , initialVaultOwnerMockFa2TokenBalance);
-            assert.equal(updatedVaultOwnerTezBalance            , initialVaultOwnerTezBalance);
+            assert.equal(updatedVaultOwnerMavBalance            , initialVaultOwnerMavBalance);
             assert.equal(updatedVaultOwnerStakedMvnBalance      , initialVaultOwnerStakedMvnBalance);
     
             // vault: should have a total reduction in balance equal to liquidationAmountWithFeesAndIncentive
             // - use of almostEqual as there may be a slight difference of 1 from rounding errors 
             assert.equal(almostEqual(updatedVaultMockFa12TokenBalance   , initialVaultMockFa12TokenBalance - liquidationAmountWithFeesAndIncentiveMockFa12  , 0.0001), true);
             assert.equal(almostEqual(updatedVaultMockFa2TokenBalance    , initialVaultMockFa2TokenBalance  - liquidationAmountWithFeesAndIncentiveMockFa2   , 0.0001), true);
-            assert.equal(almostEqual(updatedVaultTezBalance             , initialVaultTezBalance           - liquidationAmountWithFeesAndIncentiveTez       , 0.0001), true);
+            assert.equal(almostEqual(updatedVaultMavBalance             , initialVaultMavBalance           - liquidationAmountWithFeesAndIncentiveMav       , 0.0001), true);
             assert.equal(almostEqual(updatedVaultStakedMvnBalance       , initialVaultStakedMvnBalance     - liquidationAmountWithFeesAndIncentiveMvn       , 0.0001), true);
             
             // liquidator: uses Mock FA-2 tokens to liquidate and receives other collateral tokens from vault collateral
-            // - tez: account for gas cost of sending liquidateVault operation
+            // - mav: account for gas cost of sending liquidateVault operation
             assert.equal(updatedLiquidatorMockFa12TokenBalance, initialLiquidatorMockFa12TokenBalance + liquidationAmountWithIncentiveMockFa12);
             assert.equal(updatedLiquidatorMockFa2TokenBalance, initialLiquidatorMockFa2TokenBalance - liquidationAmount + liquidationAmountWithIncentiveMockFa2);
-            assert.equal(almostEqual(updatedLiquidatorTezBalance, initialLiquidatorTezBalance + liquidationAmountWithIncentiveTez, 0.0001), true);
+            assert.equal(almostEqual(updatedLiquidatorMavBalance, initialLiquidatorMavBalance + liquidationAmountWithIncentiveMav, 0.0001), true);
             assert.equal(updatedLiquidatorStakedMvnBalance, initialLiquidatorStakedMvnBalance + liquidationAmountWithIncentiveMvn);
     
             // treasury should receive both admin fee and share from interest repaid (if there is interest)
             // - no interest paid
             assert.equal(updatedTreasuryMockFa12TokenBalance, initialTreasuryMockFa12TokenBalance + adminLiquidationFeeMockFa12);
             assert.equal(almostEqual(updatedTreasuryMockFa2TokenBalance, initialTreasuryMockFa2TokenBalance + adminLiquidationFeeMockFa2, 0.0001), true);
-            assert.equal(updatedTreasuryTezBalance, initialTreasuryTezBalance + adminLiquidationFeeTez);
+            assert.equal(updatedTreasuryMavBalance, initialTreasuryMavBalance + adminLiquidationFeeMav);
             assert.equal(updatedTreasuryStakedMvnBalance, initialTreasuryStakedMvnBalance + adminLiquidationFeeMvn);
     
             // reward pool should receive interest share from total interest paid
@@ -3447,7 +3447,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
     describe('%closeVault - test close vault', function () {
 
-        it('user (eve) can close her vaults (single collateral token) - open, borrow, repay all after one day, close - [Collateral Token: Mock FA-12, Mock FA-2, Tez, MVN | Loan Token: Mock FA-12]', async () => {
+        it('user (eve) can close her vaults (single collateral token) - open, borrow, repay all after one day, close - [Collateral Token: Mock FA-12, Mock FA-2, Mav, MVN | Loan Token: Mock FA-12]', async () => {
 
             // init variables and storage
             lendingControllerStorage = await lendingControllerInstance.storage();
@@ -3463,7 +3463,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // reset token prices
             usdtTokenIndex                      = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "usdt"));
             eurtTokenIndex                      = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "eurt"));
-            tezIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "tez"));
+            mavIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "mav"));
             mvnIndex                            = lendingHelper.defaultPriceObservations.findIndex((o => o.name === "smvn"));
 
             round = 0;
@@ -3505,22 +3505,22 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.deepEqual(mockUsdMockFa2TokenAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
 
             // ---------------------------------
-            // Reset tez prices to default observation data
+            // Reset mav prices to default observation data
             // ---------------------------------
 
-            epoch = await mockUsdXtzAggregatorStorage.lastCompletedData.epoch;
+            epoch = await mockUsdMvrkAggregatorStorage.lastCompletedData.epoch;
             epoch = epoch.toNumber() + 1;            
-            defaultObservations = lendingHelper.defaultPriceObservations[tezIndex].observations;
-            await setTokenPrice(epoch, round, defaultObservations, "tez");
+            defaultObservations = lendingHelper.defaultPriceObservations[mavIndex].observations;
+            await setTokenPrice(epoch, round, defaultObservations, "mav");
 
-            const tezMedianPrice = lendingHelper.defaultPriceObservations[tezIndex].medianPrice;
-            tokenOracles[tezIndex].price = tezMedianPrice;
+            const mavMedianPrice = lendingHelper.defaultPriceObservations[mavIndex].medianPrice;
+            tokenOracles[mavIndex].price = mavMedianPrice;
 
-            mockUsdXtzAggregatorStorage = await mockUsdXtzAggregatorInstance.storage();
-            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.round,new BigNumber(round));
-            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
-            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.data,new BigNumber(tezMedianPrice));
-            assert.deepEqual(mockUsdXtzAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
+            mockUsdMvrkAggregatorStorage = await mockUsdMvrkAggregatorInstance.storage();
+            assert.deepEqual(mockUsdMvrkAggregatorStorage.lastCompletedData.round,new BigNumber(round));
+            assert.deepEqual(mockUsdMvrkAggregatorStorage.lastCompletedData.epoch,new BigNumber(epoch));
+            assert.deepEqual(mockUsdMvrkAggregatorStorage.lastCompletedData.data,new BigNumber(mavMedianPrice));
+            assert.deepEqual(mockUsdMvrkAggregatorStorage.lastCompletedData.percentOracleResponse,new BigNumber(10000));
 
             // ---------------------------------
             // Reset mvn prices to default observation data
@@ -3586,7 +3586,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             const usdtDepositAmount     = 10000000;      // 10 Mock FA12 Tokens - USD $15.00
             const eurtDepositAmount     = 10000000;      // 10 Mock FA12 Tokens - USD $35.00
-            const tezDepositAmount      = 10000000;      // 10 Tez - USD $18.00
+            const mavDepositAmount      = 10000000;      // 10 Mav - USD $18.00
             const mvnDepositAmount      = 10000000000;   // 10 MVN - USD $10.00
     
             // Total: $78.00
@@ -3635,15 +3635,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await eveDepositMockFa2TokenOperation.confirmation();
     
             // ---------------------------------
-            // Deposit Tez
+            // Deposit Mav
             // ---------------------------------
     
-            const eveDepositTezOperation  = await vaultInstance.methods.initVaultAction(
+            const eveDepositMavOperation  = await vaultInstance.methods.initVaultAction(
                 "deposit",
-                tezDepositAmount,  // amt
-                "tez"              // token
-            ).send({ mutez : true, amount : tezDepositAmount });
-            await eveDepositTezOperation.confirmation();
+                mavDepositAmount,  // amt
+                "mav"              // token
+            ).send({ mumav : true, amount : mavDepositAmount });
+            await eveDepositMavOperation.confirmation();
     
             // ---------------------------------
             // Deposit Staked MVN
@@ -3675,7 +3675,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             ).send();
             await eveVaultDepositStakedTokenOperation.confirmation();
     
-            // console.log('   - vault collateral deposited: Mock FA-12 Tokens: ' + usdtDepositAmount + " | Mock FA-2 Tokens: " + usdtDepositAmount + " | Tez: " + tezDepositAmount + " | sMVN: " + mvnDepositAmount);
+            // console.log('   - vault collateral deposited: Mock FA-12 Tokens: ' + usdtDepositAmount + " | Mock FA-2 Tokens: " + usdtDepositAmount + " | Mav: " + mavDepositAmount + " | sMVN: " + mvnDepositAmount);
     
 
             // ----------------------------------------------------------------------------------------------
@@ -3709,12 +3709,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Vault Owner
             vaultOwnerMockFa12TokenAccount          = await usdtTokenStorage.ledger.get(vaultOwner);            
             vaultOwnerMockFa2TokenAccount           = await eurtTokenStorage.ledger.get(vaultOwner);            
-            vaultOwnerTezAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
+            vaultOwnerMavAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
             vaultOwnerStakedMvnAccount              = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
 
             initialVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
             initialVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : vaultOwnerMockFa2TokenAccount.toNumber();
-            initialVaultOwnerTezBalance             = vaultOwnerTezAccount.toNumber();
+            initialVaultOwnerMavBalance             = vaultOwnerMavAccount.toNumber();
             initialVaultOwnerStakedMvnBalance       = vaultOwnerStakedMvnAccount == undefined ? 0 : vaultOwnerStakedMvnAccount.balance.toNumber();
             
             // ----
@@ -3722,12 +3722,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Vault 
             vaultMockFa12TokenAccount               = await usdtTokenStorage.ledger.get(vaultAddress);            
             vaultMockFa2TokenAccount                = await eurtTokenStorage.ledger.get(vaultAddress);            
-            vaultTezAccount                         = await utils.tezos.tz.getBalance(vaultAddress);
+            vaultMavAccount                         = await utils.tezos.tz.getBalance(vaultAddress);
             vaultStakedMvnAccount                   = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
 
             initialVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
             initialVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : vaultMockFa2TokenAccount.toNumber();
-            initialVaultTezBalance                  = vaultTezAccount.toNumber();
+            initialVaultMavBalance                  = vaultMavAccount.toNumber();
             initialVaultStakedMvnBalance            = vaultStakedMvnAccount == undefined ? 0 : vaultStakedMvnAccount.balance.toNumber();
 
             
@@ -3871,12 +3871,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Vault Owner
             vaultOwnerMockFa12TokenAccount          =  await usdtTokenStorage.ledger.get(vaultOwner);            
             vaultOwnerMockFa2TokenAccount           =  await eurtTokenStorage.ledger.get(vaultOwner);            
-            vaultOwnerTezAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
+            vaultOwnerMavAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
             vaultOwnerStakedMvnAccount              = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
 
             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
             updatedVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : vaultOwnerMockFa2TokenAccount.toNumber();
-            updatedVaultOwnerTezBalance             = vaultOwnerTezAccount.toNumber();
+            updatedVaultOwnerMavBalance             = vaultOwnerMavAccount.toNumber();
             updatedVaultOwnerStakedMvnBalance       = vaultOwnerStakedMvnAccount == undefined ? 0 : vaultOwnerStakedMvnAccount.balance.toNumber();
     
             // ----
@@ -3884,12 +3884,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Vault 
             vaultMockFa12TokenAccount               =  await usdtTokenStorage.ledger.get(vaultAddress);            
             vaultMockFa2TokenAccount                =  await eurtTokenStorage.ledger.get(vaultAddress);            
-            vaultTezAccount                         = await utils.tezos.tz.getBalance(vaultAddress);
+            vaultMavAccount                         = await utils.tezos.tz.getBalance(vaultAddress);
             vaultStakedMvnAccount                   = await doormanStorage.userStakeBalanceLedger.get(vaultAddress);
 
             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
             updatedVaultMockFa2TokenBalance         = vaultMockFa2TokenAccount == undefined ? 0 : vaultMockFa2TokenAccount.toNumber();
-            updatedVaultTezBalance                  = vaultTezAccount.toNumber();
+            updatedVaultMavBalance                  = vaultMavAccount.toNumber();
             updatedVaultStakedMvnBalance            = vaultStakedMvnAccount == undefined ? 0 : vaultStakedMvnAccount.balance.toNumber();
     
 
@@ -3899,7 +3899,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // check that there are no changes to vault collateral balance
             assert.equal(updatedVaultMockFa12TokenBalance, initialVaultMockFa12TokenBalance);
             assert.equal(updatedVaultMockFa2TokenBalance, initialVaultMockFa2TokenBalance);
-            assert.equal(updatedVaultTezBalance, initialVaultTezBalance);
+            assert.equal(updatedVaultMavBalance, initialVaultMavBalance);
             assert.equal(updatedVaultStakedMvnBalance, initialVaultStakedMvnBalance);
 
             
@@ -3911,12 +3911,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // set balances for comparison below
             initialVaultOwnerMockFa12TokenBalance = updatedVaultOwnerMockFa12TokenBalance
             initialVaultOwnerMockFa2TokenBalance  = updatedVaultOwnerMockFa2TokenBalance
-            initialVaultOwnerTezBalance           = updatedVaultOwnerTezBalance
+            initialVaultOwnerMavBalance           = updatedVaultOwnerMavBalance
             initialVaultOwnerStakedMvnBalance     = updatedVaultOwnerStakedMvnBalance
 
             initialVaultMockFa12TokenBalance      = updatedVaultMockFa12TokenBalance
             initialVaultMockFa2TokenBalance       = updatedVaultMockFa2TokenBalance
-            initialVaultTezBalance                = updatedVaultTezBalance
+            initialVaultMavBalance                = updatedVaultMavBalance
             initialVaultStakedMvnBalance          = updatedVaultStakedMvnBalance
 
 
@@ -3931,10 +3931,10 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // get remaining collateral token balance in vault 
             const remainingMockFa12CollateralBalance    = await vaultRecord.collateralBalanceLedger.get('usdt');
             const remainingMockFa2CollateralBalance     = await vaultRecord.collateralBalanceLedger.get('eurt');
-            const remainingTezCollateralBalance         = await vaultRecord.collateralBalanceLedger.get('tez');
+            const remainingMavCollateralBalance         = await vaultRecord.collateralBalanceLedger.get('mav');
             const remainingStakedMvnCollateralBalance   = await vaultRecord.collateralBalanceLedger.get("smvn");
             
-            // console.log('   - remaining collateral: Mock FA12 token: ' + remainingMockFa12CollateralBalance + ' | Mock FA2 token: ' + remainingMockFa2CollateralBalance + ' | Tez: ' + remainingTezCollateralBalance + ' | Staked MVN: ' + remainingStakedMvnCollateralBalance);
+            // console.log('   - remaining collateral: Mock FA12 token: ' + remainingMockFa12CollateralBalance + ' | Mock FA2 token: ' + remainingMockFa2CollateralBalance + ' | Mav: ' + remainingMavCollateralBalance + ' | Staked MVN: ' + remainingStakedMvnCollateralBalance);
 
             // close vault operation
             const closeVaultOperation = await lendingControllerInstance.methods.closeVault(vaultId).send();
@@ -3944,12 +3944,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             // Vault Owner
             vaultOwnerMockFa12TokenAccount          =  await usdtTokenStorage.ledger.get(vaultOwner);            
             vaultOwnerMockFa2TokenAccount           =  await eurtTokenStorage.ledger.get(vaultOwner);            
-            vaultOwnerTezAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
+            vaultOwnerMavAccount                    = await utils.tezos.tz.getBalance(vaultOwner);
             vaultOwnerStakedMvnAccount              = await doormanStorage.userStakeBalanceLedger.get(vaultOwner);
 
             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
             updatedVaultOwnerMockFa2TokenBalance    = vaultOwnerMockFa2TokenAccount == undefined ? 0 : vaultOwnerMockFa2TokenAccount.toNumber();
-            updatedVaultOwnerTezBalance             = vaultOwnerTezAccount.toNumber();
+            updatedVaultOwnerMavBalance             = vaultOwnerMavAccount.toNumber();
             updatedVaultOwnerStakedMvnBalance       = vaultOwnerStakedMvnAccount == undefined ? 0 : vaultOwnerStakedMvnAccount.balance.toNumber();
     
 
@@ -3958,7 +3958,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             assert.equal(updatedVaultOwnerMockFa2TokenBalance   , initialVaultOwnerMockFa2TokenBalance   + remainingMockFa2CollateralBalance.toNumber());
             assert.equal(updatedVaultOwnerStakedMvnBalance      , initialVaultOwnerStakedMvnBalance      + remainingStakedMvnCollateralBalance.toNumber());
             // account for minor difference from gas cost to transact operation
-            assert.equal(almostEqual(updatedVaultOwnerTezBalance  , initialVaultOwnerTezBalance          + remainingTezCollateralBalance.toNumber(), 0.0001), true);
+            assert.equal(almostEqual(updatedVaultOwnerMavBalance  , initialVaultOwnerMavBalance          + remainingMavCollateralBalance.toNumber(), 0.0001), true);
 
             // update storage
             lendingControllerStorage   = await lendingControllerInstance.storage();
@@ -4002,9 +4002,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
     // console.log("-");
 
-    // console.log("initialVaultOwnerTezBalance: "+ initialVaultOwnerTezBalance);
-    // console.log("updatedVaultOwnerTezBalance: "+ updatedVaultOwnerTezBalance);
-    // console.log("change: "+ (updatedVaultOwnerTezBalance - initialVaultOwnerTezBalance));
+    // console.log("initialVaultOwnerMavBalance: "+ initialVaultOwnerMavBalance);
+    // console.log("updatedVaultOwnerMavBalance: "+ updatedVaultOwnerMavBalance);
+    // console.log("change: "+ (updatedVaultOwnerMavBalance - initialVaultOwnerMavBalance));
 
     // console.log("-");
 
@@ -4033,9 +4033,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
     // console.log("-");
 
-    // console.log("initialVaultTezBalance: "+ initialVaultTezBalance);
-    // console.log("updatedVaultTezBalance: "+ updatedVaultTezBalance);
-    // console.log("change: "+ (updatedVaultTezBalance - initialVaultTezBalance));
+    // console.log("initialVaultMavBalance: "+ initialVaultMavBalance);
+    // console.log("updatedVaultMavBalance: "+ updatedVaultMavBalance);
+    // console.log("change: "+ (updatedVaultMavBalance - initialVaultMavBalance));
 
     // console.log("-");
 
@@ -4065,9 +4065,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
     // console.log("-");
 
-    // console.log("initialLiquidatorTezBalance: "+ initialLiquidatorTezBalance);
-    // console.log("updatedLiquidatorTezBalance: "+ updatedLiquidatorTezBalance);
-    // console.log("change: "+ (updatedLiquidatorTezBalance - initialLiquidatorTezBalance));
+    // console.log("initialLiquidatorMavBalance: "+ initialLiquidatorMavBalance);
+    // console.log("updatedLiquidatorMavBalance: "+ updatedLiquidatorMavBalance);
+    // console.log("change: "+ (updatedLiquidatorMavBalance - initialLiquidatorMavBalance));
 
     // console.log("-");
 
@@ -4096,9 +4096,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
     // console.log("-");
 
-    // console.log("initialTreasuryTezBalance: "+ initialTreasuryTezBalance);
-    // console.log("updatedTreasuryTezBalance: "+ updatedTreasuryTezBalance);
-    // console.log("change: "+ (updatedTreasuryTezBalance - initialTreasuryTezBalance));
+    // console.log("initialTreasuryMavBalance: "+ initialTreasuryMavBalance);
+    // console.log("updatedTreasuryMavBalance: "+ updatedTreasuryMavBalance);
+    // console.log("change: "+ (updatedTreasuryMavBalance - initialTreasuryMavBalance));
 
     // console.log("-");
 
@@ -4127,9 +4127,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
     // console.log("-");
 
-    // console.log("initialLendingControllerTezBalance: "+ initialLendingControllerTezBalance);
-    // console.log("updatedLendingControllerTezBalance: "+ updatedLendingControllerTezBalance);
-    // console.log("change: "+ (updatedLendingControllerTezBalance - initialLendingControllerTezBalance));
+    // console.log("initialLendingControllerMavBalance: "+ initialLendingControllerMavBalance);
+    // console.log("updatedLendingControllerMavBalance: "+ updatedLendingControllerMavBalance);
+    // console.log("change: "+ (updatedLendingControllerMavBalance - initialLendingControllerMavBalance));
 
     // console.log("---");
 
@@ -4167,26 +4167,26 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     // console.log('admin liquidation amounts');
     // console.log('adminLiquidationFeeMockFa12: '  + adminLiquidationFeeMockFa12 ); 
     // console.log('adminLiquidationFeeMockFa2: '   + adminLiquidationFeeMockFa2 ); 
-    // console.log('adminLiquidationFeeTez: '       + adminLiquidationFeeTez ); 
+    // console.log('adminLiquidationFeeMav: '       + adminLiquidationFeeMav ); 
     // console.log('adminLiquidationFeeMvn: '       + adminLiquidationFeeMvn ); 
 
     // console.log('')
     // console.log('liquidation amounts with incentive');
     // console.log('liquidationAmountWithIncentiveMockFa12: '   + liquidationAmountWithIncentiveMockFa12 ); 
     // console.log('liquidationAmountWithIncentiveMockFa2: '    + liquidationAmountWithIncentiveMockFa2 ); 
-    // console.log('liquidationAmountWithIncentiveTez: '        + liquidationAmountWithIncentiveTez ); 
+    // console.log('liquidationAmountWithIncentiveMav: '        + liquidationAmountWithIncentiveMav ); 
     // console.log('liquidationAmountWithIncentiveMvn: '        + liquidationAmountWithIncentiveMvn ); 
 
     // console.log('')
     // console.log('liquidation amounts with fees and incentive');
     // console.log('liquidationAmountWithFeesAndIncentiveMockFa12: '    + liquidationAmountWithFeesAndIncentiveMockFa12 ); 
     // console.log('liquidationAmountWithFeesAndIncentiveMockFa2: '     + liquidationAmountWithFeesAndIncentiveMockFa2 ); 
-    // console.log('liquidationAmountWithFeesAndIncentiveTez: '         + liquidationAmountWithFeesAndIncentiveTez ); 
+    // console.log('liquidationAmountWithFeesAndIncentiveMav: '         + liquidationAmountWithFeesAndIncentiveMav ); 
     // console.log('liquidationAmountWithFeesAndIncentiveMvn: '         + liquidationAmountWithFeesAndIncentiveMvn ); 
 
     // console.log('')
     // console.log('total liquidation amounts');
     // console.log('totalLiquidationAmountMockFa12: '   + totalLiquidationAmountMockFa12 ); 
     // console.log('totalLiquidationAmountMockFa2: '    + totalLiquidationAmountMockFa2 ); 
-    // console.log('totalLiquidationAmountTez: '        + totalLiquidationAmountTez ); 
+    // console.log('totalLiquidationAmountMav: '        + totalLiquidationAmountMav ); 
     // console.log('totalLiquidationAmountMvn: '        + totalLiquidationAmountMvn );

@@ -624,7 +624,7 @@ describe("Test: Break Glass Contract", async () => {
                 emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
                 doormanStorage                  = await doormanInstance.storage();
 
-                const requiredFeeMutez           = emergencyGovernanceStorage.config.requiredFeeMutez;
+                const requiredFeeMumav           = emergencyGovernanceStorage.config.requiredFeeMumav;
 
                 initialUserStakeRecord          = await doormanStorage.userStakeBalanceLedger.get(user);
                 initialUserStakedBalance        = initialUserStakeRecord === undefined ? 0 : initialUserStakeRecord.balance.toNumber()
@@ -657,7 +657,7 @@ describe("Test: Break Glass Contract", async () => {
                 await signerFactory(tezos, userSk)
                 const emergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                     emergencyTitle, emergencyDesc
-                ).send({amount: requiredFeeMutez, mutez: true});
+                ).send({amount: requiredFeeMumav, mumav: true});
                 await emergencyControlOperation.confirmation();
 
                 // update storage
@@ -2613,7 +2613,7 @@ describe("Test: Break Glass Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await breakGlassInstance.methods.updateMetadata(key, hash).send();
@@ -2898,7 +2898,7 @@ describe("Test: Break Glass Contract", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 breakGlassStorage  = await breakGlassInstance.storage();   
                 const initialMetadata       = await breakGlassStorage.metadata.get(key);

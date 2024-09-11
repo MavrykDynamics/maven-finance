@@ -37,7 +37,7 @@
 // ------------------------------------------------------------------------------
 
 
-type createAggregatorFuncType is (option(key_hash) * tez * aggregatorStorageType) -> (operation * address);
+type createAggregatorFuncType is (option(key_hash) * mav * aggregatorStorageType) -> (operation * address);
 const createAggregatorFunc: createAggregatorFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
@@ -68,7 +68,7 @@ type aggregatorFactoryAction is
     |   UntrackAggregator               of (address)
 
         // Aggregator Entrypoints
-    |   DistributeRewardXtz             of distributeRewardXtzType
+    |   DistributeRewardMvrk             of distributeRewardMvrkType
     |   DistributeRewardStakedMvn       of distributeRewardStakedMvnType
 
         // Lambda Entrypoints
@@ -118,7 +118,7 @@ type aggregatorFactoryUnpackLambdaFunctionType is (aggregatorFactoryLambdaAction
 function main (const action : aggregatorFactoryAction; const s : aggregatorFactoryStorageType) : return is
 block{
 
-    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any mav amount  
 
 } with (
     case action of [
@@ -143,7 +143,7 @@ block{
         |   UntrackAggregator (parameters)                -> untrackAggregator(parameters, s)
 
             // Aggregator Entrypoints
-        |   DistributeRewardXtz (parameters)              -> distributeRewardXtz(parameters, s)
+        |   DistributeRewardMvrk (parameters)              -> distributeRewardMvrk(parameters, s)
         |   DistributeRewardStakedMvn (parameters)        -> distributeRewardStakedMvn(parameters, s)
 
             // Lambda Entrypoints

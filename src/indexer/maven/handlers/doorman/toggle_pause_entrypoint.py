@@ -16,7 +16,7 @@ async def toggle_pause_entrypoint(
         doorman_address = toggle_pause_entrypoint.data.target_address
     
         # Update doorman
-        await models.Doorman.filter(network=ctx.datasource.name.replace('tzkt_',''), address=doorman_address).update(
+        await models.Doorman.filter(network=ctx.datasource.name.replace('mvkt_',''), address=doorman_address).update(
             stake_mvn_paused                    = toggle_pause_entrypoint.storage.breakGlassConfig.stakeMvnIsPaused,
             unstake_mvn_paused                  = toggle_pause_entrypoint.storage.breakGlassConfig.unstakeMvnIsPaused,
             compound_paused                 = toggle_pause_entrypoint.storage.breakGlassConfig.compoundIsPaused,

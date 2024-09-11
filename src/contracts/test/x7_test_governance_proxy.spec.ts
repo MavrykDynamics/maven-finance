@@ -1097,8 +1097,8 @@ describe('Governance proxy lambdas tests', async () => {
     
                     // Transfer Operations
                     // XTX
-                    const transferXTZOperation  = await utils.tezos.contract.transfer({ to: contractDeployments.treasury.address, amount: 50});
-                    await transferXTZOperation.confirmation();
+                    const transferMVRKOperation  = await utils.tezos.contract.transfer({ to: contractDeployments.treasury.address, amount: 50});
+                    await transferMVRKOperation.confirmation();
                     
                     // FA12
                     const fa12InTreasury        = await treasuryStorage.whitelistTokenContracts.get(contractDeployments.mavenFa12Token.address);
@@ -1325,7 +1325,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const initUserFA12Balance           = initUserFA12Ledger ? initUserFA12Ledger.balance.toNumber() : 0;
                     const initUserFA2Ledger             = await mavenFa2TokenStorage.ledger.get(receiver)
                     const initUserFA2Balance            = initUserFA2Ledger ? initUserFA2Ledger.toNumber() : 0;
-                    const initUserXTZBalance            = (await utils.tezos.tz.getBalance(receiver)).toNumber();
+                    const initUserMVRKBalance            = (await utils.tezos.tz.getBalance(receiver)).toNumber();
                     const tokenAmount                   = 50;
                     const transfers                     = [
                         {
@@ -1348,7 +1348,7 @@ describe('Governance proxy lambdas tests', async () => {
                         {
                             to_: receiver,
                             amount: tokenAmount,
-                            token: "tez"
+                            token: "mav"
                         },
                     ];
                     
@@ -1374,12 +1374,12 @@ describe('Governance proxy lambdas tests', async () => {
                     const finalUserFA12Balance          = finalUserFA12Ledger ? finalUserFA12Ledger.balance.toNumber() : 0;
                     const finalUserFA2Ledger            = await mavenFa2TokenStorage.ledger.get(receiver)
                     const finalUserFA2Balance           = finalUserFA2Ledger ? finalUserFA2Ledger.toNumber() : 0;
-                    const finalUserXTZBalance           = (await utils.tezos.tz.getBalance(receiver)).toNumber();
+                    const finalUserMVRKBalance           = (await utils.tezos.tz.getBalance(receiver)).toNumber();
 
                     // Assertions
                     assert.equal(finalUserFA12Balance, initUserFA12Balance + tokenAmount);
                     assert.equal(finalUserFA2Balance, initUserFA2Balance + tokenAmount);
-                    assert.equal(finalUserXTZBalance, initUserXTZBalance + tokenAmount);
+                    assert.equal(finalUserMVRKBalance, initUserMVRKBalance + tokenAmount);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -1951,11 +1951,11 @@ describe('Governance proxy lambdas tests', async () => {
                     const percentOracleThreshold        = 10;
                     const heartbeatSeconds              = 5;
                     const rewardAmountStakedMvn         = 100;
-                    const rewardAmountXtz               = 100;
+                    const rewardAmountMvrk               = 100;
                     const metadata                      = Buffer.from(
                             JSON.stringify({
                                 name: 'MAVEN Aggregator Contract',
-                                icon: 'https://logo.chainbit.xyz/xtz',
+                                icon: 'https://logo.chainbit.xyz/mvrk',
                                 version: 'v1.0.0',
                                 authors: ['MAVEN Dev Team <info@mavryk.io>'],
                             }),
@@ -1980,7 +1980,7 @@ describe('Governance proxy lambdas tests', async () => {
                             percentOracleThreshold,
                             heartbeatSeconds,
                             rewardAmountStakedMvn,
-                            rewardAmountXtz,
+                            rewardAmountMvrk,
                             metadata
                         ]
                     );
@@ -2007,7 +2007,7 @@ describe('Governance proxy lambdas tests', async () => {
                     assert.strictEqual(createdAggregatorStorage.config.percentOracleThreshold.toNumber(), percentOracleThreshold);
                     assert.strictEqual(createdAggregatorStorage.config.heartbeatSeconds.toNumber(), heartbeatSeconds);
                     assert.strictEqual(createdAggregatorStorage.config.rewardAmountStakedMvn.toNumber(), rewardAmountStakedMvn);
-                    assert.strictEqual(createdAggregatorStorage.config.rewardAmountXtz.toNumber(), rewardAmountXtz);
+                    assert.strictEqual(createdAggregatorStorage.config.rewardAmountMvrk.toNumber(), rewardAmountMvrk);
 
                 } catch(e){
                     console.dir(e, {depth: 5});
@@ -2657,8 +2657,8 @@ describe('Governance proxy lambdas tests', async () => {
                     lendingControllerStorage                    = await lendingControllerInstance.storage();
                     const tokenName                             = "Test";
                     const tokenDecimals                         = 2;
-                    const oracleAddress                         = "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM";
-                    const mTokenAddress                         = "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM";
+                    const oracleAddress                         = eve.pkh;
+                    const mTokenAddress                         = eve.pkh;
                     const reserveRatio                          = 3;
                     const optimalUtilisationRate                = 4;
                     const baseInterestRate                      = 5;
@@ -2735,8 +2735,8 @@ describe('Governance proxy lambdas tests', async () => {
                     lendingControllerStorage                    = await lendingControllerInstance.storage();
                     const tokenName                             = "Test";
                     const tokenDecimals                         = 2;
-                    const oracleAddress                         = "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM";
-                    const mTokenAddress                         = "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM";
+                    const oracleAddress                         = eve.pkh;
+                    const mTokenAddress                         = eve.pkh;
                     const reserveRatio                          = 3;
                     const optimalUtilisationRate                = 4;
                     const baseInterestRate                      = 5;
@@ -2807,8 +2807,8 @@ describe('Governance proxy lambdas tests', async () => {
                     lendingControllerStorage                    = await lendingControllerInstance.storage();
                     const tokenName                             = "Test";
                     const tokenDecimals                         = 2;
-                    const tokenContractAddress                  = "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM";
-                    const oracleAddress                         = "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM";
+                    const tokenContractAddress                  = eve.pkh;
+                    const oracleAddress                         = eve.pkh;
                     const protectedToken                        = false;
                     const isScaledToken                         = false;
                     const isStakedToken                         = false;
@@ -3360,7 +3360,7 @@ describe('Governance proxy lambdas tests', async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await governanceProxyInstance.methods.updateMetadata(key, hash).send();
@@ -3464,7 +3464,7 @@ describe('Governance proxy lambdas tests', async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 governanceProxyStorage  = await governanceProxyInstance.storage();   
                 const initialMetadata   = await governanceProxyStorage.metadata.get(key);

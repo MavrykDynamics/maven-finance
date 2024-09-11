@@ -34,7 +34,7 @@ block {
 function verifySenderIsWhitelisted(const s : treasuryStorageType) : unit is 
 block {
 
-    if not checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
+    if not checkInWhitelistContracts(Mavryk.get_sender(), s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
     else skip;
 
 } with unit 
@@ -107,7 +107,7 @@ block {
 
 // helper function to %stakeMvn entrypoint
 function getStakeEntrypoint(const contractAddress : address) : contract(nat) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%stakeMvn",
         contractAddress) : option(contract(nat))) of [
                 Some(contr) -> contr
@@ -118,7 +118,7 @@ function getStakeEntrypoint(const contractAddress : address) : contract(nat) is
 
 // helper function to %unstakeMvn entrypoint
 function getUnstakeEntrypoint(const contractAddress : address) : contract(nat) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%unstakeMvn",
         contractAddress) : option(contract(nat))) of [
                 Some(contr) -> contr
@@ -128,7 +128,7 @@ function getUnstakeEntrypoint(const contractAddress : address) : contract(nat) i
 
 // helper function to %update_operators entrypoint 
 function getUpdateOperatorsEntrypoint(const tokenContractAddress : address) : contract(updateOperatorsType) is
-    case (Tezos.get_entrypoint_opt(
+    case (Mavryk.get_entrypoint_opt(
         "%update_operators",
         tokenContractAddress) : option(contract(updateOperatorsType))) of [
                 Some (contr)    -> contr
@@ -153,9 +153,9 @@ block {
     const contractAddress  : address   = stakeTokensParams.contractAddress;
 
     // Create and send stake operation
-    const stakeTokensOperation : operation = Tezos.transaction(
+    const stakeTokensOperation : operation = Mavryk.transaction(
         (stakeAmount),
-        0tez, 
+        0mav, 
         getStakeEntrypoint(contractAddress)
     );
 
@@ -171,9 +171,9 @@ block {
     const contractAddress  : address   = unstakeTokensParams.contractAddress;
 
     // Create and send unstake operation
-    const unstakeTokensOperation : operation = Tezos.transaction(
+    const unstakeTokensOperation : operation = Mavryk.transaction(
         (unstakeAmount),
-        0tez, 
+        0mav, 
         getUnstakeEntrypoint(contractAddress)
     );
 
@@ -189,9 +189,9 @@ block {
     const updateOperatorsParams  : updateOperatorsType   = updateTokenOperatorsParams.updateOperators;
 
     // Create and send update MVN operators operation
-    const updateTokenOperatorsOperation : operation = Tezos.transaction(
+    const updateTokenOperatorsOperation : operation = Mavryk.transaction(
         (updateOperatorsParams),
-        0tez, 
+        0mav, 
         getUpdateOperatorsEntrypoint(tokenContractAddress)
     );
 
@@ -213,9 +213,9 @@ block {
 
     const mvnTokenAddress : address = s.mvnTokenAddress;
     
-    const mintTokenOperation : operation = Tezos.transaction(
+    const mintTokenOperation : operation = Mavryk.transaction(
         (to_, amount_),
-        0tez,
+        0mav,
         getMintEntrypointFromTokenAddress(mvnTokenAddress)
     );
 

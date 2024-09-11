@@ -4,14 +4,51 @@
 
 ### Deployment
 
-- DEV: 0.47
-- STAGING: 0.47
-- PROD: 0.47
-- PROD2: 0.47
+- DEV: 0.50
+- STAGING: 0.50
+- PROD: Next
 
 ### Updated ERD Model
 
 [Link](https://lucid.app/lucidchart/33d39042-b931-400c-b116-1523cb8dc128/edit?invitationId=inv_1918cbe0-83ec-4535-b842-f9e789b8ee69&page=0_0#)
+
+## Next 
+
+### What's new
+
+- Token
+  - Column Metadata is now nullable
+
+- MvnFaucet
+  - Column FakeUsdtAmountPerUser added
+  - Column FakeUsdtTokenAddress added
+
+- MvnFaucetRequester
+  - Column RequestType added
+
+### Breaking changes
+
+- Aggregator
+  - Column RewardAmountXtz renamed to RewardAmountMvrk
+  - Column WithdrawRewardXtzPaused renamed to WithdrawRewardMvrkPaused
+
+- AggregatorFactory
+  - Column DistributeRewardXtzPaused renamed to DistributeRewardMvrkPaused
+
+- EmergencyGovernance
+  - Column RequiredFeeMutez renamed to RequiredFeeMumav
+
+- Governance
+  - Column ProposalSubmissionFeeMutez renamed to ProposalSubmissionFeeMumav
+
+- LendingController
+  - Column MockTime removed
+
+- MvnFaucet
+  - Column AmountPerUser renamed to MvnAmountPerUser
+
+- TreasuryBalance
+  - Column TzktTokenId renamed to MvktTokenId
 
 ## 0.48
 

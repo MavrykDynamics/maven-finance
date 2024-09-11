@@ -18,10 +18,10 @@ async def remove_vestee(
     
         # Delete record
         vesting = await models.Vesting.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address=vesting_address
         )
-        vestee  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=vestee_address)
+        vestee  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vestee_address)
         await models.VestingVestee.filter(
             vestee  = vestee,
             vesting = vesting
