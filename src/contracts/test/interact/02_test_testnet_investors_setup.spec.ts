@@ -109,27 +109,27 @@ describe("Testnet setup helper", async () => {
 
                 switch(aggregatorName){
                     case "USDT/USD":
-                        // usdtAggregator  = aggregatorAddress;
-                        usdtAggregator  = "KT1LXtigQdv8WfF1T8uTtjB75C1uCyE9Ty6G";
+                        usdtAggregator  = aggregatorAddress;
+                        // usdtAggregator  = "KT1LXtigQdv8WfF1T8uTtjB75C1uCyE9Ty6G";
                         break;
                     // case "EURT/USD":
                     //     eurtAggregator  = aggregatorAddress;
                     //     break;
                     case "MVRK/USD":
-                        // mvrkAggregator   = aggregatorAddress;
-                        mvrkAggregator   = "KT1UZ4pxidJUVeCixmp8WjGUL2GuGCfLM3dp";
+                        mvrkAggregator   = aggregatorAddress;
+                        // mvrkAggregator   = "KT1UZ4pxidJUVeCixmp8WjGUL2GuGCfLM3dp";
                         break;
                     case "BTC/USD":
-                        // btcAggregator   = aggregatorAddress;
-                        btcAggregator   = "KT1KuboiXGVbok9nFCgwKiUw8MbJA9mT5amT";
+                        btcAggregator   = aggregatorAddress;
+                        // btcAggregator   = "KT1KuboiXGVbok9nFCgwKiUw8MbJA9mT5amT";
                         break;
                     case "OCEAN/USD":
-                        // oceanAggregator   = aggregatorAddress;
-                        oceanAggregator   = "KT1DF7gcTusnYRks9AHdRGncEt2ZQd2GrkZG";
+                        oceanAggregator   = aggregatorAddress;
+                        // oceanAggregator   = "KT1DF7gcTusnYRks9AHdRGncEt2ZQd2GrkZG";
                         break;
                     case "MARS1/USD":
-                        // mars1Aggregator   = aggregatorAddress;
-                        mars1Aggregator   = "KT1J27dgN5U5Zo73pXyq74VmudcnHQq3uTEK";
+                        mars1Aggregator   = aggregatorAddress;
+                        // mars1Aggregator   = "KT1J27dgN5U5Zo73pXyq74VmudcnHQq3uTEK";
                         break;
                     default: 
                         break
