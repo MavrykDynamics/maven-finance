@@ -56,6 +56,8 @@ describe("Testnet setup helper", async () => {
     let usdtAggregator;
     let mvrkAggregator;
     let btcAggregator;
+    let oceanAggregator;
+    let mars1Aggregator;
 
     before("setup", async () => {
         try{
@@ -108,15 +110,26 @@ describe("Testnet setup helper", async () => {
                 switch(aggregatorName){
                     case "USDT/USD":
                         usdtAggregator  = aggregatorAddress;
+                        // usdtAggregator  = "KT1LXtigQdv8WfF1T8uTtjB75C1uCyE9Ty6G";
                         break;
-                    case "EURT/USD":
-                        eurtAggregator  = aggregatorAddress;
-                        break;
+                    // case "EURT/USD":
+                    //     eurtAggregator  = aggregatorAddress;
+                    //     break;
                     case "MVRK/USD":
                         mvrkAggregator   = aggregatorAddress;
+                        // mvrkAggregator   = "KT1UZ4pxidJUVeCixmp8WjGUL2GuGCfLM3dp";
                         break;
                     case "BTC/USD":
                         btcAggregator   = aggregatorAddress;
+                        // btcAggregator   = "KT1KuboiXGVbok9nFCgwKiUw8MbJA9mT5amT";
+                        break;
+                    case "OCEAN/USD":
+                        oceanAggregator   = aggregatorAddress;
+                        // oceanAggregator   = "KT1DF7gcTusnYRks9AHdRGncEt2ZQd2GrkZG";
+                        break;
+                    case "MARS1/USD":
+                        mars1Aggregator   = aggregatorAddress;
+                        // mars1Aggregator   = "KT1J27dgN5U5Zo73pXyq74VmudcnHQq3uTEK";
                         break;
                     default: 
                         break
@@ -249,7 +262,7 @@ describe("Testnet setup helper", async () => {
             }
         });
 
-        it('Creation of 3 loan tokens', async () => {
+        it('Creation of 2 loan tokens', async () => {
             try{
 
                 // Get aggregators addresses
@@ -257,29 +270,29 @@ describe("Testnet setup helper", async () => {
                 const interestRateDecimals                  = 27;
 
                 // EURT
-                var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
-                    "createLoanToken",
+                // var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
+                //     "createLoanToken",
 
-                    "eurt",
-                    6,
+                //     "eurt",
+                //     6,
 
-                    eurtAggregator,
+                //     eurtAggregator,
 
-                    contractDeployments.mTokenEurt.address,
+                //     contractDeployments.mTokenEurt.address,
                     
-                    3000,
-                    30 * 10 ** (interestRateDecimals - 2),
-                    5 * 10 ** (interestRateDecimals - 2),
-                    25 * 10 ** (interestRateDecimals - 2),
-                    10 * 10 ** (interestRateDecimals - 2),
-                    20 * 10 ** (interestRateDecimals - 2),
-                    10000,
+                //     3000,
+                //     30 * 10 ** (interestRateDecimals - 2),
+                //     5 * 10 ** (interestRateDecimals - 2),
+                //     25 * 10 ** (interestRateDecimals - 2),
+                //     10 * 10 ** (interestRateDecimals - 2),
+                //     20 * 10 ** (interestRateDecimals - 2),
+                //     10000,
 
-                    "fa2",
-                    "KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS",
-                    0
-                ).send();
-                await setLoanTokenOperation.confirmation();
+                //     "fa2",
+                //     "KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS",
+                //     0
+                // ).send();
+                // await setLoanTokenOperation.confirmation();
 
                 // MVRK
                 var setLoanTokenOperation = await lendingControllerInstance.methods.setLoanToken(
@@ -324,7 +337,8 @@ describe("Testnet setup helper", async () => {
                     10000,
 
                     "fa2",
-                    "KT1WNrZ7pEbpmYBGPib1e7UVCeC6GA6TkJYR",
+                    // contractDeployments.fakeUSDtToken.address,
+                    "KT1StUZzJ34MhSNjkQMSyvZVrR9ppkHMFdFf",
                     0
                 ).send();
                 await setLoanTokenOperation.confirmation();
@@ -341,30 +355,30 @@ describe("Testnet setup helper", async () => {
                 aggregatorFactoryStorage     	            = await aggregatorFactoryInstance.storage();
 
                 // Eurt
-                var setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
-                    "createCollateralToken",
+                // var setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                //     "createCollateralToken",
 
-                    "eurt",
-                    'KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS',
-                    6,
+                //     "eurt",
+                //     'KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS',
+                //     6,
 
-                    eurtAggregator,
-                    false,
-                    false,
-                    false,
-                    null,
-                    null, // Max deposit amount
+                //     eurtAggregator,
+                //     false,
+                //     false,
+                //     false,
+                //     null,
+                //     null, // Max deposit amount
 
-                    // fa12 token type - token contract address
-                    "fa2",
-                    "KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS",
-                    0
+                //     // fa12 token type - token contract address
+                //     "fa2",
+                //     "KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS",
+                //     0
 
-                ).send();
-                await setCollateralTokenOperation.confirmation();
+                // ).send();
+                // await setCollateralTokenOperation.confirmation();
 
                 // MVRK
-                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                var setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
                     "createCollateralToken",
 
                     "mav",
@@ -383,12 +397,13 @@ describe("Testnet setup helper", async () => {
                 ).send();
                 await setCollateralTokenOperation.confirmation();
                 
-                // tzbtc
+                // wbtc
                 setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
                     "createCollateralToken",
 
-                    "tzbtc",
-                    'KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS',
+                    "wbtc",
+                    // contractDeployments.fakeWBTCToken.address,
+                    "KT1C69d3yp4VaMW5v9dNoR6rBwTtg6x7h9K2",
                     8,
 
                     btcAggregator,
@@ -398,8 +413,10 @@ describe("Testnet setup helper", async () => {
                     null,
                     null, // Max deposit amount
 
-                    "fa12",
-                    "KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS"
+                    "fa2",
+                    // contractDeployments.fakeWBTCToken.address,
+                    "KT1C69d3yp4VaMW5v9dNoR6rBwTtg6x7h9K2s",
+                    0
                 ).send();
                 await setCollateralTokenOperation.confirmation();
                 
@@ -408,7 +425,8 @@ describe("Testnet setup helper", async () => {
                     "createCollateralToken",
 
                     "usdt",
-                    'KT1WNrZ7pEbpmYBGPib1e7UVCeC6GA6TkJYR',
+                    // contractDeployments.fakeUSDtToken.address,
+                    "KT1StUZzJ34MhSNjkQMSyvZVrR9ppkHMFdFf",
                     6,
 
                     usdtAggregator,
@@ -419,7 +437,50 @@ describe("Testnet setup helper", async () => {
                     null, // Max deposit amount
 
                     "fa2",
-                    "KT1WNrZ7pEbpmYBGPib1e7UVCeC6GA6TkJYR",
+                    // contractDeployments.fakeUSDtToken.address,
+                    "KT1StUZzJ34MhSNjkQMSyvZVrR9ppkHMFdFf",
+                    0
+                ).send();
+                await setCollateralTokenOperation.confirmation();
+                
+                // ocean
+                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
+
+                    "ocean",
+                    "KT1J1p1f1owAEjJigKGXhwzu3tVCvRPVgGCh",
+                    3,
+
+                    oceanAggregator,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null, // Max deposit amount
+
+                    "fa2",
+                    "KT1J1p1f1owAEjJigKGXhwzu3tVCvRPVgGCh",
+                    0
+                ).send();
+                await setCollateralTokenOperation.confirmation();
+                
+                // mars1
+                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
+
+                    "mars1",
+                    "KT1CgLvrzj5MziwPWWzPkZj1eDeEpRAsYvQ9",
+                    3,
+
+                    mars1Aggregator,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null, // Max deposit amount
+
+                    "fa2",
+                    "KT1CgLvrzj5MziwPWWzPkZj1eDeEpRAsYvQ9",
                     0
                 ).send();
                 await setCollateralTokenOperation.confirmation();
@@ -561,6 +622,10 @@ describe("Testnet setup helper", async () => {
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1WNrZ7pEbpmYBGPib1e7UVCeC6GA6TkJYR", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1RcHjqDWWycYQGrz4KBYoGZSMmMuVpkmuS", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1P8RdJ5MfHMK5phKJ5JsfNfask5v2b2NQS", "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1StUZzJ34MhSNjkQMSyvZVrR9ppkHMFdFf", "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1C69d3yp4VaMW5v9dNoR6rBwTtg6x7h9K2", "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1J1p1f1owAEjJigKGXhwzu3tVCvRPVgGCh", "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1CgLvrzj5MziwPWWzPkZj1eDeEpRAsYvQ9", "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvnToken.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenEurt.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenMvrk.address, "update"))

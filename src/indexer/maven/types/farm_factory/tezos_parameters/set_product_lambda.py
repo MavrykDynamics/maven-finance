@@ -3,19 +3,19 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
 
-class FarmTypeItem(BaseModel):
+class FarmType(BaseModel):
     class Config:
         extra = Extra.forbid
 
     farm: Dict[str, Any]
 
 
-class FarmTypeItem1(BaseModel):
+class FarmType1(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -28,4 +28,4 @@ class SetProductLambdaParameter(BaseModel):
 
     name: str
     func_bytes: str
-    farmType: Union[FarmTypeItem, FarmTypeItem1]
+    farmType: FarmType | FarmType1

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Extra
 
@@ -16,14 +16,14 @@ class CollateralItem(BaseModel):
     tokenName: str
 
 
-class Depositor(BaseModel):
+class Depositors(BaseModel):
     class Config:
         extra = Extra.forbid
 
     any: Dict[str, Any]
 
 
-class Depositor1(BaseModel):
+class Depositors1(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -34,8 +34,8 @@ class CreateVaultParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    baker: Optional[str]
+    baker: str | None
     loanTokenName: str
     name: str
-    collateral: Optional[List[CollateralItem]]
-    depositors: Union[Depositor, Depositor1]
+    collateral: List[CollateralItem] | None
+    depositors: Depositors | Depositors1

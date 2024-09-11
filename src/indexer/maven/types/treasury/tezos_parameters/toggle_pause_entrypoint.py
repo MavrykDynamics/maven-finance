@@ -3,40 +3,40 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
 
-class TargetEntrypointItem(BaseModel):
+class TargetEntrypoint(BaseModel):
     class Config:
         extra = Extra.forbid
 
     mintMvnAndTransfer: bool
 
 
-class TargetEntrypointItem1(BaseModel):
+class TargetEntrypoint1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     stakeTokens: bool
 
 
-class TargetEntrypointItem2(BaseModel):
+class TargetEntrypoint2(BaseModel):
     class Config:
         extra = Extra.forbid
 
     transfer: bool
 
 
-class TargetEntrypointItem3(BaseModel):
+class TargetEntrypoint3(BaseModel):
     class Config:
         extra = Extra.forbid
 
     unstakeTokens: bool
 
 
-class TargetEntrypointItem4(BaseModel):
+class TargetEntrypoint4(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -47,11 +47,11 @@ class TogglePauseEntrypointParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    targetEntrypoint: Union[
-        TargetEntrypointItem,
-        TargetEntrypointItem1,
-        TargetEntrypointItem2,
-        TargetEntrypointItem3,
-        TargetEntrypointItem4,
-    ]
+    targetEntrypoint: (
+        TargetEntrypoint
+        | TargetEntrypoint1
+        | TargetEntrypoint2
+        | TargetEntrypoint3
+        | TargetEntrypoint4
+    )
     empty: Dict[str, Any]

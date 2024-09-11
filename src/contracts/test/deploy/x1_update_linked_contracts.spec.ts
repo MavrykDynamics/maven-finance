@@ -184,7 +184,7 @@ describe('Linked contracts updates for Tests', async () => {
             .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceSatellite'   , contractDeployments.governanceSatellite.address,  'update'))
             .withContractCall(governanceInstance.methods.updateGeneralContracts('governanceFinancial'   , contractDeployments.governanceFinancial.address,  'update'))
             .withContractCall(governanceInstance.methods.updateGeneralContracts('vaultFactory'          , contractDeployments.vaultFactory.address,         'update'))
-            .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , process.env.MOCK_TIME === "true" ? contractDeployments.lendingControllerMockTime.address : contractDeployments.lendingController.address,    'update'))
+            .withContractCall(governanceInstance.methods.updateGeneralContracts('lendingController'     , contractDeployments.lendingController.address,    'update'))
         
             // whitelist contracts
             .withContractCall(governanceInstance.methods.updateWhitelistContracts(contractDeployments.vaultFactory.address,         'update'))

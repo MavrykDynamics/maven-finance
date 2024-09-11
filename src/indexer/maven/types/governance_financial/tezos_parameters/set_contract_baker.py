@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from pydantic import BaseModel, Extra
 
 
@@ -13,4 +11,4 @@ class SetContractBakerParameter(BaseModel):
         extra = Extra.forbid
 
     targetContractAddress: str
-    keyHash: Optional[str]
+    keyHash: str | None

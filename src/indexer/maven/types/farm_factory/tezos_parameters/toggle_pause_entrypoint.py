@@ -3,33 +3,33 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
 
-class TargetEntrypointItem(BaseModel):
+class TargetEntrypoint(BaseModel):
     class Config:
         extra = Extra.forbid
 
     createFarm: bool
 
 
-class TargetEntrypointItem1(BaseModel):
+class TargetEntrypoint1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     createFarmMToken: bool
 
 
-class TargetEntrypointItem2(BaseModel):
+class TargetEntrypoint2(BaseModel):
     class Config:
         extra = Extra.forbid
 
     trackFarm: bool
 
 
-class TargetEntrypointItem3(BaseModel):
+class TargetEntrypoint3(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -40,10 +40,7 @@ class TogglePauseEntrypointParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    targetEntrypoint: Union[
-        TargetEntrypointItem,
-        TargetEntrypointItem1,
-        TargetEntrypointItem2,
-        TargetEntrypointItem3,
-    ]
+    targetEntrypoint: (
+        TargetEntrypoint | TargetEntrypoint1 | TargetEntrypoint2 | TargetEntrypoint3
+    )
     empty: Dict[str, Any]

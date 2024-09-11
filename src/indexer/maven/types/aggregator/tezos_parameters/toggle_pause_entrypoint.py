@@ -3,37 +3,35 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
 
-class TargetEntrypointItem(BaseModel):
+class TargetEntrypoint(BaseModel):
     class Config:
         extra = Extra.forbid
 
     updateData: bool
 
 
-class TargetEntrypointItem1(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    withdrawRewardStakedMvn: bool
-
-
-class TargetEntrypointItem2(BaseModel):
+class TargetEntrypoint1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     withdrawRewardMvrk: bool
 
 
+class TargetEntrypoint2(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    withdrawRewardStakedMvn: bool
+
+
 class TogglePauseEntrypointParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    targetEntrypoint: Union[
-        TargetEntrypointItem, TargetEntrypointItem1, TargetEntrypointItem2
-    ]
+    targetEntrypoint: TargetEntrypoint | TargetEntrypoint1 | TargetEntrypoint2
     empty: Dict[str, Any]

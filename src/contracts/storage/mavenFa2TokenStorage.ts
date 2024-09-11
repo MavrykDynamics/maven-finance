@@ -28,9 +28,9 @@ const metadata = MichelsonMap.fromLiteral({
             symbol: Buffer.from('FA2').toString('hex'),
             name: Buffer.from('MAVENFA2').toString('hex'),
             decimals: Buffer.from('6').toString('hex'),
-            icon: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex'),
+            icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
             shouldPreferSymbol: true,
-            thumbnailUri: 'https://mavenfinance.io/logo192.png'
+            thumbnailUri: 'https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg'
             }
         ]
         }),
@@ -52,9 +52,9 @@ const token_metadata = MichelsonMap.fromLiteral({
             symbol: Buffer.from('FA2').toString('hex'),
             name: Buffer.from('MAVENFA2').toString('hex'),
             decimals: Buffer.from('6').toString('hex'),
-            icon: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex'),
-            shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
-            thumbnailUri: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex')
+            icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
+            shouldPreferSymbol: '74727565',
+            thumbnailUri: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex')
         }),
     },
 })

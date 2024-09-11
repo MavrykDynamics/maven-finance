@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from pydantic import BaseModel, Extra
 
 
@@ -17,4 +15,4 @@ class SnapshotLedgerValue(BaseModel):
     totalVotingPower: str
     accumulatedRewardsPerShare: str
     ready: bool
-    nextSnapshotCycleId: Optional[str]
+    nextSnapshotCycleId: str | None

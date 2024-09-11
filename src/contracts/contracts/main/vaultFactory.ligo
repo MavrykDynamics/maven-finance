@@ -35,7 +35,7 @@ type createVaultFuncType is (option(key_hash) * mav * vaultStorageType) -> (oper
 const createVaultFunc : createVaultFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
-#include "../compiled/vault.tz"
+#include "../compiled/vault.mv"
         ;
           PAIR } |}
 : createVaultFuncType)];

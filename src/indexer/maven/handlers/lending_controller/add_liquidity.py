@@ -4,7 +4,7 @@ from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from maven.types.lending_controller.tezos_parameters.add_liquidity import AddLiquidityParameter
 from dipdup.models.tezos_tzkt import TzktTransaction
-from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as mav
+from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenType3 as fa12, TokenType4 as fa2, TokenType5 as mav
 import maven.models as models
 
 async def add_liquidity(
