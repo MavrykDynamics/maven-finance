@@ -134,20 +134,20 @@ describe("Treasury tests", async () => {
 
     describe('test: Treasury deposit tests', function() {
 
-        it('test: any user (alice) can deposit tez into treasury', async () => {
+        it('test: any user (alice) can deposit mav into treasury', async () => {
             try{        
                 
-                // Alice transfers 8 XTZ to Treasury
+                // Alice transfers 8 MVRK to Treasury
                 const depositAmount             = 8;
-                const depositAmountMutez        = 8000000;
-                const initTreasuryTezBalance    = await utils.tezos.tz.getBalance(treasuryAddress);
+                const depositAmountMumav        = 8000000;
+                const initTreasuryMavBalance    = await utils.tezos.tz.getBalance(treasuryAddress);
                 
                 await signerFactory(tezos, alice.sk)
-                const aliceTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress, amount: depositAmount});
-                await aliceTransferTezToTreasuryOperation.confirmation();
+                const aliceTransferMavToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress, amount: depositAmount});
+                await aliceTransferMavToTreasuryOperation.confirmation();
 
-                const treasuryTezBalance        = await utils.tezos.tz.getBalance(treasuryAddress);
-                assert.deepEqual(treasuryTezBalance, initTreasuryTezBalance.plus(depositAmountMutez));
+                const treasuryMavBalance        = await utils.tezos.tz.getBalance(treasuryAddress);
+                assert.deepEqual(treasuryMavBalance, initTreasuryMavBalance.plus(depositAmountMumav));
 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -267,34 +267,34 @@ describe("Treasury tests", async () => {
             assert.notStrictEqual(treasuryWhitelistContracts, undefined);
         })
 
-        it('%transfer                 - whitelisted contract (eve) should be able to call this entrypoint and transfer XTZ', async () => {
+        it('%transfer                 - whitelisted contract (eve) should be able to call this entrypoint and transfer MVRK', async () => {
             try{        
                 const to_        = userOne;
-                const tokenType  = "tez";
+                const tokenType  = "mav";
                 const amount     = 10000000;
 
                 await signerFactory(tezos, userOneSk);
-                const initTreasuryTezBalance    = await utils.tezos.tz.getBalance(treasuryAddress);
-                const initUserTezBalance        = await utils.tezos.tz.getBalance(to_);
+                const initTreasuryMavBalance    = await utils.tezos.tz.getBalance(treasuryAddress);
+                const initUserMavBalance        = await utils.tezos.tz.getBalance(to_);
 
-                const adminTransferTezOperation = await treasuryInstance.methods.transfer(
+                const adminTransferMavOperation = await treasuryInstance.methods.transfer(
                 [
                     {
                         "to_"    : to_,
                         "token"  : {
-                            "tez" : tokenType
+                            "mav" : tokenType
                         },
                         "amount" : amount
                     }
                 ]
                 ).send();
-                const transferFee           = adminTransferTezOperation.params.fee
-                await adminTransferTezOperation.confirmation();
+                const transferFee           = adminTransferMavOperation.params.fee
+                await adminTransferMavOperation.confirmation();
 
-                const treasuryTezBalance    = await utils.tezos.tz.getBalance(treasuryAddress);
-                const userTezBalance        = await utils.tezos.tz.getBalance(to_);
-                assert.deepEqual(treasuryTezBalance, initTreasuryTezBalance.minus(amount));
-                assert.deepEqual(userTezBalance, initUserTezBalance.plus(amount).minus(transferFee));
+                const treasuryMavBalance    = await utils.tezos.tz.getBalance(treasuryAddress);
+                const userMavBalance        = await utils.tezos.tz.getBalance(to_);
+                assert.deepEqual(treasuryMavBalance, initTreasuryMavBalance.minus(amount));
+                assert.deepEqual(userMavBalance, initUserMavBalance.plus(amount).minus(transferFee));
                 
             } catch(e){
                 console.dir(e, {depth:  5});
@@ -421,10 +421,10 @@ describe("Treasury tests", async () => {
             } 
         });
 
-        it('%transfer                 - whitelisted contract (eve) should be able to call this entrypoint and transfer batch of XTZ', async () => {
+        it('%transfer                 - whitelisted contract (eve) should be able to call this entrypoint and transfer batch of MVRK', async () => {
             try{        
                 
-                const tokenType  = "tez";
+                const tokenType  = "mav";
 
                 const recipient_one   = mallory.pkh;
                 const amount_one      = 20000;
@@ -435,9 +435,9 @@ describe("Treasury tests", async () => {
                 const recipient_three = trudy.pkh;
                 const amount_three    = 50000;
 
-                const initialRecipientOneTezBalance   = await utils.tezos.tz.getBalance(recipient_one);
-                const initialRecipientTwoTezBalance   = await utils.tezos.tz.getBalance(recipient_two);
-                const initialRecipientThreeTezBalance = await utils.tezos.tz.getBalance(recipient_three);
+                const initialRecipientOneMavBalance   = await utils.tezos.tz.getBalance(recipient_one);
+                const initialRecipientTwoMavBalance   = await utils.tezos.tz.getBalance(recipient_two);
+                const initialRecipientThreeMavBalance = await utils.tezos.tz.getBalance(recipient_three);
 
                 await signerFactory(tezos, userOneSk);
                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
@@ -445,21 +445,21 @@ describe("Treasury tests", async () => {
                     {
                         "to_"    : recipient_one,
                         "token"  : {
-                            "tez" : tokenType
+                            "mav" : tokenType
                         },
                         "amount" : amount_one
                     },
                     {
                         "to_"    : recipient_two,
                         "token"  : {
-                            "tez" : tokenType
+                            "mav" : tokenType
                         },
                         "amount" : amount_two
                     },
                     {
                         "to_"    : recipient_three,
                         "token"  : {
-                            "tez" : tokenType
+                            "mav" : tokenType
                         },
                         "amount" : amount_three
                     }
@@ -467,13 +467,13 @@ describe("Treasury tests", async () => {
                 ).send();
                 await adminBatchTransferOperation.confirmation();
 
-                const finalRecipientOneTezBalance   = await utils.tezos.tz.getBalance(recipient_one);
-                const finalRecipientTwoTezBalance   = await utils.tezos.tz.getBalance(recipient_two);
-                const finalRecipientThreeTezBalance = await utils.tezos.tz.getBalance(recipient_three);
+                const finalRecipientOneMavBalance   = await utils.tezos.tz.getBalance(recipient_one);
+                const finalRecipientTwoMavBalance   = await utils.tezos.tz.getBalance(recipient_two);
+                const finalRecipientThreeMavBalance = await utils.tezos.tz.getBalance(recipient_three);
 
-                assert.deepEqual(finalRecipientOneTezBalance,   initialRecipientOneTezBalance.plus(amount_one));
-                assert.deepEqual(finalRecipientTwoTezBalance,   initialRecipientTwoTezBalance.plus(amount_two));
-                assert.deepEqual(finalRecipientThreeTezBalance, initialRecipientThreeTezBalance.plus(amount_three));
+                assert.deepEqual(finalRecipientOneMavBalance,   initialRecipientOneMavBalance.plus(amount_one));
+                assert.deepEqual(finalRecipientTwoMavBalance,   initialRecipientTwoMavBalance.plus(amount_two));
+                assert.deepEqual(finalRecipientThreeMavBalance, initialRecipientThreeMavBalance.plus(amount_three));
 
                 
             } catch(e){
@@ -699,7 +699,7 @@ describe("Treasury tests", async () => {
             } 
         });
 
-        it('%transfer                 - whitelisted contract (eve) should be able to call this entrypoint and transfer batch of FA12, FA2, MVN and XTZ', async () => {
+        it('%transfer                 - whitelisted contract (eve) should be able to call this entrypoint and transfer batch of FA12, FA2, MVN and MVRK', async () => {
             try{
                 const mavenFa12TokenContractAddress  = mavenFa12TokenAddress;
 
@@ -709,7 +709,7 @@ describe("Treasury tests", async () => {
                 const mvnTokenContractAddress       = mvnTokenAddress;
                 const mvnTokenId                    = 0;
 
-                // receive tez
+                // receive mav
                 const recipient_one   = isaac.pkh;
                 const amount_one      = 20000;
 
@@ -729,7 +729,7 @@ describe("Treasury tests", async () => {
                 const mavenFa12TokenStorage         = await mavenFa12TokenInstance.storage();
                 const mavenFa2TokenStorage          = await mavenFa2TokenInstance.storage();
 
-                const initRecipientOneTezBalance     = await utils.tezos.tz.getBalance(recipient_one);
+                const initRecipientOneMavBalance     = await utils.tezos.tz.getBalance(recipient_one);
                 const initialRecipientTwoAccount     = await mavenFa12TokenStorage.ledger.get(recipient_two);
                 const initialRecipientThreeAccount   = await mavenFa2TokenStorage.ledger.get(recipient_three);
                 const initialRecipientFourAccount    = await mvnTokenStorage.ledger.get(recipient_four);
@@ -744,7 +744,7 @@ describe("Treasury tests", async () => {
                     {
                         "to_"    : recipient_one,
                         "token"  : {
-                            "tez" : "tez"
+                            "mav" : "mav"
                         },
                         "amount" : amount_one
                     },
@@ -783,12 +783,12 @@ describe("Treasury tests", async () => {
                 const updatedMavenFa12TokenStorage    = await mavenFa12TokenInstance.storage();
                 const updatedMavenFa2TokenStorage     = await mavenFa2TokenInstance.storage();
 
-                const finalRecipientOneTezBalance               = await utils.tezos.tz.getBalance(recipient_one);
+                const finalRecipientOneMavBalance               = await utils.tezos.tz.getBalance(recipient_one);
                 const finalRecipientTwoMavenFa12TokenBalance   = await updatedMavenFa12TokenStorage.ledger.get(recipient_two);
                 const finalRecipientThreeMavenFa2TokenBalance  = await updatedMavenFa2TokenStorage.ledger.get(recipient_three);
                 const finalRecipientThreeMvnTokenBalance        = await updatedMvnTokenStorage.ledger.get(recipient_four);
 
-                assert.deepEqual(finalRecipientOneTezBalance,   initRecipientOneTezBalance.plus(amount_one));
+                assert.deepEqual(finalRecipientOneMavBalance,   initRecipientOneMavBalance.plus(amount_one));
                 assert.deepEqual(finalRecipientTwoMavenFa12TokenBalance.balance,  initialRecipientTwoBalance.plus(amount_two));
                 assert.deepEqual(finalRecipientThreeMavenFa2TokenBalance,         initialRecipientThreeBalance.plus(amount_three));
                 assert.deepEqual(finalRecipientThreeMvnTokenBalance,               initialRecipientFourBalance.plus(amount_four));
@@ -1040,7 +1040,7 @@ describe("Treasury tests", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await treasuryInstance.methods.updateMetadata(key, hash).send();
@@ -1368,7 +1368,7 @@ describe("Treasury tests", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 treasuryStorage = await treasuryInstance.storage();   
                 const initialMetadata    = await treasuryStorage.metadata.get(key);
@@ -1514,26 +1514,26 @@ describe("Treasury tests", async () => {
             }
         })
 
-        it('%transfer                 - non-whitelisted contract (admin) should not be able to call this entrypoint and transfer XTZ', async () => {
+        it('%transfer                 - non-whitelisted contract (admin) should not be able to call this entrypoint and transfer MVRK', async () => {
             try{        
                 
                 const to_        = userOne;
                 const amount     = 100000;
-                const tokenType  = "tez"
+                const tokenType  = "mav"
 
                 await signerFactory(tezos, adminSk);
-                const failTransferTezOperation = await treasuryInstance.methods.transfer(
+                const failTransferMavOperation = await treasuryInstance.methods.transfer(
                     [
                         {
                             "to_"    : to_,
                             "token"  : {
-                                "tez" : tokenType
+                                "mav" : tokenType
                             },
                             "amount" : amount
                         }
                     ]
                 );
-                await chai.expect(failTransferTezOperation.send()).to.be.eventually.rejected;
+                await chai.expect(failTransferMavOperation.send()).to.be.eventually.rejected;
                 
             } catch(e){
                 console.dir(e, {depth:  5});

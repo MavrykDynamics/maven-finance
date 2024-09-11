@@ -33,7 +33,7 @@ async def deposit(
     
         # Create and update records
         farm                            = await models.Farm.get(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = farm_address
         )
         farm.total_rewards              = total_rewards
@@ -48,7 +48,7 @@ async def deposit(
         farm.paid_rewards               = paid_rewards
         await farm.save()
     
-        user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=depositor_address)
+        user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=depositor_address)
     
         farm_account, _                 = await models.FarmAccount.get_or_create(
             user = user,

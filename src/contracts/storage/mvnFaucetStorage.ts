@@ -1,4 +1,4 @@
-import { MichelsonMap } from '@taquito/michelson-encoder'
+import { MichelsonMap } from '@mavrykdynamics/taquito-michelson-encoder'
 
 import { BigNumber } from 'bignumber.js'
 import { Buffer } from 'buffer'
@@ -8,7 +8,7 @@ import { MVN, zeroAddress } from '../test/helpers/Utils'
 import { mvnFaucetStorageType } from './storageTypes/mvnFaucetStorageType'
 
 const metadata = MichelsonMap.fromLiteral({
-    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
         name: 'MAVEN Faucet Contract',
@@ -22,8 +22,10 @@ const metadata = MichelsonMap.fromLiteral({
 export const mvnFaucetStorage: mvnFaucetStorageType = {
     
     mvnTokenAddress: zeroAddress,
+    fakeUsdtTokenAddress: zeroAddress,
     metadata: metadata,
-    amountPerUser: new BigNumber(MVN(1000)),
+    mvnAmountPerUser: new BigNumber(MVN(1000)),
+    fakeUsdtAmountPerUser: new BigNumber(1000000000),
     requesters: MichelsonMap.fromLiteral({}),
 
 }

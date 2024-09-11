@@ -16,7 +16,7 @@ async def pause_all(
         doorman_address                         = pause_all.data.target_address
     
         # Update doorman
-        await models.Doorman.filter(network=ctx.datasource.name.replace('tzkt_',''), address=doorman_address).update(
+        await models.Doorman.filter(network=ctx.datasource.name.replace('mvkt_',''), address=doorman_address).update(
             stake_mvn_paused                    = pause_all.storage.breakGlassConfig.stakeMvnIsPaused,
             unstake_mvn_paused                  = pause_all.storage.breakGlassConfig.unstakeMvnIsPaused,
             compound_paused                 = pause_all.storage.breakGlassConfig.compoundIsPaused,

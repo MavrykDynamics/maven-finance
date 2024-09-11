@@ -44,7 +44,7 @@
     "lambdaVaultWithdrawStakedToken"
   ],
   "vault": [
-    "lambdaDepositXtz",
+    "lambdaDepositMvrk",
     "lambdaInitVaultAction"
   ],
   "vaultFactory": [
@@ -74,7 +74,7 @@
     "lambdaCreateAggregator",
     "lambdaTrackAggregator",
     "lambdaUntrackAggregator",
-    "lambdaDistributeRewardXtz",
+    "lambdaDistributeRewardMvrk",
     "lambdaDistributeRewardStakedMvn"
   ],
   "aggregator": [
@@ -93,7 +93,7 @@
     "lambdaUnpauseAll",
     "lambdaTogglePauseEntrypoint",
     "lambdaUpdateData",
-    "lambdaWithdrawRewardXtz",
+    "lambdaWithdrawRewardMvrk",
     "lambdaWithdrawRewardStakedMvn"
   ],
   "breakGlass": [

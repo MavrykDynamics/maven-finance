@@ -1,4 +1,4 @@
-import { MichelsonMap } from "@taquito/michelson-encoder"
+import { MichelsonMap } from "@mavrykdynamics/taquito-michelson-encoder"
 import { BigNumber } from 'bignumber.js'
 import { bob } from '../scripts/sandbox/accounts'
 import { zeroAddress } from "test/helpers/Utils"
@@ -13,12 +13,12 @@ const breakGlassConfig = {
     createAggregatorIsPaused              : false,
     trackAggregatorIsPaused               : false,
     untrackAggregatorIsPaused             : false,
-    distributeRewardXtzIsPaused           : false,
+    distributeRewardMvrkIsPaused           : false,
     distributeRewardStakedMvnIsPaused     : false,
 }
 
 const metadata = MichelsonMap.fromLiteral({
-    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
         name: 'MAVEN Aggregator Factory Contract',

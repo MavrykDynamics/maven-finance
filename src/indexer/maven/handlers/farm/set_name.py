@@ -17,7 +17,7 @@ async def set_name(
     
         # Update contract
         await models.Farm.filter(
-            network = ctx.datasource.name.replace('tzkt_',''),
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = farm_address
         ).update(
             name    = name

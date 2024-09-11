@@ -111,7 +111,7 @@ class TokenTypeItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    tez: Dict[str, Any]
+    mav: Dict[str, Any]
 
 
 class CollateralTokenLedger(BaseModel):
@@ -150,7 +150,7 @@ class TokenTypeItem5(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    tez: Dict[str, Any]
+    mav: Dict[str, Any]
 
 
 class LoanTokenLedger(BaseModel):

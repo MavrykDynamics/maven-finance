@@ -28,9 +28,9 @@ async def create_aggregator(
         pct_oracle_threshold                        = int(aggregator_origination.storage.config.percentOracleThreshold)
         heart_beat_seconds                          = int(aggregator_origination.storage.config.heartbeatSeconds)
         reward_amount_smvn                          = float(aggregator_origination.storage.config.rewardAmountStakedMvn)
-        reward_amount_xtz                           = int(aggregator_origination.storage.config.rewardAmountXtz)
+        reward_amount_mvrk                          = int(aggregator_origination.storage.config.rewardAmountMvrk)
         update_data_paused                          = aggregator_origination.storage.breakGlassConfig.updateDataIsPaused
-        withdraw_reward_xtz_paused                  = aggregator_origination.storage.breakGlassConfig.withdrawRewardXtzIsPaused
+        withdraw_reward_mvrk_paused                 = aggregator_origination.storage.breakGlassConfig.withdrawRewardMvrkIsPaused
         withdraw_reward_smvn_paused                 = aggregator_origination.storage.breakGlassConfig.withdrawRewardStakedMvnIsPaused
         last_completed_data_round                   = int(aggregator_origination.storage.lastCompletedData.round)
         last_completed_data_epoch                   = int(aggregator_origination.storage.lastCompletedData.epoch)
@@ -41,7 +41,7 @@ async def create_aggregator(
     
         # Check aggregator does not already exists
         aggregator_exists                           = await models.Aggregator.filter(
-            network     = ctx.datasource.name.replace('tzkt_',''),
+            network     = ctx.datasource.name.replace('mvkt_',''),
             address     = aggregator_address
         ).exists()
 
@@ -73,14 +73,14 @@ async def create_aggregator(
     
             # Create record
             aggregator_factory          = await models.AggregatorFactory.get(
-                network     = ctx.datasource.name.replace('tzkt_',''),
+                network     = ctx.datasource.name.replace('mvkt_',''),
                 address     = aggregator_factory_address
             )
             governance                  = await models.Governance.get(
-                network     = ctx.datasource.name.replace('tzkt_','')
+                network     = ctx.datasource.name.replace('mvkt_','')
             )
             aggregator                  = models.Aggregator(
-                network                                     = ctx.datasource.name.replace('tzkt_',''),
+                network                                     = ctx.datasource.name.replace('mvkt_',''),
                 address                                     = aggregator_address,
                 metadata                                    = contract_metadata,
                 governance                                  = governance,
@@ -93,9 +93,9 @@ async def create_aggregator(
                 pct_oracle_threshold                        = pct_oracle_threshold,
                 heart_beat_seconds                          = heart_beat_seconds,
                 reward_amount_smvn                          = reward_amount_smvn,
-                reward_amount_xtz                           = reward_amount_xtz,
+                reward_amount_mvrk                          = reward_amount_mvrk,
                 update_data_paused                          = update_data_paused,
-                withdraw_reward_xtz_paused                  = withdraw_reward_xtz_paused,
+                withdraw_reward_mvrk_paused                 = withdraw_reward_mvrk_paused,
                 withdraw_reward_smvn_paused                 = withdraw_reward_smvn_paused,
                 last_completed_data_round                   = last_completed_data_round,
                 last_completed_data_epoch                   = last_completed_data_epoch,
@@ -112,7 +112,7 @@ async def create_aggregator(
                 oracle_peer_id          = oracle_storage_record.oraclePeerId
     
                 # Create record
-                oracle                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=oracle_address)
+                oracle                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=oracle_address)
                 aggregator_oracle       = models.AggregatorOracle(
                     aggregator  = aggregator,
                     user        = oracle,

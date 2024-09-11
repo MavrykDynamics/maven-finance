@@ -1,5 +1,5 @@
 import { Utils } from "../helpers/Utils"
-import { MichelsonMap } from '@taquito/michelson-encoder'
+import { MichelsonMap } from '@mavrykdynamics/taquito-michelson-encoder'
 const saveContractAddress = require("../helpers/saveContractAddress")
 
 const chai = require('chai')

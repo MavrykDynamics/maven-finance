@@ -3,7 +3,6 @@
       "**/.DS_Store": true,
       "**/.git": true,
       "**/.webpack": true,
-      "**/node_modules": true,
       "**/yarn.lock": true
     },
     "javascript.validate.enable": false,

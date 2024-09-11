@@ -1,4 +1,4 @@
-import { Estimate, OpKind } from "@taquito/taquito";
+import { Estimate, OpKind } from "@mavrykdynamics/taquito";
 
 import randomUserAccounts from "./helpers/random_accounts.json";
 import { MVN, Utils } from "./helpers/Utils";
@@ -134,12 +134,12 @@ describe("Stress tests", async () => {
                 }
             }
 
-            // Transfer TEZ and MVN for each user
+            // Transfer MAV and MVN for each user
             await signerFactory(tezos, adminSk);
             mvnTokenStorage             = await mvnTokenInstance.storage();
             const mainUserMVNBalance    = await mvnTokenStorage.ledger.get(admin);
             const batchSize             = 50
-            const tezAmount             = 50
+            const mavAmount             = 50
             const userAmount            = randomUserAccounts.length;
             const mvnAmount             = Math.trunc((mainUserMVNBalance.div(userAmount + 1)).div(MVN()).toNumber());
             const batchesCount          = Math.ceil(userAmount / batchSize);
@@ -161,11 +161,11 @@ describe("Stress tests", async () => {
                             token_id: 0,
                             amount: MVN(mvnAmount),
                         })
-                        // Transfer only if receiver has less than 1XTZ
+                        // Transfer only if receiver has less than 1MVRK
                         const userBalance   = await utils.tezos.tz.getBalance(account.pkh);
-                        if(userBalance.toNumber() < tezAmount){
-                            batch.withTransfer({ to: account.pkh, amount: tezAmount })
-                            const transferEstimation    = await utils.tezos.estimate.transfer({ to: account.pkh, amount: tezAmount })
+                        if(userBalance.toNumber() < mavAmount){
+                            batch.withTransfer({ to: account.pkh, amount: mavAmount })
+                            const transferEstimation    = await utils.tezos.estimate.transfer({ to: account.pkh, amount: mavAmount })
                             console.log("Transfer estimation for",account.pkh,":",transferEstimation)
                         }
                     }
@@ -201,12 +201,12 @@ describe("Stress tests", async () => {
                 mvnTokenStorage         = await mvnTokenInstance.storage();
                 var minimalCost         = {
                     batchIndex: 0,
-                    totalCostMutez: MVN(999999),
+                    totalCostMumav: MVN(999999),
                     estimations: []
                 }
                 var maximalCost         = {
                     batchIndex: 0,
-                    totalCostMutez: 0,
+                    totalCostMumav: 0,
                     estimations: []
                 }
 
@@ -287,7 +287,7 @@ describe("Stress tests", async () => {
                         batchOpEstimate.forEach((estimate: Estimate) => {
                             batchTotalCost.push({
                                 estimate: estimate,
-                                totalCostMutez: estimate.totalCost
+                                totalCostMumav: estimate.totalCost
                             })
                             totalCost   += estimate.totalCost
                         })
@@ -298,12 +298,12 @@ describe("Stress tests", async () => {
                         const maximalRegisteringCost    = maximalCost.estimations.length > 0 ? maximalCost.estimations[maximalCost.estimations.length-1].totalCost : 0;
                         minimalCost         = {
                             batchIndex: minimalRegisteringCost > registeringCost ? index : minimalCost.batchIndex,
-                            totalCostMutez: minimalRegisteringCost > registeringCost ? totalCost : minimalCost.totalCostMutez,
+                            totalCostMumav: minimalRegisteringCost > registeringCost ? totalCost : minimalCost.totalCostMumav,
                             estimations: minimalRegisteringCost > registeringCost ? batchTotalCost : minimalCost.estimations
                         }
                         maximalCost         = {
                             batchIndex: maximalRegisteringCost < registeringCost ? index : maximalCost.batchIndex,
-                            totalCostMutez: maximalRegisteringCost < registeringCost ? totalCost : maximalCost.totalCostMutez,
+                            totalCostMumav: maximalRegisteringCost < registeringCost ? totalCost : maximalCost.totalCostMumav,
                             estimations: maximalRegisteringCost < registeringCost ? batchTotalCost : maximalCost.estimations
                         }
 
@@ -368,7 +368,7 @@ describe("Stress tests", async () => {
                 // Print Estimation
                 const operationTotalCost    = {
                     estimate: operationEstimation,
-                    totalCostMutez: operationEstimation.totalCost
+                    totalCostMumav: operationEstimation.totalCost
                 }
                 console.log("Round: ", currentRound)
                 console.log("Operation total cost: ", operationTotalCost)
@@ -396,7 +396,7 @@ describe("Stress tests", async () => {
                 // Print Estimation
                 const operationTotalCost    = {
                     estimate: operationEstimation,
-                    totalCostMutez: operationEstimation.totalCost
+                    totalCostMumav: operationEstimation.totalCost
                 }
                 console.log("Operation total cost: ", operationTotalCost)
 
@@ -450,7 +450,7 @@ describe("Stress tests", async () => {
                 // Print Estimation
                 const firstVoteTotalCost    = {
                     estimate: firstVoteEstimation,
-                    totalCostMutez: firstVoteEstimation.totalCost
+                    totalCostMumav: firstVoteEstimation.totalCost
                 }
                 console.log("First council vote operation total cost: ", firstVoteTotalCost)
 
@@ -465,7 +465,7 @@ describe("Stress tests", async () => {
                 // Print Estimation
                 const secondVoteTotalCost    = {
                     estimate: secondVoteEstimation,
-                    totalCostMutez: secondVoteEstimation.totalCost
+                    totalCostMumav: secondVoteEstimation.totalCost
                 }
                 console.log("Second council vote operation total cost: ", secondVoteTotalCost)
 
@@ -510,7 +510,7 @@ describe("Stress tests", async () => {
                 const distributeRewardEstimation    = await utils.tezos.estimate.transfer(distributeRewardParams);
                 const distributeRewardTotalCost     = {
                     estimate: distributeRewardEstimation,
-                    totalCostMutez: distributeRewardEstimation.totalCost
+                    totalCostMumav: distributeRewardEstimation.totalCost
                 }
                 console.log("Estimate: ", distributeRewardTotalCost)
 
@@ -548,7 +548,7 @@ describe("Stress tests", async () => {
                         const account: any  = randomUserAccounts[index];
 
                         if ((index) < (batchSize * (i + 1)) && ((index) >= batchSize * i)){
-                            // Transfer only if receiver as less than 1XTZ
+                            // Transfer only if receiver as less than 1MVRK
                             const userLPRecord  = await lpTokenStorage.ledger.get(account.pkh);
                             const userLPBalance = userLPRecord !== undefined ? userLPRecord.balance.toNumber() : 0;
                             if(userLPBalance < 1){
@@ -631,7 +631,7 @@ describe("Stress tests", async () => {
                     batchOpEstimate.forEach((estimate: Estimate) => {
                         batchTotalCost.push({
                             estimate: estimate,
-                            totalCostMutez: estimate.totalCost
+                            totalCostMumav: estimate.totalCost
                         })
                     })
 
@@ -680,7 +680,7 @@ describe("Stress tests", async () => {
         
                         console.log("USER", account.pkh, "WITHDREW", amountToWithdraw, "LP TOKEN FROM THE FARM");
                         console.log("ESTIMATE:", withdrawEstimate, 
-                        "\nTotal cost mutez:", withdrawEstimate.totalCost)
+                        "\nTotal cost mumav:", withdrawEstimate.totalCost)
                         console.log("FARM STATE:",
                         "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
                         "\n     - AccumulatedRewardsPerShare:", farmStorage.accumulatedRewardsPerShare.toNumber(),
@@ -739,7 +739,7 @@ describe("Stress tests", async () => {
         
                         console.log("USER", account.pkh, "CLAIM REWARDS FROM THE FARM");
                         console.log("ESTIMATE:", claimEstimate, 
-                        "\nTotal cost mutez:", claimEstimate.totalCost);
+                        "\nTotal cost mumav:", claimEstimate.totalCost);
                         console.log("USER SMVN BALANCE:\n   Start:", initSMVNBalance, "\n End:", finalSMVNBalance);
                         console.log("FARM STATE:",
                         "\n     - LastBlockUpdate:", farmStorage.lastBlockUpdate.toNumber(),
@@ -854,7 +854,7 @@ describe("Stress tests", async () => {
                     const proposalVoteEstimation    = await utils.tezos.estimate.transfer(proposalVoteParams);
                     const proposalVoteTotalCost     = {
                         estimate: proposalVoteEstimation,
-                        totalCostMutez: proposalVoteEstimation.totalCost
+                        totalCostMumav: proposalVoteEstimation.totalCost
                     }
                     var voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                     await voteOperation.confirmation();
@@ -872,7 +872,7 @@ describe("Stress tests", async () => {
                     const votingVoteEstimation      = await utils.tezos.estimate.transfer(votingVoteParams);
                     const votingVoteTotalCost       = {
                         estimate: votingVoteEstimation,
-                        totalCostMutez: votingVoteEstimation.totalCost
+                        totalCostMumav: votingVoteEstimation.totalCost
                     }
 
                     var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
@@ -886,7 +886,7 @@ describe("Stress tests", async () => {
                 var startNextRoundEstimation    = await utils.tezos.estimate.transfer(startNextRoundParams);
                 var startNextRoundTotalCost     = {
                     estimate: startNextRoundEstimation,
-                    totalCostMutez: startNextRoundEstimation.totalCost
+                    totalCostMumav: startNextRoundEstimation.totalCost
                 }
                 console.log("startNextRound #1 estimation: ", startNextRoundTotalCost)
 
@@ -897,7 +897,7 @@ describe("Stress tests", async () => {
                 startNextRoundEstimation        = await utils.tezos.estimate.transfer(startNextRoundParams);
                 var startNextRoundTotalCost     = {
                     estimate: startNextRoundEstimation,
-                    totalCostMutez: startNextRoundEstimation.totalCost
+                    totalCostMumav: startNextRoundEstimation.totalCost
                 }
 
                 console.log("startNextRound #2 estimation: ", startNextRoundTotalCost)
@@ -963,7 +963,7 @@ describe("Stress tests", async () => {
                         batchOpEstimate.forEach((estimate: Estimate) => {
                             batchTotalCost.push({
                                 estimate: estimate,
-                                totalCostMutez: estimate.totalCost
+                                totalCostMumav: estimate.totalCost
                             })
                         })
         
@@ -1024,7 +1024,7 @@ describe("Stress tests", async () => {
         
                         console.log("USER", account.pkh, "UNSTAKES", amountToUnstake, "MVN FROM THE DOORMAN CONTRACT, PAYS:", paidFee,"AND GETS:", finalAmount);
                         console.log("ESTIMATE:", unstakeEstimate, 
-                        "\nTotal cost mutez:", unstakeEstimate.totalCost);
+                        "\nTotal cost mumav:", unstakeEstimate.totalCost);
                         console.log("USER SMVN BALANCE:\n   Start:", initSMVNBalance, "\n   End:", finalSMVNBalance);
                         console.log("MVN TOTAL SUPPLY:", mvnTotalSupply, ", SMVN TOTAL SUPPLY:", smvnTotalSupply)
                         console.log("MLI:", mli, ", EXIT FEE:", exitFee);

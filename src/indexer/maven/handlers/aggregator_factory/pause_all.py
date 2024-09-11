@@ -17,15 +17,15 @@ async def pause_all(
         create_aggregator_paused                            = pause_all.storage.breakGlassConfig.createAggregatorIsPaused
         track_aggregator_paused                             = pause_all.storage.breakGlassConfig.trackAggregatorIsPaused
         untrack_aggregator_paused                           = pause_all.storage.breakGlassConfig.untrackAggregatorIsPaused
-        distribute_reward_xtz_paused                        = pause_all.storage.breakGlassConfig.distributeRewardXtzIsPaused
+        distribute_reward_mvrk_paused                       = pause_all.storage.breakGlassConfig.distributeRewardMvrkIsPaused
         distribute_reward_smvn_paused                       = pause_all.storage.breakGlassConfig.distributeRewardStakedMvnIsPaused
     
         # Update record
-        await models.AggregatorFactory.filter(network=ctx.datasource.name.replace('tzkt_',''),address    = aggregator_factory_address).update(
+        await models.AggregatorFactory.filter(network=ctx.datasource.name.replace('mvkt_',''),address    = aggregator_factory_address).update(
             create_aggregator_paused         = create_aggregator_paused,
             track_aggregator_paused          = track_aggregator_paused,
             untrack_aggregator_paused        = untrack_aggregator_paused,
-            distribute_reward_xtz_paused     = distribute_reward_xtz_paused,
+            distribute_reward_mvrk_paused    = distribute_reward_mvrk_paused,
             distribute_reward_smvn_paused    = distribute_reward_smvn_paused
         )
 

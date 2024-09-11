@@ -1,4 +1,4 @@
-import { MichelsonMap } from '@taquito/michelson-encoder'
+import { MichelsonMap } from '@mavrykdynamics/taquito-michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 
 import { bob } from '../scripts/sandbox/accounts'
@@ -8,7 +8,7 @@ import { emergencyGovernanceStorageType } from './storageTypes/emergencyGovernan
 const config = {
     decimals                        : 4,
     durationInMinutes               : 4320, // 3 days
-    requiredFeeMutez                : 10000000,
+    requiredFeeMumav                : 10000000,
     stakedMvnPercentageRequired     : 5000,         // prod should be 10% or 1000   
     minStakedMvnRequiredToVote      : MVN(1),
     minStakedMvnRequiredToTrigger   : MVN(11),
@@ -17,14 +17,14 @@ const config = {
 }
 
 const metadata = MichelsonMap.fromLiteral({
-    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
         name: 'MAVEN Emergency Governance Contract',
         version: 'v1.0.0',
         authors: ['MAVEN Dev Team <info@mavryk.io>'],
         source: {
-            tools: ['Ligo', 'Flextesa'],
+            tools: ['Ligo', 'Flexmasa'],
             location: 'https://ligolang.org/',
         },
         }),

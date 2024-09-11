@@ -19,8 +19,8 @@ async def withdraw_reward_staked_mvn(
             oracle_reward_smvn_storage  = withdraw_reward_staked_mvn.storage.oracleRewardStakedMvn[oracle_address]
         
             # Update record
-            user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=oracle_address)
-            aggregator                      = await models.Aggregator.get(network=ctx.datasource.name.replace('tzkt_',''), address= aggregator_address)
+            user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=oracle_address)
+            aggregator                      = await models.Aggregator.get(network=ctx.datasource.name.replace('mvkt_',''), address= aggregator_address)
             oracle                          = await models.AggregatorOracle.get(
                 aggregator  = aggregator,
                 user        = user

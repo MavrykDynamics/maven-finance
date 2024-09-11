@@ -1,5 +1,5 @@
 import { createLambdaBytes } from "@mavrykdynamics/create-lambda-bytes"
-import { MichelsonMap } from "@taquito/taquito"
+import { MichelsonMap } from "@mavrykdynamics/taquito"
 import { BigNumber } from "bignumber.js"
 
 import { MVN, Utils, zeroAddress } from "../helpers/Utils"
@@ -243,10 +243,10 @@ describe("Testnet interactions helper", async () => {
 
     describe("MVN TOKEN", async () => {
 
-        before("Send XTZ to treasury", async () => {
+        before("Send MVRK to treasury", async () => {
             await helperFunctions.signerFactory(tezos, bob.sk);
 
-            // Admin sends 2000XTZ to treasury contract
+            // Admin sends 2000MVRK to treasury contract
             const transferOperation = await utils.tezos.contract.transfer({ to: contractDeployments.treasury.address, amount: 500});
             await transferOperation.confirmation();
         });
@@ -2216,10 +2216,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
         
-        it('Admin pauses distribute reward xtz', async () => {
+        it('Admin pauses distribute reward mvrk', async () => {
             try{
                 // Operation
-                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardXtz", true).send();
+                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardMvrk", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2299,7 +2299,7 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(30),            // heartbeatSeconds
 
                     new BigNumber(10000000),      // rewardAmountStakedMvn
-                    new BigNumber(1300),          // rewardAmountXtz
+                    new BigNumber(1300),          // rewardAmountMvrk
                     
                     aggregatorMetadata            // metadata
                 ).send()
@@ -2330,7 +2330,7 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(30),            // heartbeatSeconds
 
                     new BigNumber(10000000),      // rewardAmountStakedMvn
-                    new BigNumber(1300),          // rewardAmountXtz
+                    new BigNumber(1300),          // rewardAmountMvrk
                     
                     aggregatorMetadata        // metadata
                 ).send()
@@ -2361,7 +2361,7 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(30),            // heartbeatSeconds
 
                     new BigNumber(10000000),      // rewardAmountStakedMvn
-                    new BigNumber(1300),          // rewardAmountXtz
+                    new BigNumber(1300),          // rewardAmountMvrk
                     
                     aggregatorMetadata        // metadata
                 ).send()
@@ -2500,10 +2500,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin pauses %withdrawRewardXtz', async () => {
+        it('Admin pauses %withdrawRewardMvrk', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardXtz", true).send();
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardMvrk", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2579,10 +2579,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin withdraws rewards xtz', async () => {
+        it('Admin withdraws rewards mvrk', async () => {
             try{
                 // Operation
-                var operation = await aggregatorInstance.methods.withdrawRewardXtz(bob.pkh).send();
+                var operation = await aggregatorInstance.methods.withdrawRewardMvrk(bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2649,10 +2649,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates reward xtz', async () => {
+        it('Admin updates reward mvrk', async () => {
             try{
                 // Operation
-                var operation = await aggregatorInstance.methods.updateConfig(100, "configRewardAmountXtz").send();
+                var operation = await aggregatorInstance.methods.updateConfig(100, "configRewardAmountMvrk").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2742,10 +2742,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates propose fee mutez', async () => {
+        it('Admin updates propose fee mumav', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.updateConfig(1000000, "configProposeFeeMutez").send();
+                const operation = await governanceInstance.methods.updateConfig(1000000, "configProposeFeeMumav").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3470,10 +3470,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates required fee mutez to trigger emergency', async () => {
+        it('Admin updates required fee mumav to trigger emergency', async () => {
             try{
                 // Operation
-                const operation = await emergencyGovernanceInstance.methods.updateConfig(1000000, "configRequiredFeeMutez").send();
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(1000000, "configRequiredFeeMumav").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4327,10 +4327,10 @@ describe("Testnet interactions helper", async () => {
                 const vault                         = await lendingControllerStorage.vaults.get(vaultHandle)
                 createdVaultAddress                 = vault.address;
 
-                // Adds TEZ as a collateral token
-                const tokenName                             = "tez";
+                // Adds MAV as a collateral token
+                const tokenName                             = "mav";
                 const tokenContractAddress                  = zeroAddress;
-                const tokenType                             = "tez";
+                const tokenType                             = "mav";
                 const tokenId                               = 0;
 
                 const tokenDecimals                         = 6;
@@ -4366,29 +4366,29 @@ describe("Testnet interactions helper", async () => {
         it('Admin deposits into the new vault', async () => {
             try{
                 // Initial values
-                const depositAmountMutez    = 10000000;
+                const depositAmountMumav    = 10000000;
 
                 console.log("ADDRESS:",createdVaultAddress)
 
                 const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
                 // Operation
-                const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mutez : true, amount : depositAmountMutez });
+                const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMumav, "mav").send({ mumav : true, amount : depositAmountMumav });
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin deposits XTZ into the new vault by directly sending XTZ to the vault', async () => {
+        it('Admin deposits MVRK into the new vault by directly sending MVRK to the vault', async () => {
             try{
                 // Initial values
-                const depositAmountTez    = 10;
+                const depositAmountMav    = 10;
 
                 console.log("ADDRESS:",createdVaultAddress)
 
                 // Operation
-                const operation = await utils.tezos.contract.transfer({ to: createdVaultAddress, amount: depositAmountTez});
+                const operation = await utils.tezos.contract.transfer({ to: createdVaultAddress, amount: depositAmountMav});
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -4398,11 +4398,11 @@ describe("Testnet interactions helper", async () => {
         it('Admin withdraws from the new vault', async () => {
             try{
                 // Initial values
-                const withdrawAmountMutez   = 1000000;
+                const withdrawAmountMumav   = 1000000;
                 const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
                 // Operation
-                const operation = await newVaultInstance.methods.initVaultAction("withdraw", withdrawAmountMutez, "tez").send();
+                const operation = await newVaultInstance.methods.initVaultAction("withdraw", withdrawAmountMumav, "mav").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -5055,10 +5055,10 @@ describe("Testnet interactions helper", async () => {
     //             const vault                         = await lendingControllerMockTimeStorage.vaults.get(vaultHandle)
     //             createdVaultAddress                 = vault.address;
 
-    //             // Adds TEZ as a collateral token
-    //             const tokenName                             = "tez";
+    //             // Adds MAV as a collateral token
+    //             const tokenName                             = "mav";
     //             const tokenContractAddress                  = zeroAddress;
-    //             const tokenType                             = "tez";
+    //             const tokenType                             = "mav";
     //             const tokenId                               = 0;
 
     //             const tokenDecimals                         = 6;
@@ -5094,29 +5094,29 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin deposits into the new vault', async () => {
     //         try{
     //             // Initial values
-    //             const depositAmountMutez    = 10000000;
+    //             const depositAmountMumav    = 10000000;
 
     //             console.log("ADDRESS:",createdVaultAddress)
 
     //             const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
     //             // Operation
-    //             const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMutez, "tez").send({ mutez : true, amount : depositAmountMutez });
+    //             const operation = await newVaultInstance.methods.initVaultAction("deposit", depositAmountMumav, "mav").send({ mumav : true, amount : depositAmountMumav });
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin deposits XTZ into the new vault by directly sending XTZ to the vault', async () => {
+    //     it('Admin deposits MVRK into the new vault by directly sending MVRK to the vault', async () => {
     //         try{
     //             // Initial values
-    //             const depositAmountTez    = 10;
+    //             const depositAmountMav    = 10;
 
     //             console.log("ADDRESS:",createdVaultAddress)
 
     //             // Operation
-    //             const operation = await utils.tezos.contract.transfer({ to: createdVaultAddress, amount: depositAmountTez});
+    //             const operation = await utils.tezos.contract.transfer({ to: createdVaultAddress, amount: depositAmountMav});
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
@@ -5126,11 +5126,11 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin withdraws from the new vault', async () => {
     //         try{
     //             // Initial values
-    //             const withdrawAmountMutez   = 1000000;
+    //             const withdrawAmountMumav   = 1000000;
     //             const newVaultInstance      = await utils.tezos.contract.at(createdVaultAddress);
 
     //             // Operation
-    //             const operation = await newVaultInstance.methods.initVaultAction("withdraw", withdrawAmountMutez, "tez").send();
+    //             const operation = await newVaultInstance.methods.initVaultAction("withdraw", withdrawAmountMumav, "mav").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
@@ -5243,7 +5243,7 @@ describe("Testnet interactions helper", async () => {
     //             const vault                         = await lendingControllerMockTimeStorage.vaults.get(vaultHandle)
     //             const tmpVaultInstance              = await utils.tezos.contract.at(vault.address);
     //             const borrowAmount                  = 1000;
-    //             const withdrawAmount                = (await vault.collateralBalanceLedger.get("tez")).toNumber();
+    //             const withdrawAmount                = (await vault.collateralBalanceLedger.get("mav")).toNumber();
     //             const lastUpdatedBlockLevel         = vault.lastUpdatedBlockLevel.toNumber();
     //             const mockLevel                     = oneMonthLevelBlocks + lastUpdatedBlockLevel;
 
@@ -5252,7 +5252,7 @@ describe("Testnet interactions helper", async () => {
     //             await borrowOperation.confirmation();
 
     //             // Withdraw all from vault
-    //             const withdrawOperation             = await tmpVaultInstance.methods.withdraw(withdrawAmount, "tez").send();
+    //             const withdrawOperation             = await tmpVaultInstance.methods.withdraw(withdrawAmount, "mav").send();
     //             await withdrawOperation.confirmation();
 
     //             // Update Mock Level
@@ -5708,7 +5708,7 @@ describe("Testnet interactions helper", async () => {
             await helperFunctions.signerFactory(tezos, bob.sk);
         });
         
-        it('Admin delegates vault tez to baker', async () => {
+        it('Admin delegates vault mav to baker', async () => {
             try{
                 // Operation
                 const operation = await vaultInstance.methods.initVaultAction("setBaker", null).send();

@@ -296,15 +296,15 @@ block{
 // Reward Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(*  withdrawRewardXtz entrypoint  *)
-function withdrawRewardXtz(const receiver: address; const s : aggregatorStorageType) : return is
+(*  withdrawRewardMvrk entrypoint  *)
+function withdrawRewardMvrk(const receiver: address; const s : aggregatorStorageType) : return is
 block{
 
     // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaWithdrawRewardXtz", s.lambdaLedger);
+    const lambdaBytes : bytes = getLambdaBytes("lambdaWithdrawRewardMvrk", s.lambdaLedger);
 
     // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaWithdrawRewardXtz(receiver);
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaWithdrawRewardMvrk(receiver);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);

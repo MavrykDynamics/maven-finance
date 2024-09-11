@@ -80,30 +80,30 @@ const one_year       : int              = one_day * 365;
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAllowed(var s : mvnTokenStorageType) : unit is
-    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    if (Mavryk.get_sender() = s.admin or Mavryk.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 function checkSenderIsAdmin(const store : mvnTokenStorageType) : unit is
-    if Tezos.get_sender() =/= store.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+    if Mavryk.get_sender() =/= store.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
 
 
 function checkSenderIsDoormanContract(const store : mvnTokenStorageType) : unit is
-if getContractAddressFromGovernanceContract("doorman", store.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND) =/= Tezos.get_sender() then failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED) else unit
+if getContractAddressFromGovernanceContract("doorman", store.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND) =/= Mavryk.get_sender() then failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED) else unit
 
 
 
 function checkSenderIsAdminOrGovernanceSatelliteContract(var store : mvnTokenStorageType) : unit is
 block{
 
-  if Tezos.get_sender() = store.admin then skip
+  if Mavryk.get_sender() = store.admin then skip
   else {
     const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", store.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
     
-    if Tezos.get_sender() = governanceSatelliteAddress then skip
+    if Mavryk.get_sender() = governanceSatelliteAddress then skip
     else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
 
   }
@@ -132,13 +132,13 @@ function checkBalance(const spenderBalance : tokenBalanceType; const tokenAmount
 
 
 function checkOwnership(const owner : ownerType) : unit is
-    if Tezos.get_sender() =/= owner then failwith("FA2_NOT_OWNER")
+    if Mavryk.get_sender() =/= owner then failwith("FA2_NOT_OWNER")
     else unit
 
 
 
 function checkOperator(const owner : ownerType; const token_id : tokenIdType; const operators : operatorsType) : unit is
-    if owner = Tezos.get_sender() or Big_map.mem((owner, Tezos.get_sender(), token_id), operators) then unit
+    if owner = Mavryk.get_sender() or Big_map.mem((owner, Mavryk.get_sender(), token_id), operators) then unit
     else failwith ("FA2_NOT_OPERATOR")
 
 
@@ -457,7 +457,7 @@ block{
       const requests   : list(balanceOfRequestType) = balanceOfParams.requests;
       const callback   : contract(list(balanceOfResponse)) = balanceOfParams.callback;
       const responses  : list(balanceOfResponse) = List.map(retrieveBalance, requests);
-      const operation  : operation = Tezos.transaction(responses, 0tez, callback);
+      const operation  : operation = Mavryk.transaction(responses, 0mav, callback);
 
 } with (list[operation],store)
 
@@ -490,7 +490,7 @@ block {
     const mintedTokens      : tokenBalanceType  = mintParams.1;
 
     // Check sender is from doorman contract or vesting contract - may add treasury contract in future
-    if checkInWhitelistContracts(Tezos.get_sender(), store.whitelistContracts) or Tezos.get_sender() = Tezos.get_self_address() then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+    if checkInWhitelistContracts(Mavryk.get_sender(), store.whitelistContracts) or Mavryk.get_sender() = Mavryk.get_self_address() then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
     // Check if the minted token exceed the maximumSupply defined in the mvnTokenStorageType
     const tempTotalSupply : tokenBalanceType = store.totalSupply + mintedTokens;
@@ -512,7 +512,7 @@ block {
 function burn(const burnTokenAmount : nat; var store : mvnTokenStorageType) : return is
 block {
 
-    const senderAddress : ownerType = Tezos.get_sender();
+    const senderAddress : ownerType = Mavryk.get_sender();
 
     // Get sender's balance
     const senderBalance : tokenBalanceType = get_balance((senderAddress, 0n), store);
@@ -566,13 +566,13 @@ block {
     
     // Apply inflation rate on maximum supply if it has been 360 days since the last time it was updated
     // And at least 90% of the maximum supply has been minted
-    if store.nextInflationTimestamp < Tezos.get_now() and mintedMvnPercentage > 90_00n then {
+    if store.nextInflationTimestamp < Mavryk.get_now() and mintedMvnPercentage > 90_00n then {
       
         // Set the new maximumSupply
         store.maximumSupply           := store.maximumSupply + inflation;
 
         // Update the next change date
-        store.nextInflationTimestamp  := Tezos.get_now() + one_year;
+        store.nextInflationTimestamp  := Mavryk.get_now() + one_year;
 
     }
     else failwith(error_CANNOT_TRIGGER_INFLATION_NOW);
@@ -595,7 +595,7 @@ block {
 function main (const action : action; const store : mvnTokenStorageType) : return is
 block{
 
-    verifyNoAmountSent(Unit); // // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // // entrypoints should not receive any mav amount  
 
 } with(
     

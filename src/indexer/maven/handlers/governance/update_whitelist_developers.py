@@ -18,8 +18,8 @@ async def update_whitelist_developers(
         whitelist_developers    = update_whitelist_developers.storage.whitelistDevelopers
     
         # Create/Update records
-        governance              = await models.Governance.get(network=ctx.datasource.name.replace('tzkt_',''), address= governance_address)
-        user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('tzkt_',''), address=developer)
+        governance              = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
+        user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=developer)
         whitelist_developer, _  = await models.WhitelistDeveloper.get_or_create(
             governance  = governance,
             developer   = user

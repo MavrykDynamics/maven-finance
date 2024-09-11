@@ -194,7 +194,7 @@ describe("Treasury Factory tests", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data', 'ascii').toString('hex')
 
                 // Operation
                 const updateOperation = await treasuryFactoryInstance.methods.updateMetadata(key, hash).send();
@@ -634,7 +634,7 @@ describe("Treasury Factory tests", async () => {
             try{
                 // Initial values
                 const key   = ''
-                const hash  = Buffer.from('tezos-storage:data fail', 'ascii').toString('hex')
+                const hash  = Buffer.from('mavryk-storage:data fail', 'ascii').toString('hex')
 
                 treasuryFactoryStorage = await treasuryFactoryInstance.storage();   
                 const initialMetadata    = await treasuryFactoryStorage.metadata.get(key);

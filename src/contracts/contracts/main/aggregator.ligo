@@ -71,7 +71,7 @@ type aggregatorAction is
     |   UpdateData                           of updateDataType
     
         // Reward Entrypoints
-    |   WithdrawRewardXtz                    of withdrawRewardXtzType
+    |   WithdrawRewardMvrk                    of withdrawRewardMvrkType
     |   WithdrawRewardStakedMvn              of withdrawRewardStakedMvnType
 
         // Lambda Entrypoints
@@ -120,7 +120,7 @@ type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggrega
 function main (const action : aggregatorAction; const s : aggregatorStorageType) : return is
 block {
 
-    verifyNoAmountSent(Unit); // entrypoints should not receive any tez amount  
+    verifyNoAmountSent(Unit); // entrypoints should not receive any mav amount  
 
 } with(
     case action of [
@@ -149,7 +149,7 @@ block {
         |   UpdateData (parameters)                         -> updateData(parameters, s)
 
             // Reward Entrypoints
-        |   WithdrawRewardXtz (parameters)                  -> withdrawRewardXtz(parameters, s)
+        |   WithdrawRewardMvrk (parameters)                  -> withdrawRewardMvrk(parameters, s)
         |   WithdrawRewardStakedMvn (parameters)            -> withdrawRewardStakedMvn(parameters, s)
 
             // Lambda Entrypoints
