@@ -86,7 +86,7 @@ class Vault(BaseModel):
     value: Value
 
 
-class TokenTypeItem(BaseModel):
+class TokenType(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -101,14 +101,14 @@ class Fa2(BaseModel):
     tokenId: str
 
 
-class TokenTypeItem1(BaseModel):
+class TokenType1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     fa2: Fa2
 
 
-class TokenTypeItem2(BaseModel):
+class TokenType2(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -129,25 +129,25 @@ class CollateralTokenLedger(BaseModel):
     stakingContractAddress: Optional[str]
     totalDeposited: str
     maxDepositAmount: Optional[str]
-    tokenType: Union[TokenTypeItem, TokenTypeItem1, TokenTypeItem2]
+    tokenType: Union[TokenType, TokenType1, TokenType2]
     isPaused: bool
 
 
-class TokenTypeItem3(BaseModel):
+class TokenType3(BaseModel):
     class Config:
         extra = Extra.forbid
 
     fa12: str
 
 
-class TokenTypeItem4(BaseModel):
+class TokenType4(BaseModel):
     class Config:
         extra = Extra.forbid
 
     fa2: Fa2
 
 
-class TokenTypeItem5(BaseModel):
+class TokenType5(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -159,7 +159,7 @@ class LoanTokenLedger(BaseModel):
         extra = Extra.forbid
 
     tokenName: str
-    tokenType: Union[TokenTypeItem3, TokenTypeItem4, TokenTypeItem5]
+    tokenType: Union[TokenType3, TokenType4, TokenType5]
     tokenDecimals: str
     oracleAddress: str
     rawMTokensTotalSupply: str

@@ -4,7 +4,7 @@ from maven.types.farm_factory.tezos_parameters.create_farm import CreateFarmPara
 from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.farm_factory.tezos_storage import FarmFactoryStorage
-from maven.types.farm.tezos_storage import FarmStorage, TokenStandardItem as fa12, TokenStandardItem1 as fa2
+from maven.types.farm.tezos_storage import FarmStorage, TokenStandard as fa12, TokenStandard1 as fa2
 from dipdup.models.tezos_tzkt import TzktOrigination
 import maven.models as models
 import json

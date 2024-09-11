@@ -2,7 +2,7 @@ from maven.utils.contracts import get_token_standard
 from maven.utils.error_reporting import save_error_report
 
 from maven.types.lending_controller.tezos_parameters.liquidate_vault import LiquidateVaultParameter
-from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem1 as Fa2
+from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenType1 as Fa2
 from dipdup.context import HandlerContext
 from dipdup.models.tezos_tzkt import TzktTransaction
 import maven.models as models
@@ -85,32 +85,10 @@ async def liquidate_vault(
                 # Save collateral balance ledger
                 for collateral_token_name in vault_collateral_balance_ledger:
                     collateral_token_amount                     = float(vault_collateral_balance_ledger[collateral_token_name])
-                    collateral_token_storage                    = liquidate_vault.storage.collateralTokenLedger[collateral_token_name]
-                    collateral_token_address                    = collateral_token_storage.tokenContractAddress
-
-                    # Get token id
-                    token_id                                    = 0
-                    if type(collateral_token_storage.tokenType) == Fa2:
-                        token_id    = int(collateral_token_storage.tokenType.fa2.tokenId)
-
-                    # Get the token standard
-                    standard = await get_token_standard(
-                        ctx,
-                        collateral_token_address
-                    )
-
-                    # Get the related token
-                    token, _                                = await models.Token.get_or_create(
-                        network             = ctx.datasource.name.replace('mvkt_',''),
-                        token_address       = collateral_token_address,
-                        token_id            = token_id
-                    )
-                    token.token_standard    = standard
-                    await token.save()
 
                     lending_controller_collateral_token         = await models.LendingControllerCollateralToken.get(
                         lending_controller          = lending_controller,
-                        token                       = token
+                        token_name                  = collateral_token_name
                     )
                     lending_controller_collateral_balance, _    = await models.LendingControllerVaultCollateralBalance.get_or_create(
                         lending_controller_vault    = lending_controller_vault,

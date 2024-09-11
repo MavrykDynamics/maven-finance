@@ -149,7 +149,7 @@ compile_all_lambdas () {
 }
 
 compile_single_contract () {
-    docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --protocol $PROTOCOL > $CONTRACT_COMPILED_FOLDER/$1.tz
+    docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --protocol $PROTOCOL > $CONTRACT_COMPILED_FOLDER/$1.mv
     docker run $APPLE_SILICON --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:$LIGO_VERSION compile contract $CONTRACT_MAIN_FOLDER/$1.ligo --michelson-format json --protocol $PROTOCOL > $PWD/.$1_tmp.json
     jq -n --arg name $1 --slurpfile code $PWD/.$1_tmp.json --arg version $LIGO_VERSION '{ "contractName": $name, "michelson": $code[0], "networks": {}, "compiler": { "name": "ligo", "version": $version }, "networkType": "Tezos" }' > $CONTRACT_BUILD_FOLDER/$1.json
     rm $PWD/.$1_tmp.json
@@ -215,7 +215,7 @@ fi
 if [ $WIPE_ALL -eq 1 ]
 then 
     echo -e "# wiping old compiled files"
-    rm -rf $CONTRACT_COMPILED_FOLDER/*.tz
+    rm -rf $CONTRACT_COMPILED_FOLDER/*.mv
     rm -rf $CONTRACT_BUILD_FOLDER/*.json
     rm -rf $LAMBDA_BUILD_FOLDER/*.json
 fi
