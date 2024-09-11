@@ -18,7 +18,7 @@ services:
 
   api:
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-api:4.7.7
+    image: ghcr.io/mavryk-network/bcdhub-api:4.7.9
     environment:
       - BCD_ENV=sandbox
       - GIN_MODE=debug
@@ -40,7 +40,7 @@ services:
 
   indexer:
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-indexer:4.7.7
+    image: ghcr.io/mavryk-network/bcdhub-indexer:4.7.9
     environment:
       - BCD_ENV=sandbox
       - POSTGRES_USER=root
@@ -58,7 +58,7 @@ services:
   flexmasa:
     container_name: maven-sandbox
     restart: always
-    image: registry.gitlab.com/mavryk-network/flexmasa:atlas-update-run
+    image: mavrykdynamics/flexmasa:atlas-update-run
     command: atlasbox start
     environment:
       - block_time=3
@@ -74,7 +74,7 @@ services:
   gui:
     container_name: sandbox-gui
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-gui:4.7.7
+    image: ghcr.io/mavryk-network/bcdhub-gui:4.7.9
     depends_on:
       - api
     ports:

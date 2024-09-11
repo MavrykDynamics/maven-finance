@@ -3,110 +3,110 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
 
-class UpdateConfigActionItem(BaseModel):
+class UpdateConfigAction(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configBlocksPerProposalRound: Dict[str, Any]
 
 
-class UpdateConfigActionItem1(BaseModel):
+class UpdateConfigAction1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configBlocksPerTimelockRound: Dict[str, Any]
 
 
-class UpdateConfigActionItem2(BaseModel):
+class UpdateConfigAction2(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configBlocksPerVotingRound: Dict[str, Any]
 
 
-class UpdateConfigActionItem3(BaseModel):
+class UpdateConfigAction3(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configCycleVotersReward: Dict[str, Any]
 
 
-class UpdateConfigActionItem4(BaseModel):
+class UpdateConfigAction4(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configDataTitleMaxLength: Dict[str, Any]
 
 
-class UpdateConfigActionItem5(BaseModel):
+class UpdateConfigAction5(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configMaxProposalsPerSatellite: Dict[str, Any]
 
 
-class UpdateConfigActionItem6(BaseModel):
+class UpdateConfigAction6(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configMinProposalRoundVotePct: Dict[str, Any]
 
 
-class UpdateConfigActionItem7(BaseModel):
+class UpdateConfigAction7(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configMinQuorumPercentage: Dict[str, Any]
 
 
-class UpdateConfigActionItem8(BaseModel):
+class UpdateConfigAction8(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configMinYayVotePercentage: Dict[str, Any]
 
 
-class UpdateConfigActionItem9(BaseModel):
+class UpdateConfigAction9(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configProposalCodeMaxLength: Dict[str, Any]
 
 
-class UpdateConfigActionItem10(BaseModel):
+class UpdateConfigAction10(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configProposalDescMaxLength: Dict[str, Any]
 
 
-class UpdateConfigActionItem11(BaseModel):
+class UpdateConfigAction11(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configProposalInvoiceMaxLength: Dict[str, Any]
 
 
-class UpdateConfigActionItem12(BaseModel):
+class UpdateConfigAction12(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configProposalTitleMaxLength: Dict[str, Any]
 
 
-class UpdateConfigActionItem13(BaseModel):
+class UpdateConfigAction13(BaseModel):
     class Config:
         extra = Extra.forbid
 
     configProposeFeeMumav: Dict[str, Any]
 
 
-class UpdateConfigActionItem14(BaseModel):
+class UpdateConfigAction14(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -118,20 +118,20 @@ class UpdateConfigParameter(BaseModel):
         extra = Extra.forbid
 
     updateConfigNewValue: str
-    updateConfigAction: Union[
-        UpdateConfigActionItem,
-        UpdateConfigActionItem1,
-        UpdateConfigActionItem2,
-        UpdateConfigActionItem3,
-        UpdateConfigActionItem4,
-        UpdateConfigActionItem5,
-        UpdateConfigActionItem6,
-        UpdateConfigActionItem7,
-        UpdateConfigActionItem8,
-        UpdateConfigActionItem9,
-        UpdateConfigActionItem10,
-        UpdateConfigActionItem11,
-        UpdateConfigActionItem12,
-        UpdateConfigActionItem13,
-        UpdateConfigActionItem14,
-    ]
+    updateConfigAction: (
+        UpdateConfigAction
+        | UpdateConfigAction1
+        | UpdateConfigAction2
+        | UpdateConfigAction3
+        | UpdateConfigAction4
+        | UpdateConfigAction5
+        | UpdateConfigAction6
+        | UpdateConfigAction7
+        | UpdateConfigAction8
+        | UpdateConfigAction9
+        | UpdateConfigAction10
+        | UpdateConfigAction11
+        | UpdateConfigAction12
+        | UpdateConfigAction13
+        | UpdateConfigAction14
+    )

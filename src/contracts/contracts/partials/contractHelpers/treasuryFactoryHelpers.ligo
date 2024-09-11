@@ -94,7 +94,7 @@ block {
 
     // Prepare Treasury Metadata
     const treasuryMetadata: metadataType = Big_map.literal (list [
-        ("", ("74657a6f732d73746f726167653a64617461": bytes));
+        ("", ("6d617672796b2d73746f726167653a64617461": bytes));
         ("data", metadata)
     ]);
 
