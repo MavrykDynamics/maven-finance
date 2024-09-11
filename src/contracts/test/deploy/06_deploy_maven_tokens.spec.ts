@@ -56,7 +56,6 @@ describe('Maven Token', async () => {
             await saveContractAddress('mavenFa2TokenAddress', mavenFa2Token.contract.address)
 
             // Deploy a fakeUSDt Token
-
             const fakeUSDtMetadata = MichelsonMap.fromLiteral({
                 '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
                 data: Buffer.from(
@@ -163,10 +162,10 @@ describe('Maven Token', async () => {
                         name: Buffer.from('Tether USD').toString('hex'),
                         symbol: Buffer.from('USDt').toString('hex'),
                         decimals: Buffer.from('6').toString('hex'),
-                        thumbnailUri: Buffer.from('ipfs://QmRymVGWEudMfLrbjaEiXxngCRTDgWCsscjQMwizy4ZJjX').toString('hex'),
-                        isTransferable: Buffer.from(new Uint8Array([1])).toString('hex'),
+                        thumbnailUri: Buffer.from('ipfs://QmdsFRYNuJX6HRamC2pXp3FiuEa4jB9uCZdg3sr3HD6KT7').toString('hex'),
+                        isTransferable: '74727565',
                         isBooleanAmount: Buffer.from(new Uint8Array([0])).toString('hex'),
-                        shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex')
+                        shouldPreferSymbol: '74727565'
                     }),
                 },
             })
@@ -175,6 +174,59 @@ describe('Maven Token', async () => {
             mavenFa2TokenStorage.token_metadata = fakeUSDtTokenMetadata;
             mavenFa2Token = await GeneralContract.originate(utils.tezos, "mavenFa2Token", mavenFa2TokenStorage);
             await saveContractAddress('fakeUSDtTokenAddress', mavenFa2Token.contract.address)
+
+            // Deploy a fakeWBTC Token
+            const fakeWBTCMetadata = MichelsonMap.fromLiteral({
+                '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
+                data: Buffer.from(
+                    JSON.stringify({
+                    name: 'Wrapped Bitcoin',
+                    description: 'WBTC delivers the power of Bitcoin as a token on the Mavryk blockchain.',
+                    version: '1.0.0',
+                    license: {
+                        name: 'MIT',
+                        details: 'MIT License'
+                    }, 
+                    authors: [
+                        'info@mavryk.io'
+                    ],
+                    homepage: 'https://mavrykdynamics.com',
+                    source: {
+                        tools: [
+                            "LIGO 0.60.0"
+                        ],
+                        location: "https://github.com/mavenfinance/maven-finance"
+                    },
+                    interfaces: [
+                        'TZIP-012', 
+                        'TZIP-016', 
+                        'TZIP-021'
+                    ],
+                    errors: []
+                    }),
+                    'ascii',
+                ).toString('hex'),
+            })
+
+            const fakeWBTCTokenMetadata = MichelsonMap.fromLiteral({
+                0: {
+                    token_id: '0',
+                    token_info: MichelsonMap.fromLiteral({
+                        name: Buffer.from('Wrapped Bitcoin').toString('hex'),
+                        symbol: Buffer.from('WBTC').toString('hex'),
+                        decimals: Buffer.from('8').toString('hex'),
+                        thumbnailUri: Buffer.from('ipfs://Qmcyup81ob9a77vfFsd11R1i5jS5x58TtZBtsiec2fcEYG').toString('hex'),
+                        isTransferable: '74727565',
+                        isBooleanAmount: Buffer.from(new Uint8Array([0])).toString('hex'),
+                        shouldPreferSymbol: '74727565'
+                    }),
+                },
+            })
+        
+            mavenFa2TokenStorage.metadata = fakeWBTCMetadata;
+            mavenFa2TokenStorage.token_metadata = fakeWBTCTokenMetadata;
+            mavenFa2Token = await GeneralContract.originate(utils.tezos, "mavenFa2Token", mavenFa2TokenStorage);
+            await saveContractAddress('fakeWBTCTokenAddress', mavenFa2Token.contract.address)
 
         } catch(e){
             console.dir(e, {depth: 5})

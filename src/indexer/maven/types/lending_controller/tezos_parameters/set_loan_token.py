@@ -3,12 +3,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
 
-class TokenTypeItem(BaseModel):
+class TokenType(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -23,14 +23,14 @@ class Fa2(BaseModel):
     tokenId: str
 
 
-class TokenTypeItem1(BaseModel):
+class TokenType1(BaseModel):
     class Config:
         extra = Extra.forbid
 
     fa2: Fa2
 
 
-class TokenTypeItem2(BaseModel):
+class TokenType2(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -52,10 +52,10 @@ class CreateLoanToken(BaseModel):
     interestRateBelowOptimalUtilisation: str
     interestRateAboveOptimalUtilisation: str
     minRepaymentAmount: str
-    tokenType: Union[TokenTypeItem, TokenTypeItem1, TokenTypeItem2]
+    tokenType: TokenType | TokenType1 | TokenType2
 
 
-class ActionItem(BaseModel):
+class Action(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -78,7 +78,7 @@ class UpdateLoanToken(BaseModel):
     isPaused: bool
 
 
-class ActionItem1(BaseModel):
+class Action1(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -89,5 +89,5 @@ class SetLoanTokenParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    action: Union[ActionItem, ActionItem1]
+    action: Action | Action1
     empty: Dict[str, Any]

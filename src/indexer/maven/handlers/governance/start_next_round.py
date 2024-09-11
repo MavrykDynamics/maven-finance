@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from maven.types.governance.tezos_storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
+from maven.types.governance.tezos_storage import GovernanceStorage, Round as proposal, Round1 as timelock, Round2 as voting
 from dipdup.models.tezos_tzkt import TzktTransaction
 from tortoise.models import Q
 from maven.types.governance.tezos_parameters.start_next_round import StartNextRoundParameter

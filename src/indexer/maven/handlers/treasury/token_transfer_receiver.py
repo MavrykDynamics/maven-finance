@@ -15,7 +15,7 @@ async def token_transfer_receiver(
         treasury_address    = token_transfer.to_address
         token_address       = token_transfer.contract_address
         token_id            = token_transfer.token_id
-        mvkt_token_id       = int(token_transfer.mvkt_token_id)
+        mvkt_token_id       = int(token_transfer.tzkt_token_id)
         standard            = token_transfer.standard
         metadata            = token_transfer.metadata
         amount              = float(token_transfer.amount)

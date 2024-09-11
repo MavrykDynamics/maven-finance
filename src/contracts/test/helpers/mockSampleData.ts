@@ -31,9 +31,9 @@ export const mockTokenData = {
                         symbol: Buffer.from('MVN').toString('hex'),
                         name: Buffer.from('MAVEN').toString('hex'),
                         decimals: Buffer.from(mvnTokenDecimals.toString()).toString('hex'),
-                        icon: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex'),
+                        icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
                         shouldPreferSymbol: true,
-                        thumbnailUri: 'https://mavenfinance.io/logo192.png',
+                        thumbnailUri: 'https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg',
                         },
                     ],
                 }),
@@ -58,9 +58,9 @@ export const mockTokenData = {
                     symbol: Buffer.from('MVN').toString('hex'),
                     name: Buffer.from('MAVEN').toString('hex'),
                     decimals: Buffer.from("9").toString('hex'),
-                    icon: Buffer.from('https://mavenfinance.io/logo192.png').toString('hex'),
+                    icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
                     shouldPreferSymbol: true,
-                    thumbnailUri: 'https://mavenfinance.io/logo192.png',
+                    thumbnailUri: 'https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg',
                 },
                 ],
             }),
@@ -94,9 +94,9 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mUSDT').toString('hex'),
                     name: Buffer.from('mUSDT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/Qmf99wTUgVsEndqhmoQLrpSiDoGMTZCCFLz7KEc5vfp8h1').toString('hex'),
+                    icon: Buffer.from('ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD').toString('hex'),
                     shouldPreferSymbol: true,
-                    thumbnailUri: 'https://infura-ipfs.io/ipfs/Qmf99wTUgVsEndqhmoQLrpSiDoGMTZCCFLz7KEc5vfp8h1'
+                    thumbnailUri: 'ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD'
                     }
                 ]
                 }),
@@ -110,9 +110,9 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mUSDT').toString('hex'),
                     name: Buffer.from('mUSDT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/Qmf99wTUgVsEndqhmoQLrpSiDoGMTZCCFLz7KEc5vfp8h1').toString('hex'),
-                    shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
-                    thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/Qmf99wTUgVsEndqhmoQLrpSiDoGMTZCCFLz7KEc5vfp8h1').toString('hex')
+                    icon: Buffer.from('ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD').toString('hex'),
+                    shouldPreferSymbol: '74727565',
+                    thumbnailUri: Buffer.from('ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD').toString('hex')
                 }),
             },
         })
@@ -157,7 +157,7 @@ export const mTokenMockData = {
                     name: Buffer.from('mEURT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
                     icon: Buffer.from('https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex'),
-                    shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
+                    shouldPreferSymbol: '74727565',
                     thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex')
                 }),
             },
@@ -186,9 +186,9 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mMVRK').toString('hex'),
                     name: Buffer.from('mMVRK').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/QmaHqm92e6rCgw4eNFZ8SxJ5s9hsSgS5tJS4r4Af4zcy89').toString('hex'),
+                    icon: Buffer.from('ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n').toString('hex'),
                     shouldPreferSymbol: true,
-                    thumbnailUri: 'https://infura-ipfs.io/ipfs/QmaHqm92e6rCgw4eNFZ8SxJ5s9hsSgS5tJS4r4Af4zcy89'
+                    thumbnailUri: 'ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n'
                     }
                 ]
                 }),
@@ -202,23 +202,23 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mMVRK').toString('hex'),
                     name: Buffer.from('mMVRK').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/QmaHqm92e6rCgw4eNFZ8SxJ5s9hsSgS5tJS4r4Af4zcy89').toString('hex'),
-                    shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
-                    thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/QmaHqm92e6rCgw4eNFZ8SxJ5s9hsSgS5tJS4r4Af4zcy89').toString('hex')
+                    icon: Buffer.from('ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n').toString('hex'),
+                    shouldPreferSymbol: '74727565',
+                    thumbnailUri: Buffer.from('ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n').toString('hex')
                 }),
             },
         })
     },
 
-    "mTokenTzBtc": {
+    "mTokenWBtc": {
 
-        "loanToken": "tzBtc",
+        "loanToken": "wBtc",
         "metadata": MichelsonMap.fromLiteral({
             '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
             data: Buffer.from(
                 JSON.stringify({
                 version: 'v1.0.0',
-                description: 'Maven mTzBTC Token',
+                description: 'Maven mWBTC Token',
                 authors: ['Maven Dev Team <info@mavryk.io>'],
                 source: {
                     tools: ['Ligo', 'Flexmasa'],
@@ -229,8 +229,8 @@ export const mTokenMockData = {
                 views: [],
                 assets: [
                     {
-                    symbol: Buffer.from('mTzBTC').toString('hex'),
-                    name: Buffer.from('mTzBTC').toString('hex'),
+                    symbol: Buffer.from('mWBTC').toString('hex'),
+                    name: Buffer.from('mWBTC').toString('hex'),
                     decimals: Buffer.from('8').toString('hex'),
                     icon: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex'),
                     shouldPreferSymbol: true,
@@ -245,11 +245,11 @@ export const mTokenMockData = {
             0: {
                 token_id: '0',
                 token_info: MichelsonMap.fromLiteral({
-                    symbol: Buffer.from('mTzBTC').toString('hex'),
-                    name: Buffer.from('mTzBTC').toString('hex'),
+                    symbol: Buffer.from('mWBTC').toString('hex'),
+                    name: Buffer.from('mWBTC').toString('hex'),
                     decimals: Buffer.from('8').toString('hex'),
                     icon: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex'),
-                    shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
+                    shouldPreferSymbol: '74727565',
                     thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex')
                 }),
             },

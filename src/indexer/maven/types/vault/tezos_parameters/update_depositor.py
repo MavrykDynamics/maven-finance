@@ -3,12 +3,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
 
-class AllowanceItem(BaseModel):
+class Allowance(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -23,7 +23,7 @@ class Whitelist(BaseModel):
     address: str
 
 
-class AllowanceItem1(BaseModel):
+class Allowance1(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -34,5 +34,5 @@ class UpdateDepositorParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    allowance: Union[AllowanceItem, AllowanceItem1]
+    allowance: Allowance | Allowance1
     empty: Dict[str, Any]

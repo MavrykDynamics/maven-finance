@@ -3,19 +3,19 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from pydantic import BaseModel, Extra
 
 
-class StatusItem(BaseModel):
+class Status(BaseModel):
     class Config:
         extra = Extra.forbid
 
     pauseAll: Dict[str, Any]
 
 
-class StatusItem1(BaseModel):
+class Status1(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -28,4 +28,4 @@ class TogglePauseAggregatorParameter(BaseModel):
 
     aggregatorAddress: str
     purpose: str
-    status: Union[StatusItem, StatusItem1]
+    status: Status | Status1

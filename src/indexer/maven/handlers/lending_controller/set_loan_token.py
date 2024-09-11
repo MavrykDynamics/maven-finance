@@ -3,8 +3,8 @@ from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.utils.contracts import get_contract_token_metadata, get_token_standard
-from maven.types.lending_controller.tezos_parameters.set_loan_token import SetLoanTokenParameter, ActionItem as createLoanToken
-from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenTypeItem3 as fa12, TokenTypeItem4 as fa2, TokenTypeItem5 as mav
+from maven.types.lending_controller.tezos_parameters.set_loan_token import SetLoanTokenParameter, Action as createLoanToken
+from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenType3 as fa12, TokenType4 as fa2, TokenType5 as mav
 import maven.models as models
 
 async def set_loan_token(
@@ -64,11 +64,11 @@ async def set_loan_token(
             )
         else:
             token_contract_metadata = {
-                "name": "Tezos",
+                "name": "Mavryk",
                 "symbol": "MVRK",
                 "decimals": "6",
-                "icon": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
-                "thumbnailUri": "https://infura-ipfs.io/ipfs/QmdiScFymWzZ5qgVd47QN7RA2nrDDRZ1vTqDrC4LnJSqTW",
+                "icon": "ipfs://QmbHaFX2gyFEzdwp54vqtf7McL74BvT7r4pw6UVyfEdKhu",
+                "thumbnailUri": "ipfs://QmbHaFX2gyFEzdwp54vqtf7McL74BvT7r4pw6UVyfEdKhu",
             }
     
         # Create / Update record
