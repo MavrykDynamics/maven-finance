@@ -27,6 +27,16 @@ block{
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to %setKyc entrypoint in the KYC Contract
+function getSetMemberEntrypointInKycContract(const contractAddress : address) : contract(setMemberActionType) is
+    case (Mavryk.get_entrypoint_opt(
+        "%setMember",
+        contractAddress) : option(contract(setMemberActionType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_SET_MEMBER_ENTRYPOINT_IN_KYC_CONTRACT_NOT_FOUND) : contract(setMemberActionType))
+        ];
+
+
 // helper function to %registerDeposit entrypoint in the Lending Controller
 function getRegisterDepositEntrypointInLendingController(const contractAddress : address) : contract(registerDepositActionType) is
     case (Mavryk.get_entrypoint_opt(
@@ -46,6 +56,7 @@ function getRegisterVaultCreationEntrypointInLendingController(const contractAdd
                 Some(contr) -> contr
             |   None -> (failwith(error_REGISTER_VAULT_CREATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_NOT_FOUND) : contract(registerVaultCreationActionType))
         ]
+
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
@@ -212,6 +223,47 @@ block {
     ];
 
 } with processVaultCollateralTransferOperation
+
+
+
+// helper function to process kyc for new vault
+function processNewVaultKyc(const vaultAddress : address; const kycAddress : address) : operation is 
+block {
+
+    const addMemberRecord : addMemberActionType = record [
+        memberAddress   = vaultAddress;
+        country         = "NIL";
+        region          = "NIL";
+        investorType    = "NIL";
+    ];
+
+    const setMemberParams : setMemberActionType = AddMember(
+        [
+            addMemberRecord
+        ]
+    );
+
+    const setVaultKycOperation : operation = Mavryk.transaction(
+        setMemberParams,
+        0mav,
+        getSetMemberEntrypointInKycContract(kycAddress)
+    );
+
+} with setVaultKycOperation
+
+
+
+// helper function to verify if user is kyced
+function verifyUserIsKyced(const user : address; const kycAddress : address) : bool is 
+block {
+
+    const userIsVerifiedView : option (bool) = Mavryk.call_view ("userIsVerified", user, kycAddress);
+    const userIsVerifiedBool : bool = case userIsVerifiedView of [
+            Some(_bool) -> _bool
+        |   None        -> False
+    ];
+
+} with userIsVerifiedBool
 
 // ------------------------------------------------------------------------------
 // General Helper Functions End
