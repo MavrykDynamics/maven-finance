@@ -28,6 +28,9 @@
 // LendingController Types
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
 
+// KYC Temp Types
+#include "../partials/contractTypes/kycTempTypes.ligo"
+
 // ------------------------------------------------------------------------------
 
 // helper function to create vault 
