@@ -128,6 +128,14 @@ type loanTokenRecordType is [@layout:comb] record [
 type loanTokenLedgerType is big_map(string, loanTokenRecordType)
 
 
+// RWA Vaults - support RWA tokens and crypto
+// minimum monthly payments
+// higher loan to value LTV
+
+// Regular vaults - will not support RWA tokens
+
+// KYC-ed liquidity pools
+
 type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (mav/token)
 type vaultRecordType is [@layout:comb] record [
 
@@ -199,7 +207,6 @@ type registerVaultCreationActionType is [@layout:comb] record [
 type closeVaultActionType is [@layout:comb] record [
     vaultId                     : vaultIdType; 
 ]
-
 
 type createLoanTokenActionType is [@layout:comb] record [
     tokenName                               : string;
