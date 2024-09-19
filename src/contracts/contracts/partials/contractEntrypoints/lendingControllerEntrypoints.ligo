@@ -43,7 +43,7 @@ block {
 
 
 (* updateConfig entrypoint *)
-function updateConfig(const updateConfigParams : lendingControllerUpdateConfigParamsType; var s : lendingControllerStorageType) : return is 
+function updateConfig(const updateConfigParams : lendingControllerUpdateConfigActionType; var s : lendingControllerStorageType) : return is 
 block {
 
     // get lambda bytes

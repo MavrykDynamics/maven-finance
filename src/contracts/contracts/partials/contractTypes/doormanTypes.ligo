@@ -60,11 +60,13 @@ type onVaultWithdrawStakeType is [@layout:comb] record [
     vaultAddress     : address;
     withdrawAmount   : nat;
 ]
-type onVaultLiquidateStakeType is [@layout:comb] record [
+
+type onVaultLiquidateStakeSingleType is [@layout:comb] record [
     vaultAddress      : address;
     liquidator        : address; 
     liquidatedAmount  : nat; 
 ]
+type onVaultLiquidateStakeType is list(onVaultLiquidateStakeSingleType)
 
 type doormanPausableEntrypointType is
         StakeMvn                      of bool
@@ -105,8 +107,8 @@ type doormanLambdaActionType is
     |   LambdaTogglePauseEntrypoint       of doormanTogglePauseEntrypointType
 
         // Doorman Lambdas
-    |   LambdaStakeMvn                       of (nat)
-    |   LambdaUnstakeMvn                     of (nat)
+    |   LambdaStakeMvn                    of (nat)
+    |   LambdaUnstakeMvn                  of (nat)
     |   LambdaExit                        of (unit)
     |   LambdaCompound                    of set(address)
     |   LambdaFarmClaim                   of farmClaimType
