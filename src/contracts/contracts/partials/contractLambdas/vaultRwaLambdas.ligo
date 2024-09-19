@@ -86,6 +86,34 @@ block {
                             operations := delegateToSatelliteOperation # operations;
 
                         }
+                    |   OnProcessInterestPayment(_) -> {
+
+                            verifySenderIsLendingControllerContract(s);
+
+                            // onLiquidate operation
+                            const receiver   : address    = onLiquidateParams.receiver;
+                            const amount     : nat        = onLiquidateParams.amount;
+                            const tokenName  : string     = onLiquidateParams.tokenName;
+
+                            // get collateral token record from Lending Controller through on-chain view
+                            const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
+
+                            // get collateral token's token type
+                            const tokenType : tokenType = collateralTokenRecord.tokenType;
+
+                            // process withdrawal from vault to liquidator
+                            if amount > 0n then {
+                                const processVaultWithdrawalOperation : operation = processVaultTransfer(
+                                    Mavryk.get_self_address(),  // from_
+                                    receiver,                   // to_
+                                    amount,                     // amount
+                                    tokenType                   // tokenType
+                                );
+                                operations := processVaultWithdrawalOperation # operations;
+                            } else skip;
+
+
+                        }
                     |   Deposit(depositParams) -> {
 
                             // verify that %deposit is not paused on Lending Controller
@@ -130,8 +158,8 @@ block {
                                     if Mavryk.get_amount() = (amount * 1mumav) then skip else failwith(error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT);
                                 } else {
                                     const processVaultDepositOperation : operation = processVaultTransfer(
-                                        Mavryk.get_sender(),         // from_
-                                        Mavryk.get_self_address(),   // to_
+                                        Mavryk.get_sender(),        // from_
+                                        Mavryk.get_self_address(),  // to_
                                         amount,                     // amount
                                         tokenType                   // tokenType
                                     );
@@ -206,7 +234,7 @@ block {
                             // process withdrawal from vault to liquidator
                             if amount > 0n then {
                                 const processVaultWithdrawalOperation : operation = processVaultTransfer(
-                                    Mavryk.get_self_address(),  // from_
+                                    Mavryk.get_self_address(),   // from_
                                     receiver,                   // to_
                                     amount,                     // amount
                                     tokenType                   // tokenType

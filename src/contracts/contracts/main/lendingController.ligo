@@ -46,7 +46,7 @@ type lendingControllerAction is
         // Housekeeping Entrypoints
     |   SetAdmin                        of (address)
     |   SetGovernance                   of (address)
-    |   UpdateConfig                    of lendingControllerUpdateConfigParamsType
+    |   UpdateConfig                    of lendingControllerUpdateConfigActionType
 
         // Break Glass Entrypoints
     |   PauseAll                        of (unit)
@@ -68,6 +68,7 @@ type lendingControllerAction is
     |   RegisterWithdrawal              of registerWithdrawalActionType
     |   MarkForLiquidation              of markForLiquidationActionType
     |   LiquidateVault                  of liquidateVaultActionType
+    // |   LiquidateRwaVault               of liquidateRwaVaultActionType
     |   Borrow                          of borrowActionType
     |   Repay                           of repayActionType
 
@@ -148,6 +149,7 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   RegisterWithdrawal(parameters)                -> registerWithdrawal(parameters, s)
         |   MarkForLiquidation(parameters)                -> markForLiquidation(parameters, s)
         |   LiquidateVault(parameters)                    -> liquidateVault(parameters, s)
+        // |   LiquidateRwaVault(parameters)                 -> liquidateRwaVault(parameters, s)
         |   Borrow(parameters)                            -> borrow(parameters, s)
         |   Repay(parameters)                             -> repay(parameters, s)
 

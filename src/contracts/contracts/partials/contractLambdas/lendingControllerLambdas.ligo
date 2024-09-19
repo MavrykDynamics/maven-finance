@@ -55,24 +55,33 @@ block {
     verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
 
     case lendingControllerLambdaAction of [
-        |   LambdaUpdateConfig(updateConfigParams) -> {
+        |   LambdaUpdateConfig(updateConfigListParams) -> {
                 
-                const updateConfigAction    : lendingControllerUpdateConfigActionType   = updateConfigParams.updateConfigAction;
-                const updateConfigNewValue  : lendingControllerUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+                // const updateConfigAction    : lendingControllerUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+                // const updateConfigNewValue  : lendingControllerUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
-                case updateConfigAction of [
-                        ConfigCollateralRatio (_v)          -> s.config.collateralRatio                 := updateConfigNewValue
-                    |   ConfigLiquidationRatio (_v)         -> s.config.liquidationRatio                := updateConfigNewValue
-                    |   ConfigLiquidationFeePercent (_v)    -> s.config.liquidationFeePercent           := updateConfigNewValue
-                    |   ConfigAdminLiquidationFee (_v)      -> s.config.adminLiquidationFeePercent      := updateConfigNewValue
-                    |   ConfigMinimumLoanFeePercent (_v)    -> s.config.minimumLoanFeePercent           := updateConfigNewValue
-                    |   ConfigMinLoanFeeTreasuryShare (_v)  -> s.config.minimumLoanFeeTreasuryShare     := updateConfigNewValue
-                    |   ConfigInterestTreasuryShare (_v)    -> s.config.interestTreasuryShare           := updateConfigNewValue
-                    |   ConfigLastCompletedDataMaxDelay (_v)-> s.config.lastCompletedDataMaxDelay       := updateConfigNewValue
-                    |   ConfigMaxVaultLiqPercent (_v)       -> s.config.maxVaultLiquidationPercent      := updateConfigNewValue
-                    |   ConfigLiquidationDelayInMins (_v)   -> s.config.liquidationDelayInMins          := updateConfigNewValue
-                    |   ConfigLiquidationMaxDuration (_v)   -> s.config.liquidationMaxDuration          := updateConfigNewValue
-                ];
+                // case updateConfigAction of [
+                //         ConfigCollateralRatio (_v)          -> s.config.collateralRatio                 := updateConfigNewValue
+                //     |   ConfigLiquidationRatio (_v)         -> s.config.liquidationRatio                := updateConfigNewValue
+                //     |   ConfigLiquidationFeePercent (_v)    -> s.config.liquidationFeePercent           := updateConfigNewValue
+                //     |   ConfigAdminLiquidationFee (_v)      -> s.config.adminLiquidationFeePercent      := updateConfigNewValue
+                //     |   ConfigMinimumLoanFeePercent (_v)    -> s.vaultConfig.minimumLoanFeePercent           := updateConfigNewValue
+                //     |   ConfigMinLoanFeeTreasuryShare (_v)  -> s.vaultConfig.minimumLoanFeeTreasuryShare     := updateConfigNewValue
+                //     |   ConfigInterestTreasuryShare (_v)    -> s.vaultConfig.interestTreasuryShare           := updateConfigNewValue
+                //     |   ConfigLastCompletedDataMaxDelay (_v)-> s.config.lastCompletedDataMaxDelay       := updateConfigNewValue
+                //     |   ConfigMaxVaultLiqPercent (_v)       -> s.config.maxVaultLiquidationPercent      := updateConfigNewValue
+                //     |   ConfigLiquidationDelayInMins (_v)   -> s.config.liquidationDelayInMins          := updateConfigNewValue
+                //     |   ConfigLiquidationMaxDuration (_v)   -> s.config.liquidationMaxDuration          := updateConfigNewValue
+                // ];
+
+                for updateConfigParams in list updateConfigListParams {
+
+                    const _configType : string = updateConfigParams.configType;
+                    const _configName : string = updateConfigParams.configName;
+                    const _newValue : nat      = updateConfigParams.newValue;
+
+                };
+
             }
         |   _ -> skip
     ];
@@ -606,7 +615,7 @@ block {
                 const loanTotalRemaining        : nat         = loanTokenRecord.totalRemaining;
                 
                 const mTokenAddress             : address     = loanTokenRecord.mTokenAddress;
-                const rawMTokensTotalSupply              : nat         = loanTokenRecord.rawMTokensTotalSupply;
+                const rawMTokensTotalSupply     : nat         = loanTokenRecord.rawMTokensTotalSupply;
                 const mTokensBurned             : nat         = amount;
 
                 // Calculate new total of LP Tokens - verify that mTokensBurned is less than rawMTokensTotalSupply
@@ -690,6 +699,8 @@ block {
                 // Check that vault has zero loan outstanding
                 checkZeroLoanOutstanding(vault);
 
+                var onLiquidateList : onLiquidateListType := list [];
+
                 // get tokens and token balances and initiate transfer back to the vault owner
                 for collateralTokenName -> collateralTokenBalance in map vault.collateralBalanceLedger block {
                     
@@ -739,26 +750,42 @@ block {
 
                             // for other collateral token types besides sMVN and scaled tokens
                             if finalTokenBalance > 0n then {
-                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                    vaultOwner,                         // to_
-                                    collateralTokenName,                // token name
-                                    finalTokenBalance,                  // token amount to be withdrawn
-                                    vaultAddress                        // vault address
-                                );
-                                operations := withdrawTokenOperation # operations;
+                                // const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                //     vaultOwner,                         // to_
+                                //     collateralTokenName,                // token name
+                                //     finalTokenBalance,                  // token amount to be withdrawn
+                                //     vaultAddress                        // vault address
+                                // );
+                                // operations := withdrawTokenOperation # operations;
+
+                                const withdrawTokenOperation : onLiquidateSingleType = record [
+                                    receiver   = vaultOwner;
+                                    amount     = finalTokenBalance;
+                                    tokenName  = collateralTokenName;
+                                ];
+                                onLiquidateList := withdrawTokenOperation # onLiquidateList;
+
                             } else skip;
 
                         } else {
 
                             // for other collateral token types besides sMVN and scaled tokens
                             if finalTokenBalance > 0n then {
-                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                    vaultOwner,                         // to_
-                                    collateralTokenName,                // token name
-                                    finalTokenBalance,                  // token amount to be withdrawn
-                                    vaultAddress                        // vault address
-                                );
-                                operations := withdrawTokenOperation # operations;
+                                // const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                //     vaultOwner,                         // to_
+                                //     collateralTokenName,                // token name
+                                //     finalTokenBalance,                  // token amount to be withdrawn
+                                //     vaultAddress                        // vault address
+                                // );
+                                // operations := withdrawTokenOperation # operations;
+
+                                const withdrawTokenOperation : onLiquidateSingleType = record [
+                                    receiver   = vaultOwner;
+                                    amount     = finalTokenBalance;
+                                    tokenName  = collateralTokenName;
+                                ];
+                                onLiquidateList := withdrawTokenOperation # onLiquidateList;
+                                
                             } else skip;
 
                         };
@@ -803,8 +830,8 @@ block {
                 const vaultOwner  : vaultOwnerType   = markForLiquidationParams.vaultOwner;
 
                 const currentBlockLevel             : nat = Mavryk.get_level();
-                const configLiquidationDelayInMins  : nat = s.config.liquidationDelayInMins;
-                const configLiquidationMaxDuration  : nat = s.config.liquidationMaxDuration;
+                const configLiquidationDelayInMins  : nat = s.vaultConfig.liquidationDelayInMins;
+                const configLiquidationMaxDuration  : nat = s.vaultConfig.liquidationMaxDuration;
                 const blocksPerMinute               : nat = 60n / Mavryk.get_min_block_time();
 
                 const liquidationDelayInBlockLevel  : nat = configLiquidationDelayInMins * blocksPerMinute;                 
@@ -899,7 +926,7 @@ block {
                 const vaultAddress      : address                               = vault.address;
 
                 // init vault parameters
-                const vaultLoanTokenName            : string    = vault.loanToken;
+                const vaultLoanTokenName : string = vault.loanToken;
 
                 // ------------------------------------------------------------------
                 // Check correct duration has passed after being marked for liquidation
@@ -944,7 +971,7 @@ block {
                 // get max vault liquidation amount
                 const newLoanOutstandingTotal      : nat = vault.loanOutstandingTotal;
                 var newLoanInterestTotal           : nat := vault.loanInterestTotal;
-                const vaultMaxLiquidationAmount    : nat = (newLoanOutstandingTotal * s.config.maxVaultLiquidationPercent) / 10000n;
+                const vaultMaxLiquidationAmount    : nat = (newLoanOutstandingTotal * s.vaultConfig.maxVaultLiquidationPercent) / 10000n;
 
                 // if total liquidation amount is greater than vault max liquidation amount, set the max to the vault max liquidation amount
                 // e.g. helpful in race conditions where instead of reverting failure, the transaction can still go through
@@ -961,6 +988,8 @@ block {
                 // Calculate vault collateral value rebased (1e32 or 10^32)
                 // - this will be the denominator used to calculate proportion of collateral to be liquidated
                 const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vaultAddress, vault.collateralBalanceLedger, s);
+
+                var onLiquidateList : onLiquidateListType := list [];
                 
                 // loop tokens in vault collateral balance ledger to be liquidated
                 for collateralTokenName -> collateralTokenBalance in map vault.collateralBalanceLedger block {
@@ -969,7 +998,7 @@ block {
                     if collateralTokenBalance = 0n then skip else block {
 
                         // process liquidation in a helper function
-                        const liquidationProcess : (list(operation)*nat)  = processCollateralTokenLiquidation(
+                        const liquidationProcess : (onLiquidateListType * list(operation) * nat)  = processCollateralTokenLiquidation(
                             liquidator,
                             treasuryAddress,
                             loanTokenDecimals,
@@ -979,17 +1008,20 @@ block {
                             collateralTokenName,
                             collateralTokenBalance,
                             totalLiquidationAmount,
+                            onLiquidateList,
                             operations,
                             s
                         );
-                        const updatedOperationList  : list(operation)       = liquidationProcess.0;
-                        const collateralBalance     : nat                   = liquidationProcess.1;
+                        const updatedOnLiquidateList  : onLiquidateListType     = liquidationProcess.0;
+                        const updatedOperations       : list(operation)         = liquidationProcess.1;
+                        const collateralBalance       : nat                     = liquidationProcess.2;
 
                         // ------------------------------------------------------------------
-                        // Update operations
+                        // Update operations and list params
                         // ------------------------------------------------------------------
 
-                        operations  := updatedOperationList;
+                        operations := updatedOperations;
+                        onLiquidateList := updatedOnLiquidateList;
 
                         // ------------------------------------------------------------------
                         // Update collateral balance
@@ -1001,6 +1033,16 @@ block {
                     };
 
                 };
+
+                // ------------------------------------------------------------------
+                // Set On Liquidate Vault Params and operation
+                // ------------------------------------------------------------------
+
+                const liquidateFromVaultOperation : operation = liquidateFromVaultOperation(
+                    onLiquidateList, 
+                    vaultAddress
+                );
+                operations := liquidateFromVaultOperation # operations;
 
                 // ------------------------------------------------------------------
                 // Update Interest Records
@@ -1053,7 +1095,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Calculate amount of interest that goes to the Treasury 
-                const interestSentToTreasury : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+                const interestSentToTreasury : nat = ((totalInterestPaid * s.vaultConfig.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
                 // Calculate amount of interest - verify that interestSentToTreasury is less than totalInterestPaid
                 verifyLessThanOrEqual(interestSentToTreasury, totalInterestPaid, error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID);
@@ -1065,7 +1107,7 @@ block {
 
                 // Send interest payment from Lending Controller Token Pool to treasury
                 const sendInterestToTreasuryOperation : operation = tokenPoolTransfer(
-                    Mavryk.get_self_address(),    // from_    
+                    Mavryk.get_self_address(),   // from_    
                     treasuryAddress,             // to_
                     interestSentToTreasury,      // amount
                     loanTokenType                // token type
@@ -1110,7 +1152,7 @@ block {
                 // transfer operation should take place first before refund operation (N.B. First In Last Out operations)
                 const transferLiquidationAmountOperation : operation = tokenPoolTransfer(
                     liquidator,                 // from_
-                    Mavryk.get_self_address(),   // to_
+                    Mavryk.get_self_address(),  // to_
                     totalLiquidationAmount,     // totalLiquidationAmount
                     loanTokenType               // token type
                 );
@@ -1134,11 +1176,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update token storage
-                loanTokenRecord.rawMTokensTotalSupply                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply       := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;
+                loanTokenRecord.tokenRewardIndex            := newAccRewardsPerShare;
 
                 // Update Loan Token State again: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
@@ -1159,6 +1201,264 @@ block {
     ];
 
 } with (operations, s)
+
+
+
+(* processInterestPayment lambda *)
+// function lambdaProcessInterestPayment(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+// block {
+    
+//     var operations : list(operation) := nil;
+    
+//     case lendingControllerLambdaAction of [
+//         |   LambdaProcessInterestPayment(processInterestPaymentListParams) -> {
+                
+//                 for processInterestPaymentParams in processInterestPaymentListParams{
+
+//                     // init variables
+//                     const vaultId            : nat       = processInterestPaymentParams.vaultId;
+//                     const vaultOwner         : address   = processInterestPaymentParams.vaultOwner;
+//                     const liquidator         : address   = Mavryk.get_sender();
+
+//                     // Get Treasury Address from the General Contracts map on the Governance Contract
+//                     const treasuryAddress    : address   = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+
+//                     // ------------------------------------------------------------------
+//                     // Get Vault record and parameters
+//                     // ------------------------------------------------------------------
+
+//                     // Make vault handle
+//                     const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
+
+//                     // Update vault state
+//                     const updatedVaultState : (vaultRecordType * loanTokenRecordType) = updateVaultState(vaultHandle, s);
+//                     var vault               : vaultRecordType                        := updatedVaultState.0;
+//                     var loanTokenRecord     : loanTokenRecordType                    := updatedVaultState.1;
+//                     const vaultAddress      : address                                 = vault.address;
+
+//                     // todo: check last interest payment date
+
+//                     // init vault parameters
+//                     const vaultLoanTokenName : string = vault.loanToken;
+
+//                     // ------------------------------------------------------------------
+//                     // Get Loan Token variables
+//                     // ------------------------------------------------------------------
+
+//                     // Get loan token parameters
+//                     const tokenPoolTotal      : nat         = loanTokenRecord.tokenPoolTotal;
+//                     const totalBorrowed       : nat         = loanTokenRecord.totalBorrowed;
+//                     const totalRemaining      : nat         = loanTokenRecord.totalRemaining;
+//                     const loanTokenDecimals   : nat         = loanTokenRecord.tokenDecimals;
+//                     const loanTokenType       : tokenType   = loanTokenRecord.tokenType;
+//                     const accRewardsPerShare  : nat         = loanTokenRecord.tokenRewardIndex;
+
+//                     // Get loan token price
+//                     const loanTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(loanTokenRecord.oracleAddress);
+
+//                     // ------------------------------------------------------------------
+//                     // Interest Payment Process
+//                     // ------------------------------------------------------------------
+
+//                     // get max vault liquidation amount
+//                     // const newLoanOutstandingTotal      : nat = vault.loanOutstandingTotal;
+//                     // var newLoanInterestTotal           : nat := vault.loanInterestTotal;
+//                     // const vaultMaxLiquidationAmount    : nat = (newLoanOutstandingTotal * s.vaultConfig.maxVaultLiquidationPercent) / 10000n;
+
+//                     // // if total liquidation amount is greater than vault max liquidation amount, set the max to the vault max liquidation amount
+//                     // // e.g. helpful in race conditions where instead of reverting failure, the transaction can still go through
+//                     // var totalLiquidationAmount : nat := amount;
+
+//                     // Calculate vault collateral value rebased (1e32 or 10^32)
+//                     // - this will be the denominator used to calculate proportion of collateral to be liquidated
+//                     const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vaultAddress, vault.collateralBalanceLedger, s);
+                    
+//                     // loop tokens in vault collateral balance ledger to be liquidated
+//                     for collateralTokenName -> collateralTokenBalance in map vault.collateralBalanceLedger block {
+
+//                         // skip if token balance is 0n
+//                         if collateralTokenBalance = 0n then skip else block {
+
+//                             // todo: refactor
+//                             // process liquidation in a helper function
+//                             const liquidationProcess : (list(operation)*nat)  = processCollateralTokenLiquidation(
+//                                 liquidator,
+//                                 treasuryAddress,
+//                                 loanTokenDecimals,
+//                                 loanTokenLastCompletedData,
+//                                 vaultAddress,
+//                                 vaultCollateralValueRebased,
+//                                 collateralTokenName,
+//                                 collateralTokenBalance,
+//                                 totalLiquidationAmount,
+//                                 operations,
+//                                 s
+//                             );
+//                             const updatedOperationList  : list(operation)       = liquidationProcess.0;
+//                             const collateralBalance     : nat                   = liquidationProcess.1;
+
+//                             // ------------------------------------------------------------------
+//                             // Update operations
+//                             // ------------------------------------------------------------------
+
+//                             operations  := updatedOperationList;
+
+//                             // ------------------------------------------------------------------
+//                             // Update collateral balance
+//                             // ------------------------------------------------------------------
+
+//                             // save and update new balance for collateral token
+//                             vault.collateralBalanceLedger[collateralTokenName] := collateralBalance;
+
+//                         };
+
+//                     };
+
+//                     // ------------------------------------------------------------------
+//                     // Update Interest Records
+//                     // ------------------------------------------------------------------
+
+//                     var newLoanPrincipalTotal       : nat := vault.loanPrincipalTotal;
+//                     var initialLoanPrincipalTotal   : nat := newLoanPrincipalTotal;
+//                     var newLoanOutstandingTotal     : nat := vault.loanOutstandingTotal;
+//                     var totalInterestPaid           : nat := 0n;
+//                     var totalPrincipalRepaid        : nat := 0n;          
+
+//                     if totalLiquidationAmount > newLoanInterestTotal then {
+                        
+//                         // total liquidation amount covers both interest and principal
+
+//                         // Calculate remainder amount
+//                         const principalReductionAmount : nat = abs(totalLiquidationAmount - newLoanInterestTotal);
+
+//                         // set total interest paid and reset loan interest to zero
+//                         totalInterestPaid := newLoanInterestTotal;
+//                         newLoanInterestTotal := 0n;
+
+//                         // Calculate final loan principal - verify that principalReductionAmount is less than initialLoanPrincipalTotal
+//                         verifyLessThanOrEqual(principalReductionAmount, initialLoanPrincipalTotal, error_PRINCIPAL_REDUCTION_MISCALCULATION);
+//                         newLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
+
+//                         // set total principal repaid amount
+//                         // - note: liquidation will not be able to cover entire principal amount as compared to %repay
+//                         totalPrincipalRepaid := principalReductionAmount;
+
+//                     } else {
+
+//                         // total liquidation amount covers interest only
+
+//                         // set total interest paid
+//                         totalInterestPaid := totalLiquidationAmount;
+
+//                         // Calculate final loan interest - verify that totalLiquidationAmount is less than newLoanInterestTotal
+//                         verifyLessThanOrEqual(totalLiquidationAmount, newLoanInterestTotal, error_LOAN_INTEREST_MISCALCULATION);
+//                         newLoanInterestTotal := abs(newLoanInterestTotal - totalLiquidationAmount);
+
+//                     };
+
+//                     // Calculate final loan outstanding total - verify that totalLiquidationAmount is less than newLoanOutstandingTotal
+//                     verifyLessThanOrEqual(totalLiquidationAmount, newLoanOutstandingTotal, error_LOAN_OUTSTANDING_MISCALCULATION);
+//                     newLoanOutstandingTotal := abs(newLoanOutstandingTotal - totalLiquidationAmount);
+
+//                     // ------------------------------------------------------------------
+//                     // Calculate Fees from Interest
+//                     // ------------------------------------------------------------------
+
+//                     // Calculate amount of interest that goes to the Treasury 
+//                     const interestSentToTreasury : nat = ((totalInterestPaid * s.vaultRwaConfig.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+
+//                     // Calculate amount of interest - verify that interestSentToTreasury is less than totalInterestPaid
+//                     verifyLessThanOrEqual(interestSentToTreasury, totalInterestPaid, error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID);
+//                     const interestRewards : nat = abs(totalInterestPaid - interestSentToTreasury);
+
+//                     // ------------------------------------------------------------------
+//                     // Process Fee Transfers
+//                     // ------------------------------------------------------------------
+
+//                     // Send interest payment from Lending Controller Token Pool to treasury
+//                     const sendInterestToTreasuryOperation : operation = tokenPoolTransfer(
+//                         Mavryk.get_self_address(),   // from_    
+//                         treasuryAddress,             // to_
+//                         interestSentToTreasury,      // amount
+//                         loanTokenType                // token type
+//                     );
+//                     operations := sendInterestToTreasuryOperation # operations;
+
+//                     // ------------------------------------------------------------------
+//                     // Process repayment of Principal
+//                     // ------------------------------------------------------------------            
+
+//                     var newTokenPoolTotal   : nat  := tokenPoolTotal;
+//                     var newTotalBorrowed    : nat  := totalBorrowed;
+//                     var newTotalRemaining   : nat  := totalRemaining;
+                    
+//                     // Process repayment of principal if total principal repaid quantity is greater than 0
+//                     if totalPrincipalRepaid > 0n then {
+
+//                         // verify that totalPrincipalRepaid is less than totalBorrowed
+//                         verifyLessThanOrEqual(totalPrincipalRepaid, totalBorrowed, error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT);
+
+//                         // Calculate new totalBorrowed and totalRemaining
+//                         newTotalBorrowed   := abs(totalBorrowed - totalPrincipalRepaid);
+//                         newTotalRemaining  := totalRemaining + totalPrincipalRepaid;
+//                         newTokenPoolTotal  := newTotalRemaining + newTotalBorrowed;
+
+//                     } else skip;
+
+
+//                     // transfer operation should take place first before refund operation (N.B. First In Last Out operations)
+//                     const transferLiquidationAmountOperation : operation = tokenPoolTransfer(
+//                         liquidator,                 // from_
+//                         Mavryk.get_self_address(),  // to_
+//                         totalLiquidationAmount,     // totalLiquidationAmount
+//                         loanTokenType               // token type
+//                     );
+
+//                     operations := transferLiquidationAmountOperation # operations;
+
+//                     // ------------------------------------------------------------------
+//                     // Update Loan Token Accumulated Rewards Per Share
+//                     // ------------------------------------------------------------------
+
+//                     // Calculate loan token accumulated rewards per share increment (1e6 * 1e27 / 1e6 -> 1e27)
+//                     // - N.B. divide by token pool total before it is updated
+//                     const accRewardsPerShareIncrement  : nat = (interestRewards * fixedPointAccuracy) / tokenPoolTotal;
+//                     const newAccRewardsPerShare        : nat = accRewardsPerShare + accRewardsPerShareIncrement;
+
+//                     newTokenPoolTotal  := newTokenPoolTotal + interestRewards;
+//                     newTotalRemaining  := newTotalRemaining + interestRewards;
+
+//                     // ------------------------------------------------------------------
+//                     // Update Storage
+//                     // ------------------------------------------------------------------
+
+//                     // Update token storage
+//                     loanTokenRecord.rawMTokensTotalSupply       := newTokenPoolTotal; // mTokens to follow movement of token pool total
+//                     loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
+//                     loanTokenRecord.totalBorrowed               := newTotalBorrowed;
+//                     loanTokenRecord.totalRemaining              := newTotalRemaining;
+//                     loanTokenRecord.tokenRewardIndex            := newAccRewardsPerShare;
+
+//                     // Update Loan Token State again: Latest utilisation rate, current interest rate, compounded interest and borrow index
+//                     loanTokenRecord := updateLoanTokenState(loanTokenRecord);
+                    
+//                     // Update loan token
+//                     s.loanTokenLedger[vaultLoanTokenName]   := loanTokenRecord;
+
+//                     // Update vault storage
+//                     vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
+//                     vault.loanPrincipalTotal        := newLoanPrincipalTotal;
+//                     vault.loanInterestTotal         := newLoanInterestTotal;
+
+//                     // Update vault                
+//                     s.vaults[vaultHandle]           := vault;    
+//                 }
+
+//             }
+//         |   _ -> skip
+//     ];
+
+// } with (operations, s)
 
 
 
@@ -1363,10 +1663,10 @@ block {
                 // ------------------------------------------------------------------
                 
                 // Charge a minimum loan fee if user is borrowing
-                const minimumLoanFee : nat = ((initialLoanAmount * s.config.minimumLoanFeePercent * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+                const minimumLoanFee : nat = ((initialLoanAmount * s.vaultConfig.minimumLoanFeePercent * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
                 // Calculate share of fees that goes to the Treasury 
-                const minimumLoanFeeToTreasury : nat = ((minimumLoanFee * s.config.minimumLoanFeeTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+                const minimumLoanFeeToTreasury : nat = ((minimumLoanFee * s.vaultConfig.minimumLoanFeeTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
                 // Calculate share of fees that goes to Rewards - verify that minimumLoanFeeToTreasury is less than minimumLoanFee
                 verifyLessThanOrEqual(minimumLoanFeeToTreasury, minimumLoanFee, error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE);
@@ -1594,7 +1894,7 @@ block {
                 newLoanOutstandingTotal := abs(newLoanOutstandingTotal - finalRepaymentAmount);
 
                 // Calculate amount of interest that goes to the Treasury 
-                const interestSentToTreasury : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+                const interestSentToTreasury : nat = ((totalInterestPaid * s.vaultConfig.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
                 // Calculate amount of interest that goes to the Reward Pool - verify that interestSentToTreasury is less than totalInterestPaid
                 verifyLessThanOrEqual(interestSentToTreasury, totalInterestPaid, error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID);

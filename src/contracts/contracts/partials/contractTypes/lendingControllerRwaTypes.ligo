@@ -16,50 +16,27 @@ type collateralNameType          is string;
 // ------------------------------------------------------------------------------
 
 type lendingControllerConfigType is [@layout:comb] record [
+    
+    collateralRatio              : nat;         // collateral ratio
+    liquidationRatio             : nat;         // liquidation ratio
+    
+    liquidationFeePercent        : nat;         // liquidation fee percent - penalty fee paid by vault owner to liquidator
+    adminLiquidationFeePercent   : nat;         // admin liquidation fee percent - penalty fee paid by vault owner to treasury
+
+    minimumLoanFeePercent        : nat;         // minimum loan fee percent - taken at first minting
+
+    minimumLoanFeeTreasuryShare  : nat;         // percentage of minimum loan fee that goes to the treasury
+    interestTreasuryShare        : nat;         // percentage of interest that goes to the treasury
+
     decimals                     : nat;         // decimals used for percentage calculation
     interestRateDecimals         : nat;         // decimals used for interest rate (ray : 10^27)
     maxDecimalsForCalculation    : nat;         // max decimals to be used in calculations
     lastCompletedDataMaxDelay    : nat;         // max delay in last updated at for last completed data in fetching prices
-]
 
-type vaultConfigType is [@layout:comb] record [
-    
-    collateralRatio              : nat;         // collateral ratio
-    liquidationRatio             : nat;         // liquidation ratio
-    
-    liquidationFeePercent        : nat;         // liquidation fee percent - penalty fee paid by vault owner to liquidator
-    adminLiquidationFeePercent   : nat;         // admin liquidation fee percent - penalty fee paid by vault owner to treasury
-
-    minimumLoanFeePercent        : nat;         // minimum loan fee percent - taken at first minting
-
-    minimumLoanFeeTreasuryShare  : nat;         // percentage of minimum loan fee that goes to the treasury
-    interestTreasuryShare        : nat;         // percentage of interest that goes to the treasury
-
-    maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% on AAVE)
+    maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% for AAVE)
     liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
     liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
 ]
-
-
-type rwaVaultConfigType is [@layout:comb] record [
-    
-    collateralRatio              : nat;         // collateral ratio
-    liquidationRatio             : nat;         // liquidation ratio
-    
-    liquidationFeePercent        : nat;         // liquidation fee percent - penalty fee paid by vault owner to liquidator
-    adminLiquidationFeePercent   : nat;         // admin liquidation fee percent - penalty fee paid by vault owner to treasury
-
-    minimumLoanFeePercent        : nat;         // minimum loan fee percent - taken at first minting
-
-    minimumLoanFeeTreasuryShare  : nat;         // percentage of minimum loan fee that goes to the treasury
-    interestTreasuryShare        : nat;         // percentage of interest that goes to the treasury
-
-    maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% on AAVE)
-    liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
-    liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
-]
-
-
 
 type lendingControllerBreakGlassConfigType is record [
     
@@ -150,6 +127,14 @@ type loanTokenRecordType is [@layout:comb] record [
 type loanTokenLedgerType is big_map(string, loanTokenRecordType)
 
 
+// RWA Vaults - support RWA tokens and crypto
+// minimum monthly payments
+// higher loan to value LTV
+
+// Regular vaults - will not support RWA tokens
+
+// KYC-ed liquidity pools
+
 type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (mav/token)
 type vaultRecordType is [@layout:comb] record [
 
@@ -169,6 +154,7 @@ type vaultRecordType is [@layout:comb] record [
 
     markedForLiquidationLevel   : nat;                           // block level of when vault was marked for liquidation
     liquidationEndLevel         : nat;                           // block level of when vault will no longer be liquidated, or will need to be marked for liquidation again
+    
 ]
 
 // owner types
@@ -191,32 +177,24 @@ type removeLiquidityActionType is [@layout:comb] record [
 ]
 
 
-// type lendingControllerUpdateConfigNewValueType is nat
-// type lendingControllerUpdateConfigActionType is 
-//         ConfigCollateralRatio           of unit
-//     |   ConfigLiquidationRatio          of unit
-//     |   ConfigLiquidationFeePercent     of unit
-//     |   ConfigAdminLiquidationFee       of unit
-//     |   ConfigMinimumLoanFeePercent     of unit
-//     |   ConfigMinLoanFeeTreasuryShare   of unit
-//     |   ConfigInterestTreasuryShare     of unit
-//     |   ConfigLastCompletedDataMaxDelay of unit
-//     |   ConfigMaxVaultLiqPercent        of unit
-//     |   ConfigLiquidationDelayInMins    of unit
-//     |   ConfigLiquidationMaxDuration    of unit
+type lendingControllerUpdateConfigNewValueType is nat
+type lendingControllerUpdateConfigActionType is 
+        ConfigCollateralRatio           of unit
+    |   ConfigLiquidationRatio          of unit
+    |   ConfigLiquidationFeePercent     of unit
+    |   ConfigAdminLiquidationFee       of unit
+    |   ConfigMinimumLoanFeePercent     of unit
+    |   ConfigMinLoanFeeTreasuryShare   of unit
+    |   ConfigInterestTreasuryShare     of unit
+    |   ConfigLastCompletedDataMaxDelay of unit
+    |   ConfigMaxVaultLiqPercent        of unit
+    |   ConfigLiquidationDelayInMins    of unit
+    |   ConfigLiquidationMaxDuration    of unit
 
-// type lendingControllerUpdateConfigParamsType is [@layout:comb] record [
-//     updateConfigNewValue    : lendingControllerUpdateConfigNewValueType;  
-//     updateConfigAction      : lendingControllerUpdateConfigActionType;
-// ]
-
-
-type lendingControllerUpdateConfigSingleType is [@layout:comb] record [
-    configType      : string;
-    configName      : string;
-    newValue        : nat;  
+type lendingControllerUpdateConfigParamsType is [@layout:comb] record [
+    updateConfigNewValue    : lendingControllerUpdateConfigNewValueType;  
+    updateConfigAction      : lendingControllerUpdateConfigActionType;
 ]
-type lendingControllerUpdateConfigActionType is list(lendingControllerUpdateConfigSingleType)
 
 type registerVaultCreationActionType is [@layout:comb] record [
     vaultOwner      : vaultOwnerType;
@@ -342,18 +320,6 @@ type liquidateVaultActionType is [@layout:comb] record [
     amount      : nat;
 ]
 
-type liquidateRwaVaultActionType is [@layout:comb] record [
-    vaultId     : nat;
-    vaultOwner  : address;
-    amount      : nat;
-]
-
-
-// type processInterestPaymentSingleType is [@layout:comb] record [
-//     vaultId     : nat;
-//     vaultOwner  : address;
-// ]
-// type processInterestPaymentActionType is list(processInterestPaymentSingleType)
 
 type borrowActionType is [@layout:comb] record [ 
     vaultId     : nat; 
@@ -428,7 +394,7 @@ type lendingControllerLambdaActionType is
         // Housekeeping Entrypoints
     |   LambdaSetAdmin                        of (address)
     |   LambdaSetGovernance                   of (address)
-    |   LambdaUpdateConfig                    of lendingControllerUpdateConfigActionType
+    |   LambdaUpdateConfig                    of lendingControllerUpdateConfigParamsType
 
         // Pause / Break Glass Lambdas
     |   LambdaPauseAll                        of (unit)
@@ -448,7 +414,6 @@ type lendingControllerLambdaActionType is
     |   LambdaCloseVault                      of closeVaultActionType
     |   LambdaMarkForLiquidation              of markForLiquidationActionType
     |   LambdaLiquidateVault                  of liquidateVaultActionType
-    // |   LambdaLiquidateRwaVault               of liquidateRwaVaultActionType
     |   LambdaRegisterWithdrawal              of registerWithdrawalActionType
     |   LambdaRegisterDeposit                 of registerDepositActionType
     |   LambdaBorrow                          of borrowActionType
@@ -468,8 +433,6 @@ type lendingControllerStorageType is [@layout:comb] record [
     admin                       : address;
     metadata                    : metadataType;
     config                      : lendingControllerConfigType;
-    vaultConfig                 : vaultConfigType;
-    rwaVaultConfig              : rwaVaultConfigType;
     breakGlassConfig            : lendingControllerBreakGlassConfigType;
 
     mvnTokenAddress             : address;
