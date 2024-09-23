@@ -112,7 +112,7 @@ type lendingControllerUnpackLambdaFunctionType is (lendingControllerLambdaAction
 // ------------------------------------------------------------------------------
 
 // Lending Controller Entrypoints:
-#include "../partials/contractEntrypoints/lendingControllerEntrypoints.ligo"
+#include "../partials/contractEntrypoints/lendingControllerMockTimeEntrypoints.ligo"
 
 // ------------------------------------------------------------------------------
 

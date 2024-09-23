@@ -80,12 +80,7 @@ export const lendingControllerMockTimeStorage : lendingControllerMockTimeStorage
     mvnTokenAddress                 : zeroAddress,
     governanceAddress               : zeroAddress,
 
-    whitelistContracts              : MichelsonMap.fromLiteral({}),
-    generalContracts                : MichelsonMap.fromLiteral({}),
-    whitelistTokenContracts         : MichelsonMap.fromLiteral({}),
-    
     vaults                          : MichelsonMap.fromLiteral({}),
-    vaultCounter                    : new BigNumber(1),
     ownerLedger                     : MichelsonMap.fromLiteral({}),
 
     collateralTokenLedger           : MichelsonMap.fromLiteral({}),

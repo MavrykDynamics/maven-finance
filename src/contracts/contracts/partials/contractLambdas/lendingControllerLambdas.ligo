@@ -80,6 +80,8 @@ block {
                     const _configName : string = updateConfigParams.configName;
                     const _newValue : nat      = updateConfigParams.newValue;
 
+                    
+
                 };
 
             }
@@ -699,6 +701,7 @@ block {
                 // Check that vault has zero loan outstanding
                 checkZeroLoanOutstanding(vault);
 
+                // init list records of transfers from the closed vault
                 var onLiquidateList : onLiquidateListType := list [];
 
                 // get tokens and token balances and initiate transfer back to the vault owner
@@ -989,6 +992,7 @@ block {
                 // - this will be the denominator used to calculate proportion of collateral to be liquidated
                 const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vaultAddress, vault.collateralBalanceLedger, s);
 
+                // init list records of transfers from the vault from liquidation
                 var onLiquidateList : onLiquidateListType := list [];
                 
                 // loop tokens in vault collateral balance ledger to be liquidated

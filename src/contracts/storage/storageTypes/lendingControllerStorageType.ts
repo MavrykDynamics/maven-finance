@@ -6,18 +6,15 @@ export type lendingControllerStorageType = {
     admin                       : string;
     metadata                    : MichelsonMap<MichelsonMapKey, unknown>;    
     config                      : {};
+    vaultConfig                 : {};
+    vaultRwaConfig              : {};
     breakGlassConfig            : {};
 
     mvnTokenAddress             : string;
     governanceAddress           : string;
 
-    whitelistContracts          : MichelsonMap<MichelsonMapKey, unknown>;    
-    generalContracts            : MichelsonMap<MichelsonMapKey, unknown>;    
-    whitelistTokenContracts     : MichelsonMap<MichelsonMapKey, unknown>;
-
     // vaults and owners
     vaults                      : MichelsonMap<MichelsonMapKey, unknown>;
-    vaultCounter                : BigNumber;
     ownerLedger                 : MichelsonMap<MichelsonMapKey, unknown>;
 
     // collateral tokens
