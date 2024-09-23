@@ -18,7 +18,8 @@ services:
 
   api:
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-api:4.7.9
+    platform: linux/amd64
+    image: ghcr.io/mavryk-network/bcdhub-api:4.7.7
     environment:
       - BCD_ENV=sandbox
       - GIN_MODE=debug
@@ -40,7 +41,8 @@ services:
 
   indexer:
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-indexer:4.7.9
+    platform: linux/amd64
+    image: ghcr.io/mavryk-network/bcdhub-indexer:4.7.7
     environment:
       - BCD_ENV=sandbox
       - POSTGRES_USER=root
@@ -56,12 +58,22 @@ services:
     logging: *bcd-logging
 
   flexmasa:
-    container_name: maven-sandbox
+    container_name: mavryk-sandbox
     restart: always
-    image: mavrykdynamics/flexmasa:atlas-update-run
-    command: atlasbox start
+    image: registry.gitlab.com/mavryk-network/flexmasa:boreas-update-run
+    command: >
+      flexmasa mini-net 
+      --root "/tmp/mini-box" 
+      --size 1
+      --set-history-mode N000:archive 
+      --number-of-boot 1
+      --balance-of-bootstrap-accounts mav:100_000_000 
+      --time-b 3 
+      --add-bootstrap-account="alice,edpkvGfYw3LyB1UcCahKQk4rF2tvbMUk8GFiTuMjL75uGXrpvKXhjn,mv1Hox9jGJg3uSmsv9NTvuK7rMHh25cq44nv,unencrypted:edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq@2_000_000_000_000" 
+      --add-bootstrap-account="bob,edpkurPsQ8eUApnLUJ9ZPDvu98E8VNj4KtJa1aZr16Cr5ow5VHKnz4,mv1NpEEq8FLgc2Yi4wNpEZ3pvc1kUZrp2JWU,unencrypted:edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt@2_000_000_000_000" 
+      --until-level 200_000_000 
+      --protocol-kind "Atlas"
     environment:
-      - block_time=3
       - flexmasa_node_cors_origin=*
     ports:
       - 127.0.0.1:20000:20000
@@ -74,11 +86,12 @@ services:
   gui:
     container_name: sandbox-gui
     restart: always
-    image: ghcr.io/mavryk-network/bcdhub-gui:4.7.9
+    platform: linux/amd64
+    image: ghcr.io/mavryk-network/bcdhub-gui:4.7.7
     depends_on:
       - api
     ports:
-      - 127.0.0.1:8080:80
+      - 127.0.0.1:8000:80
     logging: *bcd-logging
 
 volumes:

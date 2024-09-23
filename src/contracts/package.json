@@ -17,8 +17,8 @@
     "rimraf": "^3.0.2"
   },
   "scripts": {
-    "pull-sandbox": "TAG=4.7.0 docker compose -f docker-compose.yml pull",
-    "start-sandbox": "TAG=4.7.0 docker compose -f docker-compose.yml up -d && bash ./sandbox-init.sh",
+    "pull-sandbox": "TAG=4.7.7 docker compose -f docker-compose.yml pull",
+    "start-sandbox": "TAG=4.7.7 docker compose -f docker-compose.yml up -d && bash ./sandbox-init.sh",
     "down-sandbox": "docker compose -f docker-compose.yml down",
     "clear-sandbox": "docker compose -f docker-compose.yml down -v",
     "restart-sandbox": "yarn clear-sandbox && yarn start-sandbox",
@@ -47,7 +47,7 @@
   "author": "devteam@mavenfinance.io",
   "license": "MIT",
   "dependencies": {
-    "@mavrykdynamics/create-lambda-bytes": "^0.3.2-l1",
+    "@mavrykdynamics/create-lambda-bytes": "^0.3.3-l1",
     "@mavrykdynamics/taquito-signer": "^19.2.3",
     "@mavrykdynamics/taquito": "^19.2.3",
     "@mavrykdynamics/taquito-utils": "^19.2.3",
