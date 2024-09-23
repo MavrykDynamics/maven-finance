@@ -79,6 +79,11 @@ block {
 function createVesteeRecord(const vesteeAddress : address; const totalAllocatedAmount : nat; const vestingInMonths : nat; const cliffInMonths : nat; const s : vestingStorageType) : vesteeRecordType is 
 block {
 
+    var nextRedemptionTimestamp : timestamp := Mavryk.get_now();
+    if cliffInMonths > 0n then {
+        nextRedemptionTimestamp := nextRedemptionTimestamp + (cliffInMonths * thirty_days);
+    }  else skip;
+
     const newVesteeRecord : vesteeRecordType = case s.vesteeLedger[vesteeAddress] of [
             Some(_record) -> failwith(error_VESTEE_ALREADY_EXISTS)
         |   None -> record [
@@ -88,7 +93,7 @@ block {
             totalAllocatedAmount = totalAllocatedAmount;                          // totalAllocatedAmount should be in (10^9) - MVN Token decimals
             claimAmountPerMonth  = totalAllocatedAmount / vestingInMonths;        // totalAllocatedAmount should be in (10^9) - MVN Token decimals
             
-            startTimestamp       = Mavryk.get_now();                                     // date/time start of when 
+            startTimestamp       = Mavryk.get_now();                              // date/time start of when 
 
             vestingMonths        = vestingInMonths;                               // number of months of vesting for total allocaed amount
             cliffMonths          = cliffInMonths;                                 // number of months for cliff before vestee can claim
@@ -107,8 +112,8 @@ block {
             monthsClaimed            = 0n;                                        // claimed number of months   
             monthsRemaining          = vestingInMonths;                           // remaining number of months   
             
-            nextRedemptionTimestamp  = Mavryk.get_now();                                 // timestamp of when vestee will be able to claim again (claim at start of period; if cliff exists, will be the same as end of cliff timestamp)
-            lastClaimedTimestamp     = Mavryk.get_now();                                 // timestamp of when vestee last claimed
+            nextRedemptionTimestamp  = nextRedemptionTimestamp;                   // timestamp of when vestee will be able to claim again (claim at start of period; if cliff exists, will be the same as end of cliff timestamp)
+            lastClaimedTimestamp     = Tezos.get_now();                           // timestamp of when vestee last claimed
         ]
     ];    
 
