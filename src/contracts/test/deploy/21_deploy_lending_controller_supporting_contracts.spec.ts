@@ -76,13 +76,13 @@ describe('Lending Controller Supporting Contracts', async () => {
             await saveContractAddress("mTokenUsdtAddress", mTokenUsdt.contract.address)
 
 
-            // mToken for Mock FA12 Token in Lending Controller Token Pool 
-            // mTokenStorage.loanToken      = mTokenMockData.mTokenEurt.loanToken;
-            // mTokenStorage.metadata       = mTokenMockData.mTokenEurt.metadata;
-            // mTokenStorage.token_metadata = mTokenMockData.mTokenEurt.token_metadata;
+            // mToken for Mock FA2 Token in Lending Controller Token Pool 
+            mTokenStorage.loanToken      = mTokenMockData.mTokenEurt.loanToken;
+            mTokenStorage.metadata       = mTokenMockData.mTokenEurt.metadata;
+            mTokenStorage.token_metadata = mTokenMockData.mTokenEurt.token_metadata;
             
-            // mTokenEurt = await GeneralContract.originate(utils.tezos, "mTokenEurt", mTokenStorage);
-            // await saveContractAddress("mTokenEurtAddress", mTokenEurt.contract.address)
+            mTokenEurt = await GeneralContract.originate(utils.tezos, "mTokenEurt", mTokenStorage);
+            await saveContractAddress("mTokenEurtAddress", mTokenEurt.contract.address)
 
 
             // mToken for MVRK in Lending Controller Token Pool 
@@ -130,7 +130,7 @@ describe('Lending Controller Supporting Contracts', async () => {
                 heartbeatSeconds                    : new BigNumber(30),
                 
                 rewardAmountStakedMvn               : new BigNumber(10000000), // 0.01 MVN
-                rewardAmountMvrk                     : new BigNumber(1300),     // ~0.0013 mav 
+                rewardAmountMvrk                     : new BigNumber(1300),    // ~0.0013 mav 
             };
             aggregatorStorage.oracleLedger      = oracleMap;
             aggregatorStorage.mvnTokenAddress   = contractDeployments.mvnToken.address;

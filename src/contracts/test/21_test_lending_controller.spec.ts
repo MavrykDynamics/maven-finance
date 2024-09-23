@@ -113,11 +113,11 @@ describe("Lending Controller tests", async () => {
 
         mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
         mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
-        mTokenMvrkInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
+        mTokenMvrkInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
 
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
-        mockUsdMvrkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
+        mockUsdMvrkAggregatorInstance           = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
         mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress);
@@ -3041,7 +3041,7 @@ describe("Lending Controller tests", async () => {
             const borrowAmount       = 1000000; // 1 Mock FA12 Tokens
 
             const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
-            const minimumLoanFeePercent  = lendingControllerStorage.config.minimumLoanFeePercent; // e.g. 1%
+            const minimumLoanFeePercent  = lendingControllerStorage.vaultConfig.minimumLoanFeePercent; // e.g. 1%
             const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
             const finalLoanAmount        = borrowAmount - minimumLoanFee;
 
@@ -3082,7 +3082,7 @@ describe("Lending Controller tests", async () => {
             assert.equal(updatedLoanInterestTotal, 0);
 
             // check eve Mock FA12 Token balance
-            assert.equal(updatedEveMockFa12Ledger.balance, eveInitialMockFa12TokenBalance + finalLoanAmount);
+            assert.equal(updatedEveMockFa12Balance, eveInitialMockFa12TokenBalance + finalLoanAmount);
 
         });
 
@@ -3095,7 +3095,7 @@ describe("Lending Controller tests", async () => {
             const borrowAmount       = 1000000; // 1 Mock FA2 Tokens
 
             const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
-            const minimumLoanFeePercent  = lendingControllerStorage.config.minimumLoanFeePercent; // e.g. 1%
+            const minimumLoanFeePercent  = lendingControllerStorage.vaultConfig.minimumLoanFeePercent; // e.g. 1%
             const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
             const finalLoanAmount        = borrowAmount - minimumLoanFee;
 
@@ -3148,7 +3148,7 @@ describe("Lending Controller tests", async () => {
             const borrowAmount       = 1000000; // 1 Mav
 
             const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
-            const minimumLoanFeePercent  = lendingControllerStorage.config.minimumLoanFeePercent; // e.g. 1%
+            const minimumLoanFeePercent  = lendingControllerStorage.vaultConfig.minimumLoanFeePercent; // e.g. 1%
             const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
             const finalLoanAmount        = borrowAmount - minimumLoanFee;
 
@@ -3200,7 +3200,7 @@ describe("Lending Controller tests", async () => {
             const borrowAmount       = 1000000; // 1 Mock FA12 Tokens
 
             const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
-            const minimumLoanFeePercent  = lendingControllerStorage.config.minimumLoanFeePercent; // e.g. 1%
+            const minimumLoanFeePercent  = lendingControllerStorage.vaultConfig.minimumLoanFeePercent; // e.g. 1%
             const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
             const finalLoanAmount        = borrowAmount - minimumLoanFee;
 
@@ -3370,7 +3370,7 @@ describe("Lending Controller tests", async () => {
             const borrowAmount       = 3000000; // 3 Mock FA12 Tokens
 
             const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
-            const minimumLoanFeePercent  = lendingControllerStorage.config.minimumLoanFeePercent; // e.g. 1%
+            const minimumLoanFeePercent  = lendingControllerStorage.vaultConfig.minimumLoanFeePercent; // e.g. 1%
             const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
             const finalLoanAmount        = borrowAmount - minimumLoanFee;
 
@@ -4710,69 +4710,69 @@ describe("Lending Controller tests", async () => {
 
                 // Final values
                 lendingControllerStorage           = await lendingControllerInstance.storage();
-                const collateralRatio = lendingControllerStorage.config.collateralRatio;
+                const collateralRatio = lendingControllerStorage.vaultConfig.collateralRatio;
 
                 // Assertions
-                assert.equal(newTestValue, lendingControllerStorage.config.collateralRatio);
-                assert.equal(newTestValue, lendingControllerStorage.config.liquidationRatio);
-                assert.equal(newTestValue, lendingControllerStorage.config.liquidationFeePercent);
-                assert.equal(newTestValue, lendingControllerStorage.config.adminLiquidationFeePercent);
-                assert.equal(newTestValue, lendingControllerStorage.config.minimumLoanFeePercent);
-                assert.equal(newTestValue, lendingControllerStorage.config.minimumLoanFeeTreasuryShare);
-                assert.equal(newTestValue, lendingControllerStorage.config.interestTreasuryShare);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.collateralRatio);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.liquidationRatio);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.liquidationFeePercent);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.adminLiquidationFeePercent);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.minimumLoanFeePercent);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.interestTreasuryShare);
                 assert.equal(newTestValue, lendingControllerStorage.config.lastCompletedDataMaxDelay);
-                assert.equal(newTestValue, lendingControllerStorage.config.maxVaultLiquidationPercent);
-                assert.equal(newTestValue, lendingControllerStorage.config.liquidationDelayInMins);
-                assert.equal(newTestValue, lendingControllerStorage.config.liquidationMaxDuration);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.maxVaultLiquidationPercent);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.liquidationDelayInMins);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.liquidationMaxDuration);
 
                 // reset config operation
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.collateralRatio, "configCollateralRatio").send();
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.collateralRatio, "configCollateralRatio").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.liquidationRatio, "configLiquidationRatio").send();
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.liquidationRatio, "configLiquidationRatio").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.liquidationFeePercent, "configLiquidationFeePercent").send();
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.liquidationFeePercent, "configLiquidationFeePercent").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.adminLiquidationFeePercent, "configAdminLiquidationFee").send();
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.adminLiquidationFeePercent, "configAdminLiquidationFee").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.minimumLoanFeePercent, "configMinimumLoanFeePercent").send();
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.minimumLoanFeePercent, "configMinimumLoanFeePercent").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.minimumLoanFeeTreasuryShare, "configMinLoanFeeTreasuryShare").send();
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare, "configMinLoanFeeTreasuryShare").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.interestTreasuryShare, "configInterestTreasuryShare").send();
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.interestTreasuryShare, "configInterestTreasuryShare").send();
                 await updateConfigOperation.confirmation();
 
                 updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.lastCompletedDataMaxDelay, "configLastCompletedDataMaxDelay").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.maxVaultLiquidationPercent, "configMaxVaultLiqPercent").send();
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.maxVaultLiquidationPercent, "configMaxVaultLiqPercent").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.liquidationDelayInMins, "configLiquidationDelayInMins").send();
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.liquidationDelayInMins, "configLiquidationDelayInMins").send();
                 await updateConfigOperation.confirmation();
 
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.liquidationMaxDuration, "configLiquidationMaxDuration").send();
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.liquidationMaxDuration, "configLiquidationMaxDuration").send();
                 await updateConfigOperation.confirmation();
 
                 // Final values
                 lendingControllerStorage = await lendingControllerInstance.storage();
 
-                assert.equal(initialLendingControllerStorage.config.collateralRatio.toNumber(), lendingControllerStorage.config.collateralRatio.toNumber());
-                assert.equal(initialLendingControllerStorage.config.liquidationRatio.toNumber(), lendingControllerStorage.config.liquidationRatio.toNumber());
-                assert.equal(initialLendingControllerStorage.config.liquidationFeePercent.toNumber(), lendingControllerStorage.config.liquidationFeePercent.toNumber());
-                assert.equal(initialLendingControllerStorage.config.adminLiquidationFeePercent.toNumber(), lendingControllerStorage.config.adminLiquidationFeePercent.toNumber());
-                assert.equal(initialLendingControllerStorage.config.minimumLoanFeePercent.toNumber(), lendingControllerStorage.config.minimumLoanFeePercent.toNumber());
-                assert.equal(initialLendingControllerStorage.config.minimumLoanFeeTreasuryShare.toNumber(), lendingControllerStorage.config.minimumLoanFeeTreasuryShare.toNumber());
-                assert.equal(initialLendingControllerStorage.config.interestTreasuryShare.toNumber(), lendingControllerStorage.config.interestTreasuryShare.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.collateralRatio.toNumber(), lendingControllerStorage.vaultConfig.collateralRatio.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.liquidationRatio.toNumber(), lendingControllerStorage.vaultConfig.liquidationRatio.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.liquidationFeePercent.toNumber(), lendingControllerStorage.vaultConfig.liquidationFeePercent.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.adminLiquidationFeePercent.toNumber(), lendingControllerStorage.vaultConfig.adminLiquidationFeePercent.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.minimumLoanFeePercent.toNumber(), lendingControllerStorage.vaultConfig.minimumLoanFeePercent.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare.toNumber(), lendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.interestTreasuryShare.toNumber(), lendingControllerStorage.vaultConfig.interestTreasuryShare.toNumber());
                 assert.equal(initialLendingControllerStorage.config.lastCompletedDataMaxDelay.toNumber(), lendingControllerStorage.config.lastCompletedDataMaxDelay.toNumber());
-                assert.equal(initialLendingControllerStorage.config.maxVaultLiquidationPercent.toNumber(), lendingControllerStorage.config.maxVaultLiquidationPercent.toNumber());
-                assert.equal(initialLendingControllerStorage.config.liquidationDelayInMins.toNumber(), lendingControllerStorage.config.liquidationDelayInMins.toNumber());
-                assert.equal(initialLendingControllerStorage.config.liquidationMaxDuration.toNumber(), lendingControllerStorage.config.liquidationMaxDuration.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.maxVaultLiquidationPercent.toNumber(), lendingControllerStorage.vaultConfig.maxVaultLiquidationPercent.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.liquidationDelayInMins.toNumber(), lendingControllerStorage.vaultConfig.liquidationDelayInMins.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.liquidationMaxDuration.toNumber(), lendingControllerStorage.vaultConfig.liquidationMaxDuration.toNumber());
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -5053,13 +5053,13 @@ describe("Lending Controller tests", async () => {
                 lendingControllerStorage = await lendingControllerInstance.storage();
 
                 // check that there is no change in config values
-                assert.equal(initialLendingControllerStorage.config.collateralRatio.toNumber(), lendingControllerStorage.config.collateralRatio.toNumber());
-                assert.equal(initialLendingControllerStorage.config.liquidationRatio.toNumber(), lendingControllerStorage.config.liquidationRatio.toNumber());
-                assert.equal(initialLendingControllerStorage.config.liquidationFeePercent.toNumber(), lendingControllerStorage.config.liquidationFeePercent.toNumber());
-                assert.equal(initialLendingControllerStorage.config.adminLiquidationFeePercent.toNumber(), lendingControllerStorage.config.adminLiquidationFeePercent.toNumber());
-                assert.equal(initialLendingControllerStorage.config.minimumLoanFeePercent.toNumber(), lendingControllerStorage.config.minimumLoanFeePercent.toNumber());
-                assert.equal(initialLendingControllerStorage.config.minimumLoanFeeTreasuryShare.toNumber(), lendingControllerStorage.config.minimumLoanFeeTreasuryShare.toNumber());
-                assert.equal(initialLendingControllerStorage.config.interestTreasuryShare.toNumber(), lendingControllerStorage.config.interestTreasuryShare.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.collateralRatio.toNumber(), lendingControllerStorage.vaultConfig.collateralRatio.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.liquidationRatio.toNumber(), lendingControllerStorage.vaultConfig.liquidationRatio.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.liquidationFeePercent.toNumber(), lendingControllerStorage.vaultConfig.liquidationFeePercent.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.adminLiquidationFeePercent.toNumber(), lendingControllerStorage.vaultConfig.adminLiquidationFeePercent.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.minimumLoanFeePercent.toNumber(), lendingControllerStorage.vaultConfig.minimumLoanFeePercent.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare.toNumber(), lendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare.toNumber());
+                assert.equal(initialLendingControllerStorage.vaultConfig.interestTreasuryShare.toNumber(), lendingControllerStorage.vaultConfig.interestTreasuryShare.toNumber());
                 
             } catch(e){
                 console.dir(e, {depth: 5});
