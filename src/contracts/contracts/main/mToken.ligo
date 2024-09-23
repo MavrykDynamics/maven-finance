@@ -48,7 +48,6 @@ type action is
 type return is list (operation) * mTokenStorageType
 const noOperations : list (operation) = nil;
 
-// const fixedPointAccuracy : nat      = 1_000_000_000_000_000_000_000_000_000n;   // 10^27     - // for use in division
 
 // ------------------------------------------------------------------------------
 //

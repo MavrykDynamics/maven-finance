@@ -1327,3 +1327,34 @@ error_GET_BALANCE_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                            
 error_GET_REWARD_INDEX_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                               = 936
 error_ALL_TOKENS_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                     = 937
 error_IS_OPERATOR_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                    = 938
+
+
+
+
+
+
+
+error_KYC_CONTRACT_NOT_FOUND                                                                             = 939
+error_SET_MEMBER_ENTRYPOINT_IN_KYC_CONTRACT_NOT_FOUND                                                    = 940
+
+error_SET_WHITELIST_ENTRYPOINT_IN_KYC_CONTRACT_NOT_FOUND                                                 = 941
+
+error_KYC_MEMBER_DOES_NOT_EXIST                                                                          = 942
+error_FROM_KYC_MEMBER_DOES_NOT_EXIST                                                                     = 943
+error_TO_KYC_MEMBER_DOES_NOT_EXIST                                                                       = 944
+error_KYC_MEMBER_ALREADY_EXISTS                                                                          = 945
+
+error_COUNTRY_TRANSFER_RULE_RECORD_NOT_FOUND                                                             = 946
+error_TRANSFER_RULE_ALREADY_EXISTS_FOR_COUNTRY                                                           = 947
+
+error_KYC_REGISTRAR_ALREADY_EXISTS                                                                       = 948
+error_ONLY_KYC_REGISTRAR_ALLOWED                                                                         = 949
+error_VALID_INPUT_SET_NOT_FOUND                                                                          = 950
+error_INVALID_INPUT                                                                                      = 951
+error_ONLY_ADMIN_OR_KYC_REGISTRAR_ALLOWED                                                                = 952
+error_ONLY_ADMIN_OR_KYC_REGISTRAR_OF_MEMBER_ALLOWED                                                      = 953
+
+error_KYC_REGISTRAR_RECORD_NOT_FOUND                                                                     = 954
+
+error_AT_LEAST_ONE_KYC_ADMIN_ADDRESS_REQUIRED                                                            = 955
+error_INVALID_KYC_REGISTRAR_ACTION_TO_PAUSE                                                              = 956
