@@ -263,6 +263,7 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             ;;
         vault)
             echo "Running tests for vault"
+            COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000 --exit")
             COMMANDS+=("yarn ts-mocha --paths test/27_test_vault.spec.ts --bail --timeout 9000000 --exit")
             ;;
         mvnFaucet)
