@@ -12,13 +12,8 @@ export type lendingControllerMockTimeStorageType = {
     mvnTokenAddress             : string;
     governanceAddress           : string;
 
-    whitelistContracts          : MichelsonMap<MichelsonMapKey, unknown>;    
-    generalContracts            : MichelsonMap<MichelsonMapKey, unknown>;    
-    whitelistTokenContracts     : MichelsonMap<MichelsonMapKey, unknown>;
-
     // vaults and owners
     vaults                      : MichelsonMap<MichelsonMapKey, unknown>;
-    vaultCounter                : BigNumber;
     ownerLedger                 : MichelsonMap<MichelsonMapKey, unknown>;
 
     // collateral tokens

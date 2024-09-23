@@ -371,14 +371,14 @@ block{
 
                 // move to rwa vaults
                 // Process KYC if vault owner is KYC-ed
-                const kycAddress: address              = getContractAddressFromGovernanceContract("kyc", s.governanceAddress, error_KYC_CONTRACT_NOT_FOUND);
-                const userIsVerifiedBool : bool        = verifyUserIsKyced(vaultOwner, kycAddress);
+                // const kycAddress: address              = getContractAddressFromGovernanceContract("kyc", s.governanceAddress, error_KYC_CONTRACT_NOT_FOUND);
+                // const userIsVerifiedBool : bool        = verifyUserIsKyced(vaultOwner, kycAddress);
 
-                if userIsVerifiedBool = True then {
-                    // KYC vault if vault owner is KYC-ed
-                    const setVaultKycOperation : operation = processNewVaultKyc(vaultAddress, kycAddress);
-                    operations := setVaultKycOperation # operations;
-                } else skip;
+                // if userIsVerifiedBool = True then {
+                //     // KYC vault if vault owner is KYC-ed
+                //     const setVaultKycOperation : operation = processNewVaultKyc(vaultAddress, kycAddress);
+                //     operations := setVaultKycOperation # operations;
+                // } else skip;
 
                 // FILO (First-In, Last-Out) - originate vault first then register vault creation in lending controller
                 operations := registerVaultCreationOperation # operations;

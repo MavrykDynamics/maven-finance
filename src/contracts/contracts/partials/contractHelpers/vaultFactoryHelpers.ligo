@@ -227,29 +227,29 @@ block {
 
 
 // helper function to process kyc for new vault
-function processNewVaultKyc(const vaultAddress : address; const kycAddress : address) : operation is 
-block {
+// function processNewVaultKyc(const vaultAddress : address; const kycAddress : address) : operation is 
+// block {
 
-    const addMemberRecord : addMemberActionType = record [
-        memberAddress   = vaultAddress;
-        country         = "NIL";
-        region          = "NIL";
-        investorType    = "NIL";
-    ];
+//     const addMemberRecord : addMemberActionType = record [
+//         memberAddress   = vaultAddress;
+//         country         = "NIL";
+//         region          = "NIL";
+//         investorType    = "NIL";
+//     ];
 
-    const setMemberParams : setMemberActionType = AddMember(
-        [
-            addMemberRecord
-        ]
-    );
+//     const setMemberParams : setMemberActionType = AddMember(
+//         [
+//             addMemberRecord
+//         ]
+//     );
 
-    const setVaultKycOperation : operation = Mavryk.transaction(
-        setMemberParams,
-        0mav,
-        getSetMemberEntrypointInKycContract(kycAddress)
-    );
+//     const setVaultKycOperation : operation = Mavryk.transaction(
+//         setMemberParams,
+//         0mav,
+//         getSetMemberEntrypointInKycContract(kycAddress)
+//     );
 
-} with setVaultKycOperation
+// } with setVaultKycOperation
 
 
 

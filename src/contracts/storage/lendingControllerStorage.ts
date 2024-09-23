@@ -5,22 +5,38 @@ import { zeroAddress } from "../test/helpers/Utils"
 import { lendingControllerStorageType } from "./storageTypes/lendingControllerStorageType"
 
 const config = {
+    decimals                    : 4,       // decimals 
+    interestRateDecimals        : 27,      // interest rate decimals
+    maxDecimalsForCalculation   : 32,
+    lastCompletedDataMaxDelay   : 9999999999, // for testing purposes - prod: 300 (i.e. 5 mins) 
+}
 
+const vaultConfig = {
     collateralRatio             : 2000,    // collateral ratio (%)
     liquidationRatio            : 1500,    // liquidation ratio (%)
 
     liquidationFeePercent       : 600,
     adminLiquidationFeePercent  : 600,
-
     minimumLoanFeePercent       : 100,
 
     minimumLoanFeeTreasuryShare : 4000,
     interestTreasuryShare       : 100,
 
-    decimals                    : 4,       // decimals 
-    interestRateDecimals        : 27,      // interest rate decimals
-    maxDecimalsForCalculation   : 32,
-    lastCompletedDataMaxDelay   : 9999999999, // for testing purposes - prod: 300 (i.e. 5 mins) 
+    maxVaultLiquidationPercent  : 5000,    // 50%      
+    liquidationDelayInMins      : 120,
+    liquidationMaxDuration      : 1440
+}
+
+const vaultRwaConfig = {
+    collateralRatio             : 3000,    // collateral ratio (%)
+    liquidationRatio            : 3500,    // liquidation ratio (%)
+
+    liquidationFeePercent       : 300,
+    adminLiquidationFeePercent  : 300,
+    minimumLoanFeePercent       : 300,
+
+    minimumLoanFeeTreasuryShare : 4000,
+    interestTreasuryShare       : 100,
 
     maxVaultLiquidationPercent  : 5000,    // 50%      
     liquidationDelayInMins      : 120,
@@ -71,17 +87,14 @@ export const lendingControllerStorage : lendingControllerStorageType = {
     admin                           : bob.pkh,
     metadata                        : metadata,
     config                          : config,
+    vaultConfig                     : vaultConfig,
+    vaultRwaConfig                  : vaultRwaConfig,
     breakGlassConfig                : breakGlassConfig,
 
     mvnTokenAddress                 : zeroAddress,
     governanceAddress               : zeroAddress,
 
-    whitelistContracts              : MichelsonMap.fromLiteral({}),
-    generalContracts                : MichelsonMap.fromLiteral({}),
-    whitelistTokenContracts         : MichelsonMap.fromLiteral({}),
-    
     vaults                          : MichelsonMap.fromLiteral({}),
-    vaultCounter                    : new BigNumber(1),
     ownerLedger                     : MichelsonMap.fromLiteral({}),
 
     collateralTokenLedger           : MichelsonMap.fromLiteral({}),

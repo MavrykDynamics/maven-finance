@@ -635,13 +635,6 @@ block {
 function onLiquidateStakedTokenFromVaultOperation(const onVaultLiquidateStakeListParams : onVaultLiquidateStakeType; const stakingContractAddress : address) : operation is
 block {
 
-    // Create operation to staking contract to liquidate staked token (e.g. sMVN) from vault to liquidator
-    // const onVaultLiquidateStakeParams : onVaultLiquidateStakeType = record [
-    //     vaultAddress        = vaultAddress;
-    //     liquidator          = liquidator;
-    //     liquidatedAmount    = liquidatedAmount;
-    // ];
-
     const vaultLiquidateStakeOperation : operation = Mavryk.transaction(
         onVaultLiquidateStakeListParams,
         0mav,
@@ -649,28 +642,6 @@ block {
     );
 
 } with vaultLiquidateStakeOperation
-
-
-
-// helper function liquidate collateral from vault - call %onLiquidate in a specified Vault Contract
-// function liquidateFromVaultOperation(const receiver : address; const tokenName : string; const amount : nat; const vaultAddress : address) : operation is
-// block {
-
-//     const liquidateOperationParams : initVaultActionType = OnLiquidate(
-//         record[
-//             receiver   = receiver;
-//             amount     = amount;
-//             tokenName  = tokenName;
-//         ]
-//     );
-
-//     const liquidateFromVaultOperation : operation = Mavryk.transaction(
-//         liquidateOperationParams,
-//         0mumav,
-//         getInitVaultActionEntrypoint(vaultAddress)
-//     );
-
-// } with liquidateFromVaultOperation
 
 
 
@@ -1512,7 +1483,7 @@ function processCollateralTokenLiquidation(
     const loanTokenDecimals : nat; 
     const loanTokenLastCompletedData : lastCompletedDataReturnType; 
     const vaultAddress : address; 
-    const vaultCollateralValueRebased; 
+    const vaultCollateralValueRebased : nat; 
     const collateralTokenName : string; 
     const collateralTokenBalance : nat; 
     const liquidationAmount : nat; 

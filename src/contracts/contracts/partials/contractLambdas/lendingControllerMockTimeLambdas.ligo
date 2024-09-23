@@ -687,6 +687,9 @@ block {
                 // Check that vault has zero loan outstanding
                 checkZeroLoanOutstanding(vault);
 
+                // init list records of transfers from the closed vault
+                var onLiquidateList : onLiquidateListType := list [];
+
                 // get tokens and token balances and initiate transfer back to the vault owner
                 for collateralTokenName -> collateralTokenBalance in map vault.collateralBalanceLedger block {
                     
@@ -706,7 +709,7 @@ block {
 
                         const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(collateralTokenName, s);
 
-                        if collateralTokenName = "smvn" then {
+                        if collateralTokenRecord.isStakedToken then {
                             
                             // get user staked balance from doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
                             // - for better accuracy, there should be a frontend call to compound rewards for the vault first
@@ -733,26 +736,40 @@ block {
 
                             // for other collateral token types besides sMVN and scaled tokens
                             if finalTokenBalance > 0n then {
-                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                    vaultOwner,                         // to_
-                                    collateralTokenName,                // token name
-                                    finalTokenBalance,                  // token amount to be withdrawn
-                                    vaultAddress                        // vault address
-                                );
-                                operations := withdrawTokenOperation # operations;
+                                // const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                //     vaultOwner,                         // to_
+                                //     collateralTokenName,                // token name
+                                //     finalTokenBalance,                  // token amount to be withdrawn
+                                //     vaultAddress                        // vault address
+                                // );
+                                // operations := withdrawTokenOperation # operations;
+
+                                const withdrawTokenOperation : onLiquidateSingleType = record [
+                                    receiver   = vaultOwner;
+                                    amount     = finalTokenBalance;
+                                    tokenName  = collateralTokenName;
+                                ];
+                                onLiquidateList := withdrawTokenOperation # onLiquidateList;
                             } else skip;
 
                         } else {
 
                             // for other collateral token types besides sMVN and scaled tokens
                             if finalTokenBalance > 0n then {
-                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                    vaultOwner,                         // to_
-                                    collateralTokenName,                // token name
-                                    finalTokenBalance,                  // token amount to be withdrawn
-                                    vaultAddress                        // vault address
-                                );
-                                operations := withdrawTokenOperation # operations;
+                                // const withdrawTokenOperation : operation = liquidateFromVaultOperation(
+                                //     vaultOwner,                         // to_
+                                //     collateralTokenName,                // token name
+                                //     finalTokenBalance,                  // token amount to be withdrawn
+                                //     vaultAddress                        // vault address
+                                // );
+                                // operations := withdrawTokenOperation # operations;
+
+                                const withdrawTokenOperation : onLiquidateSingleType = record [
+                                    receiver   = vaultOwner;
+                                    amount     = finalTokenBalance;
+                                    tokenName  = collateralTokenName;
+                                ];
+                                onLiquidateList := withdrawTokenOperation # onLiquidateList;
                             } else skip;
 
                         };
@@ -953,6 +970,9 @@ block {
                 // Calculate vault collateral value rebased (1e32 or 10^32)
                 // - this will be the denominator used to calculate proportion of collateral to be liquidated
                 const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vaultAddress, vault.collateralBalanceLedger, s);
+
+                // init list records of transfers from the liquidated vault
+                var onLiquidateList : onLiquidateListType := list [];
                 
                 // loop tokens in vault collateral balance ledger to be liquidated
                 for collateralTokenName -> collateralTokenBalance in map vault.collateralBalanceLedger block {
@@ -961,7 +981,7 @@ block {
                     if collateralTokenBalance = 0n then skip else block {
 
                         // process liquidation in a helper function
-                        const liquidationProcess : (list(operation)*nat)    = processCollateralTokenLiquidation(
+                        const liquidationProcess : (onLiquidateListType * list(operation) * nat)  = processCollateralTokenLiquidation(
                             liquidator,
                             treasuryAddress,
                             loanTokenDecimals,
@@ -971,17 +991,20 @@ block {
                             collateralTokenName,
                             collateralTokenBalance,
                             totalLiquidationAmount,
+                            onLiquidateList,
                             operations,
                             s
                         );
-                        const updatedOperationList  : list(operation)       = liquidationProcess.0;
-                        const collateralBalance     : nat                   = liquidationProcess.1;
+                        const updatedOnLiquidateList  : onLiquidateListType     = liquidationProcess.0;
+                        const updatedOperations       : list(operation)         = liquidationProcess.1;
+                        const collateralBalance       : nat                     = liquidationProcess.2;
 
                         // ------------------------------------------------------------------
                         // Update operations
                         // ------------------------------------------------------------------
 
-                        operations  := updatedOperationList;
+                        operations := updatedOperations;
+                        onLiquidateList := updatedOnLiquidateList;
 
                         // ------------------------------------------------------------------
                         // Update collateral balance

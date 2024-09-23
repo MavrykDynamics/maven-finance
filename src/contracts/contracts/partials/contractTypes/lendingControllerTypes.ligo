@@ -4,11 +4,9 @@
 
 type vaultIdType                 is nat;
 type tokenBalanceType            is nat;
-
 type vaultOwnerType              is address;
 type initiatorAddressType        is address;
 type tokenContractAddressType    is address;
-
 type collateralNameType          is string;
 
 // ------------------------------------------------------------------------------
@@ -23,13 +21,11 @@ type lendingControllerConfigType is [@layout:comb] record [
 ]
 
 type vaultConfigType is [@layout:comb] record [
-    
     collateralRatio              : nat;         // collateral ratio
     liquidationRatio             : nat;         // liquidation ratio
     
     liquidationFeePercent        : nat;         // liquidation fee percent - penalty fee paid by vault owner to liquidator
     adminLiquidationFeePercent   : nat;         // admin liquidation fee percent - penalty fee paid by vault owner to treasury
-
     minimumLoanFeePercent        : nat;         // minimum loan fee percent - taken at first minting
 
     minimumLoanFeeTreasuryShare  : nat;         // percentage of minimum loan fee that goes to the treasury
@@ -41,14 +37,12 @@ type vaultConfigType is [@layout:comb] record [
 ]
 
 
-type rwaVaultConfigType is [@layout:comb] record [
-    
+type vaultRwaConfigType is [@layout:comb] record [ 
     collateralRatio              : nat;         // collateral ratio
     liquidationRatio             : nat;         // liquidation ratio
     
     liquidationFeePercent        : nat;         // liquidation fee percent - penalty fee paid by vault owner to liquidator
     adminLiquidationFeePercent   : nat;         // admin liquidation fee percent - penalty fee paid by vault owner to treasury
-
     minimumLoanFeePercent        : nat;         // minimum loan fee percent - taken at first minting
 
     minimumLoanFeeTreasuryShare  : nat;         // percentage of minimum loan fee that goes to the treasury
@@ -217,6 +211,7 @@ type lendingControllerUpdateConfigSingleType is [@layout:comb] record [
     newValue        : nat;  
 ]
 type lendingControllerUpdateConfigActionType is list(lendingControllerUpdateConfigSingleType)
+
 
 type registerVaultCreationActionType is [@layout:comb] record [
     vaultOwner      : vaultOwnerType;
@@ -468,8 +463,11 @@ type lendingControllerStorageType is [@layout:comb] record [
     admin                       : address;
     metadata                    : metadataType;
     config                      : lendingControllerConfigType;
+    
     vaultConfig                 : vaultConfigType;
-    rwaVaultConfig              : rwaVaultConfigType;
+    vaultRwaConfig              : vaultRwaConfigType;
+    // vaultConfigLedger           : vaultConfigLedgerType;
+
     breakGlassConfig            : lendingControllerBreakGlassConfigType;
 
     mvnTokenAddress             : address;
@@ -477,7 +475,7 @@ type lendingControllerStorageType is [@layout:comb] record [
     
     // vaults and owners
     vaults                      : big_map(vaultHandleType, vaultRecordType);
-    ownerLedger                 : ownerLedgerType;              // for some convenience in checking vaults owned by user
+    ownerLedger                 : ownerLedgerType;  // for some convenience in checking vaults owned by user
 
     // collateral tokens
     collateralTokenLedger       : collateralTokenLedgerType;

@@ -1327,3 +1327,34 @@
 [@inline] const error_GET_REWARD_INDEX_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                               = 936n;
 [@inline] const error_ALL_TOKENS_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                     = 937n;
 [@inline] const error_IS_OPERATOR_VIEW_IN_M_TOKEN_CONTRACT_NOT_FOUND                                                    = 938n;
+
+// ------------------------------------------------------------------------------
+//
+// KYC Errors
+//
+// ------------------------------------------------------------------------------
+
+[@inline] const error_KYC_CONTRACT_NOT_FOUND                                                                             = 939n;
+[@inline] const error_SET_MEMBER_ENTRYPOINT_IN_KYC_CONTRACT_NOT_FOUND                                                    = 940n;
+
+[@inline] const error_SET_WHITELIST_ENTRYPOINT_IN_KYC_CONTRACT_NOT_FOUND                                                 = 941n;
+
+[@inline] const error_KYC_MEMBER_DOES_NOT_EXIST                                                                          = 942n;
+[@inline] const error_FROM_KYC_MEMBER_DOES_NOT_EXIST                                                                     = 943n;
+[@inline] const error_TO_KYC_MEMBER_DOES_NOT_EXIST                                                                       = 944n;
+[@inline] const error_KYC_MEMBER_ALREADY_EXISTS                                                                          = 945n;
+
+[@inline] const error_COUNTRY_TRANSFER_RULE_RECORD_NOT_FOUND                                                             = 946n;
+[@inline] const error_TRANSFER_RULE_ALREADY_EXISTS_FOR_COUNTRY                                                           = 947n;
+
+[@inline] const error_KYC_REGISTRAR_ALREADY_EXISTS                                                                       = 948n;
+[@inline] const error_ONLY_KYC_REGISTRAR_ALLOWED                                                                         = 949n;
+[@inline] const error_VALID_INPUT_SET_NOT_FOUND                                                                          = 950n;
+[@inline] const error_INVALID_INPUT                                                                                      = 951n;
+[@inline] const error_ONLY_ADMIN_OR_KYC_REGISTRAR_ALLOWED                                                                = 952n;
+[@inline] const error_ONLY_ADMIN_OR_KYC_REGISTRAR_OF_MEMBER_ALLOWED                                                      = 953n;
+
+[@inline] const error_KYC_REGISTRAR_RECORD_NOT_FOUND                                                                     = 954n;
+
+[@inline] const error_AT_LEAST_ONE_KYC_ADMIN_ADDRESS_REQUIRED                                                            = 955n;
+[@inline] const error_INVALID_KYC_REGISTRAR_ACTION_TO_PAUSE                                                              = 956n;
