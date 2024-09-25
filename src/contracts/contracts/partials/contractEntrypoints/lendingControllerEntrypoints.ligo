@@ -68,36 +68,36 @@ block {
 // ------------------------------------------------------------------------------
 
 (* pauseAll entrypoint *)
-function pauseAll(var s : lendingControllerStorageType) : return is
-block {
+// function pauseAll(var s : lendingControllerStorageType) : return is
+// block {
 
-    // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s.lambdaLedger);
+//     // get lambda bytes
+//     const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s.lambdaLedger);
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaPauseAll(unit);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaPauseAll(unit);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
 
-} with response
+// } with response
 
 
 
-(* unpauseAll entrypoint *)
-function unpauseAll(var s : lendingControllerStorageType) : return is
-block {
+// (* unpauseAll entrypoint *)
+// function unpauseAll(var s : lendingControllerStorageType) : return is
+// block {
 
-    // get lambda bytes
-    const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s.lambdaLedger);
+//     // get lambda bytes
+//     const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s.lambdaLedger);
 
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUnpauseAll(unit);
+//     // init vault controller lambda action
+//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUnpauseAll(unit);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
 
-} with response
+// } with response
 
 
 
@@ -125,6 +125,23 @@ block{
 // ------------------------------------------------------------------------------
 // Admin Entrypoints Begin
 // ------------------------------------------------------------------------------
+
+(* setVaultConfig entrypoint *)
+function setVaultConfig(const setVaultConfigParams : setVaultConfigActionType; var s : lendingControllerStorageType) : return is 
+block {
+
+    // get lambda bytes
+    const lambdaBytes : bytes = getLambdaBytes("lambdaSetVaultConfig", s.lambdaLedger);
+
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaSetVaultConfig(setVaultConfigParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+} with response
+
+
 
 (* setLoanToken entrypoint *)
 function setLoanToken(const setLoanTokenParams : setLoanTokenActionType; var s : lendingControllerStorageType) : return is 

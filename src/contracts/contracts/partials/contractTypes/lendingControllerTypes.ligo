@@ -20,7 +20,7 @@ type lendingControllerConfigType is [@layout:comb] record [
     lastCompletedDataMaxDelay    : nat;         // max delay in last updated at for last completed data in fetching prices
 ]
 
-type vaultConfigType is [@layout:comb] record [
+type vaultConfigRecordType is [@layout:comb] record [
     collateralRatio              : nat;         // collateral ratio
     liquidationRatio             : nat;         // liquidation ratio
     
@@ -35,56 +35,40 @@ type vaultConfigType is [@layout:comb] record [
     liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
     liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
 ]
+type vaultConfigLedgerType is big_map(string, vaultConfigRecordType);
 
 
-type vaultRwaConfigType is [@layout:comb] record [ 
-    collateralRatio              : nat;         // collateral ratio
-    liquidationRatio             : nat;         // liquidation ratio
-    
-    liquidationFeePercent        : nat;         // liquidation fee percent - penalty fee paid by vault owner to liquidator
-    adminLiquidationFeePercent   : nat;         // admin liquidation fee percent - penalty fee paid by vault owner to treasury
-    minimumLoanFeePercent        : nat;         // minimum loan fee percent - taken at first minting
+// type lendingControllerBreakGlassConfigType is record [
+//     // Lending Controller Admin Entrypoints
+//     setLoanTokenIsPaused                : bool;
+//     setCollateralTokenIsPaused          : bool;
 
-    minimumLoanFeeTreasuryShare  : nat;         // percentage of minimum loan fee that goes to the treasury
-    interestTreasuryShare        : nat;         // percentage of interest that goes to the treasury
+//     // Lending Controller Token Pool Entrypoints
+//     addLiquidityIsPaused                : bool;
+//     removeLiquidityIsPaused             : bool;
 
-    maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% on AAVE)
-    liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
-    liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
-]
+//     // Lending Controller Vault Entrypoints
+//     registerVaultCreationIsPaused       : bool; 
+//     closeVaultIsPaused                  : bool;
+//     registerDepositIsPaused             : bool;
+//     registerWithdrawalIsPaused          : bool;
+//     markForLiquidationIsPaused          : bool;
+//     liquidateVaultIsPaused              : bool;
+//     borrowIsPaused                      : bool;
+//     repayIsPaused                       : bool;
+
+//     // Vault Entrypoints
+//     vaultDepositIsPaused                : bool;
+//     vaultWithdrawIsPaused               : bool;
+//     vaultOnLiquidateIsPaused            : bool;
+
+//     // Vault Staked Token Entrypoints
+//     vaultDepositStakedTokenIsPaused     : bool;
+//     vaultWithdrawStakedTokenIsPaused    : bool;
+// ]
 
 
-
-type lendingControllerBreakGlassConfigType is record [
-    
-    // Lending Controller Admin Entrypoints
-    setLoanTokenIsPaused                : bool;
-    setCollateralTokenIsPaused          : bool;
-
-    // Lending Controller Token Pool Entrypoints
-    addLiquidityIsPaused                : bool;
-    removeLiquidityIsPaused             : bool;
-
-    // Lending Controller Vault Entrypoints
-    registerVaultCreationIsPaused       : bool; 
-    closeVaultIsPaused                  : bool;
-    registerDepositIsPaused             : bool;
-    registerWithdrawalIsPaused          : bool;
-    markForLiquidationIsPaused          : bool;
-    liquidateVaultIsPaused              : bool;
-    borrowIsPaused                      : bool;
-    repayIsPaused                       : bool;
-
-    // Vault Entrypoints
-    vaultDepositIsPaused                : bool;
-    vaultWithdrawIsPaused               : bool;
-    vaultOnLiquidateIsPaused            : bool;
-
-    // Vault Staked Token Entrypoints
-    vaultDepositStakedTokenIsPaused     : bool;
-    vaultWithdrawStakedTokenIsPaused    : bool;
-
-]
+type breakGlassLedgerType is big_map(string, bool);
 
 
 type collateralTokenRecordType is [@layout:comb] record [
@@ -150,6 +134,7 @@ type vaultRecordType is [@layout:comb] record [
     address                     : address;
     collateralBalanceLedger     : collateralBalanceLedgerType;   // mav/token balance
     loanToken                   : string;                        // e.g. USDT, EURT,  
+    vaultConfig                 : string;                        // e.g. standard / rwa
 
     // loan variables
     loanOutstandingTotal        : nat;                           // total amount debt (principal + interest)
@@ -213,6 +198,13 @@ type lendingControllerUpdateConfigSingleType is [@layout:comb] record [
 type lendingControllerUpdateConfigActionType is list(lendingControllerUpdateConfigSingleType)
 
 
+type breakGlassSingleType is [@layout:comb] record [
+    entrypoint     : string;
+    pauseBool      : bool;
+]
+type breakGlassListType is list(breakGlassSingleType)
+
+
 type registerVaultCreationActionType is [@layout:comb] record [
     vaultOwner      : vaultOwnerType;
     vaultId         : vaultIdType;
@@ -230,7 +222,6 @@ type createLoanTokenActionType is [@layout:comb] record [
     tokenDecimals                           : nat;
 
     oracleAddress                           : address;
-
     mTokenAddress                           : address;
 
     reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
@@ -261,6 +252,24 @@ type updateLoanTokenActionType is [@layout:comb] record [
     minRepaymentAmount                      : nat; 
 
     isPaused                                : bool;
+]
+
+
+type setVaultConfigActionType is [@layout:comb] record[
+    vaultConfig                  : string;      // vault config name
+    collateralRatio              : nat;         // collateral ratio
+    liquidationRatio             : nat;         // liquidation ratio
+    
+    liquidationFeePercent        : nat;         // liquidation fee percent - penalty fee paid by vault owner to liquidator
+    adminLiquidationFeePercent   : nat;         // admin liquidation fee percent - penalty fee paid by vault owner to treasury
+    minimumLoanFeePercent        : nat;         // minimum loan fee percent - taken at first minting
+
+    minimumLoanFeeTreasuryShare  : nat;         // percentage of minimum loan fee that goes to the treasury
+    interestTreasuryShare        : nat;         // percentage of interest that goes to the treasury
+
+    maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% on AAVE)
+    liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
+    liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
 ]
 
 
@@ -379,39 +388,39 @@ type vaultWithdrawStakedTokenActionType is [@layout:comb] record [
 type claimRewardsType is address
 
 
-type lendingControllerPausableEntrypointType is
+// type lendingControllerPausableEntrypointType is
 
-        // Lending Controller Admin Entrypoints
-    |   SetLoanToken                of bool
-    |   SetCollateralToken          of bool
+//         // Lending Controller Admin Entrypoints
+//     |   SetLoanToken                of bool
+//     |   SetCollateralToken          of bool
 
-        // Lending Controller Token Pool Entrypoints
-    |   AddLiquidity                of bool
-    |   RemoveLiquidity             of bool
+//         // Lending Controller Token Pool Entrypoints
+//     |   AddLiquidity                of bool
+//     |   RemoveLiquidity             of bool
 
-        // Lending Controller Vault Entrypoints
-    |   RegisterVaultCreation       of bool
-    |   CloseVault                  of bool
-    |   RegisterDeposit             of bool
-    |   RegisterWithdrawal          of bool
-    |   MarkForLiquidation          of bool
-    |   LiquidateVault              of bool
-    |   Borrow                      of bool
-    |   Repay                       of bool
+//         // Lending Controller Vault Entrypoints
+//     |   RegisterVaultCreation       of bool
+//     |   CloseVault                  of bool
+//     |   RegisterDeposit             of bool
+//     |   RegisterWithdrawal          of bool
+//     |   MarkForLiquidation          of bool
+//     |   LiquidateVault              of bool
+//     |   Borrow                      of bool
+//     |   Repay                       of bool
 
-        // Vault Entrypoints
-    |   VaultDeposit                of bool
-    |   VaultWithdraw               of bool
-    |   VaultOnLiquidate            of bool
+//         // Vault Entrypoints
+//     |   VaultDeposit                of bool
+//     |   VaultWithdraw               of bool
+//     |   VaultOnLiquidate            of bool
 
-        // Vault Staked Token Entrypoints
-    |   VaultDepositStakedToken     of bool
-    |   VaultWithdrawStakedToken    of bool
+//         // Vault Staked Token Entrypoints
+//     |   VaultDepositStakedToken     of bool
+//     |   VaultWithdrawStakedToken    of bool
 
-type lendingControllerTogglePauseEntrypointType is [@layout:comb] record [
-    targetEntrypoint  : lendingControllerPausableEntrypointType;
-    empty             : unit
-];
+// type lendingControllerTogglePauseEntrypointType is [@layout:comb] record [
+//     targetEntrypoint  : lendingControllerPausableEntrypointType;
+//     empty             : unit
+// ];
 
 
 // ------------------------------------------------------------------------------
@@ -426,11 +435,12 @@ type lendingControllerLambdaActionType is
     |   LambdaUpdateConfig                    of lendingControllerUpdateConfigActionType
 
         // Pause / Break Glass Lambdas
-    |   LambdaPauseAll                        of (unit)
-    |   LambdaUnpauseAll                      of (unit)
-    |   LambdaTogglePauseEntrypoint           of lendingControllerTogglePauseEntrypointType
+    // |   LambdaPauseAll                        of (unit)
+    // |   LambdaUnpauseAll                      of (unit)
+    |   LambdaTogglePauseEntrypoint           of breakGlassListType
 
         // Admin Entrypoints
+    |   LambdaSetVaultConfig                  of setVaultConfigActionType  
     |   LambdaSetLoanToken                    of setLoanTokenActionType  
     |   LambdaSetCollateralToken              of setCollateralTokenActionType  
     |   LambdaRegisterVaultCreation           of registerVaultCreationActionType
@@ -463,12 +473,9 @@ type lendingControllerStorageType is [@layout:comb] record [
     admin                       : address;
     metadata                    : metadataType;
     config                      : lendingControllerConfigType;
-    
-    vaultConfig                 : vaultConfigType;
-    vaultRwaConfig              : vaultRwaConfigType;
-    // vaultConfigLedger           : vaultConfigLedgerType;
+    breakGlassLedger            : breakGlassLedgerType;
 
-    breakGlassConfig            : lendingControllerBreakGlassConfigType;
+    vaultConfigLedger           : vaultConfigLedgerType;
 
     mvnTokenAddress             : address;
     governanceAddress           : address;
