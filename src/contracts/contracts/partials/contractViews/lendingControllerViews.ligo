@@ -23,8 +23,8 @@
 
 
 (* View: get break glass config *)
-[@view] function getBreakGlassConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerBreakGlassConfigType is
-    s.breakGlassConfig
+// [@view] function getBreakGlassConfig(const _ : unit; var s : lendingControllerStorageType) : lendingControllerBreakGlassConfigType is
+//     s.breakGlassConfig
 
 
 

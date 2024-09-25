@@ -355,6 +355,7 @@ block {
         address                     = vaultAddress;
         collateralBalanceLedger     = (map[] : collateralBalanceLedgerType); // init empty collateral balance ledger map
         loanToken                   = loanTokenName;
+        vaultConfig                 = "standard";
 
         loanOutstandingTotal        = 0n;
         loanPrincipalTotal          = 0n;
@@ -397,6 +398,19 @@ block {
     ];
 
 } with collateralTokenRecord
+
+
+
+// helper function to get vault config record 
+function getVaultConfigRecord(const vaultConfigName : string; const s : lendingControllerStorageType) : vaultConfigRecordType is
+block {
+
+    const vaultConfigRecord : vaultConfigRecordType = case s.vaultConfigLedger["standard"] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_VAULT_CONFIG_RECORD_NOT_FOUND)
+    ];
+
+} with vaultConfigRecord
 
 
 
@@ -884,13 +898,12 @@ block {
 
 
 // helper function to check if vault is under collaterized
-function isUnderCollaterized(const vault : vaultRecordType; var s : lendingControllerStorageType) : bool is 
+function isUnderCollaterized(const vault : vaultRecordType; const collateralRatio : nat; var s : lendingControllerStorageType) : bool is 
 block {
     
     // initialise variables - vaultCollateralValue and loanOutstanding
     const loanOutstandingTotal       : nat    = vault.loanOutstandingTotal;    
     const loanTokenName              : string = vault.loanToken;
-    const collateralRatio            : nat    = s.vaultConfig.collateralRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
 
     // calculate vault collateral value rebased (1e32 or 10^32)
     const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.address, vault.collateralBalanceLedger, s);
@@ -906,13 +919,12 @@ block {
 
 
 // helper function to check if vault is liquidatable
-function isLiquidatable(const vault : vaultRecordType; var s : lendingControllerStorageType) : bool is 
+function isLiquidatable(const vault : vaultRecordType; const liquidationRatio : nat; var s : lendingControllerStorageType) : bool is 
 block {
     
     // initialise variables - vaultCollateralValue and loanOutstanding
     const loanOutstandingTotal       : nat    = vault.loanOutstandingTotal;    
     const loanTokenName              : string = vault.loanToken;
-    const liquidationRatio           : nat    = s.vaultConfig.liquidationRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
 
     // calculate vault collateral value rebased (1e32 or 10^32)
     const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.address, vault.collateralBalanceLedger, s);
@@ -1081,12 +1093,11 @@ block {
 // ------------------------------------------------------------------------------
 
 // helper function to check correct duration has passed after being marked for liquidation
-function checkMarkedVaultLiquidationDuration(const vault : vaultRecordType; const s : lendingControllerStorageType) : unit is
+function checkMarkedVaultLiquidationDuration(const vault : vaultRecordType; const liquidationDelayInMins : nat; const s : lendingControllerStorageType) : unit is
 block {
 
     // Init variables and get level when vault can be liquidated
     const blocksPerMinute                : nat  = 60n / Mavryk.get_min_block_time();
-    const liquidationDelayInMins         : nat  = s.vaultConfig.liquidationDelayInMins;
     const liquidationDelayInBlockLevel   : nat  = liquidationDelayInMins * blocksPerMinute; 
     const levelWhenVaultCanBeLiquidated  : nat  = vault.markedForLiquidationLevel + liquidationDelayInBlockLevel;
 
@@ -1383,22 +1394,25 @@ block {
     const treasuryAddress       : address     = treasury.0;
     const treasuryTokenAmount   : nat         = treasury.1;
 
-    // send tokens from vault to liquidator
-    const liquidateTokenToLiquidatorRecordParams : onLiquidateSingleType = record [
-        receiver   = liquidatorAddress;
-        amount     = liquidatorTokenAmount;
-        tokenName  = collateralTokenName;
-    ];
+    if liquidatorTokenAmount > 0n then {
+        // send tokens from vault to liquidator
+        const liquidateTokenToLiquidatorRecordParams : onLiquidateSingleType = record [
+            receiver   = liquidatorAddress;
+            amount     = liquidatorTokenAmount;
+            tokenName  = collateralTokenName;
+        ];
+        onLiquidateList := liquidateTokenToLiquidatorRecordParams # onLiquidateList;
+    };
 
-    // send tokens from vault to treasury
-    const liquidateTokenToTreasuryRecordParams : onLiquidateSingleType = record [
-        receiver   = treasuryAddress;
-        amount     = treasuryTokenAmount;
-        tokenName  = collateralTokenName;
-    ];
-
-    onLiquidateList := liquidateTokenToLiquidatorRecordParams # onLiquidateList;
-    onLiquidateList := liquidateTokenToTreasuryRecordParams # onLiquidateList;
+    if treasuryTokenAmount > 0n then {
+        // send tokens from vault to treasury
+        const liquidateTokenToTreasuryRecordParams : onLiquidateSingleType = record [
+            receiver   = treasuryAddress;
+            amount     = treasuryTokenAmount;
+            tokenName  = collateralTokenName;
+        ];
+        onLiquidateList := liquidateTokenToTreasuryRecordParams # onLiquidateList;
+    };
 
 } with onLiquidateList
 
@@ -1432,43 +1446,35 @@ block {
             |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
         ];
 
-        const sendStakedTokenFromVaultToLiquidatoRecord : onVaultLiquidateStakeSingleType = record [
-            vaultAddress      = vaultAddress;
-            liquidator        = liquidatorAddress;
-            liquidatedAmount  = liquidatorTokenAmount;
-        ];
-        const sendStakedTokenFromVaultToTreasuryRecord : onVaultLiquidateStakeSingleType = record [
-            vaultAddress      = vaultAddress;
-            liquidator        = treasuryAddress;
-            liquidatedAmount  = treasuryTokenAmount;
-        ];
+        var liquidationList : onVaultLiquidateStakeType := list[]; 
 
-        const liquidateVaultStakedTokenOperation : operation = onLiquidateStakedTokenFromVaultOperation(
-            list[sendStakedTokenFromVaultToLiquidatoRecord; sendStakedTokenFromVaultToTreasuryRecord],
-            stakingContractAddress              // staking contract address
-        );                
+        if liquidatorTokenAmount > 0n then {
+            const sendStakedTokenFromVaultToLiquidatoRecord : onVaultLiquidateStakeSingleType = record [
+                vaultAddress      = vaultAddress;
+                liquidator        = liquidatorAddress;
+                liquidatedAmount  = liquidatorTokenAmount;
+            ];
 
-        operations := liquidateVaultStakedTokenOperation # operations;
+            liquidationList := sendStakedTokenFromVaultToLiquidatoRecord # liquidationList;
+        };
 
-        // send staked token from vault to liquidator
-        // const sendStakedTokenFromVaultToLiquidatorOperation : operation = onLiquidateStakedTokenFromVaultOperation(
-        //     vaultAddress,                       // vault address
-        //     liquidatorAddress,                  // liquidator              
-        //     liquidatorTokenAmount,              // liquidated amount
-        //     stakingContractAddress              // staking contract address
-        // );                
+        if liquidatorTokenAmount > 0n then {
+            const sendStakedTokenFromVaultToTreasuryRecord : onVaultLiquidateStakeSingleType = record [
+                vaultAddress      = vaultAddress;
+                liquidator        = treasuryAddress;
+                liquidatedAmount  = treasuryTokenAmount;
+            ];
+            liquidationList := sendStakedTokenFromVaultToTreasuryRecord # liquidationList;
+        };
 
-        // operations := sendStakedTokenFromVaultToLiquidatorOperation # operations;
+        if List.length(liquidationList) > 0n then {
+            const liquidateVaultStakedTokenOperation : operation = onLiquidateStakedTokenFromVaultOperation(
+                liquidationList,
+                stakingContractAddress              // staking contract address
+            );                
 
-        // // send staked token from vault to treasury
-        // const sendStakedTokenFromVaultToTreasuryOperation : operation = onLiquidateStakedTokenFromVaultOperation(
-        //     vaultAddress,                       // vault address
-        //     treasuryAddress,                    // liquidator              
-        //     treasuryTokenAmount,                // liquidated amount
-        //     stakingContractAddress              // staking contract address
-        // );                
-
-        // operations := sendStakedTokenFromVaultToTreasuryOperation # operations;
+            operations := liquidateVaultStakedTokenOperation # operations;
+        };
 
     } else skip;
 
@@ -1483,6 +1489,8 @@ function processCollateralTokenLiquidation(
     const loanTokenDecimals : nat; 
     const loanTokenLastCompletedData : lastCompletedDataReturnType; 
     const vaultAddress : address; 
+    const liquidationFeePercent : nat;
+    const adminLiquidationFeePercent : nat;
     const vaultCollateralValueRebased : nat; 
     const collateralTokenName : string; 
     const collateralTokenBalance : nat; 
@@ -1542,7 +1550,6 @@ block {
     // Calculate Liquidator's Amount 
     // ------------------------------------------------------------------
 
-    const liquidationFeePercent         : nat   = s.vaultConfig.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator 
     const liquidationIncentive          : nat   = ((liquidationFeePercent * liquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
     const liquidatorAmountAndIncentive  : nat   = liquidationAmount + liquidationIncentive;
     const liquidatorTokenQuantityTotal : nat    = calculateCollateralAmountReceived(
@@ -1562,7 +1569,6 @@ block {
     // ------------------------------------------------------------------
 
     // calculate final amounts to be liquidated
-    const adminLiquidationFeePercent    : nat   = s.vaultConfig.adminLiquidationFeePercent;  // admin liquidation fee - penalty fee paid by vault owner to treasury
     const adminLiquidationFee           : nat   = ((adminLiquidationFeePercent * liquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
     const treasuryTokenQuantityTotal    : nat   = calculateCollateralAmountReceived(
         loanTokenPrice,

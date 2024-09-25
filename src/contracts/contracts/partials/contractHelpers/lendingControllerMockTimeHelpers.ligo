@@ -1355,22 +1355,25 @@ block {
     const treasuryAddress       : address     = treasury.0;
     const treasuryTokenAmount   : nat         = treasury.1;
 
-    // send tokens from vault to liquidator
-    const liquidateTokenToLiquidatorRecordParams : onLiquidateSingleType = record [
-        receiver   = liquidatorAddress;
-        amount     = liquidatorTokenAmount;
-        tokenName  = collateralTokenName;
-    ];
+    if liquidatorTokenAmount > 0n then {
+        // send tokens from vault to liquidator
+        const liquidateTokenToLiquidatorRecordParams : onLiquidateSingleType = record [
+            receiver   = liquidatorAddress;
+            amount     = liquidatorTokenAmount;
+            tokenName  = collateralTokenName;
+        ];
+        onLiquidateList := liquidateTokenToLiquidatorRecordParams # onLiquidateList;
+    };
 
-    // send tokens from vault to treasury
-    const liquidateTokenToTreasuryRecordParams : onLiquidateSingleType = record [
-        receiver   = treasuryAddress;
-        amount     = treasuryTokenAmount;
-        tokenName  = collateralTokenName;
-    ];
-
-    onLiquidateList := liquidateTokenToLiquidatorRecordParams # onLiquidateList;
-    onLiquidateList := liquidateTokenToTreasuryRecordParams # onLiquidateList;
+    if treasuryTokenAmount > 0n then {
+        // send tokens from vault to treasury
+        const liquidateTokenToTreasuryRecordParams : onLiquidateSingleType = record [
+            receiver   = treasuryAddress;
+            amount     = treasuryTokenAmount;
+            tokenName  = collateralTokenName;
+        ];
+        onLiquidateList := liquidateTokenToTreasuryRecordParams # onLiquidateList;
+    };
 
 } with (onLiquidateList)
 
@@ -1404,24 +1407,37 @@ block {
             |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
         ];
 
-        const sendStakedTokenFromVaultToLiquidatoRecord : onVaultLiquidateStakeSingleType = record [
-            vaultAddress      = vaultAddress;
-            liquidator        = liquidatorAddress;
-            liquidatedAmount  = liquidatorTokenAmount;
-        ];
-        const sendStakedTokenFromVaultToTreasuryRecord : onVaultLiquidateStakeSingleType = record [
-            vaultAddress      = vaultAddress;
-            liquidator        = treasuryAddress;
-            liquidatedAmount  = treasuryTokenAmount;
-        ];
+        
+        var liquidationList : onVaultLiquidateStakeType := list[]; 
 
-        const liquidateVaultStakedTokenOperation : operation = onLiquidateStakedTokenFromVaultOperation(
-            list[sendStakedTokenFromVaultToLiquidatoRecord; sendStakedTokenFromVaultToTreasuryRecord],
-            stakingContractAddress              // staking contract address
-        );                
+        if liquidatorTokenAmount > 0n then {
+            const sendStakedTokenFromVaultToLiquidatoRecord : onVaultLiquidateStakeSingleType = record [
+                vaultAddress      = vaultAddress;
+                liquidator        = liquidatorAddress;
+                liquidatedAmount  = liquidatorTokenAmount;
+            ];
 
-        operations := liquidateVaultStakedTokenOperation # operations;
+            liquidationList := sendStakedTokenFromVaultToLiquidatoRecord # liquidationList;
+        };
 
+        if liquidatorTokenAmount > 0n then {
+            const sendStakedTokenFromVaultToTreasuryRecord : onVaultLiquidateStakeSingleType = record [
+                vaultAddress      = vaultAddress;
+                liquidator        = treasuryAddress;
+                liquidatedAmount  = treasuryTokenAmount;
+            ];
+            liquidationList := sendStakedTokenFromVaultToTreasuryRecord # liquidationList;
+        };
+
+
+        if List.length(liquidationList) > 0n then {
+            const liquidateVaultStakedTokenOperation : operation = onLiquidateStakedTokenFromVaultOperation(
+                liquidationList,
+                stakingContractAddress
+            );                
+            operations := liquidateVaultStakedTokenOperation # operations;
+        };
+        
     } else skip;
 
 } with operations

@@ -1191,7 +1191,7 @@
 [@inline] const error_INCORRECT_COLLATERAL_TOKEN_AMOUNT_SENT                                                            = 843n;
 [@inline] const error_ONLY_VAULT_OR_VAULT_FACTORY_CONTRACT_ALLOWED                                                      = 844n;
 [@inline] const error_LAST_COMPLETED_DATA_NOT_FRESH                                                                     = 845n;
-
+[@inline] const error_VAULT_CONFIG_RECORD_NOT_FOUND                                                                     = 845n;
 
 [@inline] const error_LOAN_TOKEN_IS_PAUSED                                                                              = 846n;
 [@inline] const error_COLLATERAL_TOKEN_IS_PAUSED                                                                        = 847n;

@@ -328,8 +328,7 @@ block {
     //      -   Get loan token record if exists
     //      -   Update and save loan token record with new parameters
 
-
-    verifyNoAmountSent(Unit);           // entrypoint should not receive any mav amount  
+    verifyNoAmountSent(Unit);             // entrypoint should not receive any mav amount  
     verifySenderIsAdminOrTester(s);       // verify that sender is admin 
     
     // verify that %setLoanToken entrypoint is not paused (e.g. if glass broken)
@@ -781,6 +780,11 @@ block {
 
                 }; // end loop for withdraw operations of mav/tokens in vault collateral 
 
+                const closeVaultOperation : operation = liquidateFromVaultOperation(
+                    onLiquidateList, 
+                    vaultAddress
+                );
+                operations := closeVaultOperation # operations;
 
                 // remove vault from stroage
                 var ownerVaultSet : ownerVaultSetType := getOwnerVaultSet(vaultOwner, s);
@@ -831,6 +835,11 @@ block {
                 const updatedVaultState : (vaultRecordType*loanTokenRecordType) = updateVaultState(vaultHandle, s);
                 var vault               : vaultRecordType                       := updatedVaultState.0;
                 var loanTokenRecord     : loanTokenRecordType                   := updatedVaultState.1;
+
+                // get vault config record
+                // const vaultConfigRecord : vaultConfigRecordType = getVaultConfigRecord(vault.vaultConfig, s);
+                // const configLiquidationDelayInMins  : nat = vaultConfigRecord.liquidationDelayInMins;
+                // const configLiquidationMaxDuration  : nat = vaultConfigRecord.liquidationMaxDuration;
                 
                 // ------------------------------------------------------------------
                 // Check if vault is liquidatable
@@ -1018,6 +1027,16 @@ block {
                 };
 
                 // ------------------------------------------------------------------
+                // Set On Liquidate Vault Params and operation
+                // ------------------------------------------------------------------
+
+                const liquidateFromVaultOperation : operation = liquidateFromVaultOperation(
+                    onLiquidateList, 
+                    vaultAddress
+                );
+                operations := liquidateFromVaultOperation # operations;
+
+                // ------------------------------------------------------------------
                 // Update Interest Records
                 // ------------------------------------------------------------------
 
@@ -1112,7 +1131,7 @@ block {
                 if refundTotal > 0n then {
 
                     const processRefundOperation : operation = tokenPoolTransfer(
-                        Mavryk.get_self_address(),   // from_
+                        Mavryk.get_self_address(),  // from_
                         liquidator,                 // to_
                         refundTotal,                // amount
                         loanTokenType               // token type
@@ -1149,11 +1168,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update token storage
-                loanTokenRecord.rawMTokensTotalSupply                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply       := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;
+                loanTokenRecord.tokenRewardIndex            := newAccRewardsPerShare;
 
                 // Update Loan Token State again: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord, s);

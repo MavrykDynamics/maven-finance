@@ -1992,19 +1992,19 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
 
             // get updated Mock FA12 Token balance for Eve (vault owner), liquidator, vault, Treasury and Token Pool Reward Contract
-            vaultOwnerMockFa12TokenAccount          =  await usdtTokenStorage.ledger.get(vaultOwner);            
+            vaultOwnerMockFa12TokenAccount          = await usdtTokenStorage.ledger.get(vaultOwner);            
             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
 
-            vaultMockFa12TokenAccount               =  await usdtTokenStorage.ledger.get(vaultAddress);            
+            vaultMockFa12TokenAccount               = await usdtTokenStorage.ledger.get(vaultAddress);            
             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
 
-            liquidatorMockFa12TokenAccount          =  await usdtTokenStorage.ledger.get(liquidator);            
+            liquidatorMockFa12TokenAccount          = await usdtTokenStorage.ledger.get(liquidator);            
             updatedLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : liquidatorMockFa12TokenAccount.balance.toNumber();
 
-            treasuryMockFa12TokenAccount            =  await usdtTokenStorage.ledger.get(contractDeployments.treasury.address);            
+            treasuryMockFa12TokenAccount            = await usdtTokenStorage.ledger.get(contractDeployments.treasury.address);            
             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
 
-            lendingControllerMockFa12TokenAccount            =  await usdtTokenStorage.ledger.get(lendingControllerAddress);            
+            lendingControllerMockFa12TokenAccount            = await usdtTokenStorage.ledger.get(lendingControllerAddress);            
             updatedLendingControllerMockFa12TokenBalance     = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
 
 
