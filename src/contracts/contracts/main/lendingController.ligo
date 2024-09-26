@@ -49,8 +49,6 @@ type lendingControllerAction is
     |   UpdateConfig                    of lendingControllerUpdateConfigActionType
 
         // Break Glass Entrypoints
-    // |   PauseAll                        of (unit)
-    // |   UnpauseAll                      of (unit)
     |   TogglePauseEntrypoint           of breakGlassListType
 
         // Admin Entrypoints

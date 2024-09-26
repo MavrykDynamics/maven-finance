@@ -67,42 +67,8 @@ block {
 // Pause / Break Glass Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(* pauseAll entrypoint *)
-// function pauseAll(var s : lendingControllerStorageType) : return is
-// block {
-
-//     // get lambda bytes
-//     const lambdaBytes : bytes = getLambdaBytes("lambdaPauseAll", s.lambdaLedger);
-
-//     // init vault controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaPauseAll(unit);
-
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
-
-// } with response
-
-
-
-// (* unpauseAll entrypoint *)
-// function unpauseAll(var s : lendingControllerStorageType) : return is
-// block {
-
-//     // get lambda bytes
-//     const lambdaBytes : bytes = getLambdaBytes("lambdaUnpauseAll", s.lambdaLedger);
-
-//     // init vault controller lambda action
-//     const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUnpauseAll(unit);
-
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);
-
-// } with response
-
-
-
 (*  togglePauseEntrypoint entrypoint  *)
-function togglePauseEntrypoint(const targetEntrypoint : lendingControllerTogglePauseEntrypointType; const s : lendingControllerStorageType) : return is
+function togglePauseEntrypoint(const targetEntrypoint : breakGlassListType; const s : lendingControllerStorageType) : return is
 block{
   
     // get lambda bytes

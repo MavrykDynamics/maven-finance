@@ -60,6 +60,20 @@ block {
 
 } with unit
 
+
+
+
+// verify lending controller entrypoint is not paused
+function verifyLendingControllerEntrypointIsNotPaused(const entrypoint : string; const errorCode : nat; const s : lendingControllerStorageType) : unit is 
+block {
+
+    case s.breakGlassLedger[entrypoint] of [
+            Some(_bool) -> if _bool = True then failwith(errorCode) else skip
+        |   None        -> failwith(errorCode)
+    ];
+
+} with unit
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -347,7 +361,7 @@ block {
 
 
 // helper function to create new vault record
-function createVaultRecord(const vaultAddress : address; const loanTokenName : string; const decimals : nat) : vaultRecordType is 
+function createVaultRecord(const vaultAddress : address; const vaultConfig : string; const loanTokenName : string; const decimals : nat) : vaultRecordType is 
 block {
 
     const vaultRecord : vaultRecordType = record [
@@ -355,7 +369,7 @@ block {
         address                     = vaultAddress;
         collateralBalanceLedger     = (map[] : collateralBalanceLedgerType); // init empty collateral balance ledger map
         loanToken                   = loanTokenName;
-        vaultConfig                 = "standard";
+        vaultConfig                 = vaultConfig;
 
         loanOutstandingTotal        = 0n;
         loanPrincipalTotal          = 0n;
@@ -405,7 +419,7 @@ block {
 function getVaultConfigRecord(const vaultConfigName : string; const s : lendingControllerStorageType) : vaultConfigRecordType is
 block {
 
-    const vaultConfigRecord : vaultConfigRecordType = case s.vaultConfigLedger["standard"] of [
+    const vaultConfigRecord : vaultConfigRecordType = case s.vaultConfigLedger[vaultConfigName] of [
             Some(_record) -> _record
         |   None          -> failwith(error_VAULT_CONFIG_RECORD_NOT_FOUND)
     ];
@@ -937,6 +951,50 @@ block {
     
 } with isLiquidatable
 
+
+
+// helper function to check if vault is penalized (has not made interest payments within allowable period)
+function isPenalizedForLiquidation(const interestRepaymentPeriod : nat; const lastInterestPayment : timestamp; const missedPeriodsForLiquidation : nat) : bool is 
+block {
+    
+    const currentTimestamp : timestamp           = Mavryk.get_now();
+    const interestRepaymentPeriodInSeconds : nat = ((interestRepaymentPeriod * missedPeriodsForLiquidation) * 86400n);
+    const isPenalized : bool                     = currentTimestamp > (lastInterestPayment + interestRepaymentPeriodInSeconds);
+    
+} with isPenalized
+
+
+
+// helper function to apply vault penalty fee if interest repayment period has been missed
+function applyVaultPenaltyFee(
+    const loanInterestTotal : nat; 
+    const penaltyFeePercentage : nat; 
+    const interestRepaymentGrace : nat; 
+    const interestRepaymentPeriod : nat; 
+    const lastInterestPayment : timestamp
+) : nat is block {
+
+    // todo: add grace period?
+    const currentTimestamp : timestamp               = Mavryk.get_now();
+    const interestRepaymentGraceInSeconds : nat      = interestRepaymentGrace * 86_400n;
+    var penaltyFee : nat                            := 0n;
+
+    var numberOfInterestRepaymentPeriodsMissed : nat  := 0n;
+    if currentTimestamp > lastInterestPayment then {
+        if interestRepaymentPeriod > 0n then {
+            // check if within grace period
+            const withinGracePeriod : int = currentTimestamp - (lastInterestPayment + int(interestRepaymentGraceInSeconds));
+            if withinGracePeriod > 0 then {
+                // grace period exceeded, apply penalty fee
+                numberOfInterestRepaymentPeriodsMissed := abs(currentTimestamp - lastInterestPayment) / interestRepaymentPeriod;
+                // penalty fee is total interest at this point in time multiplied by interest repayment periods missed
+                penaltyFee := (loanInterestTotal * penaltyFeePercentage * fixedPointAccuracy) / 10_000n / fixedPointAccuracy;
+            };
+        } else skip;
+    } else skip;
+
+} with penaltyFee
+
 // ------------------------------------------------------------------------------
 // Contract Helper Functions End
 // ------------------------------------------------------------------------------
@@ -1093,7 +1151,7 @@ block {
 // ------------------------------------------------------------------------------
 
 // helper function to check correct duration has passed after being marked for liquidation
-function checkMarkedVaultLiquidationDuration(const vault : vaultRecordType; const liquidationDelayInMins : nat; const s : lendingControllerStorageType) : unit is
+function checkMarkedVaultLiquidationDuration(const vault : vaultRecordType; const liquidationDelayInMins : nat) : unit is
 block {
 
     // Init variables and get level when vault can be liquidated
@@ -1127,7 +1185,7 @@ block {
 
 
 // helper function to calculate the ratio used in the collateral token amount receive calculation
-function calculateCollateralPriceAdjustmentRatio(const loanToken : (nat*nat); const collateralToken : (nat*nat)) : nat is
+function calculateCollateralPriceAdjustmentRatio(const loanToken : (nat * nat); const collateralToken : (nat * nat)) : nat is
 block {
 
     // Init variables
@@ -1159,14 +1217,14 @@ block {
 
 
 // helper function to calculate the collateral token proportion received during a liquidation
-function calculateCollateralTokenProportion(const collateralToken : collateralTokenRecordType; const collateralTokenLastCompletedData : lastCompletedDataReturnType; const collateralTokenBalance : nat; const vaultCollateralValueRebased : nat; const s : lendingControllerStorageType) : nat is
+function calculateCollateralTokenProportion(const collateralToken : collateralTokenRecordType; const collateralTokenLastCompletedData : lastCompletedDataReturnType; const collateralTokenBalance : nat; const vaultCollateralValueRebased : nat; const maxDecimalsForCalculation : nat) : nat is
 block {
 
-    const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation; // default 32 decimals i.e. 1e32
+    const maxDecimalsForCalculation  : nat  = maxDecimalsForCalculation; // default 32 decimals i.e. 1e32
     
-    const tokenDecimals             : nat  = collateralToken.tokenDecimals; 
-    const priceDecimals             : nat  = collateralTokenLastCompletedData.decimals;
-    const tokenPrice                : nat  = collateralTokenLastCompletedData.data;
+    const tokenDecimals              : nat  = collateralToken.tokenDecimals; 
+    const priceDecimals              : nat  = collateralTokenLastCompletedData.decimals;
+    const tokenPrice                 : nat  = collateralTokenLastCompletedData.data;
 
     // Calculate required number of decimals to rebase each token to the same unit for comparison                        
     if tokenDecimals + priceDecimals > maxDecimalsForCalculation then failwith(error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION) else skip;
@@ -1532,7 +1590,13 @@ block {
         else collateralTokenBalance;
 
     // get proportion of collateral token balance against total vault's collateral value
-    const tokenProportion : nat = calculateCollateralTokenProportion(collateralTokenRecord, collateralTokenLastCompletedData, collateralTokenBalance, vaultCollateralValueRebased, s);
+    const tokenProportion : nat = calculateCollateralTokenProportion(
+        collateralTokenRecord, 
+        collateralTokenLastCompletedData, 
+        collateralTokenBalance, 
+        vaultCollateralValueRebased, 
+        s.config.maxDecimalsForCalculation
+    );
 
     // ------------------------------------------------------------------
     // Rebase decimals for calculation

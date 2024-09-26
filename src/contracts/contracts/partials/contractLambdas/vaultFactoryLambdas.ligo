@@ -288,10 +288,11 @@ block{
         |   LambdaCreateVault(createVaultParams) -> {
 
                 // init variables
-                const vaultDelegate         : option(key_hash) = createVaultParams.baker;
-                const vaultLoanTokenName    : string = createVaultParams.loanTokenName; // e.g. USDT, EURT 
-                const vaultOwner            : address = Mavryk.get_sender();
-                const newVaultId            : vaultIdType = s.vaultCounter;
+                const vaultDelegate         : option(key_hash)  = createVaultParams.baker;
+                const vaultConfig           : string            = createVaultParams.vaultConfig;
+                const vaultLoanTokenName    : string            = createVaultParams.loanTokenName; // e.g. USDT, EURT 
+                const vaultOwner            : address           = Mavryk.get_sender();
+                const newVaultId            : vaultIdType       = s.vaultCounter;
 
                 // Get deposits if any
                 const collateralDepositList : list(depositType) = case createVaultParams.collateral of [
@@ -325,6 +326,7 @@ block{
                     vaultOwner,                 // vault owner address
                     newVaultId,                 // vault id
                     vaultAddress,               // vault address
+                    vaultConfig,                // vault config
                     vaultLoanTokenName,         // vault loan token name
                     lendingControllerAddress  
                 ); 
@@ -369,7 +371,7 @@ block{
 
                 operations := List.fold_right(processNewVaultCollateralDeposit, collateralDepositList, operations);
 
-                // move to rwa vaults
+                // todo: kyc for rwa vaults
                 // Process KYC if vault owner is KYC-ed
                 // const kycAddress: address              = getContractAddressFromGovernanceContract("kyc", s.governanceAddress, error_KYC_CONTRACT_NOT_FOUND);
                 // const userIsVerifiedBool : bool        = verifyUserIsKyced(vaultOwner, kycAddress);
