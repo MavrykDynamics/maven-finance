@@ -15,61 +15,90 @@ type collateralNameType          is string;
 // Storage Types
 // ------------------------------------------------------------------------------
 
-type lendingControllerConfigType is [@layout:comb] record [
+// type lendingControllerConfigType is [@layout:comb] record [
     
+//     collateralRatio              : nat;         // collateral ratio
+//     liquidationRatio             : nat;         // liquidation ratio
+    
+//     liquidationFeePercent        : nat;         // liquidation fee percent - penalty fee paid by vault owner to liquidator
+//     adminLiquidationFeePercent   : nat;         // admin liquidation fee percent - penalty fee paid by vault owner to treasury
+
+//     minimumLoanFeePercent        : nat;         // minimum loan fee percent - taken at first minting
+
+//     minimumLoanFeeTreasuryShare  : nat;         // percentage of minimum loan fee that goes to the treasury
+//     interestTreasuryShare        : nat;         // percentage of interest that goes to the treasury
+
+//     decimals                     : nat;         // decimals used for percentage calculation
+//     interestRateDecimals         : nat;         // decimals used for interest rate (ray : 10^27)
+//     maxDecimalsForCalculation    : nat;         // max decimals to be used in calculations
+//     lastCompletedDataMaxDelay    : nat;         // max delay in last updated at for last completed data in fetching prices
+
+//     maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% for AAVE)
+//     liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
+//     liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
+
+//     mockLevel                    : nat;         // mock level for time
+// ]
+
+type lendingControllerConfigType is [@layout:comb] record [
+    decimals                     : nat;         // decimals used for percentage calculation
+    interestRateDecimals         : nat;         // decimals used for interest rate (ray : 10^27)
+    maxDecimalsForCalculation    : nat;         // max decimals to be used in calculations
+    lastCompletedDataMaxDelay    : nat;         // max delay in last updated at for last completed data in fetching prices
+]
+
+type vaultConfigRecordType is [@layout:comb] record [
     collateralRatio              : nat;         // collateral ratio
     liquidationRatio             : nat;         // liquidation ratio
     
     liquidationFeePercent        : nat;         // liquidation fee percent - penalty fee paid by vault owner to liquidator
     adminLiquidationFeePercent   : nat;         // admin liquidation fee percent - penalty fee paid by vault owner to treasury
-
     minimumLoanFeePercent        : nat;         // minimum loan fee percent - taken at first minting
 
     minimumLoanFeeTreasuryShare  : nat;         // percentage of minimum loan fee that goes to the treasury
     interestTreasuryShare        : nat;         // percentage of interest that goes to the treasury
 
-    decimals                     : nat;         // decimals used for percentage calculation
-    interestRateDecimals         : nat;         // decimals used for interest rate (ray : 10^27)
-    maxDecimalsForCalculation    : nat;         // max decimals to be used in calculations
-    lastCompletedDataMaxDelay    : nat;         // max delay in last updated at for last completed data in fetching prices
-
-    maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% for AAVE)
+    maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% on AAVE)
     liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
     liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
 
-    mockLevel                    : nat;         // mock level for time
+    feePenalty                   : nat;         // fee penalty if interest is not repaid on time
+    interestRepapymentGrace      : nat;         // grace period before fee penalty is applied
 ]
+type vaultConfigLedgerType is big_map(string, vaultConfigRecordType);
 
-type lendingControllerBreakGlassConfigType is record [
+type breakGlassLedgerType is big_map(string, bool);
+
+// type lendingControllerBreakGlassConfigType is record [
     
-    // Lending Controller Admin Entrypoints
-    setLoanTokenIsPaused                : bool;
-    setCollateralTokenIsPaused          : bool;
+//     // Lending Controller Admin Entrypoints
+//     setLoanTokenIsPaused                : bool;
+//     setCollateralTokenIsPaused          : bool;
 
-    // Lending Controller Token Pool Entrypoints
-    addLiquidityIsPaused                : bool;
-    removeLiquidityIsPaused             : bool;
+//     // Lending Controller Token Pool Entrypoints
+//     addLiquidityIsPaused                : bool;
+//     removeLiquidityIsPaused             : bool;
 
-    // Lending Controller Vault Entrypoints
-    registerVaultCreationIsPaused       : bool; 
-    closeVaultIsPaused                  : bool;
-    registerDepositIsPaused             : bool;
-    registerWithdrawalIsPaused          : bool;
-    markForLiquidationIsPaused          : bool;
-    liquidateVaultIsPaused              : bool;
-    borrowIsPaused                      : bool;
-    repayIsPaused                       : bool;
+//     // Lending Controller Vault Entrypoints
+//     registerVaultCreationIsPaused       : bool; 
+//     closeVaultIsPaused                  : bool;
+//     registerDepositIsPaused             : bool;
+//     registerWithdrawalIsPaused          : bool;
+//     markForLiquidationIsPaused          : bool;
+//     liquidateVaultIsPaused              : bool;
+//     borrowIsPaused                      : bool;
+//     repayIsPaused                       : bool;
 
-    // Vault Entrypoints
-    vaultDepositIsPaused                : bool;
-    vaultWithdrawIsPaused               : bool;
-    vaultOnLiquidateIsPaused            : bool;
+//     // Vault Entrypoints
+//     vaultDepositIsPaused                : bool;
+//     vaultWithdrawIsPaused               : bool;
+//     vaultOnLiquidateIsPaused            : bool;
 
-    // Vault Staked Token Entrypoints
-    vaultDepositStakedTokenIsPaused     : bool;
-    vaultWithdrawStakedTokenIsPaused    : bool;
+//     // Vault Staked Token Entrypoints
+//     vaultDepositStakedTokenIsPaused     : bool;
+//     vaultWithdrawStakedTokenIsPaused    : bool;
 
-]
+// ]
 
 
 

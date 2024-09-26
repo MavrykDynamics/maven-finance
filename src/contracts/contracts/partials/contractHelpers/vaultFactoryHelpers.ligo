@@ -133,23 +133,32 @@ block {
 
     // params for vault with storage origination
     const newVaultStorage : vaultStorageType = record [
-        admin                       = Mavryk.get_self_address();
-        name                        = vaultName;
-        handle                      = handle;
-        depositors                  = createVaultParams.depositors;
+        admin               = Mavryk.get_self_address();
+        name                = vaultName;
+        handle              = handle;
+        depositors          = createVaultParams.depositors;
+        vaultConfig         = createVaultParams.vaultConfig;
     ];
 
 } with newVaultStorage
 
 
 
-function registerVaultCreationOperation(const vaultOwner : address; const vaultId : nat; const vaultAddress : address; const loanTokenName : string; const lendingControllerAddress : address) : operation is
+function registerVaultCreationOperation(
+    const vaultOwner : address; 
+    const vaultId : nat; 
+    const vaultAddress : address; 
+    const vaultConfig : string; 
+    const loanTokenName : string; 
+    const lendingControllerAddress : address
+) : operation is
 block {
     
     const registerVaultCreationParams : registerVaultCreationActionType = record [ 
         vaultOwner     = vaultOwner;
         vaultId        = vaultId;
         vaultAddress   = vaultAddress;
+        vaultConfig    = vaultConfig;
         loanTokenName  = loanTokenName;
     ];
 
