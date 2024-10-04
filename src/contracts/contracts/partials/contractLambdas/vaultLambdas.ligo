@@ -88,7 +88,7 @@ block {
                         }
                     |   Deposit(depositParams) -> {
 
-                            // verify that %deposit is not paused on Lending Controller
+                            // verify that %vaultDeposit is not paused on Lending Controller
                             verifyVaultDepositIsNotPaused(s);
 
                             // init deposit operation params
@@ -142,7 +142,7 @@ block {
                         }
                     |   Withdraw(withdrawParams) -> {
 
-                            // verify that %withdraw is not paused on Lending Controller
+                            // verify that %vaultWithdraw is not paused on Lending Controller
                             verifyVaultWithdrawIsNotPaused(s);
 
                             // verify sender is vault owner

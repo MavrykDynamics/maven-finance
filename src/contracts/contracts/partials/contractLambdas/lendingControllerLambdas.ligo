@@ -137,7 +137,7 @@ block {
     case lendingControllerLambdaAction of [
         |   LambdaSetVaultConfig(setVaultConfigParams) -> {
 
-                const vaultConfig : string = setVaultConfigParams.vaultConfig;
+                const vaultConfig : nat = setVaultConfigParams.vaultConfig;
                 const vaultConfigRecord : vaultConfigRecordType = record [
                     collateralRatio              = setVaultConfigParams.collateralRatio;
                     liquidationRatio             = setVaultConfigParams.liquidationRatio;
@@ -152,6 +152,12 @@ block {
                     maxVaultLiquidationPercent   = setVaultConfigParams.maxVaultLiquidationPercent;
                     liquidationDelayInMins       = setVaultConfigParams.liquidationDelayInMins;
                     liquidationMaxDuration       = setVaultConfigParams.liquidationMaxDuration;
+
+                    interestRepaymentPeriod      = setVaultConfigParams.interestRepaymentPeriod;
+                    missedPeriodsForLiquidation  = setVaultConfigParams.missedPeriodsForLiquidation;
+                    interestRepaymentGrace       = setVaultConfigParams.interestRepaymentGrace;
+                    penaltyFeePercentage         = setVaultConfigParams.penaltyFeePercentage;
+                    liquidationConfig            = setVaultConfigParams.liquidationConfig;
                 ];
                 s.vaultConfigLedger[vaultConfig] := vaultConfigRecord;
 
@@ -305,6 +311,7 @@ block {
                 const vaultOwner     : address = registerVaultCreationParams.vaultOwner;
                 const vaultId        : nat     = registerVaultCreationParams.vaultId;
                 const vaultAddress   : address = registerVaultCreationParams.vaultAddress;
+                const vaultConfig    : nat     = registerVaultCreationParams.vaultConfig;
                 const loanTokenName  : string  = registerVaultCreationParams.loanTokenName;
 
                 // Make vault handle
@@ -316,7 +323,7 @@ block {
                 // Create vault record - loan token borrow index initialised to 0
                 const vault : vaultRecordType = createVaultRecord(
                     vaultAddress,                   // vault address
-                    vaultConfig,
+                    vaultConfig,                    // vault config
                     loanTokenRecord.tokenName,      // loan token name
                     loanTokenRecord.tokenDecimals   // loan token decimals
                 );
@@ -476,7 +483,7 @@ block {
 
                 // send tokens from token pool to initiator
                 const sendTokensToInitiatorOperation : operation = tokenPoolTransfer(
-                    Mavryk.get_self_address(),   // from_
+                    Mavryk.get_self_address(),  // from_
                     initiator,                  // to_    
                     amount,                     // amount
                     loanTokenType               // token type (e.g. mav, fa12, fa2)
@@ -533,11 +540,40 @@ block {
 
                 // Get vault if exists
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
-
                 const vaultAddress : address = vault.address;
+
+                // get vault config record
+                const vaultConfigRecord : vaultConfigRecordType = getVaultConfigRecord(vault.vaultConfig, s);
+                const interestRepaymentPeriod : nat             = vaultConfigRecord.interestRepaymentPeriod;
+                const penaltyFeePercentage : nat                = vaultConfigRecord.penaltyFeePercentage;
+                const interestRepaymentGrace : nat              = vaultConfigRecord.interestRepaymentGrace;
 
                 // Check that vault has zero loan outstanding
                 checkZeroLoanOutstanding(vault);
+
+                // ------------------------------------------------------------------
+                // Calculate penalty fees if applicable
+                // ------------------------------------------------------------------
+
+                if interestRepaymentPeriod > 0n then {
+                    
+                    // calculate vault penalty fee - will be 0 if it doesnt apply
+                    const vaultPenaltyFee : nat = applyVaultPenaltyFee(
+                        vault.loanInterestTotal, 
+                        penaltyFeePercentage, 
+                        interestRepaymentGrace,
+                        interestRepaymentPeriod, 
+                        vault.lastInterestPayment
+                    );
+
+                    // prevent vault from closing until penalty fee has been cleared
+                    if vaultPenaltyFee > 0n then failwith(error_VAULT_HAS_PENALTY_FEE) else skip;
+
+                } else skip;
+
+                // ------------------------------------------------------------------
+                // Process liquidation of vault collateral back to vault owner
+                // ------------------------------------------------------------------
 
                 // init list records of transfers from the closed vault
                 var onLiquidateList : onLiquidateListType := list [];
@@ -591,13 +627,6 @@ block {
 
                             // for other collateral token types besides sMVN and scaled tokens
                             if finalTokenBalance > 0n then {
-                                // const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                //     vaultOwner,                         // to_
-                                //     collateralTokenName,                // token name
-                                //     finalTokenBalance,                  // token amount to be withdrawn
-                                //     vaultAddress                        // vault address
-                                // );
-                                // operations := withdrawTokenOperation # operations;
 
                                 const withdrawTokenOperation : onLiquidateSingleType = record [
                                     receiver   = vaultOwner;
@@ -612,13 +641,6 @@ block {
 
                             // for other collateral token types besides sMVN and scaled tokens
                             if finalTokenBalance > 0n then {
-                                // const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                //     vaultOwner,                         // to_
-                                //     collateralTokenName,                // token name
-                                //     finalTokenBalance,                  // token amount to be withdrawn
-                                //     vaultAddress                        // vault address
-                                // );
-                                // operations := withdrawTokenOperation # operations;
 
                                 const withdrawTokenOperation : onLiquidateSingleType = record [
                                     receiver   = vaultOwner;
@@ -695,7 +717,7 @@ block {
                 const configLiquidationDelayInMins : nat        = vaultConfigRecord.liquidationDelayInMins;
                 const configLiquidationMaxDuration : nat        = vaultConfigRecord.liquidationMaxDuration;
                 const liquidationRatio : nat                    = vaultConfigRecord.liquidationRatio;
-                const liquidationConfig : string                = vaultConfigRecord.liquidationConfig;
+                const liquidationConfig : nat                   = vaultConfigRecord.liquidationConfig;
 
                 const interestRepaymentPeriod : nat             = vaultConfigRecord.interestRepaymentPeriod;
                 const missedPeriodsForLiquidation : nat         = vaultConfigRecord.missedPeriodsForLiquidation;
@@ -712,7 +734,7 @@ block {
                 // const vaultIsLiquidatable : bool = isLiquidatable(vault, liquidationRatio, s);
 
                 var vaultIsLiquidatable : bool := False;
-                if liquidationConfig = "rwa" then {
+                if liquidationConfig = 1n then { // rwa vault config -> 1n
 
                     const vaultIsUnderCollaterized : bool = isLiquidatable(vault, liquidationRatio, s);
                     const vaultIsPenalized : bool = isPenalizedForLiquidation(
@@ -721,7 +743,7 @@ block {
                         missedPeriodsForLiquidation
                     );
 
-                    if(vaultIsUnderCollaterized or vaultIsPenalized){
+                    if vaultIsUnderCollaterized or vaultIsPenalized then {
                         vaultIsLiquidatable := True;
                     };
 
@@ -812,10 +834,12 @@ block {
                 const interestTreasuryShare : nat               = vaultConfigRecord.interestTreasuryShare;
                 const liquidationRatio : nat                    = vaultConfigRecord.liquidationRatio;
                 const liquidationDelayInMins : nat              = vaultConfigRecord.liquidationDelayInMins;
-                const liquidationConfig : string                = vaultConfigRecord.liquidationConfig;
+                const liquidationConfig : nat                   = vaultConfigRecord.liquidationConfig;
 
                 const interestRepaymentPeriod : nat             = vaultConfigRecord.interestRepaymentPeriod;
                 const missedPeriodsForLiquidation : nat         = vaultConfigRecord.missedPeriodsForLiquidation;
+                const penaltyFeePercentage : nat                = vaultConfigRecord.penaltyFeePercentage;
+                const interestRepaymentGrace : nat              = vaultConfigRecord.interestRepaymentGrace;
 
                 // ------------------------------------------------------------------
                 // Check correct duration has passed after being marked for liquidation
@@ -851,8 +875,9 @@ block {
                 // const vaultIsLiquidatable : bool = isLiquidatable(vault, liquidationRatio, s);
 
                 var vaultIsLiquidatable : bool := False;
-                if liquidationConfig = "rwa" then {
+                if liquidationConfig = 1n then { // rwa vault config -> 1n
 
+                    // check if vault is penalized
                     const vaultIsUnderCollaterized : bool = isLiquidatable(vault, liquidationRatio, s);
                     const vaultIsPenalized : bool = isPenalizedForLiquidation(
                         interestRepaymentPeriod,
@@ -860,9 +885,21 @@ block {
                         missedPeriodsForLiquidation
                     );
 
-                    if(vaultIsUnderCollaterized or vaultIsPenalized){
+                    if vaultIsUnderCollaterized or vaultIsPenalized then {
                         vaultIsLiquidatable := True;
                     };
+
+                    // to check: factor penalty fee into vault liquidations below or keep it separate (require vault owner to clear the penalty fee regardless)
+                    // todo: vault fee will decrease since loan interest total will be cleared by liquidators
+                    // apply penalty fee
+                    const _vaultPenaltyFee : nat = applyVaultPenaltyFee(
+                        vault.loanInterestTotal, 
+                        penaltyFeePercentage, 
+                        interestRepaymentGrace,
+                        interestRepaymentPeriod, 
+                        vault.lastInterestPayment
+                    );
+                    // vault.penaltyFee := vaultPenaltyFee;
 
                 } else {
                     vaultIsLiquidatable := isLiquidatable(vault, liquidationRatio, s);
@@ -1309,6 +1346,9 @@ block {
                 const minimumLoanFeePercent : nat               = vaultConfigRecord.minimumLoanFeePercent;
                 const minimumLoanFeeTreasuryShare : nat         = vaultConfigRecord.minimumLoanFeeTreasuryShare;
                 const collateralRatio : nat                     = vaultConfigRecord.collateralRatio;
+                const interestRepaymentPeriod : nat             = vaultConfigRecord.interestRepaymentPeriod;
+                const penaltyFeePercentage : nat                = vaultConfigRecord.penaltyFeePercentage;
+                const interestRepaymentGrace : nat              = vaultConfigRecord.interestRepaymentGrace;
 
                 // ------------------------------------------------------------------
                 // Get Loan Token parameters
@@ -1324,6 +1364,26 @@ block {
                 const totalRemaining        : nat         = loanTokenRecord.totalRemaining;
                 const loanTokenType         : tokenType   = loanTokenRecord.tokenType;
                 const accRewardsPerShare    : nat         = loanTokenRecord.tokenRewardIndex;
+
+                // ------------------------------------------------------------------
+                // Calculate penalty fees if applicable
+                // ------------------------------------------------------------------
+
+                if interestRepaymentPeriod > 0n then {
+                    
+                    // calculate vault penalty fee - will be 0 if it doesnt apply
+                    const vaultPenaltyFee : nat = applyVaultPenaltyFee(
+                        vault.loanInterestTotal, 
+                        penaltyFeePercentage, 
+                        interestRepaymentGrace,
+                        interestRepaymentPeriod, 
+                        vault.lastInterestPayment
+                    );
+
+                    // prevent vault from borrowing until penalty fee has been cleared
+                    if vaultPenaltyFee > 0n then failwith(error_VAULT_HAS_PENALTY_FEE) else skip;
+
+                } else skip;
 
                 // ------------------------------------------------------------------
                 // Calculate Service Loan Fees
@@ -1418,11 +1478,11 @@ block {
                 // ------------------------------------------------------------------
                 
                 // Update loan token storage
-                loanTokenRecord.rawMTokensTotalSupply                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply       := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;   
+                loanTokenRecord.tokenRewardIndex            := newAccRewardsPerShare;   
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
@@ -1541,7 +1601,7 @@ block {
                     // Calculate amount of interest that goes to the Treasury 
                     const feeSentToTreasury : nat = ((penaltyFeePaid * interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
                     
-                    // transfer treasurySHareFee to the treasury
+                    // transfer treasuryShareFee to the treasury
                     const sendFeeToTreasuryOperation : operation = tokenPoolTransfer(
                         Mavryk.get_self_address(),   // from_
                         treasuryAddress,             // to_
@@ -1693,7 +1753,7 @@ block {
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;
+                loanTokenRecord.tokenRewardIndex            := newAccRewardsPerShare;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);

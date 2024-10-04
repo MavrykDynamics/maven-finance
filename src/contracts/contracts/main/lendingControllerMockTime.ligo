@@ -46,14 +46,13 @@ type lendingControllerAction is
         // Housekeeping Entrypoints
     |   SetAdmin                        of (address)
     |   SetGovernance                   of (address)
-    |   UpdateConfig                    of lendingControllerUpdateConfigParamsType
+    |   UpdateConfig                    of lendingControllerUpdateConfigActionType
 
         // Break Glass Entrypoints
-    |   PauseAll                        of (unit)
-    |   UnpauseAll                      of (unit)
-    |   TogglePauseEntrypoint           of lendingControllerTogglePauseEntrypointType
+    |   TogglePauseEntrypoint           of breakGlassListType
 
         // Admin Entrypoints
+    |   SetVaultConfig                  of setVaultConfigActionType
     |   SetLoanToken                    of setLoanTokenActionType
     |   SetCollateralToken              of setCollateralTokenActionType
     |   RegisterVaultCreation           of registerVaultCreationActionType
@@ -129,11 +128,10 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   UpdateConfig(parameters)                      -> updateConfig(parameters, s)
 
             // Pause / Break Glass Entrypoints
-        |   PauseAll(_parameters)                         -> pauseAll(s)
-        |   UnpauseAll(_parameters)                       -> unpauseAll(s)
         |   TogglePauseEntrypoint(parameters)             -> togglePauseEntrypoint(parameters, s)
 
             // Admin Entrypoints
+        |   SetVaultConfig(parameters)                    -> setVaultConfig(parameters, s)
         |   SetLoanToken(parameters)                      -> setLoanToken(parameters, s)
         |   SetCollateralToken(parameters)                -> setCollateralToken(parameters, s)
         |   RegisterVaultCreation(parameters)             -> registerVaultCreation(parameters, s)

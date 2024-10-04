@@ -1302,6 +1302,10 @@
 [@inline] const error_UPDATE_OPERATORS_ENTRYPOINT_IN_STAKING_TOKEN_CONTRACT_NOT_FOUND                                   = 923n;
 [@inline] const error_MAX_DEPOSIT_AMOUNT_FOR_COLLATERAL_TOKEN_EXCEEDED                                                  = 924n;
 
+[@inline] const error_VAULT_HAS_PENALTY_FEE                                                                             = 925n;
+
+
+
 // ------------------------------------------------------------------------------
 //
 // M Token Errors

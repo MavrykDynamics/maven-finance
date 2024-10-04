@@ -6,8 +6,11 @@ export type lendingControllerMockTimeStorageType = {
     admin                       : string; 
     tester                      : string;
     metadata                    : MichelsonMap<MichelsonMapKey, unknown>;    
-    config                      : {};
-    breakGlassConfig            : {};
+    // config                      : {};
+    // breakGlassConfig            : {};
+
+    vaultConfigLedger           : MichelsonMap<MichelsonMapKey, unknown>;    
+    breakGlassLedger            : MichelsonMap<MichelsonMapKey, unknown>;    
 
     mvnTokenAddress             : string;
     governanceAddress           : string;
