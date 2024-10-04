@@ -70,6 +70,19 @@ block {
 
 } with unit
 
+
+
+// verify lending controller entrypoint is not paused
+function verifyLendingControllerEntrypointIsNotPaused(const entrypoint : string; const errorCode : nat; const s : lendingControllerStorageType) : unit is 
+block {
+
+    case s.breakGlassLedger[entrypoint] of [
+            Some(_bool) -> if _bool = True then failwith(errorCode) else skip
+        |   None        -> failwith(errorCode)
+    ];
+
+} with unit
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -369,7 +382,7 @@ block {
 
 
 // helper function to create new vault record
-function createVaultRecord(const vaultAddress : address; const loanTokenName : string; const decimals : nat) : vaultRecordType is 
+function createVaultRecord(const vaultAddress : address; const vaultConfig : nat; const loanTokenName : string; const decimals : nat) : vaultRecordType is 
 block {
 
     const vaultRecord : vaultRecordType = record [
@@ -377,6 +390,7 @@ block {
         address                     = vaultAddress;
         collateralBalanceLedger     = (map[] : collateralBalanceLedgerType); // init empty collateral balance ledger map
         loanToken                   = loanTokenName;
+        vaultConfig                 = vaultConfig;
 
         loanOutstandingTotal        = 0n;
         loanPrincipalTotal          = 0n;
@@ -389,6 +403,9 @@ block {
 
         markedForLiquidationLevel   = 0n;
         liquidationEndLevel         = 0n;
+
+        penaltyFee                  = 0n;
+        lastInterestPayment         = Mavryk.get_now();
     ];
     
 } with vaultRecord
@@ -419,6 +436,19 @@ block {
     ];
 
 } with collateralTokenRecord
+
+
+
+// helper function to get vault config record 
+function getVaultConfigRecord(const vaultConfig : nat; const s : lendingControllerStorageType) : vaultConfigRecordType is
+block {
+
+    const vaultConfigRecord : vaultConfigRecordType = case s.vaultConfigLedger[vaultConfig] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_VAULT_CONFIG_RECORD_NOT_FOUND)
+    ];
+
+} with vaultConfigRecord
 
 
 
@@ -948,13 +978,12 @@ block {
 
 
 // helper function to check if vault is under collaterized
-function isUnderCollaterized(const vault : vaultRecordType; var s : lendingControllerStorageType) : (bool * lendingControllerStorageType) is 
+function isUnderCollaterized(const vault : vaultRecordType; const collateralRatio : nat; var s : lendingControllerStorageType) : bool is 
 block {
     
     // initialise variables - vaultCollateralValue and loanOutstanding
     const loanOutstandingTotal       : nat    = vault.loanOutstandingTotal;    
     const loanTokenName              : string = vault.loanToken;
-    const collateralRatio            : nat    = s.config.collateralRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
 
     // calculate vault collateral value rebased (1e32 or 10^32)
     const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.address, vault.collateralBalanceLedger, s);
@@ -965,18 +994,17 @@ block {
     // check is vault is under collaterized based on collateral ratio
     const isUnderCollaterized : bool = vaultCollateralValueRebased < (collateralRatio * loanOutstandingRebased) / 1000n;
 
-} with (isUnderCollaterized, s)
+} with isUnderCollaterized
 
 
 
 // helper function to check if vault is liquidatable
-function isLiquidatable(const vault : vaultRecordType; var s : lendingControllerStorageType) : bool is 
+function isLiquidatable(const vault : vaultRecordType; const liquidationRatio : nat; var s : lendingControllerStorageType) : bool is 
 block {
     
     // initialise variables - vaultCollateralValue and loanOutstanding
     const loanOutstandingTotal       : nat    = vault.loanOutstandingTotal;    
     const loanTokenName              : string = vault.loanToken;
-    const liquidationRatio           : nat    = s.config.liquidationRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
 
     // calculate vault collateral value rebased (1e32 or 10^32)
     const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.address, vault.collateralBalanceLedger, s);
@@ -988,6 +1016,56 @@ block {
     const isLiquidatable : bool = vaultCollateralValueRebased < (liquidationRatio * loanOutstandingRebased) / 1000n;
 
 } with isLiquidatable
+
+
+
+// helper function to check if vault is penalized (has not made interest payments within allowable period)
+function isPenalizedForLiquidation(const interestRepaymentPeriod : nat; const lastInterestPayment : timestamp; const missedPeriodsForLiquidation : nat) : bool is 
+block {
+    
+    const currentTimestamp : timestamp              = Mavryk.get_now();
+    const interestRepaymentPeriodInSeconds : int    = int((interestRepaymentPeriod * missedPeriodsForLiquidation) * 86400n);
+    const lastInterestPaymentWithPeriod : timestamp = lastInterestPayment + interestRepaymentPeriodInSeconds;
+    const isPenalized : bool                        = currentTimestamp > lastInterestPaymentWithPeriod;
+    
+} with isPenalized
+
+
+
+// helper function to apply vault penalty fee if interest repayment period has been missed
+function applyVaultPenaltyFee(
+    const loanInterestTotal : nat; 
+    const penaltyFeePercentage : nat; 
+    const interestRepaymentGrace : nat; 
+    const interestRepaymentPeriod : nat; 
+    const lastInterestPayment : timestamp
+) : nat is block {
+
+    const currentTimestamp : timestamp               = Mavryk.get_now();
+    const interestRepaymentGraceInSeconds : nat      = interestRepaymentGrace * 86_400n;
+    var penaltyFee : nat                            := 0n;
+
+    // var numberOfInterestRepaymentPeriodsMissed : nat  := 0n;
+
+    if currentTimestamp > lastInterestPayment then {
+        if interestRepaymentPeriod > 0n then {
+            // check if within grace period
+            const withinGracePeriod : int = currentTimestamp - (lastInterestPayment + int(interestRepaymentGraceInSeconds));
+            if withinGracePeriod > 0 then {
+                
+                // grace period exceeded, apply penalty fee
+                
+                // penalty fee is total interest at this point in time multiplied by interest repayment periods missed
+                penaltyFee := (loanInterestTotal * penaltyFeePercentage * fixedPointAccuracy) / 10_000n / fixedPointAccuracy;
+
+                // todo: penalty fee based on total interest repayment periods missed, or based on just loan interest total 
+                // numberOfInterestRepaymentPeriodsMissed := abs(currentTimestamp - lastInterestPayment) / interestRepaymentPeriod;
+
+            };
+        } else skip;
+    } else skip;
+
+} with penaltyFee
 
 // ------------------------------------------------------------------------------
 // Contract Helper Functions End
@@ -1150,15 +1228,13 @@ block {
 // ------------------------------------------------------------------------------
 
 // helper function to check correct duration has passed after being marked for liquidation
-function checkMarkedVaultLiquidationDuration(const vault : vaultRecordType; const s : lendingControllerStorageType) : unit is
+function checkMarkedVaultLiquidationDuration(const vault : vaultRecordType; const liquidationDelayInMins : nat; const mockLevel : nat) : unit is
 block {
 
     // Init variables and get level when vault can be liquidated
     const blocksPerMinute                : nat  = 60n / Mavryk.get_min_block_time();
-    const liquidationDelayInMins         : nat  = s.config.liquidationDelayInMins;
     const liquidationDelayInBlockLevel   : nat  = liquidationDelayInMins * blocksPerMinute; 
     const levelWhenVaultCanBeLiquidated  : nat  = vault.markedForLiquidationLevel + liquidationDelayInBlockLevel;
-    const mockLevel                      : nat  = s.config.mockLevel;
 
     // Check if sufficient time has passed since vault was marked for liquidation
     if mockLevel < levelWhenVaultCanBeLiquidated
@@ -1170,12 +1246,11 @@ block {
 
 
 // helper function to check that vault is still within window of opportunity for liquidation to occur
-function checkVaultInLiquidationWindow(const vault : vaultRecordType; const s : lendingControllerStorageType) : unit is
+function checkVaultInLiquidationWindow(const vault : vaultRecordType; const mockLevel : nat) : unit is
 block {
 
     // Get level when vault can no longer be liquidated 
     const vaultLiquidationEndLevel : nat = vault.liquidationEndLevel;
-    const mockLevel                : nat  = s.config.mockLevel;
 
     // Check if current block level has exceeded vault liquidation end level
     if mockLevel > vaultLiquidationEndLevel
@@ -1451,6 +1526,8 @@ function processCollateralTokenLiquidation(
     const loanTokenDecimals : nat; 
     const loanTokenLastCompletedData : lastCompletedDataReturnType; 
     const vaultAddress : address; 
+    const liquidationFeePercent : nat;
+    const adminLiquidationFeePercent : nat;
     const vaultCollateralValueRebased : nat; 
     const collateralTokenName : string; 
     const collateralTokenBalance : nat; 
@@ -1510,7 +1587,6 @@ block {
     // Calculate Liquidator's Amount 
     // ------------------------------------------------------------------
 
-    const liquidationFeePercent         : nat   = s.config.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator 
     const liquidationIncentive          : nat   = ((liquidationFeePercent * liquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
     const liquidatorAmountAndIncentive  : nat   = liquidationAmount + liquidationIncentive;
     const liquidatorTokenQuantityTotal  : nat   = calculateCollateralAmountReceived(
@@ -1530,7 +1606,6 @@ block {
     // ------------------------------------------------------------------
 
     // calculate final amounts to be liquidated
-    const adminLiquidationFeePercent    : nat   = s.config.adminLiquidationFeePercent;  // admin liquidation fee - penalty fee paid by vault owner to treasury
     const adminLiquidationFee           : nat   = ((adminLiquidationFeePercent * liquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
     const treasuryTokenQuantityTotal    : nat   = calculateCollateralAmountReceived(
         loanTokenPrice,

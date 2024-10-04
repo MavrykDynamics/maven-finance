@@ -844,6 +844,7 @@ describe("Vault tests", async () => {
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
                 const vaultOwner            = alice.pkh;
+                const vaultConfig           = "standard";
                 const loanTokenName         = "usdt";
                 const vaultName             = "newVaultAlice";
                 const depositorsConfig      = "any";
@@ -851,6 +852,7 @@ describe("Vault tests", async () => {
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     baker.pkh,              // delegate to
+                    vaultConfig,            // vault config
                     loanTokenName,          // loan token type
                     vaultName,              // vault name
                     [
@@ -903,6 +905,7 @@ describe("Vault tests", async () => {
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
                 const vaultOwner            = alice.pkh;
+                const vaultConfig           = "standard";
                 const loanTokenName         = "usdt";
                 const vaultName             = "failVaultAlice";
                 const depositorsConfig      = "any";
@@ -910,6 +913,7 @@ describe("Vault tests", async () => {
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     null,                   // delegate to
+                    vaultConfig,            // vault config
                     loanTokenName,          // loan token type
                     vaultName,              // vault name
                     [
@@ -938,6 +942,7 @@ describe("Vault tests", async () => {
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
                 const vaultOwner            = alice.pkh;
+                const vaultConfig           = "standard";
                 const loanTokenName         = "usdt";
                 const vaultName             = "failVaultAlice";
                 const depositorsConfig      = "any";
@@ -947,6 +952,7 @@ describe("Vault tests", async () => {
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     null,                   // delegate to
+                    vaultConfig,            // vault config
                     loanTokenName,          // loan token type
                     vaultName,              // vault name
                     [
@@ -975,6 +981,7 @@ describe("Vault tests", async () => {
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
                 const vaultOwner            = bob.pkh;
+                const vaultConfig           = "standard";
                 const loanTokenName         = "usdt";
                 const vaultName             = "newVaultBob";
                 const depositorsConfig      = "any";
@@ -1001,6 +1008,7 @@ describe("Vault tests", async () => {
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     null,                   // delegate to
+                    vaultConfig,            // vault config
                     loanTokenName,          // loan token type
                     vaultName,              // vault name
                     [
@@ -1060,6 +1068,7 @@ describe("Vault tests", async () => {
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
                 const vaultOwner            = bob.pkh;
+                const vaultConfig           = "standard";
                 const loanTokenName         = "usdt";
                 const vaultName             = "newVaultBob";
                 const depositorsConfig      = "any";
@@ -1087,6 +1096,7 @@ describe("Vault tests", async () => {
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     null,                   // delegate to
+                    vaultConfig,            // vault config
                     loanTokenName,          // loan token type
                     vaultName,              // vault name
                     [
@@ -1152,6 +1162,7 @@ describe("Vault tests", async () => {
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
                 const vaultOwner            = bob.pkh;
+                const vaultConfig           = "standard";
                 const loanTokenName         = "usdt";
                 const vaultName             = "newVaultBob";
                 const depositorsConfig      = "any";
@@ -1179,6 +1190,7 @@ describe("Vault tests", async () => {
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     null,                   // delegate to
+                    vaultConfig,            // vault config
                     loanTokenName,          // loan token type
                     vaultName,              // vault name
                     [
@@ -1215,6 +1227,7 @@ describe("Vault tests", async () => {
 
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
                 const vaultOwner            = bob.pkh;
+                const vaultConfig           = "standard";
                 const loanTokenName         = "usdt";
                 const vaultName             = "newVaultBob";
                 const depositorsConfig      = "any";
@@ -1243,6 +1256,7 @@ describe("Vault tests", async () => {
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     null,                   // delegate to
+                    vaultConfig,            // vault config
                     loanTokenName,          // loan token type
                     vaultName,              // vault name
                     [
@@ -1277,12 +1291,14 @@ describe("Vault tests", async () => {
                 await signerFactory(tezos, eve.sk);
                 const vaultId               = vaultFactoryStorage.vaultCounter.toNumber();
                 const vaultOwner            = eve.pkh;
+                const vaultConfig           = "standard";
                 const loanTokenName         = "usdt";
                 const vaultName             = "newVault";
                 const depositorsConfig      = "any";
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     baker.pkh,              // delegate to
+                    vaultConfig,            // vault config
                     loanTokenName,          // loan token type
                     vaultName,              // vault name
                     null,
@@ -1326,12 +1342,14 @@ describe("Vault tests", async () => {
                 const vaultFactoryStorage       = await vaultFactoryInstance.storage();
                 const vaultId                   = vaultFactoryStorage.vaultCounter.toNumber();
                 const vaultOwner                = mallory.pkh;
+                const vaultConfig               = "standard";
                 const depositorsConfig          = "whitelist";
                 const loanTokenName             = "usdt";
                 const vaultName                 = "newVault";
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     baker.pkh,  
+                    vaultConfig,
                     loanTokenName,
                     vaultName,
                     null,

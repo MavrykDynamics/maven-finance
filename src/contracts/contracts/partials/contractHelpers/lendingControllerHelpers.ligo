@@ -62,7 +62,6 @@ block {
 
 
 
-
 // verify lending controller entrypoint is not paused
 function verifyLendingControllerEntrypointIsNotPaused(const entrypoint : string; const errorCode : nat; const s : lendingControllerStorageType) : unit is 
 block {
@@ -361,13 +360,13 @@ block {
 
 
 // helper function to create new vault record
-function createVaultRecord(const vaultAddress : address; const vaultConfig : string; const loanTokenName : string; const decimals : nat) : vaultRecordType is 
+function createVaultRecord(const vaultAddress : address; const vaultConfig : nat; const loanTokenName : string; const decimals : nat) : vaultRecordType is 
 block {
 
     const vaultRecord : vaultRecordType = record [
                         
         address                     = vaultAddress;
-        collateralBalanceLedger     = (map[] : collateralBalanceLedgerType); // init empty collateral balance ledger map
+        collateralBalanceLedger     = (map[] : collateralBalanceLedgerType);
         loanToken                   = loanTokenName;
         vaultConfig                 = vaultConfig;
 
@@ -382,6 +381,9 @@ block {
 
         markedForLiquidationLevel   = 0n;
         liquidationEndLevel         = 0n;
+
+        penaltyFee                  = 0n;
+        lastInterestPayment         = Mavryk.get_now();
     ];
     
 } with vaultRecord
@@ -416,10 +418,10 @@ block {
 
 
 // helper function to get vault config record 
-function getVaultConfigRecord(const vaultConfigName : string; const s : lendingControllerStorageType) : vaultConfigRecordType is
+function getVaultConfigRecord(const vaultConfig : nat; const s : lendingControllerStorageType) : vaultConfigRecordType is
 block {
 
-    const vaultConfigRecord : vaultConfigRecordType = case s.vaultConfigLedger[vaultConfigName] of [
+    const vaultConfigRecord : vaultConfigRecordType = case s.vaultConfigLedger[vaultConfig] of [
             Some(_record) -> _record
         |   None          -> failwith(error_VAULT_CONFIG_RECORD_NOT_FOUND)
     ];
@@ -957,9 +959,10 @@ block {
 function isPenalizedForLiquidation(const interestRepaymentPeriod : nat; const lastInterestPayment : timestamp; const missedPeriodsForLiquidation : nat) : bool is 
 block {
     
-    const currentTimestamp : timestamp           = Mavryk.get_now();
-    const interestRepaymentPeriodInSeconds : nat = ((interestRepaymentPeriod * missedPeriodsForLiquidation) * 86400n);
-    const isPenalized : bool                     = currentTimestamp > (lastInterestPayment + interestRepaymentPeriodInSeconds);
+    const currentTimestamp : timestamp              = Mavryk.get_now();
+    const interestRepaymentPeriodInSeconds : int    = int((interestRepaymentPeriod * missedPeriodsForLiquidation) * 86400n);
+    const lastInterestPaymentWithPeriod : timestamp = lastInterestPayment + interestRepaymentPeriodInSeconds;
+    const isPenalized : bool                        = currentTimestamp > lastInterestPaymentWithPeriod;
     
 } with isPenalized
 
@@ -974,21 +977,26 @@ function applyVaultPenaltyFee(
     const lastInterestPayment : timestamp
 ) : nat is block {
 
-    // todo: add grace period?
     const currentTimestamp : timestamp               = Mavryk.get_now();
     const interestRepaymentGraceInSeconds : nat      = interestRepaymentGrace * 86_400n;
     var penaltyFee : nat                            := 0n;
 
-    var numberOfInterestRepaymentPeriodsMissed : nat  := 0n;
+    // var numberOfInterestRepaymentPeriodsMissed : nat  := 0n;
+
     if currentTimestamp > lastInterestPayment then {
         if interestRepaymentPeriod > 0n then {
             // check if within grace period
             const withinGracePeriod : int = currentTimestamp - (lastInterestPayment + int(interestRepaymentGraceInSeconds));
             if withinGracePeriod > 0 then {
+                
                 // grace period exceeded, apply penalty fee
-                numberOfInterestRepaymentPeriodsMissed := abs(currentTimestamp - lastInterestPayment) / interestRepaymentPeriod;
+                
                 // penalty fee is total interest at this point in time multiplied by interest repayment periods missed
                 penaltyFee := (loanInterestTotal * penaltyFeePercentage * fixedPointAccuracy) / 10_000n / fixedPointAccuracy;
+
+                // todo: penalty fee based on total interest repayment periods missed, or based on just loan interest total 
+                // numberOfInterestRepaymentPeriodsMissed := abs(currentTimestamp - lastInterestPayment) / interestRepaymentPeriod;
+
             };
         } else skip;
     } else skip;

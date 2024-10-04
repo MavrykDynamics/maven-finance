@@ -148,7 +148,7 @@ function registerVaultCreationOperation(
     const vaultOwner : address; 
     const vaultId : nat; 
     const vaultAddress : address; 
-    const vaultConfig : string; 
+    const vaultConfig : nat; 
     const loanTokenName : string; 
     const lendingControllerAddress : address
 ) : operation is

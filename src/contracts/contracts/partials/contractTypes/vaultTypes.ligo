@@ -94,9 +94,6 @@ type vaultStorageType is record [
     name                    : string;                   // vault name
     handle                  : vaultHandleType;          // owner of the vault
     depositors              : depositorsType;           // users who can deposit into the vault    
-    vaultConfig             : string;                   // vault config
-
-    // lastInterestPayment     : timestamp;                // timestamp of last interest payment
-
+    vaultConfig             : nat;                      // vault config
 ]
 

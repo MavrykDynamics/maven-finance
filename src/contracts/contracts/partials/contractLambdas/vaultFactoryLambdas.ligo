@@ -289,7 +289,7 @@ block{
 
                 // init variables
                 const vaultDelegate         : option(key_hash)  = createVaultParams.baker;
-                const vaultConfig           : string            = createVaultParams.vaultConfig;
+                const vaultConfig           : nat               = createVaultParams.vaultConfig;
                 const vaultLoanTokenName    : string            = createVaultParams.loanTokenName; // e.g. USDT, EURT 
                 const vaultOwner            : address           = Mavryk.get_sender();
                 const newVaultId            : vaultIdType       = s.vaultCounter;
@@ -359,7 +359,7 @@ block{
                     if tokenName =/= "mav" then {
                         
                         const processVaultDepositOperation : operation = processVaultCollateralTransfer(
-                            Mavryk.get_sender(),         // from_
+                            Mavryk.get_sender(),        // from_
                             vaultAddress,               // to_
                             amount,                     // amount
                             tokenType                   // tokenType

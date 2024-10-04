@@ -24,7 +24,13 @@ const vaultConfig = {
 
     maxVaultLiquidationPercent  : 5000,    // 50%      
     liquidationDelayInMins      : 120,
-    liquidationMaxDuration      : 1440
+    liquidationMaxDuration      : 1440,
+
+    interestRepaymentPeriod      : 0,
+    missedPeriodsForLiquidation  : 0,
+    interestRepaymentGrace       : 0,    
+    penaltyFeePercentage         : 0,    
+    liquidationConfig            : 0
 }
 
 const vaultRwaConfig = {
@@ -40,7 +46,13 @@ const vaultRwaConfig = {
 
     maxVaultLiquidationPercent  : 5000,    // 50%      
     liquidationDelayInMins      : 120,
-    liquidationMaxDuration      : 1440
+    liquidationMaxDuration      : 1440,
+
+    interestRepaymentPeriod      : 30,
+    missedPeriodsForLiquidation  : 4,
+    interestRepaymentGrace       : 10,    
+    penaltyFeePercentage         : 10,    
+    liquidationConfig            : "rwa"  
 }
 
 const breakGlassConfig = {
@@ -66,6 +78,37 @@ const breakGlassConfig = {
     vaultWithdrawStakedTokenIsPaused    : false
 }
 
+const vaultConfigLedger = MichelsonMap.fromLiteral({
+    0: vaultConfig,
+    1: vaultRwaConfig
+})
+
+
+const breakGlassLedger = MichelsonMap.fromLiteral({
+    
+    "vaultDeposit" : false,
+    "vaultWithdraw" : false,
+    "onLiquidate" : false,
+
+    "setLoanToken" : false,
+    "addLiquidity" : false,
+    "removeLiquidity" : false,
+
+    "updateCollateralToken" : false,
+    "createVault" : false,
+    "closeVault" : false,
+    "registerDeposit" : false,
+    "registerWithdrawal" : false,
+    "markForLiquidation" : false,
+
+    "liquidateVault" : false,
+    "borrow" : false,
+    "repay" : false,
+
+    "vaultDepositStakedToken" : false,
+    "vaultWithdrawStakedToken" : false,
+})
+
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
@@ -87,9 +130,12 @@ export const lendingControllerStorage : lendingControllerStorageType = {
     admin                           : bob.pkh,
     metadata                        : metadata,
     config                          : config,
-    vaultConfig                     : vaultConfig,
-    vaultRwaConfig                  : vaultRwaConfig,
-    breakGlassConfig                : breakGlassConfig,
+    
+    // vaultRwaConfig                  : vaultRwaConfig,
+    // breakGlassConfig                : breakGlassConfig,
+
+    vaultConfigLedger               : vaultConfigLedger,
+    breakGlassLedger                : breakGlassLedger,
 
     mvnTokenAddress                 : zeroAddress,
     governanceAddress               : zeroAddress,

@@ -262,7 +262,7 @@ block {
 
 
 // helper function to get break glass config from lending controller 
-function getBreakGlassConfigFromLendingController(const s : vaultStorageType) : lendingControllerBreakGlassConfigType is 
+function getBreakGlassConfigFromLendingController(const entrypoint : string; const s : vaultStorageType) : bool is 
 block {
 
     // Get Governance Address from vault factory
@@ -272,13 +272,16 @@ block {
     const lendingControllerAddress  : address = getContractAddressFromGovernanceContract("lendingController", governanceAddress, error_LENDING_CONTROLLER_CONTRACT_NOT_FOUND);
 
     // get break glass config from lending controller
-    const getBreakGlassConfigView : option (lendingControllerBreakGlassConfigType) = Mavryk.call_view ("getBreakGlassConfig", unit, lendingControllerAddress);
-    const breakGlassConfig : lendingControllerBreakGlassConfigType = case getBreakGlassConfigView of [
-            Some (_breakGlassConfig) -> _breakGlassConfig
-        |   None                     -> failwith(error_BREAK_GLASS_CONFIG_NOT_FOUND_IN_LENDING_CONTROLLER)
+    const getBreakGlassConfigView : option (option(bool)) = Mavryk.call_view ("getBreakGlassConfig", entrypoint, lendingControllerAddress);
+    const breakGlassPauseBool : bool = case getBreakGlassConfigView of [
+            Some (_getBreakGlassConfigView) -> case _getBreakGlassConfigView of [
+                    Some(_pauseBool) -> _pauseBool
+                |   None -> False
+            ]
+        |   None                        -> failwith(error_BREAK_GLASS_CONFIG_NOT_FOUND_IN_LENDING_CONTROLLER)
     ];
 
-} with breakGlassConfig
+} with breakGlassPauseBool
 
 
 
@@ -411,12 +414,12 @@ block {
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// verify that %vaultDeposit is not paused
+// verify that %vaultWithdraw is not paused
 function verifyVaultDepositIsNotPaused(var s : vaultStorageType) : unit is
 block {
 
-    const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
-    verifyEntrypointIsNotPaused(breakGlassConfig.vaultDepositIsPaused, error_VAULT_DEPOSIT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    const breakGlassPauseBool : bool = getBreakGlassConfigFromLendingController("vaultDeposit", s);    
+    verifyEntrypointIsNotPaused(breakGlassPauseBool, error_VAULT_DEPOSIT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
 } with unit
 
@@ -426,8 +429,8 @@ block {
 function verifyVaultWithdrawIsNotPaused(var s : vaultStorageType) : unit is
 block {
 
-    const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
-    verifyEntrypointIsNotPaused(breakGlassConfig.vaultWithdrawIsPaused, error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    const breakGlassPauseBool : bool = getBreakGlassConfigFromLendingController("vaultWithdraw", s);    
+    verifyEntrypointIsNotPaused(breakGlassPauseBool, error_VAULT_WITHDRAW_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
 } with unit
 
@@ -437,8 +440,8 @@ block {
 function verifyVaultOnLiquidateIsNotPaused(var s : vaultStorageType) : unit is
 block {
 
-    const breakGlassConfig : lendingControllerBreakGlassConfigType = getBreakGlassConfigFromLendingController(s);    
-    verifyEntrypointIsNotPaused(breakGlassConfig.vaultOnLiquidateIsPaused, error_VAULT_ON_LIQUIDATE_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    const breakGlassPauseBool : bool = getBreakGlassConfigFromLendingController("onLiquidate", s);    
+    verifyEntrypointIsNotPaused(breakGlassPauseBool, error_VAULT_ON_LIQUIDATE_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
 
 } with unit
 

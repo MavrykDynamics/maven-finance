@@ -6,9 +6,11 @@ export type lendingControllerStorageType = {
     admin                       : string;
     metadata                    : MichelsonMap<MichelsonMapKey, unknown>;    
     config                      : {};
-    vaultConfig                 : {};
-    vaultRwaConfig              : {};
-    breakGlassConfig            : {};
+    // vaultConfig                 : {};
+    // vaultRwaConfig              : {};
+    
+    vaultConfigLedger           : MichelsonMap<MichelsonMapKey, unknown>;    
+    breakGlassLedger            : MichelsonMap<MichelsonMapKey, unknown>;    
 
     mvnTokenAddress             : string;
     governanceAddress           : string;
