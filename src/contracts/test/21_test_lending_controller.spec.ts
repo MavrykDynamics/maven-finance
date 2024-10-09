@@ -1359,11 +1359,12 @@ describe("Lending Controller tests", async () => {
                 const vaultOwner            = eve.pkh;
                 const vaultName             = "newVault";
                 const loanTokenName         = "usdt";
-                
+                const vaultConfig           = 0; 
                 const depositorsConfig      = "any";
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     baker.pkh,              // delegate to
+                    vaultConfig,            // vault config - standard type
                     loanTokenName,          // loan token name
                     vaultName,              // vault name
                     null,                   // collateral tokens
@@ -1407,11 +1408,12 @@ describe("Lending Controller tests", async () => {
                 const vaultOwner                = mallory.pkh;
                 const vaultName                 = "newVault";
                 const loanTokenName             = "usdt";
-
+                const vaultConfig               = 0; // vault config - standard type
                 const depositorsConfig          = "whitelist";
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     baker.pkh,  
+                    vaultConfig,                     
                     loanTokenName,
                     vaultName,
                     null,
@@ -1458,11 +1460,12 @@ describe("Lending Controller tests", async () => {
                 const vaultOwner                = mallory.pkh;
                 const vaultName                 = "newVault";
                 const loanTokenName             = "eurt";
-
+                const vaultConfig               = 0; // vault config - standard type
                 const depositorsConfig          = "any";
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     baker.pkh,  
+                    vaultConfig,
                     loanTokenName,
                     vaultName,
                     null,
@@ -1506,11 +1509,12 @@ describe("Lending Controller tests", async () => {
                 const vaultOwner                = eve.pkh;
                 const vaultName                 = "newVault";
                 const loanTokenName             = "eurt";
-
+                const vaultConfig           = 0; // vault config - standard type
                 const depositorsConfig          = "whitelist";
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     baker.pkh,  
+                    vaultConfig,
                     loanTokenName,
                     vaultName,
                     null,
@@ -1556,12 +1560,13 @@ describe("Lending Controller tests", async () => {
                 const vaultOwner                = eve.pkh;
                 const vaultName                 = "newVault";
                 const loanTokenName             = "mav";
-
+                const vaultConfig               = 0; // vault config - standard type
                 const depositorsConfig          = "whitelist";
 
                 // user (eve) creates a new vault
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                     baker.pkh,  
+                    vaultConfig,
                     loanTokenName,
                     vaultName,
                     null,
@@ -3040,17 +3045,18 @@ describe("Lending Controller tests", async () => {
             const vaultOwner         = eve.pkh;
             const borrowAmount       = 1000000; // 1 Mock FA12 Tokens
 
-            const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
-            const minimumLoanFeePercent  = lendingControllerStorage.vaultConfig.minimumLoanFeePercent; // e.g. 1%
-            const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
-            const finalLoanAmount        = borrowAmount - minimumLoanFee;
-
             // setup vault handle and vault record
             const vaultHandle = {
                 "id"    : vaultId,
                 "owner" : vaultOwner
             };
             const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            const vaultConfigRecord      = lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+            const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
+            const minimumLoanFeePercent  = vaultConfigRecord.minimumLoanFeePercent; // e.g. 1%
+            const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
+            const finalLoanAmount        = borrowAmount - minimumLoanFee;
 
             // get initial loan variables
             const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();
@@ -3094,17 +3100,18 @@ describe("Lending Controller tests", async () => {
             const vaultOwner         = eve.pkh;
             const borrowAmount       = 1000000; // 1 Mock FA2 Tokens
 
-            const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
-            const minimumLoanFeePercent  = lendingControllerStorage.vaultConfig.minimumLoanFeePercent; // e.g. 1%
-            const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
-            const finalLoanAmount        = borrowAmount - minimumLoanFee;
-
             // setup vault handle and vault record
             const vaultHandle = {
                 "id"    : vaultId,
                 "owner" : vaultOwner
             };
             const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            const vaultConfigRecord      = lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+            const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
+            const minimumLoanFeePercent  = vaultConfigRecord.minimumLoanFeePercent; // e.g. 1%
+            const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
+            const finalLoanAmount        = borrowAmount - minimumLoanFee;
 
             // get initial variables
             const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();
@@ -3147,17 +3154,18 @@ describe("Lending Controller tests", async () => {
             const vaultOwner         = eve.pkh;
             const borrowAmount       = 1000000; // 1 Mav
 
-            const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
-            const minimumLoanFeePercent  = lendingControllerStorage.vaultConfig.minimumLoanFeePercent; // e.g. 1%
-            const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
-            const finalLoanAmount        = borrowAmount - minimumLoanFee;
-
             // setup vault handle and vault record
             const vaultHandle = {
                 "id"    : vaultId,
                 "owner" : vaultOwner
             };
             const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            const vaultConfigRecord      = lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+            const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
+            const minimumLoanFeePercent  = vaultConfigRecord.minimumLoanFeePercent; // e.g. 1%
+            const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
+            const finalLoanAmount        = borrowAmount - minimumLoanFee;
 
             // get initial variables
             const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();
@@ -3199,17 +3207,18 @@ describe("Lending Controller tests", async () => {
             const vaultOwner         = eve.pkh;
             const borrowAmount       = 1000000; // 1 Mock FA12 Tokens
 
-            const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
-            const minimumLoanFeePercent  = lendingControllerStorage.vaultConfig.minimumLoanFeePercent; // e.g. 1%
-            const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
-            const finalLoanAmount        = borrowAmount - minimumLoanFee;
-
             // setup vault handle and vault record
             const vaultHandle = {
                 "id"    : vaultId,
                 "owner" : vaultOwner
             };
             const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            const vaultConfigRecord      = lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+            const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
+            const minimumLoanFeePercent  = vaultConfigRecord.minimumLoanFeePercent; // e.g. 1%
+            const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
+            const finalLoanAmount        = borrowAmount - minimumLoanFee;
 
             // get initial loan variables
             const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();
@@ -3369,17 +3378,18 @@ describe("Lending Controller tests", async () => {
             const vaultOwner         = eve.pkh;
             const borrowAmount       = 3000000; // 3 Mock FA12 Tokens
 
-            const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
-            const minimumLoanFeePercent  = lendingControllerStorage.vaultConfig.minimumLoanFeePercent; // e.g. 1%
-            const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
-            const finalLoanAmount        = borrowAmount - minimumLoanFee;
-
             // setup vault handle and vault record
             const vaultHandle = {
                 "id"    : vaultId,
                 "owner" : vaultOwner
             };
             const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
+
+            const vaultConfigRecord      = lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+            const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
+            const minimumLoanFeePercent  = vaultConfigRecord.minimumLoanFeePercent; // e.g. 1%
+            const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
+            const finalLoanAmount        = borrowAmount - minimumLoanFee;
 
             // get initial loan variables
             const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();
@@ -4667,6 +4677,82 @@ describe("Lending Controller tests", async () => {
         });
 
         it('%updateConfig             - admin (bob) should be able to update contract config', async () => {
+            try{
+                
+                // Initial Values
+                const initialLendingControllerStorage = await lendingControllerInstance.storage();
+                
+                const newTestValue = 7;
+
+                // Operation
+                let updateConfigOperation = await lendingControllerInstance.methods.updateConfig(
+                    [
+                        {
+                            configName: "decimals",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "interestRateDecimals",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "maxDecimalsForCalculation",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "lastCompletedDataMaxDelay",
+                            newValue: newTestValue
+                        },
+                    ]
+                ).send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                lendingControllerStorage           = await lendingControllerInstance.storage();
+
+                // Assertions
+                assert.equal(newTestValue, lendingControllerStorage.config.decimals);
+                assert.equal(newTestValue, lendingControllerStorage.config.interestRateDecimals);
+                assert.equal(newTestValue, lendingControllerStorage.config.maxDecimalsForCalculation);
+                assert.equal(newTestValue, lendingControllerStorage.config.lastCompletedDataMaxDelay);
+
+                // reset config operation
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(
+                    [
+                        {
+                            configName: "decimals",
+                            newValue: initialLendingControllerStorage.config.decimals
+                        },
+                        {
+                            configName: "interestRateDecimals",
+                            newValue: initialLendingControllerStorage.config.interestRateDecimals
+                        },
+                        {
+                            configName: "maxDecimalsForCalculation",
+                            newValue: initialLendingControllerStorage.config.maxDecimalsForCalculation
+                        },
+                        {
+                            configName: "lastCompletedDataMaxDelay",
+                            newValue: initialLendingControllerStorage.config.lastCompletedDataMaxDelay
+                        },
+                    ]
+                ).send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                lendingControllerStorage = await lendingControllerInstance.storage();
+
+                assert.equal(initialLendingControllerStorage.config.decimals.toNumber()                 , lendingControllerStorage.config.decimals.toNumber());
+                assert.equal(initialLendingControllerStorage.config.interestRateDecimals.toNumber()     , lendingControllerStorage.config.interestRateDecimals.toNumber());
+                assert.equal(initialLendingControllerStorage.config.maxDecimalsForCalculation.toNumber(), lendingControllerStorage.config.maxDecimalsForCalculation.toNumber());
+                assert.equal(initialLendingControllerStorage.config.lastCompletedDataMaxDelay.toNumber(), lendingControllerStorage.config.lastCompletedDataMaxDelay.toNumber());
+                
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%setVaultConfig             - admin (bob) should be able to set vault config', async () => {
             try{
                 
                 // Initial Values
