@@ -57,6 +57,7 @@ const config = {
     interestRateDecimals        : 27,      // interest rate decimals
     maxDecimalsForCalculation   : 32,
     lastCompletedDataMaxDelay   : 9999999999, // for testing purposes - prod: 300 (i.e. 5 mins) 
+    mockLevel                   : 0
 }
 
 const vaultConfig = {
@@ -78,7 +79,7 @@ const vaultConfig = {
     missedPeriodsForLiquidation  : 0,
     interestRepaymentGrace       : 0,    
     penaltyFeePercentage         : 0,    
-    liquidationConfig            : "standard"  
+    liquidationConfig            : 0
 }
 
 const vaultRwaConfig = {
@@ -179,8 +180,7 @@ export const lendingControllerMockTimeStorage : lendingControllerMockTimeStorage
     admin                           : bob.pkh,
     tester                          : bob.pkh,
     metadata                        : metadata,
-    // config                          : config,
-    // breakGlassConfig                : breakGlassConfig,
+    config                          : config,
 
     vaultConfigLedger               : vaultConfigLedger,
     breakGlassLedger                : breakGlassLedger,

@@ -52,7 +52,7 @@ const vaultRwaConfig = {
     missedPeriodsForLiquidation  : 4,
     interestRepaymentGrace       : 10,    
     penaltyFeePercentage         : 10,    
-    liquidationConfig            : "rwa"  
+    liquidationConfig            : 1
 }
 
 const breakGlassConfig = {
@@ -131,9 +131,6 @@ export const lendingControllerStorage : lendingControllerStorageType = {
     metadata                        : metadata,
     config                          : config,
     
-    // vaultRwaConfig                  : vaultRwaConfig,
-    // breakGlassConfig                : breakGlassConfig,
-
     vaultConfigLedger               : vaultConfigLedger,
     breakGlassLedger                : breakGlassLedger,
 
