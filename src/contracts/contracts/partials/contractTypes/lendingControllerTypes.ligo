@@ -35,9 +35,9 @@ type vaultConfigRecordType is [@layout:comb] record [
     liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
     liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
 
-    interestRepaymentPeriod      : nat;         // number of days in which vault has to repay interest in (e.g. every 30 days)
+    interestRepaymentPeriod      : nat;         // number of mins in which vault has to repay interest in (e.g. every 30 days)
     missedPeriodsForLiquidation  : nat;         // number of missed interest repayment periods before vault can be liquidated
-    interestRepaymentGrace       : nat;         // grace period in days before fee penalty is applied
+    repaymentWindow              : nat;         // repayment window (in mins) before fee penalty is applied if interest total did not reach zero
     penaltyFeePercentage         : nat;         // percentage of interest outstanding that will be counted as penalty fee
     liquidationConfig            : nat;         // liquidation config - 0: standard, 1: rwa
 ]
@@ -65,6 +65,7 @@ type collateralTokenRecordType is [@layout:comb] record [
     tokenType               : tokenType; 
 
     isPaused                : bool;
+    isRwa                   : bool;
 ]
 type collateralTokenLedgerType is big_map(string, collateralTokenRecordType) 
 
@@ -125,9 +126,25 @@ type vaultRecordType is [@layout:comb] record [
     markedForLiquidationLevel   : nat;                           // block level of when vault was marked for liquidation
     liquidationEndLevel         : nat;                           // block level of when vault will no longer be liquidated, or will need to be marked for liquidation again
 
-    penaltyFee                  : nat;                           // for RWA-type vault as an addition fee to be cleared
-    lastInterestPayment         : timestamp;                     // for RWA-type vault on last interest payment
+    // penaltyFee                  : nat;                           // for RWA-type vault as an addition fee to be cleared
+    loanStartTimestamp          : timestamp;                     // for RWA-type vaults on when loan was first taken
+    lastInterestCleared         : timestamp;                     // for RWA-type vault on last interest payment cleared
+    interestCleared             : bool;                          // for RWA-type vault to track when interest total has reached 0
+
+    penaltyAppliedTimestamp     : option(timestamp);             // for RWA-type vault, on when penalty was last applied
+    penaltyApplied              : bool;                          // for RWA-type vault, check if penalty has already been applied
+    
+    // penaltyLiquidationApplied   : bool; // 
 ]
+
+ // penaltyLedger               : map()
+ // penaltyCounter              : nat;
+type vaultPenaltyRecordType is [@layout:comb] record [
+    entrypoint                  : 
+    penaltyFee                  : nat;
+    penaltyTimestamp            : timestamp;
+]
+type vaultPenaltyEventLedger is big_map(address, vaultPenaltyRecordType)
 
 // owner types
 type ownerVaultSetType              is set(vaultIdType)                     // set of vault ids belonging to the owner 
@@ -214,28 +231,9 @@ type updateLoanTokenActionType is [@layout:comb] record [
 ]
 
 
-type setVaultConfigActionType is [@layout:comb] record[
-    vaultConfig                  : nat;         // vault config id
-    collateralRatio              : nat;         // collateral ratio
-    liquidationRatio             : nat;         // liquidation ratio
-    
-    liquidationFeePercent        : nat;         // liquidation fee percent - penalty fee paid by vault owner to liquidator
-    adminLiquidationFeePercent   : nat;         // admin liquidation fee percent - penalty fee paid by vault owner to treasury
-    minimumLoanFeePercent        : nat;         // minimum loan fee percent - taken at first minting
-
-    minimumLoanFeeTreasuryShare  : nat;         // percentage of minimum loan fee that goes to the treasury
-    interestTreasuryShare        : nat;         // percentage of interest that goes to the treasury
-
-    maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% on AAVE)
-    liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
-    liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
-
-    interestRepaymentPeriod      : nat;         // number of days in which vault has to repay interest in (e.g. every 30 days)
-    missedPeriodsForLiquidation  : nat;         // number of missed interest repayment periods before vault can be liquidated
-    interestRepaymentGrace       : nat;         // grace period in days before fee penalty is applied
-    penaltyFeePercentage         : nat;         // percentage of interest outstanding that will be counted as penalty fee
-    liquidationConfig            : nat;         // liquidation config - rwa / standard
-]
+type setVaultConfigActionType is 
+    |   SetNewVaultConfig    of (nat * vaultConfigRecordType)                      // vault config id * vault config record
+    |   UpdateVaultConfig    of (nat * lendingControllerUpdateConfigActionType)    // vault config id * update config list
 
 
 type setLoanTokenType is 
@@ -317,12 +315,6 @@ type liquidateRwaVaultActionType is [@layout:comb] record [
     amount      : nat;
 ]
 
-
-// type processInterestPaymentSingleType is [@layout:comb] record [
-//     vaultId     : nat;
-//     vaultOwner  : address;
-// ]
-// type processInterestPaymentActionType is list(processInterestPaymentSingleType)
 
 type borrowActionType is [@layout:comb] record [ 
     vaultId     : nat; 

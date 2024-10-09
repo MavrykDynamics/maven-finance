@@ -19,7 +19,7 @@ type aggregatorConfigType is [@layout:comb] record [
     heartbeatSeconds                    : nat;
 
     rewardAmountStakedMvn               : nat;
-    rewardAmountMvrk                     : nat;
+    rewardAmountMvrk                    : nat;
 ];
 
 type aggregatorBreakGlassConfigType is [@layout:comb] record [
