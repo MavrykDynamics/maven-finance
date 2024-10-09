@@ -211,28 +211,9 @@ type updateLoanTokenActionType is [@layout:comb] record [
 ]
 
 
-type setVaultConfigActionType is [@layout:comb] record[
-    vaultConfig                  : nat;         // vault config id
-    collateralRatio              : nat;         // collateral ratio
-    liquidationRatio             : nat;         // liquidation ratio
-    
-    liquidationFeePercent        : nat;         // liquidation fee percent - penalty fee paid by vault owner to liquidator
-    adminLiquidationFeePercent   : nat;         // admin liquidation fee percent - penalty fee paid by vault owner to treasury
-    minimumLoanFeePercent        : nat;         // minimum loan fee percent - taken at first minting
-
-    minimumLoanFeeTreasuryShare  : nat;         // percentage of minimum loan fee that goes to the treasury
-    interestTreasuryShare        : nat;         // percentage of interest that goes to the treasury
-
-    maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% on AAVE)
-    liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
-    liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
-
-    interestRepaymentPeriod      : nat;         // number of days in which vault has to repay interest in (e.g. every 30 days)
-    missedPeriodsForLiquidation  : nat;         // number of missed interest repayment periods before vault can be liquidated
-    interestRepaymentGrace       : nat;         // grace period in days before fee penalty is applied
-    penaltyFeePercentage         : nat;         // percentage of interest outstanding that will be counted as penalty fee
-    liquidationConfig            : nat;         // liquidation config - 0: standard, 1: rwa
-]
+type setVaultConfigActionType is 
+    |   SetNewVaultConfig    of (nat * vaultConfigRecordType)                      // vault config id * vault config record
+    |   UpdateVaultConfig    of (nat * lendingControllerUpdateConfigActionType)    // vault config id * update config list
 
 
 type setLoanTokenType is 

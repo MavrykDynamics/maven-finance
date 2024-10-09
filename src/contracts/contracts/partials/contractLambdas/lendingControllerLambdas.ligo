@@ -62,13 +62,11 @@ block {
                     const configName : string = updateConfigParams.configName;
                     const newValue : nat      = updateConfigParams.newValue;
 
-                    if configName = "decimals" then {
-                        s.config.decimals := newValue;
-                    } else if configName = "interestRateDecimals" then {
-                        s.config.interestRateDecimals := newValue;
-                    } else if configName = "maxDecimalsForCalculation" then {
-                        s.config.maxDecimalsForCalculation := newValue;
-                    } else if configName = "lastCompletedDataMaxDelay" then {
+                    if configName = "decimals" or 
+                       configName = "interestRateDecimals" or 
+                       configName = "lastCompletedDataMaxDelay" 
+                    then failwith("error_INVALID_CONFIG_NOT_ALLOWED") 
+                    else if configName = "lastCompletedDataMaxDelay" then {
                         s.config.lastCompletedDataMaxDelay := newValue;
                     } else failwith(error_INVALID_CONFIG_NAME);
 
@@ -137,29 +135,67 @@ block {
     case lendingControllerLambdaAction of [
         |   LambdaSetVaultConfig(setVaultConfigParams) -> {
 
-                const vaultConfig : nat = setVaultConfigParams.vaultConfig;
-                const vaultConfigRecord : vaultConfigRecordType = record [
-                    collateralRatio              = setVaultConfigParams.collateralRatio;
-                    liquidationRatio             = setVaultConfigParams.liquidationRatio;
-                    
-                    liquidationFeePercent        = setVaultConfigParams.liquidationFeePercent;
-                    adminLiquidationFeePercent   = setVaultConfigParams.adminLiquidationFeePercent;
-                    minimumLoanFeePercent        = setVaultConfigParams.minimumLoanFeePercent; 
+                case setVaultConfigParams of [
+                    |   SetNewVaultConfig(setNewVaultConfigParams) -> {
 
-                    minimumLoanFeeTreasuryShare  = setVaultConfigParams.minimumLoanFeeTreasuryShare;
-                    interestTreasuryShare        = setVaultConfigParams.interestTreasuryShare;
+                            const vaultConfigId : nat                       = setNewVaultConfigParams.0;
+                            const vaultConfigRecord : vaultConfigRecordType = setNewVaultConfigParams.1;
+                            s.vaultConfigLedger[vaultConfigId] := vaultConfigRecord;
 
-                    maxVaultLiquidationPercent   = setVaultConfigParams.maxVaultLiquidationPercent;
-                    liquidationDelayInMins       = setVaultConfigParams.liquidationDelayInMins;
-                    liquidationMaxDuration       = setVaultConfigParams.liquidationMaxDuration;
+                        }
+                    |   UpdateVaultConfig(updateVaultConfigParams) -> {
 
-                    interestRepaymentPeriod      = setVaultConfigParams.interestRepaymentPeriod;
-                    missedPeriodsForLiquidation  = setVaultConfigParams.missedPeriodsForLiquidation;
-                    interestRepaymentGrace       = setVaultConfigParams.interestRepaymentGrace;
-                    penaltyFeePercentage         = setVaultConfigParams.penaltyFeePercentage;
-                    liquidationConfig            = setVaultConfigParams.liquidationConfig;
+                            const vaultConfigId : nat = updateVaultConfigParams.0;
+                            const updateConfigListParams : lendingControllerUpdateConfigActionType = updateVaultConfigParams.1;
+
+                            var vaultConfigRecord : vaultConfigRecordType := case s.vaultConfigLedger[vaultConfigId] of [
+                                    Some(_record) -> _record
+                                |   None          -> failwith(error_VAULT_CONFIG_RECORD_NOT_FOUND)
+                            ];
+
+                            for updateConfigParams in list updateConfigListParams {
+
+                                const configName : string = updateConfigParams.configName;
+                                const newValue : nat      = updateConfigParams.newValue;
+
+                                if configName = "collateralRatio" then {
+                                    vaultConfigRecord.collateralRatio := newValue;
+                                } else if configName = "liquidationRatio" then {
+                                    vaultConfigRecord.liquidationRatio := newValue;
+                                } else if configName = "liquidationFeePercent" then {
+                                    vaultConfigRecord.liquidationFeePercent := newValue;
+                                } else if configName = "adminLiquidationFeePercent" then {
+                                    vaultConfigRecord.adminLiquidationFeePercent := newValue;
+                                } else if configName = "minimumLoanFeePercent" then {
+                                    vaultConfigRecord.minimumLoanFeePercent := newValue;
+                                } else if configName = "minimumLoanFeeTreasuryShare" then {
+                                    vaultConfigRecord.minimumLoanFeeTreasuryShare := newValue;
+                                } else if configName = "interestTreasuryShare" then {
+                                    vaultConfigRecord.interestTreasuryShare := newValue;
+                                } else if configName = "maxVaultLiquidationPercent" then {
+                                    vaultConfigRecord.maxVaultLiquidationPercent := newValue;
+                                } else if configName = "liquidationDelayInMins" then {
+                                    vaultConfigRecord.liquidationDelayInMins := newValue;
+                                } else if configName = "liquidationMaxDuration" then {
+                                    vaultConfigRecord.liquidationMaxDuration := newValue;
+                                } else if configName = "interestRepaymentPeriod" then {
+                                    vaultConfigRecord.interestRepaymentPeriod := newValue;
+                                } else if configName = "missedPeriodsForLiquidation" then {
+                                    vaultConfigRecord.missedPeriodsForLiquidation := newValue;
+                                } else if configName = "interestRepaymentGrace" then {
+                                    vaultConfigRecord.interestRepaymentGrace := newValue;
+                                } else if configName = "penaltyFeePercentage" then {
+                                    vaultConfigRecord.penaltyFeePercentage := newValue;
+                                } else if configName = "liquidationConfig" then {
+                                    vaultConfigRecord.liquidationConfig := newValue;
+                                } else failwith(error_INVALID_CONFIG_NAME);
+                            };
+
+                            // update vault config record
+                            s.vaultConfigLedger[vaultConfigId] := vaultConfigRecord;
+
+                        }
                 ];
-                s.vaultConfigLedger[vaultConfig] := vaultConfigRecord;
 
             }
         |   _ -> skip
@@ -1369,6 +1405,7 @@ block {
                 // Calculate penalty fees if applicable
                 // ------------------------------------------------------------------
 
+                // for RWA-type vaults
                 if interestRepaymentPeriod > 0n then {
                     
                     // calculate vault penalty fee - will be 0 if it doesnt apply
@@ -1382,6 +1419,11 @@ block {
 
                     // prevent vault from borrowing until penalty fee has been cleared
                     if vaultPenaltyFee > 0n then failwith(error_VAULT_HAS_PENALTY_FEE) else skip;
+
+                    // check if this is the first borrow
+                    if totalBorrowed = 0 then {
+                        vault.loanStartTimestamp := Mavryk.get_now();
+                    } else skip;
 
                 } else skip;
 
@@ -1524,14 +1566,16 @@ block {
                 // Init variables for convenience
                 const vaultId                   : nat                     = repayParams.vaultId; 
                 const initialRepaymentAmount    : nat                     = repayParams.quantity;
+                const vaultOwner                : address                 = repayParams.vaultOwner;
                 const initiator                 : initiatorAddressType    = Mavryk.get_sender();
+                
                 var finalRepaymentAmount        : nat                    := initialRepaymentAmount;
 
                 // Get Treasury Address from the General Contracts map on the Governance Contract
                 const treasuryAddress : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
                 // Make vault handle
-                const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, initiator);
+                const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
 
                 // ------------------------------------------------------------------
                 // Update vault state
@@ -1712,7 +1756,7 @@ block {
                 if refundTotal > 0n then {
 
                     const processRefundOperation : operation = tokenPoolTransfer(
-                        Mavryk.get_self_address(),   // from_
+                        Mavryk.get_self_address(),  // from_
                         initiator,                  // to_
                         refundTotal,                // amount
                         loanTokenType               // token type
@@ -1725,7 +1769,7 @@ block {
                 // transfer operation should take place first before refund operation (N.B. First In Last Out operations)
                 const processRepayOperation : operation = tokenPoolTransfer(
                     initiator,                  // from_
-                    Mavryk.get_self_address(),   // to_
+                    Mavryk.get_self_address(),  // to_
                     initialRepaymentAmount,     // amount
                     loanTokenType               // token type
                 );
