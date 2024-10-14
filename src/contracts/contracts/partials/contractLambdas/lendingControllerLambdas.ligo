@@ -160,34 +160,56 @@ block {
 
                                 if configName = "collateralRatio" then {
                                     vaultConfigRecord.collateralRatio := newValue;
+                                
                                 } else if configName = "liquidationRatio" then {
                                     vaultConfigRecord.liquidationRatio := newValue;
+                                
                                 } else if configName = "liquidationFeePercent" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
                                     vaultConfigRecord.liquidationFeePercent := newValue;
+
                                 } else if configName = "adminLiquidationFeePercent" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
                                     vaultConfigRecord.adminLiquidationFeePercent := newValue;
+                                
                                 } else if configName = "minimumLoanFeePercent" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
                                     vaultConfigRecord.minimumLoanFeePercent := newValue;
+                                
                                 } else if configName = "minimumLoanFeeTreasuryShare" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
                                     vaultConfigRecord.minimumLoanFeeTreasuryShare := newValue;
+                                
                                 } else if configName = "interestTreasuryShare" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
                                     vaultConfigRecord.interestTreasuryShare := newValue;
+                                
                                 } else if configName = "maxVaultLiquidationPercent" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
                                     vaultConfigRecord.maxVaultLiquidationPercent := newValue;
+                                
                                 } else if configName = "liquidationDelayInMins" then {
                                     vaultConfigRecord.liquidationDelayInMins := newValue;
+                                
                                 } else if configName = "liquidationMaxDuration" then {
                                     vaultConfigRecord.liquidationMaxDuration := newValue;
+                                
                                 } else if configName = "interestRepaymentPeriod" then {
                                     vaultConfigRecord.interestRepaymentPeriod := newValue;
+                                
                                 } else if configName = "missedPeriodsForLiquidation" then {
                                     vaultConfigRecord.missedPeriodsForLiquidation := newValue;
-                                } else if configName = "interestRepaymentGrace" then {
-                                    vaultConfigRecord.interestRepaymentGrace := newValue;
+                                
+                                } else if configName = "repaymentWindow" then {
+                                    vaultConfigRecord.repaymentWindow := newValue;
+                                
                                 } else if configName = "penaltyFeePercentage" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
                                     vaultConfigRecord.penaltyFeePercentage := newValue;
+                                
                                 } else if configName = "liquidationConfig" then {
                                     vaultConfigRecord.liquidationConfig := newValue;
+                                
                                 } else failwith(error_INVALID_CONFIG_NAME);
                             };
 
@@ -582,7 +604,7 @@ block {
                 const vaultConfigRecord : vaultConfigRecordType = getVaultConfigRecord(vault.vaultConfig, s);
                 const interestRepaymentPeriod : nat             = vaultConfigRecord.interestRepaymentPeriod;
                 const penaltyFeePercentage : nat                = vaultConfigRecord.penaltyFeePercentage;
-                const interestRepaymentGrace : nat              = vaultConfigRecord.interestRepaymentGrace;
+                const repaymentWindow : nat                     = vaultConfigRecord.repaymentWindow;
 
                 // Check that vault has zero loan outstanding
                 checkZeroLoanOutstanding(vault);
@@ -593,17 +615,23 @@ block {
 
                 if interestRepaymentPeriod > 0n then {
                     
-                    // calculate vault penalty fee - will be 0 if it doesnt apply
-                    const vaultPenaltyFee : nat = applyVaultPenaltyFee(
-                        vault.loanInterestTotal, 
-                        penaltyFeePercentage, 
-                        interestRepaymentGrace,
-                        interestRepaymentPeriod, 
-                        vault.lastInterestPayment
-                    );
-
-                    // prevent vault from closing until penalty fee has been cleared
-                    if vaultPenaltyFee > 0n then failwith(error_VAULT_HAS_PENALTY_FEE) else skip;
+                    case vault.loanStartTimestamp of [
+                            Some(_loanStartTimestamp) -> {
+                                // calculate vault penalty fee 
+                                const vaultPenaltyFee : nat = applyVaultPenaltyFee(
+                                    vault.loanInterestTotal, 
+                                    penaltyFeePercentage, 
+                                    repaymentWindow,
+                                    interestRepaymentPeriod, 
+                                    _loanStartTimestamp,
+                                    vault.lastInterestCleared,
+                                    vault.penaltyAppliedTimestamp
+                                );
+                                // prevent vault from closing until penalty fee has been cleared
+                                if vaultPenaltyFee > 0n then failwith(error_VAULT_HAS_PENALTY_FEE) else skip;
+                            }
+                        |   None -> skip
+                    ];
 
                 } else skip;
 
@@ -775,7 +803,7 @@ block {
                     const vaultIsUnderCollaterized : bool = isLiquidatable(vault, liquidationRatio, s);
                     const vaultIsPenalized : bool = isPenalizedForLiquidation(
                         interestRepaymentPeriod,
-                        vault.lastInterestPayment,
+                        vault.lastInterestCleared,
                         missedPeriodsForLiquidation
                     );
 
@@ -844,7 +872,7 @@ block {
                 const liquidator         : address   = Mavryk.get_sender();
 
                 // Get Treasury Address from the General Contracts map on the Governance Contract
-                const treasuryAddress           : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+                const treasuryAddress    : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
                 // ------------------------------------------------------------------
                 // Get Vault record and parameters
@@ -875,7 +903,7 @@ block {
                 const interestRepaymentPeriod : nat             = vaultConfigRecord.interestRepaymentPeriod;
                 const missedPeriodsForLiquidation : nat         = vaultConfigRecord.missedPeriodsForLiquidation;
                 const penaltyFeePercentage : nat                = vaultConfigRecord.penaltyFeePercentage;
-                const interestRepaymentGrace : nat              = vaultConfigRecord.interestRepaymentGrace;
+                const repaymentWindow : nat                     = vaultConfigRecord.repaymentWindow;
 
                 // ------------------------------------------------------------------
                 // Check correct duration has passed after being marked for liquidation
@@ -917,7 +945,7 @@ block {
                     const vaultIsUnderCollaterized : bool = isLiquidatable(vault, liquidationRatio, s);
                     const vaultIsPenalized : bool = isPenalizedForLiquidation(
                         interestRepaymentPeriod,
-                        vault.lastInterestPayment,
+                        vault.lastInterestCleared,
                         missedPeriodsForLiquidation
                     );
 
@@ -925,17 +953,46 @@ block {
                         vaultIsLiquidatable := True;
                     };
 
-                    // to check: factor penalty fee into vault liquidations below or keep it separate (require vault owner to clear the penalty fee regardless)
-                    // todo: vault fee will decrease since loan interest total will be cleared by liquidators
-                    // apply penalty fee
-                    const _vaultPenaltyFee : nat = applyVaultPenaltyFee(
-                        vault.loanInterestTotal, 
-                        penaltyFeePercentage, 
-                        interestRepaymentGrace,
-                        interestRepaymentPeriod, 
-                        vault.lastInterestPayment
-                    );
-                    // vault.penaltyFee := vaultPenaltyFee;
+                    case vault.loanStartTimestamp of [
+                            Some(_loanStartTimestamp) -> {
+                                // calculate vault penalty fee 
+                                const vaultPenaltyFee : nat = applyVaultPenaltyFee(
+                                    vault.loanInterestTotal, 
+                                    penaltyFeePercentage, 
+                                    repaymentWindow,
+                                    interestRepaymentPeriod, 
+                                    _loanStartTimestamp,
+                                    vault.lastInterestCleared,
+                                    vault.penaltyAppliedTimestamp
+                                );
+                                
+                                // factor penalty fee into loan principal and outstanding total
+                                if vaultPenaltyFee > 0n then {
+                                    
+                                    vault.loanOutstandingTotal := vault.loanOutstandingTotal + vaultPenaltyFee;
+                                    vault.loanPrincipalTotal := vault.loanPrincipalTotal + vaultPenaltyFee;
+
+                                    // record event
+                                    const vaultPenaltyCounter : nat = vault.penaltyCounter;
+
+                                    // penalty event record
+                                    const vaultPenaltyRecord : vaultPenaltyRecordType = record [
+                                        entrypoint       = "liquidateVault";
+                                        penaltyFee       = vaultPenaltyFee;
+                                        penaltyTimestamp = Mavryk.get_now();
+                                    ];
+                                    s.vaultPenaltyEventLedger[(vaultAddress, vaultPenaltyCounter)] := vaultPenaltyRecord;
+
+                                    // update vault penalty counter
+                                    vault.penaltyCounter := vault.penaltyCounter + 1n;
+
+                                    // update vault penalty timestamp
+                                    vault.penaltyAppliedTimestamp := Some(Mavryk.get_now());
+
+                                } else skip;
+                            }
+                        |   None -> skip
+                    ];
 
                 } else {
                     vaultIsLiquidatable := isLiquidatable(vault, liquidationRatio, s);
@@ -1384,7 +1441,7 @@ block {
                 const collateralRatio : nat                     = vaultConfigRecord.collateralRatio;
                 const interestRepaymentPeriod : nat             = vaultConfigRecord.interestRepaymentPeriod;
                 const penaltyFeePercentage : nat                = vaultConfigRecord.penaltyFeePercentage;
-                const interestRepaymentGrace : nat              = vaultConfigRecord.interestRepaymentGrace;
+                const repaymentWindow : nat                     = vaultConfigRecord.repaymentWindow;
 
                 // ------------------------------------------------------------------
                 // Get Loan Token parameters
@@ -1405,27 +1462,58 @@ block {
                 // Calculate penalty fees if applicable
                 // ------------------------------------------------------------------
 
-                // for RWA-type vaults
+                // process vault penalty fee if interest repayment period greater than 0 (RWA-type vault)
                 if interestRepaymentPeriod > 0n then {
-                    
-                    // calculate vault penalty fee - will be 0 if it doesnt apply
-                    const vaultPenaltyFee : nat = applyVaultPenaltyFee(
-                        vault.loanInterestTotal, 
-                        penaltyFeePercentage, 
-                        interestRepaymentGrace,
-                        interestRepaymentPeriod, 
-                        vault.lastInterestPayment
-                    );
 
-                    // prevent vault from borrowing until penalty fee has been cleared
-                    if vaultPenaltyFee > 0n then failwith(error_VAULT_HAS_PENALTY_FEE) else skip;
+                    // calculate if vault penalty fee applies after loan started
+                    case vault.loanStartTimestamp of [
+                            Some(_loanStartTimestamp) -> {
+                                // calculate vault penalty fee 
+                                const vaultPenaltyFee : nat = applyVaultPenaltyFee(
+                                    vault.loanInterestTotal, 
+                                    penaltyFeePercentage, 
+                                    repaymentWindow,
+                                    interestRepaymentPeriod, 
+                                    _loanStartTimestamp,
+                                    vault.lastInterestCleared,
+                                    vault.penaltyAppliedTimestamp
+                                );
+
+                                // factor penalty fee into loan principal and outstanding total, and record penalty applied
+                                if vaultPenaltyFee > 0n then {
+                                    
+                                    vault.loanOutstandingTotal := vault.loanOutstandingTotal + vaultPenaltyFee;
+                                    vault.loanPrincipalTotal := vault.loanPrincipalTotal + vaultPenaltyFee;
+
+                                    // record event
+                                    const vaultPenaltyCounter : nat = vault.penaltyCounter;
+
+                                    // penalty event record
+                                    const vaultPenaltyRecord : vaultPenaltyRecordType = record [
+                                        entrypoint       = "borrow";
+                                        penaltyFee       = vaultPenaltyFee;
+                                        penaltyTimestamp = Mavryk.get_now();
+                                    ];
+                                    s.vaultPenaltyEventLedger[(vault.address, vaultPenaltyCounter)] := vaultPenaltyRecord;
+
+                                    // update vault penalty counter
+                                    vault.penaltyCounter := vault.penaltyCounter + 1n;
+
+                                    // update vault penalty timestamp
+                                    vault.penaltyAppliedTimestamp := Some(Mavryk.get_now());
+
+                                } else skip;
+                                
+                            }
+                        |   None -> skip
+                    ];
 
                     // check if this is the first borrow
-                    if totalBorrowed = 0 then {
-                        vault.loanStartTimestamp := Mavryk.get_now();
+                    if totalBorrowed = 0n then {
+                        vault.loanStartTimestamp := Some(Mavryk.get_now());
                     } else skip;
 
-                } else skip;
+                };
 
                 // ------------------------------------------------------------------
                 // Calculate Service Loan Fees
@@ -1590,7 +1678,7 @@ block {
                 const interestTreasuryShare : nat               = vaultConfigRecord.interestTreasuryShare;
                 const interestRepaymentPeriod : nat             = vaultConfigRecord.interestRepaymentPeriod;
                 const penaltyFeePercentage : nat                = vaultConfigRecord.penaltyFeePercentage;
-                const interestRepaymentGrace : nat              = vaultConfigRecord.interestRepaymentGrace;
+                const repaymentWindow : nat                     = vaultConfigRecord.repaymentWindow;
 
                 // ------------------------------------------------------------------
                 // Get Loan Token parameters
@@ -1607,14 +1695,52 @@ block {
                 // Check that minimum repayment amount is reached - verify that initialRepaymentAmount is greater than minRepaymentAmount
                 verifyGreaterThanOrEqual(initialRepaymentAmount, minRepaymentAmount, error_MIN_REPAYMENT_AMOUNT_NOT_REACHED);
 
-                // calculate vault penalty fee - will be 0 if it doesnt apply
-                var vaultPenaltyFee : nat := applyVaultPenaltyFee(
-                    vault.loanInterestTotal, 
-                    penaltyFeePercentage, 
-                    interestRepaymentGrace,
-                    interestRepaymentPeriod, 
-                    vault.lastInterestPayment
-                );
+                // process vault penalty fee if interest repayment period greater than 0 (RWA-type vault)
+                if interestRepaymentPeriod > 0n then {
+
+                    case vault.loanStartTimestamp of [
+                            Some(_loanStartTimestamp) -> {
+                                // calculate vault penalty fee 
+                                const vaultPenaltyFee : nat = applyVaultPenaltyFee(
+                                    vault.loanInterestTotal, 
+                                    penaltyFeePercentage, 
+                                    repaymentWindow,
+                                    interestRepaymentPeriod, 
+                                    _loanStartTimestamp,
+                                    vault.lastInterestCleared,
+                                    vault.penaltyAppliedTimestamp
+                                );
+
+                                // factor penalty fee into loan principal and outstanding total, and record penalty applied
+                                if vaultPenaltyFee > 0n then {
+                                    
+                                    vault.loanOutstandingTotal := vault.loanOutstandingTotal + vaultPenaltyFee;
+                                    vault.loanPrincipalTotal := vault.loanPrincipalTotal + vaultPenaltyFee;
+
+                                    // record event
+                                    const vaultPenaltyCounter : nat = vault.penaltyCounter;
+
+                                    // penalty event record
+                                    const vaultPenaltyRecord : vaultPenaltyRecordType = record [
+                                        entrypoint       = "repay";
+                                        penaltyFee       = vaultPenaltyFee;
+                                        penaltyTimestamp = Mavryk.get_now();
+                                    ];
+                                    s.vaultPenaltyEventLedger[(vault.address, vaultPenaltyCounter)] := vaultPenaltyRecord;
+
+                                    // update vault penalty counter
+                                    vault.penaltyCounter := vault.penaltyCounter + 1n;
+
+                                    // update vault penalty timestamp
+                                    vault.penaltyAppliedTimestamp := Some(Mavryk.get_now());
+
+                                } else skip;
+                                
+                            }
+                        |   None -> skip
+                    ];
+
+                };
 
                 // ------------------------------------------------------------------
                 // Calculate Principal / Interest Repayments
@@ -1627,35 +1753,6 @@ block {
                 var newLoanPrincipalTotal          : nat := vault.loanPrincipalTotal;
                 var newLoanInterestTotal           : nat := vault.loanInterestTotal; 
                 const initialLoanPrincipalTotal    : nat  = vault.loanPrincipalTotal;
-
-                // repay vault penalty fee first before repaying vault interest
-                if vaultPenaltyFee > 0n then {
-
-                    var penaltyFeePaid : nat := 0n;
-                    if finalRepaymentAmount > vaultPenaltyFee then {
-                        vaultPenaltyFee := 0n;
-                        finalRepaymentAmount := abs(finalRepaymentAmount - vaultPenaltyFee);
-                        penaltyFeePaid := vaultPenaltyFee;
-                    } else {
-                        vaultPenaltyFee := abs(vaultPenaltyFee - finalRepaymentAmount);
-                        finalRepaymentAmount := 0n;
-                        penaltyFeePaid := finalRepaymentAmount;
-                    };
-
-                    // Calculate amount of interest that goes to the Treasury 
-                    const feeSentToTreasury : nat = ((penaltyFeePaid * interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
-                    
-                    // transfer treasuryShareFee to the treasury
-                    const sendFeeToTreasuryOperation : operation = tokenPoolTransfer(
-                        Mavryk.get_self_address(),   // from_
-                        treasuryAddress,             // to_
-                        feeSentToTreasury,           // amount
-                        loanTokenType                // token type
-                    );
-
-                    operations := sendFeeToTreasuryOperation # operations;
-                };
-
 
                 // process interest payments
                 if finalRepaymentAmount > newLoanInterestTotal then {
@@ -1809,6 +1906,17 @@ block {
                 vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
                 vault.loanPrincipalTotal        := newLoanPrincipalTotal;
                 vault.loanInterestTotal         := newLoanInterestTotal;
+
+                // update loan start timestamp if loan outstanding is cleared
+                if newLoanOutstandingTotal = 0n then {
+                    vault.loanStartTimestamp := (None : option(timestamp));
+                } else skip;
+
+                // set last interest cleared and reset penalty applied timestamp if loan interest total is cleared
+                if newLoanInterestTotal = 0n then {
+                    vault.lastInterestCleared := Mavryk.get_now();
+                    vault.penaltyAppliedTimestamp := (None : option(timestamp));
+                } else skip;
 
                 // Update vault
                 s.vaults[vaultHandle] := vault;

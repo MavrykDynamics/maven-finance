@@ -4755,48 +4755,83 @@ describe("Lending Controller tests", async () => {
         it('%setVaultConfig             - admin (bob) should be able to set vault config', async () => {
             try{
                 
+                const vaultConfigId = 0;
+                const newTestValue  = 100;
+
                 // Initial Values
                 const initialLendingControllerStorage = await lendingControllerInstance.storage();
-                
-                const newTestValue = 100;
+                const initialVaultConfig              = await initialLendingControllerStorage.vaultConfigLedger.get(vaultConfigId);
 
                 // Operation
-                let updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configCollateralRatio").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configLiquidationRatio").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configLiquidationFeePercent").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configAdminLiquidationFee").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configMinimumLoanFeePercent").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configMinLoanFeeTreasuryShare").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configInterestTreasuryShare").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configLastCompletedDataMaxDelay").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configMaxVaultLiqPercent").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configLiquidationDelayInMins").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(newTestValue, "configLiquidationMaxDuration").send();
-                await updateConfigOperation.confirmation();
+                let setNewVaultConfigOperation = await lendingControllerInstance.methods.setVaultConfig(
+                    vaultConfigId,
+                    [
+                        {
+                            configName: "collateralRatio",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "liquidationRatio",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "liquidationFeePercent",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "adminLiquidationFeePercent",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "minimumLoanFeePercent",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "minimumLoanFeeTreasuryShare",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "interestTreasuryShare",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "maxVaultLiquidationPercent",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "liquidationDelayInMins",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "liquidationMaxDuration",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "interestRepaymentPeriod",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "missedPeriodsForLiquidation",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "repaymentWindow",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "penaltyFeePercentage",
+                            newValue: newTestValue
+                        },
+                        {
+                            configName: "liquidationConfig",
+                            newValue: newTestValue
+                        },
+                    ]
+                ).send();
+                await setNewVaultConfigOperation.confirmation();
 
                 // Final values
-                lendingControllerStorage           = await lendingControllerInstance.storage();
-                const collateralRatio = lendingControllerStorage.vaultConfig.collateralRatio;
+                lendingControllerStorage = await lendingControllerInstance.storage();
 
                 // Assertions
                 assert.equal(newTestValue, lendingControllerStorage.vaultConfig.collateralRatio);
@@ -4806,44 +4841,82 @@ describe("Lending Controller tests", async () => {
                 assert.equal(newTestValue, lendingControllerStorage.vaultConfig.minimumLoanFeePercent);
                 assert.equal(newTestValue, lendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare);
                 assert.equal(newTestValue, lendingControllerStorage.vaultConfig.interestTreasuryShare);
-                assert.equal(newTestValue, lendingControllerStorage.config.lastCompletedDataMaxDelay);
                 assert.equal(newTestValue, lendingControllerStorage.vaultConfig.maxVaultLiquidationPercent);
                 assert.equal(newTestValue, lendingControllerStorage.vaultConfig.liquidationDelayInMins);
                 assert.equal(newTestValue, lendingControllerStorage.vaultConfig.liquidationMaxDuration);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.interestRepaymentPeriod);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.missedPeriodsForLiquidation);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.repaymentWindow);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.penaltyFeePercentage);
+                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.liquidationConfig);
 
                 // reset config operation
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.collateralRatio, "configCollateralRatio").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.liquidationRatio, "configLiquidationRatio").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.liquidationFeePercent, "configLiquidationFeePercent").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.adminLiquidationFeePercent, "configAdminLiquidationFee").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.minimumLoanFeePercent, "configMinimumLoanFeePercent").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare, "configMinLoanFeeTreasuryShare").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.interestTreasuryShare, "configInterestTreasuryShare").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.config.lastCompletedDataMaxDelay, "configLastCompletedDataMaxDelay").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.maxVaultLiquidationPercent, "configMaxVaultLiqPercent").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.liquidationDelayInMins, "configLiquidationDelayInMins").send();
-                await updateConfigOperation.confirmation();
-
-                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(initialLendingControllerStorage.vaultConfig.liquidationMaxDuration, "configLiquidationMaxDuration").send();
-                await updateConfigOperation.confirmation();
+                setNewVaultConfigOperation = await lendingControllerInstance.methods.setVaultConfig(
+                    vaultConfigId,
+                    [
+                        {
+                            configName: "collateralRatio",
+                            newValue: initialVaultConfig.collateralRatio
+                        },
+                        {
+                            configName: "liquidationRatio",
+                            newValue: initialVaultConfig.liquidationRatio
+                        },
+                        {
+                            configName: "liquidationFeePercent",
+                            newValue: initialVaultConfig.liquidationFeePercent
+                        },
+                        {
+                            configName: "adminLiquidationFeePercent",
+                            newValue: initialVaultConfig.adminLiquidationFeePercent
+                        },
+                        {
+                            configName: "minimumLoanFeePercent",
+                            newValue: initialVaultConfig.minimumLoanFeePercent
+                        },
+                        {
+                            configName: "minimumLoanFeeTreasuryShare",
+                            newValue: initialVaultConfig.minimumLoanFeeTreasuryShare
+                        },
+                        {
+                            configName: "interestTreasuryShare",
+                            newValue: initialVaultConfig.interestTreasuryShare
+                        },
+                        {
+                            configName: "maxVaultLiquidationPercent",
+                            newValue: initialVaultConfig.maxVaultLiquidationPercent
+                        },
+                        {
+                            configName: "liquidationDelayInMins",
+                            newValue: initialVaultConfig.liquidationDelayInMins
+                        },
+                        {
+                            configName: "liquidationMaxDuration",
+                            newValue: initialVaultConfig.liquidationMaxDuration
+                        },
+                        {
+                            configName: "interestRepaymentPeriod",
+                            newValue: initialVaultConfig.interestRepaymentPeriod
+                        },
+                        {
+                            configName: "missedPeriodsForLiquidation",
+                            newValue: initialVaultConfig.missedPeriodsForLiquidation
+                        },
+                        {
+                            configName: "repaymentWindow",
+                            newValue: initialVaultConfig.repaymentWindow
+                        },
+                        {
+                            configName: "penaltyFeePercentage",
+                            newValue: initialVaultConfig.penaltyFeePercentage
+                        },
+                        {
+                            configName: "liquidationConfig",
+                            newValue: initialVaultConfig.liquidationConfig
+                        },
+                    ]
+                ).send();
+                await setNewVaultConfigOperation.confirmation();
 
                 // Final values
                 lendingControllerStorage = await lendingControllerInstance.storage();
@@ -4855,7 +4928,6 @@ describe("Lending Controller tests", async () => {
                 assert.equal(initialLendingControllerStorage.vaultConfig.minimumLoanFeePercent.toNumber(), lendingControllerStorage.vaultConfig.minimumLoanFeePercent.toNumber());
                 assert.equal(initialLendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare.toNumber(), lendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare.toNumber());
                 assert.equal(initialLendingControllerStorage.vaultConfig.interestTreasuryShare.toNumber(), lendingControllerStorage.vaultConfig.interestTreasuryShare.toNumber());
-                assert.equal(initialLendingControllerStorage.config.lastCompletedDataMaxDelay.toNumber(), lendingControllerStorage.config.lastCompletedDataMaxDelay.toNumber());
                 assert.equal(initialLendingControllerStorage.vaultConfig.maxVaultLiquidationPercent.toNumber(), lendingControllerStorage.vaultConfig.maxVaultLiquidationPercent.toNumber());
                 assert.equal(initialLendingControllerStorage.vaultConfig.liquidationDelayInMins.toNumber(), lendingControllerStorage.vaultConfig.liquidationDelayInMins.toNumber());
                 assert.equal(initialLendingControllerStorage.vaultConfig.liquidationMaxDuration.toNumber(), lendingControllerStorage.vaultConfig.liquidationMaxDuration.toNumber());

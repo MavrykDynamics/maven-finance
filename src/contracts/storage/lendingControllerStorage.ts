@@ -12,8 +12,8 @@ const config = {
 }
 
 const vaultConfig = {
-    collateralRatio             : 2000,    // collateral ratio (%)
-    liquidationRatio            : 1500,    // liquidation ratio (%)
+    collateralRatio             : 20000,    // collateral ratio (%)
+    liquidationRatio            : 15000,    // liquidation ratio (%)
 
     liquidationFeePercent       : 600,
     adminLiquidationFeePercent  : 600,
@@ -28,14 +28,14 @@ const vaultConfig = {
 
     interestRepaymentPeriod      : 0,
     missedPeriodsForLiquidation  : 0,
-    interestRepaymentGrace       : 0,    
+    repaymentWindow              : 0,    
     penaltyFeePercentage         : 0,    
     liquidationConfig            : 0
 }
 
 const vaultRwaConfig = {
-    collateralRatio             : 3000,    // collateral ratio (%)
-    liquidationRatio            : 3500,    // liquidation ratio (%)
+    collateralRatio             : 30000,    // collateral ratio (%)
+    liquidationRatio            : 35000,    // liquidation ratio (%)
 
     liquidationFeePercent       : 300,
     adminLiquidationFeePercent  : 300,
@@ -50,7 +50,7 @@ const vaultRwaConfig = {
 
     interestRepaymentPeriod      : 30,
     missedPeriodsForLiquidation  : 4,
-    interestRepaymentGrace       : 10,    
+    repaymentWindow              : 86400 * 7,    
     penaltyFeePercentage         : 10,    
     liquidationConfig            : 1
 }
@@ -145,4 +145,5 @@ export const lendingControllerStorage : lendingControllerStorageType = {
 
     lambdaLedger                    : MichelsonMap.fromLiteral({}),
     vaultLambdaLedger               : MichelsonMap.fromLiteral({}),
+    vaultPenaltyEventLedger         : MichelsonMap.fromLiteral({}),
 }

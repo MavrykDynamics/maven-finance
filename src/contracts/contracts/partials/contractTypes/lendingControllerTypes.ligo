@@ -65,7 +65,6 @@ type collateralTokenRecordType is [@layout:comb] record [
     tokenType               : tokenType; 
 
     isPaused                : bool;
-    isRwa                   : bool;
 ]
 type collateralTokenLedgerType is big_map(string, collateralTokenRecordType) 
 
@@ -126,25 +125,21 @@ type vaultRecordType is [@layout:comb] record [
     markedForLiquidationLevel   : nat;                           // block level of when vault was marked for liquidation
     liquidationEndLevel         : nat;                           // block level of when vault will no longer be liquidated, or will need to be marked for liquidation again
 
-    // penaltyFee                  : nat;                           // for RWA-type vault as an addition fee to be cleared
-    loanStartTimestamp          : timestamp;                     // for RWA-type vaults on when loan was first taken
+    loanStartTimestamp          : option(timestamp);             // for RWA-type vaults on when loan was first taken
     lastInterestCleared         : timestamp;                     // for RWA-type vault on last interest payment cleared
-    interestCleared             : bool;                          // for RWA-type vault to track when interest total has reached 0
 
     penaltyAppliedTimestamp     : option(timestamp);             // for RWA-type vault, on when penalty was last applied
-    penaltyApplied              : bool;                          // for RWA-type vault, check if penalty has already been applied
-    
-    // penaltyLiquidationApplied   : bool; // 
+    penaltyCounter              : nat;                           // for RWA-type vault, keep track of penalty counter
+
 ]
 
- // penaltyLedger               : map()
- // penaltyCounter              : nat;
+
 type vaultPenaltyRecordType is [@layout:comb] record [
-    entrypoint                  : 
+    entrypoint                  : string;
     penaltyFee                  : nat;
     penaltyTimestamp            : timestamp;
 ]
-type vaultPenaltyEventLedger is big_map(address, vaultPenaltyRecordType)
+type vaultPenaltyEventLedgerType is big_map((address * nat), vaultPenaltyRecordType) // vault address * penalty counter
 
 // owner types
 type ownerVaultSetType              is set(vaultIdType)                     // set of vault ids belonging to the owner 
@@ -323,7 +318,8 @@ type borrowActionType is [@layout:comb] record [
 
 
 type repayActionType is [@layout:comb] record [ 
-    vaultId     : nat; 
+    vaultId     : nat;
+    vaultOwner  : address; 
     quantity    : nat;
 ]
 
@@ -401,6 +397,7 @@ type lendingControllerStorageType is [@layout:comb] record [
     // vaults and owners
     vaults                      : big_map(vaultHandleType, vaultRecordType);
     ownerLedger                 : ownerLedgerType;  // for some convenience in checking vaults owned by user
+    vaultPenaltyEventLedger     : vaultPenaltyEventLedgerType;
 
     // collateral tokens
     collateralTokenLedger       : collateralTokenLedgerType;
