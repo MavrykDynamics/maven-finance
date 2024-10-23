@@ -55,29 +55,6 @@ const vaultRwaConfig = {
     liquidationConfig            : 1
 }
 
-const breakGlassConfig = {
-
-    // Token Pool Entrypoints
-    setLoanTokenIsPaused                : false,
-    addLiquidityIsPaused                : false,
-    removeLiquidityIsPaused             : false,
-
-    // Vault Entrypoints
-    updateCollateralTokenIsPaused       : false,
-    createVaultIsPaused                 : false,
-    closeVaultIsPaused                  : false,
-    registerDepositIsPaused             : false,
-    registerWithdrawalIsPaused          : false,
-    markForLiquidationIsPaused          : false,
-    liquidateVaultIsPaused              : false,
-    borrowIsPaused                      : false,
-    repayIsPaused                       : false,
-
-    // Vault Staked Token Entrypoints
-    vaultDepositStakedTokenIsPaused     : false,
-    vaultWithdrawStakedTokenIsPaused    : false
-}
-
 const vaultConfigLedger = MichelsonMap.fromLiteral({
     0: vaultConfig,
     1: vaultRwaConfig
@@ -94,13 +71,14 @@ const breakGlassLedger = MichelsonMap.fromLiteral({
     "addLiquidity" : false,
     "removeLiquidity" : false,
 
-    "updateCollateralToken" : false,
+    "setCollateralToken" : false,
     "createVault" : false,
     "closeVault" : false,
     "registerDeposit" : false,
     "registerWithdrawal" : false,
     "markForLiquidation" : false,
 
+    "registerVaultCreation": false,
     "liquidateVault" : false,
     "borrow" : false,
     "repay" : false,

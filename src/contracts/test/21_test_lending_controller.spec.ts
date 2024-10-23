@@ -1509,7 +1509,7 @@ describe("Lending Controller tests", async () => {
                 const vaultOwner                = eve.pkh;
                 const vaultName                 = "newVault";
                 const loanTokenName             = "eurt";
-                const vaultConfig           = 0; // vault config - standard type
+                const vaultConfig               = 0; // vault config - standard type
                 const depositorsConfig          = "whitelist";
 
                 const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
@@ -3052,9 +3052,9 @@ describe("Lending Controller tests", async () => {
             };
             const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const vaultConfigRecord      = lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
-            const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
-            const minimumLoanFeePercent  = vaultConfigRecord.minimumLoanFeePercent; // e.g. 1%
+            const vaultConfigRecord      = await lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+            const decimals               = lendingControllerStorage.config.decimals;    // e.g. 3
+            const minimumLoanFeePercent  = vaultConfigRecord.minimumLoanFeePercent;     // e.g. 1%
             const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
             const finalLoanAmount        = borrowAmount - minimumLoanFee;
 
@@ -3107,7 +3107,7 @@ describe("Lending Controller tests", async () => {
             };
             const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const vaultConfigRecord      = lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+            const vaultConfigRecord      = await lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
             const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
             const minimumLoanFeePercent  = vaultConfigRecord.minimumLoanFeePercent; // e.g. 1%
             const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
@@ -3161,7 +3161,7 @@ describe("Lending Controller tests", async () => {
             };
             const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const vaultConfigRecord      = lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+            const vaultConfigRecord      = await lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
             const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
             const minimumLoanFeePercent  = vaultConfigRecord.minimumLoanFeePercent; // e.g. 1%
             const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
@@ -3214,7 +3214,7 @@ describe("Lending Controller tests", async () => {
             };
             const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const vaultConfigRecord      = lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+            const vaultConfigRecord      = await lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
             const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
             const minimumLoanFeePercent  = vaultConfigRecord.minimumLoanFeePercent; // e.g. 1%
             const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
@@ -3385,7 +3385,7 @@ describe("Lending Controller tests", async () => {
             };
             const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
-            const vaultConfigRecord      = lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+            const vaultConfigRecord      = await lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
             const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
             const minimumLoanFeePercent  = vaultConfigRecord.minimumLoanFeePercent; // e.g. 1%
             const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
@@ -3502,7 +3502,7 @@ describe("Lending Controller tests", async () => {
             await setNewTokenAllowance.confirmation();
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // get updated storage
@@ -3556,7 +3556,7 @@ describe("Lending Controller tests", async () => {
             await updateOperatorsOperation.confirmation();
         
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // get updated storage
@@ -3605,7 +3605,7 @@ describe("Lending Controller tests", async () => {
             const initialLoanInterestTotal      = vaultRecord.loanInterestTotal.toNumber();
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mumav : true, amount : repayAmount });
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send({ mumav : true, amount : repayAmount });
             await eveRepayOperation.confirmation();
 
             // get updated storage
@@ -3633,6 +3633,7 @@ describe("Lending Controller tests", async () => {
         it('user (eve) should not be able to repay less than the min repayment amount', async () => {
 
             await signerFactory(tezos, eve.sk);
+            let vaultOwner = eve.pkh;
         
             const mockFa12LoanTokenRecordView = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("usdt").executeView({ viewCaller : bob.pkh});
             const mockFa2LoanTokenRecordView  = await lendingControllerInstance.contractViews.getLoanTokenRecordOpt("eurt").executeView({ viewCaller : bob.pkh});
@@ -3648,17 +3649,17 @@ describe("Lending Controller tests", async () => {
 
             // mock fa12 token vault
             const mockFa12VaultId = eveVaultSet[0]; // vault with mock FA12 loan token
-            const failEveRepayMockFa12Operation = lendingControllerInstance.methods.repay(mockFa12VaultId, belowMinRepaymentAmountForMockFa12LoanToken);
+            const failEveRepayMockFa12Operation = lendingControllerInstance.methods.repay(mockFa12VaultId, vaultOwner, belowMinRepaymentAmountForMockFa12LoanToken);
             await chai.expect(failEveRepayMockFa12Operation.send()).to.be.rejected;
 
             // mock fa12 token vault
             const mockFa2VaultId = eveVaultSet[1]; // vault with mock FA2 loan token
-            const failEveRepayMockFa2Operation = lendingControllerInstance.methods.repay(mockFa2VaultId, belowMinRepaymentAmountForMockFa2LoanToken);
+            const failEveRepayMockFa2Operation = lendingControllerInstance.methods.repay(mockFa2VaultId, vaultOwner, belowMinRepaymentAmountForMockFa2LoanToken);
             await chai.expect(failEveRepayMockFa2Operation.send()).to.be.rejected;
 
             // mav vault
             const mavVaultId         = eveVaultSet[2]; // vault with mav loan token
-            const failEveRepayMavOperation = lendingControllerInstance.methods.repay(mavVaultId, belowMinRepaymentAmountForMavLoanToken);
+            const failEveRepayMavOperation = lendingControllerInstance.methods.repay(mavVaultId, vaultOwner, belowMinRepaymentAmountForMavLoanToken);
             await chai.expect(failEveRepayMavOperation.send({ mumav : true, amount : belowMinRepaymentAmountForMavLoanToken })).to.be.rejected;        
 
         })
@@ -5424,7 +5425,7 @@ describe("Lending Controller tests", async () => {
                             await setNewTokenAllowance.confirmation();
 
                             // repay operation
-                            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, loanOutstandingTotal).send();
+                            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, loanOutstandingTotal).send();
                             await eveRepayOperation.confirmation();
 
                         } else if(loanToken == "eurt"){
@@ -5434,12 +5435,12 @@ describe("Lending Controller tests", async () => {
                             await updateOperatorsOperation.confirmation();
 
                             // repay operation
-                            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, loanOutstandingTotal).send();
+                            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, loanOutstandingTotal).send();
                             await eveRepayOperation.confirmation();
 
                         } else if(loanToken == "mav"){
 
-                            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, loanOutstandingTotal).send({ mumav : true, amount : loanOutstandingTotal});
+                            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, loanOutstandingTotal).send({ mumav : true, amount : loanOutstandingTotal});
                             await eveRepayOperation.confirmation();
                 
                         }
