@@ -3,12 +3,12 @@ from maven.utils.error_reporting import save_error_report
 from maven.types.vault_factory.tezos_storage import VaultFactoryStorage
 from maven.types.vault_factory.tezos_parameters.update_config import UpdateConfigParameter
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 import maven.models as models
 
 async def update_config(
     ctx: HandlerContext,
-    update_config: TzktTransaction[UpdateConfigParameter, VaultFactoryStorage],
+    update_config: TezosTransaction[UpdateConfigParameter, VaultFactoryStorage],
 ) -> None:
 
     try:
@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.VaultFactory.filter(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = vault_factory_address
         ).update(
             last_updated_at         = timestamp,

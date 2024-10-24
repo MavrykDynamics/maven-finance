@@ -1,4 +1,4 @@
-spec_version: 2.0
+spec_version: 3.0
 
 package: maven
 
@@ -31,11 +31,11 @@ advanced:
 datasources:
   metadata_mainnet:
     kind: tzip_metadata
-    url: https://metadata.dipdup.net
+    url: ${METADATA_MAINNET_URL:-changeme}
     network: mainnet
   metadata_atlasnet:
     kind: tzip_metadata
-    url: https://dipdup-metadata-api.mavryk.network
+    url: ${METADATA_ATLASNET_URL:-changeme}
     network: oxfordnet
   mvkt_atlasnet:
     kind: tezos.tzkt

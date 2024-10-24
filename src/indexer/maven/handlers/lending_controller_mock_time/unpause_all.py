@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.types.lending_controller_mock_time.tezos_parameters.unpause_all import UnpauseAllParameter
 from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from dipdup.context import HandlerContext
 import maven.models as models
 
 async def unpause_all(
     ctx: HandlerContext,
-    unpause_all: TzktTransaction[UnpauseAllParameter, LendingControllerMockTimeStorage],
+    unpause_all: TezosTransaction[UnpauseAllParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
     try:
@@ -34,7 +34,7 @@ async def unpause_all(
     
         # Update record
         await models.LendingController.filter(
-            network         = ctx.datasource.name.replace('mvkt_',''),
+            network         = 'atlasnet',
             address         = lending_controller_address
         ).update(
             add_liquidity_paused                     = add_liquidity_paused,

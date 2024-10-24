@@ -3,12 +3,12 @@ from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from maven.utils.contracts import get_contract_metadata
 from maven.types.emergency_governance.tezos_storage import EmergencyGovernanceStorage
-from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos import TezosOrigination
 import maven.models as models
 
 async def origination(
     ctx: HandlerContext,
-    emergency_governance_origination: TzktOrigination[EmergencyGovernanceStorage],
+    emergency_governance_origination: TezosOrigination[EmergencyGovernanceStorage],
 ) -> None:
 
     try:
@@ -34,12 +34,12 @@ async def origination(
         )
         
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
+        governance                  = await models.Governance.get(network = 'atlasnet')
     
         # Create record
         emergencyGovernance = models.EmergencyGovernance(
             address                         = address,
-            network                         = ctx.datasource.name.replace('mvkt_',''),
+            network                         = 'atlasnet',
             metadata                        = contract_metadata,
             admin                           = admin,
             last_updated_at                 = timestamp,

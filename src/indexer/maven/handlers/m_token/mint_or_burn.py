@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.m_token.tezos_parameters.mint_or_burn import MintOrBurnParameter
 from maven.types.m_token.tezos_storage import MTokenStorage
 import maven.models as models
@@ -8,7 +8,7 @@ import maven.models as models
 
 async def mint_or_burn(
     ctx: HandlerContext,
-    mint_or_burn: TzktTransaction[MintOrBurnParameter, MTokenStorage],
+    mint_or_burn: TezosTransaction[MintOrBurnParameter, MTokenStorage],
 ) -> None:
 
     try:    
@@ -25,12 +25,12 @@ async def mint_or_burn(
     
         # Update record
         token                       = await models.Token.get(
-            network         = ctx.datasource.name.replace('mvkt_',''),
+            network         = 'atlasnet',
             token_address   = m_token_address,
             token_id        = 0
         )
         m_token                     = await models.MToken.get(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = m_token_address,
             token   = token
         )
@@ -38,7 +38,7 @@ async def mint_or_burn(
         m_token.total_supply        = total_supply
         await m_token.save()
     
-        user                        = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=user_address)
+        user                        = await models.maven_user_cache.get(network='atlasnet', address=user_address)
         user_account, _             = await models.MTokenAccount.get_or_create(
             m_token = m_token,
             user    = user

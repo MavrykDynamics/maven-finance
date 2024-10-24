@@ -3,13 +3,13 @@ from maven.utils.error_reporting import save_error_report
 from maven.utils.persisters import persist_linked_contract
 from maven.types.vesting.tezos_storage import VestingStorage
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.vesting.tezos_parameters.update_whitelist_contracts import UpdateWhitelistContractsParameter
 import maven.models as models
 
 async def update_whitelist_contracts(
     ctx: HandlerContext,
-    update_whitelist_contracts: TzktTransaction[UpdateWhitelistContractsParameter, VestingStorage],
+    update_whitelist_contracts: TezosTransaction[UpdateWhitelistContractsParameter, VestingStorage],
 ) -> None:
 
     try:

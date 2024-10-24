@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos import TezosOrigination
 from maven.utils.contracts import get_contract_metadata
 from maven.types.governance_satellite.tezos_storage import GovernanceSatelliteStorage
 from dipdup.context import HandlerContext
@@ -8,7 +8,7 @@ import maven.models as models
 
 async def origination(
     ctx: HandlerContext,
-    governance_satellite_origination: TzktOrigination[GovernanceSatelliteStorage],
+    governance_satellite_origination: TezosOrigination[GovernanceSatelliteStorage],
 ) -> None:
 
     try:
@@ -29,12 +29,12 @@ async def origination(
         )
         
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
+        governance                  = await models.Governance.get(network = 'atlasnet')
     
         # Create record
         governance_satellite        = models.GovernanceSatellite(
             address                         = address,
-            network                         = ctx.datasource.name.replace('mvkt_',''),
+            network                         = 'atlasnet',
             metadata                        = contract_metadata,
             admin                           = admin,
             last_updated_at                 = timestamp,

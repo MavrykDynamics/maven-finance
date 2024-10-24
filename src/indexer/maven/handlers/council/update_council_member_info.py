@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.types.council.tezos_parameters.update_council_member_info import UpdateCouncilMemberInfoParameter
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.council.tezos_storage import CouncilStorage
 import maven.models as models
 
 async def update_council_member_info(
     ctx: HandlerContext,
-    update_council_member_info: TzktTransaction[UpdateCouncilMemberInfoParameter, CouncilStorage],
+    update_council_member_info: TezosTransaction[UpdateCouncilMemberInfoParameter, CouncilStorage],
 ) -> None:
 
     try:
@@ -21,8 +21,8 @@ async def update_council_member_info(
         image                   = council_member_storage.image
     
         # Update record
-        council                 = await models.Council.get(network=ctx.datasource.name.replace('mvkt_',''), address= council_address)
-        user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=council_member_address)
+        council                 = await models.Council.get(network='atlasnet', address= council_address)
+        user                    = await models.maven_user_cache.get(network='atlasnet', address=council_member_address)
         await models.CouncilCouncilMember.filter(
             council     = council,
             user        = user

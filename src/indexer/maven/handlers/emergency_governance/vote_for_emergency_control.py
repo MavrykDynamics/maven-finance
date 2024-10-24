@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from maven.types.emergency_governance.tezos_storage import EmergencyGovernanceStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.emergency_governance.tezos_parameters.vote_for_emergency_control import VoteForEmergencyControlParameter
 from dipdup.context import HandlerContext
 from dateutil import parser
@@ -9,7 +9,7 @@ import maven.models as models
 
 async def vote_for_emergency_control(
     ctx: HandlerContext,
-    vote_for_emergency_control: TzktTransaction[VoteForEmergencyControlParameter, EmergencyGovernanceStorage],
+    vote_for_emergency_control: TezosTransaction[VoteForEmergencyControlParameter, EmergencyGovernanceStorage],
 ) -> None:
 
     try:
@@ -34,7 +34,7 @@ async def vote_for_emergency_control(
                 execution_level     = int(emergency_storage.executedLevel)
         
             # Create and update record
-            emergency                   = await models.EmergencyGovernance.get(network=ctx.datasource.name.replace('mvkt_',''), address= emergency_address)
+            emergency                   = await models.EmergencyGovernance.get(network='atlasnet', address= emergency_address)
             emergency_record            = await models.EmergencyGovernanceRecord.get(
                 emergency_governance        = emergency,
                 internal_id                 = int(emergency_id)
@@ -45,7 +45,7 @@ async def vote_for_emergency_control(
             emergency_record.execution_level       = execution_level
             await emergency_record.save()
         
-            voter                       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=voter_address)
+            voter                       = await models.maven_user_cache.get(network='atlasnet', address=voter_address)
 
             emergency_vote_record       = models.EmergencyGovernanceVote(
                 timestamp                   = timestamp,

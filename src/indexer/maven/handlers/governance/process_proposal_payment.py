@@ -2,24 +2,24 @@ from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from maven.types.governance.tezos_storage import GovernanceStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.governance.tezos_parameters.process_proposal_payment import ProcessProposalPaymentParameter
 import maven.models as models
 
 async def process_proposal_payment(
     ctx: HandlerContext,
-    process_proposal_payment: TzktTransaction[ProcessProposalPaymentParameter, GovernanceStorage],
+    process_proposal_payment: TezosTransaction[ProcessProposalPaymentParameter, GovernanceStorage],
 ) -> None:
 
     try:
         # Get operation info
         governance_address  = process_proposal_payment.data.target_address
-        proposal_id         = int(process_proposal_payment.parameter.__root__)
-        proposal_storage    = process_proposal_payment.storage.proposalLedger[process_proposal_payment.parameter.__root__]
+        proposal_id         = int(process_proposal_payment.parameter.root)
+        proposal_storage    = process_proposal_payment.storage.proposalLedger[process_proposal_payment.parameter.root]
         payment_processed   = proposal_storage.paymentProcessed
     
         # Create or update record
-        governance          = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
+        governance          = await models.Governance.get(network='atlasnet', address= governance_address)
         await models.GovernanceProposal.filter(
             governance  = governance,
             internal_id = proposal_id

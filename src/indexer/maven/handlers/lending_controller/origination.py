@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos import TezosOrigination
 from dipdup.context import HandlerContext
 from maven.utils.contracts import get_contract_metadata
 from maven.types.lending_controller.tezos_storage import LendingControllerStorage
@@ -8,7 +8,7 @@ import maven.models as models
 
 async def origination(
     ctx: HandlerContext,
-    lending_controller_origination: TzktOrigination[LendingControllerStorage],
+    lending_controller_origination: TezosOrigination[LendingControllerStorage],
 ) -> None:
 
     try:    
@@ -54,10 +54,10 @@ async def origination(
         )
         
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
+        governance                  = await models.Governance.get(network = 'atlasnet')
         lending_controller          = models.LendingController(
             address                                 = lending_controller_address,
-            network                                 = ctx.datasource.name.replace('mvkt_',''),
+            network                                 = 'atlasnet',
             metadata                                = contract_metadata,
             admin                                   = admin,
             last_updated_at                         = timestamp,

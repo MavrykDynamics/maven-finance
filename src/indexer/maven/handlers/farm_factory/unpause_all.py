@@ -3,12 +3,12 @@ from maven.utils.error_reporting import save_error_report
 from maven.types.farm_factory.tezos_storage import FarmFactoryStorage
 from dipdup.context import HandlerContext
 from maven.types.farm_factory.tezos_parameters.unpause_all import UnpauseAllParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 import maven.models as models
 
 async def unpause_all(
     ctx: HandlerContext,
-    unpause_all: TzktTransaction[UnpauseAllParameter, FarmFactoryStorage],
+    unpause_all: TezosTransaction[UnpauseAllParameter, FarmFactoryStorage],
 ) -> None:
 
     try:
@@ -16,7 +16,7 @@ async def unpause_all(
         farm_factory_address    = unpause_all.data.target_address
     
         # Update record
-        await models.FarmFactory.filter(network=ctx.datasource.name.replace('mvkt_',''), address=farm_factory_address).update(
+        await models.FarmFactory.filter(network='atlasnet', address=farm_factory_address).update(
             create_farm_paused         = unpause_all.storage.breakGlassConfig.createFarmIsPaused,
             create_farm_m_token_paused = unpause_all.storage.breakGlassConfig.createFarmMTokenIsPaused,
             track_farm_paused          = unpause_all.storage.breakGlassConfig.trackFarmIsPaused,

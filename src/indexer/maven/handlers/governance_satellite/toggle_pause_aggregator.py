@@ -1,13 +1,13 @@
 from maven.utils.error_reporting import save_error_report
 from maven.utils.persisters import persist_governance_satellite_action
 from maven.types.governance_satellite.tezos_storage import GovernanceSatelliteStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from dipdup.context import HandlerContext
 from maven.types.governance_satellite.tezos_parameters.toggle_pause_aggregator import TogglePauseAggregatorParameter
 
 async def toggle_pause_aggregator(
     ctx: HandlerContext,
-    toggle_pause_aggregator: TzktTransaction[TogglePauseAggregatorParameter, GovernanceSatelliteStorage],
+    toggle_pause_aggregator: TezosTransaction[TogglePauseAggregatorParameter, GovernanceSatelliteStorage],
 ) -> None:
 
     try:

@@ -2,10 +2,10 @@ import maven.models as models
 from maven.utils.contracts import get_token_standard, get_contract_metadata
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktOrigination
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosOrigination
+from dipdup.models.tezos import TezosTransaction
 from maven.types.lending_controller.tezos_parameters.register_vault_creation import RegisterVaultCreationParameter
-from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenType3 as fa12, TokenType4 as fa2, TokenType5 as mav
+from maven.types.lending_controller.tezos_storage import LendingControllerStorage
 from maven.types.vault.tezos_storage import VaultStorage, Depositors as Any, Depositors1 as Whitelist
 from maven.types.vault_factory.tezos_parameters.create_vault import CreateVaultParameter
 from maven.types.vault_factory.tezos_storage import VaultFactoryStorage
@@ -13,9 +13,9 @@ from dateutil import parser
 
 async def create_vault(
     ctx: HandlerContext,
-    create_vault: TzktTransaction[CreateVaultParameter, VaultFactoryStorage],
-    vault_origination: TzktOrigination[VaultStorage],
-    register_vault_creation: TzktTransaction[RegisterVaultCreationParameter, LendingControllerStorage],
+    create_vault: TezosTransaction[CreateVaultParameter, VaultFactoryStorage],
+    vault_origination: TezosOrigination[VaultStorage],
+    register_vault_creation: TezosTransaction[RegisterVaultCreationParameter, LendingControllerStorage],
 ) -> None:
 
     try:
@@ -70,21 +70,21 @@ async def create_vault(
 
         # Create vault record
         vault_factory       = await models.VaultFactory.get(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = vault_factory_address
         )
     
         # Check vault does not already exists
         # the vault can also be created through the lendingController vault registration entrypoint
         vault_exists            = await models.Vault.filter(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = vault_address
         ).exists()
 
         if not vault_exists:
             vault               = models.Vault(
                 address             = vault_address,
-                network             = ctx.datasource.name.replace('mvkt_',''),
+                network             = 'atlasnet',
                 metadata            = contract_metadata,
                 name                = name,
                 factory             = vault_factory,
@@ -96,7 +96,7 @@ async def create_vault(
 
             # Create a baker or not
             if baker_address:
-                baker       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=baker_address)
+                baker       = await models.maven_user_cache.get(network='atlasnet', address=baker_address)
                 vault.baker = baker
 
             # Save vault
@@ -104,7 +104,7 @@ async def create_vault(
 
             # Register depositors
             for depositor_address in whitelisted_addresses:
-                depositor           = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=depositor_address)
+                depositor           = await models.maven_user_cache.get(network='atlasnet', address=depositor_address)
                 vault_depositor, _  = await models.VaultDepositor.get_or_create(
                     vault       = vault,
                     depositor   = depositor
@@ -114,10 +114,10 @@ async def create_vault(
             # Register vault creation
             # Create / Update record
             lending_controller          = await models.LendingController.get(
-                network         = ctx.datasource.name.replace('mvkt_',''),
+                network         = 'atlasnet',
                 address         = lending_controller_address,
             )
-            vault_owner                 = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vault_owner_address)
+            vault_owner                 = await models.maven_user_cache.get(network='atlasnet', address=vault_owner_address)
 
             for vault_storage in vaults_storage:
                 vault_address                           = vault_storage.value.address
@@ -157,7 +157,7 @@ async def create_vault(
                 await lending_controller_vault.save()
         
                 # Save history data
-                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
+                sender                                  = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = lending_controller_loan_token,

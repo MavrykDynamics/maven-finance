@@ -1,14 +1,14 @@
 from maven.utils.error_reporting import save_error_report
 
 from maven.types.aggregator_factory.tezos_parameters.unpause_all import UnpauseAllParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.aggregator_factory.tezos_storage import AggregatorFactoryStorage
 from dipdup.context import HandlerContext
 import maven.models as models
 
 async def unpause_all(
     ctx: HandlerContext,
-    unpause_all: TzktTransaction[UnpauseAllParameter, AggregatorFactoryStorage],
+    unpause_all: TezosTransaction[UnpauseAllParameter, AggregatorFactoryStorage],
 ) -> None:
 
     try:
@@ -21,7 +21,7 @@ async def unpause_all(
         distribute_reward_smvn_paused                       = unpause_all.storage.breakGlassConfig.distributeRewardStakedMvnIsPaused
     
         # Update record
-        await models.AggregatorFactory.filter(network=ctx.datasource.name.replace('mvkt_',''),address    = aggregator_factory_address).update(
+        await models.AggregatorFactory.filter(network='atlasnet',address    = aggregator_factory_address).update(
             create_aggregator_paused         = create_aggregator_paused,
             track_aggregator_paused          = track_aggregator_paused,
             untrack_aggregator_paused        = untrack_aggregator_paused,

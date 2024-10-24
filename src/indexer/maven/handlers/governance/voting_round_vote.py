@@ -1,14 +1,14 @@
 from maven.utils.error_reporting import save_error_report
 
 from maven.types.governance.tezos_storage import GovernanceStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
-from maven.types.governance.tezos_parameters.voting_round_vote import VotingRoundVoteParameter, Vote as nay, Vote1 as pass_, Vote2 as yay
+from dipdup.models.tezos import TezosTransaction
+from maven.types.governance.tezos_parameters.voting_round_vote import VotingRoundVoteParameter, Vote as nay, Vote1 as pass_
 from dipdup.context import HandlerContext
 import maven.models as models
 
 async def voting_round_vote(
     ctx: HandlerContext,
-    voting_round_vote: TzktTransaction[VotingRoundVoteParameter, GovernanceStorage],
+    voting_round_vote: TezosTransaction[VotingRoundVoteParameter, GovernanceStorage],
 ) -> None:
 
     try:
@@ -38,8 +38,8 @@ async def voting_round_vote(
             vote    = models.GovernanceVoteType.NAY
     
         # Create and update records
-        governance  = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
-        voter       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=voter_address)
+        governance  = await models.Governance.get(network='atlasnet', address= governance_address)
+        voter       = await models.maven_user_cache.get(network='atlasnet', address=voter_address)
     
         # Update or a satellite snapshot record
         governance_snapshot = await models.GovernanceSatelliteSnapshot.get_or_none(

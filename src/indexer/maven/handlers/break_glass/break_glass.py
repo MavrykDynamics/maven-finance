@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from maven.types.break_glass.tezos_storage import BreakGlassStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.break_glass.tezos_parameters.break_glass import BreakGlassParameter
 import maven.models as models
 
 async def break_glass(
     ctx: HandlerContext,
-    break_glass: TzktTransaction[BreakGlassParameter, BreakGlassStorage],
+    break_glass: TezosTransaction[BreakGlassParameter, BreakGlassStorage],
 ) -> None:
 
     try:
@@ -18,7 +18,7 @@ async def break_glass(
     
         # Update record
         breakGlass  = await models.BreakGlass.get(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = breakGlassAddress
         )
         breakGlass.glass_broken = breakGlassGlassBroken
