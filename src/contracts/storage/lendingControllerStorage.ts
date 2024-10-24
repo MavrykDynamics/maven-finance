@@ -37,7 +37,7 @@ const vaultRwaConfig = {
     collateralRatio             : 30000,    // collateral ratio (%)
     liquidationRatio            : 35000,    // liquidation ratio (%)
 
-    liquidationFeePercent       : 300,
+    liquidationFeePercent       : 300,  
     adminLiquidationFeePercent  : 300,
     minimumLoanFeePercent       : 300,
 
