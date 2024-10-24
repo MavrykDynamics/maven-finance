@@ -1675,16 +1675,18 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             await signerFactory(tezos, eve.sk);
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const liquidator    = mallory.pkh;
-            const loanTokenName = "usdt";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const liquidator        = mallory.pkh;
+            const loanTokenName     = "usdt";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -2196,16 +2198,18 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             await signerFactory(tezos, eve.sk);
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const liquidator    = mallory.pkh;
-            const loanTokenName = "eurt";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const liquidator        = mallory.pkh;
+            const loanTokenName     = "eurt";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -2765,10 +2769,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const liquidator            = mallory.pkh;
             const loanTokenName         = "eurt";
             const vaultName             = "newVault";
+            const vaultConfig           = 0; // vault config - standard type
             const depositorsConfig      = "any";
     
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -3548,15 +3554,17 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             await signerFactory(tezos, eve.sk);
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const loanTokenName = "usdt";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";    
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const loanTokenName     = "usdt";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";    
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -3820,7 +3828,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await setNewTokenAllowance.confirmation();
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);

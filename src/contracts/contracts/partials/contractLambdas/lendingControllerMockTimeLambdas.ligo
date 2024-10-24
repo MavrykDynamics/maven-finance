@@ -68,6 +68,8 @@ block {
                     then failwith("error_INVALID_CONFIG_NOT_ALLOWED") 
                     else if configName = "lastCompletedDataMaxDelay" then {
                         s.config.lastCompletedDataMaxDelay := newValue;
+                    } else if configName = "mockLevel" then {
+                        s.config.mockLevel := newValue;
                     } else failwith(error_INVALID_CONFIG_NAME);
 
                 };
@@ -1537,6 +1539,7 @@ block {
                 // Init variables for convenience
                 const vaultId                   : nat                     = repayParams.vaultId; 
                 const initialRepaymentAmount    : nat                     = repayParams.quantity;
+                const vaultOwner                : address                 = repayParams.vaultOwner;
                 const initiator                 : initiatorAddressType    = Mavryk.get_sender();
                 var finalRepaymentAmount        : nat                     := initialRepaymentAmount;
                 const mockLevel                 : nat                     = s.config.mockLevel;
@@ -1545,7 +1548,7 @@ block {
                 const treasuryAddress : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
                 // Make vault handle
-                const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, initiator);
+                const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
                 
                 // ------------------------------------------------------------------
                 // Update vault state

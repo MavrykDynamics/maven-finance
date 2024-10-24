@@ -308,6 +308,7 @@ type borrowActionType is [@layout:comb] record [
 
 type repayActionType is [@layout:comb] record [ 
     vaultId     : nat; 
+    vaultOwner  : address;
     quantity    : nat;
 ]
 
