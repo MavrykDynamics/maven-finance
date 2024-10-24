@@ -1212,7 +1212,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
 
-            const vaultConfigRecord = lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -1317,7 +1317,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1371,7 +1378,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             initialTokenPoolTotal   = loanTokenRecordView.Some.tokenPoolTotal;
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -1483,7 +1490,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
 
-            const vaultConfigRecord = lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -1588,7 +1595,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1645,7 +1659,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -1757,7 +1771,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
 
-            const vaultConfigRecord = lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -1862,7 +1876,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1919,7 +1940,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -2032,7 +2053,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
 
-            const vaultConfigRecord = lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -2135,7 +2156,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -2192,7 +2220,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -2308,7 +2336,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
 
-            const vaultConfigRecord = lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -2413,7 +2441,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -2470,7 +2505,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -2583,7 +2618,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
 
-            const vaultConfigRecord = lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -2688,7 +2723,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -2745,7 +2787,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -2858,7 +2900,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
 
-            const vaultConfigRecord = lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -2963,7 +3005,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -3020,7 +3069,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -3132,7 +3181,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
             
-            const vaultConfigRecord = lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -3237,7 +3286,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -3294,7 +3350,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -3412,7 +3468,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
 
-            const vaultConfigRecord = lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -3517,7 +3573,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -3559,7 +3622,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mumav : true, amount : repayAmount});
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send({ mumav : true, amount : repayAmount});
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -3674,7 +3737,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
 
-            const vaultConfigRecord = lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -3779,7 +3842,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -3821,7 +3891,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mumav : true, amount : repayAmount});
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send({ mumav : true, amount : repayAmount});
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -3937,7 +4007,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
 
-            const vaultConfigRecord = lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -4042,7 +4112,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -4084,7 +4161,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mumav : true, amount : repayAmount});
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send({ mumav : true, amount : repayAmount});
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -4199,7 +4276,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
 
-            const vaultConfigRecord = lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -4304,7 +4381,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -4346,7 +4430,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mumav : true, amount : repayAmount});
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send({ mumav : true, amount : repayAmount});
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);

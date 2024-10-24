@@ -130,7 +130,7 @@ describe('Lending Controller Supporting Contracts', async () => {
                 heartbeatSeconds                    : new BigNumber(30),
                 
                 rewardAmountStakedMvn               : new BigNumber(10000000), // 0.01 MVN
-                rewardAmountMvrk                     : new BigNumber(1300),    // ~0.0013 mav 
+                rewardAmountMvrk                    : new BigNumber(1300),    // ~0.0013 mav 
             };
             aggregatorStorage.oracleLedger      = oracleMap;
             aggregatorStorage.mvnTokenAddress   = contractDeployments.mvnToken.address;

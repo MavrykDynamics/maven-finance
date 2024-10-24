@@ -4,54 +4,6 @@ import { bob } from '../scripts/sandbox/accounts'
 import { zeroAddress } from "../test/helpers/Utils"
 import { lendingControllerMockTimeStorageType } from "./storageTypes/lendingControllerMockTimeStorageType"
 
-// const config = {
-
-//     collateralRatio             : 2000,    // collateral ratio (%)
-//     liquidationRatio            : 1500,    // liquidation ratio (%)
-
-//     liquidationFeePercent       : 600,     // 6%
-//     adminLiquidationFeePercent  : 600,     // 6%
-
-//     minimumLoanFeePercent       : 100,
-
-//     minimumLoanFeeTreasuryShare : 4000,
-//     interestTreasuryShare       : 100,     // i.e. 1%
-
-//     decimals                    : 4,       // decimals 
-//     interestRateDecimals        : 27,      // interest rate decimals
-//     maxDecimalsForCalculation   : 32,
-//     lastCompletedDataMaxDelay   : 9999999999, // for testing purposes - prod: 300 (i.e. 5 mins) 
-
-//     maxVaultLiquidationPercent  : 5000,    // 50%
-//     liquidationDelayInMins      : 120,
-//     liquidationMaxDuration      : 1440,
-
-//     mockLevel                   : 0
-// }
-
-// const breakGlassConfig = {
-
-//     // Token Pool Entrypoints
-//     setLoanTokenIsPaused                : false,
-//     addLiquidityIsPaused                : false,
-//     removeLiquidityIsPaused             : false,
-
-//     // Vault Entrypoints
-//     updateCollateralTokenIsPaused       : false,
-//     createVaultIsPaused                 : false,
-//     closeVaultIsPaused                  : false,
-//     registerDepositIsPaused             : false,
-//     registerWithdrawalIsPaused          : false,
-//     markForLiquidationIsPaused          : false,
-//     liquidateVaultIsPaused              : false,
-//     borrowIsPaused                      : false,
-//     repayIsPaused                       : false,
-
-//     // Vault Staked Token Entrypoints
-//     vaultDepositStakedTokenIsPaused     : false,
-//     vaultWithdrawStakedTokenIsPaused    : false
-// }
-
 const config = {
     decimals                    : 4,       // decimals 
     interestRateDecimals        : 27,      // interest rate decimals
@@ -104,34 +56,10 @@ const vaultRwaConfig = {
     liquidationConfig            : 1
 }
 
-const breakGlassConfig = {
-
-    // Token Pool Entrypoints
-    setLoanTokenIsPaused                : false,
-    addLiquidityIsPaused                : false,
-    removeLiquidityIsPaused             : false,
-
-    // Vault Entrypoints
-    updateCollateralTokenIsPaused       : false,
-    createVaultIsPaused                 : false,
-    closeVaultIsPaused                  : false,
-    registerDepositIsPaused             : false,
-    registerWithdrawalIsPaused          : false,
-    markForLiquidationIsPaused          : false,
-    liquidateVaultIsPaused              : false,
-    borrowIsPaused                      : false,
-    repayIsPaused                       : false,
-
-    // Vault Staked Token Entrypoints
-    vaultDepositStakedTokenIsPaused     : false,
-    vaultWithdrawStakedTokenIsPaused    : false
-}
-
 const vaultConfigLedger = MichelsonMap.fromLiteral({
     0: vaultConfig,
     1: vaultRwaConfig
 })
-
 
 const breakGlassLedger = MichelsonMap.fromLiteral({
     
@@ -143,13 +71,14 @@ const breakGlassLedger = MichelsonMap.fromLiteral({
     "addLiquidity" : false,
     "removeLiquidity" : false,
 
-    "updateCollateralToken" : false,
+    "setCollateralToken" : false,
     "createVault" : false,
     "closeVault" : false,
     "registerDeposit" : false,
     "registerWithdrawal" : false,
     "markForLiquidation" : false,
 
+    "registerVaultCreation": false,
     "liquidateVault" : false,
     "borrow" : false,
     "repay" : false,
