@@ -4677,7 +4677,7 @@ describe("Lending Controller tests", async () => {
             }
         });
 
-        it('%updateConfig             - admin (bob) should be able to update contract config', async () => {
+        it('%updateConfig             - admin (bob) should not be able to update contract decimals config', async () => {
             try{
                 
                 // Initial Values
@@ -4692,14 +4692,46 @@ describe("Lending Controller tests", async () => {
                             configName: "decimals",
                             newValue: newTestValue
                         },
+                    ]
+                );
+                await chai.expect(updateConfigOperation.send()).to.be.rejected;
+
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(
+                    [
                         {
                             configName: "interestRateDecimals",
                             newValue: newTestValue
                         },
+                    ]
+                );
+                await chai.expect(updateConfigOperation.send()).to.be.rejected;
+
+                updateConfigOperation = await lendingControllerInstance.methods.updateConfig(
+                    [
                         {
                             configName: "maxDecimalsForCalculation",
                             newValue: newTestValue
                         },
+                    ]
+                );
+                await chai.expect(updateConfigOperation.send()).to.be.rejected;
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('%updateConfig             - admin (bob) should be able to update contract config', async () => {
+            try{
+                
+                // Initial Values
+                const initialLendingControllerStorage = await lendingControllerInstance.storage();
+                
+                const newTestValue = 7;
+
+                // Operation
+                let updateConfigOperation = await lendingControllerInstance.methods.updateConfig(
+                    [
                         {
                             configName: "lastCompletedDataMaxDelay",
                             newValue: newTestValue
@@ -4712,26 +4744,11 @@ describe("Lending Controller tests", async () => {
                 lendingControllerStorage           = await lendingControllerInstance.storage();
 
                 // Assertions
-                assert.equal(newTestValue, lendingControllerStorage.config.decimals);
-                assert.equal(newTestValue, lendingControllerStorage.config.interestRateDecimals);
-                assert.equal(newTestValue, lendingControllerStorage.config.maxDecimalsForCalculation);
                 assert.equal(newTestValue, lendingControllerStorage.config.lastCompletedDataMaxDelay);
 
                 // reset config operation
                 updateConfigOperation = await lendingControllerInstance.methods.updateConfig(
                     [
-                        {
-                            configName: "decimals",
-                            newValue: initialLendingControllerStorage.config.decimals
-                        },
-                        {
-                            configName: "interestRateDecimals",
-                            newValue: initialLendingControllerStorage.config.interestRateDecimals
-                        },
-                        {
-                            configName: "maxDecimalsForCalculation",
-                            newValue: initialLendingControllerStorage.config.maxDecimalsForCalculation
-                        },
                         {
                             configName: "lastCompletedDataMaxDelay",
                             newValue: initialLendingControllerStorage.config.lastCompletedDataMaxDelay
@@ -4743,9 +4760,6 @@ describe("Lending Controller tests", async () => {
                 // Final values
                 lendingControllerStorage = await lendingControllerInstance.storage();
 
-                assert.equal(initialLendingControllerStorage.config.decimals.toNumber()                 , lendingControllerStorage.config.decimals.toNumber());
-                assert.equal(initialLendingControllerStorage.config.interestRateDecimals.toNumber()     , lendingControllerStorage.config.interestRateDecimals.toNumber());
-                assert.equal(initialLendingControllerStorage.config.maxDecimalsForCalculation.toNumber(), lendingControllerStorage.config.maxDecimalsForCalculation.toNumber());
                 assert.equal(initialLendingControllerStorage.config.lastCompletedDataMaxDelay.toNumber(), lendingControllerStorage.config.lastCompletedDataMaxDelay.toNumber());
                 
             } catch(e){
@@ -4756,164 +4770,127 @@ describe("Lending Controller tests", async () => {
         it('%setVaultConfig             - admin (bob) should be able to set vault config', async () => {
             try{
                 
-                const vaultConfigId = 0;
-                const newTestValue  = 100;
+                const vaultConfigId = 2;
+                let newTestValue    = 100;
 
                 // Initial Values
                 const initialLendingControllerStorage = await lendingControllerInstance.storage();
-                const initialVaultConfig              = await initialLendingControllerStorage.vaultConfigLedger.get(vaultConfigId);
 
                 // Operation
+                let setVaultConfigAction = "setNewVaultConfig";
                 let setNewVaultConfigOperation = await lendingControllerInstance.methods.setVaultConfig(
+                    setVaultConfigAction,
                     vaultConfigId,
-                    [
-                        {
-                            configName: "collateralRatio",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "liquidationRatio",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "liquidationFeePercent",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "adminLiquidationFeePercent",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "minimumLoanFeePercent",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "minimumLoanFeeTreasuryShare",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "interestTreasuryShare",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "maxVaultLiquidationPercent",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "liquidationDelayInMins",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "liquidationMaxDuration",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "interestRepaymentPeriod",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "missedPeriodsForLiquidation",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "repaymentWindow",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "penaltyFeePercentage",
-                            newValue: newTestValue
-                        },
-                        {
-                            configName: "liquidationConfig",
-                            newValue: newTestValue
-                        },
-                    ]
+                    newTestValue,
+                    newTestValue,
+                    newTestValue,
+                    newTestValue,
+                    newTestValue,
+
+                    newTestValue,
+                    newTestValue,
+                    newTestValue,
+                    newTestValue,
+                    newTestValue,
+
+                    newTestValue,
+                    newTestValue,
+                    newTestValue,
+                    newTestValue,
+                    newTestValue
                 ).send();
                 await setNewVaultConfigOperation.confirmation();
 
                 // Final values
                 lendingControllerStorage = await lendingControllerInstance.storage();
+
+                let vaultConfigRecord    = await lendingControllerStorage.vaultConfigLedger.get(vaultConfigId);
 
                 // Assertions
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.collateralRatio);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.liquidationRatio);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.liquidationFeePercent);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.adminLiquidationFeePercent);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.minimumLoanFeePercent);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.interestTreasuryShare);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.maxVaultLiquidationPercent);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.liquidationDelayInMins);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.liquidationMaxDuration);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.interestRepaymentPeriod);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.missedPeriodsForLiquidation);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.repaymentWindow);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.penaltyFeePercentage);
-                assert.equal(newTestValue, lendingControllerStorage.vaultConfig.liquidationConfig);
+                assert.equal(newTestValue, vaultConfigRecord.collateralRatio);
+                assert.equal(newTestValue, vaultConfigRecord.liquidationRatio);
+                assert.equal(newTestValue, vaultConfigRecord.liquidationFeePercent);
+                assert.equal(newTestValue, vaultConfigRecord.adminLiquidationFeePercent);
+                assert.equal(newTestValue, vaultConfigRecord.minimumLoanFeePercent);
+                
+                assert.equal(newTestValue, vaultConfigRecord.minimumLoanFeeTreasuryShare);
+                assert.equal(newTestValue, vaultConfigRecord.interestTreasuryShare);
+                assert.equal(newTestValue, vaultConfigRecord.maxVaultLiquidationPercent);
+                assert.equal(newTestValue, vaultConfigRecord.liquidationDelayInMins);
+                assert.equal(newTestValue, vaultConfigRecord.liquidationMaxDuration);
+                
+                assert.equal(newTestValue, vaultConfigRecord.interestRepaymentPeriod);
+                assert.equal(newTestValue, vaultConfigRecord.missedPeriodsForLiquidation);
+                assert.equal(newTestValue, vaultConfigRecord.repaymentWindow);
+                assert.equal(newTestValue, vaultConfigRecord.penaltyFeePercentage);
+                assert.equal(newTestValue, vaultConfigRecord.liquidationConfig);
 
-                // reset config operation
+                // update config operation
+                setVaultConfigAction = "updateVaultConfig";
+                newTestValue         = 999;
                 setNewVaultConfigOperation = await lendingControllerInstance.methods.setVaultConfig(
+                    setVaultConfigAction,
                     vaultConfigId,
                     [
                         {
                             configName: "collateralRatio",
-                            newValue: initialVaultConfig.collateralRatio
+                            newValue: newTestValue
                         },
                         {
                             configName: "liquidationRatio",
-                            newValue: initialVaultConfig.liquidationRatio
+                            newValue: newTestValue
                         },
                         {
                             configName: "liquidationFeePercent",
-                            newValue: initialVaultConfig.liquidationFeePercent
+                            newValue: newTestValue
                         },
                         {
                             configName: "adminLiquidationFeePercent",
-                            newValue: initialVaultConfig.adminLiquidationFeePercent
+                            newValue: newTestValue
                         },
                         {
                             configName: "minimumLoanFeePercent",
-                            newValue: initialVaultConfig.minimumLoanFeePercent
+                            newValue: newTestValue
                         },
                         {
                             configName: "minimumLoanFeeTreasuryShare",
-                            newValue: initialVaultConfig.minimumLoanFeeTreasuryShare
+                            newValue: newTestValue
                         },
                         {
                             configName: "interestTreasuryShare",
-                            newValue: initialVaultConfig.interestTreasuryShare
+                            newValue: newTestValue
                         },
                         {
                             configName: "maxVaultLiquidationPercent",
-                            newValue: initialVaultConfig.maxVaultLiquidationPercent
+                            newValue: newTestValue
                         },
                         {
                             configName: "liquidationDelayInMins",
-                            newValue: initialVaultConfig.liquidationDelayInMins
+                            newValue: newTestValue
                         },
                         {
                             configName: "liquidationMaxDuration",
-                            newValue: initialVaultConfig.liquidationMaxDuration
+                            newValue: newTestValue
                         },
                         {
                             configName: "interestRepaymentPeriod",
-                            newValue: initialVaultConfig.interestRepaymentPeriod
+                            newValue: newTestValue
                         },
                         {
                             configName: "missedPeriodsForLiquidation",
-                            newValue: initialVaultConfig.missedPeriodsForLiquidation
+                            newValue: newTestValue
                         },
                         {
                             configName: "repaymentWindow",
-                            newValue: initialVaultConfig.repaymentWindow
+                            newValue: newTestValue
                         },
                         {
                             configName: "penaltyFeePercentage",
-                            newValue: initialVaultConfig.penaltyFeePercentage
+                            newValue: newTestValue
                         },
                         {
                             configName: "liquidationConfig",
-                            newValue: initialVaultConfig.liquidationConfig
+                            newValue: newTestValue
                         },
                     ]
                 ).send();
@@ -4922,203 +4899,277 @@ describe("Lending Controller tests", async () => {
                 // Final values
                 lendingControllerStorage = await lendingControllerInstance.storage();
 
-                assert.equal(initialLendingControllerStorage.vaultConfig.collateralRatio.toNumber(), lendingControllerStorage.vaultConfig.collateralRatio.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.liquidationRatio.toNumber(), lendingControllerStorage.vaultConfig.liquidationRatio.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.liquidationFeePercent.toNumber(), lendingControllerStorage.vaultConfig.liquidationFeePercent.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.adminLiquidationFeePercent.toNumber(), lendingControllerStorage.vaultConfig.adminLiquidationFeePercent.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.minimumLoanFeePercent.toNumber(), lendingControllerStorage.vaultConfig.minimumLoanFeePercent.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare.toNumber(), lendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.interestTreasuryShare.toNumber(), lendingControllerStorage.vaultConfig.interestTreasuryShare.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.maxVaultLiquidationPercent.toNumber(), lendingControllerStorage.vaultConfig.maxVaultLiquidationPercent.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.liquidationDelayInMins.toNumber(), lendingControllerStorage.vaultConfig.liquidationDelayInMins.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.liquidationMaxDuration.toNumber(), lendingControllerStorage.vaultConfig.liquidationMaxDuration.toNumber());
+                vaultConfigRecord        = await lendingControllerStorage.vaultConfigLedger.get(vaultConfigId);
+
+                assert.equal(newTestValue, vaultConfigRecord.collateralRatio);
+                assert.equal(newTestValue, vaultConfigRecord.liquidationRatio);
+                assert.equal(newTestValue, vaultConfigRecord.liquidationFeePercent);
+                assert.equal(newTestValue, vaultConfigRecord.adminLiquidationFeePercent);
+                assert.equal(newTestValue, vaultConfigRecord.minimumLoanFeePercent);
+                
+                assert.equal(newTestValue, vaultConfigRecord.minimumLoanFeeTreasuryShare);
+                assert.equal(newTestValue, vaultConfigRecord.interestTreasuryShare);
+                assert.equal(newTestValue, vaultConfigRecord.maxVaultLiquidationPercent);
+                assert.equal(newTestValue, vaultConfigRecord.liquidationDelayInMins);
+                assert.equal(newTestValue, vaultConfigRecord.liquidationMaxDuration);
+                
+                assert.equal(newTestValue, vaultConfigRecord.interestRepaymentPeriod);
+                assert.equal(newTestValue, vaultConfigRecord.missedPeriodsForLiquidation);
+                assert.equal(newTestValue, vaultConfigRecord.repaymentWindow);
+                assert.equal(newTestValue, vaultConfigRecord.penaltyFeePercentage);
+                assert.equal(newTestValue, vaultConfigRecord.liquidationConfig);
 
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        
-        it("%pauseAll                 - admin (bob) should be able to call this entrypoint", async() => {
-            try{
-
-                pauseAllOperation = await lendingControllerInstance.methods.pauseAll().send(); 
-                await pauseAllOperation.confirmation();
-
-            } catch(e) {
-                console.dir(e, {depth: 5})
-            }
-        })
-
-        it("%unpauseAll               - admin (bob) should be able to call this entrypoint", async() => {
-            try{
-
-                unpauseAllOperation = await lendingControllerInstance.methods.unpauseAll().send(); 
-                await unpauseAllOperation.confirmation();
-
-            } catch(e) {
-                console.dir(e, {depth: 5})
-            }
-        })
 
         it("%togglePauseEntrypoint    - admin (bob) should be able to call this entrypoint", async() => {
             try{
                 
                 // pause operations
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("setLoanToken", true).send(); 
+                let pauseBool = true;
+                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint([
+                    {
+                        entrypoint: "setLoanToken", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "setCollateralToken", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "addLiquidity", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "removeLiquidity", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "registerVaultCreation", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "closeVault", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "registerDeposit", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "registerWithdrawal", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "markForLiquidation", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "liquidateVault", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "borrow", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "repay", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultDeposit", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultWithdraw", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultOnLiquidate", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultDepositStakedToken", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultWithdrawStakedToken", 
+                        pauseBool: pauseBool
+                    },
+                ]).send(); 
                 await pauseOperation.confirmation();
                 
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("setCollateralToken", true).send(); 
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("addLiquidity", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("removeLiquidity", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerVaultCreation", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("closeVault", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerDeposit", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerWithdrawal", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("markForLiquidation", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("liquidateVault", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("borrow", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("repay", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultDeposit", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdraw", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultOnLiquidate", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultDepositStakedToken", true).send();
-                await pauseOperation.confirmation();
-
-                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdrawStakedToken", true).send();
-                await pauseOperation.confirmation();
-
                 // update storage
                 lendingControllerStorage = await lendingControllerInstance.storage();
 
-                // check that entrypoints are paused
-                assert.equal(lendingControllerStorage.breakGlassConfig.setLoanTokenIsPaused                 , true)
-                assert.equal(lendingControllerStorage.breakGlassConfig.setCollateralTokenIsPaused           , true)
+                let setLoanTokenIsPaused                = await lendingControllerStorage.breakGlassLedger.get("setLoanToken");
+                let setCollateralTokenIsPaused          = await lendingControllerStorage.breakGlassLedger.get("setCollateralToken");
+                let addLiquidityIsPaused                = await lendingControllerStorage.breakGlassLedger.get("addLiquidity");
+                let removeLiquidityIsPaused             = await lendingControllerStorage.breakGlassLedger.get("removeLiquidity");
+
+                let registerVaultCreationIsPaused       = await lendingControllerStorage.breakGlassLedger.get("registerVaultCreation");
+                let closeVaultIsPaused                  = await lendingControllerStorage.breakGlassLedger.get("closeVault");
+
+                let registerDepositIsPaused             = await lendingControllerStorage.breakGlassLedger.get("registerDeposit");
+                let registerWithdrawalIsPaused          = await lendingControllerStorage.breakGlassLedger.get("registerWithdrawal");
+                let markForLiquidationIsPaused          = await lendingControllerStorage.breakGlassLedger.get("markForLiquidation");
+                let liquidateVaultIsPaused              = await lendingControllerStorage.breakGlassLedger.get("liquidateVault");
+
+                let borrowIsPaused                      = await lendingControllerStorage.breakGlassLedger.get("borrow");
+                let repayIsPaused                       = await lendingControllerStorage.breakGlassLedger.get("repay");
+                let vaultDepositIsPaused                = await lendingControllerStorage.breakGlassLedger.get("vaultDeposit");
+                let vaultWithdrawIsPaused               = await lendingControllerStorage.breakGlassLedger.get("vaultWithdraw");
                 
-                assert.equal(lendingControllerStorage.breakGlassConfig.addLiquidityIsPaused                 , true)
-                assert.equal(lendingControllerStorage.breakGlassConfig.removeLiquidityIsPaused              , true)
+                let vaultOnLiquidateIsPaused            = await lendingControllerStorage.breakGlassLedger.get("vaultOnLiquidate");
+                let vaultDepositStakedTokenIsPaused     = await lendingControllerStorage.breakGlassLedger.get("vaultDepositStakedToken");
+                let vaultWithdrawStakedTokenIsPaused    = await lendingControllerStorage.breakGlassLedger.get("vaultWithdrawStakedToken");
 
-                assert.equal(lendingControllerStorage.breakGlassConfig.registerVaultCreationIsPaused        , true)
-                assert.equal(lendingControllerStorage.breakGlassConfig.closeVaultIsPaused                   , true)
-                assert.equal(lendingControllerStorage.breakGlassConfig.registerDepositIsPaused              , true)
-                assert.equal(lendingControllerStorage.breakGlassConfig.registerWithdrawalIsPaused           , true)
-                assert.equal(lendingControllerStorage.breakGlassConfig.markForLiquidationIsPaused           , true)
-                assert.equal(lendingControllerStorage.breakGlassConfig.liquidateVaultIsPaused               , true)
-                assert.equal(lendingControllerStorage.breakGlassConfig.borrowIsPaused                       , true)
-                assert.equal(lendingControllerStorage.breakGlassConfig.repayIsPaused                        , true)
-                assert.equal(lendingControllerStorage.breakGlassConfig.vaultDepositIsPaused                 , true)
-                assert.equal(lendingControllerStorage.breakGlassConfig.vaultWithdrawIsPaused                , true)
-                assert.equal(lendingControllerStorage.breakGlassConfig.vaultOnLiquidateIsPaused             , true)
+                // check that entrypoints are paused
+                assert.equal(setLoanTokenIsPaused                 , true)
+                assert.equal(setCollateralTokenIsPaused           , true)
 
-                assert.equal(lendingControllerStorage.breakGlassConfig.vaultDepositStakedTokenIsPaused      , true)
-                assert.equal(lendingControllerStorage.breakGlassConfig.vaultWithdrawStakedTokenIsPaused     , true)
+                assert.equal(addLiquidityIsPaused                 , true)
+                assert.equal(removeLiquidityIsPaused              , true)
+
+                assert.equal(registerVaultCreationIsPaused        , true)
+                assert.equal(closeVaultIsPaused                   , true)
+                assert.equal(registerDepositIsPaused              , true)
+                assert.equal(registerWithdrawalIsPaused           , true)
+                assert.equal(markForLiquidationIsPaused           , true)
+                assert.equal(liquidateVaultIsPaused               , true)
+                assert.equal(borrowIsPaused                       , true)
+                assert.equal(repayIsPaused                        , true)
+                assert.equal(vaultDepositIsPaused                 , true)
+                assert.equal(vaultWithdrawIsPaused                , true)
+                assert.equal(vaultOnLiquidateIsPaused             , true)
+
+                assert.equal(vaultDepositStakedTokenIsPaused      , true)
+                assert.equal(vaultWithdrawStakedTokenIsPaused     , true)
 
                 // unpause operations
 
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("setLoanToken", false).send();
-                await unpauseOperation.confirmation();
-                
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("setCollateralToken", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("addLiquidity", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("removeLiquidity", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerVaultCreation", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("closeVault", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerDeposit", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerWithdrawal", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("markForLiquidation", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("liquidateVault", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("borrow", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("repay", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultDeposit", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdraw", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultOnLiquidate", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultDepositStakedToken", false).send();
-                await unpauseOperation.confirmation();
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdrawStakedToken", false).send();
-                await unpauseOperation.confirmation();
+                pauseBool = false;
+                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint([
+                    {
+                        entrypoint: "setLoanToken", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "setCollateralToken", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "addLiquidity", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "removeLiquidity", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "registerVaultCreation", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "closeVault", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "registerDeposit", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "registerWithdrawal", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "markForLiquidation", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "liquidateVault", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "borrow", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "repay", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultDeposit", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultWithdraw", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultOnLiquidate", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultDepositStakedToken", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultWithdrawStakedToken", 
+                        pauseBool: pauseBool
+                    },
+                ]).send(); 
+                await pauseOperation.confirmation();
 
                 // update storage
                 lendingControllerStorage = await lendingControllerInstance.storage();
 
+                setLoanTokenIsPaused                = await lendingControllerStorage.breakGlassLedger.get("setLoanToken");
+                setCollateralTokenIsPaused          = await lendingControllerStorage.breakGlassLedger.get("setCollateralToken");
+                addLiquidityIsPaused                = await lendingControllerStorage.breakGlassLedger.get("addLiquidity");
+                removeLiquidityIsPaused             = await lendingControllerStorage.breakGlassLedger.get("removeLiquidity");
+
+                registerVaultCreationIsPaused       = await lendingControllerStorage.breakGlassLedger.get("registerVaultCreation");
+                closeVaultIsPaused                  = await lendingControllerStorage.breakGlassLedger.get("closeVault");
+
+                registerDepositIsPaused             = await lendingControllerStorage.breakGlassLedger.get("registerDeposit");
+                registerWithdrawalIsPaused          = await lendingControllerStorage.breakGlassLedger.get("registerWithdrawal");
+                markForLiquidationIsPaused          = await lendingControllerStorage.breakGlassLedger.get("markForLiquidation");
+                liquidateVaultIsPaused              = await lendingControllerStorage.breakGlassLedger.get("liquidateVault");
+
+                borrowIsPaused                      = await lendingControllerStorage.breakGlassLedger.get("borrow");
+                repayIsPaused                       = await lendingControllerStorage.breakGlassLedger.get("repay");
+                vaultDepositIsPaused                = await lendingControllerStorage.breakGlassLedger.get("vaultDeposit");
+                vaultWithdrawIsPaused               = await lendingControllerStorage.breakGlassLedger.get("vaultWithdraw");
+                
+                vaultOnLiquidateIsPaused            = await lendingControllerStorage.breakGlassLedger.get("vaultOnLiquidate");
+                vaultDepositStakedTokenIsPaused     = await lendingControllerStorage.breakGlassLedger.get("vaultDepositStakedToken");
+                vaultWithdrawStakedTokenIsPaused    = await lendingControllerStorage.breakGlassLedger.get("vaultWithdrawStakedToken");
+
                 // check that entrypoints are unpaused
-                assert.equal(lendingControllerStorage.breakGlassConfig.setLoanTokenIsPaused                 , false)
-                assert.equal(lendingControllerStorage.breakGlassConfig.setCollateralTokenIsPaused           , false)
+                assert.equal(setLoanTokenIsPaused                 , false)
+                assert.equal(setCollateralTokenIsPaused           , false)
 
-                assert.equal(lendingControllerStorage.breakGlassConfig.addLiquidityIsPaused                 , false)
-                assert.equal(lendingControllerStorage.breakGlassConfig.removeLiquidityIsPaused              , false)
+                assert.equal(addLiquidityIsPaused                 , false)
+                assert.equal(removeLiquidityIsPaused              , false)
 
-                assert.equal(lendingControllerStorage.breakGlassConfig.registerVaultCreationIsPaused        , false)
-                assert.equal(lendingControllerStorage.breakGlassConfig.closeVaultIsPaused                   , false)
-                assert.equal(lendingControllerStorage.breakGlassConfig.registerDepositIsPaused              , false)
-                assert.equal(lendingControllerStorage.breakGlassConfig.registerWithdrawalIsPaused           , false)
-                assert.equal(lendingControllerStorage.breakGlassConfig.markForLiquidationIsPaused           , false)
-                assert.equal(lendingControllerStorage.breakGlassConfig.liquidateVaultIsPaused               , false)
-                assert.equal(lendingControllerStorage.breakGlassConfig.borrowIsPaused                       , false)
-                assert.equal(lendingControllerStorage.breakGlassConfig.repayIsPaused                        , false)
-                assert.equal(lendingControllerStorage.breakGlassConfig.vaultDepositIsPaused                 , false)
-                assert.equal(lendingControllerStorage.breakGlassConfig.vaultWithdrawIsPaused                , false)
-                assert.equal(lendingControllerStorage.breakGlassConfig.vaultOnLiquidateIsPaused             , false)
+                assert.equal(registerVaultCreationIsPaused        , false)
+                assert.equal(closeVaultIsPaused                   , false)
+                assert.equal(registerDepositIsPaused              , false)
+                assert.equal(registerWithdrawalIsPaused           , false)
+                assert.equal(markForLiquidationIsPaused           , false)
+                assert.equal(liquidateVaultIsPaused               , false)
+                assert.equal(borrowIsPaused                       , false)
+                assert.equal(repayIsPaused                        , false)
+                assert.equal(vaultDepositIsPaused                 , false)
+                assert.equal(vaultWithdrawIsPaused                , false)
+                assert.equal(vaultOnLiquidateIsPaused             , false)
 
-                assert.equal(lendingControllerStorage.breakGlassConfig.vaultDepositStakedTokenIsPaused      , false)
-                assert.equal(lendingControllerStorage.breakGlassConfig.vaultWithdrawStakedTokenIsPaused     , false)
+                assert.equal(vaultDepositStakedTokenIsPaused      , false)
+                assert.equal(vaultWithdrawStakedTokenIsPaused     , false)
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -5187,173 +5238,178 @@ describe("Lending Controller tests", async () => {
                 const newTestValue = 100;
 
                 // Operation
-                let updateConfigOperation = lendingControllerInstance.methods.updateConfig(newTestValue, "configCollateralRatio");
-                await chai.expect(updateConfigOperation.send()).to.be.rejected;
-
-                updateConfigOperation = lendingControllerInstance.methods.updateConfig(newTestValue, "configLiquidationRatio");
-                await chai.expect(updateConfigOperation.send()).to.be.rejected;
-
-                updateConfigOperation = lendingControllerInstance.methods.updateConfig(newTestValue, "configLiquidationFeePercent");
-                await chai.expect(updateConfigOperation.send()).to.be.rejected;
-
-                updateConfigOperation = lendingControllerInstance.methods.updateConfig(newTestValue, "configAdminLiquidationFee");
-                await chai.expect(updateConfigOperation.send()).to.be.rejected;
-
-                updateConfigOperation = lendingControllerInstance.methods.updateConfig(newTestValue, "configMinimumLoanFeePercent");
-                await chai.expect(updateConfigOperation.send()).to.be.rejected;
-
-                updateConfigOperation = lendingControllerInstance.methods.updateConfig(newTestValue, "configMinLoanFeeTreasuryShare");
-                await chai.expect(updateConfigOperation.send()).to.be.rejected;
-
-                updateConfigOperation = lendingControllerInstance.methods.updateConfig(newTestValue, "configInterestTreasuryShare");
+                let updateConfigOperation = await lendingControllerInstance.methods.updateConfig(
+                    [
+                        {
+                            configName: "lastCompletedDataMaxDelay",
+                            newValue: newTestValue
+                        },
+                    ]
+                );
                 await chai.expect(updateConfigOperation.send()).to.be.rejected;
 
                 // Final values
                 lendingControllerStorage = await lendingControllerInstance.storage();
 
                 // check that there is no change in config values
-                assert.equal(initialLendingControllerStorage.vaultConfig.collateralRatio.toNumber(), lendingControllerStorage.vaultConfig.collateralRatio.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.liquidationRatio.toNumber(), lendingControllerStorage.vaultConfig.liquidationRatio.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.liquidationFeePercent.toNumber(), lendingControllerStorage.vaultConfig.liquidationFeePercent.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.adminLiquidationFeePercent.toNumber(), lendingControllerStorage.vaultConfig.adminLiquidationFeePercent.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.minimumLoanFeePercent.toNumber(), lendingControllerStorage.vaultConfig.minimumLoanFeePercent.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare.toNumber(), lendingControllerStorage.vaultConfig.minimumLoanFeeTreasuryShare.toNumber());
-                assert.equal(initialLendingControllerStorage.vaultConfig.interestTreasuryShare.toNumber(), lendingControllerStorage.vaultConfig.interestTreasuryShare.toNumber());
+                assert.equal(initialLendingControllerStorage.config.lastCompletedDataMaxDelay.toNumber(), lendingControllerStorage.config.lastCompletedDataMaxDelay.toNumber());
                 
             } catch(e){
                 console.dir(e, {depth: 5});
             }
         });
 
-        it("%pauseAll                 - non-admin (mallory) should not be able to call this entrypoint", async() => {
-            try{
-
-                pauseAllOperation = lendingControllerInstance.methods.pauseAll(); 
-                await chai.expect(pauseAllOperation.send()).to.be.rejected;
-
-            } catch(e) {
-                console.dir(e, {depth: 5})
-            }
-        })
-
-        it("%unpauseAll               - non-admin (mallory) should not be able to call this entrypoint", async() => {
-            try{
-
-                unpauseAllOperation = lendingControllerInstance.methods.unpauseAll(); 
-                await chai.expect(unpauseAllOperation.send()).to.be.rejected;
-
-            } catch(e) {
-                console.dir(e, {depth: 5})
-            }
-        })
-
         it("%togglePauseEntrypoint    - non-admin (mallory) should not be able to call this entrypoint", async() => {
             try{
                 
                 // pause operations
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("setLoanToken", true); 
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-                
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("setCollateralToken", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("addLiquidity", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("removeLiquidity", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("registerVaultCreation", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("closeVault", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("registerDeposit", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("registerWithdrawal", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("markForLiquidation", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("liquidateVault", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("borrow", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("repay", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("vaultDeposit", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdraw", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("vaultOnLiquidate", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("vaultDepositStakedToken", true);
-                await chai.expect(pauseOperation.send()).to.be.rejected;
-
-                pauseOperation = lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdrawStakedToken", true);
+                let pauseBool = true;
+                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint([
+                    {
+                        entrypoint: "setLoanToken", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "setCollateralToken", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "addLiquidity", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "removeLiquidity", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "registerVaultCreation", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "closeVault", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "registerDeposit", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "registerWithdrawal", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "markForLiquidation", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "liquidateVault", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "borrow", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "repay", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultDeposit", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultWithdraw", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultOnLiquidate", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultDepositStakedToken", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultWithdrawStakedToken", 
+                        pauseBool: pauseBool
+                    },
+                ]);
                 await chai.expect(pauseOperation.send()).to.be.rejected;
 
                 // unpause operations
 
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("setLoanToken", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-                
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("setCollateralToken", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("addLiquidity", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("removeLiquidity", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerVaultCreation", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("closeVault", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerDeposit", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("registerWithdrawal", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("markForLiquidation", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("liquidateVault", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("borrow", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("repay", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultDeposit", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdraw", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultOnLiquidate", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultDepositStakedToken", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
-
-                unpauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint("vaultWithdrawStakedToken", false);
-                await chai.expect(unpauseOperation.send()).to.be.rejected;
+                pauseBool = false;
+                pauseOperation = await lendingControllerInstance.methods.togglePauseEntrypoint([
+                    {
+                        entrypoint: "setLoanToken", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "setCollateralToken", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "addLiquidity", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "removeLiquidity", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "registerVaultCreation", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "closeVault", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "registerDeposit", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "registerWithdrawal", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "markForLiquidation", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "liquidateVault", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "borrow", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "repay", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultDeposit", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultWithdraw", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultOnLiquidate", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultDepositStakedToken", 
+                        pauseBool: pauseBool
+                    },
+                    {
+                        entrypoint: "vaultWithdrawStakedToken", 
+                        pauseBool: pauseBool
+                    },
+                ]);
+                await chai.expect(pauseOperation.send()).to.be.rejected;
 
             } catch(e) {
                 console.dir(e, {depth: 5})
@@ -5494,7 +5550,6 @@ describe("Lending Controller tests", async () => {
             await signerFactory(tezos, eve.sk);
             
             lendingControllerStorage = await lendingControllerInstance.storage();
-            
             
 
             let loanTokenName                         = "usdt";
