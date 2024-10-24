@@ -64,7 +64,7 @@ block {
 
                     if configName = "decimals" or 
                        configName = "interestRateDecimals" or 
-                       configName = "lastCompletedDataMaxDelay" 
+                       configName = "maxDecimalsForCalculation" 
                     then failwith("error_INVALID_CONFIG_NOT_ALLOWED") 
                     else if configName = "lastCompletedDataMaxDelay" then {
                         s.config.lastCompletedDataMaxDelay := newValue;
