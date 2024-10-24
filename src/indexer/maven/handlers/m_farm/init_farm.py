@@ -1,13 +1,13 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.m_farm.tezos_parameters.init_farm import InitFarmParameter
 from maven.types.m_farm.tezos_storage import MFarmStorage
 import maven.models as models
 
 async def init_farm(
     ctx: HandlerContext,
-    init_farm: TzktTransaction[InitFarmParameter, MFarmStorage],
+    init_farm: TezosTransaction[InitFarmParameter, MFarmStorage],
 ) -> None:
 
     try:
@@ -33,10 +33,10 @@ async def init_farm(
     
         # Create record
         governance      = await models.Governance.get(
-            network = ctx.datasource.name.replace('mvkt_','')
+            network = 'atlasnet'
         )
         farm            = models.Farm(
-            network                         = ctx.datasource.name.replace('mvkt_',''),
+            network                         = 'atlasnet',
             address                         = farm_address,
             admin                           = admin,
             governance                      = governance,

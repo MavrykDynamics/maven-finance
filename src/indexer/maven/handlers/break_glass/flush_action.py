@@ -3,12 +3,12 @@ from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from maven.utils.persisters import persist_break_glass_action
 from maven.types.break_glass.tezos_storage import BreakGlassStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.break_glass.tezos_parameters.flush_action import FlushActionParameter
 
 async def flush_action(
     ctx: HandlerContext,
-    flush_action: TzktTransaction[FlushActionParameter, BreakGlassStorage],
+    flush_action: TezosTransaction[FlushActionParameter, BreakGlassStorage],
 ) -> None:
 
     try:

@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.delegation.tezos_parameters.update_satellite_record import UpdateSatelliteRecordParameter
 from dipdup.context import HandlerContext
 from maven.types.delegation.tezos_storage import DelegationStorage
@@ -8,7 +8,7 @@ import maven.models as models
 
 async def update_satellite_record(
     ctx: HandlerContext,
-    update_satellite_record: TzktTransaction[UpdateSatelliteRecordParameter, DelegationStorage],
+    update_satellite_record: TezosTransaction[UpdateSatelliteRecordParameter, DelegationStorage],
 ) -> None:
 
     try:
@@ -25,9 +25,9 @@ async def update_satellite_record(
         rewards_record          = update_satellite_record.storage.satelliteRewardsLedger[satellite_address]
     
         # Create and/or update record
-        user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=satellite_address)
+        user                    = await models.maven_user_cache.get(network='atlasnet', address=satellite_address)
         delegation = await models.Delegation.get(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = delegation_address
         )
         await models.Satellite.filter(

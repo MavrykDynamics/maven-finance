@@ -4,12 +4,12 @@ from maven.utils.persisters import persist_linked_contract
 from maven.types.delegation.tezos_parameters.update_whitelist_contracts import UpdateWhitelistContractsParameter
 from dipdup.context import HandlerContext
 from maven.types.delegation.tezos_storage import DelegationStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 import maven.models as models
 
 async def update_whitelist_contracts(
     ctx: HandlerContext,
-    update_whitelist_contracts: TzktTransaction[UpdateWhitelistContractsParameter, DelegationStorage],
+    update_whitelist_contracts: TezosTransaction[UpdateWhitelistContractsParameter, DelegationStorage],
 ) -> None:
 
     try:

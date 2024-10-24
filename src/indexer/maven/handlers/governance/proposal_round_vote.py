@@ -1,21 +1,21 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.governance.tezos_storage import GovernanceStorage
 from maven.types.governance.tezos_parameters.proposal_round_vote import ProposalRoundVoteParameter
 import maven.models as models
 
 async def proposal_round_vote(
     ctx: HandlerContext,
-    proposal_round_vote: TzktTransaction[ProposalRoundVoteParameter, GovernanceStorage],
+    proposal_round_vote: TezosTransaction[ProposalRoundVoteParameter, GovernanceStorage],
 ) -> None:
 
     try:
         # Get operation values
         governance_address      = proposal_round_vote.data.target_address
-        proposal_id             = int(proposal_round_vote.parameter.__root__)
-        storage_proposal        = proposal_round_vote.storage.proposalLedger[proposal_round_vote.parameter.__root__]
+        proposal_id             = int(proposal_round_vote.parameter.root)
+        storage_proposal        = proposal_round_vote.storage.proposalLedger[proposal_round_vote.parameter.root]
         voter_address           = proposal_round_vote.data.sender_address
         current_round           = models.GovernanceRoundType.PROPOSAL
         vote                    = models.GovernanceVoteType.YAY
@@ -25,8 +25,8 @@ async def proposal_round_vote(
         timestamp               = proposal_round_vote.data.timestamp
     
         # Create and update records
-        governance  = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
-        voter       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=voter_address)
+        governance  = await models.Governance.get(network='atlasnet', address= governance_address)
+        voter       = await models.maven_user_cache.get(network='atlasnet', address=voter_address)
     
         # Update or a satellite snapshot record
         governance_snapshot = await models.GovernanceSatelliteSnapshot.get_or_none(

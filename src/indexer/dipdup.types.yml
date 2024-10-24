@@ -16,8 +16,9 @@ jobs:
 
 templates:
   m_token_template:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - origination
     - transaction
@@ -59,14 +60,16 @@ templates:
 
 indexes:
   treasury_token_transfer_receiver:
-    kind: tezos.tzkt.token_transfers
-    datasource: mvkt_atlasnet
+    kind: tezos.token_transfers
+    datasources:
+    - mvkt_atlasnet
     handlers:
     - callback: treasury.token_transfer_receiver
-      to: doorman
+      contract: treasury
   farm:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -131,8 +134,9 @@ indexes:
       - destination: farm
         entrypoint: setLambda
   m_farm:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -197,8 +201,9 @@ indexes:
       - destination: farm_m_token
         entrypoint: setLambda
   aggregator:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -271,8 +276,9 @@ indexes:
       - destination: aggregator
         entrypoint: setLambda
   treasury:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -325,8 +331,9 @@ indexes:
       - destination: treasury
         entrypoint: setLambda
   vault:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -343,16 +350,18 @@ indexes:
       - destination: vault
         entrypoint: updateVaultName
   governance_satellite_snapshot:
-    kind: tezos.tzkt.big_maps
-    datasource: mvkt_atlasnet
+    kind: tezos.big_maps
+    datasources:
+    - mvkt_atlasnet
     skip_history: never
     handlers:
     - callback: governance.snapshot_ledger_update
       contract: governance
       path: snapshotLedger
   liquidity_baking:
-    kind: tezos.tzkt.operations
-    datasource: tzkt_mainnet
+    kind: tezos.operations
+    datasources:
+    - tzkt_mainnet
     types:
     - origination
     - transaction
@@ -398,8 +407,9 @@ indexes:
       - destination: liquidity_baking
         entrypoint: default
   sirius:
-    kind: tezos.tzkt.operations
-    datasource: tzkt_mainnet
+    kind: tezos.operations
+    datasources:
+    - tzkt_mainnet
     types:
     - origination
     - transaction
@@ -411,8 +421,9 @@ indexes:
       - destination: sirius
         entrypoint: transfer
   initializer:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - origination
     - transaction

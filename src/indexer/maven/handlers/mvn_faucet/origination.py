@@ -1,12 +1,12 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos import TezosOrigination
 from maven.types.mvn_faucet.tezos_storage import MvnFaucetStorage
 import maven.models as models
 
 async def origination(
     ctx: HandlerContext,
-    mvn_faucet_origination: TzktOrigination[MvnFaucetStorage],
+    mvn_faucet_origination: TezosOrigination[MvnFaucetStorage],
 ) -> None:
 
     try:    
@@ -20,7 +20,7 @@ async def origination(
         # Create record
         mvn_faucet          = models.MVNFaucet(
             address                     = address,
-            network                     = ctx.datasource.name.replace('mvkt_',''),
+            network                     = 'atlasnet',
             mvn_token_address           = mvn_token_address,
             fake_usdt_token_address     = fake_usdt_token_address,
             mvn_amount_per_user         = mvn_amount_per_user,

@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.utils.contracts import get_contract_metadata
 from maven.types.vault_factory.tezos_storage import VaultFactoryStorage
-from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos import TezosOrigination
 from dipdup.context import HandlerContext
 import maven.models as models
 
 async def origination(
     ctx: HandlerContext,
-    vault_factory_origination: TzktOrigination[VaultFactoryStorage],
+    vault_factory_origination: TezosOrigination[VaultFactoryStorage],
 ) -> None:
 
     try:
@@ -26,10 +26,10 @@ async def origination(
         )
     
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
+        governance                  = await models.Governance.get(network = 'atlasnet')
         vault_factory           = models.VaultFactory(
             address                 = vault_factory_address,
-            network                 = ctx.datasource.name.replace('mvkt_',''),
+            network                 = 'atlasnet',
             metadata                = contract_metadata,
             admin                   = admin,
             governance              = governance,

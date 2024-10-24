@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from maven.types.mvn_token.tezos_parameters.transfer import TransferParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.doorman.tezos_parameters.stake_mvn import StakeMvnParameter
 from dipdup.context import HandlerContext
 from maven.types.doorman.tezos_storage import DoormanStorage
@@ -10,8 +10,8 @@ import maven.models as models
 
 async def stake_mvn(
     ctx: HandlerContext,
-    stake_mvn: TzktTransaction[StakeMvnParameter, DoormanStorage],
-    transfer: TzktTransaction[TransferParameter, MvnTokenStorage],
+    stake_mvn: TezosTransaction[StakeMvnParameter, DoormanStorage],
+    transfer: TezosTransaction[TransferParameter, MvnTokenStorage],
 ) -> None:
 
     try:
@@ -26,13 +26,13 @@ async def stake_mvn(
         total_farm_rewards_claimed          = float(sender_stake_balance_ledger.totalFarmRewardsClaimed)
         participation_fees_per_share        = float(sender_stake_balance_ledger.participationFeesPerShare)
         timestamp                           = stake_mvn.data.timestamp
-        amount                              = float(stake_mvn.parameter.__root__)
-        doorman                             = await models.Doorman.get(network=ctx.datasource.name.replace('mvkt_',''), address=doorman_address)
+        amount                              = float(stake_mvn.parameter.root)
+        doorman                             = await models.Doorman.get(network='atlasnet', address=doorman_address)
         unclaimed_rewards                   = float(stake_mvn.storage.unclaimedRewards)
         accumulated_fees_per_share          = float(stake_mvn.storage.accumulatedFeesPerShare)
     
         # Get or create the interacting user
-        user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
+        user                = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
         user.mvn_balance    = mvn_balance
         user.smvn_balance   = smvn_balance
         await user.save()

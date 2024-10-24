@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos import TezosOrigination
 from dipdup.context import HandlerContext
 from maven.utils.contracts import get_contract_metadata
 from maven.types.governance_proxy.tezos_storage import GovernanceProxyStorage
@@ -8,7 +8,7 @@ import maven.models as models
 
 async def origination(
     ctx: HandlerContext,
-    governance_proxy_origination: TzktOrigination[GovernanceProxyStorage],
+    governance_proxy_origination: TezosOrigination[GovernanceProxyStorage],
 ) -> None:
 
     try:
@@ -24,10 +24,10 @@ async def origination(
         )
         
         # Create record# Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
+        governance                  = await models.Governance.get(network = 'atlasnet')
         governance_proxy            = models.GovernanceProxy(
             address             = governance_proxy_address,
-            network             = ctx.datasource.name.replace('mvkt_',''),
+            network             = 'atlasnet',
             metadata            = contract_metadata,
             admin               = admin_address,
             last_updated_at     = timestamp,

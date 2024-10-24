@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from dipdup.context import HandlerContext
 from maven.types.doorman.tezos_parameters.unpause_all import UnpauseAllParameter
 from maven.types.doorman.tezos_storage import DoormanStorage
@@ -8,7 +8,7 @@ import maven.models as models
 
 async def unpause_all(
     ctx: HandlerContext,
-    unpause_all: TzktTransaction[UnpauseAllParameter, DoormanStorage],
+    unpause_all: TezosTransaction[UnpauseAllParameter, DoormanStorage],
 ) -> None:
 
     try:
@@ -16,7 +16,7 @@ async def unpause_all(
         doorman_address                         = unpause_all.data.target_address
     
         # Update doorman
-        await models.Doorman.filter(network=ctx.datasource.name.replace('mvkt_',''), address=doorman_address).update(
+        await models.Doorman.filter(network='atlasnet', address=doorman_address).update(
             stake_mvn_paused                    = unpause_all.storage.breakGlassConfig.stakeMvnIsPaused,
             unstake_mvn_paused                  = unpause_all.storage.breakGlassConfig.unstakeMvnIsPaused,
             compound_paused                 = unpause_all.storage.breakGlassConfig.compoundIsPaused,

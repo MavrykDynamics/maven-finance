@@ -2,13 +2,13 @@ from maven.utils.contracts import get_token_standard
 from maven.utils.error_reporting import save_error_report
 from maven.types.lending_controller.tezos_parameters.remove_liquidity import RemoveLiquidityParameter
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenType3 as fa12, TokenType4 as fa2, TokenType5 as mav
 import maven.models as models
 
 async def remove_liquidity(
     ctx: HandlerContext,
-    remove_liquidity: TzktTransaction[RemoveLiquidityParameter, LendingControllerStorage],
+    remove_liquidity: TezosTransaction[RemoveLiquidityParameter, LendingControllerStorage],
 ) -> None:
 
     try:
@@ -54,7 +54,7 @@ async def remove_liquidity(
 
             # Get the related token
             token, _                                = await models.Token.get_or_create(
-                network             = ctx.datasource.name.replace('mvkt_',''),
+                network             = 'atlasnet',
                 token_address       = loan_token_address,
                 token_id            = loan_token_id
             )
@@ -63,7 +63,7 @@ async def remove_liquidity(
     
         # Create / Update record
         lending_controller                      = await models.LendingController.get(
-            network         = ctx.datasource.name.replace('mvkt_',''),
+            network         = 'atlasnet',
             address         = lending_controller_address,
         )
         lending_controller_loan_token           = await models.LendingControllerLoanToken.get(
@@ -87,7 +87,7 @@ async def remove_liquidity(
         await lending_controller_loan_token.save()
     
         # Save history data
-        sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
+        sender                                  = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
         history_data                            = models.LendingControllerHistoryData(
             lending_controller  = lending_controller,
             sender              = sender,

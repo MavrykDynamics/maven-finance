@@ -4,11 +4,11 @@ from dipdup.context import HandlerContext
 from maven.utils.persisters import persist_break_glass_action
 from maven.types.break_glass.tezos_storage import BreakGlassStorage
 from maven.types.break_glass.tezos_parameters.set_single_contract_admin import SetSingleContractAdminParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 
 async def set_single_contract_admin(
     ctx: HandlerContext,
-    set_single_contract_admin: TzktTransaction[SetSingleContractAdminParameter, BreakGlassStorage],
+    set_single_contract_admin: TezosTransaction[SetSingleContractAdminParameter, BreakGlassStorage],
 ) -> None:
 
     try:

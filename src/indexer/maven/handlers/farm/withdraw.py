@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.farm.tezos_storage import FarmStorage
 from maven.types.farm.tezos_parameters.withdraw import WithdrawParameter
 import maven.models as models
@@ -9,7 +9,7 @@ import datetime
 
 async def withdraw(
     ctx: HandlerContext,
-    withdraw: TzktTransaction[WithdrawParameter, FarmStorage],
+    withdraw: TezosTransaction[WithdrawParameter, FarmStorage],
 ) -> None:
 
     try:
@@ -35,7 +35,7 @@ async def withdraw(
 
         # Create and update records
         farm                            = await models.Farm.get(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = farm_address
         )
         farm.total_rewards              = total_rewards
@@ -53,7 +53,7 @@ async def withdraw(
             farm.end_timestamp  = farm.start_timestamp + datetime.timedelta(seconds=farm_duration)
         await farm.save()
     
-        user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=depositor_address)
+        user                            = await models.maven_user_cache.get(network='atlasnet', address=depositor_address)
     
         farm_account, _                 = await models.FarmAccount.get_or_create(
             user = user,

@@ -1,21 +1,21 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.emergency_governance.tezos_parameters.drop_emergency_governance import DropEmergencyGovernanceParameter
 from maven.types.emergency_governance.tezos_storage import EmergencyGovernanceStorage
 import maven.models as models
 
 async def drop_emergency_governance(
     ctx: HandlerContext,
-    drop_emergency_governance: TzktTransaction[DropEmergencyGovernanceParameter, EmergencyGovernanceStorage],
+    drop_emergency_governance: TezosTransaction[DropEmergencyGovernanceParameter, EmergencyGovernanceStorage],
 ) -> None:
 
     try:
         # Get operation values
         emergency_address           = drop_emergency_governance.data.target_address
         emergency   = await models.EmergencyGovernance.get(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = emergency_address
         )
         emergency_current_id        = int(drop_emergency_governance.storage.currentEmergencyGovernanceId)

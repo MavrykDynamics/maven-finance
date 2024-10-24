@@ -1,14 +1,14 @@
 from maven.utils.error_reporting import save_error_report
 
 from maven.types.farm.tezos_storage import FarmStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.farm.tezos_parameters.toggle_pause_entrypoint import TogglePauseEntrypointParameter
 from dipdup.context import HandlerContext
 import maven.models as models
 
 async def toggle_pause_entrypoint(
     ctx: HandlerContext,
-    toggle_pause_entrypoint: TzktTransaction[TogglePauseEntrypointParameter, FarmStorage],
+    toggle_pause_entrypoint: TezosTransaction[TogglePauseEntrypointParameter, FarmStorage],
 ) -> None:
 
     try:
@@ -16,7 +16,7 @@ async def toggle_pause_entrypoint(
         farm_address    = toggle_pause_entrypoint.data.target_address
     
         # Update record
-        await models.Farm.filter(network=ctx.datasource.name.replace('mvkt_',''), address=farm_address).update(
+        await models.Farm.filter(network='atlasnet', address=farm_address).update(
             deposit_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.depositIsPaused,
             withdraw_paused    = toggle_pause_entrypoint.storage.breakGlassConfig.withdrawIsPaused,
             claim_paused       = toggle_pause_entrypoint.storage.breakGlassConfig.claimIsPaused

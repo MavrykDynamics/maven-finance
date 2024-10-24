@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from maven.types.vesting.tezos_storage import VestingStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.vesting.tezos_parameters.claim import ClaimParameter
 from dipdup.context import HandlerContext
 from dateutil import parser 
@@ -9,7 +9,7 @@ import maven.models as models
 
 async def claim(
     ctx: HandlerContext,
-    claim: TzktTransaction[ClaimParameter, VestingStorage],
+    claim: TezosTransaction[ClaimParameter, VestingStorage],
 ) -> None:
 
     try:
@@ -27,10 +27,10 @@ async def claim(
     
         # Update and create record
         vesting = await models.Vesting.get(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = vesting_address
         )
-        vestee  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vestee_address)
+        vestee  = await models.maven_user_cache.get(network='atlasnet', address=vestee_address)
         await models.VestingVestee.filter(
             vestee  = vestee,
             vesting = vesting

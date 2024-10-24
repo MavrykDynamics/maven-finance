@@ -4,12 +4,12 @@ from maven.utils.contracts import get_contract_metadata
 from maven.types.aggregator.tezos_storage import AggregatorStorage
 from maven.types.aggregator.tezos_parameters.update_metadata import UpdateMetadataParameter
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 import maven.models as models
 
 async def update_metadata(
     ctx: HandlerContext,
-    update_metadata: TzktTransaction[UpdateMetadataParameter, AggregatorStorage],
+    update_metadata: TezosTransaction[UpdateMetadataParameter, AggregatorStorage],
 ) -> None:
 
     try:    
@@ -25,7 +25,7 @@ async def update_metadata(
         # Update record
         await models.Aggregator.filter(
             address = aggregator_address,
-            network = ctx.datasource.name.replace('mvkt_','')
+            network = 'atlasnet'
         ).update(
             metadata = contract_metadata
         )

@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from maven.types.aggregator.tezos_storage import AggregatorStorage
 from maven.types.aggregator.tezos_parameters.update_data import UpdateDataParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 import maven.models as models
 from dateutil import parser
 
 async def update_data(
     ctx: HandlerContext,
-    update_data: TzktTransaction[UpdateDataParameter, AggregatorStorage],
+    update_data: TezosTransaction[UpdateDataParameter, AggregatorStorage],
 ) -> None:
 
     try:
@@ -19,7 +19,7 @@ async def update_data(
         timestamp                       = update_data.data.timestamp
         last_completed_data             = update_data.storage.lastCompletedData
         aggregator                      = await models.Aggregator.get(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = aggregator_address
         )
         
@@ -37,7 +37,7 @@ async def update_data(
             aggregator.last_completed_data_last_updated_at  = parser.parse(last_completed_data.lastUpdatedAt)
             await aggregator.save()
         
-            user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=oracle_address)
+            user                            = await models.maven_user_cache.get(network='atlasnet', address=oracle_address)
             oracle                          = await models.AggregatorOracle.get(
                 aggregator  = aggregator,
                 user        = user
@@ -78,7 +78,7 @@ async def update_data(
                 round                           = int(oracle_observation.round)
         
                 # Create observation records
-                user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=oracle_address)
+                user                            = await models.maven_user_cache.get(network='atlasnet', address=oracle_address)
                 oracle                          = await models.AggregatorOracle.get(
                     aggregator  = aggregator,
                     user        = user

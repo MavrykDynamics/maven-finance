@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos_tzkt import TzktTransaction
-from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos import TezosOrigination
 from dipdup.context import HandlerContext
 from maven.utils.contracts import get_contract_metadata
 from maven.types.aggregator_factory.tezos_parameters.create_aggregator import CreateAggregatorParameter
@@ -12,8 +12,8 @@ import maven.models as models
 
 async def create_aggregator(
     ctx: HandlerContext,
-    create_aggregator: TzktTransaction[CreateAggregatorParameter, AggregatorFactoryStorage],
-    aggregator_origination: TzktOrigination[AggregatorStorage],
+    create_aggregator: TezosTransaction[CreateAggregatorParameter, AggregatorFactoryStorage],
+    aggregator_origination: TezosOrigination[AggregatorStorage],
 ) -> None:
 
     try:
@@ -41,7 +41,7 @@ async def create_aggregator(
     
         # Check aggregator does not already exists
         aggregator_exists                           = await models.Aggregator.filter(
-            network     = ctx.datasource.name.replace('mvkt_',''),
+            network     = 'atlasnet',
             address     = aggregator_address
         ).exists()
 
@@ -73,14 +73,14 @@ async def create_aggregator(
     
             # Create record
             aggregator_factory          = await models.AggregatorFactory.get(
-                network     = ctx.datasource.name.replace('mvkt_',''),
+                network     = 'atlasnet',
                 address     = aggregator_factory_address
             )
             governance                  = await models.Governance.get(
-                network     = ctx.datasource.name.replace('mvkt_','')
+                network     = 'atlasnet'
             )
             aggregator                  = models.Aggregator(
-                network                                     = ctx.datasource.name.replace('mvkt_',''),
+                network                                     = 'atlasnet',
                 address                                     = aggregator_address,
                 metadata                                    = contract_metadata,
                 governance                                  = governance,
@@ -112,7 +112,7 @@ async def create_aggregator(
                 oracle_peer_id          = oracle_storage_record.oraclePeerId
     
                 # Create record
-                oracle                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=oracle_address)
+                oracle                  = await models.maven_user_cache.get(network='atlasnet', address=oracle_address)
                 aggregator_oracle       = models.AggregatorOracle(
                     aggregator  = aggregator,
                     user        = oracle,
