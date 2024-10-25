@@ -48,9 +48,9 @@ const vaultRwaConfig = {
     liquidationDelayInMins      : 120,
     liquidationMaxDuration      : 1440,
 
-    interestRepaymentPeriod      : 30,
+    interestRepaymentPeriod      : 30 * 1440, // in minutes
     missedPeriodsForLiquidation  : 4,
-    repaymentWindow              : 86400 * 7,    
+    repaymentWindow              : 1440 * 7,  // in minutes  
     penaltyFeePercentage         : 10,    
     liquidationConfig            : 1
 }

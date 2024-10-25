@@ -404,8 +404,15 @@ block {
         markedForLiquidationLevel   = 0n;
         liquidationEndLevel         = 0n;
 
-        penaltyFee                  = 0n;
-        lastInterestPayment         = Mavryk.get_now();
+        loanStartTimestamp          = (None : option(timestamp));
+        lastInterestCleared         = Mavryk.get_now();
+        loanStartLevel              = (None : option(nat));
+        lastInterestClearedLevel    = Mavryk.get_level();
+
+        penaltyAppliedTimestamp     = (None : option(timestamp));
+        penaltyAppliedLevel         = (None : option(nat));
+
+        penaltyCounter              = 0n;
     ];
     
 } with vaultRecord
@@ -1024,7 +1031,7 @@ function isPenalizedForLiquidation(const interestRepaymentPeriod : nat; const la
 block {
     
     const currentTimestamp : timestamp              = Mavryk.get_now();
-    const interestRepaymentPeriodInSeconds : int    = int((interestRepaymentPeriod * missedPeriodsForLiquidation) * 86400n);
+    const interestRepaymentPeriodInSeconds : int    = int((interestRepaymentPeriod * missedPeriodsForLiquidation) * 60n);
     const lastInterestPaymentWithPeriod : timestamp = lastInterestPayment + interestRepaymentPeriodInSeconds;
     const isPenalized : bool                        = currentTimestamp > lastInterestPaymentWithPeriod;
     
@@ -1033,39 +1040,174 @@ block {
 
 
 // helper function to apply vault penalty fee if interest repayment period has been missed
+// function applyVaultPenaltyFee(
+//     const loanInterestTotal : nat; 
+//     const penaltyFeePercentage : nat; 
+//     const interestRepaymentGrace : nat; 
+//     const interestRepaymentPeriod : nat; 
+//     const lastInterestPayment : timestamp
+// ) : nat is block {
+
+//     const currentTimestamp : timestamp               = Mavryk.get_now();
+//     const interestRepaymentGraceInSeconds : nat      = interestRepaymentGrace * 86_400n;
+//     var penaltyFee : nat                            := 0n;
+
+//     // var numberOfInterestRepaymentPeriodsMissed : nat  := 0n;
+
+//     if currentTimestamp > lastInterestPayment then {
+//         if interestRepaymentPeriod > 0n then {
+//             // check if within grace period
+//             const withinGracePeriod : int = currentTimestamp - (lastInterestPayment + int(interestRepaymentGraceInSeconds));
+//             if withinGracePeriod > 0 then {
+                
+//                 // grace period exceeded, apply penalty fee
+                
+//                 // penalty fee is total interest at this point in time multiplied by interest repayment periods missed
+//                 penaltyFee := (loanInterestTotal * penaltyFeePercentage * fixedPointAccuracy) / 10_000n / fixedPointAccuracy;
+
+//                 // todo: penalty fee based on total interest repayment periods missed, or based on just loan interest total 
+//                 // numberOfInterestRepaymentPeriodsMissed := abs(currentTimestamp - lastInterestPayment) / interestRepaymentPeriod;
+
+//             };
+//         } else skip;
+//     } else skip;
+
+// } with penaltyFee
+
+
+
+// helper function to apply vault penalty fee if interest repayment period has been missed
+// function applyVaultPenaltyFee(
+//     const loanInterestTotal : nat; 
+//     const penaltyFeePercentage : nat; 
+//     const repaymentWindow : nat; 
+//     const interestRepaymentPeriod : nat; 
+//     const loanStartTimestamp : timestamp;
+//     const lastInterestClearedTimestamp : timestamp;
+//     const penaltyAppliedTimestamp : option(timestamp);
+//     const mockLevel : nat
+// ) : nat is block {
+
+//     // penalty fee is total interest at this point in time multiplied by interest repayment periods missed
+//     const onePeriodPenaltyFee : nat = (loanInterestTotal * penaltyFeePercentage * fixedPointAccuracy) / 10_000n / fixedPointAccuracy;
+    
+//     const interestRepaymentPeriodInSeconds : int = int(interestRepaymentPeriod) * 60;
+//     const currentTimestamp : timestamp           = Mavryk.get_now();
+//     const repaymentWindowInSeconds : int         = int(repaymentWindow * 60n);
+    
+//     var penaltyFee : nat                      := 0n; // 1% 
+//     var numberOfMissedRepaymentPeriods : int  := 0;
+    
+//     if interestRepaymentPeriod > 0n then {
+
+//         // Calculate the end of the last repayment window
+//         const timeSinceLoanStart : int             = currentTimestamp - loanStartTimestamp;
+//         const totalInterestPeriodsElapsed : int    = timeSinceLoanStart / interestRepaymentPeriodInSeconds;
+//         const lastRepaymentWindowStart : timestamp = loanStartTimestamp + (totalInterestPeriodsElapsed * interestRepaymentPeriodInSeconds);
+//         const lastRepaymentWindowEnd : timestamp   = lastRepaymentWindowStart + repaymentWindowInSeconds;
+
+//         // Determine if we're within the current repayment window
+//         const withinCurrentRepaymentWindow : bool = currentTimestamp <= lastRepaymentWindowEnd and currentTimestamp > lastRepaymentWindowStart;
+
+//         case penaltyAppliedTimestamp of [
+//             Some(_penaltyAppliedTimestamp) -> {
+                
+//                 // If penalty was already applied in the current period, do not apply again
+//                 if _penaltyAppliedTimestamp >= lastRepaymentWindowStart then skip else {
+//                     // Calculate missed periods since last penalty was applied
+//                     var periodsSinceLastPenalty : int := (currentTimestamp - _penaltyAppliedTimestamp) / interestRepaymentPeriodInSeconds;
+//                     if periodsSinceLastPenalty = 0 then periodsSinceLastPenalty := 1 else skip;
+//                     numberOfMissedRepaymentPeriods := periodsSinceLastPenalty;
+//                 }
+//             }
+//         |   None -> {
+
+//                 // if within current repayment window and last interest cleared timestamp is after the start of previous period period start
+//                 if withinCurrentRepaymentWindow and lastInterestClearedTimestamp >= (lastRepaymentWindowStart - interestRepaymentPeriodInSeconds) then skip 
+//                 else {
+//                     // Calculate missed periods since last interest was cleared
+//                     var periodsSinceLastCleared : int := (currentTimestamp - lastInterestClearedTimestamp) / interestRepaymentPeriodInSeconds;
+//                     if periodsSinceLastCleared = 0 then periodsSinceLastCleared := 1 else skip;
+//                     numberOfMissedRepaymentPeriods := periodsSinceLastCleared;
+//                 }
+//             }
+//         ];
+
+//          // Calculate penalty fee if there are missed periods
+//         if numberOfMissedRepaymentPeriods > 0 then {
+//             penaltyFee := abs(numberOfMissedRepaymentPeriods) * onePeriodPenaltyFee;
+//         } else skip;
+
+//     } else skip;
+
+// } with penaltyFee
+
+
+
 function applyVaultPenaltyFee(
     const loanInterestTotal : nat; 
     const penaltyFeePercentage : nat; 
-    const interestRepaymentGrace : nat; 
+    const repaymentWindow : nat; 
     const interestRepaymentPeriod : nat; 
-    const lastInterestPayment : timestamp
+    const loanStartLevel : nat;
+    const lastInterestClearedLevel : nat;
+    const penaltyAppliedLevel : option(nat);
+    const mockLevel : nat
 ) : nat is block {
 
-    const currentTimestamp : timestamp               = Mavryk.get_now();
-    const interestRepaymentGraceInSeconds : nat      = interestRepaymentGrace * 86_400n;
-    var penaltyFee : nat                            := 0n;
+    // Penalty fee calculation based on missed periods
+    const onePeriodPenaltyFee : nat = (loanInterestTotal * penaltyFeePercentage * fixedPointAccuracy) / 10_000n / fixedPointAccuracy;
+    
+    const blocksPerMinute : nat                 = 60n / Mavryk.get_min_block_time();
 
-    // var numberOfInterestRepaymentPeriodsMissed : nat  := 0n;
+    const interestRepaymentPeriodInLevels : int = int(interestRepaymentPeriod / blocksPerMinute);
+    const repaymentWindowInLevels : int         = int(repaymentWindow / blocksPerMinute);
+    
+    var penaltyFee : nat                      := 0n;
+    var numberOfMissedRepaymentPeriods : int  := 0;
+    
+    if interestRepaymentPeriod > 0n then {
 
-    if currentTimestamp > lastInterestPayment then {
-        if interestRepaymentPeriod > 0n then {
-            // check if within grace period
-            const withinGracePeriod : int = currentTimestamp - (lastInterestPayment + int(interestRepaymentGraceInSeconds));
-            if withinGracePeriod > 0 then {
-                
-                // grace period exceeded, apply penalty fee
-                
-                // penalty fee is total interest at this point in time multiplied by interest repayment periods missed
-                penaltyFee := (loanInterestTotal * penaltyFeePercentage * fixedPointAccuracy) / 10_000n / fixedPointAccuracy;
+        // Calculate the end of the last repayment window in terms of block levels
+        const levelsSinceLoanStart : int              = mockLevel - loanStartLevel;
+        const totalInterestPeriodsElapsed : int       = levelsSinceLoanStart / interestRepaymentPeriodInLevels;
+        const lastRepaymentWindowStart : nat          = abs(loanStartLevel + (totalInterestPeriodsElapsed * interestRepaymentPeriodInLevels));
+        const lastRepaymentWindowEnd : nat            = lastRepaymentWindowStart + abs(repaymentWindowInLevels);
 
-                // todo: penalty fee based on total interest repayment periods missed, or based on just loan interest total 
-                // numberOfInterestRepaymentPeriodsMissed := abs(currentTimestamp - lastInterestPayment) / interestRepaymentPeriod;
+        // Determine if we're within the current repayment window
+        const withinCurrentRepaymentWindow : bool = mockLevel <= lastRepaymentWindowEnd and mockLevel > lastRepaymentWindowStart;
 
-            };
+        case penaltyAppliedLevel of [
+            Some(_penaltyAppliedLevel) -> {
+                // If penalty was already applied in the current period, skip penalty reapplication
+                if _penaltyAppliedLevel >= lastRepaymentWindowStart then skip else {
+                    // Calculate missed periods since last penalty was applied
+                    var periodsSinceLastPenalty : int := (mockLevel - _penaltyAppliedLevel) / interestRepaymentPeriodInLevels;
+                    if periodsSinceLastPenalty = 0 then periodsSinceLastPenalty := 1 else skip;
+                    numberOfMissedRepaymentPeriods := periodsSinceLastPenalty;
+                }
+            }
+        |   None -> {
+                // if within current repayment window and last interest cleared level is within the previous repayment window
+                if withinCurrentRepaymentWindow and int(lastInterestClearedLevel) >= lastRepaymentWindowStart - interestRepaymentPeriodInLevels then skip 
+                else {
+                    // Calculate missed periods since last interest was cleared
+                    var periodsSinceLastCleared : int := (mockLevel - lastInterestClearedLevel) / interestRepaymentPeriodInLevels;
+                    if periodsSinceLastCleared = 0 then periodsSinceLastCleared := 1 else skip;
+                    numberOfMissedRepaymentPeriods := periodsSinceLastCleared;
+                }
+            }
+        ];
+
+        // Apply penalty fee based on missed periods
+        if numberOfMissedRepaymentPeriods > 0 then {
+            penaltyFee := abs(numberOfMissedRepaymentPeriods) * onePeriodPenaltyFee;
         } else skip;
+
     } else skip;
 
 } with penaltyFee
+
 
 // ------------------------------------------------------------------------------
 // Contract Helper Functions End

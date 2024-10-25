@@ -384,7 +384,12 @@ block {
 
         loanStartTimestamp          = (None : option(timestamp));
         lastInterestCleared         = Mavryk.get_now();
+        loanStartLevel              = (None : option(nat));
+        lastInterestClearedLevel    = Mavryk.get_level();
+
         penaltyAppliedTimestamp     = (None : option(timestamp));
+        penaltyAppliedLevel         = (None : option(nat));
+
         penaltyCounter              = 0n;
 
     ];
@@ -963,7 +968,7 @@ function isPenalizedForLiquidation(const interestRepaymentPeriod : nat; const la
 block {
     
     const currentTimestamp : timestamp              = Mavryk.get_now();
-    const interestRepaymentPeriodInSeconds : int    = int((interestRepaymentPeriod * missedPeriodsForLiquidation) * 86400n);
+    const interestRepaymentPeriodInSeconds : int    = int((interestRepaymentPeriod * missedPeriodsForLiquidation) * 60n);
     const lastInterestPaymentWithPeriod : timestamp = lastInterestPayment + interestRepaymentPeriodInSeconds;
     const isPenalized : bool                        = currentTimestamp > lastInterestPaymentWithPeriod;
     
