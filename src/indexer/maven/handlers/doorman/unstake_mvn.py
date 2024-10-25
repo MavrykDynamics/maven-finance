@@ -2,7 +2,7 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.types.mvn_token.tezos_parameters.transfer import TransferParameter
 from maven.types.doorman.tezos_storage import DoormanStorage
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.doorman.tezos_parameters.unstake_mvn import UnstakeMvnParameter
 from maven.types.mvn_token.tezos_storage import MvnTokenStorage
@@ -10,8 +10,8 @@ import maven.models as models
 
 async def unstake_mvn(
     ctx: HandlerContext,
-    unstake_mvn: TezosTransaction[UnstakeMvnParameter, DoormanStorage],
-    transfer: TezosTransaction[TransferParameter, MvnTokenStorage],
+    unstake_mvn: TzktTransaction[UnstakeMvnParameter, DoormanStorage],
+    transfer: TzktTransaction[TransferParameter, MvnTokenStorage],
 ) -> None:
 
     try:
@@ -26,14 +26,14 @@ async def unstake_mvn(
         total_farm_rewards_claimed              = float(initiator_stake_balance_ledger.totalFarmRewardsClaimed)
         participation_fees_per_share            = float(initiator_stake_balance_ledger.participationFeesPerShare)
         timestamp                               = unstake_mvn.data.timestamp
-        desired_amount                          = float(unstake_mvn.parameter.root)
-        final_amount                            = float(transfer.parameter.root[0].txs[0].amount)
-        doorman                                 = await models.Doorman.get(network='atlasnet', address=doorman_address)
+        desired_amount                          = float(unstake_mvn.parameter.__root__)
+        final_amount                            = float(transfer.parameter.__root__[0].txs[0].amount)
+        doorman                                 = await models.Doorman.get(network=ctx.datasource.name.replace('mvkt_',''), address=doorman_address)
         unclaimed_rewards                       = float(unstake_mvn.storage.unclaimedRewards)
         accumulated_fees_per_share              = float(unstake_mvn.storage.accumulatedFeesPerShare)
 
         # Get or create the interacting user
-        user                                    = await models.maven_user_cache.get(network='atlasnet', address=initiator_address)
+        user                                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=initiator_address)
         user.mvn_balance                        = mvn_balance
         user.smvn_balance                       = smvn_balance
         await user.save()

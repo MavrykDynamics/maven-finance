@@ -4,11 +4,11 @@ from dipdup.context import HandlerContext
 from maven.utils.persisters import persist_break_glass_action
 from maven.types.break_glass.tezos_storage import BreakGlassStorage
 from maven.types.break_glass.tezos_parameters.pause_all_entrypoints import PauseAllEntrypointsParameter
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 
 async def pause_all_entrypoints(
     ctx: HandlerContext,
-    pause_all_entrypoints: TezosTransaction[PauseAllEntrypointsParameter, BreakGlassStorage],
+    pause_all_entrypoints: TzktTransaction[PauseAllEntrypointsParameter, BreakGlassStorage],
 ) -> None:
 
     try:

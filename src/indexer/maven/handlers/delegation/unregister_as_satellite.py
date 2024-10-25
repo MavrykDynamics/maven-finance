@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.delegation.tezos_parameters.unregister_as_satellite import UnregisterAsSatelliteParameter
 from dipdup.context import HandlerContext
 from maven.types.delegation.tezos_storage import DelegationStorage
@@ -8,7 +8,7 @@ import maven.models as models
 
 async def unregister_as_satellite(
     ctx: HandlerContext,
-    unregister_as_satellite: TezosTransaction[UnregisterAsSatelliteParameter, DelegationStorage],
+    unregister_as_satellite: TzktTransaction[UnregisterAsSatelliteParameter, DelegationStorage],
 ) -> None:
 
     try:
@@ -18,9 +18,9 @@ async def unregister_as_satellite(
         rewards_record              = unregister_as_satellite.storage.satelliteRewardsLedger[satellite_address]
     
         # Delete records
-        user                        = await models.maven_user_cache.get(network='atlasnet', address=satellite_address)
+        user                        = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=satellite_address)
         delegation = await models.Delegation.get(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = delegation_address
         )
         satellite_reward_record, _ = await models.SatelliteRewards.get_or_create(

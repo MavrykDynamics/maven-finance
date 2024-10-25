@@ -2,14 +2,14 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.utils.persisters import persist_governance
 from maven.types.aggregator_factory.tezos_parameters.set_governance import SetGovernanceParameter
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.aggregator_factory.tezos_storage import AggregatorFactoryStorage
 from dipdup.context import HandlerContext
 import maven.models as models
 
 async def set_governance(
     ctx: HandlerContext,
-    set_governance: TezosTransaction[SetGovernanceParameter, AggregatorFactoryStorage],
+    set_governance: TzktTransaction[SetGovernanceParameter, AggregatorFactoryStorage],
 ) -> None:
 
     try:

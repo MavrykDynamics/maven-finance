@@ -3,13 +3,13 @@ from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from maven.types.mvn_token.tezos_storage import MvnTokenStorage
-from dipdup.models.tezos import TezosOrigination
+from dipdup.models.tezos_tzkt import TzktOrigination
 from dateutil import parser 
 import maven.models as models
 
 async def origination(
     ctx: HandlerContext,
-    mvn_origination: TezosOrigination[MvnTokenStorage],
+    mvn_origination: TzktOrigination[MvnTokenStorage],
 ) -> None:
 
     try:    
@@ -35,7 +35,7 @@ async def origination(
         )
     
         # Get governance record
-        governance                  = await models.Governance.get(network = 'atlasnet')
+        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
 
         # Get the token standard
         standard = await get_token_standard(
@@ -46,7 +46,7 @@ async def origination(
         # Get the related token
         token, _            = await models.Token.get_or_create(
             token_address       = mvn_address,
-            network             = 'atlasnet',
+            network             = ctx.datasource.name.replace('mvkt_',''),
             token_id            = 0
         )
         if token_contract_metadata:
@@ -57,7 +57,7 @@ async def origination(
         # Save MVN in DB
         mvn = models.MVNToken(
             address                     = mvn_address,
-            network                     = 'atlasnet',
+            network                     = ctx.datasource.name.replace('mvkt_',''),
             metadata                    = contract_metadata,
             token                       = token,
             admin                       = admin,
@@ -73,7 +73,7 @@ async def origination(
         # Create first users
         originated_ledger = mvn_origination.storage.ledger
         for address in originated_ledger:
-            new_user                = await models.maven_user_cache.get(network='atlasnet', address=address)
+            new_user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=address)
             new_user.mvn_balance    = originated_ledger[address]
             await new_user.save()
 

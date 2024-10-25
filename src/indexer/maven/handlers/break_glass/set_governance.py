@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.utils.persisters import persist_governance
 from maven.types.break_glass.tezos_parameters.set_governance import SetGovernanceParameter
 from maven.types.break_glass.tezos_storage import BreakGlassStorage
@@ -9,7 +9,7 @@ import maven.models as models
 
 async def set_governance(
     ctx: HandlerContext,
-    set_governance: TezosTransaction[SetGovernanceParameter, BreakGlassStorage],
+    set_governance: TzktTransaction[SetGovernanceParameter, BreakGlassStorage],
 ) -> None:
 
     try:

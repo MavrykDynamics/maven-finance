@@ -2,14 +2,14 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.utils.persisters import persist_linked_contract
 from maven.types.emergency_governance.tezos_storage import EmergencyGovernanceStorage
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.emergency_governance.tezos_parameters.update_whitelist_contracts import UpdateWhitelistContractsParameter
 from dipdup.context import HandlerContext
 import maven.models as models
 
 async def update_whitelist_contracts(
     ctx: HandlerContext,
-    update_whitelist_contracts: TezosTransaction[UpdateWhitelistContractsParameter, EmergencyGovernanceStorage],
+    update_whitelist_contracts: TzktTransaction[UpdateWhitelistContractsParameter, EmergencyGovernanceStorage],
 ) -> None:
 
     try:

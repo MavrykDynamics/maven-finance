@@ -3,12 +3,12 @@ from maven.utils.error_reporting import save_error_report
 from maven.types.vault_factory.tezos_parameters.toggle_pause_entrypoint import TogglePauseEntrypointParameter
 from maven.types.vault_factory.tezos_storage import VaultFactoryStorage
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 import maven.models as models
 
 async def toggle_pause_entrypoint(
     ctx: HandlerContext,
-    toggle_pause_entrypoint: TezosTransaction[TogglePauseEntrypointParameter, VaultFactoryStorage],
+    toggle_pause_entrypoint: TzktTransaction[TogglePauseEntrypointParameter, VaultFactoryStorage],
 ) -> None:
 
     try:
@@ -18,7 +18,7 @@ async def toggle_pause_entrypoint(
     
         # Update record
         await models.VaultFactory.filter(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = vault_factory_address
         ).update(
             create_vault_paused   = create_vault_paused

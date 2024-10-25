@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.utils.persisters import persist_lambda
 from maven.types.aggregator_factory.tezos_storage import AggregatorFactoryStorage
 from maven.types.aggregator_factory.tezos_parameters.set_lambda import SetLambdaParameter
@@ -9,7 +9,7 @@ import maven.models as models
 
 async def set_lambda(
     ctx: HandlerContext,
-    set_lambda: TezosTransaction[SetLambdaParameter, AggregatorFactoryStorage],
+    set_lambda: TzktTransaction[SetLambdaParameter, AggregatorFactoryStorage],
 ) -> None:
 
     try:

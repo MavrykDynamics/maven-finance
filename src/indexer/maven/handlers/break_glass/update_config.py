@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.break_glass.tezos_parameters.update_config import UpdateConfigParameter
 from maven.types.break_glass.tezos_storage import BreakGlassStorage
@@ -8,7 +8,7 @@ import maven.models as models
 
 async def update_config(
     ctx: HandlerContext,
-    update_config: TezosTransaction[UpdateConfigParameter, BreakGlassStorage],
+    update_config: TzktTransaction[UpdateConfigParameter, BreakGlassStorage],
 ) -> None:
 
     try:
@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.BreakGlass.filter(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = break_glass_address
         ).update(
             last_updated_at                     = timestamp,
@@ -31,7 +31,7 @@ async def update_config(
 
         # Update threshold for current actions
         break_glass = await models.BreakGlass.get(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = break_glass_address
         )
         await models.BreakGlassAction.filter(

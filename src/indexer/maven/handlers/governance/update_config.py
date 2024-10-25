@@ -3,12 +3,12 @@ from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from maven.types.governance.tezos_parameters.update_config import UpdateConfigParameter
 from maven.types.governance.tezos_storage import GovernanceStorage
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 import maven.models as models
 
 async def update_config(
     ctx: HandlerContext,
-    update_config: TezosTransaction[UpdateConfigParameter, GovernanceStorage],
+    update_config: TzktTransaction[UpdateConfigParameter, GovernanceStorage],
 ) -> None:
 
     try:
@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.Governance.filter(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = governance_address
         ).update(
             last_updated_at                     = timestamp,

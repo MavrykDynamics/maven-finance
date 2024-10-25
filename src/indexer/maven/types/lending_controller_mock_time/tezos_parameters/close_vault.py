@@ -7,4 +7,4 @@ from pydantic import BaseModel
 
 
 class CloseVaultParameter(BaseModel):
-    root: str
+    __root__: str

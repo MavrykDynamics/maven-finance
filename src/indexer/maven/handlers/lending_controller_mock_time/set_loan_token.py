@@ -3,13 +3,13 @@ from maven.utils.error_reporting import save_error_report
 from maven.utils.contracts import get_contract_token_metadata, get_token_standard
 from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenType3 as fa12, TokenType4 as fa2, TokenType5 as mav
 from maven.types.lending_controller_mock_time.tezos_parameters.set_loan_token import SetLoanTokenParameter, Action as createLoanToken
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 import maven.models as models
 
 async def set_loan_token(
     ctx: HandlerContext,
-    set_loan_token: TezosTransaction[SetLoanTokenParameter, LendingControllerMockTimeStorage],
+    set_loan_token: TzktTransaction[SetLoanTokenParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
     try:    
@@ -73,17 +73,17 @@ async def set_loan_token(
     
         # Create / Update record
         lending_controller                  = await models.LendingController.get(
-            network         = 'atlasnet',
+            network         = ctx.datasource.name.replace('mvkt_',''),
             address         = lending_controller_address,
         )
-        oracle                              = await models.maven_user_cache.get(network='atlasnet', address=loan_token_oracle_address)
+        oracle                              = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=loan_token_oracle_address)
         token                               = await models.Token.get(
-            network         = 'atlasnet',
+            network         = ctx.datasource.name.replace('mvkt_',''),
             token_address   = loan_token_m_token_address,
             token_id        = 0
         )
         m_token, _                          = await models.MToken.get_or_create(
-            network         = 'atlasnet',
+            network         = ctx.datasource.name.replace('mvkt_',''),
             address         = loan_token_m_token_address,
             token           = token
         )
@@ -98,7 +98,7 @@ async def set_loan_token(
         token, _                                    = await models.Token.get_or_create(
             token_address       = loan_token_address,
             token_id            = loan_token_id,
-            network             = 'atlasnet'
+            network             = ctx.datasource.name.replace('mvkt_','')
         )
         token.metadata          = token_contract_metadata
         token.token_standard    = standard

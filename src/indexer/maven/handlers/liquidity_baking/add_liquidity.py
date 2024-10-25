@@ -7,14 +7,14 @@ from maven.types.sirius.tezos_storage import SiriusStorage
 from dipdup.context import HandlerContext
 from maven.types.tzbtc.tezos_storage import TzbtcStorage
 from maven.types.liquidity_baking.tezos_parameters.add_liquidity import AddLiquidityParameter
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 import maven.models as models
 
 async def add_liquidity(
     ctx: HandlerContext,
-    add_liquidity: TezosTransaction[AddLiquidityParameter, LiquidityBakingStorage],
-    transfer: TezosTransaction[TransferParameter, TzbtcStorage],
-    mint_or_burn: TezosTransaction[MintOrBurnParameter, SiriusStorage],
+    add_liquidity: TzktTransaction[AddLiquidityParameter, LiquidityBakingStorage],
+    transfer: TzktTransaction[TransferParameter, TzbtcStorage],
+    mint_or_burn: TzktTransaction[MintOrBurnParameter, SiriusStorage],
 ) -> None:
 
     try:
@@ -38,7 +38,7 @@ async def add_liquidity(
     
         # Create / Update record
         liquidity_baking, _ = await models.LiquidityBaking.get_or_create(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = liquidity_baking_address
         )
     
@@ -54,7 +54,7 @@ async def add_liquidity(
             price   = xtz_pool_decimals / token_pool_decimals
         value                   = xtz_qty_decimals + price * token_qty_decimals
     
-        trader                  = await models.maven_user_cache.get(network='atlasnet', address=trader_address)
+        trader                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=trader_address)
     
         shares_qty              = lqt_balance
         position, _             = await models.LiquidityBakingPosition.get_or_create(

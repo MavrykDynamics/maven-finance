@@ -7,4 +7,4 @@ from pydantic import BaseModel
 
 
 class SetAdminParameter(BaseModel):
-    root: str
+    __root__: str

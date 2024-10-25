@@ -4,12 +4,12 @@ from maven.utils.persisters import persist_admin
 from maven.types.delegation.tezos_parameters.set_admin import SetAdminParameter
 from dipdup.context import HandlerContext
 from maven.types.delegation.tezos_storage import DelegationStorage
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 import maven.models as models
 
 async def set_admin(
     ctx: HandlerContext,
-    set_admin: TezosTransaction[SetAdminParameter, DelegationStorage],
+    set_admin: TzktTransaction[SetAdminParameter, DelegationStorage],
 ) -> None:
 
     try:

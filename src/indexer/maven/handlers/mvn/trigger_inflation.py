@@ -2,14 +2,14 @@ from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from maven.types.mvn_token.tezos_parameters.trigger_inflation import TriggerInflationParameter
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.mvn_token.tezos_storage import MvnTokenStorage
 import maven.models as models
 from dateutil import parser
 
 async def trigger_inflation(
     ctx: HandlerContext,
-    trigger_inflation: TezosTransaction[TriggerInflationParameter, MvnTokenStorage],
+    trigger_inflation: TzktTransaction[TriggerInflationParameter, MvnTokenStorage],
 ) -> None:
 
     try:    
@@ -19,7 +19,7 @@ async def trigger_inflation(
         next_inflation_timestamp    = parser.parse(trigger_inflation.storage.nextInflationTimestamp)
     
         # Update record
-        await models.MVNToken.filter(network='atlasnet', address= mvn_address).update(
+        await models.MVNToken.filter(network=ctx.datasource.name.replace('mvkt_',''), address= mvn_address).update(
             maximum_supply            = maximum_supply,
             next_inflation_timestamp  = next_inflation_timestamp
         )

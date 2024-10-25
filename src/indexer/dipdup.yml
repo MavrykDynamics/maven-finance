@@ -17,18 +17,17 @@ jobs:
 templates:
   # Treasury token balance template
   treasury_token_transfer_receiver_template:
-    kind: tezos.token_transfers
-    datasources:
-    - mvkt_atlasnet
+    kind: tezos.tzkt.token_transfers
+    datasource: mvkt_atlasnet
     handlers:
     - callback: treasury.token_transfer_receiver
-      contract: <treasury_contract>
+      to: <treasury_contract>
+      first_level: <first_level>
 
   # Farm template
   farm_template:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
+    kind: tezos.tzkt.operations
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -95,9 +94,8 @@ templates:
 
   # MFarm template
   m_farm_template:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
+    kind: tezos.tzkt.operations
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -164,9 +162,8 @@ templates:
 
   # Treasury template
   treasury_template:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
+    kind: tezos.tzkt.operations
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -221,9 +218,8 @@ templates:
 
   # Aggregator template
   aggregator_template:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
+    kind: tezos.tzkt.operations
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -298,9 +294,8 @@ templates:
 
   # Vault template
   vault_template:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
+    kind: tezos.tzkt.operations
+    datasource: mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -318,9 +313,8 @@ templates:
         entrypoint: updateVaultName
   # MToken template
   m_token_template:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
+    kind: tezos.tzkt.operations
+    datasource: mvkt_atlasnet
     types:
     - origination
     - transaction
@@ -362,9 +356,8 @@ templates:
   # Governance satellite snapshot template
   # Index the snapshot ledger bigmap of the governance contract
   governance_satellite_snapshot_template:
-    kind: tezos.big_maps
-    datasources:
-    - mvkt_atlasnet
+    kind: tezos.tzkt.big_maps
+    datasource: mvkt_atlasnet
     skip_history: never
     handlers:
     - callback: governance.snapshot_ledger_update
@@ -373,9 +366,8 @@ templates:
   # Main Template - Maven Finance
   # Ran after the governance origination and index the entire dApp
   maven_finance_template:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
+    kind: tezos.tzkt.operations
+    datasource: mvkt_atlasnet
     types:
     - origination
     - transaction
@@ -1524,9 +1516,8 @@ templates:
   # Side Template - Liquidity Baking
   # Ran after the liquidity baking origination and index the entire dApp
   liquidity_baking_template:
-    kind: tezos.operations
-    datasources:
-    - tzkt_mainnet
+    kind: tezos.tzkt.operations
+    datasource: tzkt_mainnet
     types:
     - origination
     - transaction
@@ -1582,9 +1573,8 @@ templates:
 
 indexes:
   maven_finance_atlasnet_init:
-    kind: tezos.operations
-    datasources:
-    - mvkt_atlasnet
+    kind: tezos.tzkt.operations
+    datasource: mvkt_atlasnet
     types:
     - origination
     contracts:

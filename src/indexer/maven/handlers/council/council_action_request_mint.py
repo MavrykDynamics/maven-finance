@@ -3,11 +3,11 @@ from maven.utils.persisters import persist_council_action
 from maven.types.council.tezos_parameters.council_action_request_mint import CouncilActionRequestMintParameter
 from maven.types.council.tezos_storage import CouncilStorage
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 
 async def council_action_request_mint(
     ctx: HandlerContext,
-    council_action_request_mint: TezosTransaction[CouncilActionRequestMintParameter, CouncilStorage],
+    council_action_request_mint: TzktTransaction[CouncilActionRequestMintParameter, CouncilStorage],
 ) -> None:
 
     try:

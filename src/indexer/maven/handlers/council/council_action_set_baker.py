@@ -1,14 +1,14 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.utils.persisters import persist_council_action
 from maven.types.council.tezos_parameters.council_action_set_baker import CouncilActionSetBakerParameter
 from maven.types.council.tezos_storage import CouncilStorage
 
 async def council_action_set_baker(
     ctx: HandlerContext,
-    council_action_set_baker: TezosTransaction[CouncilActionSetBakerParameter, CouncilStorage],
+    council_action_set_baker: TzktTransaction[CouncilActionSetBakerParameter, CouncilStorage],
 ) -> None:
 
     try:

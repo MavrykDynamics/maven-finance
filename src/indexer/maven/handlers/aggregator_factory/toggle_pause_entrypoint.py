@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.types.aggregator_factory.tezos_storage import AggregatorFactoryStorage
 from maven.types.aggregator_factory.tezos_parameters.toggle_pause_entrypoint import TogglePauseEntrypointParameter
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 import maven.models as models
 
 async def toggle_pause_entrypoint(
     ctx: HandlerContext,
-    toggle_pause_entrypoint: TezosTransaction[TogglePauseEntrypointParameter, AggregatorFactoryStorage],
+    toggle_pause_entrypoint: TzktTransaction[TogglePauseEntrypointParameter, AggregatorFactoryStorage],
 ) -> None:
 
     try:
@@ -21,7 +21,7 @@ async def toggle_pause_entrypoint(
         distribute_reward_smvn_paused                       = toggle_pause_entrypoint.storage.breakGlassConfig.distributeRewardStakedMvnIsPaused
     
         # Update record
-        await models.AggregatorFactory.get(network='atlasnet', address    = aggregator_factory_address).update(
+        await models.AggregatorFactory.get(network=ctx.datasource.name.replace('mvkt_',''), address    = aggregator_factory_address).update(
             create_aggregator_paused         = create_aggregator_paused,
             track_aggregator_paused          = track_aggregator_paused,
             untrack_aggregator_paused        = untrack_aggregator_paused,

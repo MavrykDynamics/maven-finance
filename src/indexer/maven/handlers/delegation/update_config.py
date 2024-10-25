@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.delegation.tezos_parameters.update_config import UpdateConfigParameter
 from maven.types.delegation.tezos_storage import DelegationStorage
@@ -8,7 +8,7 @@ import maven.models as models
 
 async def update_config(
     ctx: HandlerContext,
-    update_config: TezosTransaction[UpdateConfigParameter, DelegationStorage],
+    update_config: TzktTransaction[UpdateConfigParameter, DelegationStorage],
 ) -> None:
 
     try:
@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.Delegation.filter(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = delegation_address
         ).update(
             last_updated_at                     = timestamp,

@@ -1,13 +1,13 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.m_farm.tezos_parameters.close_farm import CloseFarmParameter
 from maven.types.m_farm.tezos_storage import MFarmStorage
 import maven.models as models
 
 async def close_farm(
     ctx: HandlerContext,
-    close_farm: TezosTransaction[CloseFarmParameter, MFarmStorage],
+    close_farm: TzktTransaction[CloseFarmParameter, MFarmStorage],
 ) -> None:
 
     try:
@@ -23,7 +23,7 @@ async def close_farm(
         min_block_time_snapshot         = int(close_farm.storage.minBlockTimeSnapshot)
     
         # Update record
-        await models.Farm.filter(network='atlasnet', address= farm_address).update(
+        await models.Farm.filter(network=ctx.datasource.name.replace('mvkt_',''), address= farm_address).update(
             last_block_update              = last_block_update,
             open                           = open,
             accumulated_rewards_per_share  = accumulated_rewards_per_share,

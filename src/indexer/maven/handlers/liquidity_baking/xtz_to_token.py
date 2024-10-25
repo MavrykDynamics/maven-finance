@@ -4,14 +4,14 @@ from maven.types.tzbtc.tezos_parameters.transfer import TransferParameter
 from maven.types.tzbtc.tezos_storage import TzbtcStorage
 from dipdup.context import HandlerContext
 from maven.types.liquidity_baking.tezos_parameters.xtz_to_token import XtzToTokenParameter
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.liquidity_baking.tezos_storage import LiquidityBakingStorage
 import maven.models as models
 
 async def xtz_to_token(
     ctx: HandlerContext,
-    xtz_to_token: TezosTransaction[XtzToTokenParameter, LiquidityBakingStorage],
-    transfer: TezosTransaction[TransferParameter, TzbtcStorage],
+    xtz_to_token: TzktTransaction[XtzToTokenParameter, LiquidityBakingStorage],
+    transfer: TzktTransaction[TransferParameter, TzbtcStorage],
 ) -> None:
 
     try:    
@@ -31,7 +31,7 @@ async def xtz_to_token(
     
         # Create / Update record
         liquidity_baking, _ = await models.LiquidityBaking.get_or_create(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = liquidity_baking_address
         )
     
@@ -56,7 +56,7 @@ async def xtz_to_token(
         liquidity_baking.share_price        = share_price
         await liquidity_baking.save()
     
-        trader                          = await models.maven_user_cache.get(network='atlasnet', address=trader_address)
+        trader                          = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=trader_address)
     
         liquidity_baking_history_data   = models.LiquidityBakingHistoryData(
             timestamp           = timestamp,

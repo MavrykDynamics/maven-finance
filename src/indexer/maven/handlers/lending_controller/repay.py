@@ -2,14 +2,14 @@ from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from maven.types.lending_controller.tezos_parameters.repay import RepayParameter
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.lending_controller.tezos_storage import LendingControllerStorage
 from dateutil import parser
 import maven.models as models
 
 async def repay(
     ctx: HandlerContext,
-    repay: TezosTransaction[RepayParameter, LendingControllerStorage],
+    repay: TzktTransaction[RepayParameter, LendingControllerStorage],
 ) -> None:
 
     try:
@@ -23,7 +23,7 @@ async def repay(
         vault_internal_id                       = int(repay.parameter.vaultId)
         vaults_storage                          = repay.storage.vaults
         lending_controller                      = await models.LendingController.get(
-            network             = 'atlasnet',
+            network             = ctx.datasource.name.replace('mvkt_',''),
             address             = lending_controller_address,
         )
         lending_controller_vault                = await models.LendingControllerVault.get(
@@ -98,7 +98,7 @@ async def repay(
                     final_repay_amount  = new_loan_outstanding_total
     
                 # Save history data
-                sender                                  = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
+                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

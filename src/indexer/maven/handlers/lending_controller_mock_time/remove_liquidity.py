@@ -3,13 +3,13 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.types.lending_controller_mock_time.tezos_parameters.remove_liquidity import RemoveLiquidityParameter
 from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenType3 as fa12, TokenType4 as fa2, TokenType5 as mav
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 import maven.models as models
 
 async def remove_liquidity(
     ctx: HandlerContext,
-    remove_liquidity: TezosTransaction[RemoveLiquidityParameter, LendingControllerMockTimeStorage],
+    remove_liquidity: TzktTransaction[RemoveLiquidityParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
     try:
@@ -55,7 +55,7 @@ async def remove_liquidity(
 
             # Get the related token
             token, _                                = await models.Token.get_or_create(
-                network             = 'atlasnet',
+                network             = ctx.datasource.name.replace('mvkt_',''),
                 token_address       = loan_token_address,
                 token_id            = loan_token_id
             )
@@ -64,7 +64,7 @@ async def remove_liquidity(
     
         # Create / Update record
         lending_controller                      = await models.LendingController.get(
-            network         = 'atlasnet',
+            network         = ctx.datasource.name.replace('mvkt_',''),
             address         = lending_controller_address,
         )
         lending_controller_loan_token           = await models.LendingControllerLoanToken.get(
@@ -88,7 +88,7 @@ async def remove_liquidity(
         await lending_controller_loan_token.save()
     
         # Save history data
-        sender                                  = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
+        sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
         history_data                            = models.LendingControllerHistoryData(
             lending_controller  = lending_controller,
             sender              = sender,

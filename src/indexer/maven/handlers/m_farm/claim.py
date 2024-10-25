@@ -1,19 +1,19 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.m_farm.tezos_parameters.claim import ClaimParameter
 from maven.types.m_farm.tezos_storage import MFarmStorage
 import maven.models as models
 
 async def claim(
     ctx: HandlerContext,
-    claim: TezosTransaction[ClaimParameter, MFarmStorage],
+    claim: TzktTransaction[ClaimParameter, MFarmStorage],
 ) -> None:
 
     try:
         # Get operation info
         farm_address                    = claim.data.target_address
-        depositor_addresses             = claim.parameter.root
+        depositor_addresses             = claim.parameter.__root__
         lp_token_balance                = int(claim.storage.config.lpToken.tokenBalance)
         last_block_update               = int(claim.storage.lastBlockUpdate)
         open                            = claim.storage.open
@@ -27,7 +27,7 @@ async def claim(
 
         # Update farm
         farm                            = await models.Farm.get(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = farm_address
         )
         farm.total_rewards              = total_rewards
@@ -51,7 +51,7 @@ async def claim(
             unclaimed_rewards               = float(depositor_storage.unclaimedRewards)
             token_reward_index              = float(depositor_storage.tokenRewardIndex)
         
-            user                            = await models.maven_user_cache.get(network='atlasnet', address=depositor_address)
+            user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=depositor_address)
         
             farm_account, _                 = await models.FarmAccount.get_or_create(
                 user = user,

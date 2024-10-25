@@ -1,7 +1,7 @@
 from maven.utils.contracts import get_token_standard
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.lending_controller.tezos_parameters.vault_withdraw_staked_token import VaultWithdrawStakedTokenParameter
 from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenType1 as Fa2
 import maven.models as models
@@ -9,7 +9,7 @@ from dateutil import parser
 
 async def vault_withdraw_staked_token(
     ctx: HandlerContext,
-    vault_withdraw_staked_token: TezosTransaction[VaultWithdrawStakedTokenParameter, LendingControllerStorage],
+    vault_withdraw_staked_token: TzktTransaction[VaultWithdrawStakedTokenParameter, LendingControllerStorage],
 ) -> None:
 
     try:
@@ -27,10 +27,10 @@ async def vault_withdraw_staked_token(
     
         # Update record
         lending_controller          = await models.LendingController.get(
-            network         = 'atlasnet',
+            network         = ctx.datasource.name.replace('mvkt_',''),
             address         = lending_controller_address,
         )
-        vault_owner                 = await models.maven_user_cache.get(network='atlasnet', address=vault_owner_address)
+        vault_owner                 = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vault_owner_address)
     
         for vault_storage in vaults_storage:
             if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:
@@ -101,7 +101,7 @@ async def vault_withdraw_staked_token(
 
                 # Get the related token
                 token, _                                = await models.Token.get_or_create(
-                    network             = 'atlasnet',
+                    network             = ctx.datasource.name.replace('mvkt_',''),
                     token_address       = collateral_token_address,
                     token_id            = token_id
                 )
@@ -123,7 +123,7 @@ async def vault_withdraw_staked_token(
                 await lending_controller_collateral_balance.save()
     
                 # Save history data
-                sender                                  = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
+                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

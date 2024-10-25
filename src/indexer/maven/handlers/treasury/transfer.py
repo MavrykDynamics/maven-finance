@@ -2,22 +2,22 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.utils.contracts import get_contract_token_metadata, get_token_standard
 from maven.types.treasury.tezos_parameters.transfer import TransferParameter, Token as fa12, Token1 as fa2, Token2 as mav
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.treasury.tezos_storage import TreasuryStorage
 import maven.models as models
 
 async def transfer(
     ctx: HandlerContext,
-    transfer: TezosTransaction[TransferParameter, TreasuryStorage],
+    transfer: TzktTransaction[TransferParameter, TreasuryStorage],
 ) -> None:
 
     try:
         # Get operation info
         treasury_address    = transfer.data.target_address
-        txs                 = transfer.parameter.root
+        txs                 = transfer.parameter.__root__
         timestamp           = transfer.data.timestamp
-        treasury            = await models.Treasury.get(network='atlasnet', address= treasury_address)
+        treasury            = await models.Treasury.get(network=ctx.datasource.name.replace('mvkt_',''), address= treasury_address)
         await treasury.save()
     
         # Create records
@@ -57,7 +57,7 @@ async def transfer(
                 token_id=str(token_id)
             )
     
-            receiver                = await models.maven_user_cache.get(network='atlasnet', address=receiver_address)
+            receiver                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=receiver_address)
             treasury_transfer_data  = models.TreasuryTransferHistoryData(
                 timestamp                       = timestamp,
                 treasury                        = treasury,
@@ -71,7 +71,7 @@ async def transfer(
             token, _                = await models.Token.get_or_create(
                 token_address   = token_contract_address,
                 token_id        = token_id,
-                network         = 'atlasnet'
+                network         = ctx.datasource.name.replace('mvkt_','')
             )
             if token_contract_metadata:
                 token.metadata          = token_contract_metadata

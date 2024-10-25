@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from maven.types.lending_controller.tezos_parameters.pause_all import PauseAllParameter
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.lending_controller.tezos_storage import LendingControllerStorage
 import maven.models as models
 
 async def pause_all(
     ctx: HandlerContext,
-    pause_all: TezosTransaction[PauseAllParameter, LendingControllerStorage],
+    pause_all: TzktTransaction[PauseAllParameter, LendingControllerStorage],
 ) -> None:
 
     try:
@@ -34,7 +34,7 @@ async def pause_all(
     
         # Update record
         await models.LendingController.filter(
-            network         = 'atlasnet',
+            network         = ctx.datasource.name.replace('mvkt_',''),
             address         = lending_controller_address
         ).update(
             add_liquidity_paused                     = add_liquidity_paused,
