@@ -16,6 +16,8 @@ hasura:
   url: ${HASURA_URL:-changeme}
   admin_secret: ${ADMIN_SECRET:-changeme}
   select_limit: 1000
+  create_source: true
+  source: default
   rest: false
   http:
     retry_count: 200
