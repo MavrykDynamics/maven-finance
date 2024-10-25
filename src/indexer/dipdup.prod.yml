@@ -20,6 +20,8 @@ hasura:
   http:
     retry_count: 200
     retry_multiplier: 1
+    connection_timeout: 3600
+    request_timeout: 3600
 
 prometheus:
   host: 0.0.0.0
@@ -42,15 +44,35 @@ datasources:
     kind: tzip_metadata
     url: ${METADATA_MAINNET_URL:-changeme}
     network: mainnet
+    http:
+      retry_count: 200
+      retry_multiplier: 1
+      connection_timeout: 3600
+      request_timeout: 3600
   metadata_atlasnet:
     kind: tzip_metadata
     url: ${METADATA_ATLASNET_URL:-changeme}
     network: oxfordnet
+    http:
+      retry_count: 200
+      retry_multiplier: 1
+      connection_timeout: 3600
+      request_timeout: 3600
   mvkt_atlasnet:
     kind: tezos.tzkt
     url: ${MVKT_ATLASNET_URL:-changeme}
     merge_subscriptions: true
+    http:
+      retry_count: 200
+      retry_multiplier: 1
+      connection_timeout: 3600
+      request_timeout: 3600
   tzkt_mainnet:
     kind: tezos.tzkt
     url: ${TZKT_MAINNET_URL:-changeme}
     merge_subscriptions: true
+    http:
+      retry_count: 200
+      retry_multiplier: 1
+      connection_timeout: 3600
+      request_timeout: 3600
