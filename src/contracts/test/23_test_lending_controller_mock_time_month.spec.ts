@@ -144,11 +144,11 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
         mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
         mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
-        mTokenMvrkInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
+        mTokenMvrkInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
 
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
-        mockUsdMvrkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
+        mockUsdMvrkAggregatorInstance           = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
         mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress);

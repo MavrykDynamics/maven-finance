@@ -127,11 +127,11 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
 
         mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
         mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
-        mTokenMvrkInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
+        mTokenMvrkInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
 
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
-        mockUsdMvrkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
+        mockUsdMvrkAggregatorInstance           = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
         mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress);
@@ -152,7 +152,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
         // set up token oracles for testing
         mockUsdMockFa12TokenAggregatorStorage   = await mockUsdMockFa12TokenAggregatorInstance.storage();
         mockUsdMockFa2TokenAggregatorStorage    = await mockUsdMockFa2TokenAggregatorInstance.storage();
-        mockUsdMvrkAggregatorStorage             = await mockUsdMvrkAggregatorInstance.storage();
+        mockUsdMvrkAggregatorStorage            = await mockUsdMvrkAggregatorInstance.storage();
         mockUsdMvnAggregatorStorage             = await mockUsdMvnAggregatorInstance.storage();
 
         // ------------------------------------------------------------------
@@ -1414,7 +1414,7 @@ describe("Lending Controller (Mock Time - One Year) tests", async () => {
             assert.equal(almostEqual(updatedLoanInterestTotal.toNumber(), finalLoanInterestTotal, 0.0001), true);
             assert.equal(afterRepaymentVaultBorrowIndex.toNumber(), afterRepaymentTokenBorrowIndex.toNumber());
             assert.equal(updatedEveMockFa12TokenBalance, eveInitialMockFa12TokenBalance - repayAmount);
-            
+
             // check treasury fees and interest to token pool reward contract
             assert.equal(almostEqual(updatedTreasuryMockFa12TokenBalance, treasuryInitialMockFa12TokenBalance + interestTreasuryShare, 0.001), true);
 
