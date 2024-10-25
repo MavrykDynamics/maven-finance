@@ -1,13 +1,13 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.mvn_faucet.tezos_parameters.request_fake_usdt import RequestFakeUsdtParameter
 from maven.types.mvn_faucet.tezos_storage import MvnFaucetStorage
 import maven.models as models
 
 async def request_fake_usdt(
     ctx: HandlerContext,
-    request_fake_usdt: TezosTransaction[RequestFakeUsdtParameter, MvnFaucetStorage],
+    request_fake_usdt: TzktTransaction[RequestFakeUsdtParameter, MvnFaucetStorage],
 ) -> None:
 
     try:
@@ -19,10 +19,10 @@ async def request_fake_usdt(
     
         # Create request record
         mvn_faucet          = await models.MVNFaucet.get(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = mvn_faucet_address
         )
-        user                = await models.maven_user_cache.get(network='atlasnet', 
+        user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), 
             address = requester_address
         )
         requester           = models.MVNFaucetRequester(

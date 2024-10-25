@@ -6,15 +6,15 @@ from maven.types.sirius.tezos_storage import SiriusStorage
 from maven.types.tzbtc.tezos_storage import TzbtcStorage
 from maven.types.tzbtc.tezos_parameters.transfer import TransferParameter
 from maven.types.sirius.tezos_parameters.mint_or_burn import MintOrBurnParameter
-from dipdup.models.tezos import TezosTransaction, TezosOperationData
+from dipdup.models.tezos_tzkt import TzktTransaction, TzktOperationData
 import maven.models as models
 
 async def remove_liquidity(
     ctx: HandlerContext,
-    remove_liquidity: TezosTransaction[RemoveLiquidityParameter, LiquidityBakingStorage],
-    mint_or_burn: TezosTransaction[MintOrBurnParameter, SiriusStorage],
-    transfer: TezosTransaction[TransferParameter, TzbtcStorage],
-    transaction_3: TezosOperationData,
+    remove_liquidity: TzktTransaction[RemoveLiquidityParameter, LiquidityBakingStorage],
+    mint_or_burn: TzktTransaction[MintOrBurnParameter, SiriusStorage],
+    transfer: TzktTransaction[TransferParameter, TzbtcStorage],
+    transaction_3: TzktOperationData,
 ) -> None:
 
     try:
@@ -37,7 +37,7 @@ async def remove_liquidity(
     
         # Create / Update record
         liquidity_baking, _ = await models.LiquidityBaking.get_or_create(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = liquidity_baking_address
         )
     
@@ -49,7 +49,7 @@ async def remove_liquidity(
         if token_pool_decimals > 0:
             price   = xtz_pool_decimals / token_pool_decimals
         
-        trader                  = await models.maven_user_cache.get(network='atlasnet', address=trader_address)
+        trader                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=trader_address)
     
         share_price             = 0
         if lqt_burned > 0:

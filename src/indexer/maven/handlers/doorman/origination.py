@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos import TezosOrigination
+from dipdup.models.tezos_tzkt import TzktOrigination
 from maven.utils.contracts import get_contract_metadata
 from maven.types.doorman.tezos_storage import DoormanStorage
 from dipdup.context import HandlerContext
@@ -8,7 +8,7 @@ import maven.models as models
 
 async def origination(
     ctx: HandlerContext,
-    doorman_origination: TezosOrigination[DoormanStorage],
+    doorman_origination: TzktOrigination[DoormanStorage],
 ) -> None:
 
     try:
@@ -30,12 +30,12 @@ async def origination(
         )
         
         # Get governance record
-        governance                  = await models.Governance.get(network = 'atlasnet')
+        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
     
         # Save Doorman in DB
         doorman = models.Doorman(
             address                     = doorman_address,
-            network                     = 'atlasnet',
+            network                     = ctx.datasource.name.replace('mvkt_',''),
             metadata                    = contract_metadata,
             admin                       = admin,
             last_updated_at             = timestamp,

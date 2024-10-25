@@ -4,11 +4,11 @@ from maven.utils.persisters import persist_financial_request
 from maven.types.governance_financial.tezos_storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
 from maven.types.governance_financial.tezos_parameters.request_mint import RequestMintParameter
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 
 async def request_mint(
     ctx: HandlerContext,
-    request_mint: TezosTransaction[RequestMintParameter, GovernanceFinancialStorage],
+    request_mint: TzktTransaction[RequestMintParameter, GovernanceFinancialStorage],
 ) -> None:
 
     try:    

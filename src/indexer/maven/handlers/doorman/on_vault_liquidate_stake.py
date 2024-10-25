@@ -1,13 +1,13 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.doorman.tezos_parameters.on_vault_liquidate_stake import OnVaultLiquidateStakeParameter
 from maven.types.doorman.tezos_storage import DoormanStorage
 import maven.models as models
 
 async def on_vault_liquidate_stake(
     ctx: HandlerContext,
-    on_vault_liquidate_stake: TezosTransaction[OnVaultLiquidateStakeParameter, DoormanStorage],
+    on_vault_liquidate_stake: TzktTransaction[OnVaultLiquidateStakeParameter, DoormanStorage],
 ) -> None:
 
     try:
@@ -30,12 +30,12 @@ async def on_vault_liquidate_stake(
     
         # Update records
         doorman                                     = await models.Doorman.get(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = doorman_address
         )
         
         # Vault owner
-        vault_owner                     = await models.maven_user_cache.get(network='atlasnet', address=vault_owner_address)
+        vault_owner                     = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vault_owner_address)
         vault_owner_smvn_amount         = vault_owner_smvn_balance - vault_owner.smvn_balance
         vault_owner.smvn_balance        = vault_owner_smvn_balance
         await vault_owner.save()
@@ -52,7 +52,7 @@ async def on_vault_liquidate_stake(
         await vault_owner_stake_account.save()
         
         # Vault
-        vault                           = await models.maven_user_cache.get(network='atlasnet', address=vault_address)
+        vault                           = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vault_address)
         vault_smvn_amount               = vault_smvn_balance - vault.smvn_balance
         vault.smvn_balance              = vault_smvn_balance
         await vault_owner.save()
@@ -66,7 +66,7 @@ async def on_vault_liquidate_stake(
         await vault_stake_account.save()
         
         # Get doorman info
-        doorman_user        = await models.maven_user_cache.get(network='atlasnet', address=doorman_address)
+        doorman_user        = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=doorman_address)
         smvn_total_supply   = doorman_user.mvn_balance
         smvn_users          = await models.MavenUser.filter(smvn_balance__gt=0).count()
         avg_smvn_per_user   = float(smvn_total_supply) / float(smvn_users)

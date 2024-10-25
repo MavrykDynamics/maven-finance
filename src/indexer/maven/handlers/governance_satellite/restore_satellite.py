@@ -4,11 +4,11 @@ from maven.utils.persisters import persist_governance_satellite_action
 from maven.types.governance_satellite.tezos_parameters.restore_satellite import RestoreSatelliteParameter
 from dipdup.context import HandlerContext
 from maven.types.governance_satellite.tezos_storage import GovernanceSatelliteStorage
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 
 async def restore_satellite(
     ctx: HandlerContext,
-    restore_satellite: TezosTransaction[RestoreSatelliteParameter, GovernanceSatelliteStorage],
+    restore_satellite: TzktTransaction[RestoreSatelliteParameter, GovernanceSatelliteStorage],
 ) -> None:
 
     try:

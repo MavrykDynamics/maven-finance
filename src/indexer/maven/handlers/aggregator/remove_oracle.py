@@ -2,23 +2,23 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.types.aggregator.tezos_parameters.remove_oracle import RemoveOracleParameter
 from maven.types.aggregator.tezos_storage import AggregatorStorage
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 import maven.models as models
 
 async def remove_oracle(
     ctx: HandlerContext,
-    remove_oracle: TezosTransaction[RemoveOracleParameter, AggregatorStorage],
+    remove_oracle: TzktTransaction[RemoveOracleParameter, AggregatorStorage],
 ) -> None:
 
     try:
         # Get operation info
         aggregator_address              = remove_oracle.data.target_address
-        oracle_address                  = remove_oracle.parameter.root
+        oracle_address                  = remove_oracle.parameter.__root__
     
         # Remove records
-        oracle                          = await models.maven_user_cache.get(network='atlasnet', address=oracle_address)
-        aggregator                      = await models.Aggregator.get(network='atlasnet', address= aggregator_address)
+        oracle                          = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=oracle_address)
+        aggregator                      = await models.Aggregator.get(network=ctx.datasource.name.replace('mvkt_',''), address= aggregator_address)
         aggregator_oracle               = await models.AggregatorOracle.get(
             aggregator  = aggregator,
             user        = oracle

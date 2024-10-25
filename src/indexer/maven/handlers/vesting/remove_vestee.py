@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.vesting.tezos_storage import VestingStorage
 from maven.types.vesting.tezos_parameters.remove_vestee import RemoveVesteeParameter
 from dipdup.context import HandlerContext
@@ -8,20 +8,20 @@ import maven.models as models
 
 async def remove_vestee(
     ctx: HandlerContext,
-    remove_vestee: TezosTransaction[RemoveVesteeParameter, VestingStorage],
+    remove_vestee: TzktTransaction[RemoveVesteeParameter, VestingStorage],
 ) -> None:
 
     try:
         # Get operation values
         vesting_address = remove_vestee.data.target_address
-        vestee_address  = remove_vestee.parameter.root
+        vestee_address  = remove_vestee.parameter.__root__
     
         # Delete record
         vesting = await models.Vesting.get(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address=vesting_address
         )
-        vestee  = await models.maven_user_cache.get(network='atlasnet', address=vestee_address)
+        vestee  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vestee_address)
         await models.VestingVestee.filter(
             vestee  = vestee,
             vesting = vesting

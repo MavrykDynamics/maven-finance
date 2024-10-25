@@ -4,13 +4,13 @@ from urllib import request
 from maven.types.governance.tezos_storage import GovernanceStorage
 from maven.types.governance.tezos_parameters.execute_proposal import ExecuteProposalParameter
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 import maven.models as models
 from dateutil import parser
 
 async def execute_proposal(
     ctx: HandlerContext,
-    execute_proposal: TezosTransaction[ExecuteProposalParameter, GovernanceStorage],
+    execute_proposal: TzktTransaction[ExecuteProposalParameter, GovernanceStorage],
 ) -> None:
 
     try:

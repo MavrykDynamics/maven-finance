@@ -3,13 +3,13 @@ from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from maven.utils.persisters import persist_admin
 from maven.types.lending_controller.tezos_parameters.set_admin import SetAdminParameter
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.lending_controller.tezos_storage import LendingControllerStorage
 import maven.models as models
 
 async def set_admin(
     ctx: HandlerContext,
-    set_admin: TezosTransaction[SetAdminParameter, LendingControllerStorage],
+    set_admin: TzktTransaction[SetAdminParameter, LendingControllerStorage],
 ) -> None:
 
     try:

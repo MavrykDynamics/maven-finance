@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.delegation.tezos_parameters.unpause_all import UnpauseAllParameter
 from maven.types.delegation.tezos_storage import DelegationStorage
@@ -8,7 +8,7 @@ import maven.models as models
 
 async def unpause_all(
     ctx: HandlerContext,
-    unpause_all: TezosTransaction[UnpauseAllParameter, DelegationStorage],
+    unpause_all: TzktTransaction[UnpauseAllParameter, DelegationStorage],
 ) -> None:
 
     try:
@@ -23,7 +23,7 @@ async def unpause_all(
         take_satellites_snapshot_paused     = unpause_all.storage.breakGlassConfig.takeSatellitesSnapshotPaused
 
         # Update contract
-        await models.Delegation.filter(network='atlasnet', address=delegation_address).update(
+        await models.Delegation.filter(network=ctx.datasource.name.replace('mvkt_',''), address=delegation_address).update(
             delegate_to_satellite_paused        = delegate_to_satellite_paused,
             undelegate_from_satellite_paused    = undelegate_from_satellite_paused,
             register_as_satellite_paused        = register_as_satellite_paused,

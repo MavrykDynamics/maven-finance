@@ -1,6 +1,17 @@
 version: "3.8"
 
 services:
+  # indexer:
+  #   build: .
+  #   depends_on:
+  #     - db
+  #     - hasura
+  #   restart: "no"
+  #   environment:
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+  #     - ADMIN_SECRET=${ADMIN_SECRET:-changeme}
+  #     - TZKT_URL=${TZKT_URL:-changeme}
+
   db:
     image: timescale/timescaledb:latest-pg15
     ports:

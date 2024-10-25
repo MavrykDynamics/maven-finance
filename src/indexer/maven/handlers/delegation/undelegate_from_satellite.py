@@ -1,6 +1,6 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 from maven.types.delegation.tezos_parameters.undelegate_from_satellite import UndelegateFromSatelliteParameter
 from maven.types.delegation.tezos_storage import DelegationStorage
@@ -8,13 +8,13 @@ import maven.models as models
 
 async def undelegate_from_satellite(
     ctx: HandlerContext,
-    undelegate_from_satellite: TezosTransaction[UndelegateFromSatelliteParameter, DelegationStorage],
+    undelegate_from_satellite: TzktTransaction[UndelegateFromSatelliteParameter, DelegationStorage],
 ) -> None:
 
     try:
         # Get operation values
         delegation_address          = undelegate_from_satellite.data.target_address
-        user_address                = undelegate_from_satellite.parameter.root
+        user_address                = undelegate_from_satellite.parameter.__root__
         satellite_addresses         = undelegate_from_satellite.storage.satelliteLedger
 
         for satellite_address in satellite_addresses:
@@ -23,10 +23,10 @@ async def undelegate_from_satellite(
             total_delegated_amount      = float(satellite_storage.totalDelegatedAmount)
         
             # Create and/or update record
-            user                                                            = await models.maven_user_cache.get(network='atlasnet', address=user_address)
-            satellite                                                       = await models.maven_user_cache.get(network='atlasnet', address=satellite_address)
+            user                                                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=user_address)
+            satellite                                                       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=satellite_address)
             delegation                                                      = await models.Delegation.get(
-                network = 'atlasnet',
+                network = ctx.datasource.name.replace('mvkt_',''),
                 address = delegation_address
             )
             satellite_record                                                = await models.Satellite.get(

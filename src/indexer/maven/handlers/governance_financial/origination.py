@@ -3,12 +3,12 @@ from maven.utils.error_reporting import save_error_report
 from maven.utils.contracts import get_contract_metadata
 from maven.types.governance_financial.tezos_storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosOrigination
+from dipdup.models.tezos_tzkt import TzktOrigination
 import maven.models as models
 
 async def origination(
     ctx: HandlerContext,
-    governance_financial_origination: TezosOrigination[GovernanceFinancialStorage],
+    governance_financial_origination: TzktOrigination[GovernanceFinancialStorage],
 ) -> None:
 
     try:
@@ -27,12 +27,12 @@ async def origination(
         )
         
         # Get governance record
-        governance                  = await models.Governance.get(network = 'atlasnet')
+        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
     
         # Create farm factory
         governance_financial = models.GovernanceFinancial(
             address                     = address,
-            network                     = 'atlasnet',
+            network                     = ctx.datasource.name.replace('mvkt_',''),
             metadata                    = contract_metadata,
             admin                       = admin,
             last_updated_at             = timestamp,

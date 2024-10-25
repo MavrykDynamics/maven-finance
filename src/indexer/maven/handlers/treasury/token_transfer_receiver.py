@@ -1,13 +1,13 @@
 from maven.utils.contracts import get_token_standard
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTokenTransferData
+from dipdup.models.tezos_tzkt import TzktTokenTransferData
 from maven import models as models
 import maven.models as models
 
 async def token_transfer_receiver(
     ctx: HandlerContext,
-    token_transfer: TezosTokenTransferData,
+    token_transfer: TzktTokenTransferData,
 ) -> None:
 
     try:    
@@ -30,7 +30,7 @@ async def token_transfer_receiver(
         token, _            = await models.Token.get_or_create(
             token_address       = token_address,
             token_id            = token_id,
-            network             = 'atlasnet'
+            network             = ctx.datasource.name.replace('mvkt_','')
         )
         token.token_standard    = standard
         if metadata:
@@ -39,7 +39,7 @@ async def token_transfer_receiver(
     
         # Update records
         treasury            = await models.Treasury.get(
-            network         = 'atlasnet',
+            network         = ctx.datasource.name.replace('mvkt_',''),
             address         = treasury_address
         )
         treasury_balance, _ = await models.TreasuryBalance.get_or_create(

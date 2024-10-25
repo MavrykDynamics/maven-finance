@@ -3,12 +3,13 @@ from maven.utils.error_reporting import save_error_report
 from maven.utils.contracts import get_contract_metadata
 from maven.types.governance.tezos_storage import GovernanceStorage, Round as proposal, Round1 as timelock, Round2 as voting
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosOrigination
+from dipdup.models.tezos_tzkt import TzktOrigination
 import maven.models as models
+import os
 
 async def origination(
     ctx: HandlerContext,
-    governance_origination: TezosOrigination[GovernanceStorage],
+    governance_origination: TzktOrigination[GovernanceStorage],
 ) -> None:
 
     try:
@@ -64,7 +65,7 @@ async def origination(
         # Create record
         governance          = models.Governance(
             address                                 = address,
-            network                                 = 'atlasnet',
+            network                                 = ctx.datasource.name.replace('mvkt_',''),
             metadata                                = contract_metadata,
             admin                                   = admin,
             last_updated_at                         = timestamp,
@@ -101,7 +102,7 @@ async def origination(
     
         # Add whitelisted developers
         for whitelisted_developer_address in whitelisted_developers:
-            user                                    = await models.maven_user_cache.get(network='atlasnet', address=whitelisted_developer_address)
+            user                                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=whitelisted_developer_address)
             whitelist_developer, _                  = await models.WhitelistDeveloper.get_or_create(
                 governance  = governance,
                 developer   = user

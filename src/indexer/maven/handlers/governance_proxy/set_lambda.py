@@ -1,7 +1,7 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.utils.persisters import persist_lambda
 from maven.types.governance_proxy.tezos_storage import GovernanceProxyStorage
 from maven.types.governance_proxy.tezos_parameters.set_lambda import SetLambdaParameter
@@ -9,7 +9,7 @@ import maven.models as models
 
 async def set_lambda(
     ctx: HandlerContext,
-    set_lambda: TezosTransaction[SetLambdaParameter, GovernanceProxyStorage],
+    set_lambda: TzktTransaction[SetLambdaParameter, GovernanceProxyStorage],
 ) -> None:
 
     try:

@@ -1,5 +1,5 @@
 from maven.utils.error_reporting import save_error_report
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.governance.tezos_storage import GovernanceStorage
 from dipdup.context import HandlerContext
 from maven.types.governance.tezos_parameters.drop_proposal import DropProposalParameter
@@ -7,17 +7,17 @@ import maven.models as models
 
 async def drop_proposal(
     ctx: HandlerContext,
-    drop_proposal: TezosTransaction[DropProposalParameter, GovernanceStorage],
+    drop_proposal: TzktTransaction[DropProposalParameter, GovernanceStorage],
 ) -> None:
 
     try:
         # Get operation values
-        proposal_id         = int(drop_proposal.parameter.root)
+        proposal_id         = int(drop_proposal.parameter.__root__)
         timestamp           = drop_proposal.data.timestamp
     
         # Update record
         governance  = await models.Governance.get(
-            network     = 'atlasnet'
+            network     = ctx.datasource.name.replace('mvkt_','')
         )
         await models.GovernanceProposal.filter(
             governance  = governance,

@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.types.delegation.tezos_storage import DelegationStorage
 from maven.types.delegation.tezos_parameters.toggle_pause_entrypoint import TogglePauseEntrypointParameter
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from dipdup.context import HandlerContext
 import maven.models as models
 
 async def toggle_pause_entrypoint(
     ctx: HandlerContext,
-    toggle_pause_entrypoint: TezosTransaction[TogglePauseEntrypointParameter, DelegationStorage],
+    toggle_pause_entrypoint: TzktTransaction[TogglePauseEntrypointParameter, DelegationStorage],
 ) -> None:
 
     try:
@@ -22,7 +22,7 @@ async def toggle_pause_entrypoint(
         distribute_reward_paused            = toggle_pause_entrypoint.storage.breakGlassConfig.distributeRewardIsPaused
         take_satellites_snapshot_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.takeSatellitesSnapshotPaused
         # Update contract
-        await models.Delegation.filter(network='atlasnet', address=delegation_address).update(
+        await models.Delegation.filter(network=ctx.datasource.name.replace('mvkt_',''), address=delegation_address).update(
             delegate_to_satellite_paused        = delegate_to_satellite_paused,
             undelegate_from_satellite_paused    = undelegate_from_satellite_paused,
             register_as_satellite_paused        = register_as_satellite_paused,

@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.types.vault.tezos_parameters.update_depositor import UpdateDepositorParameter, Allowance as Any, Allowance1 as Whitelist
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.vault.tezos_storage import VaultStorage
 import maven.models as models
 
 async def update_depositor(
     ctx: HandlerContext,
-    update_depositor: TezosTransaction[UpdateDepositorParameter, VaultStorage],
+    update_depositor: TzktTransaction[UpdateDepositorParameter, VaultStorage],
 ) -> None:
 
     try:
@@ -19,7 +19,7 @@ async def update_depositor(
     
         # Update record
         vault               = await models.Vault.get(
-            network = 'atlasnet',
+            network = ctx.datasource.name.replace('mvkt_',''),
             address = vault_address
         )
     
@@ -36,7 +36,7 @@ async def update_depositor(
             allowance_type      = models.VaultAllowance.WHITELIST
             depositor_address   = depositor.whitelist.address
             add_depositor       = depositor.whitelist.bool
-            user                = await models.maven_user_cache.get(network='atlasnet', address=depositor_address)
+            user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=depositor_address)
             vault_depositor, _  = await models.VaultDepositor.get_or_create(
                 vault       = vault,
                 depositor   = user

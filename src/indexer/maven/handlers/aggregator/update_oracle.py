@@ -1,13 +1,13 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.aggregator.tezos_parameters.update_oracle import UpdateOracleParameter
 from maven.types.aggregator.tezos_storage import AggregatorStorage
 import maven.models as models
 
 async def update_oracle(
     ctx: HandlerContext,
-    update_oracle: TezosTransaction[UpdateOracleParameter, AggregatorStorage],
+    update_oracle: TzktTransaction[UpdateOracleParameter, AggregatorStorage],
 ) -> None:
 
     try:
@@ -19,8 +19,8 @@ async def update_oracle(
         oracle_peer_id          = oracle_storage.oraclePeerId
     
         # Create record
-        oracle                  = await models.maven_user_cache.get(network='atlasnet', address=oracle_address)
-        aggregator              = await models.Aggregator.get(network='atlasnet', address=aggregator_address)
+        oracle                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=oracle_address)
+        aggregator              = await models.Aggregator.get(network=ctx.datasource.name.replace('mvkt_',''), address=aggregator_address)
         await models.AggregatorOracle.filter(
             aggregator  = aggregator,
             user        = oracle

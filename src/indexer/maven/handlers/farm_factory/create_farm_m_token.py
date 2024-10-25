@@ -1,8 +1,8 @@
 from maven.utils.error_reporting import save_error_report
 from maven.utils.contracts import get_contract_metadata, get_token_standard, get_contract_token_metadata
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosOrigination
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.farm_factory.tezos_parameters.create_farm_m_token import CreateFarmMTokenParameter
 from maven.types.farm_factory.tezos_storage import FarmFactoryStorage
 from maven.types.m_farm.tezos_storage import MFarmStorage
@@ -12,8 +12,8 @@ import datetime
 
 async def create_farm_m_token(
     ctx: HandlerContext,
-    create_farm_m_token: TezosTransaction[CreateFarmMTokenParameter, FarmFactoryStorage],
-    m_farm_origination: TezosOrigination[MFarmStorage],
+    create_farm_m_token: TzktTransaction[CreateFarmMTokenParameter, FarmFactoryStorage],
+    m_farm_origination: TzktOrigination[MFarmStorage],
 ) -> None:
 
     try:
@@ -52,7 +52,7 @@ async def create_farm_m_token(
     
         # Check farm does not already exists
         farm_exists                     = await models.Farm.filter(
-            network     = 'atlasnet',
+            network     = ctx.datasource.name.replace('mvkt_',''),
             address     = farm_address
         ).exists()
     
@@ -101,7 +101,7 @@ async def create_farm_m_token(
                 # Get the related token
                 token0, _               = await models.Token.get_or_create(
                     token_address       = token0_address,
-                    network             = 'atlasnet'
+                    network             = ctx.datasource.name.replace('mvkt_','')
                 )
                 if token_contract_metadata:
                     token0.metadata          = token_contract_metadata
@@ -124,7 +124,7 @@ async def create_farm_m_token(
                 # Get the related token
                 token1, _               = await models.Token.get_or_create(
                     token_address       = token1_address,
-                    network             = 'atlasnet'
+                    network             = ctx.datasource.name.replace('mvkt_','')
                 )
                 if token_contract_metadata:
                     token1.metadata          = token_contract_metadata
@@ -154,7 +154,7 @@ async def create_farm_m_token(
             lp_token, _                 = await models.Token.get_or_create(
                 token_address       = lp_token_address,
                 token_id            = lp_token_id,
-                network             = 'atlasnet'
+                network             = ctx.datasource.name.replace('mvkt_','')
             )
             if token_contract_metadata:
                 lp_token.metadata          = token_contract_metadata
@@ -163,15 +163,15 @@ async def create_farm_m_token(
     
             # Create record
             farm_factory    = await models.FarmFactory.get(
-                network = 'atlasnet',
+                network = ctx.datasource.name.replace('mvkt_',''),
                 address = farm_factory_address
             )
             governance      = await models.Governance.get(
-                network = 'atlasnet'
+                network = ctx.datasource.name.replace('mvkt_','')
             )
             farm            = models.Farm(
                 address                         = farm_address,
-                network                         = 'atlasnet',
+                network                         = ctx.datasource.name.replace('mvkt_',''),
                 lp_token                        = lp_token,
                 metadata                        = contract_metadata,
                 governance                      = governance,

@@ -1,13 +1,13 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos import TezosTransaction
+from dipdup.models.tezos_tzkt import TzktTransaction
 from maven.types.farm_factory.tezos_parameters.set_product_lambda import SetProductLambdaParameter, FarmType as Farm, FarmType1 as MFarm
 from maven.types.farm_factory.tezos_storage import FarmFactoryStorage
 import maven.models as models
 
 async def set_product_lambda(
     ctx: HandlerContext,
-    set_product_lambda: TezosTransaction[SetProductLambdaParameter, FarmFactoryStorage],
+    set_product_lambda: TzktTransaction[SetProductLambdaParameter, FarmFactoryStorage],
 ) -> None:
 
     try:
@@ -20,7 +20,7 @@ async def set_product_lambda(
     
         # Save / Update record
         contract                = await models.FarmFactory.get(
-            network     = 'atlasnet',
+            network     = ctx.datasource.name.replace('mvkt_',''),
             address     = contract_address
         )
         contract.last_updated_at            = timestamp
