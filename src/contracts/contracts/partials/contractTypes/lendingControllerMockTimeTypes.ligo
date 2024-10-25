@@ -40,7 +40,7 @@ type vaultConfigRecordType is [@layout:comb] record [
 
     interestRepaymentPeriod      : nat;         // number of days in which vault has to repay interest in (e.g. every 30 days)
     missedPeriodsForLiquidation  : nat;         // number of missed interest repayment periods before vault can be liquidated
-    interestRepaymentGrace       : nat;         // grace period in days before fee penalty is applied
+    repaymentWindow              : nat;         // grace period in days before fee penalty is applied
     penaltyFeePercentage         : nat;         // percentage of interest outstanding that will be counted as penalty fee
     liquidationConfig            : nat;         // liquidation config - 0: standard, 1: rwa
 ]
@@ -127,10 +127,25 @@ type vaultRecordType is [@layout:comb] record [
     markedForLiquidationLevel   : nat;                           // block level of when vault was marked for liquidation
     liquidationEndLevel         : nat;                           // block level of when vault will no longer be liquidated, or will need to be marked for liquidation again
 
-    penaltyFee                  : nat;                           // for RWA-type vault as an addition fee to be cleared
-    lastInterestPayment         : timestamp;                     // for RWA-type vault on last interest payment
+    loanStartTimestamp          : option(timestamp);             // timestamp: for RWA-type vaults on when loan was first taken
+    lastInterestCleared         : timestamp;                     // timestamp: for RWA-type vault on last interest payment cleared
+    loanStartLevel              : option(nat);                   // block level: for RWA-type vaults on when loan was first taken
+    lastInterestClearedLevel    : nat;                           // block level: for RWA-type vault on last interest payment cleared
+
+    penaltyAppliedTimestamp     : option(timestamp);             // for RWA-type vault, on when penalty was last applied
+    penaltyAppliedLevel         : option(nat);                   // block level: for RWA-type vault, on when penalty was last applied
+
+    penaltyCounter              : nat;                           // for RWA-type vault, keep track of penalty counter
     
 ]
+
+type vaultPenaltyRecordType is [@layout:comb] record [
+    entrypoint                  : string;
+    penaltyFee                  : nat;
+    penaltyTimestamp            : timestamp;
+]
+type vaultPenaltyEventLedgerType is big_map((address * nat), vaultPenaltyRecordType) // vault address * penalty counter
+
 
 // owner types
 type ownerVaultSetType              is set(vaultIdType)                     // set of vault ids belonging to the owner 
@@ -421,6 +436,7 @@ type lendingControllerStorageType is [@layout:comb] record [
     // vaults and owners
     vaults                      : big_map(vaultHandleType, vaultRecordType);
     ownerLedger                 : ownerLedgerType;              // for some convenience in checking vaults owned by user
+    vaultPenaltyEventLedger     : vaultPenaltyEventLedgerType;
 
     // collateral tokens
     collateralTokenLedger       : collateralTokenLedgerType;

@@ -795,8 +795,6 @@ block {
                 // Check if vault is liquidatable
                 // ------------------------------------------------------------------
 
-                // const vaultIsLiquidatable : bool = isLiquidatable(vault, liquidationRatio, s);
-
                 var vaultIsLiquidatable : bool := False;
                 if liquidationConfig = 1n then { // rwa vault config -> 1n
 
@@ -936,8 +934,6 @@ block {
                 // Check if vault is liquidatable
                 // ------------------------------------------------------------------
 
-                // const vaultIsLiquidatable : bool = isLiquidatable(vault, liquidationRatio, s);
-
                 var vaultIsLiquidatable : bool := False;
                 if liquidationConfig = 1n then { // rwa vault config -> 1n
 
@@ -988,6 +984,7 @@ block {
 
                                     // update vault penalty timestamp
                                     vault.penaltyAppliedTimestamp := Some(Mavryk.get_now());
+                                    vault.penaltyAppliedLevel := Some(Mavryk.get_level());
 
                                 } else skip;
                             }
@@ -1232,6 +1229,7 @@ block {
                 vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
                 vault.loanPrincipalTotal        := newLoanPrincipalTotal;
                 vault.loanInterestTotal         := newLoanInterestTotal;
+                vault.lastUpdatedBlockLevel     := Mavryk.get_level();
 
                 // Update vault                
                 s.vaults[vaultHandle]           := vault;                
@@ -1501,6 +1499,7 @@ block {
 
                                     // update vault penalty timestamp
                                     vault.penaltyAppliedTimestamp := Some(Mavryk.get_now());
+                                    vault.penaltyAppliedLevel := Some(Mavryk.get_level());
 
                                 } else skip;
                                 
@@ -1511,6 +1510,7 @@ block {
                     // check if this is the first borrow
                     if totalBorrowed = 0n then {
                         vault.loanStartTimestamp := Some(Mavryk.get_now());
+                        vault.loanStartLevel := Some(Mavryk.get_level());
                     } else skip;
 
                 };
@@ -1622,6 +1622,7 @@ block {
                 // Update vault storage
                 vault.loanOutstandingTotal             := newLoanOutstandingTotal;
                 vault.loanPrincipalTotal               := newLoanPrincipalTotal;
+                vault.lastUpdatedBlockLevel            := Mavryk.get_level();
 
                 // Update vault
                 s.vaults[vaultHandle] := vault;
@@ -1733,6 +1734,7 @@ block {
 
                                     // update vault penalty timestamp
                                     vault.penaltyAppliedTimestamp := Some(Mavryk.get_now());
+                                    vault.penaltyAppliedLevel := Some(Mavryk.get_level());
 
                                 } else skip;
                                 
@@ -1906,16 +1908,21 @@ block {
                 vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
                 vault.loanPrincipalTotal        := newLoanPrincipalTotal;
                 vault.loanInterestTotal         := newLoanInterestTotal;
+                vault.lastUpdatedBlockLevel     := Mavryk.get_level();
 
                 // update loan start timestamp if loan outstanding is cleared
                 if newLoanOutstandingTotal = 0n then {
                     vault.loanStartTimestamp := (None : option(timestamp));
+                    vault.loanStartLevel := (None : option(nat));
                 } else skip;
 
                 // set last interest cleared and reset penalty applied timestamp if loan interest total is cleared
                 if newLoanInterestTotal = 0n then {
                     vault.lastInterestCleared := Mavryk.get_now();
+                    vault.lastInterestClearedLevel := Mavryk.get_level();
+                    
                     vault.penaltyAppliedTimestamp := (None : option(timestamp));
+                    vault.penaltyAppliedLevel := (None : option(nat));
                 } else skip;
 
                 // Update vault

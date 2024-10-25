@@ -39,7 +39,7 @@ type vaultConfigRecordType is [@layout:comb] record [
     missedPeriodsForLiquidation  : nat;         // number of missed interest repayment periods before vault can be liquidated
     repaymentWindow              : nat;         // repayment window (in mins) before fee penalty is applied if interest total did not reach zero
     penaltyFeePercentage         : nat;         // percentage of interest outstanding that will be counted as penalty fee
-    liquidationConfig            : nat;         // liquidation config - 0: standard, 1: rwa
+    liquidationConfig            : nat;         // liquidation config - 0: standard, 1: rwa - Note: not exactly the same as vault config, as there might be different liquidation mechanisms in future
 ]
 type vaultConfigLedgerType is big_map(nat, vaultConfigRecordType);
 
@@ -125,10 +125,14 @@ type vaultRecordType is [@layout:comb] record [
     markedForLiquidationLevel   : nat;                           // block level of when vault was marked for liquidation
     liquidationEndLevel         : nat;                           // block level of when vault will no longer be liquidated, or will need to be marked for liquidation again
 
-    loanStartTimestamp          : option(timestamp);             // for RWA-type vaults on when loan was first taken
-    lastInterestCleared         : timestamp;                     // for RWA-type vault on last interest payment cleared
+    loanStartTimestamp          : option(timestamp);             // timestamp: for RWA-type vaults on when loan was first taken
+    lastInterestCleared         : timestamp;                     // timestamp: for RWA-type vault on last interest payment cleared
+    loanStartLevel              : option(nat);                   // block level: for RWA-type vaults on when loan was first taken
+    lastInterestClearedLevel    : nat;                           // block level: for RWA-type vault on last interest payment cleared
 
     penaltyAppliedTimestamp     : option(timestamp);             // for RWA-type vault, on when penalty was last applied
+    penaltyAppliedLevel         : option(nat);                   // block level: for RWA-type vault, on when penalty was last applied
+
     penaltyCounter              : nat;                           // for RWA-type vault, keep track of penalty counter
 
 ]
