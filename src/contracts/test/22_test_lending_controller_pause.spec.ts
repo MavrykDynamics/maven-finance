@@ -95,11 +95,11 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
         mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
         mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
-        mTokenMvrkInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
+        mTokenMvrkInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
 
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
-        mockUsdMvrkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
+        mockUsdMvrkAggregatorInstance           = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
         mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
@@ -569,7 +569,7 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 };
                 const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
-                const vaultConfigRecord      = lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+                const vaultConfigRecord      = await lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
                 const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
                 const minimumLoanFeePercent  = vaultConfigRecord.minimumLoanFeePercent;        // e.g. 1%
                 const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
