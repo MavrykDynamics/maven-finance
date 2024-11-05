@@ -77,7 +77,7 @@ describe('Oracle Setup', async () => {
                         name: 'Maven Finance - BTC/USD Aggregator',
                         version: 'v1.0.0',
                         authors: ['Mavryk Dynamics <info@mavryk.io>'],
-                        icon: 'https://infura-ipfs.io/ipfs/QmQ3mno4hNt9ENMUhVGFhv49RdnkPpJQmxwRMHRmAmrLaS',
+                        icon: 'ipfs://QmQ3mno4hNt9ENMUhVGFhv49RdnkPpJQmxwRMHRmAmrLaS',
                         category: 'cryptocurrency',
                         homepage: "https://mavenfinance.io",
                         license: {
@@ -90,7 +90,7 @@ describe('Oracle Setup', async () => {
                             ],
                             location: "https://github.com/mavenfinance/maven-finance"
                         },
-                        interfaces: [ 'TZIP-16' ],
+                        interfaces: [ 'MIP-16' ],
                         }),
                     'ascii',
                 ).toString('hex')
@@ -100,7 +100,7 @@ describe('Oracle Setup', async () => {
                         name: 'Maven Finance - MVRK/USD Aggregator',
                         version: 'v1.0.0',
                         authors: ['Mavryk Dynamics <info@mavryk.io>'],
-                        icon: 'https://infura-ipfs.io/ipfs/QmVKuChbrLg9nt5VCsm8ABXxoCaju2a2KSbTeSbt8vHR1W',
+                        icon: 'ipfs://QmVKuChbrLg9nt5VCsm8ABXxoCaju2a2KSbTeSbt8vHR1W',
                         category: 'cryptocurrency',
                         homepage: "https://mavenfinance.io",
                         license: {
@@ -113,7 +113,7 @@ describe('Oracle Setup', async () => {
                             ],
                             location: "https://github.com/mavenfinance/maven-finance"
                         },
-                        interfaces: [ 'TZIP-16' ],
+                        interfaces: [ 'MIP-16' ],
                         }),
                     'ascii',
                 ).toString('hex')
@@ -123,7 +123,7 @@ describe('Oracle Setup', async () => {
                         name: 'Maven Finance - USDT/USD Aggregator',
                         version: 'v1.0.0',
                         authors: ['Mavryk Dynamics <info@mavryk.io>'],
-                        icon: 'https://infura-ipfs.io/ipfs/QmdsFRYNuJX6HRamC2pXp3FiuEa4jB9uCZdg3sr3HD6KT7',
+                        icon: 'ipfs://QmdsFRYNuJX6HRamC2pXp3FiuEa4jB9uCZdg3sr3HD6KT7',
                         category: 'stablecoin',
                         homepage: "https://mavenfinance.io",
                         license: {
@@ -136,7 +136,7 @@ describe('Oracle Setup', async () => {
                             ],
                             location: "https://github.com/mavenfinance/maven-finance"
                         },
-                        interfaces: [ 'TZIP-16' ]
+                        interfaces: [ 'MIP-16' ]
                     }),
                     'ascii',
                 ).toString('hex')
@@ -146,7 +146,7 @@ describe('Oracle Setup', async () => {
                         name: 'Maven Finance - OCEAN/USD Aggregator',
                         version: 'v1.0.0',
                         authors: ['Mavryk Dynamics <info@mavryk.io>'],
-                        icon: 'https://infura-ipfs.io/ipfs/QmVvUnYu7jfKFR6KDVhPbPXC89tYCCajDvDHuYgPdH6unK',
+                        icon: 'ipfs://QmVvUnYu7jfKFR6KDVhPbPXC89tYCCajDvDHuYgPdH6unK',
                         category: 'rwa',
                         homepage: "https://mavenfinance.io",
                         license: {
@@ -159,7 +159,7 @@ describe('Oracle Setup', async () => {
                             ],
                             location: "https://github.com/mavenfinance/maven-finance"
                         },
-                        interfaces: [ 'TZIP-16' ]
+                        interfaces: [ 'MIP-16' ]
                     }),
                     'ascii',
                 ).toString('hex')
@@ -169,7 +169,7 @@ describe('Oracle Setup', async () => {
                         name: 'Maven Finance - MARS1/USD Aggregator',
                         version: 'v1.0.0',
                         authors: ['Mavryk Dynamics <info@mavryk.io>'],
-                        icon: 'https://cloudflare-ipfs.com/ipfs/QmdkDb6KnboFNknuyK72eFdM1qKgetYZegBoQkcjDYhG5k',
+                        icon: 'ipfs://QmdkDb6KnboFNknuyK72eFdM1qKgetYZegBoQkcjDYhG5k',
                         category: 'rwa',
                         homepage: "https://mavenfinance.io",
                         license: {
@@ -182,7 +182,7 @@ describe('Oracle Setup', async () => {
                             ],
                             location: "https://github.com/mavenfinance/maven-finance"
                         },
-                        interfaces: [ 'TZIP-16' ]
+                        interfaces: [ 'MIP-16' ]
                     }),
                     'ascii',
                 ).toString('hex')

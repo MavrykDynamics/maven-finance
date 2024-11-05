@@ -30,15 +30,15 @@ export const mockTokenData = {
                     ],
                     location: "https://github.com/mavenfinance/maven-finance"
                 },
-                interfaces: ['TZIP-12', 'TZIP-16', 'TZIP-21'],
+                interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
                     {
                         symbol: Buffer.from('MVN').toString('hex'),
-                        name: Buffer.from('MAVEN').toString('hex'),
+                        name: Buffer.from('Maven').toString('hex'),
                         decimals: Buffer.from(mvnTokenDecimals.toString()).toString('hex'),
-                        icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
-                        shouldPreferSymbol: true,
-                        thumbnailUri: 'https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg',
+                        icon: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex'),
+                        shouldPreferSymbol: '74727565',
+                        thumbnailUri: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex')
                     },
                 ],
                 }),
@@ -62,15 +62,15 @@ export const mockTokenData = {
                     ],
                     location: "https://github.com/mavenfinance/maven-finance"
                 },
-                interfaces: ['TZIP-12', 'TZIP-16', 'TZIP-21'],
+                interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
                     {
                         symbol: Buffer.from('MVN').toString('hex'),
-                        name: Buffer.from('MAVEN').toString('hex'),
+                        name: Buffer.from('Maven').toString('hex'),
                         decimals: Buffer.from("9").toString('hex'),
-                        icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
-                        shouldPreferSymbol: true,
-                        thumbnailUri: 'https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg',
+                        icon: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex'),
+                        shouldPreferSymbol: '74727565',
+                        thumbnailUri: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex'),
                     },
                 ],
             }),
@@ -103,15 +103,15 @@ export const mTokenMockData = {
                     ],
                     location: "https://github.com/mavenfinance/maven-finance"
                 },
-                interfaces: ['TZIP-12', 'TZIP-16', 'TZIP-21'],
+                interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
                     {
                     symbol: Buffer.from('mUSDT').toString('hex'),
                     name: Buffer.from('mUSDT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
                     icon: Buffer.from('ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD').toString('hex'),
-                    shouldPreferSymbol: true,
-                    thumbnailUri: 'ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD'
+                    shouldPreferSymbol: '74727565',
+                    thumbnailUri: Buffer.from('ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD').toString('hex')
                     }
                 ]
                 }),
@@ -154,15 +154,15 @@ export const mTokenMockData = {
                     ],
                     location: "https://github.com/mavenfinance/maven-finance"
                 },
-                interfaces: ['TZIP-12', 'TZIP-16', 'TZIP-21'],
+                interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
                     {
                     symbol: Buffer.from('mEURT').toString('hex'),
                     name: Buffer.from('mEURT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex'),
-                    shouldPreferSymbol: true,
-                    thumbnailUri: 'https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4'
+                    icon: Buffer.from('ipfs://QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex'),
+                    shouldPreferSymbol: '74727565',
+                    thumbnailUri: Buffer.from('ipfs://QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex')
                     }
                 ]
                 }),
@@ -176,9 +176,9 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mEURT').toString('hex'),
                     name: Buffer.from('mEURT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex'),
+                    icon: Buffer.from('ipfs://QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex'),
                     shouldPreferSymbol: '74727565',
-                    thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex')
+                    thumbnailUri: Buffer.from('ipfs://QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex')
                 }),
             },
         })
@@ -205,15 +205,15 @@ export const mTokenMockData = {
                     ],
                     location: "https://github.com/mavenfinance/maven-finance"
                 },
-                interfaces: ['TZIP-12', 'TZIP-16', 'TZIP-21'],
+                interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
                     {
                     symbol: Buffer.from('mMVRK').toString('hex'),
                     name: Buffer.from('mMVRK').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
                     icon: Buffer.from('ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n').toString('hex'),
-                    shouldPreferSymbol: true,
-                    thumbnailUri: 'ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n'
+                    shouldPreferSymbol: '74727565',
+                    thumbnailUri: Buffer.from('ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n').toString('hex')
                     }
                 ]
                 }),
@@ -256,15 +256,15 @@ export const mTokenMockData = {
                     ],
                     location: "https://github.com/mavenfinance/maven-finance"
                 },
-                interfaces: ['TZIP-12', 'TZIP-16', 'TZIP-21'],
+                interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
                     {
                     symbol: Buffer.from('mWBTC').toString('hex'),
                     name: Buffer.from('mWBTC').toString('hex'),
                     decimals: Buffer.from('8').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex'),
-                    shouldPreferSymbol: true,
-                    thumbnailUri: 'https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME'
+                    icon: Buffer.from('ipfs://Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex'),
+                    shouldPreferSymbol: '74727565',
+                    thumbnailUri: Buffer.from('ipfs://Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex')
                     }
                 ]
                 }),
@@ -278,9 +278,9 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mWBTC').toString('hex'),
                     name: Buffer.from('mWBTC').toString('hex'),
                     decimals: Buffer.from('8').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex'),
+                    icon: Buffer.from('ipfs://Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex'),
                     shouldPreferSymbol: '74727565',
-                    thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex')
+                    thumbnailUri: Buffer.from('ipfs://Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex')
                 }),
             },
         })
@@ -313,7 +313,7 @@ export const mockMetadata = {
                 ],
                 location: "https://github.com/mavenfinance/maven-finance"
             },
-            interfaces: [ 'TZIP-16' ],
+            interfaces: [ 'MIP-16' ],
             }),
         'ascii',
     ).toString('hex'),
@@ -334,7 +334,7 @@ export const mockMetadata = {
                 ],
                 location: "https://github.com/mavenfinance/maven-finance"
             },
-            interfaces: [ 'TZIP-16' ],
+            interfaces: [ 'MIP-16' ],
             }),
         'ascii',
     ).toString('hex'),
@@ -355,7 +355,7 @@ export const mockMetadata = {
               ],
               location: "https://github.com/mavenfinance/maven-finance"
           },
-          interfaces: [ 'TZIP-16' ],
+          interfaces: [ 'MIP-16' ],
           liquidityPairToken: {
               tokenAddress: ["KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu"],
               origin: ["PLENTY"],
@@ -392,7 +392,7 @@ export const mockMetadata = {
             ],
             location: "https://github.com/mavenfinance/maven-finance"
         },
-        interfaces: [ 'TZIP-16' ],
+        interfaces: [ 'MIP-16' ],
         liquidityPairToken: {
             tokenAddress: ["KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu"],
             origin: ["PLENTY"],
@@ -436,7 +436,7 @@ export const aggregatorMockData = {
                     ],
                     location: "https://github.com/mavenfinance/maven-finance"
                 },
-                interfaces: [ 'TZIP-16' ],
+                interfaces: [ 'MIP-16' ],
                 }),
             'ascii',
         ).toString('hex')
@@ -450,7 +450,7 @@ export const mockSatelliteData = {
     "alice" : {
         name            : "Alice Dynamics",
         desc            : "The Alice Dynamics belongs to one of the core teams contributing to Maven Finance. The team as Maven Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
-        image           : "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
+        image           : "ipfs://QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
         website         : "https://mavenfinance.io/", 
         satelliteFee    : 500,
         oraclePublicKey : alice.pk,
@@ -460,7 +460,7 @@ export const mockSatelliteData = {
     "bob" : {
         name            : "Maven Dynamics",
         desc            : "The Maven Dynamics belongs to one of the core teams contributing to Maven Finance. The team as Maven Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
-        image           : "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
+        image           : "ipfs://QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
         website         : "https://mavenfinance.io/", 
         satelliteFee    : 500,
         oraclePublicKey : bob.pk,
@@ -470,7 +470,7 @@ export const mockSatelliteData = {
     "eve" : {
         name            : "Buzz Lightyear",
         desc            : "Buzz is a fabled part of our childhood. He was created by Disney and Pixar mainly voiced by Tim Allen. He is a Superhero toy action figure based on the in-universe media franchise Toy Story, consisting of a blockbuster feature film and animated series, a Space Ranger.", 
-        image           : "https://infura-ipfs.io/ipfs/QmcbigzB5PVfawr1jhctTWDgGTmLBZFbHPNfosDfq9zckQ",
+        image           : "ipfs://QmcbigzB5PVfawr1jhctTWDgGTmLBZFbHPNfosDfq9zckQ",
         website         : "https://toystory.disney.com/buzz-lightyear", 
         satelliteFee    : 350,
         oraclePublicKey : eve.pk,
@@ -480,7 +480,7 @@ export const mockSatelliteData = {
     "mallory" : {
         name            : "Captain Kirk",
         desc            : "James Tiberius \"Jim\" Kirk is a legendary Starfleet officer who lived during the 23rd century. His time in Starfleet, made Kirk arguably one of the most famous and sometimes infamous starship captains in Starfleet history.",
-        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        image           : "ipfs://QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
         website         : "https://intl.startrek.com/",
         satelliteFee    : 700,
         oraclePublicKey : mallory.pk,
@@ -490,7 +490,7 @@ export const mockSatelliteData = {
     "oscar" : {
         name            : "Oscar Wilde",
         desc            : "Oscar Fingal O'Fflahertie Wills Wilde was an Irish poet and playwright. After writing in different forms throughout the 1880s, he became one of the most popular playwrights in London in the early 1890s.",
-        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        image           : "ipfs://QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
         website         : "https://intl.startrek.com/",
         satelliteFee    : 700,
         oraclePublicKey : oscar.pk,
@@ -500,7 +500,7 @@ export const mockSatelliteData = {
     "ivan" : {
         name            : "Ivan Pavlov",
         desc            : "Ivan Petrovich Pavlov, was a Russian and Soviet experimental neurologist, psychologist and physiologist known for his discovery of classical conditioning through his experiments with dogs.",
-        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        image           : "ipfs://QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
         website         : "https://intl.startrek.com/",
         satelliteFee    : 600,
         oraclePublicKey : ivan.pk,
@@ -510,7 +510,7 @@ export const mockSatelliteData = {
     "trudy" : {
         name            : "Trudy",
         desc            : "Lorem ipsum about trudy.",
-        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        image           : "ipfs://QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
         website         : "https://intl.startrek.com/",
         satelliteFee    : 500,
         oraclePublicKey : trudy.pk,
@@ -520,7 +520,7 @@ export const mockSatelliteData = {
     "susie" : {
         name            : "Susie",
         desc            : "Lorem ipsum about susie.",
-        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        image           : "ipfs://QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
         website         : "https://intl.startrek.com/",
         satelliteFee    : 500,
         oraclePublicKey : susie.pk,
