@@ -35,7 +35,7 @@ const metadata = MichelsonMap.fromLiteral({
             ],
             location: "https://github.com/mavenfinance/maven-finance"
         },
-        interfaces: [ 'TZIP-16' ],
+        interfaces: [ 'MIP-16' ],
         }),
         'ascii',
     ).toString('hex'),

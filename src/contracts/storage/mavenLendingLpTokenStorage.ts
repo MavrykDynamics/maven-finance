@@ -27,15 +27,15 @@ const metadata = MichelsonMap.fromLiteral({
             ],
             location: "https://github.com/mavenfinance/maven-finance"
         },
-        interfaces: [ 'TZIP-12', 'TZIP-16', 'TZIP-21' ],
+        interfaces: [ 'MIP-12', 'MIP-16', 'MIP-21' ],
         assets: [
             {
                 symbol: Buffer.from('LLP').toString('hex'),
-                name: Buffer.from('MavenFinanceLendingLP').toString('hex'),
+                name: Buffer.from('Maven Finance Lending LP').toString('hex'),
                 decimals: Buffer.from('6').toString('hex'),
-                icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
-                shouldPreferSymbol: true,
-                thumbnailUri: 'https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg'
+                icon: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex'),
+                shouldPreferSymbol: '74727565',
+                thumbnailUri: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex'),
             }
         ]
         }),
@@ -55,11 +55,11 @@ const token_metadata = MichelsonMap.fromLiteral({
         token_id: '0',
         token_info: MichelsonMap.fromLiteral({
             symbol: Buffer.from('LLP').toString('hex'),
-            name: Buffer.from('MavenFinanceLendingLP').toString('hex'),
+            name: Buffer.from('Maven Finance Lending LP').toString('hex'),
             decimals: Buffer.from('6').toString('hex'),
-            icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
+            icon: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex'),
             shouldPreferSymbol: '74727565',
-            thumbnailUri: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex')
+            thumbnailUri: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex')
         }),
     },
 })

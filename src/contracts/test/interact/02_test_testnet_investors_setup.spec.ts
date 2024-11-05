@@ -510,7 +510,7 @@ describe("Testnet setup helper", async () => {
                             ],
                             location: "https://github.com/mavenfinance/maven-finance"
                         },
-                        interfaces: [ 'TZIP-16' ],
+                        interfaces: [ 'MIP-16' ],
                         }),
                         'ascii',
                     ).toString('hex')
@@ -555,7 +555,7 @@ describe("Testnet setup helper", async () => {
                             ],
                             location: "https://github.com/mavenfinance/maven-finance"
                         },
-                        interfaces: [ 'TZIP-16' ],
+                        interfaces: [ 'MIP-16' ],
                         }),
                         'ascii',
                     ).toString('hex')
@@ -584,7 +584,7 @@ describe("Testnet setup helper", async () => {
                             ],
                             location: "https://github.com/mavenfinance/maven-finance"
                         },
-                        interfaces: [ 'TZIP-16' ],
+                        interfaces: [ 'MIP-16' ],
                         }),
                         'ascii',
                     ).toString('hex')
@@ -613,7 +613,7 @@ describe("Testnet setup helper", async () => {
                             ],
                             location: "https://github.com/mavenfinance/maven-finance"
                         },
-                        interfaces: [ 'TZIP-16' ],
+                        interfaces: [ 'MIP-16' ],
                         }),
                         'ascii',
                     ).toString('hex')

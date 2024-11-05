@@ -34,11 +34,11 @@ const token_metadata = MichelsonMap.fromLiteral({
         token_id: '0',
         token_info: MichelsonMap.fromLiteral({
             symbol: Buffer.from('MVN').toString('hex'),
-            name: Buffer.from('MAVEN').toString('hex'),
+            name: Buffer.from('Maven').toString('hex'),
             decimals: Buffer.from(mvnTokenDecimals.toString()).toString('hex'),
-            icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
+            icon: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex'),
             shouldPreferSymbol: '74727565',
-            thumbnailUri: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
+            thumbnailUri: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex'),
         }),
     },
 })

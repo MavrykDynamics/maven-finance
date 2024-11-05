@@ -52,17 +52,17 @@ const metadata = MichelsonMap.fromLiteral({
             ],
             location: "https://github.com/mavenfinance/maven-finance"
         },
-        interfaces: [ 'TZIP-16' ],
+        interfaces: [ 'MIP-16' ],
         liquidityPairToken: {
             tokenAddress: ["KT1CDeAxaiqbA5aMkPMmqqYXxqgfFwocJHza"],
             origin: ["Mavryk Finance"],
             symbol: ["MLP"],
-            thumbnailUri: "https://infura-ipfs.io/ipfs/QmaazYGXFxbLvdVBUkxkprsZuBpQeraMWyUkU1gGsigiYm",
+            thumbnailUri: "ipfs://QmaazYGXFxbLvdVBUkxkprsZuBpQeraMWyUkU1gGsigiYm",
             decimals: 15,
             token0: {
                 symbol: ["USDT.e"],
                 tokenAddress: ["KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"],
-                thumbnailUri: "https://infura-ipfs.io/ipfs/QmdQ4R6TtBe75wSVEsLfRDtAn36Bv2zLAHyVe1cuLYeyfK"
+                thumbnailUri: "ipfs://QmdQ4R6TtBe75wSVEsLfRDtAn36Bv2zLAHyVe1cuLYeyfK"
             },
             token1: {
                 symbol: ["USDC.e"],
