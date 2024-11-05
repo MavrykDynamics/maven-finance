@@ -38,9 +38,21 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: "MAVEN USDT.e-USDC.e Farm",
-        description: "Mavryk Farm Contract for USDT.e-USDC.e",
-        version: "v1.0.0",
+        name: 'Maven Finance - USDT.e-USDC.e Farm',
+        version: 'v1.0.0',
+        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+        homepage: "https://mavenfinance.io",
+        license: {
+            name: "MIT"
+        },
+        source: {
+            tools: [
+                "MavrykLIGO 0.60.0",
+                "Flexmasa atlas-update-run"
+            ],
+            location: "https://github.com/mavenfinance/maven-finance"
+        },
+        interfaces: [ 'TZIP-16' ],
         liquidityPairToken: {
             tokenAddress: ["KT1CDeAxaiqbA5aMkPMmqqYXxqgfFwocJHza"],
             origin: ["Mavryk Finance"],
@@ -58,7 +70,6 @@ const metadata = MichelsonMap.fromLiteral({
                 thumbnailUri: "https://www.plentydefi.com/static/media/usdc_icon.771d659c.svg"
             }
         },
-        authors: ["MAVEN Dev Team <info@mavryk.io>"]
         }),
         'ascii',
     ).toString('hex'),

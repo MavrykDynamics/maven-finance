@@ -91,17 +91,25 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-            name: 'MAVEN Lending Controller Contract',
-            version: 'v1.0.0',
-            authors: ['MAVEN Dev Team <info@mavryk.io>'],
-            source: {
-                tools: ['Ligo', 'Flexmasa'],
-                location: 'https://ligolang.org/',
-            },
-            }),
-            'ascii',
-        ).toString('hex'),
-    })
+        name: 'Maven Finance - Lending Controller',
+        version: 'v1.0.0',
+        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+        homepage: "https://mavenfinance.io",
+        license: {
+            name: "MIT"
+        },
+        source: {
+            tools: [
+                "MavrykLIGO 0.60.0",
+                "Flexmasa atlas-update-run"
+            ],
+            location: "https://github.com/mavenfinance/maven-finance"
+        },
+        interfaces: [ 'TZIP-16' ],
+        }),
+        'ascii',
+    ).toString('hex'),
+})
 
 export const lendingControllerStorage : lendingControllerStorageType = {
   

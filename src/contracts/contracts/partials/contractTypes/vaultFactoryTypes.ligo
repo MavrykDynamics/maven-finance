@@ -83,7 +83,6 @@ type vaultFactoryLambdaActionType is
 type vaultFactoryStorageType is [@layout:comb] record[
     admin                  : address;
     metadata               : metadataType;
-    vaultMetadata          : metadataType;
     config                 : vaultFactoryConfigType;
 
     mvnTokenAddress        : address;
