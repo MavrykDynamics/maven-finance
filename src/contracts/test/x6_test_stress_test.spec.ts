@@ -26,6 +26,7 @@ import { ledger } from "../storage/mvnTokenStorage";
 import { 
     signerFactory
 } from './helpers/helperFunctions'
+import { mockMetadata } from "./helpers/mockSampleData";
 
 // ------------------------------------------------------------------------------
 // Contract Tests
@@ -786,27 +787,7 @@ describe("Stress tests", async () => {
                 const proposalIpfs          = "ipfs://QM123456789";
                 const proposalSourceCode    = "Proposal Source Code";
 
-                const farmMetadataBase = Buffer.from(
-                    JSON.stringify({
-                    name: 'MAVEN PLENTY-USDTz Farm',
-                    description: 'MAVEN Farm Contract',
-                    version: 'v1.0.0',
-                    liquidityPairToken: {
-                        tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-                        origin: ['Plenty'],
-                        token0: {
-                            symbol: ['PLENTY'],
-                            tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-                        },
-                        token1: {
-                            symbol: ['USDtz'],
-                            tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-                        }
-                    },
-                    authors: ['MAVEN Dev Team <info@mavryk.io>'],
-                    }),
-                    'ascii',
-                ).toString('hex')
+                const farmMetadataBase = mockMetadata.farm
 
                 // Create a farm compiled params
                 const lambdaFunction        = await createLambdaBytes(

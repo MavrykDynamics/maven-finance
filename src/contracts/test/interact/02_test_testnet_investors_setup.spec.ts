@@ -494,23 +494,29 @@ describe("Testnet setup helper", async () => {
             try{
 
                 // MVN Buyback for Oracles & Farms
-                const mvnBuyBackTreasuryData = {
-                    name: 'MVN Buyback for Oracles & Farms',
-                    description: 'MAVEN MVN Buyback for Oracles & Farms Treasury Contract',
-                  }
-              
                 const mvnBuyBackTreasuryMetadataBase = Buffer.from(
                     JSON.stringify({
-                        name: mvnBuyBackTreasuryData.description,
-                        description: mvnBuyBackTreasuryData.name,
+                        name: 'Maven Finance - MVN Buyback for Oracles & Farms Treasury',
                         version: 'v1.0.0',
-                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
-                    }),
-                    'ascii',
+                        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                        homepage: "https://mavenfinance.io",
+                        license: {
+                            name: "MIT"
+                        },
+                        source: {
+                            tools: [
+                                "MavrykLIGO 0.60.0",
+                                "Flexmasa atlas-update-run"
+                            ],
+                            location: "https://github.com/mavenfinance/maven-finance"
+                        },
+                        interfaces: [ 'TZIP-16' ],
+                        }),
+                        'ascii',
                     ).toString('hex')
                 var createTreasuryOperation = await treasuryFactoryInstance.methods.createTreasury(
                     null,
-                    mvnBuyBackTreasuryData.name,
+                    'Maven Finance - MVN Buyback for Oracles & Farms Treasury',
                     false,
                     mvnBuyBackTreasuryMetadataBase
                 ).send()
@@ -532,70 +538,88 @@ describe("Testnet setup helper", async () => {
                 const governanceUpdateGeneralContractsBatchOperation = await governanceUpdateGeneralContractsBatch.send()
                 await governanceUpdateGeneralContractsBatchOperation.confirmation();
 
-                // Research & Development
-                const rAndDTreasuryData = {
-                    name: 'Research & Development',
-                    description: 'MAVEN Research & Development Treasury Contract',
-                }
-              
+                // Research & Development              
                 const rAndDTreasuryMetadataBase = Buffer.from(
                     JSON.stringify({
-                        name: rAndDTreasuryData.name,
-                        description: rAndDTreasuryData.description,
+                        name: 'Maven Finance - Research & Development Treasury',
                         version: 'v1.0.0',
-                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
-                    }),
-                    'ascii',
-                ).toString('hex')
+                        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                        homepage: "https://mavenfinance.io",
+                        license: {
+                            name: "MIT"
+                        },
+                        source: {
+                            tools: [
+                                "MavrykLIGO 0.60.0",
+                                "Flexmasa atlas-update-run"
+                            ],
+                            location: "https://github.com/mavenfinance/maven-finance"
+                        },
+                        interfaces: [ 'TZIP-16' ],
+                        }),
+                        'ascii',
+                    ).toString('hex')
                 createTreasuryOperation = await treasuryFactoryInstance.methods.createTreasury(
                     null,
-                    rAndDTreasuryData.name,
+                    'Maven Finance - Research & Development Treasury',
                     false,
                     rAndDTreasuryMetadataBase
                 ).send()
                 await createTreasuryOperation.confirmation();
 
-                // Research & Development
-                const investmentTreasuryData = {
-                    name: 'Investment Fund',
-                    description: 'MAVEN Investment Fund Treasury Contract',
-                }
-              
+                // Research & Development              
                 const investmentTreasuryMetadataBase = Buffer.from(
                     JSON.stringify({
-                        name: investmentTreasuryData.name,
-                        description: investmentTreasuryData.description,
+                        name: 'Maven Finance - Investment Fund Treasury',
                         version: 'v1.0.0',
-                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
-                    }),
-                    'ascii',
-                ).toString('hex')
+                        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                        homepage: "https://mavenfinance.io",
+                        license: {
+                            name: "MIT"
+                        },
+                        source: {
+                            tools: [
+                                "MavrykLIGO 0.60.0",
+                                "Flexmasa atlas-update-run"
+                            ],
+                            location: "https://github.com/mavenfinance/maven-finance"
+                        },
+                        interfaces: [ 'TZIP-16' ],
+                        }),
+                        'ascii',
+                    ).toString('hex')
                 createTreasuryOperation = await treasuryFactoryInstance.methods.createTreasury(
                     null,
-                    investmentTreasuryData.name,
+                    'Maven Finance - Investment Fund Treasury',
                     false,
                     investmentTreasuryMetadataBase
                 ).send()
                 await createTreasuryOperation.confirmation();
 
-                // Research & Development
-                const daoValidatorFundTreasuryData = {
-                    name: 'DAO Validator Fund',
-                    description: 'MAVEN DAO Validator Fund Treasury Contract',
-                  }
-              
+                // Research & Development              
                 const daoValidatorFundTreasuryMetadataBase = Buffer.from(
                     JSON.stringify({
-                        name: daoValidatorFundTreasuryData.description,
-                        description: daoValidatorFundTreasuryData.name,
+                        name: 'Maven Finance - DAO Validator Fund Treasury',
                         version: 'v1.0.0',
-                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
-                    }),
-                    'ascii',
-                ).toString('hex')
+                        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                        homepage: "https://mavenfinance.io",
+                        license: {
+                            name: "MIT"
+                        },
+                        source: {
+                            tools: [
+                                "MavrykLIGO 0.60.0",
+                                "Flexmasa atlas-update-run"
+                            ],
+                            location: "https://github.com/mavenfinance/maven-finance"
+                        },
+                        interfaces: [ 'TZIP-16' ],
+                        }),
+                        'ascii',
+                    ).toString('hex')
                 createTreasuryOperation = await treasuryFactoryInstance.methods.createTreasury(
                     null,
-                    daoValidatorFundTreasuryData.name,
+                    'Maven Finance - DAO Validator Fund Treasury',
                     false,
                     daoValidatorFundTreasuryMetadataBase
                 ).send()

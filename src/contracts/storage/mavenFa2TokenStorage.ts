@@ -13,30 +13,35 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
+        name: 'Maven Finance - Mock FA2',
         version: 'v1.0.0',
-        description: 'MAVEN FA2',
-        authors: ['MAVEN Dev Team <info@mavryk.io>'],
-        source: {
-            tools: ['Ligo', 'Flexmasa'],
-            location: 'https://ligolang.org/',
+        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+        homepage: "https://mavenfinance.io",
+        license: {
+            name: "MIT"
         },
-        interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
-        errors: [],
-        views: [],
+        source: {
+            tools: [
+                "MavrykLIGO 0.60.0",
+                "Flexmasa atlas-update-run"
+            ],
+            location: "https://github.com/mavenfinance/maven-finance"
+        },
+        interfaces: [ 'TZIP-12', 'TZIP-16', 'TZIP-21' ],
         assets: [
             {
-            symbol: Buffer.from('FA2').toString('hex'),
-            name: Buffer.from('MAVENFA2').toString('hex'),
-            decimals: Buffer.from('6').toString('hex'),
-            icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
-            shouldPreferSymbol: true,
-            thumbnailUri: 'https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg'
+                symbol: Buffer.from('FA2').toString('hex'),
+                name: Buffer.from('MavenFinanceMockFA2').toString('hex'),
+                decimals: Buffer.from('6').toString('hex'),
+                icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
+                shouldPreferSymbol: true,
+                thumbnailUri: 'https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg'
             }
         ]
         }),
         'ascii',
     ).toString('hex'),
-  })
+})
 
 export const ledger = MichelsonMap.fromLiteral({
     [bob.pkh]: singleUserSupply,
@@ -50,7 +55,7 @@ const token_metadata = MichelsonMap.fromLiteral({
         token_id: '0',
         token_info: MichelsonMap.fromLiteral({
             symbol: Buffer.from('FA2').toString('hex'),
-            name: Buffer.from('MAVENFA2').toString('hex'),
+            name: Buffer.from('MavenFinanceMockFA2').toString('hex'),
             decimals: Buffer.from('6').toString('hex'),
             icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
             shouldPreferSymbol: '74727565',

@@ -20,7 +20,7 @@ import contractDeployments from './contractDeployments.json'
 
 import { bob, alice, eve, trudy, baker, mallory } from '../scripts/sandbox/accounts';
 import { createLambdaBytes } from '@mavrykdynamics/create-lambda-bytes';
-import { mockPackedLambdaData } from "./helpers/mockSampleData"
+import { mockMetadata, mockPackedLambdaData } from "./helpers/mockSampleData"
 import { 
     signerFactory, 
     getStorageMapValue,
@@ -820,27 +820,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const infinite                  = true;
                     const totalBlocks               = 999;
                     const currentRewardPerBlock     = 123;
-                    const metadataBytes             = Buffer.from(
-                        JSON.stringify({
-                        name: 'MAVEN Farm',
-                        description: 'MAVEN Farm Contract',
-                        version: 'v1.0.0',
-                        liquidityPairToken: {
-                            tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-                            origin: ['Plenty'],
-                            token0: {
-                                symbol: ['PLENTY'],
-                                tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-                            },
-                            token1: {
-                                symbol: ['USDtz'],
-                                tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-                            }
-                        },
-                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
-                        }),
-                        'ascii',
-                    ).toString('hex');
+                    const metadataBytes             = mockMetadata.farm;
                     const lpTokenAddress            = contractDeployments.mTokenEurt.address;
                     const lpTokenId                 = 0;
                     const lpTokenStandard           = "FA2";
@@ -1449,27 +1429,7 @@ describe('Governance proxy lambdas tests', async () => {
                     governanceStorage                   = await governanceInstance.storage();
                     const treasuryName                  = "TreasuryProxyTest";
                     const addToGeneralContracts         = true;
-                    const metadataBytes                 = Buffer.from(
-                        JSON.stringify({
-                            name: 'MAVEN PLENTY-USDTz Farm',
-                            description: 'MAVEN Farm Contract',
-                            version: 'v1.0.0',
-                            liquidityPairToken: {
-                            tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-                            origin: ['Plenty'],
-                            token0: {
-                                symbol: ['PLENTY'],
-                                tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-                            },
-                            token1: {
-                                symbol: ['USDtz'],
-                                tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-                            }
-                            },
-                            authors: ['MAVEN Dev Team <info@mavryk.io>'],
-                        }),
-                        'ascii',
-                        ).toString('hex')
+                    const metadataBytes                 = mockMetadata.farm;
                     const initTrackedTreasuryLength     = treasuryFactoryStorage.trackedTreasuries.length;
                     const initTreasuryTestGovernance    = await governanceStorage.generalContracts.get(treasuryName);
                     
@@ -1952,15 +1912,7 @@ describe('Governance proxy lambdas tests', async () => {
                     const heartbeatSeconds              = 5;
                     const rewardAmountStakedMvn         = 100;
                     const rewardAmountMvrk               = 100;
-                    const metadata                      = Buffer.from(
-                            JSON.stringify({
-                                name: 'MAVEN Aggregator Contract',
-                                icon: 'https://logo.chainbit.xyz/mvrk',
-                                version: 'v1.0.0',
-                                authors: ['MAVEN Dev Team <info@mavryk.io>'],
-                            }),
-                            'ascii',
-                        ).toString('hex');
+                    const metadata                      = mockMetadata.aggregator;
                     const initTrackedAggregatorsLength  = aggregatorFactoryStorage.trackedAggregators.length;
                     const initAggregatorTestGovernance  = await governanceStorage.generalContracts.get(aggregatorName);
                     
@@ -3130,27 +3082,7 @@ describe('Governance proxy lambdas tests', async () => {
                     // Initial values
                     doormanStorage                      = await doormanInstance.storage();
                     const metadataKey                   = "";
-                    const newDoormanMetadata            = Buffer.from(
-                        JSON.stringify({
-                        name: 'MAVEN PLENTY-USDTz Farm',
-                        description: 'MAVEN Farm Contract',
-                        version: 'v1.0.0',
-                        liquidityPairToken: {
-                            tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-                            origin: ['Plenty'],
-                            token0: {
-                                symbol: ['PLENTY'],
-                                tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-                            },
-                            token1: {
-                                symbol: ['USDtz'],
-                                tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-                            }
-                        },
-                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
-                        }),
-                        'ascii',
-                    ).toString('hex');
+                    const newDoormanMetadata            = mockMetadata.farm
                     const initDoormanMetadata           = await doormanStorage.metadata.get(metadataKey);
                     
                     // Operation

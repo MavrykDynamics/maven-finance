@@ -23,7 +23,7 @@ import contractDeployments from '../contractDeployments.json'
 
 import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
 import * as helperFunctions from '../helpers/helperFunctions'
-import { mockSatelliteData } from "../helpers/mockSampleData"
+import { mockMetadata, mockSatelliteData } from "../helpers/mockSampleData"
 
 // ------------------------------------------------------------------------------
 // Testnet Setup
@@ -99,38 +99,10 @@ describe("Testnet interactions helper", async () => {
 
     let createdTreasuryAddress;
 
-    const treasuryMetadataBase = Buffer.from(
-        JSON.stringify({
-          name: 'MAVEN Farm Treasury',
-          description: 'MAVEN Treasury Contract',
-          version: 'v1.0.0',
-          authors: ['MAVEN Dev Team <info@mavryk.io>'],
-        }),
-        'ascii',
-      ).toString('hex')
+    const treasuryMetadataBase = mockMetadata.treasury
 
     let createdFarmAddress;
-    const farmMetadataBase = Buffer.from(
-        JSON.stringify({
-            name: 'MAVEN PLENTY-USDTz Farm',
-            description: 'MAVEN Farm Contract',
-            version: 'v1.0.0',
-            liquidityPairToken: {
-                tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-                origin: ['Plenty'],
-                token0: {
-                symbol: ['PLENTY'],
-                tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-                },
-                token1: {
-                symbol: ['USDtz'],
-                tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-                }
-            },
-            authors: ['MAVEN Dev Team <info@mavryk.io>'],
-            }),
-            'ascii',
-        ).toString('hex')
+    const farmMetadataBase = mockMetadata.farm
 
     let createdAggregatorAddress;
 
@@ -1888,32 +1860,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin creates a farm', async () => {
             try{
                 // Operation
-                const farmMetadataBase2 = Buffer.from(
-                    JSON.stringify({
-                    name: "MAVEN USDT.e-USDC.e Farm",
-                    description: "Maven Farm Contract for USDT.e-USDC.e",
-                    version: "v1.0.0",
-                    liquidityPairToken: {
-                        tokenAddress: ["KT1CDeAxaiqbA5aMkPMmqqYXxqgfFwocJHza"],
-                        origin: ["Maven Finance"],
-                        symbol: ["MLP"],
-                        thumbnailUri: "https://infura-ipfs.io/ipfs/QmaazYGXFxbLvdVBUkxkprsZuBpQeraMWyUkU1gGsigiYm",
-                        decimals: 15,
-                        token0: {
-                            symbol: ["USDT.e"],
-                            tokenAddress: ["KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"],
-                            thumbnailUri: "https://infura-ipfs.io/ipfs/QmdQ4R6TtBe75wSVEsLfRDtAn36Bv2zLAHyVe1cuLYeyfK"
-                        },
-                        token1: {
-                            symbol: ["USDC.e"],
-                            tokenAddress: ["KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9"],
-                            thumbnailUri: "https://www.plentydefi.com/static/media/usdc_icon.771d659c.svg"
-                        }
-                    },
-                    authors: ["MAVEN Dev Team <info@mavryk.io>"]
-                    }),
-                    'ascii',
-                ).toString('hex')
+                const farmMetadataBase2 = mockMetadata.farm
                 const operation = await farmFactoryInstance.methods.createFarm(
                     "testFarm",
                     false,
@@ -2275,16 +2222,7 @@ describe("Testnet interactions helper", async () => {
                 });
 
                 // USD/BTC Aggregator
-                var aggregatorMetadata = Buffer.from(
-                    JSON.stringify({
-                        name: 'MAVEN Aggregator Contract',
-                        icon: 'https://logo.chainbit.xyz/btc',
-                        version: 'v1.0.0',
-                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
-                        category: 'cryptocurrency'
-                    }),
-                    'ascii',
-                ).toString('hex')
+                var aggregatorMetadata = mockMetadata.aggregator
                 var operation = await aggregatorFactoryInstance.methods.createAggregator(
     
                     'USD/BTC',
@@ -2306,16 +2244,7 @@ describe("Testnet interactions helper", async () => {
                 await operation.confirmation();
 
                 // USD/BTC Aggregator
-                aggregatorMetadata = Buffer.from(
-                    JSON.stringify({
-                        name: 'MAVEN Aggregator Contract',
-                        icon: 'https://logo.chainbit.xyz/usdt',
-                        version: 'v1.0.0',
-                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
-                        category: 'stablecoin'
-                    }),
-                    'ascii',
-                ).toString('hex')
+                aggregatorMetadata = mockMetadata.aggregator
                 operation = await aggregatorFactoryInstance.methods.createAggregator(
     
                     'USD/USDT',
@@ -2337,16 +2266,7 @@ describe("Testnet interactions helper", async () => {
                 await operation.confirmation();
 
                 // USD/BTC Aggregator
-                aggregatorMetadata = Buffer.from(
-                    JSON.stringify({
-                        name: 'MAVEN Aggregator Contract',
-                        icon: 'https://logo.chainbit.xyz/link',
-                        version: 'v1.0.0',
-                        authors: ['MAVEN Dev Team <info@mavryk.io>'],
-                        category: 'commodities'
-                    }),
-                    'ascii',
-                ).toString('hex')
+                aggregatorMetadata = mockMetadata.aggregator
                 operation = await aggregatorFactoryInstance.methods.createAggregator(
     
                     'USD/WTI',

@@ -17,10 +17,21 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-            name: 'MAVEN Farm Treasury',
-            description: 'MAVEN Treasury Contract',
-            version: 'v1.0.0',
-            authors: ['MAVEN Dev Team <info@mavryk.io>'],
+        name: 'Maven Finance - Treasury',
+        version: 'v1.0.0',
+        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+        homepage: "https://mavenfinance.io",
+        license: {
+            name: "MIT"
+        },
+        source: {
+            tools: [
+                "MavrykLIGO 0.60.0",
+                "Flexmasa atlas-update-run"
+            ],
+            location: "https://github.com/mavenfinance/maven-finance"
+        },
+        interfaces: [ 'TZIP-16' ],
         }),
         'ascii',
     ).toString('hex'),
