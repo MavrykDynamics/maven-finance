@@ -195,7 +195,7 @@ describe('Maven Token', async () => {
                         tools: [
                             "LIGO 0.60.0"
                         ],
-                        location: "https://github.com/mavenfinance/maven-finance"
+                        location: "https://github.com/MavrykDynamics/maven-finance"
                     },
                     interfaces: [
                         'MIP-012', 
