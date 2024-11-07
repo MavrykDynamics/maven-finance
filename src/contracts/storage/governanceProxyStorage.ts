@@ -18,7 +18,7 @@ const metadata = MichelsonMap.fromLiteral({
                 "MavrykLIGO 0.60.0",
                 "Flexmasa atlas-update-run"
             ],
-            location: "https://github.com/mavenfinance/maven-finance"
+            location: "https://github.com/MavrykDynamics/maven-finance"
         },
         interfaces: [ 'MIP-16' ],
         }),

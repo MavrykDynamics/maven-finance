@@ -28,7 +28,7 @@ export const mockTokenData = {
                         "MavrykLIGO 0.60.0",
                         "Flexmasa atlas-update-run"
                     ],
-                    location: "https://github.com/mavenfinance/maven-finance"
+                    location: "https://github.com/MavrykDynamics/maven-finance"
                 },
                 interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
@@ -60,7 +60,7 @@ export const mockTokenData = {
                         "MavrykLIGO 0.60.0",
                         "Flexmasa atlas-update-run"
                     ],
-                    location: "https://github.com/mavenfinance/maven-finance"
+                    location: "https://github.com/MavrykDynamics/maven-finance"
                 },
                 interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
@@ -101,7 +101,7 @@ export const mTokenMockData = {
                         "MavrykLIGO 0.60.0",
                         "Flexmasa atlas-update-run"
                     ],
-                    location: "https://github.com/mavenfinance/maven-finance"
+                    location: "https://github.com/MavrykDynamics/maven-finance"
                 },
                 interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
@@ -152,7 +152,7 @@ export const mTokenMockData = {
                         "MavrykLIGO 0.60.0",
                         "Flexmasa atlas-update-run"
                     ],
-                    location: "https://github.com/mavenfinance/maven-finance"
+                    location: "https://github.com/MavrykDynamics/maven-finance"
                 },
                 interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
@@ -203,7 +203,7 @@ export const mTokenMockData = {
                         "MavrykLIGO 0.60.0",
                         "Flexmasa atlas-update-run"
                     ],
-                    location: "https://github.com/mavenfinance/maven-finance"
+                    location: "https://github.com/MavrykDynamics/maven-finance"
                 },
                 interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
@@ -254,7 +254,7 @@ export const mTokenMockData = {
                         "MavrykLIGO 0.60.0",
                         "Flexmasa atlas-update-run"
                     ],
-                    location: "https://github.com/mavenfinance/maven-finance"
+                    location: "https://github.com/MavrykDynamics/maven-finance"
                 },
                 interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
@@ -311,7 +311,7 @@ export const mockMetadata = {
                     "MavrykLIGO 0.60.0",
                     "Flexmasa atlas-update-run"
                 ],
-                location: "https://github.com/mavenfinance/maven-finance"
+                location: "https://github.com/MavrykDynamics/maven-finance"
             },
             interfaces: [ 'MIP-16' ],
             }),
@@ -332,7 +332,7 @@ export const mockMetadata = {
                     "MavrykLIGO 0.60.0",
                     "Flexmasa atlas-update-run"
                 ],
-                location: "https://github.com/mavenfinance/maven-finance"
+                location: "https://github.com/MavrykDynamics/maven-finance"
             },
             interfaces: [ 'MIP-16' ],
             }),
@@ -353,7 +353,7 @@ export const mockMetadata = {
                   "MavrykLIGO 0.60.0",
                   "Flexmasa atlas-update-run"
               ],
-              location: "https://github.com/mavenfinance/maven-finance"
+              location: "https://github.com/MavrykDynamics/maven-finance"
           },
           interfaces: [ 'MIP-16' ],
           liquidityPairToken: {
@@ -390,7 +390,7 @@ export const mockMetadata = {
                 "MavrykLIGO 0.60.0",
                 "Flexmasa atlas-update-run"
             ],
-            location: "https://github.com/mavenfinance/maven-finance"
+            location: "https://github.com/MavrykDynamics/maven-finance"
         },
         interfaces: [ 'MIP-16' ],
         liquidityPairToken: {
@@ -434,7 +434,7 @@ export const aggregatorMockData = {
                         "MavrykLIGO 0.60.0",
                         "Flexmasa atlas-update-run"
                     ],
-                    location: "https://github.com/mavenfinance/maven-finance"
+                    location: "https://github.com/MavrykDynamics/maven-finance"
                 },
                 interfaces: [ 'MIP-16' ],
                 }),
