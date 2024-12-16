@@ -33,9 +33,9 @@ type vaultConfigRecordType is [@layout:comb] record [
 
     maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% on AAVE)
     liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
-    liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
+    liquidationMaxDuration       : nat;         // window of opportunity (in mins) for a liquidation event to occur after a vault has been marked for liquidation
 
-    interestRepaymentPeriod      : nat;         // number of mins in which vault has to repay interest in (e.g. every 30 days)
+    interestRepaymentPeriod      : nat;         // period (in mins) in which vault has to repay interest in (e.g. every 30 days)
     missedPeriodsForLiquidation  : nat;         // number of missed interest repayment periods before vault can be liquidated
     repaymentWindow              : nat;         // repayment window (in mins) before fee penalty is applied if interest total did not reach zero
     penaltyFeePercentage         : nat;         // percentage of interest outstanding that will be counted as penalty fee

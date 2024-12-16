@@ -1,0 +1,676 @@
+{ parameter
+    (or (or (or (or (nat %dropFinancialRequest)
+                    (list %mistakenTransfer
+                       (pair (address %to_)
+                             (nat %amount)
+                             (or %token
+                                (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                (unit %mav)))))
+                (or (pair %requestMint
+                       (address %treasuryAddress)
+                       (address %receiverAddress)
+                       (nat %tokenAmount)
+                       (string %purpose))
+                    (pair %requestTokens
+                       (address %treasuryAddress)
+                       (address %receiverAddress)
+                       (address %tokenContractAddress)
+                       (string %tokenName)
+                       (nat %tokenAmount)
+                       (string %tokenType)
+                       (nat %tokenId)
+                       (string %purpose))))
+            (or (or (address %setAdmin)
+                    (pair %setContractBaker
+                       (address %targetContractAddress)
+                       (option %keyHash key_hash)))
+                (or (address %setGovernance) (pair %setLambda (string %name) (bytes %func_bytes)))))
+        (or (or (or (pair %updateConfig
+                       (nat %updateConfigNewValue)
+                       (or %updateConfigAction
+                          (unit %configApprovalPercentage)
+                          (unit %configFinancialReqDurationDays)))
+                    (pair %updateGeneralContracts
+                       (string %generalContractName)
+                       (address %generalContractAddress)
+                       (or %updateType (unit %remove) (unit %update))))
+                (or (pair %updateMetadata (string %metadataKey) (bytes %metadataHash))
+                    (pair %updateWhitelistContracts
+                       (address %whitelistContractAddress)
+                       (or %updateType (unit %remove) (unit %update)))))
+            (or (pair %updateWhitelistTokenContracts
+                   (address %tokenContractAddress)
+                   (or %updateType (unit %remove) (unit %update)))
+                (pair %voteForRequest
+                   (nat %requestId)
+                   (or %vote (or (unit %nay) (unit %pass)) (unit %yay)))))) ;
+  storage
+    (pair (address %admin)
+          (big_map %metadata string bytes)
+          (pair %config (nat %approvalPercentage) (nat %financialRequestDurationInDays))
+          (address %mvnTokenAddress)
+          (address %governanceAddress)
+          (big_map %whitelistTokenContracts address unit)
+          (big_map %whitelistContracts address unit)
+          (big_map %generalContracts string address)
+          (big_map %financialRequestLedger
+             nat
+             (pair (address %requesterAddress)
+                   (string %requestType)
+                   (bool %status)
+                   (bool %executed)
+                   (address %treasuryAddress)
+                   (address %receiverAddress)
+                   (address %tokenContractAddress)
+                   (nat %tokenAmount)
+                   (string %tokenName)
+                   (string %tokenType)
+                   (nat %tokenId)
+                   (string %requestPurpose)
+                   (option %keyHash key_hash)
+                   (nat %yayVoteStakedMvnTotal)
+                   (nat %nayVoteStakedMvnTotal)
+                   (nat %passVoteStakedMvnTotal)
+                   (nat %governanceCycleId)
+                   (nat %snapshotStakedMvnTotalSupply)
+                   (nat %stakedMvnPercentageForApproval)
+                   (nat %stakedMvnRequiredForApproval)
+                   (timestamp %requestedDateTime)
+                   (timestamp %expiryDateTime)
+                   (option %executedDateTime timestamp)))
+          (nat %financialRequestCounter)
+          (big_map %financialRequestVoters
+             (pair nat address)
+             (or (or (unit %nay) (unit %pass)) (unit %yay)))
+          (big_map %lambdaLedger string bytes)) ;
+  code { LAMBDA
+           (pair string (big_map string bytes))
+           bytes
+           { UNPAIR ; GET ; IF_NONE { PUSH nat 2 ; FAILWITH } {} } ;
+         LAMBDA
+           (pair (pair bytes
+                       (or (or (or (or nat (list (pair address nat (or (or address (pair address nat)) unit))))
+                                   (or (pair address address nat string)
+                                       (pair address address address string nat string nat string)))
+                               (or (or address (pair address (option key_hash))) (or address (pair nat (or unit unit)))))
+                           (or (or (or (pair string address (or unit unit)) (pair string bytes))
+                                   (or (pair address (or unit unit)) (pair address (or unit unit))))
+                               (pair nat (or (or unit unit) unit)))))
+                 address
+                 (big_map string bytes)
+                 (pair nat nat)
+                 address
+                 address
+                 (big_map address unit)
+                 (big_map address unit)
+                 (big_map string address)
+                 (big_map
+                    nat
+                    (pair address
+                          string
+                          bool
+                          bool
+                          address
+                          address
+                          address
+                          nat
+                          string
+                          string
+                          nat
+                          string
+                          (option key_hash)
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          timestamp
+                          timestamp
+                          (option timestamp)))
+                 nat
+                 (big_map (pair nat address) (or (or unit unit) unit))
+                 (big_map string bytes))
+           (pair (list operation)
+                 address
+                 (big_map string bytes)
+                 (pair nat nat)
+                 address
+                 address
+                 (big_map address unit)
+                 (big_map address unit)
+                 (big_map string address)
+                 (big_map
+                    nat
+                    (pair address
+                          string
+                          bool
+                          bool
+                          address
+                          address
+                          address
+                          nat
+                          string
+                          string
+                          nat
+                          string
+                          (option key_hash)
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          timestamp
+                          timestamp
+                          (option timestamp)))
+                 nat
+                 (big_map (pair nat address) (or (or unit unit) unit))
+                 (big_map string bytes))
+           { UNPAIR ;
+             UNPAIR ;
+             UNPACK
+               (lambda
+                  (pair (or (or (or (or (nat %lambdaDropFinancialRequest)
+                                        (list %lambdaMistakenTransfer
+                                           (pair (address %to_)
+                                                 (nat %amount)
+                                                 (or %token
+                                                    (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                                    (unit %mav)))))
+                                    (or (pair %lambdaRequestMint
+                                           (address %treasuryAddress)
+                                           (address %receiverAddress)
+                                           (nat %tokenAmount)
+                                           (string %purpose))
+                                        (pair %lambdaRequestTokens
+                                           (address %treasuryAddress)
+                                           (address %receiverAddress)
+                                           (address %tokenContractAddress)
+                                           (string %tokenName)
+                                           (nat %tokenAmount)
+                                           (string %tokenType)
+                                           (nat %tokenId)
+                                           (string %purpose))))
+                                (or (or (address %lambdaSetAdmin)
+                                        (pair %lambdaSetContractBaker
+                                           (address %targetContractAddress)
+                                           (option %keyHash key_hash)))
+                                    (or (address %lambdaSetGovernance)
+                                        (pair %lambdaUpdateConfig
+                                           (nat %updateConfigNewValue)
+                                           (or %updateConfigAction
+                                              (unit %configApprovalPercentage)
+                                              (unit %configFinancialReqDurationDays))))))
+                            (or (or (or (pair %lambdaUpdateGeneralContracts
+                                           (string %generalContractName)
+                                           (address %generalContractAddress)
+                                           (or %updateType (unit %remove) (unit %update)))
+                                        (pair %lambdaUpdateMetadata (string %metadataKey) (bytes %metadataHash)))
+                                    (or (pair %lambdaUpdateWhitelistContracts
+                                           (address %whitelistContractAddress)
+                                           (or %updateType (unit %remove) (unit %update)))
+                                        (pair %lambdaUpdateWhitelistTokens
+                                           (address %tokenContractAddress)
+                                           (or %updateType (unit %remove) (unit %update)))))
+                                (pair %lambdaVoteForRequest
+                                   (nat %requestId)
+                                   (or %vote (or (unit %nay) (unit %pass)) (unit %yay)))))
+                        (address %admin)
+                        (big_map %metadata string bytes)
+                        (pair %config (nat %approvalPercentage) (nat %financialRequestDurationInDays))
+                        (address %mvnTokenAddress)
+                        (address %governanceAddress)
+                        (big_map %whitelistTokenContracts address unit)
+                        (big_map %whitelistContracts address unit)
+                        (big_map %generalContracts string address)
+                        (big_map %financialRequestLedger
+                           nat
+                           (pair (address %requesterAddress)
+                                 (string %requestType)
+                                 (bool %status)
+                                 (bool %executed)
+                                 (address %treasuryAddress)
+                                 (address %receiverAddress)
+                                 (address %tokenContractAddress)
+                                 (nat %tokenAmount)
+                                 (string %tokenName)
+                                 (string %tokenType)
+                                 (nat %tokenId)
+                                 (string %requestPurpose)
+                                 (option %keyHash key_hash)
+                                 (nat %yayVoteStakedMvnTotal)
+                                 (nat %nayVoteStakedMvnTotal)
+                                 (nat %passVoteStakedMvnTotal)
+                                 (nat %governanceCycleId)
+                                 (nat %snapshotStakedMvnTotalSupply)
+                                 (nat %stakedMvnPercentageForApproval)
+                                 (nat %stakedMvnRequiredForApproval)
+                                 (timestamp %requestedDateTime)
+                                 (timestamp %expiryDateTime)
+                                 (option %executedDateTime timestamp)))
+                        (nat %financialRequestCounter)
+                        (big_map %financialRequestVoters
+                           (pair nat address)
+                           (or (or (unit %nay) (unit %pass)) (unit %yay)))
+                        (big_map %lambdaLedger string bytes))
+                  (pair (list operation)
+                        (address %admin)
+                        (big_map %metadata string bytes)
+                        (pair %config (nat %approvalPercentage) (nat %financialRequestDurationInDays))
+                        (address %mvnTokenAddress)
+                        (address %governanceAddress)
+                        (big_map %whitelistTokenContracts address unit)
+                        (big_map %whitelistContracts address unit)
+                        (big_map %generalContracts string address)
+                        (big_map %financialRequestLedger
+                           nat
+                           (pair (address %requesterAddress)
+                                 (string %requestType)
+                                 (bool %status)
+                                 (bool %executed)
+                                 (address %treasuryAddress)
+                                 (address %receiverAddress)
+                                 (address %tokenContractAddress)
+                                 (nat %tokenAmount)
+                                 (string %tokenName)
+                                 (string %tokenType)
+                                 (nat %tokenId)
+                                 (string %requestPurpose)
+                                 (option %keyHash key_hash)
+                                 (nat %yayVoteStakedMvnTotal)
+                                 (nat %nayVoteStakedMvnTotal)
+                                 (nat %passVoteStakedMvnTotal)
+                                 (nat %governanceCycleId)
+                                 (nat %snapshotStakedMvnTotalSupply)
+                                 (nat %stakedMvnPercentageForApproval)
+                                 (nat %stakedMvnRequiredForApproval)
+                                 (timestamp %requestedDateTime)
+                                 (timestamp %expiryDateTime)
+                                 (option %executedDateTime timestamp)))
+                        (nat %financialRequestCounter)
+                        (big_map %financialRequestVoters
+                           (pair nat address)
+                           (or (or (unit %nay) (unit %pass)) (unit %yay)))
+                        (big_map %lambdaLedger string bytes))) ;
+             IF_NONE { DROP 2 ; PUSH nat 3 ; FAILWITH } { DUG 2 ; PAIR ; EXEC } } ;
+         DIG 2 ;
+         UNPAIR ;
+         IF_LEFT
+           { IF_LEFT
+               { IF_LEFT
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaDropFinancialRequest" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT (list (pair address nat (or (or address (pair address nat)) unit))) ;
+                         LEFT (or (pair address address nat string)
+                                  (pair address address address string nat string nat string)) ;
+                         LEFT (or (or address (pair address (option key_hash))) (or address (pair nat (or unit unit)))) ;
+                         LEFT (or (or (or (pair string address (or unit unit)) (pair string bytes))
+                                      (or (pair address (or unit unit)) (pair address (or unit unit))))
+                                  (pair nat (or (or unit unit) unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaMistakenTransfer" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT nat ;
+                         LEFT (or (pair address address nat string)
+                                  (pair address address address string nat string nat string)) ;
+                         LEFT (or (or address (pair address (option key_hash))) (or address (pair nat (or unit unit)))) ;
+                         LEFT (or (or (or (pair string address (or unit unit)) (pair string bytes))
+                                      (or (pair address (or unit unit)) (pair address (or unit unit))))
+                                  (pair nat (or (or unit unit) unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } }
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaRequestMint" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT (pair address address address string nat string nat string) ;
+                         RIGHT (or nat (list (pair address nat (or (or address (pair address nat)) unit)))) ;
+                         LEFT (or (or address (pair address (option key_hash))) (or address (pair nat (or unit unit)))) ;
+                         LEFT (or (or (or (pair string address (or unit unit)) (pair string bytes))
+                                      (or (pair address (or unit unit)) (pair address (or unit unit))))
+                                  (pair nat (or (or unit unit) unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaRequestTokens" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT (pair address address nat string) ;
+                         RIGHT (or nat (list (pair address nat (or (or address (pair address nat)) unit)))) ;
+                         LEFT (or (or address (pair address (option key_hash))) (or address (pair nat (or unit unit)))) ;
+                         LEFT (or (or (or (pair string address (or unit unit)) (pair string bytes))
+                                      (or (pair address (or unit unit)) (pair address (or unit unit))))
+                                  (pair nat (or (or unit unit) unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } } }
+               { IF_LEFT
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaSetAdmin" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT (pair address (option key_hash)) ;
+                         LEFT (or address (pair nat (or unit unit))) ;
+                         RIGHT
+                           (or (or nat (list (pair address nat (or (or address (pair address nat)) unit))))
+                               (or (pair address address nat string)
+                                   (pair address address address string nat string nat string))) ;
+                         LEFT (or (or (or (pair string address (or unit unit)) (pair string bytes))
+                                      (or (pair address (or unit unit)) (pair address (or unit unit))))
+                                  (pair nat (or (or unit unit) unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaSetContractBaker" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT address ;
+                         LEFT (or address (pair nat (or unit unit))) ;
+                         RIGHT
+                           (or (or nat (list (pair address nat (or (or address (pair address nat)) unit))))
+                               (or (pair address address nat string)
+                                   (pair address address address string nat string nat string))) ;
+                         LEFT (or (or (or (pair string address (or unit unit)) (pair string bytes))
+                                      (or (pair address (or unit unit)) (pair address (or unit unit))))
+                                  (pair nat (or (or unit unit) unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } }
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaSetGovernance" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT (pair nat (or unit unit)) ;
+                         RIGHT (or address (pair address (option key_hash))) ;
+                         RIGHT
+                           (or (or nat (list (pair address nat (or (or address (pair address nat)) unit))))
+                               (or (pair address address nat string)
+                                   (pair address address address string nat string nat string))) ;
+                         LEFT (or (or (or (pair string address (or unit unit)) (pair string bytes))
+                                      (or (pair address (or unit unit)) (pair address (or unit unit))))
+                                  (pair nat (or (or unit unit) unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DIG 2 ;
+                         DIG 3 ;
+                         DROP 2 ;
+                         SWAP ;
+                         DUP ;
+                         CAR ;
+                         SENDER ;
+                         SWAP ;
+                         COMPARE ;
+                         EQ ;
+                         IF {} { PUSH nat 14 ; FAILWITH } ;
+                         DUP ;
+                         GET 22 ;
+                         DUP 3 ;
+                         CDR ;
+                         DIG 3 ;
+                         CAR ;
+                         SWAP ;
+                         SOME ;
+                         SWAP ;
+                         UPDATE ;
+                         UPDATE 22 ;
+                         NIL operation ;
+                         PAIR } } } }
+           { IF_LEFT
+               { IF_LEFT
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaUpdateConfig" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT address ;
+                         RIGHT (or address (pair address (option key_hash))) ;
+                         RIGHT
+                           (or (or nat (list (pair address nat (or (or address (pair address nat)) unit))))
+                               (or (pair address address nat string)
+                                   (pair address address address string nat string nat string))) ;
+                         LEFT (or (or (or (pair string address (or unit unit)) (pair string bytes))
+                                      (or (pair address (or unit unit)) (pair address (or unit unit))))
+                                  (pair nat (or (or unit unit) unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaUpdateGeneralContracts" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT (pair string bytes) ;
+                         LEFT (or (pair address (or unit unit)) (pair address (or unit unit))) ;
+                         LEFT (pair nat (or (or unit unit) unit)) ;
+                         RIGHT
+                           (or (or (or nat (list (pair address nat (or (or address (pair address nat)) unit))))
+                                   (or (pair address address nat string)
+                                       (pair address address address string nat string nat string)))
+                               (or (or address (pair address (option key_hash))) (or address (pair nat (or unit unit))))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } }
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaUpdateMetadata" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT (pair string address (or unit unit)) ;
+                         LEFT (or (pair address (or unit unit)) (pair address (or unit unit))) ;
+                         LEFT (pair nat (or (or unit unit) unit)) ;
+                         RIGHT
+                           (or (or (or nat (list (pair address nat (or (or address (pair address nat)) unit))))
+                                   (or (pair address address nat string)
+                                       (pair address address address string nat string nat string)))
+                               (or (or address (pair address (option key_hash))) (or address (pair nat (or unit unit))))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaUpdateWhitelistContracts" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT (pair address (or unit unit)) ;
+                         RIGHT (or (pair string address (or unit unit)) (pair string bytes)) ;
+                         LEFT (pair nat (or (or unit unit) unit)) ;
+                         RIGHT
+                           (or (or (or nat (list (pair address nat (or (or address (pair address nat)) unit))))
+                                   (or (pair address address nat string)
+                                       (pair address address address string nat string nat string)))
+                               (or (or address (pair address (option key_hash))) (or address (pair nat (or unit unit))))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } } }
+               { IF_LEFT
+                   { DUP 2 ;
+                     GET 22 ;
+                     PUSH string "lambdaUpdateWhitelistTokenContracts" ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     SWAP ;
+                     RIGHT (pair address (or unit unit)) ;
+                     RIGHT (or (pair string address (or unit unit)) (pair string bytes)) ;
+                     LEFT (pair nat (or (or unit unit) unit)) ;
+                     RIGHT
+                       (or (or (or nat (list (pair address nat (or (or address (pair address nat)) unit))))
+                               (or (pair address address nat string)
+                                   (pair address address address string nat string nat string)))
+                           (or (or address (pair address (option key_hash))) (or address (pair nat (or unit unit))))) ;
+                     DIG 2 ;
+                     SWAP ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC }
+                   { DUP 2 ;
+                     GET 22 ;
+                     PUSH string "lambdaVoteForRequest" ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     SWAP ;
+                     RIGHT
+                       (or (or (pair string address (or unit unit)) (pair string bytes))
+                           (or (pair address (or unit unit)) (pair address (or unit unit)))) ;
+                     RIGHT
+                       (or (or (or nat (list (pair address nat (or (or address (pair address nat)) unit))))
+                               (or (pair address address nat string)
+                                   (pair address address address string nat string nat string)))
+                           (or (or address (pair address (option key_hash))) (or address (pair nat (or unit unit))))) ;
+                     DIG 2 ;
+                     SWAP ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC } } } } ;
+  view "getAdmin" unit address { CDR ; CAR } ;
+  view "getGovernanceAddress" unit address { CDR ; GET 9 } ;
+  view "getConfig"
+       unit
+       (pair (nat %approvalPercentage) (nat %financialRequestDurationInDays))
+       { CDR ; GET 5 } ;
+  view "getWhitelistContractOpt"
+       address
+       (option unit)
+       { UNPAIR ; SWAP ; GET 13 ; SWAP ; GET } ;
+  view "getGeneralContractOpt"
+       string
+       (option address)
+       { UNPAIR ; SWAP ; GET 15 ; SWAP ; GET } ;
+  view "getWhitelistTokenContractOpt"
+       address
+       (option unit)
+       { UNPAIR ; SWAP ; GET 11 ; SWAP ; GET } ;
+  view "getFinancialRequestOpt"
+       nat
+       (option
+          (pair (address %requesterAddress)
+                (string %requestType)
+                (bool %status)
+                (bool %executed)
+                (address %treasuryAddress)
+                (address %receiverAddress)
+                (address %tokenContractAddress)
+                (nat %tokenAmount)
+                (string %tokenName)
+                (string %tokenType)
+                (nat %tokenId)
+                (string %requestPurpose)
+                (option %keyHash key_hash)
+                (nat %yayVoteStakedMvnTotal)
+                (nat %nayVoteStakedMvnTotal)
+                (nat %passVoteStakedMvnTotal)
+                (nat %governanceCycleId)
+                (nat %snapshotStakedMvnTotalSupply)
+                (nat %stakedMvnPercentageForApproval)
+                (nat %stakedMvnRequiredForApproval)
+                (timestamp %requestedDateTime)
+                (timestamp %expiryDateTime)
+                (option %executedDateTime timestamp)))
+       { UNPAIR ; SWAP ; GET 17 ; SWAP ; GET } ;
+  view "getFinancialRequestCounter" unit nat { CDR ; GET 19 } ;
+  view "getFinancialRequestVoterOpt"
+       (pair nat address)
+       (option (or (or (unit %nay) (unit %pass)) (unit %yay)))
+       { UNPAIR ; SWAP ; GET 21 ; SWAP ; GET } ;
+  view "getLambdaOpt"
+       string
+       (option bytes)
+       { UNPAIR ; SWAP ; GET 22 ; SWAP ; GET } }
+

@@ -1,0 +1,144 @@
+{ parameter (or (or (unit %default) (unit %requestFakeUsdt)) (unit %requestMvn)) ;
+  storage
+    (pair (pair (pair (nat %fakeUsdtAmountPerUser) (address %fakeUsdtTokenAddress))
+                (big_map %metadata string bytes)
+                (nat %mvnAmountPerUser))
+          (address %mvnTokenAddress)
+          (big_map %requesters (pair address (or (unit %fakeUsdt) (unit %mvn))) unit)) ;
+  code { LAMBDA
+           (pair (pair (pair address address) nat nat) address)
+           operation
+           { UNPAIR ;
+             UNPAIR ;
+             UNPAIR ;
+             DIG 2 ;
+             UNPAIR ;
+             DIG 4 ;
+             CONTRACT %transfer
+               (list (pair (address %from_) (list %txs (pair (address %to_) (nat %token_id) (nat %amount))))) ;
+             IF_NONE { PUSH nat 39 ; FAILWITH } {} ;
+             PUSH mumav 0 ;
+             NIL (pair address (list (pair address nat nat))) ;
+             NIL (pair address nat nat) ;
+             DIG 4 ;
+             DIG 5 ;
+             DIG 7 ;
+             PAIR 3 ;
+             CONS ;
+             DIG 4 ;
+             PAIR ;
+             CONS ;
+             TRANSFER_TOKENS } ;
+         LAMBDA
+           (pair (or unit unit)
+                 (pair (pair nat address) (big_map string bytes) nat)
+                 address
+                 (big_map (pair address (or unit unit)) unit))
+           (pair (pair (pair nat address) (big_map string bytes) nat)
+                 address
+                 (big_map (pair address (or unit unit)) unit))
+           { UNPAIR ;
+             SWAP ;
+             DUP ;
+             CDR ;
+             CDR ;
+             UNIT ;
+             SOME ;
+             DIG 3 ;
+             SENDER ;
+             PAIR ;
+             UPDATE ;
+             DUP 2 ;
+             CDR ;
+             CAR ;
+             PAIR ;
+             SWAP ;
+             CAR ;
+             PAIR } ;
+         DIG 2 ;
+         UNPAIR ;
+         PUSH mumav 0 ;
+         AMOUNT ;
+         COMPARE ;
+         EQ ;
+         IF {} { PUSH nat 0 ; FAILWITH } ;
+         IF_LEFT
+           { IF_LEFT
+               { DIG 2 ; DIG 3 ; DROP 3 ; NIL operation }
+               { DROP ;
+                 DUP ;
+                 CDR ;
+                 CDR ;
+                 UNIT ;
+                 LEFT unit ;
+                 SENDER ;
+                 PAIR ;
+                 MEM ;
+                 IF { PUSH string "FAKE_USDT_REQUEST_LIMIT_REACHED" ; FAILWITH } {} ;
+                 UNIT ;
+                 LEFT unit ;
+                 PAIR ;
+                 EXEC ;
+                 SELF_ADDRESS ;
+                 SENDER ;
+                 DUP 3 ;
+                 CAR ;
+                 CAR ;
+                 CAR ;
+                 DUP 4 ;
+                 CAR ;
+                 CAR ;
+                 CDR ;
+                 NIL operation ;
+                 SWAP ;
+                 PUSH nat 0 ;
+                 DIG 3 ;
+                 PAIR ;
+                 DIG 3 ;
+                 DIG 4 ;
+                 PAIR ;
+                 PAIR ;
+                 PAIR ;
+                 DIG 3 ;
+                 SWAP ;
+                 EXEC ;
+                 CONS } }
+           { DROP ;
+             DUP ;
+             CDR ;
+             CDR ;
+             UNIT ;
+             RIGHT unit ;
+             SENDER ;
+             PAIR ;
+             MEM ;
+             IF { PUSH string "MVN_REQUEST_LIMIT_REACHED" ; FAILWITH } {} ;
+             UNIT ;
+             RIGHT unit ;
+             PAIR ;
+             EXEC ;
+             SELF_ADDRESS ;
+             SENDER ;
+             DUP 3 ;
+             CAR ;
+             CDR ;
+             CDR ;
+             DUP 4 ;
+             CDR ;
+             CAR ;
+             NIL operation ;
+             SWAP ;
+             PUSH nat 0 ;
+             DIG 3 ;
+             PAIR ;
+             DIG 3 ;
+             DIG 4 ;
+             PAIR ;
+             PAIR ;
+             PAIR ;
+             DIG 3 ;
+             SWAP ;
+             EXEC ;
+             CONS } ;
+         PAIR } }
+

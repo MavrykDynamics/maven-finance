@@ -1,0 +1,1820 @@
+{ parameter
+    (or (or (or (or (or (pair %addLiquidity (string %loanTokenName) (nat %amount))
+                        (pair %borrow (nat %vaultId) (nat %quantity)))
+                    (or (nat %closeVault) (unit %default)))
+                (or (or (pair %liquidateVault (nat %vaultId) (address %vaultOwner) (nat %amount))
+                        (pair %markForLiquidation (nat %vaultId) (address %vaultOwner)))
+                    (or (unit %pauseAll)
+                        (pair %registerDeposit
+                           (pair %handle (nat %id) (address %owner))
+                           (nat %amount)
+                           (string %tokenName)))))
+            (or (or (or (pair %registerVaultCreation
+                           (address %vaultOwner)
+                           (nat %vaultId)
+                           (address %vaultAddress)
+                           (string %loanTokenName))
+                        (pair %registerWithdrawal
+                           (pair %handle (nat %id) (address %owner))
+                           (nat %amount)
+                           (string %tokenName)))
+                    (or (pair %removeLiquidity (string %loanTokenName) (nat %amount))
+                        (pair %repay (nat %vaultId) (nat %quantity))))
+                (or (or (address %setAdmin)
+                        (pair %setCollateralToken
+                           (or %action
+                              (pair %createCollateralToken
+                                 (string %tokenName)
+                                 (address %tokenContractAddress)
+                                 (nat %tokenDecimals)
+                                 (address %oracleAddress)
+                                 (bool %protected)
+                                 (bool %isScaledToken)
+                                 (bool %isStakedToken)
+                                 (option %stakingContractAddress address)
+                                 (option %maxDepositAmount nat)
+                                 (or %tokenType
+                                    (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                    (unit %mav)))
+                              (pair %updateCollateralToken
+                                 (string %tokenName)
+                                 (address %oracleAddress)
+                                 (bool %isPaused)
+                                 (option %stakingContractAddress address)
+                                 (option %maxDepositAmount nat)))
+                           (unit %empty)))
+                    (or (address %setGovernance) (pair %setLambda (string %name) (bytes %func_bytes))))))
+        (or (or (or (pair %setLoanToken
+                       (or %action
+                          (pair %createLoanToken
+                             (string %tokenName)
+                             (nat %tokenDecimals)
+                             (address %oracleAddress)
+                             (address %mTokenAddress)
+                             (nat %reserveRatio)
+                             (nat %optimalUtilisationRate)
+                             (nat %baseInterestRate)
+                             (nat %maxInterestRate)
+                             (nat %interestRateBelowOptimalUtilisation)
+                             (nat %interestRateAboveOptimalUtilisation)
+                             (nat %minRepaymentAmount)
+                             (or %tokenType
+                                (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                (unit %mav)))
+                          (pair %updateLoanToken
+                             (string %tokenName)
+                             (address %oracleAddress)
+                             (nat %reserveRatio)
+                             (nat %optimalUtilisationRate)
+                             (nat %baseInterestRate)
+                             (nat %maxInterestRate)
+                             (nat %interestRateBelowOptimalUtilisation)
+                             (nat %interestRateAboveOptimalUtilisation)
+                             (nat %minRepaymentAmount)
+                             (bool %isPaused)))
+                       (unit %empty))
+                    (pair %togglePauseEntrypoint
+                       (or %targetEntrypoint
+                          (or (or (or (or (bool %addLiquidity) (bool %borrow))
+                                      (or (bool %closeVault) (bool %liquidateVault)))
+                                  (or (or (bool %markForLiquidation) (bool %registerDeposit))
+                                      (or (bool %registerVaultCreation) (bool %registerWithdrawal))))
+                              (or (or (or (bool %removeLiquidity) (bool %repay))
+                                      (or (bool %setCollateralToken) (bool %setLoanToken)))
+                                  (or (or (bool %vaultDeposit) (bool %vaultDepositStakedToken))
+                                      (or (bool %vaultOnLiquidate) (bool %vaultWithdraw)))))
+                          (bool %vaultWithdrawStakedToken))
+                       (unit %empty)))
+                (or (unit %unpauseAll)
+                    (pair %updateConfig
+                       (nat %updateConfigNewValue)
+                       (or %updateConfigAction
+                          (or (or (unit %configAdminLiquidationFee) (unit %configCollateralRatio))
+                              (or (unit %configInterestTreasuryShare) (unit %configLiquidationFeePercent)))
+                          (or (or (unit %configLiquidationRatio) (unit %configMinLoanFeeTreasuryShare))
+                              (or (unit %configMinimumLoanFeePercent) (unit %configMockLevel)))))))
+            (or (pair %vaultDepositStakedToken
+                   (string %tokenName)
+                   (nat %vaultId)
+                   (nat %depositAmount))
+                (pair %vaultWithdrawStakedToken
+                   (string %tokenName)
+                   (nat %vaultId)
+                   (nat %withdrawAmount))))) ;
+  storage
+    (pair (address %admin)
+          (address %tester)
+          (big_map %metadata string bytes)
+          (pair %config
+             (nat %collateralRatio)
+             (nat %liquidationRatio)
+             (nat %liquidationFeePercent)
+             (nat %adminLiquidationFeePercent)
+             (nat %minimumLoanFeePercent)
+             (nat %minimumLoanFeeTreasuryShare)
+             (nat %interestTreasuryShare)
+             (nat %decimals)
+             (nat %interestRateDecimals)
+             (nat %maxDecimalsForCalculation)
+             (nat %lastCompletedDataMaxDelay)
+             (nat %maxVaultLiquidationPercent)
+             (nat %liquidationDelayInMins)
+             (nat %liquidationMaxDuration)
+             (nat %mockLevel))
+          (pair %breakGlassConfig
+             (pair (pair (pair (pair (bool %addLiquidityIsPaused) (bool %borrowIsPaused))
+                               (bool %closeVaultIsPaused)
+                               (bool %liquidateVaultIsPaused))
+                         (pair (bool %markForLiquidationIsPaused) (bool %registerDepositIsPaused))
+                         (bool %registerVaultCreationIsPaused)
+                         (bool %registerWithdrawalIsPaused))
+                   (pair (pair (bool %removeLiquidityIsPaused) (bool %repayIsPaused))
+                         (bool %setCollateralTokenIsPaused)
+                         (bool %setLoanTokenIsPaused))
+                   (pair (bool %vaultDepositIsPaused) (bool %vaultDepositStakedTokenIsPaused))
+                   (bool %vaultOnLiquidateIsPaused)
+                   (bool %vaultWithdrawIsPaused))
+             (bool %vaultWithdrawStakedTokenIsPaused))
+          (address %mvnTokenAddress)
+          (address %governanceAddress)
+          (big_map %vaults
+             (pair (nat %id) (address %owner))
+             (pair (address %address)
+                   (map %collateralBalanceLedger string nat)
+                   (string %loanToken)
+                   (nat %loanOutstandingTotal)
+                   (nat %loanPrincipalTotal)
+                   (nat %loanInterestTotal)
+                   (nat %loanDecimals)
+                   (nat %borrowIndex)
+                   (nat %lastUpdatedBlockLevel)
+                   (timestamp %lastUpdatedTimestamp)
+                   (nat %markedForLiquidationLevel)
+                   (nat %liquidationEndLevel)))
+          (big_map %ownerLedger address (set nat))
+          (big_map %collateralTokenLedger
+             string
+             (pair (string %tokenName)
+                   (address %tokenContractAddress)
+                   (nat %tokenDecimals)
+                   (address %oracleAddress)
+                   (bool %protected)
+                   (bool %isScaledToken)
+                   (bool %isStakedToken)
+                   (option %stakingContractAddress address)
+                   (nat %totalDeposited)
+                   (option %maxDepositAmount nat)
+                   (or %tokenType
+                      (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                      (unit %mav))
+                   (bool %isPaused)))
+          (big_map %loanTokenLedger
+             string
+             (pair (string %tokenName)
+                   (or %tokenType
+                      (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                      (unit %mav))
+                   (nat %tokenDecimals)
+                   (address %oracleAddress)
+                   (nat %rawMTokensTotalSupply)
+                   (address %mTokenAddress)
+                   (nat %tokenPoolTotal)
+                   (nat %totalBorrowed)
+                   (nat %totalRemaining)
+                   (nat %reserveRatio)
+                   (nat %utilisationRate)
+                   (nat %optimalUtilisationRate)
+                   (nat %baseInterestRate)
+                   (nat %maxInterestRate)
+                   (nat %interestRateBelowOptimalUtilisation)
+                   (nat %interestRateAboveOptimalUtilisation)
+                   (nat %minRepaymentAmount)
+                   (nat %currentInterestRate)
+                   (nat %lastUpdatedBlockLevel)
+                   (nat %tokenRewardIndex)
+                   (nat %borrowIndex)
+                   (bool %isPaused)))
+          (big_map %lambdaLedger string bytes)) ;
+  code { LAMBDA
+           (pair string (big_map string bytes))
+           bytes
+           { UNPAIR ; GET ; IF_NONE { PUSH nat 2 ; FAILWITH } {} } ;
+         LAMBDA
+           (pair (pair bytes
+                       (or (or (or (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat)))
+                                   (or (or (pair nat address) unit)
+                                       (or (pair (pair nat address) nat string) (pair address nat address string))))
+                               (or (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address))
+                                   (or (or (pair (or (pair string
+                                                           address
+                                                           nat
+                                                           address
+                                                           bool
+                                                           bool
+                                                           bool
+                                                           (option address)
+                                                           (option nat)
+                                                           (or (or address (pair address nat)) unit))
+                                                     (pair string address bool (option address) (option nat)))
+                                                 unit)
+                                           address)
+                                       (or (pair (or (pair string
+                                                           nat
+                                                           address
+                                                           address
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           (or (or address (pair address nat)) unit))
+                                                     (pair string address nat nat nat nat nat nat nat bool))
+                                                 unit)
+                                           (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                         (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                     bool)
+                                                 unit)))))
+                           (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                               (or (pair string nat nat) (pair string nat nat)))))
+                 address
+                 address
+                 (big_map string bytes)
+                 (pair nat nat nat nat nat nat nat nat nat nat nat nat nat nat nat)
+                 (pair (pair (pair (pair (pair bool bool) bool bool) (pair bool bool) bool bool)
+                             (pair (pair bool bool) bool bool)
+                             (pair bool bool)
+                             bool
+                             bool)
+                       bool)
+                 address
+                 address
+                 (big_map
+                    (pair nat address)
+                    (pair address (map string nat) string nat nat nat nat nat nat timestamp nat nat))
+                 (big_map address (set nat))
+                 (big_map
+                    string
+                    (pair string
+                          address
+                          nat
+                          address
+                          bool
+                          bool
+                          bool
+                          (option address)
+                          nat
+                          (option nat)
+                          (or (or address (pair address nat)) unit)
+                          bool))
+                 (big_map
+                    string
+                    (pair string
+                          (or (or address (pair address nat)) unit)
+                          nat
+                          address
+                          nat
+                          address
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          bool))
+                 (big_map string bytes))
+           (pair (list operation)
+                 address
+                 address
+                 (big_map string bytes)
+                 (pair nat nat nat nat nat nat nat nat nat nat nat nat nat nat nat)
+                 (pair (pair (pair (pair (pair bool bool) bool bool) (pair bool bool) bool bool)
+                             (pair (pair bool bool) bool bool)
+                             (pair bool bool)
+                             bool
+                             bool)
+                       bool)
+                 address
+                 address
+                 (big_map
+                    (pair nat address)
+                    (pair address (map string nat) string nat nat nat nat nat nat timestamp nat nat))
+                 (big_map address (set nat))
+                 (big_map
+                    string
+                    (pair string
+                          address
+                          nat
+                          address
+                          bool
+                          bool
+                          bool
+                          (option address)
+                          nat
+                          (option nat)
+                          (or (or address (pair address nat)) unit)
+                          bool))
+                 (big_map
+                    string
+                    (pair string
+                          (or (or address (pair address nat)) unit)
+                          nat
+                          address
+                          nat
+                          address
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          nat
+                          bool))
+                 (big_map string bytes))
+           { UNPAIR ;
+             UNPAIR ;
+             UNPACK
+               (lambda
+                  (pair (or (or (or (or (or (pair %lambdaAddLiquidity (string %loanTokenName) (nat %amount))
+                                            (pair %lambdaBorrow (nat %vaultId) (nat %quantity)))
+                                        (or (nat %lambdaCloseVault)
+                                            (pair %lambdaLiquidateVault (nat %vaultId) (address %vaultOwner) (nat %amount))))
+                                    (or (or (pair %lambdaMarkForLiquidation (nat %vaultId) (address %vaultOwner))
+                                            (unit %lambdaPauseAll))
+                                        (or (pair %lambdaRegisterDeposit
+                                               (pair %handle (nat %id) (address %owner))
+                                               (nat %amount)
+                                               (string %tokenName))
+                                            (pair %lambdaRegisterVaultCreation
+                                               (address %vaultOwner)
+                                               (nat %vaultId)
+                                               (address %vaultAddress)
+                                               (string %loanTokenName)))))
+                                (or (or (or (pair %lambdaRegisterWithdrawal
+                                               (pair %handle (nat %id) (address %owner))
+                                               (nat %amount)
+                                               (string %tokenName))
+                                            (pair %lambdaRemoveLiquidity (string %loanTokenName) (nat %amount)))
+                                        (or (pair %lambdaRepay (nat %vaultId) (nat %quantity)) (address %lambdaSetAdmin)))
+                                    (or (or (pair %lambdaSetCollateralToken
+                                               (or %action
+                                                  (pair %createCollateralToken
+                                                     (string %tokenName)
+                                                     (address %tokenContractAddress)
+                                                     (nat %tokenDecimals)
+                                                     (address %oracleAddress)
+                                                     (bool %protected)
+                                                     (bool %isScaledToken)
+                                                     (bool %isStakedToken)
+                                                     (option %stakingContractAddress address)
+                                                     (option %maxDepositAmount nat)
+                                                     (or %tokenType
+                                                        (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                                        (unit %mav)))
+                                                  (pair %updateCollateralToken
+                                                     (string %tokenName)
+                                                     (address %oracleAddress)
+                                                     (bool %isPaused)
+                                                     (option %stakingContractAddress address)
+                                                     (option %maxDepositAmount nat)))
+                                               (unit %empty))
+                                            (address %lambdaSetGovernance))
+                                        (or (pair %lambdaSetLoanToken
+                                               (or %action
+                                                  (pair %createLoanToken
+                                                     (string %tokenName)
+                                                     (nat %tokenDecimals)
+                                                     (address %oracleAddress)
+                                                     (address %mTokenAddress)
+                                                     (nat %reserveRatio)
+                                                     (nat %optimalUtilisationRate)
+                                                     (nat %baseInterestRate)
+                                                     (nat %maxInterestRate)
+                                                     (nat %interestRateBelowOptimalUtilisation)
+                                                     (nat %interestRateAboveOptimalUtilisation)
+                                                     (nat %minRepaymentAmount)
+                                                     (or %tokenType
+                                                        (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                                        (unit %mav)))
+                                                  (pair %updateLoanToken
+                                                     (string %tokenName)
+                                                     (address %oracleAddress)
+                                                     (nat %reserveRatio)
+                                                     (nat %optimalUtilisationRate)
+                                                     (nat %baseInterestRate)
+                                                     (nat %maxInterestRate)
+                                                     (nat %interestRateBelowOptimalUtilisation)
+                                                     (nat %interestRateAboveOptimalUtilisation)
+                                                     (nat %minRepaymentAmount)
+                                                     (bool %isPaused)))
+                                               (unit %empty))
+                                            (pair %lambdaTogglePauseEntrypoint
+                                               (or %targetEntrypoint
+                                                  (or (or (or (or (bool %addLiquidity) (bool %borrow))
+                                                              (or (bool %closeVault) (bool %liquidateVault)))
+                                                          (or (or (bool %markForLiquidation) (bool %registerDeposit))
+                                                              (or (bool %registerVaultCreation) (bool %registerWithdrawal))))
+                                                      (or (or (or (bool %removeLiquidity) (bool %repay))
+                                                              (or (bool %setCollateralToken) (bool %setLoanToken)))
+                                                          (or (or (bool %vaultDeposit) (bool %vaultDepositStakedToken))
+                                                              (or (bool %vaultOnLiquidate) (bool %vaultWithdraw)))))
+                                                  (bool %vaultWithdrawStakedToken))
+                                               (unit %empty))))))
+                            (or (or (unit %lambdaUnpauseAll)
+                                    (pair %lambdaUpdateConfig
+                                       (nat %updateConfigNewValue)
+                                       (or %updateConfigAction
+                                          (or (or (unit %configAdminLiquidationFee) (unit %configCollateralRatio))
+                                              (or (unit %configInterestTreasuryShare) (unit %configLiquidationFeePercent)))
+                                          (or (or (unit %configLiquidationRatio) (unit %configMinLoanFeeTreasuryShare))
+                                              (or (unit %configMinimumLoanFeePercent) (unit %configMockLevel))))))
+                                (or (pair %lambdaVaultDepositStakedToken
+                                       (string %tokenName)
+                                       (nat %vaultId)
+                                       (nat %depositAmount))
+                                    (pair %lambdaVaultWithdrawStakedToken
+                                       (string %tokenName)
+                                       (nat %vaultId)
+                                       (nat %withdrawAmount)))))
+                        (address %admin)
+                        (address %tester)
+                        (big_map %metadata string bytes)
+                        (pair %config
+                           (nat %collateralRatio)
+                           (nat %liquidationRatio)
+                           (nat %liquidationFeePercent)
+                           (nat %adminLiquidationFeePercent)
+                           (nat %minimumLoanFeePercent)
+                           (nat %minimumLoanFeeTreasuryShare)
+                           (nat %interestTreasuryShare)
+                           (nat %decimals)
+                           (nat %interestRateDecimals)
+                           (nat %maxDecimalsForCalculation)
+                           (nat %lastCompletedDataMaxDelay)
+                           (nat %maxVaultLiquidationPercent)
+                           (nat %liquidationDelayInMins)
+                           (nat %liquidationMaxDuration)
+                           (nat %mockLevel))
+                        (pair %breakGlassConfig
+                           (pair (pair (pair (pair (bool %addLiquidityIsPaused) (bool %borrowIsPaused))
+                                             (bool %closeVaultIsPaused)
+                                             (bool %liquidateVaultIsPaused))
+                                       (pair (bool %markForLiquidationIsPaused) (bool %registerDepositIsPaused))
+                                       (bool %registerVaultCreationIsPaused)
+                                       (bool %registerWithdrawalIsPaused))
+                                 (pair (pair (bool %removeLiquidityIsPaused) (bool %repayIsPaused))
+                                       (bool %setCollateralTokenIsPaused)
+                                       (bool %setLoanTokenIsPaused))
+                                 (pair (bool %vaultDepositIsPaused) (bool %vaultDepositStakedTokenIsPaused))
+                                 (bool %vaultOnLiquidateIsPaused)
+                                 (bool %vaultWithdrawIsPaused))
+                           (bool %vaultWithdrawStakedTokenIsPaused))
+                        (address %mvnTokenAddress)
+                        (address %governanceAddress)
+                        (big_map %vaults
+                           (pair (nat %id) (address %owner))
+                           (pair (address %address)
+                                 (map %collateralBalanceLedger string nat)
+                                 (string %loanToken)
+                                 (nat %loanOutstandingTotal)
+                                 (nat %loanPrincipalTotal)
+                                 (nat %loanInterestTotal)
+                                 (nat %loanDecimals)
+                                 (nat %borrowIndex)
+                                 (nat %lastUpdatedBlockLevel)
+                                 (timestamp %lastUpdatedTimestamp)
+                                 (nat %markedForLiquidationLevel)
+                                 (nat %liquidationEndLevel)))
+                        (big_map %ownerLedger address (set nat))
+                        (big_map %collateralTokenLedger
+                           string
+                           (pair (string %tokenName)
+                                 (address %tokenContractAddress)
+                                 (nat %tokenDecimals)
+                                 (address %oracleAddress)
+                                 (bool %protected)
+                                 (bool %isScaledToken)
+                                 (bool %isStakedToken)
+                                 (option %stakingContractAddress address)
+                                 (nat %totalDeposited)
+                                 (option %maxDepositAmount nat)
+                                 (or %tokenType
+                                    (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                    (unit %mav))
+                                 (bool %isPaused)))
+                        (big_map %loanTokenLedger
+                           string
+                           (pair (string %tokenName)
+                                 (or %tokenType
+                                    (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                    (unit %mav))
+                                 (nat %tokenDecimals)
+                                 (address %oracleAddress)
+                                 (nat %rawMTokensTotalSupply)
+                                 (address %mTokenAddress)
+                                 (nat %tokenPoolTotal)
+                                 (nat %totalBorrowed)
+                                 (nat %totalRemaining)
+                                 (nat %reserveRatio)
+                                 (nat %utilisationRate)
+                                 (nat %optimalUtilisationRate)
+                                 (nat %baseInterestRate)
+                                 (nat %maxInterestRate)
+                                 (nat %interestRateBelowOptimalUtilisation)
+                                 (nat %interestRateAboveOptimalUtilisation)
+                                 (nat %minRepaymentAmount)
+                                 (nat %currentInterestRate)
+                                 (nat %lastUpdatedBlockLevel)
+                                 (nat %tokenRewardIndex)
+                                 (nat %borrowIndex)
+                                 (bool %isPaused)))
+                        (big_map %lambdaLedger string bytes))
+                  (pair (list operation)
+                        (address %admin)
+                        (address %tester)
+                        (big_map %metadata string bytes)
+                        (pair %config
+                           (nat %collateralRatio)
+                           (nat %liquidationRatio)
+                           (nat %liquidationFeePercent)
+                           (nat %adminLiquidationFeePercent)
+                           (nat %minimumLoanFeePercent)
+                           (nat %minimumLoanFeeTreasuryShare)
+                           (nat %interestTreasuryShare)
+                           (nat %decimals)
+                           (nat %interestRateDecimals)
+                           (nat %maxDecimalsForCalculation)
+                           (nat %lastCompletedDataMaxDelay)
+                           (nat %maxVaultLiquidationPercent)
+                           (nat %liquidationDelayInMins)
+                           (nat %liquidationMaxDuration)
+                           (nat %mockLevel))
+                        (pair %breakGlassConfig
+                           (pair (pair (pair (pair (bool %addLiquidityIsPaused) (bool %borrowIsPaused))
+                                             (bool %closeVaultIsPaused)
+                                             (bool %liquidateVaultIsPaused))
+                                       (pair (bool %markForLiquidationIsPaused) (bool %registerDepositIsPaused))
+                                       (bool %registerVaultCreationIsPaused)
+                                       (bool %registerWithdrawalIsPaused))
+                                 (pair (pair (bool %removeLiquidityIsPaused) (bool %repayIsPaused))
+                                       (bool %setCollateralTokenIsPaused)
+                                       (bool %setLoanTokenIsPaused))
+                                 (pair (bool %vaultDepositIsPaused) (bool %vaultDepositStakedTokenIsPaused))
+                                 (bool %vaultOnLiquidateIsPaused)
+                                 (bool %vaultWithdrawIsPaused))
+                           (bool %vaultWithdrawStakedTokenIsPaused))
+                        (address %mvnTokenAddress)
+                        (address %governanceAddress)
+                        (big_map %vaults
+                           (pair (nat %id) (address %owner))
+                           (pair (address %address)
+                                 (map %collateralBalanceLedger string nat)
+                                 (string %loanToken)
+                                 (nat %loanOutstandingTotal)
+                                 (nat %loanPrincipalTotal)
+                                 (nat %loanInterestTotal)
+                                 (nat %loanDecimals)
+                                 (nat %borrowIndex)
+                                 (nat %lastUpdatedBlockLevel)
+                                 (timestamp %lastUpdatedTimestamp)
+                                 (nat %markedForLiquidationLevel)
+                                 (nat %liquidationEndLevel)))
+                        (big_map %ownerLedger address (set nat))
+                        (big_map %collateralTokenLedger
+                           string
+                           (pair (string %tokenName)
+                                 (address %tokenContractAddress)
+                                 (nat %tokenDecimals)
+                                 (address %oracleAddress)
+                                 (bool %protected)
+                                 (bool %isScaledToken)
+                                 (bool %isStakedToken)
+                                 (option %stakingContractAddress address)
+                                 (nat %totalDeposited)
+                                 (option %maxDepositAmount nat)
+                                 (or %tokenType
+                                    (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                    (unit %mav))
+                                 (bool %isPaused)))
+                        (big_map %loanTokenLedger
+                           string
+                           (pair (string %tokenName)
+                                 (or %tokenType
+                                    (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                    (unit %mav))
+                                 (nat %tokenDecimals)
+                                 (address %oracleAddress)
+                                 (nat %rawMTokensTotalSupply)
+                                 (address %mTokenAddress)
+                                 (nat %tokenPoolTotal)
+                                 (nat %totalBorrowed)
+                                 (nat %totalRemaining)
+                                 (nat %reserveRatio)
+                                 (nat %utilisationRate)
+                                 (nat %optimalUtilisationRate)
+                                 (nat %baseInterestRate)
+                                 (nat %maxInterestRate)
+                                 (nat %interestRateBelowOptimalUtilisation)
+                                 (nat %interestRateAboveOptimalUtilisation)
+                                 (nat %minRepaymentAmount)
+                                 (nat %currentInterestRate)
+                                 (nat %lastUpdatedBlockLevel)
+                                 (nat %tokenRewardIndex)
+                                 (nat %borrowIndex)
+                                 (bool %isPaused)))
+                        (big_map %lambdaLedger string bytes))) ;
+             IF_NONE { DROP 2 ; PUSH nat 3 ; FAILWITH } { DUG 2 ; PAIR ; EXEC } } ;
+         DIG 2 ;
+         UNPAIR ;
+         IF_LEFT
+           { IF_LEFT
+               { IF_LEFT
+                   { IF_LEFT
+                       { IF_LEFT
+                           { DUP 2 ;
+                             GET 22 ;
+                             PUSH string "lambdaAddLiquidity" ;
+                             PAIR ;
+                             DIG 4 ;
+                             SWAP ;
+                             EXEC ;
+                             SWAP ;
+                             LEFT (pair nat nat) ;
+                             LEFT (or nat (pair nat address nat)) ;
+                             LEFT (or (or (pair nat address) unit)
+                                      (or (pair (pair nat address) nat string) (pair address nat address string))) ;
+                             LEFT (or (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address))
+                                      (or (or (pair (or (pair string
+                                                              address
+                                                              nat
+                                                              address
+                                                              bool
+                                                              bool
+                                                              bool
+                                                              (option address)
+                                                              (option nat)
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address bool (option address) (option nat)))
+                                                    unit)
+                                              address)
+                                          (or (pair (or (pair string
+                                                              nat
+                                                              address
+                                                              address
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address nat nat nat nat nat nat nat bool))
+                                                    unit)
+                                              (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                            (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                        bool)
+                                                    unit)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC }
+                           { DUP 2 ;
+                             GET 22 ;
+                             PUSH string "lambdaBorrow" ;
+                             PAIR ;
+                             DIG 4 ;
+                             SWAP ;
+                             EXEC ;
+                             SWAP ;
+                             RIGHT (pair string nat) ;
+                             LEFT (or nat (pair nat address nat)) ;
+                             LEFT (or (or (pair nat address) unit)
+                                      (or (pair (pair nat address) nat string) (pair address nat address string))) ;
+                             LEFT (or (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address))
+                                      (or (or (pair (or (pair string
+                                                              address
+                                                              nat
+                                                              address
+                                                              bool
+                                                              bool
+                                                              bool
+                                                              (option address)
+                                                              (option nat)
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address bool (option address) (option nat)))
+                                                    unit)
+                                              address)
+                                          (or (pair (or (pair string
+                                                              nat
+                                                              address
+                                                              address
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address nat nat nat nat nat nat nat bool))
+                                                    unit)
+                                              (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                            (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                        bool)
+                                                    unit)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC } }
+                       { IF_LEFT
+                           { DUP 2 ;
+                             GET 22 ;
+                             PUSH string "lambdaCloseVault" ;
+                             PAIR ;
+                             DIG 4 ;
+                             SWAP ;
+                             EXEC ;
+                             SWAP ;
+                             LEFT (pair nat address nat) ;
+                             RIGHT (or (pair string nat) (pair nat nat)) ;
+                             LEFT (or (or (pair nat address) unit)
+                                      (or (pair (pair nat address) nat string) (pair address nat address string))) ;
+                             LEFT (or (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address))
+                                      (or (or (pair (or (pair string
+                                                              address
+                                                              nat
+                                                              address
+                                                              bool
+                                                              bool
+                                                              bool
+                                                              (option address)
+                                                              (option nat)
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address bool (option address) (option nat)))
+                                                    unit)
+                                              address)
+                                          (or (pair (or (pair string
+                                                              nat
+                                                              address
+                                                              address
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address nat nat nat nat nat nat nat bool))
+                                                    unit)
+                                              (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                            (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                        bool)
+                                                    unit)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC }
+                           { DIG 2 ; DIG 3 ; DROP 3 ; NIL operation ; PAIR } } }
+                   { IF_LEFT
+                       { IF_LEFT
+                           { DUP 2 ;
+                             GET 22 ;
+                             PUSH string "lambdaLiquidateVault" ;
+                             PAIR ;
+                             DIG 4 ;
+                             SWAP ;
+                             EXEC ;
+                             SWAP ;
+                             RIGHT nat ;
+                             RIGHT (or (pair string nat) (pair nat nat)) ;
+                             LEFT (or (or (pair nat address) unit)
+                                      (or (pair (pair nat address) nat string) (pair address nat address string))) ;
+                             LEFT (or (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address))
+                                      (or (or (pair (or (pair string
+                                                              address
+                                                              nat
+                                                              address
+                                                              bool
+                                                              bool
+                                                              bool
+                                                              (option address)
+                                                              (option nat)
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address bool (option address) (option nat)))
+                                                    unit)
+                                              address)
+                                          (or (pair (or (pair string
+                                                              nat
+                                                              address
+                                                              address
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address nat nat nat nat nat nat nat bool))
+                                                    unit)
+                                              (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                            (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                        bool)
+                                                    unit)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC }
+                           { DUP 2 ;
+                             GET 22 ;
+                             PUSH string "lambdaMarkForLiquidation" ;
+                             PAIR ;
+                             DIG 4 ;
+                             SWAP ;
+                             EXEC ;
+                             SWAP ;
+                             LEFT unit ;
+                             LEFT (or (pair (pair nat address) nat string) (pair address nat address string)) ;
+                             RIGHT (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat))) ;
+                             LEFT (or (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address))
+                                      (or (or (pair (or (pair string
+                                                              address
+                                                              nat
+                                                              address
+                                                              bool
+                                                              bool
+                                                              bool
+                                                              (option address)
+                                                              (option nat)
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address bool (option address) (option nat)))
+                                                    unit)
+                                              address)
+                                          (or (pair (or (pair string
+                                                              nat
+                                                              address
+                                                              address
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address nat nat nat nat nat nat nat bool))
+                                                    unit)
+                                              (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                            (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                        bool)
+                                                    unit)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC } }
+                       { IF_LEFT
+                           { DROP ;
+                             DUP ;
+                             GET 22 ;
+                             PUSH string "lambdaPauseAll" ;
+                             PAIR ;
+                             DIG 3 ;
+                             SWAP ;
+                             EXEC ;
+                             UNIT ;
+                             RIGHT (pair nat address) ;
+                             LEFT (or (pair (pair nat address) nat string) (pair address nat address string)) ;
+                             RIGHT (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat))) ;
+                             LEFT (or (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address))
+                                      (or (or (pair (or (pair string
+                                                              address
+                                                              nat
+                                                              address
+                                                              bool
+                                                              bool
+                                                              bool
+                                                              (option address)
+                                                              (option nat)
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address bool (option address) (option nat)))
+                                                    unit)
+                                              address)
+                                          (or (pair (or (pair string
+                                                              nat
+                                                              address
+                                                              address
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address nat nat nat nat nat nat nat bool))
+                                                    unit)
+                                              (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                            (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                        bool)
+                                                    unit)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC }
+                           { DUP 2 ;
+                             GET 22 ;
+                             PUSH string "lambdaRegisterDeposit" ;
+                             PAIR ;
+                             DIG 4 ;
+                             SWAP ;
+                             EXEC ;
+                             SWAP ;
+                             LEFT (pair address nat address string) ;
+                             RIGHT (or (pair nat address) unit) ;
+                             RIGHT (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat))) ;
+                             LEFT (or (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address))
+                                      (or (or (pair (or (pair string
+                                                              address
+                                                              nat
+                                                              address
+                                                              bool
+                                                              bool
+                                                              bool
+                                                              (option address)
+                                                              (option nat)
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address bool (option address) (option nat)))
+                                                    unit)
+                                              address)
+                                          (or (pair (or (pair string
+                                                              nat
+                                                              address
+                                                              address
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address nat nat nat nat nat nat nat bool))
+                                                    unit)
+                                              (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                            (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                        bool)
+                                                    unit)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC } } } }
+               { IF_LEFT
+                   { IF_LEFT
+                       { IF_LEFT
+                           { DUP 2 ;
+                             GET 22 ;
+                             PUSH string "lambdaRegisterVaultCreation" ;
+                             PAIR ;
+                             DIG 4 ;
+                             SWAP ;
+                             EXEC ;
+                             SWAP ;
+                             RIGHT (pair (pair nat address) nat string) ;
+                             RIGHT (or (pair nat address) unit) ;
+                             RIGHT (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat))) ;
+                             LEFT (or (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address))
+                                      (or (or (pair (or (pair string
+                                                              address
+                                                              nat
+                                                              address
+                                                              bool
+                                                              bool
+                                                              bool
+                                                              (option address)
+                                                              (option nat)
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address bool (option address) (option nat)))
+                                                    unit)
+                                              address)
+                                          (or (pair (or (pair string
+                                                              nat
+                                                              address
+                                                              address
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              nat
+                                                              (or (or address (pair address nat)) unit))
+                                                        (pair string address nat nat nat nat nat nat nat bool))
+                                                    unit)
+                                              (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                            (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                        bool)
+                                                    unit)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC }
+                           { DUP 2 ;
+                             GET 22 ;
+                             PUSH string "lambdaRegisterWithdrawal" ;
+                             PAIR ;
+                             DIG 4 ;
+                             SWAP ;
+                             EXEC ;
+                             SWAP ;
+                             LEFT (pair string nat) ;
+                             LEFT (or (pair nat nat) address) ;
+                             LEFT (or (or (pair (or (pair string
+                                                          address
+                                                          nat
+                                                          address
+                                                          bool
+                                                          bool
+                                                          bool
+                                                          (option address)
+                                                          (option nat)
+                                                          (or (or address (pair address nat)) unit))
+                                                    (pair string address bool (option address) (option nat)))
+                                                unit)
+                                          address)
+                                      (or (pair (or (pair string
+                                                          nat
+                                                          address
+                                                          address
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          (or (or address (pair address nat)) unit))
+                                                    (pair string address nat nat nat nat nat nat nat bool))
+                                                unit)
+                                          (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                        (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                    bool)
+                                                unit))) ;
+                             RIGHT
+                               (or (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat)))
+                                   (or (or (pair nat address) unit)
+                                       (or (pair (pair nat address) nat string) (pair address nat address string)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC } }
+                       { IF_LEFT
+                           { DUP 2 ;
+                             GET 22 ;
+                             PUSH string "lambdaRemoveLiquidity" ;
+                             PAIR ;
+                             DIG 4 ;
+                             SWAP ;
+                             EXEC ;
+                             SWAP ;
+                             RIGHT (pair (pair nat address) nat string) ;
+                             LEFT (or (pair nat nat) address) ;
+                             LEFT (or (or (pair (or (pair string
+                                                          address
+                                                          nat
+                                                          address
+                                                          bool
+                                                          bool
+                                                          bool
+                                                          (option address)
+                                                          (option nat)
+                                                          (or (or address (pair address nat)) unit))
+                                                    (pair string address bool (option address) (option nat)))
+                                                unit)
+                                          address)
+                                      (or (pair (or (pair string
+                                                          nat
+                                                          address
+                                                          address
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          (or (or address (pair address nat)) unit))
+                                                    (pair string address nat nat nat nat nat nat nat bool))
+                                                unit)
+                                          (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                        (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                    bool)
+                                                unit))) ;
+                             RIGHT
+                               (or (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat)))
+                                   (or (or (pair nat address) unit)
+                                       (or (pair (pair nat address) nat string) (pair address nat address string)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC }
+                           { DUP 2 ;
+                             GET 22 ;
+                             PUSH string "lambdaRepay" ;
+                             PAIR ;
+                             DIG 4 ;
+                             SWAP ;
+                             EXEC ;
+                             SWAP ;
+                             LEFT address ;
+                             RIGHT (or (pair (pair nat address) nat string) (pair string nat)) ;
+                             LEFT (or (or (pair (or (pair string
+                                                          address
+                                                          nat
+                                                          address
+                                                          bool
+                                                          bool
+                                                          bool
+                                                          (option address)
+                                                          (option nat)
+                                                          (or (or address (pair address nat)) unit))
+                                                    (pair string address bool (option address) (option nat)))
+                                                unit)
+                                          address)
+                                      (or (pair (or (pair string
+                                                          nat
+                                                          address
+                                                          address
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          (or (or address (pair address nat)) unit))
+                                                    (pair string address nat nat nat nat nat nat nat bool))
+                                                unit)
+                                          (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                        (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                    bool)
+                                                unit))) ;
+                             RIGHT
+                               (or (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat)))
+                                   (or (or (pair nat address) unit)
+                                       (or (pair (pair nat address) nat string) (pair address nat address string)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC } } }
+                   { IF_LEFT
+                       { IF_LEFT
+                           { DUP 2 ;
+                             GET 22 ;
+                             PUSH string "lambdaSetAdmin" ;
+                             PAIR ;
+                             DIG 4 ;
+                             SWAP ;
+                             EXEC ;
+                             SWAP ;
+                             RIGHT (pair nat nat) ;
+                             RIGHT (or (pair (pair nat address) nat string) (pair string nat)) ;
+                             LEFT (or (or (pair (or (pair string
+                                                          address
+                                                          nat
+                                                          address
+                                                          bool
+                                                          bool
+                                                          bool
+                                                          (option address)
+                                                          (option nat)
+                                                          (or (or address (pair address nat)) unit))
+                                                    (pair string address bool (option address) (option nat)))
+                                                unit)
+                                          address)
+                                      (or (pair (or (pair string
+                                                          nat
+                                                          address
+                                                          address
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          nat
+                                                          (or (or address (pair address nat)) unit))
+                                                    (pair string address nat nat nat nat nat nat nat bool))
+                                                unit)
+                                          (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                        (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                    bool)
+                                                unit))) ;
+                             RIGHT
+                               (or (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat)))
+                                   (or (or (pair nat address) unit)
+                                       (or (pair (pair nat address) nat string) (pair address nat address string)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC }
+                           { DUP 2 ;
+                             GET 22 ;
+                             PUSH string "lambdaSetCollateralToken" ;
+                             PAIR ;
+                             DIG 4 ;
+                             SWAP ;
+                             EXEC ;
+                             SWAP ;
+                             LEFT address ;
+                             LEFT (or (pair (or (pair string
+                                                      nat
+                                                      address
+                                                      address
+                                                      nat
+                                                      nat
+                                                      nat
+                                                      nat
+                                                      nat
+                                                      nat
+                                                      nat
+                                                      (or (or address (pair address nat)) unit))
+                                                (pair string address nat nat nat nat nat nat nat bool))
+                                            unit)
+                                      (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                    (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                bool)
+                                            unit)) ;
+                             RIGHT
+                               (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address)) ;
+                             RIGHT
+                               (or (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat)))
+                                   (or (or (pair nat address) unit)
+                                       (or (pair (pair nat address) nat string) (pair address nat address string)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC } }
+                       { IF_LEFT
+                           { DUP 2 ;
+                             GET 22 ;
+                             PUSH string "lambdaSetGovernance" ;
+                             PAIR ;
+                             DIG 4 ;
+                             SWAP ;
+                             EXEC ;
+                             SWAP ;
+                             RIGHT
+                               (pair (or (pair string
+                                               address
+                                               nat
+                                               address
+                                               bool
+                                               bool
+                                               bool
+                                               (option address)
+                                               (option nat)
+                                               (or (or address (pair address nat)) unit))
+                                         (pair string address bool (option address) (option nat)))
+                                     unit) ;
+                             LEFT (or (pair (or (pair string
+                                                      nat
+                                                      address
+                                                      address
+                                                      nat
+                                                      nat
+                                                      nat
+                                                      nat
+                                                      nat
+                                                      nat
+                                                      nat
+                                                      (or (or address (pair address nat)) unit))
+                                                (pair string address nat nat nat nat nat nat nat bool))
+                                            unit)
+                                      (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                    (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                bool)
+                                            unit)) ;
+                             RIGHT
+                               (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address)) ;
+                             RIGHT
+                               (or (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat)))
+                                   (or (or (pair nat address) unit)
+                                       (or (pair (pair nat address) nat string) (pair address nat address string)))) ;
+                             LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                      (or (pair string nat nat) (pair string nat nat))) ;
+                             DIG 2 ;
+                             SWAP ;
+                             DIG 2 ;
+                             PAIR ;
+                             PAIR ;
+                             EXEC }
+                           { DIG 2 ;
+                             DIG 3 ;
+                             DROP 2 ;
+                             SWAP ;
+                             DUP ;
+                             CAR ;
+                             SENDER ;
+                             SWAP ;
+                             COMPARE ;
+                             EQ ;
+                             IF {} { PUSH nat 14 ; FAILWITH } ;
+                             DUP ;
+                             GET 22 ;
+                             DUP 3 ;
+                             CDR ;
+                             DIG 3 ;
+                             CAR ;
+                             SWAP ;
+                             SOME ;
+                             SWAP ;
+                             UPDATE ;
+                             UPDATE 22 ;
+                             NIL operation ;
+                             PAIR } } } } }
+           { IF_LEFT
+               { IF_LEFT
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaSetLoanToken" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                            (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                        bool)
+                                    unit) ;
+                         RIGHT
+                           (or (pair (or (pair string
+                                               address
+                                               nat
+                                               address
+                                               bool
+                                               bool
+                                               bool
+                                               (option address)
+                                               (option nat)
+                                               (or (or address (pair address nat)) unit))
+                                         (pair string address bool (option address) (option nat)))
+                                     unit)
+                               address) ;
+                         RIGHT
+                           (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address)) ;
+                         RIGHT
+                           (or (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat)))
+                               (or (or (pair nat address) unit)
+                                   (or (pair (pair nat address) nat string) (pair address nat address string)))) ;
+                         LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                  (or (pair string nat nat) (pair string nat nat))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaTogglePauseEntrypoint" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT
+                           (pair (or (pair string
+                                           nat
+                                           address
+                                           address
+                                           nat
+                                           nat
+                                           nat
+                                           nat
+                                           nat
+                                           nat
+                                           nat
+                                           (or (or address (pair address nat)) unit))
+                                     (pair string address nat nat nat nat nat nat nat bool))
+                                 unit) ;
+                         RIGHT
+                           (or (pair (or (pair string
+                                               address
+                                               nat
+                                               address
+                                               bool
+                                               bool
+                                               bool
+                                               (option address)
+                                               (option nat)
+                                               (or (or address (pair address nat)) unit))
+                                         (pair string address bool (option address) (option nat)))
+                                     unit)
+                               address) ;
+                         RIGHT
+                           (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address)) ;
+                         RIGHT
+                           (or (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat)))
+                               (or (or (pair nat address) unit)
+                                   (or (pair (pair nat address) nat string) (pair address nat address string)))) ;
+                         LEFT (or (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))))
+                                  (or (pair string nat nat) (pair string nat nat))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } }
+                   { IF_LEFT
+                       { DROP ;
+                         DUP ;
+                         GET 22 ;
+                         PUSH string "lambdaUnpauseAll" ;
+                         PAIR ;
+                         DIG 3 ;
+                         SWAP ;
+                         EXEC ;
+                         UNIT ;
+                         LEFT (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit)))) ;
+                         LEFT (or (pair string nat nat) (pair string nat nat)) ;
+                         RIGHT
+                           (or (or (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat)))
+                                   (or (or (pair nat address) unit)
+                                       (or (pair (pair nat address) nat string) (pair address nat address string))))
+                               (or (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address))
+                                   (or (or (pair (or (pair string
+                                                           address
+                                                           nat
+                                                           address
+                                                           bool
+                                                           bool
+                                                           bool
+                                                           (option address)
+                                                           (option nat)
+                                                           (or (or address (pair address nat)) unit))
+                                                     (pair string address bool (option address) (option nat)))
+                                                 unit)
+                                           address)
+                                       (or (pair (or (pair string
+                                                           nat
+                                                           address
+                                                           address
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           (or (or address (pair address nat)) unit))
+                                                     (pair string address nat nat nat nat nat nat nat bool))
+                                                 unit)
+                                           (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                         (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                     bool)
+                                                 unit))))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 22 ;
+                         PUSH string "lambdaUpdateConfig" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT unit ;
+                         LEFT (or (pair string nat nat) (pair string nat nat)) ;
+                         RIGHT
+                           (or (or (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat)))
+                                   (or (or (pair nat address) unit)
+                                       (or (pair (pair nat address) nat string) (pair address nat address string))))
+                               (or (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address))
+                                   (or (or (pair (or (pair string
+                                                           address
+                                                           nat
+                                                           address
+                                                           bool
+                                                           bool
+                                                           bool
+                                                           (option address)
+                                                           (option nat)
+                                                           (or (or address (pair address nat)) unit))
+                                                     (pair string address bool (option address) (option nat)))
+                                                 unit)
+                                           address)
+                                       (or (pair (or (pair string
+                                                           nat
+                                                           address
+                                                           address
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           nat
+                                                           (or (or address (pair address nat)) unit))
+                                                     (pair string address nat nat nat nat nat nat nat bool))
+                                                 unit)
+                                           (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                         (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                     bool)
+                                                 unit))))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } } }
+               { IF_LEFT
+                   { DUP 2 ;
+                     GET 22 ;
+                     PUSH string "lambdaVaultDepositStakedToken" ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     SWAP ;
+                     LEFT (pair string nat nat) ;
+                     RIGHT
+                       (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit))))) ;
+                     RIGHT
+                       (or (or (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat)))
+                               (or (or (pair nat address) unit)
+                                   (or (pair (pair nat address) nat string) (pair address nat address string))))
+                           (or (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address))
+                               (or (or (pair (or (pair string
+                                                       address
+                                                       nat
+                                                       address
+                                                       bool
+                                                       bool
+                                                       bool
+                                                       (option address)
+                                                       (option nat)
+                                                       (or (or address (pair address nat)) unit))
+                                                 (pair string address bool (option address) (option nat)))
+                                             unit)
+                                       address)
+                                   (or (pair (or (pair string
+                                                       nat
+                                                       address
+                                                       address
+                                                       nat
+                                                       nat
+                                                       nat
+                                                       nat
+                                                       nat
+                                                       nat
+                                                       nat
+                                                       (or (or address (pair address nat)) unit))
+                                                 (pair string address nat nat nat nat nat nat nat bool))
+                                             unit)
+                                       (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                     (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                 bool)
+                                             unit))))) ;
+                     DIG 2 ;
+                     SWAP ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC }
+                   { DUP 2 ;
+                     GET 22 ;
+                     PUSH string "lambdaVaultWithdrawStakedToken" ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     SWAP ;
+                     RIGHT (pair string nat nat) ;
+                     RIGHT
+                       (or unit (pair nat (or (or (or unit unit) (or unit unit)) (or (or unit unit) (or unit unit))))) ;
+                     RIGHT
+                       (or (or (or (or (pair string nat) (pair nat nat)) (or nat (pair nat address nat)))
+                               (or (or (pair nat address) unit)
+                                   (or (pair (pair nat address) nat string) (pair address nat address string))))
+                           (or (or (or (pair (pair nat address) nat string) (pair string nat)) (or (pair nat nat) address))
+                               (or (or (pair (or (pair string
+                                                       address
+                                                       nat
+                                                       address
+                                                       bool
+                                                       bool
+                                                       bool
+                                                       (option address)
+                                                       (option nat)
+                                                       (or (or address (pair address nat)) unit))
+                                                 (pair string address bool (option address) (option nat)))
+                                             unit)
+                                       address)
+                                   (or (pair (or (pair string
+                                                       nat
+                                                       address
+                                                       address
+                                                       nat
+                                                       nat
+                                                       nat
+                                                       nat
+                                                       nat
+                                                       nat
+                                                       nat
+                                                       (or (or address (pair address nat)) unit))
+                                                 (pair string address nat nat nat nat nat nat nat bool))
+                                             unit)
+                                       (pair (or (or (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool)))
+                                                     (or (or (or bool bool) (or bool bool)) (or (or bool bool) (or bool bool))))
+                                                 bool)
+                                             unit))))) ;
+                     DIG 2 ;
+                     SWAP ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC } } } } ;
+  view "getAdmin" unit address { CDR ; CAR } ;
+  view "getGovernanceAddress" unit address { CDR ; GET 13 } ;
+  view "getConfig"
+       unit
+       (pair (nat %collateralRatio)
+             (nat %liquidationRatio)
+             (nat %liquidationFeePercent)
+             (nat %adminLiquidationFeePercent)
+             (nat %minimumLoanFeePercent)
+             (nat %minimumLoanFeeTreasuryShare)
+             (nat %interestTreasuryShare)
+             (nat %decimals)
+             (nat %interestRateDecimals)
+             (nat %maxDecimalsForCalculation)
+             (nat %lastCompletedDataMaxDelay)
+             (nat %maxVaultLiquidationPercent)
+             (nat %liquidationDelayInMins)
+             (nat %liquidationMaxDuration)
+             (nat %mockLevel))
+       { CDR ; GET 7 } ;
+  view "getBreakGlassConfig"
+       unit
+       (pair (pair (pair (pair (pair (bool %addLiquidityIsPaused) (bool %borrowIsPaused))
+                               (bool %closeVaultIsPaused)
+                               (bool %liquidateVaultIsPaused))
+                         (pair (bool %markForLiquidationIsPaused) (bool %registerDepositIsPaused))
+                         (bool %registerVaultCreationIsPaused)
+                         (bool %registerWithdrawalIsPaused))
+                   (pair (pair (bool %removeLiquidityIsPaused) (bool %repayIsPaused))
+                         (bool %setCollateralTokenIsPaused)
+                         (bool %setLoanTokenIsPaused))
+                   (pair (bool %vaultDepositIsPaused) (bool %vaultDepositStakedTokenIsPaused))
+                   (bool %vaultOnLiquidateIsPaused)
+                   (bool %vaultWithdrawIsPaused))
+             (bool %vaultWithdrawStakedTokenIsPaused))
+       { CDR ; GET 9 } ;
+  view "getColTokenRecordByNameOpt"
+       string
+       (option
+          (pair (string %tokenName)
+                (address %tokenContractAddress)
+                (nat %tokenDecimals)
+                (address %oracleAddress)
+                (bool %protected)
+                (bool %isScaledToken)
+                (bool %isStakedToken)
+                (option %stakingContractAddress address)
+                (nat %totalDeposited)
+                (option %maxDepositAmount nat)
+                (or %tokenType
+                   (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                   (unit %mav))
+                (bool %isPaused)))
+       { UNPAIR ; SWAP ; GET 19 ; SWAP ; GET } ;
+  view "getLoanTokenRecordOpt"
+       string
+       (option
+          (pair (string %tokenName)
+                (or %tokenType
+                   (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                   (unit %mav))
+                (nat %tokenDecimals)
+                (address %oracleAddress)
+                (nat %rawMTokensTotalSupply)
+                (address %mTokenAddress)
+                (nat %tokenPoolTotal)
+                (nat %totalBorrowed)
+                (nat %totalRemaining)
+                (nat %reserveRatio)
+                (nat %utilisationRate)
+                (nat %optimalUtilisationRate)
+                (nat %baseInterestRate)
+                (nat %maxInterestRate)
+                (nat %interestRateBelowOptimalUtilisation)
+                (nat %interestRateAboveOptimalUtilisation)
+                (nat %minRepaymentAmount)
+                (nat %currentInterestRate)
+                (nat %lastUpdatedBlockLevel)
+                (nat %tokenRewardIndex)
+                (nat %borrowIndex)
+                (bool %isPaused)))
+       { UNPAIR ; SWAP ; GET 21 ; SWAP ; GET } ;
+  view "getOwnedVaultsByUserOpt"
+       address
+       (option (set nat))
+       { UNPAIR ; SWAP ; GET 17 ; SWAP ; GET } ;
+  view "getVaultOpt"
+       (pair (nat %id) (address %owner))
+       (option
+          (pair (address %address)
+                (map %collateralBalanceLedger string nat)
+                (string %loanToken)
+                (nat %loanOutstandingTotal)
+                (nat %loanPrincipalTotal)
+                (nat %loanInterestTotal)
+                (nat %loanDecimals)
+                (nat %borrowIndex)
+                (nat %lastUpdatedBlockLevel)
+                (timestamp %lastUpdatedTimestamp)
+                (nat %markedForLiquidationLevel)
+                (nat %liquidationEndLevel)))
+       { UNPAIR ; SWAP ; GET 15 ; SWAP ; GET } ;
+  view "getLambdaOpt"
+       string
+       (option bytes)
+       { UNPAIR ; SWAP ; GET 22 ; SWAP ; GET } }
+

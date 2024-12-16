@@ -1,0 +1,62 @@
+{ parameter (or (unit %default) (unit %requestMvk)) ;
+  storage
+    (pair (pair (nat %amountPerUser) (big_map %metadata string bytes))
+          (address %mvkTokenAddress)
+          (big_map %requesters address unit)) ;
+  code { UNPAIR ;
+         PUSH mutez 0 ;
+         AMOUNT ;
+         COMPARE ;
+         EQ ;
+         IF {} { PUSH nat 0 ; FAILWITH } ;
+         IF_LEFT
+           { DROP ; NIL operation }
+           { DROP ;
+             DUP ;
+             CDR ;
+             CDR ;
+             SENDER ;
+             MEM ;
+             IF { PUSH string "MVK_REQUEST_LIMIT_REACHED" ; FAILWITH } {} ;
+             DUP ;
+             CDR ;
+             CDR ;
+             UNIT ;
+             SOME ;
+             SENDER ;
+             UPDATE ;
+             DUP 2 ;
+             CDR ;
+             CAR ;
+             PAIR ;
+             SWAP ;
+             CAR ;
+             PAIR ;
+             SELF_ADDRESS ;
+             SENDER ;
+             DUP 3 ;
+             CAR ;
+             CAR ;
+             DUP 4 ;
+             CDR ;
+             CAR ;
+             NIL operation ;
+             SWAP ;
+             CONTRACT %transfer
+               (list (pair (address %from_) (list %txs (pair (address %to_) (nat %token_id) (nat %amount))))) ;
+             IF_NONE { PUSH nat 39 ; FAILWITH } {} ;
+             PUSH mutez 0 ;
+             NIL (pair address (list (pair address nat nat))) ;
+             NIL (pair address nat nat) ;
+             DIG 5 ;
+             PUSH nat 0 ;
+             DIG 7 ;
+             PAIR 3 ;
+             CONS ;
+             DIG 5 ;
+             PAIR ;
+             CONS ;
+             TRANSFER_TOKENS ;
+             CONS } ;
+         PAIR } }
+

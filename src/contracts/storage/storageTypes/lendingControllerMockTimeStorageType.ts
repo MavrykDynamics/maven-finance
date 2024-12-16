@@ -26,4 +26,6 @@ export type lendingControllerMockTimeStorageType = {
     vaultLambdaLedger           : MichelsonMap<MichelsonMapKey, unknown>;
     vaultPenaltyEventLedger     : MichelsonMap<MichelsonMapKey, unknown>;
 
+    tempBoolMap     : MichelsonMap<MichelsonMapKey, unknown>;
+
 }

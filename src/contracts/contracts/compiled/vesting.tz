@@ -1,0 +1,492 @@
+{ parameter
+    (or (or (or (or (pair %addVestee
+                       (address %vesteeAddress)
+                       (nat %totalAllocatedAmount)
+                       (nat %cliffInMonths)
+                       (nat %vestingInMonths))
+                    (unit %claim))
+                (or (list %mistakenTransfer
+                       (pair (address %to_)
+                             (nat %amount)
+                             (or %token
+                                (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                (unit %mav))))
+                    (address %removeVestee)))
+            (or (or (address %setAdmin) (address %setGovernance))
+                (or (pair %setLambda (string %name) (bytes %func_bytes)) (address %toggleVesteeLock))))
+        (or (or (pair %updateGeneralContracts
+                   (string %generalContractName)
+                   (address %generalContractAddress)
+                   (or %updateType (unit %remove) (unit %update)))
+                (pair %updateMetadata (string %metadataKey) (bytes %metadataHash)))
+            (or (pair %updateVestee
+                   (address %vesteeAddress)
+                   (nat %newTotalAllocatedAmount)
+                   (nat %newCliffInMonths)
+                   (nat %newVestingInMonths))
+                (pair %updateWhitelistContracts
+                   (address %whitelistContractAddress)
+                   (or %updateType (unit %remove) (unit %update)))))) ;
+  storage
+    (pair (address %admin)
+          (big_map %metadata string bytes)
+          (address %mvnTokenAddress)
+          (address %governanceAddress)
+          (big_map %whitelistContracts address unit)
+          (big_map %generalContracts string address)
+          (big_map %vesteeLedger
+             address
+             (pair (nat %totalAllocatedAmount)
+                   (nat %claimAmountPerMonth)
+                   (timestamp %startTimestamp)
+                   (nat %vestingMonths)
+                   (nat %cliffMonths)
+                   (timestamp %endCliffDateTime)
+                   (timestamp %endVestingDateTime)
+                   (string %status)
+                   (nat %totalRemainder)
+                   (nat %totalClaimed)
+                   (nat %monthsClaimed)
+                   (nat %monthsRemaining)
+                   (timestamp %nextRedemptionTimestamp)
+                   (timestamp %lastClaimedTimestamp)))
+          (nat %totalVestedAmount)
+          (big_map %lambdaLedger string bytes)) ;
+  code { LAMBDA
+           (pair string (big_map string bytes))
+           bytes
+           { UNPAIR ; GET ; IF_NONE { PUSH nat 2 ; FAILWITH } {} } ;
+         LAMBDA
+           (pair (pair bytes
+                       (or (or (or (or (pair address nat nat nat) unit)
+                                   (or (list (pair address nat (or (or address (pair address nat)) unit))) address))
+                               (or (or address address) (or address (pair string address (or unit unit)))))
+                           (or (or (pair string bytes) (pair address nat nat nat)) (pair address (or unit unit)))))
+                 address
+                 (big_map string bytes)
+                 address
+                 address
+                 (big_map address unit)
+                 (big_map string address)
+                 (big_map
+                    address
+                    (pair nat
+                          nat
+                          timestamp
+                          nat
+                          nat
+                          timestamp
+                          timestamp
+                          string
+                          nat
+                          nat
+                          nat
+                          nat
+                          timestamp
+                          timestamp))
+                 nat
+                 (big_map string bytes))
+           (pair (list operation)
+                 address
+                 (big_map string bytes)
+                 address
+                 address
+                 (big_map address unit)
+                 (big_map string address)
+                 (big_map
+                    address
+                    (pair nat
+                          nat
+                          timestamp
+                          nat
+                          nat
+                          timestamp
+                          timestamp
+                          string
+                          nat
+                          nat
+                          nat
+                          nat
+                          timestamp
+                          timestamp))
+                 nat
+                 (big_map string bytes))
+           { UNPAIR ;
+             UNPAIR ;
+             UNPACK
+               (lambda
+                  (pair (or (or (or (or (pair %lambdaAddVestee
+                                           (address %vesteeAddress)
+                                           (nat %totalAllocatedAmount)
+                                           (nat %cliffInMonths)
+                                           (nat %vestingInMonths))
+                                        (unit %lambdaClaim))
+                                    (or (list %lambdaMistakenTransfer
+                                           (pair (address %to_)
+                                                 (nat %amount)
+                                                 (or %token
+                                                    (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                                    (unit %mav))))
+                                        (address %lambdaRemoveVestee)))
+                                (or (or (address %lambdaSetAdmin) (address %lambdaSetGovernance))
+                                    (or (address %lambdaToggleVesteeLock)
+                                        (pair %lambdaUpdateGeneralContracts
+                                           (string %generalContractName)
+                                           (address %generalContractAddress)
+                                           (or %updateType (unit %remove) (unit %update))))))
+                            (or (or (pair %lambdaUpdateMetadata (string %metadataKey) (bytes %metadataHash))
+                                    (pair %lambdaUpdateVestee
+                                       (address %vesteeAddress)
+                                       (nat %newTotalAllocatedAmount)
+                                       (nat %newCliffInMonths)
+                                       (nat %newVestingInMonths)))
+                                (pair %lambdaUpdateWhitelistContracts
+                                   (address %whitelistContractAddress)
+                                   (or %updateType (unit %remove) (unit %update)))))
+                        (address %admin)
+                        (big_map %metadata string bytes)
+                        (address %mvnTokenAddress)
+                        (address %governanceAddress)
+                        (big_map %whitelistContracts address unit)
+                        (big_map %generalContracts string address)
+                        (big_map %vesteeLedger
+                           address
+                           (pair (nat %totalAllocatedAmount)
+                                 (nat %claimAmountPerMonth)
+                                 (timestamp %startTimestamp)
+                                 (nat %vestingMonths)
+                                 (nat %cliffMonths)
+                                 (timestamp %endCliffDateTime)
+                                 (timestamp %endVestingDateTime)
+                                 (string %status)
+                                 (nat %totalRemainder)
+                                 (nat %totalClaimed)
+                                 (nat %monthsClaimed)
+                                 (nat %monthsRemaining)
+                                 (timestamp %nextRedemptionTimestamp)
+                                 (timestamp %lastClaimedTimestamp)))
+                        (nat %totalVestedAmount)
+                        (big_map %lambdaLedger string bytes))
+                  (pair (list operation)
+                        (address %admin)
+                        (big_map %metadata string bytes)
+                        (address %mvnTokenAddress)
+                        (address %governanceAddress)
+                        (big_map %whitelistContracts address unit)
+                        (big_map %generalContracts string address)
+                        (big_map %vesteeLedger
+                           address
+                           (pair (nat %totalAllocatedAmount)
+                                 (nat %claimAmountPerMonth)
+                                 (timestamp %startTimestamp)
+                                 (nat %vestingMonths)
+                                 (nat %cliffMonths)
+                                 (timestamp %endCliffDateTime)
+                                 (timestamp %endVestingDateTime)
+                                 (string %status)
+                                 (nat %totalRemainder)
+                                 (nat %totalClaimed)
+                                 (nat %monthsClaimed)
+                                 (nat %monthsRemaining)
+                                 (timestamp %nextRedemptionTimestamp)
+                                 (timestamp %lastClaimedTimestamp)))
+                        (nat %totalVestedAmount)
+                        (big_map %lambdaLedger string bytes))) ;
+             IF_NONE { DROP 2 ; PUSH nat 3 ; FAILWITH } { DUG 2 ; PAIR ; EXEC } } ;
+         DIG 2 ;
+         UNPAIR ;
+         PUSH mumav 0 ;
+         AMOUNT ;
+         COMPARE ;
+         EQ ;
+         IF {} { PUSH nat 0 ; FAILWITH } ;
+         IF_LEFT
+           { IF_LEFT
+               { IF_LEFT
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 16 ;
+                         PUSH string "lambdaAddVestee" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT unit ;
+                         LEFT (or (list (pair address nat (or (or address (pair address nat)) unit))) address) ;
+                         LEFT (or (or address address) (or address (pair string address (or unit unit)))) ;
+                         LEFT (or (or (pair string bytes) (pair address nat nat nat)) (pair address (or unit unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DROP ;
+                         DUP ;
+                         GET 16 ;
+                         PUSH string "lambdaClaim" ;
+                         PAIR ;
+                         DIG 3 ;
+                         SWAP ;
+                         EXEC ;
+                         UNIT ;
+                         RIGHT (pair address nat nat nat) ;
+                         LEFT (or (list (pair address nat (or (or address (pair address nat)) unit))) address) ;
+                         LEFT (or (or address address) (or address (pair string address (or unit unit)))) ;
+                         LEFT (or (or (pair string bytes) (pair address nat nat nat)) (pair address (or unit unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } }
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 16 ;
+                         PUSH string "lambdaMistakenTransfer" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT address ;
+                         RIGHT (or (pair address nat nat nat) unit) ;
+                         LEFT (or (or address address) (or address (pair string address (or unit unit)))) ;
+                         LEFT (or (or (pair string bytes) (pair address nat nat nat)) (pair address (or unit unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 16 ;
+                         PUSH string "lambdaRemoveVestee" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT (list (pair address nat (or (or address (pair address nat)) unit))) ;
+                         RIGHT (or (pair address nat nat nat) unit) ;
+                         LEFT (or (or address address) (or address (pair string address (or unit unit)))) ;
+                         LEFT (or (or (pair string bytes) (pair address nat nat nat)) (pair address (or unit unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } } }
+               { IF_LEFT
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 16 ;
+                         PUSH string "lambdaSetAdmin" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT address ;
+                         LEFT (or address (pair string address (or unit unit))) ;
+                         RIGHT
+                           (or (or (pair address nat nat nat) unit)
+                               (or (list (pair address nat (or (or address (pair address nat)) unit))) address)) ;
+                         LEFT (or (or (pair string bytes) (pair address nat nat nat)) (pair address (or unit unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 16 ;
+                         PUSH string "lambdaSetGovernance" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT address ;
+                         LEFT (or address (pair string address (or unit unit))) ;
+                         RIGHT
+                           (or (or (pair address nat nat nat) unit)
+                               (or (list (pair address nat (or (or address (pair address nat)) unit))) address)) ;
+                         LEFT (or (or (pair string bytes) (pair address nat nat nat)) (pair address (or unit unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } }
+                   { IF_LEFT
+                       { DIG 2 ;
+                         DIG 3 ;
+                         DROP 2 ;
+                         SWAP ;
+                         DUP ;
+                         CAR ;
+                         SENDER ;
+                         SWAP ;
+                         COMPARE ;
+                         EQ ;
+                         IF {} { PUSH nat 14 ; FAILWITH } ;
+                         DUP ;
+                         GET 16 ;
+                         DUP 3 ;
+                         CDR ;
+                         DIG 3 ;
+                         CAR ;
+                         SWAP ;
+                         SOME ;
+                         SWAP ;
+                         UPDATE ;
+                         UPDATE 16 ;
+                         NIL operation ;
+                         PAIR }
+                       { DUP 2 ;
+                         GET 16 ;
+                         PUSH string "lambdaToggleVesteeLock" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT (pair string address (or unit unit)) ;
+                         RIGHT (or address address) ;
+                         RIGHT
+                           (or (or (pair address nat nat nat) unit)
+                               (or (list (pair address nat (or (or address (pair address nat)) unit))) address)) ;
+                         LEFT (or (or (pair string bytes) (pair address nat nat nat)) (pair address (or unit unit))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } } } }
+           { IF_LEFT
+               { IF_LEFT
+                   { DUP 2 ;
+                     GET 16 ;
+                     PUSH string "lambdaUpdateGeneralContracts" ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     SWAP ;
+                     RIGHT address ;
+                     RIGHT (or address address) ;
+                     RIGHT
+                       (or (or (pair address nat nat nat) unit)
+                           (or (list (pair address nat (or (or address (pair address nat)) unit))) address)) ;
+                     LEFT (or (or (pair string bytes) (pair address nat nat nat)) (pair address (or unit unit))) ;
+                     DIG 2 ;
+                     SWAP ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC }
+                   { DUP 2 ;
+                     GET 16 ;
+                     PUSH string "lambdaUpdateMetadata" ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     SWAP ;
+                     LEFT (pair address nat nat nat) ;
+                     LEFT (pair address (or unit unit)) ;
+                     RIGHT
+                       (or (or (or (pair address nat nat nat) unit)
+                               (or (list (pair address nat (or (or address (pair address nat)) unit))) address))
+                           (or (or address address) (or address (pair string address (or unit unit))))) ;
+                     DIG 2 ;
+                     SWAP ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC } }
+               { IF_LEFT
+                   { DUP 2 ;
+                     GET 16 ;
+                     PUSH string "lambdaUpdateVestee" ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     SWAP ;
+                     RIGHT (pair string bytes) ;
+                     LEFT (pair address (or unit unit)) ;
+                     RIGHT
+                       (or (or (or (pair address nat nat nat) unit)
+                               (or (list (pair address nat (or (or address (pair address nat)) unit))) address))
+                           (or (or address address) (or address (pair string address (or unit unit))))) ;
+                     DIG 2 ;
+                     SWAP ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC }
+                   { DUP 2 ;
+                     GET 16 ;
+                     PUSH string "lambdaUpdateWhitelistContracts" ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     SWAP ;
+                     RIGHT (or (pair string bytes) (pair address nat nat nat)) ;
+                     RIGHT
+                       (or (or (or (pair address nat nat nat) unit)
+                               (or (list (pair address nat (or (or address (pair address nat)) unit))) address))
+                           (or (or address address) (or address (pair string address (or unit unit))))) ;
+                     DIG 2 ;
+                     SWAP ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC } } } } ;
+  view "getAdmin" unit address { CDR ; CAR } ;
+  view "getGovernanceAddress" unit address { CDR ; GET 7 } ;
+  view "getWhitelistContractOpt"
+       address
+       (option unit)
+       { UNPAIR ; SWAP ; GET 9 ; SWAP ; GET } ;
+  view "getGeneralContractOpt"
+       string
+       (option address)
+       { UNPAIR ; SWAP ; GET 11 ; SWAP ; GET } ;
+  view "getTotalVestedAmount" unit nat { CDR ; GET 15 } ;
+  view "getVesteeBalance"
+       address
+       nat
+       { UNPAIR ;
+         SWAP ;
+         GET 13 ;
+         SWAP ;
+         GET ;
+         IF_NONE { PUSH nat 571 ; FAILWITH } { GET 17 } } ;
+  view "getVesteeOpt"
+       address
+       (option
+          (pair (nat %totalAllocatedAmount)
+                (nat %claimAmountPerMonth)
+                (timestamp %startTimestamp)
+                (nat %vestingMonths)
+                (nat %cliffMonths)
+                (timestamp %endCliffDateTime)
+                (timestamp %endVestingDateTime)
+                (string %status)
+                (nat %totalRemainder)
+                (nat %totalClaimed)
+                (nat %monthsClaimed)
+                (nat %monthsRemaining)
+                (timestamp %nextRedemptionTimestamp)
+                (timestamp %lastClaimedTimestamp)))
+       { UNPAIR ; SWAP ; GET 13 ; SWAP ; GET } ;
+  view "getLambdaOpt"
+       string
+       (option bytes)
+       { UNPAIR ; SWAP ; GET 16 ; SWAP ; GET } }
+

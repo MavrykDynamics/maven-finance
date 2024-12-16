@@ -239,6 +239,10 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             echo "Running tests for lendingController"
             COMMANDS+=("yarn ts-mocha --paths test/21_test_lending_controller.spec.ts --bail --timeout 9000000 --exit")
             ;;
+        lendingControllerRwa)
+            echo "Running tests for lendingController - RWA vaults"
+            COMMANDS+=("yarn ts-mocha --paths test/21b_test_lending_controller_rwa.spec.ts --bail --timeout 9000000 --exit")
+            ;;
         lendingControllerPause)
             echo "Running tests for lendingControllerPause"
             COMMANDS+=("yarn ts-mocha --paths test/22_test_lending_controller_pause.spec.ts --bail --timeout 9000000 --exit")
@@ -256,6 +260,12 @@ for contract_test in "${CONTRACTS_TEST_ARRAY[@]}"; do
             COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000 --exit")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/21_deploy_lending_controller_supporting_contracts.spec.ts --bail --timeout 9000000 --exit")
             COMMANDS+=("yarn ts-mocha --paths test/25_test_lending_controller_mock_time_liquidation.spec.ts --bail --timeout 9000000 --exit")
+            ;;
+        lendingControllerMockTimeLiquidationRwaVault)
+            echo "Running tests for lendingControllerMockTime - Liquidation (RWA Vaults)"
+            COMMANDS+=("yarn ts-mocha --paths test/06_setup_satellites.spec.ts --bail --timeout 9000000 --exit")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/21_deploy_lending_controller_supporting_contracts.spec.ts --bail --timeout 9000000 --exit")
+            COMMANDS+=("yarn ts-mocha --paths test/25b_test_lending_controller_mock_time_liquidation_rwa_vault.spec.ts --bail --timeout 9000000 --exit")
             ;;
         mToken)
             echo "Running tests for mToken"
