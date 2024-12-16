@@ -30,6 +30,7 @@ class VaultFactoryStorage(BaseModel):
 
     admin: str
     metadata: Dict[str, str]
+    vaultMetadata: Dict[str, str]
     config: Config
     mvnTokenAddress: str
     governanceAddress: str
