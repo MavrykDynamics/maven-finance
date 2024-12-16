@@ -762,7 +762,7 @@ block {
 
                 const updatedVaultState : (vaultRecordType*loanTokenRecordType) = updateVaultState(vaultHandle, s);
                 var vault               : vaultRecordType                       := updatedVaultState.0;
-                var loanTokenRecord     : loanTokenRecordType                   := updatedVaultState.1;
+                var _loanTokenRecord     : loanTokenRecordType                   := updatedVaultState.1;
 
                 // get vault config record
                 const vaultConfigRecord : vaultConfigRecordType = getVaultConfigRecord(vault.vaultConfig, s);
@@ -776,8 +776,8 @@ block {
 
                 const currentBlockLevel             : nat = mockLevel;
                 const blocksPerMinute               : nat = 60n / Mavryk.get_min_block_time();
-                const liquidationDelayInBlockLevel  : nat = configLiquidationDelayInMins * blocksPerMinute;                 
-                const liquidationEndLevel           : nat = currentBlockLevel + (configLiquidationMaxDuration * blocksPerMinute);                 
+                const _liquidationDelayInBlockLevel  : nat = configLiquidationDelayInMins * blocksPerMinute;                 
+                const _liquidationEndLevel           : nat = currentBlockLevel + (configLiquidationMaxDuration * blocksPerMinute);                 
                 
                 // ------------------------------------------------------------------
                 // Check if vault is liquidatable
@@ -789,13 +789,18 @@ block {
                     const vaultIsUnderCollaterized : bool = isLiquidatable(vault, liquidationRatio, s);
                     const vaultIsPenalized : bool = isPenalizedForLiquidation(
                         interestRepaymentPeriod,
-                        vault.lastInterestCleared,
+                        vault.lastInterestClearedLevel,
                         missedPeriodsForLiquidation
                     );
+
+                    s.tempBoolMap["vaultIsUnderCollaterized"] := vaultIsUnderCollaterized;
+                    s.tempBoolMap["vaultIsPenalized"] := vaultIsPenalized;
 
                     if vaultIsUnderCollaterized or vaultIsPenalized then {
                         vaultIsLiquidatable := True;
                     };
+
+                    s.tempBoolMap["vaultIsLiquidatable"] := vaultIsLiquidatable;
 
                 } else {
                     vaultIsLiquidatable := isLiquidatable(vault, liquidationRatio, s);
@@ -803,33 +808,33 @@ block {
                 
                 
                 // Check if vault is liquidatable
-                if vaultIsLiquidatable then block {
+                // if vaultIsLiquidatable then block {
 
-                    // get level when vault can be liquidated
-                    const levelWhenVaultCanBeLiquidated  : nat = vault.markedForLiquidationLevel + liquidationDelayInBlockLevel;
+                //     // get level when vault can be liquidated
+                //     const levelWhenVaultCanBeLiquidated  : nat = vault.markedForLiquidationLevel + liquidationDelayInBlockLevel;
 
-                    // Check if vault has already been marked for liquidation, if not set markedForLiquidation timestamp
-                    if currentBlockLevel < levelWhenVaultCanBeLiquidated 
-                    then failwith(error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION)
-                    else {
-                        vault.markedForLiquidationLevel  := currentBlockLevel;
-                        vault.liquidationEndLevel        := liquidationEndLevel;
-                    };
+                //     // Check if vault has already been marked for liquidation, if not set markedForLiquidation timestamp
+                //     if currentBlockLevel < levelWhenVaultCanBeLiquidated 
+                //     then failwith(error_VAULT_HAS_ALREADY_BEEN_MARKED_FOR_LIQUIDATION)
+                //     else {
+                //         vault.markedForLiquidationLevel  := currentBlockLevel;
+                //         vault.liquidationEndLevel        := liquidationEndLevel;
+                //     };
 
-                    // Update vault storage
-                    s.vaults[vaultHandle] := vault;
+                //     // Update vault storage
+                //     s.vaults[vaultHandle] := vault;
 
-                } else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
+                // } else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
 
-                // ------------------------------------------------------------------
-                // Update Storage (Vault and Loan Token)
-                // ------------------------------------------------------------------
+                // // ------------------------------------------------------------------
+                // // Update Storage (Vault and Loan Token)
+                // // ------------------------------------------------------------------
 
-                // update loan token record storage                
-                s.loanTokenLedger[vault.loanToken]   := loanTokenRecord;
+                // // update loan token record storage                
+                // s.loanTokenLedger[vault.loanToken]   := loanTokenRecord;
 
-                // Update vault
-                s.vaults[vaultHandle] := vault;
+                // // Update vault
+                // s.vaults[vaultHandle] := vault;
 
             }
         |   _ -> skip
@@ -930,7 +935,7 @@ block {
                     const vaultIsUnderCollaterized : bool = isLiquidatable(vault, liquidationRatio, s);
                     const vaultIsPenalized : bool = isPenalizedForLiquidation(
                         interestRepaymentPeriod,
-                        vault.lastInterestCleared,
+                        vault.lastInterestClearedLevel,
                         missedPeriodsForLiquidation
                     );
 

@@ -1,0 +1,384 @@
+{ parameter
+    (or (or (or (or (address %claimRewards) (unit %default))
+                (or (list %mistakenTransfer
+                       (pair (address %to_)
+                             (nat %amount)
+                             (or %token
+                                (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                (unit %tez))))
+                    (unit %pauseAll)))
+            (or (or (address %setAdmin) (address %setGovernance))
+                (or (pair %setLambda (string %name) (bytes %func_bytes))
+                    (pair %togglePauseEntrypoint
+                       (or %targetEntrypoint (bool %claimRewards) (bool %updateRewards))
+                       (unit %empty)))))
+        (or (or (or (unit %unpauseAll)
+                    (pair %updateGeneralContracts
+                       (string %generalContractName)
+                       (address %generalContractAddress)))
+                (or (pair %updateMetadata (string %metadataKey) (bytes %metadataHash))
+                    (list %updateRewards
+                       (pair (string %loanTokenName) (address %userAddress) (nat %depositorBalance)))))
+            (or (pair %updateWhitelistContracts
+                   (string %whitelistContractName)
+                   (address %whitelistContractAddress))
+                (pair %updateWhitelistTokenContracts
+                   (string %tokenContractName)
+                   (address %tokenContractAddress))))) ;
+  storage
+    (pair (address %admin)
+          (big_map %metadata string bytes)
+          (pair %breakGlassConfig
+             (bool %updateRewardsIsPaused)
+             (bool %claimRewardsIsPaused))
+          (address %mvkTokenAddress)
+          (address %governanceAddress)
+          (map %whitelistContracts string address)
+          (map %generalContracts string address)
+          (map %whitelistTokenContracts string address)
+          (big_map %rewardsLedger
+             (pair address string)
+             (pair (nat %unpaid) (nat %paid) (nat %rewardsPerShare)))
+          (map %lambdaLedger string bytes)) ;
+  code { LAMBDA
+           (pair (pair bytes
+                       (or (or (or (or address (list (pair address nat (or (or address (pair address nat)) unit))))
+                                   (or unit address))
+                               (or (or address (pair (or bool bool) unit)) (or unit (pair string address))))
+                           (or (or (pair string bytes) (list (pair string address nat)))
+                               (or (pair string address) (pair string address)))))
+                 address
+                 (big_map string bytes)
+                 (pair bool bool)
+                 address
+                 address
+                 (map string address)
+                 (map string address)
+                 (map string address)
+                 (big_map (pair address string) (pair nat nat nat))
+                 (map string bytes))
+           (pair (list operation)
+                 address
+                 (big_map string bytes)
+                 (pair bool bool)
+                 address
+                 address
+                 (map string address)
+                 (map string address)
+                 (map string address)
+                 (big_map (pair address string) (pair nat nat nat))
+                 (map string bytes))
+           { UNPAIR ;
+             UNPAIR ;
+             DIG 2 ;
+             SWAP ;
+             UNPACK
+               (lambda
+                  (pair (or (or (or (or (address %lambdaClaimRewards)
+                                        (list %lambdaMistakenTransfer
+                                           (pair (address %to_)
+                                                 (nat %amount)
+                                                 (or %token
+                                                    (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                                    (unit %tez)))))
+                                    (or (unit %lambdaPauseAll) (address %lambdaSetAdmin)))
+                                (or (or (address %lambdaSetGovernance)
+                                        (pair %lambdaTogglePauseEntrypoint
+                                           (or %targetEntrypoint (bool %claimRewards) (bool %updateRewards))
+                                           (unit %empty)))
+                                    (or (unit %lambdaUnpauseAll)
+                                        (pair %lambdaUpdateGeneralContracts
+                                           (string %generalContractName)
+                                           (address %generalContractAddress)))))
+                            (or (or (pair %lambdaUpdateMetadata (string %metadataKey) (bytes %metadataHash))
+                                    (list %lambdaUpdateRewards
+                                       (pair (string %loanTokenName) (address %userAddress) (nat %depositorBalance))))
+                                (or (pair %lambdaUpdateWhitelistContracts
+                                       (string %whitelistContractName)
+                                       (address %whitelistContractAddress))
+                                    (pair %lambdaUpdateWhitelistTokens
+                                       (string %tokenContractName)
+                                       (address %tokenContractAddress)))))
+                        (address %admin)
+                        (big_map %metadata string bytes)
+                        (pair %breakGlassConfig
+                           (bool %updateRewardsIsPaused)
+                           (bool %claimRewardsIsPaused))
+                        (address %mvkTokenAddress)
+                        (address %governanceAddress)
+                        (map %whitelistContracts string address)
+                        (map %generalContracts string address)
+                        (map %whitelistTokenContracts string address)
+                        (big_map %rewardsLedger
+                           (pair address string)
+                           (pair (nat %unpaid) (nat %paid) (nat %rewardsPerShare)))
+                        (map %lambdaLedger string bytes))
+                  (pair (list operation)
+                        (address %admin)
+                        (big_map %metadata string bytes)
+                        (pair %breakGlassConfig
+                           (bool %updateRewardsIsPaused)
+                           (bool %claimRewardsIsPaused))
+                        (address %mvkTokenAddress)
+                        (address %governanceAddress)
+                        (map %whitelistContracts string address)
+                        (map %generalContracts string address)
+                        (map %whitelistTokenContracts string address)
+                        (big_map %rewardsLedger
+                           (pair address string)
+                           (pair (nat %unpaid) (nat %paid) (nat %rewardsPerShare)))
+                        (map %lambdaLedger string bytes))) ;
+             IF_NONE { DROP 2 ; PUSH nat 3 ; FAILWITH } { SWAP ; DIG 2 ; PAIR ; EXEC } } ;
+         SWAP ;
+         UNPAIR ;
+         IF_LEFT
+           { IF_LEFT
+               { IF_LEFT
+                   { IF_LEFT
+                       { SWAP ;
+                         DUP ;
+                         GET 18 ;
+                         PUSH string "lambdaClaimRewards" ;
+                         GET ;
+                         IF_NONE { PUSH nat 2 ; FAILWITH } {} ;
+                         SWAP ;
+                         DIG 2 ;
+                         LEFT (list (pair address nat (or (or address (pair address nat)) unit))) ;
+                         LEFT (or unit address) ;
+                         LEFT (or (or address (pair (or bool bool) unit)) (or unit (pair string address))) ;
+                         LEFT (or (or (pair string bytes) (list (pair string address nat)))
+                                  (or (pair string address) (pair string address))) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DIG 2 ; DROP 2 ; NIL operation ; PAIR } }
+                   { IF_LEFT
+                       { SWAP ;
+                         DUP ;
+                         GET 18 ;
+                         PUSH string "lambdaMistakenTransfer" ;
+                         GET ;
+                         IF_NONE { PUSH nat 2 ; FAILWITH } {} ;
+                         SWAP ;
+                         DIG 2 ;
+                         RIGHT address ;
+                         LEFT (or unit address) ;
+                         LEFT (or (or address (pair (or bool bool) unit)) (or unit (pair string address))) ;
+                         LEFT (or (or (pair string bytes) (list (pair string address nat)))
+                                  (or (pair string address) (pair string address))) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DROP ;
+                         DUP ;
+                         GET 18 ;
+                         PUSH string "lambdaPauseAll" ;
+                         GET ;
+                         IF_NONE { PUSH nat 2 ; FAILWITH } {} ;
+                         SWAP ;
+                         UNIT ;
+                         LEFT address ;
+                         RIGHT (or address (list (pair address nat (or (or address (pair address nat)) unit)))) ;
+                         LEFT (or (or address (pair (or bool bool) unit)) (or unit (pair string address))) ;
+                         LEFT (or (or (pair string bytes) (list (pair string address nat)))
+                                  (or (pair string address) (pair string address))) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } } }
+               { IF_LEFT
+                   { IF_LEFT
+                       { SWAP ;
+                         DUP ;
+                         GET 18 ;
+                         PUSH string "lambdaSetAdmin" ;
+                         GET ;
+                         IF_NONE { PUSH nat 2 ; FAILWITH } {} ;
+                         SWAP ;
+                         DIG 2 ;
+                         RIGHT unit ;
+                         RIGHT (or address (list (pair address nat (or (or address (pair address nat)) unit)))) ;
+                         LEFT (or (or address (pair (or bool bool) unit)) (or unit (pair string address))) ;
+                         LEFT (or (or (pair string bytes) (list (pair string address nat)))
+                                  (or (pair string address) (pair string address))) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { SWAP ;
+                         DUP ;
+                         GET 18 ;
+                         PUSH string "lambdaSetGovernance" ;
+                         GET ;
+                         IF_NONE { PUSH nat 2 ; FAILWITH } {} ;
+                         SWAP ;
+                         DIG 2 ;
+                         LEFT (pair (or bool bool) unit) ;
+                         LEFT (or unit (pair string address)) ;
+                         RIGHT
+                           (or (or address (list (pair address nat (or (or address (pair address nat)) unit))))
+                               (or unit address)) ;
+                         LEFT (or (or (pair string bytes) (list (pair string address nat)))
+                                  (or (pair string address) (pair string address))) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } }
+                   { IF_LEFT
+                       { DIG 2 ;
+                         DROP ;
+                         SWAP ;
+                         DUP ;
+                         CAR ;
+                         SENDER ;
+                         COMPARE ;
+                         NEQ ;
+                         IF { PUSH nat 14 ; FAILWITH } {} ;
+                         DUP ;
+                         GET 18 ;
+                         DUP 3 ;
+                         CDR ;
+                         DIG 3 ;
+                         CAR ;
+                         SWAP ;
+                         SOME ;
+                         SWAP ;
+                         UPDATE ;
+                         UPDATE 18 ;
+                         NIL operation ;
+                         PAIR }
+                       { DUP 2 ;
+                         GET 18 ;
+                         PUSH string "lambdaTogglePauseEntrypoint" ;
+                         GET ;
+                         IF_NONE { PUSH nat 2 ; FAILWITH } {} ;
+                         DUG 2 ;
+                         RIGHT address ;
+                         LEFT (or unit (pair string address)) ;
+                         RIGHT
+                           (or (or address (list (pair address nat (or (or address (pair address nat)) unit))))
+                               (or unit address)) ;
+                         LEFT (or (or (pair string bytes) (list (pair string address nat)))
+                                  (or (pair string address) (pair string address))) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } } } }
+           { IF_LEFT
+               { IF_LEFT
+                   { IF_LEFT
+                       { DROP ;
+                         DUP ;
+                         GET 18 ;
+                         PUSH string "lambdaUnpauseAll" ;
+                         GET ;
+                         IF_NONE { PUSH nat 2 ; FAILWITH } {} ;
+                         SWAP ;
+                         UNIT ;
+                         LEFT (pair string address) ;
+                         RIGHT (or address (pair (or bool bool) unit)) ;
+                         RIGHT
+                           (or (or address (list (pair address nat (or (or address (pair address nat)) unit))))
+                               (or unit address)) ;
+                         LEFT (or (or (pair string bytes) (list (pair string address nat)))
+                                  (or (pair string address) (pair string address))) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { SWAP ;
+                         DUP ;
+                         GET 18 ;
+                         PUSH string "lambdaUpdateGeneralContracts" ;
+                         GET ;
+                         IF_NONE { PUSH nat 2 ; FAILWITH } {} ;
+                         SWAP ;
+                         DIG 2 ;
+                         RIGHT unit ;
+                         RIGHT (or address (pair (or bool bool) unit)) ;
+                         RIGHT
+                           (or (or address (list (pair address nat (or (or address (pair address nat)) unit))))
+                               (or unit address)) ;
+                         LEFT (or (or (pair string bytes) (list (pair string address nat)))
+                                  (or (pair string address) (pair string address))) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } }
+                   { IF_LEFT
+                       { SWAP ;
+                         DUP ;
+                         GET 18 ;
+                         PUSH string "lambdaUpdateMetadata" ;
+                         GET ;
+                         IF_NONE { PUSH nat 2 ; FAILWITH } {} ;
+                         SWAP ;
+                         DIG 2 ;
+                         LEFT (list (pair string address nat)) ;
+                         LEFT (or (pair string address) (pair string address)) ;
+                         RIGHT
+                           (or (or (or address (list (pair address nat (or (or address (pair address nat)) unit))))
+                                   (or unit address))
+                               (or (or address (pair (or bool bool) unit)) (or unit (pair string address)))) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { SWAP ;
+                         DUP ;
+                         GET 18 ;
+                         PUSH string "lambdaUpdateRewards" ;
+                         GET ;
+                         IF_NONE { PUSH nat 2 ; FAILWITH } {} ;
+                         SWAP ;
+                         DIG 2 ;
+                         RIGHT (pair string bytes) ;
+                         LEFT (or (pair string address) (pair string address)) ;
+                         RIGHT
+                           (or (or (or address (list (pair address nat (or (or address (pair address nat)) unit))))
+                                   (or unit address))
+                               (or (or address (pair (or bool bool) unit)) (or unit (pair string address)))) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } } }
+               { IF_LEFT
+                   { SWAP ;
+                     DUP ;
+                     GET 18 ;
+                     PUSH string "lambdaUpdateWhitelistContracts" ;
+                     GET ;
+                     IF_NONE { PUSH nat 2 ; FAILWITH } {} ;
+                     SWAP ;
+                     DIG 2 ;
+                     LEFT (pair string address) ;
+                     RIGHT (or (pair string bytes) (list (pair string address nat))) ;
+                     RIGHT
+                       (or (or (or address (list (pair address nat (or (or address (pair address nat)) unit))))
+                               (or unit address))
+                           (or (or address (pair (or bool bool) unit)) (or unit (pair string address)))) ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC }
+                   { SWAP ;
+                     DUP ;
+                     GET 18 ;
+                     PUSH string "lambdaUpdateWhitelistTokenContracts" ;
+                     GET ;
+                     IF_NONE { PUSH nat 2 ; FAILWITH } {} ;
+                     SWAP ;
+                     DIG 2 ;
+                     RIGHT (pair string address) ;
+                     RIGHT (or (pair string bytes) (list (pair string address nat))) ;
+                     RIGHT
+                       (or (or (or address (list (pair address nat (or (or address (pair address nat)) unit))))
+                               (or unit address))
+                           (or (or address (pair (or bool bool) unit)) (or unit (pair string address)))) ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC } } } } }
+

@@ -1,0 +1,215 @@
+{ parameter
+    (or (or (or (lambda %dataPackingHelper unit (list operation))
+                (bytes %executeGovernanceAction))
+            (or (list %mistakenTransfer
+                   (pair (address %to_)
+                         (nat %amount)
+                         (or %token
+                            (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                            (unit %mav))))
+                (address %setAdmin)))
+        (or (or (address %setGovernance) (pair %setLambda (string %name) (bytes %func_bytes)))
+            (pair %updateMetadata (string %metadataKey) (bytes %metadataHash)))) ;
+  storage
+    (pair (pair (pair (address %admin) (address %governanceAddress))
+                (big_map %lambdaLedger string bytes)
+                (big_map %metadata string bytes))
+          (address %mvnTokenAddress)) ;
+  code { LAMBDA
+           (pair string (big_map string bytes))
+           bytes
+           { UNPAIR ; GET ; IF_NONE { PUSH nat 2 ; FAILWITH } {} } ;
+         LAMBDA
+           (pair (pair bytes
+                       (or (or (list (pair address nat (or (or address (pair address nat)) unit))) address)
+                           (or address (pair string bytes))))
+                 (pair (pair address address) (big_map string bytes) (big_map string bytes))
+                 address)
+           (pair (list operation)
+                 (pair (pair address address) (big_map string bytes) (big_map string bytes))
+                 address)
+           { UNPAIR ;
+             UNPAIR ;
+             UNPACK
+               (lambda
+                  (pair (or (or (list %lambdaMistakenTransfer
+                                   (pair (address %to_)
+                                         (nat %amount)
+                                         (or %token
+                                            (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                            (unit %mav))))
+                                (address %lambdaSetAdmin))
+                            (or (address %lambdaSetGovernance)
+                                (pair %lambdaUpdateMetadata (string %metadataKey) (bytes %metadataHash))))
+                        (pair (pair (address %admin) (address %governanceAddress))
+                              (big_map %lambdaLedger string bytes)
+                              (big_map %metadata string bytes))
+                        (address %mvnTokenAddress))
+                  (pair (list operation)
+                        (pair (pair (address %admin) (address %governanceAddress))
+                              (big_map %lambdaLedger string bytes)
+                              (big_map %metadata string bytes))
+                        (address %mvnTokenAddress))) ;
+             IF_NONE { DROP 2 ; PUSH nat 3 ; FAILWITH } { DUG 2 ; PAIR ; EXEC } } ;
+         DIG 2 ;
+         UNPAIR ;
+         PUSH mumav 0 ;
+         AMOUNT ;
+         COMPARE ;
+         EQ ;
+         IF {} { PUSH nat 0 ; FAILWITH } ;
+         IF_LEFT
+           { IF_LEFT
+               { DIG 2 ;
+                 DIG 3 ;
+                 DROP 2 ;
+                 IF_LEFT
+                   { DROP 2 ; PUSH nat 483 ; FAILWITH }
+                   { SENDER ;
+                     DUP 3 ;
+                     CAR ;
+                     CAR ;
+                     CDR ;
+                     COMPARE ;
+                     EQ ;
+                     SENDER ;
+                     DUP 4 ;
+                     CAR ;
+                     CAR ;
+                     CAR ;
+                     COMPARE ;
+                     EQ ;
+                     OR ;
+                     IF {} { PUSH nat 16 ; FAILWITH } ;
+                     UNPACK (lambda unit (list operation)) ;
+                     IF_NONE
+                       { PUSH nat 482 ; FAILWITH }
+                       { LAMBDA
+                           (pair (lambda unit (list operation)) unit)
+                           (list operation)
+                           { UNPAIR ; SWAP ; EXEC } ;
+                         DUP 2 ;
+                         APPLY ;
+                         SWAP ;
+                         DROP } ;
+                     UNIT ;
+                     EXEC ;
+                     PAIR } }
+               { IF_LEFT
+                   { DUP 2 ;
+                     CAR ;
+                     CDR ;
+                     CAR ;
+                     PUSH string "lambdaMistakenTransfer" ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     SWAP ;
+                     LEFT address ;
+                     LEFT (or address (pair string bytes)) ;
+                     DIG 2 ;
+                     SWAP ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC }
+                   { DUP 2 ;
+                     CAR ;
+                     CDR ;
+                     CAR ;
+                     PUSH string "lambdaSetAdmin" ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     SWAP ;
+                     RIGHT (list (pair address nat (or (or address (pair address nat)) unit))) ;
+                     LEFT (or address (pair string bytes)) ;
+                     DIG 2 ;
+                     SWAP ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC } } }
+           { IF_LEFT
+               { IF_LEFT
+                   { DUP 2 ;
+                     CAR ;
+                     CDR ;
+                     CAR ;
+                     PUSH string "lambdaSetGovernance" ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     SWAP ;
+                     LEFT (pair string bytes) ;
+                     RIGHT (or (list (pair address nat (or (or address (pair address nat)) unit))) address) ;
+                     DIG 2 ;
+                     SWAP ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC }
+                   { DIG 2 ;
+                     DIG 3 ;
+                     DROP 2 ;
+                     SWAP ;
+                     DUP ;
+                     CAR ;
+                     CAR ;
+                     CAR ;
+                     SENDER ;
+                     SWAP ;
+                     COMPARE ;
+                     EQ ;
+                     IF {} { PUSH nat 14 ; FAILWITH } ;
+                     DUP ;
+                     DUP ;
+                     CDR ;
+                     DUP 2 ;
+                     CAR ;
+                     CDR ;
+                     CDR ;
+                     DIG 3 ;
+                     CAR ;
+                     CDR ;
+                     CAR ;
+                     DUP 5 ;
+                     CDR ;
+                     DIG 5 ;
+                     CAR ;
+                     SWAP ;
+                     SOME ;
+                     SWAP ;
+                     UPDATE ;
+                     PAIR ;
+                     DIG 2 ;
+                     CAR ;
+                     CAR ;
+                     PAIR ;
+                     PAIR ;
+                     NIL operation ;
+                     PAIR } }
+               { DUP 2 ;
+                 CAR ;
+                 CDR ;
+                 CAR ;
+                 PUSH string "lambdaUpdateMetadata" ;
+                 PAIR ;
+                 DIG 4 ;
+                 SWAP ;
+                 EXEC ;
+                 SWAP ;
+                 RIGHT address ;
+                 RIGHT (or (list (pair address nat (or (or address (pair address nat)) unit))) address) ;
+                 DIG 2 ;
+                 SWAP ;
+                 DIG 2 ;
+                 PAIR ;
+                 PAIR ;
+                 EXEC } } } ;
+  view "getAdmin" unit address { CDR ; CAR ; CAR ; CAR } ;
+  view "getGovernanceAddress" unit address { CDR ; CAR ; CAR ; CDR } }
+

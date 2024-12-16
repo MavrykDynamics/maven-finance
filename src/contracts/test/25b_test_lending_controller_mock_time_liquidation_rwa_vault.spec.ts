@@ -174,6 +174,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
     // vault
     let vaultRecord
+    let vaultConfigRecord
     let vaultLoanOutstandingTotal
     let vaultLoanPrincipalTotal
     let vaultLoanInterestTotal
@@ -1648,7 +1649,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
     // 
     // Test RWA Vault Liquidation - no repayment for at least 4 missed periods
     //
-    describe('%liquidateVault - test vault liquidation', function () {
+    describe('%liquidateVault - test RWA vault liquidation ', function () {
 
         it('vault with healthy collateral ratio but missed 4 periods of interest repayment: user (mallory) can mark eve\'s vault for liquidation (interest accumulated over time) and liquidate vault with refunds for overflow - [Collateral Token: Mock FA-12 | Loan Token: Mock FA-12]', async () => {
             
@@ -1804,9 +1805,9 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             vaultRecord                 = await lendingControllerStorage.vaults.get(vaultHandle);
             lastUpdatedBlockLevel       = vaultRecord.lastUpdatedBlockLevel;
 
-            const yearsPassed  = 7; 
-            mockLevelChange = yearsPassed * oneYearLevelBlocks;
-            newMockLevel = lastUpdatedBlockLevel.toNumber() + mockLevelChange;
+            const minutesToPass = vaultConfigRecord.interestRepaymentPeriod * vaultConfigRecord.missedPeriodsForLiquidation;
+            mockLevelChange     = (minutesToPass / oneMinuteLevelBlocks)
+            newMockLevel        = lastUpdatedBlockLevel.toNumber() + mockLevelChange;
 
             let setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
                 [
@@ -1984,6 +1985,10 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             totalInterest                           = loanOutstandingWithAccruedInterest - initialVaultLoanPrincipalTotal.toNumber();
             remainingInterest                       = lendingHelper.calculateRemainingInterest(liquidationAmount, totalInterest)
 
+            console.log("vaultLoanOutstandingTotal: ", vaultLoanOutstandingTotal);
+            console.log("loanOutstandingWithAccruedInterest: ", loanOutstandingWithAccruedInterest);
+            console.log("liquidationAmount: ", liquidationAmount);
+            console.log("loanOutstandingWithAccruedInterest - liquidationAmount: ", loanOutstandingWithAccruedInterest - liquidationAmount);
 
             // check that calculations are correct - use of almostEqual as there may be a slight difference of 1 from rounding errors 
             assert.equal(almostEqual(vaultLoanOutstandingTotal, loanOutstandingWithAccruedInterest - liquidationAmount, 0.0001), true);

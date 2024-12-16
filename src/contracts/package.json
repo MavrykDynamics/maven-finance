@@ -47,7 +47,7 @@
   "author": "devteam@mavenfinance.io",
   "license": "MIT",
   "dependencies": {
-    "@mavrykdynamics/create-lambda-bytes": "^0.3.3-l1",
+    "@mavrykdynamics/create-lambda-bytes": "^0.4",
     "@mavrykdynamics/taquito-signer": "^19.2.3",
     "@mavrykdynamics/taquito": "^19.2.3",
     "@mavrykdynamics/taquito-utils": "^19.2.3",

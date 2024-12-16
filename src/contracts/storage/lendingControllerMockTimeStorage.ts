@@ -29,14 +29,14 @@ const vaultConfig = {
 
     interestRepaymentPeriod      : 0,
     missedPeriodsForLiquidation  : 0,
-    interestRepaymentGrace       : 0,    
+    repaymentWindow              : 0,    
     penaltyFeePercentage         : 0,    
     liquidationConfig            : 0
 }
 
 const vaultRwaConfig = {
-    collateralRatio             : 3000,    // collateral ratio (%)
-    liquidationRatio            : 3500,    // liquidation ratio (%)
+    collateralRatio             : 2000,    // collateral ratio (%)
+    liquidationRatio            : 1500,    // liquidation ratio (%)
 
     liquidationFeePercent       : 300,
     adminLiquidationFeePercent  : 300,
@@ -49,9 +49,9 @@ const vaultRwaConfig = {
     liquidationDelayInMins      : 120,
     liquidationMaxDuration      : 1440,
 
-    interestRepaymentPeriod      : 30,
+    interestRepaymentPeriod      : 30 * 1440, // in minutes
     missedPeriodsForLiquidation  : 4,
-    interestRepaymentGrace       : 10,    
+    repaymentWindow              : 1440 * 7,  // in minutes  
     penaltyFeePercentage         : 10,    
     liquidationConfig            : 1
 }
@@ -133,4 +133,6 @@ export const lendingControllerMockTimeStorage : lendingControllerMockTimeStorage
     lambdaLedger                    : MichelsonMap.fromLiteral({}),
     vaultLambdaLedger               : MichelsonMap.fromLiteral({}),
     vaultPenaltyEventLedger         : MichelsonMap.fromLiteral({}),
+
+    tempBoolMap                     : MichelsonMap.fromLiteral({}),
 }
