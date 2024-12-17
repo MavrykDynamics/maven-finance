@@ -1,11 +1,4 @@
 // ------------------------------------------------------------------------------
-// Error Codes
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
 // Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
@@ -28,10 +21,13 @@ type action is
 
         // Default Entrypoint to Receive Mav
         Default         of unit
-
+            
         // Housekeeping Entrypoints
-    |   RequestMvn      of unit
-    |   RequestFakeUsdt of unit
+    |   UpdateToken     of updateTokenType
+    |   RemoveToken     of removeTokenType
+
+        // Entrypoints
+    |   RequestToken    of requestTokenType
 
 
 type return is list (operation) * mvnFaucetStorageType
@@ -55,26 +51,16 @@ const noOperations : list (operation) = nil;
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function verifyUserPreviousMvnRequest(var s : mvnFaucetStorageType) : unit is
+function getUserPreviousRequest(const userAddress : address; const tokenIdentifier : tokenIdentifierType; const s : mvnFaucetStorageType) : nat is
+    case Big_map.find_opt((tokenIdentifier, userAddress), s.requesters) of [
+            Some (_v) -> _v
+        |   None      -> 0n
+    ];
+
+function saveUserRequest(const userAddress : address; const tokenIdentifier : tokenIdentifierType; const requestAmount : nat; var s : mvnFaucetStorageType) : mvnFaucetStorageType is
 block {
 
-    if Big_map.mem((Mavryk.get_sender(), (Mvn : requestVariantType)), s.requesters) 
-    then failwith("MVN_REQUEST_LIMIT_REACHED")
-
-} with unit
-
-function verifyUserPreviousFakeUsdtRequest(var s : mvnFaucetStorageType) : unit is
-block {
-
-    if Big_map.mem((Mavryk.get_sender(), (FakeUsdt : requestVariantType)), s.requesters) 
-    then failwith("FAKE_USDT_REQUEST_LIMIT_REACHED")
-
-} with unit
-
-function saveUserRequest(const request : requestVariantType; var s : mvnFaucetStorageType) : mvnFaucetStorageType is
-block {
-
-    s.requesters    := Big_map.update((Mavryk.get_sender(), request), Some(unit), s.requesters);
+    s.requesters    := Big_map.update((tokenIdentifier, userAddress), Some(requestAmount), s.requesters);
 
 } with (s)
 
@@ -94,59 +80,63 @@ block {
 //
 // ------------------------------------------------------------------------------
 
-(* requestMvn entrypoint *)
-function requestMvn(var s : mvnFaucetStorageType) : return is
+(* updateToken entrypoint *)
+function updateToken(const updateTokenParams : updateTokenType; var s : mvnFaucetStorageType) : return is
 block {
 
-    // verify user didn't already make a request
-    verifyUserPreviousMvnRequest(s);
+    verifySenderIsAdmin(s.admin);
 
-    // save user request in the storage
-    s   := saveUserRequest((Mvn : requestVariantType), s);
+    // Update token record
+    s.tokens := Big_map.update(updateTokenParams.tokenIdentifier, Some(updateTokenParams.maxAmountPerUser), s.tokens);
 
-    // assign params to constants for better code readability
-    const from_: address                = Mavryk.get_self_address();
-    const to_: address                  = Mavryk.get_sender();
-    const amountPerUser: nat            = s.mvnAmountPerUser;
-    const tokenId: nat                  = 0n;
-    const tokenContractAddress: address = s.mvnTokenAddress;
+} with (noOperations, s)
 
-    // create the transfer operation
-    const operations: list(operation)   = list[
-        transferFa2Token(
-            from_,
-            to_,
-            amountPerUser,
-            tokenId,
-            tokenContractAddress
-        )
+(* removeToken entrypoint *)
+function removeToken(const removeTokenParams : tokenIdentifierType; var s : mvnFaucetStorageType) : return is
+block {
+
+    verifySenderIsAdmin(s.admin);
+
+    // Remove token record
+    s.tokens := Big_map.remove(removeTokenParams, s.tokens);
+
+} with (noOperations, s)
+
+(* requestToken entrypoint *)
+function requestToken(const requestTokenParams : requestTokenType; var s : mvnFaucetStorageType) : return is
+block {
+
+    // Parse parameters
+    const tokenIdentifier : tokenIdentifierType = requestTokenParams.tokenIdentifier;
+    const tokenAmount : nat                     = requestTokenParams.tokenAmount;
+    const userAddress : address                 = Mavryk.get_sender();
+
+    // Get user request
+    const userRequest : nat = tokenAmount + getUserPreviousRequest(userAddress, tokenIdentifier, s);
+
+    // Check token amount doesn't exceed maximum
+    const maxTokenPerUser : nat = case Big_map.find_opt(tokenIdentifier, s.tokens) of [
+            Some (_v) -> _v
+        |   None      -> 0n
     ];
-
-} with (operations, s)
-
-(* RequestFakeUSDt entrypoint *)
-function requestFakeUsdt(var s : mvnFaucetStorageType) : return is
-block {
-
-    // verify user didn't already make a request
-    verifyUserPreviousFakeUsdtRequest(s);
+    if (userRequest > maxTokenPerUser) then
+    failwith("TOKEN_REQUEST_EXCEEDS_MAXIMUM_ALLOWED");
 
     // save user request in the storage
-    s   := saveUserRequest((FakeUsdt : requestVariantType), s);
+    s   := saveUserRequest(userAddress, tokenIdentifier, userRequest, s);
 
     // assign params to constants for better code readability
     const from_: address                = Mavryk.get_self_address();
     const to_: address                  = Mavryk.get_sender();
-    const amountPerUser: nat            = s.fakeUsdtAmountPerUser;
-    const tokenId: nat                  = 0n;
-    const tokenContractAddress: address = s.fakeUsdtTokenAddress;
+    const tokenId: nat                  = tokenIdentifier.1;
+    const tokenContractAddress: address = tokenIdentifier.0;
 
     // create the transfer operation
     const operations: list(operation)   = list[
         transferFa2Token(
             from_,
             to_,
-            amountPerUser,
+            userRequest,
             tokenId,
             tokenContractAddress
         )
@@ -176,8 +166,11 @@ block{
             Default(_parameters)                -> ((nil : list(operation)), s)
             
             // Housekeeping Entrypoints
-        |   RequestMvn (_params)                -> requestMvn(s)
-        |   RequestFakeUsdt (_params)           -> requestFakeUsdt(s)
+        |   UpdateToken (params)               -> updateToken(params, s)
+        |   RemoveToken (params)               -> removeToken(params, s)
+
+            // Entrypoints
+        |   RequestToken (params)              -> requestToken(params, s)
 
     ]
 
