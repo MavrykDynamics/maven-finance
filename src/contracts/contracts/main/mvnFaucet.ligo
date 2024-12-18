@@ -109,7 +109,7 @@ block {
     // Parse parameters
     const tokenIdentifier : tokenIdentifierType = requestTokenParams.tokenIdentifier;
     const tokenAmount : nat                     = requestTokenParams.tokenAmount;
-    const userAddress : address                 = Mavryk.get_sender();
+    const userAddress : address                 = requestTokenParams.userAddress;
 
     // Get user request
     const userRequest : nat = tokenAmount + getUserPreviousRequest(userAddress, tokenIdentifier, s);
@@ -127,7 +127,6 @@ block {
 
     // assign params to constants for better code readability
     const from_: address                = Mavryk.get_self_address();
-    const to_: address                  = Mavryk.get_sender();
     const tokenId: nat                  = tokenIdentifier.1;
     const tokenContractAddress: address = tokenIdentifier.0;
 
@@ -135,7 +134,7 @@ block {
     const operations: list(operation)   = list[
         transferFa2Token(
             from_,
-            to_,
+            userAddress,
             userRequest,
             tokenId,
             tokenContractAddress
