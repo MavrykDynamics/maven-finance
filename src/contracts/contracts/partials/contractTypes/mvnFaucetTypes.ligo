@@ -16,6 +16,7 @@ type removeTokenType is tokenIdentifierType;
 type requestTokenType is record[
     tokenIdentifier     : tokenIdentifierType;
     tokenAmount         : nat;
+    userAddress         : address;
 ];
 
 // ------------------------------------------------------------------------------
