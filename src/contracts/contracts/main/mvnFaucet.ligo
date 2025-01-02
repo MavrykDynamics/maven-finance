@@ -51,19 +51,6 @@ const noOperations : list (operation) = nil;
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function getUserPreviousRequest(const userAddress : address; const tokenIdentifier : tokenIdentifierType; const s : mvnFaucetStorageType) : nat is
-    case Big_map.find_opt((tokenIdentifier, userAddress), s.requesters) of [
-            Some (_v) -> _v
-        |   None      -> 0n
-    ];
-
-function saveUserRequest(const userAddress : address; const tokenIdentifier : tokenIdentifierType; const requestAmount : nat; var s : mvnFaucetStorageType) : mvnFaucetStorageType is
-block {
-
-    s.requesters    := Big_map.update((tokenIdentifier, userAddress), Some(requestAmount), s.requesters);
-
-} with (s)
-
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
@@ -111,19 +98,13 @@ block {
     const tokenAmount : nat                     = requestTokenParams.tokenAmount;
     const userAddress : address                 = requestTokenParams.userAddress;
 
-    // Get user request
-    const userRequest : nat = tokenAmount + getUserPreviousRequest(userAddress, tokenIdentifier, s);
-
     // Check token amount doesn't exceed maximum
     const maxTokenPerUser : nat = case Big_map.find_opt(tokenIdentifier, s.tokens) of [
             Some (_v) -> _v
         |   None      -> 0n
     ];
-    if (userRequest > maxTokenPerUser) then
+    if (tokenAmount > maxTokenPerUser) then
     failwith("TOKEN_REQUEST_EXCEEDS_MAXIMUM_ALLOWED");
-
-    // save user request in the storage
-    s   := saveUserRequest(userAddress, tokenIdentifier, userRequest, s);
 
     // assign params to constants for better code readability
     const from_: address                = Mavryk.get_self_address();
@@ -135,7 +116,7 @@ block {
         transferFa2Token(
             from_,
             userAddress,
-            userRequest,
+            tokenAmount,
             tokenId,
             tokenContractAddress
         )

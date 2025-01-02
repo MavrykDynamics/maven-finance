@@ -71,6 +71,8 @@ describe("Testnet interactions helper", async () => {
     let vaultInstance;
     let vaultFactoryInstance;
     let mavenFa12TokenInstance;
+    let mvnFaucetInstance;
+    let fakeUsdtTokenInstance;
 
     let doormanStorage;
     let delegationStorage;
@@ -148,55 +150,57 @@ describe("Testnet interactions helper", async () => {
             await utils.init(bob.sk);
             tezos = utils.tezos;
             
-            doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
-            delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
-            mvnTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
-            governanceInstance                      = await utils.tezos.contract.at(contractDeployments.governance.address);
-            governanceProxyInstance                 = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
-            emergencyGovernanceInstance             = await utils.tezos.contract.at(contractDeployments.emergencyGovernance.address);
-            breakGlassInstance                      = await utils.tezos.contract.at(contractDeployments.breakGlass.address);
-            councilInstance                         = await utils.tezos.contract.at(contractDeployments.council.address);
-            farmFactoryInstance                     = await utils.tezos.contract.at(contractDeployments.farmFactory.address);
-            vestingInstance                         = await utils.tezos.contract.at(contractDeployments.vesting.address);
-            governanceFinancialInstance             = await utils.tezos.contract.at(contractDeployments.governanceFinancial.address);
-            treasuryFactoryInstance                 = await utils.tezos.contract.at(contractDeployments.treasuryFactory.address);
-            treasuryInstance                        = await utils.tezos.contract.at(contractDeployments.treasury.address);
-            farmInstance                            = await utils.tezos.contract.at(contractDeployments.farm.address);
-            farmMTokenInstance                      = await utils.tezos.contract.at(contractDeployments.farmMToken.address);
-            lpTokenInstance                         = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
-            governanceSatelliteInstance             = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
-            aggregatorInstance                      = await utils.tezos.contract.at(contractDeployments.aggregator.address);
-            aggregatorFactoryInstance               = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
-            lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
-            // lendingControllerMockTimeInstance       = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
-            mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
-            mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
-            vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
-            mavenFa12TokenInstance                 = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
+            // doormanInstance                         = await utils.tezos.contract.at(contractDeployments.doorman.address);
+            // delegationInstance                      = await utils.tezos.contract.at(contractDeployments.delegation.address);
+            // mvnTokenInstance                        = await utils.tezos.contract.at(contractDeployments.mvnToken.address);
+            // governanceInstance                      = await utils.tezos.contract.at(contractDeployments.governance.address);
+            // governanceProxyInstance                 = await utils.tezos.contract.at(contractDeployments.governanceProxy.address);
+            // emergencyGovernanceInstance             = await utils.tezos.contract.at(contractDeployments.emergencyGovernance.address);
+            // breakGlassInstance                      = await utils.tezos.contract.at(contractDeployments.breakGlass.address);
+            // councilInstance                         = await utils.tezos.contract.at(contractDeployments.council.address);
+            // farmFactoryInstance                     = await utils.tezos.contract.at(contractDeployments.farmFactory.address);
+            // vestingInstance                         = await utils.tezos.contract.at(contractDeployments.vesting.address);
+            // governanceFinancialInstance             = await utils.tezos.contract.at(contractDeployments.governanceFinancial.address);
+            // treasuryFactoryInstance                 = await utils.tezos.contract.at(contractDeployments.treasuryFactory.address);
+            // treasuryInstance                        = await utils.tezos.contract.at(contractDeployments.treasury.address);
+            // farmInstance                            = await utils.tezos.contract.at(contractDeployments.farm.address);
+            // farmMTokenInstance                      = await utils.tezos.contract.at(contractDeployments.farmMToken.address);
+            // lpTokenInstance                         = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
+            // governanceSatelliteInstance             = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
+            // aggregatorInstance                      = await utils.tezos.contract.at(contractDeployments.aggregator.address);
+            // aggregatorFactoryInstance               = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
+            // lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
+            // // lendingControllerMockTimeInstance       = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
+            // mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
+            // mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
+            // vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
+            // mavenFa12TokenInstance                  = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
+            mvnFaucetInstance                       = await utils.tezos.contract.at(contractDeployments.mvnFaucet.address);
+            fakeUsdtTokenInstance                   = await utils.tezos.contract.at(contractDeployments.fakeUSDtToken.address);
     
-            doormanStorage                          = await doormanInstance.storage();
-            delegationStorage                       = await delegationInstance.storage();
-            mvnTokenStorage                         = await mvnTokenInstance.storage();
-            governanceStorage                       = await governanceInstance.storage();
-            governanceProxyStorage                  = await governanceProxyInstance.storage();
-            emergencyGovernanceStorage              = await emergencyGovernanceInstance.storage();
-            breakGlassStorage                       = await breakGlassInstance.storage();
-            councilStorage                          = await councilInstance.storage();
-            farmFactoryStorage                      = await farmFactoryInstance.storage();
-            vestingStorage                          = await vestingInstance.storage();
-            governanceFinancialStorage              = await governanceFinancialInstance.storage();
-            treasuryFactoryStorage                  = await treasuryFactoryInstance.storage();
-            treasuryStorage                         = await treasuryInstance.storage();
-            farmStorage                             = await farmInstance.storage();
-            lpTokenStorage                          = await lpTokenInstance.storage();
-            governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
-            aggregatorStorage                       = await aggregatorInstance.storage();
-            aggregatorFactoryStorage                = await aggregatorFactoryInstance.storage();
-            lendingControllerStorage                = await lendingControllerInstance.storage();
-            // lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
-            mTokenEurtStorage                       = await mTokenEurtInstance.storage();
-            vaultFactoryStorage                     = await vaultFactoryInstance.storage();
-            mavenFa12TokenStorage                  = await mavenFa12TokenInstance.storage();
+            // doormanStorage                          = await doormanInstance.storage();
+            // delegationStorage                       = await delegationInstance.storage();
+            // mvnTokenStorage                         = await mvnTokenInstance.storage();
+            // governanceStorage                       = await governanceInstance.storage();
+            // governanceProxyStorage                  = await governanceProxyInstance.storage();
+            // emergencyGovernanceStorage              = await emergencyGovernanceInstance.storage();
+            // breakGlassStorage                       = await breakGlassInstance.storage();
+            // councilStorage                          = await councilInstance.storage();
+            // farmFactoryStorage                      = await farmFactoryInstance.storage();
+            // vestingStorage                          = await vestingInstance.storage();
+            // governanceFinancialStorage              = await governanceFinancialInstance.storage();
+            // treasuryFactoryStorage                  = await treasuryFactoryInstance.storage();
+            // treasuryStorage                         = await treasuryInstance.storage();
+            // farmStorage                             = await farmInstance.storage();
+            // lpTokenStorage                          = await lpTokenInstance.storage();
+            // governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
+            // aggregatorStorage                       = await aggregatorInstance.storage();
+            // aggregatorFactoryStorage                = await aggregatorFactoryInstance.storage();
+            // lendingControllerStorage                = await lendingControllerInstance.storage();
+            // // lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
+            // mTokenEurtStorage                       = await mTokenEurtInstance.storage();
+            // vaultFactoryStorage                     = await vaultFactoryInstance.storage();
+            // mavenFa12TokenStorage                  = await mavenFa12TokenInstance.storage();
     
             console.log('-- -- -- -- -- Testnet Interactions Helper -- -- -- --')
             console.log('Doorman Contract deployed at:'                         , contractDeployments.doorman.address);
@@ -240,6 +244,37 @@ describe("Testnet interactions helper", async () => {
             console.log(e)
         }
     });
+
+    describe("MVN Faucet", async () => {
+
+        beforeEach("Set signer to admin", async () => {
+            await helperFunctions.signerFactory(tezos, bob.sk);
+        });
+
+
+        it('Admin add USDT and MVN as tokens on the faucet', async () => {
+            try{
+                // Operation
+                var operation             = await mvnFaucetInstance.methods.updateToken(MVN(6000), "KT1WdbBw5DXF9fXN378v8VgrPqTsCKu2BPgD", 0).send();
+                await operation.confirmation();
+                operation                 = await mvnFaucetInstance.methods.updateToken(6000000000, "KT1StUZzJ34MhSNjkQMSyvZVrR9ppkHMFdFf", 0).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+
+        it('Admin mints USDT on the faucet', async () => {
+            try{
+                // Operation
+                var operation             = await fakeUsdtTokenInstance.methods.mintOrBurn(mvnFaucetInstance.address, 0, 10000000000).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
 
     describe("MVN TOKEN", async () => {
 

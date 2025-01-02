@@ -229,11 +229,6 @@ describe("MVN Faucet tests", async () => {
                 const tokenAddress          = mvnTokenInstance.address;
                 const tokenId               = 0;
                 const amount                = MVN(1000);
-                const userRequestStartTrace = await mvnFaucetStorage.requesters.get({
-                    0: tokenAddress,
-                    1: tokenId,
-                    2: user
-                });
 
                 // Operation
                 const operation             = await mvnFaucetInstance.methods.requestToken(amount, tokenAddress, tokenId, user).send();
@@ -244,17 +239,9 @@ describe("MVN Faucet tests", async () => {
                 mvnFaucetStorage            = await mvnFaucetInstance.storage();
                 const faucetEndBalance      = await mvnTokenStorage.ledger.get(mvnFaucetInstance.address);
                 const userEndBalance        = await mvnTokenStorage.ledger.get(user);
-                const userRequestEndTrace   = await mvnFaucetStorage.requesters.get({
-                    0: tokenAddress,
-                    1: tokenId,
-                    2: user
-                });
-
                 // Assertions
                 assert.equal(faucetEndBalance.toNumber(), faucetStartBalance.toNumber() - MVN(1000));
                 assert.equal(userEndBalance.toNumber(), userStartBalance.toNumber() + MVN(1000));
-                assert.strictEqual(userRequestStartTrace, undefined);
-                assert.notStrictEqual(userRequestEndTrace, undefined);
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -273,11 +260,6 @@ describe("MVN Faucet tests", async () => {
                 const tokenAddress          = mvnTokenInstance.address;
                 const tokenId               = 0;
                 const amount                = MVN(1000);
-                const userRequestStartTrace = await mvnFaucetStorage.requesters.get({
-                    0: tokenAddress,
-                    1: tokenId,
-                    2: secondUser
-                });
 
                 // Operation
                 const operation             = await mvnFaucetInstance.methods.requestToken(amount, tokenAddress, tokenId, secondUser).send();
@@ -288,17 +270,10 @@ describe("MVN Faucet tests", async () => {
                 mvnFaucetStorage            = await mvnFaucetInstance.storage();
                 const faucetEndBalance      = await mvnTokenStorage.ledger.get(mvnFaucetInstance.address);
                 const userEndBalance        = await mvnTokenStorage.ledger.get(secondUser);
-                const userRequestEndTrace   = await mvnFaucetStorage.requesters.get({
-                    0: tokenAddress,
-                    1: tokenId,
-                    2: secondUser
-                });
 
                 // Assertions
                 assert.equal(faucetEndBalance.toNumber(), faucetStartBalance.toNumber() - MVN(1000));
                 assert.equal(userEndBalance.toNumber(), userStartBalance.toNumber() + MVN(1000));
-                assert.strictEqual(userRequestStartTrace, undefined);
-                assert.notStrictEqual(userRequestEndTrace, undefined);
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -317,18 +292,10 @@ describe("MVN Faucet tests", async () => {
                     0: tokenAddress,
                     1: tokenId
                 });
-                const userRequestStartTrace = await mvnFaucetStorage.requesters.get({
-                    0: tokenAddress,
-                    1: tokenId,
-                    2: user
-                });
+                const amount                = maxAmountPerUser.toNumber() + 1;
 
                 // Operation
-                await chai.expect(mvnFaucetInstance.methods.requestToken(maxAmountPerUser, tokenAddress, tokenId, user).send()).to.be.rejected;
-
-                // Assertions
-                assert.equal(userRequestStartTrace > 0, true);
-                assert.equal(userRequestStartTrace < maxAmountPerUser, true);
+                await chai.expect(mvnFaucetInstance.methods.requestToken(amount, tokenAddress, tokenId, user).send()).to.be.rejected;
 
             } catch(e){
                 console.dir(e, {depth: 5});
