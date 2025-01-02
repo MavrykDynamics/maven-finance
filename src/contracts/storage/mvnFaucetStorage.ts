@@ -24,7 +24,6 @@ export const mvnFaucetStorage: mvnFaucetStorageType = {
     
     admin: bob.pkh,
     metadata: metadata,
-    tokens: MichelsonMap.fromLiteral({}),
-    requesters: MichelsonMap.fromLiteral({}),
+    tokens: MichelsonMap.fromLiteral({})
 
 }
