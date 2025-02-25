@@ -58,8 +58,8 @@ services:
   flexmasa:
     container_name: maven-sandbox
     restart: always
-    image: mavrykdynamics/flexmasa:atlas-update-run
-    command: atlasbox start
+    image: registry.gitlab.com/mavryk-network/flexmasa:boreas-update-run
+    command: boreasbox start
     environment:
       - block_time=3
       - flexmasa_node_cors_origin=*
