@@ -1,6 +1,6 @@
 #!/bin/bash
-MAIN_SANDBOX_V="b1e1def2"
-APPLE_SANDBOX_V="b1e1def2"
+MAIN_SANDBOX_V="3bef3f11"
+APPLE_SANDBOX_V="3bef3f11"
 TZ_NODE_VERSION=$(docker exec -it maven-sandbox mavkit-node --version)
 NODE_BOOTSTRAPPED=$(docker exec -it maven-sandbox mavkit-client bootstrapped)
 echo $TZ_NODE_VERSION

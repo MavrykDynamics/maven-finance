@@ -73,6 +73,92 @@ describe("MVN Faucet tests", async () => {
 
 
 
+    describe('%requestMvrk', function () {
+
+        before('admin (bob) sends MVRK to the faucet', async () => {
+            try{
+                // Admin sends MVN token to the faucet
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                let amount                  = await mvnFaucetStorage.mvrkAmountPerUser;
+                await helperFunctions.signerFactory(tezos, adminSk)
+                var operation                   = await utils.tezos.contract.transfer({ to: mvnFaucetInstance.address, amount: amount.toNumber() * 2, mumav: true});
+                await operation.confirmation()
+
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it('user (eve) should be able to request 6000MVRK from the faucet', async () => {
+
+            try{
+                // Initial values
+                await helperFunctions.signerFactory(tezos, userSk)
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                let mvrkAmountPerUser       = await mvnFaucetStorage.mvrkAmountPerUser;
+                const faucetStartBalance    = await utils.tezos.tz.getBalance(mvnFaucetInstance.address);
+                const userStartBalance      = await utils.tezos.tz.getBalance(user);
+                const userRequestStartTrace = await mvnFaucetStorage.requesters.get({
+                    0: user,
+                    1: {
+                        mvrk: null
+                    }
+                });
+
+                // Operation
+                const operation             = await mvnFaucetInstance.methods.requestMvrk().send();
+                await operation.confirmation();
+
+                // Final values
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const faucetEndBalance      = await utils.tezos.tz.getBalance(mvnFaucetInstance.address);
+                const userEndBalance        = await utils.tezos.tz.getBalance(user);
+                const userRequestEndTrace   = await mvnFaucetStorage.requesters.get({
+                    0: user,
+                    1: {
+                        mvrk: null
+                    }
+                });
+
+                // Assertions
+                assert.equal(faucetEndBalance.toNumber(), faucetStartBalance.toNumber() - mvrkAmountPerUser.toNumber());
+                assert.equal(Math.trunc(userEndBalance.toNumber()/1000000), Math.trunc(userStartBalance.toNumber()/1000000) + Math.trunc(mvrkAmountPerUser.toNumber()/1000000));
+                assert.strictEqual(userRequestStartTrace, undefined);
+                assert.notStrictEqual(userRequestEndTrace, undefined);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('user (eve) should not be able to request MVRK twice', async () => {
+
+            try{
+                // Initial values
+                await helperFunctions.signerFactory(tezos, userSk)
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const userRequestTrace      = await mvnFaucetStorage.requesters.get({
+                    0: user,
+                    1: {
+                        mvrk: null
+                    }
+                });
+
+                // Operation
+                await chai.expect(mvnFaucetInstance.methods.requestMvrk().send()).to.be.rejected;
+
+                // Assertions
+                assert.notStrictEqual(userRequestTrace, undefined);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+    });
+
+
+
     describe('%requestMvn', function () {
 
         before('admin (bob) sends token to the faucet', async () => {

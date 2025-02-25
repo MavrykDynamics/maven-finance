@@ -24,6 +24,7 @@ export const mvnFaucetStorage: mvnFaucetStorageType = {
     mvnTokenAddress: zeroAddress,
     fakeUsdtTokenAddress: zeroAddress,
     metadata: metadata,
+    mvrkAmountPerUser: new BigNumber(1000000000),
     mvnAmountPerUser: new BigNumber(MVN(1000)),
     fakeUsdtAmountPerUser: new BigNumber(1000000000),
     requesters: MichelsonMap.fromLiteral({}),
