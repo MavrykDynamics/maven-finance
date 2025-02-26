@@ -39,6 +39,8 @@ describe("MVN Faucet tests", async () => {
     let admin
     let adminSk
 
+    const zeroAddress = "mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d"
+
     let mvnFaucetInstance
     let mvnTokenInstance
     let usdtTokenInstance
@@ -110,6 +112,32 @@ describe("MVN Faucet tests", async () => {
                 console.dir(e, {depth: 5});
             } 
         });
+
+        it('admin (bob) should be able to add MVRK in the faucet', async () => {
+            try{
+                // Admin adds mvrk to the faucet
+                await helperFunctions.signerFactory(tezos, adminSk)
+                const maxAmountPerUser      = 100000000;
+                const tokenAddress          = zeroAddress;
+                const tokenId               = 0;
+                const initFaucetBalance     = await utils.tezos.tz.getBalance(mvnFaucetInstance.address);
+
+                // Operation
+                var operation                   = await mvnFaucetInstance.methods.updateToken(maxAmountPerUser, tokenAddress, tokenId).send();
+                await operation.confirmation();
+
+                // Admin sends MVN token to the faucet
+                operation                       = await utils.tezos.contract.transfer({ to: mvnFaucetInstance.address, amount: maxAmountPerUser * 2, mumav: true});
+                await operation.confirmation()
+
+                // Final values
+                const finalFaucetBalance     = await utils.tezos.tz.getBalance(mvnFaucetInstance.address);
+                assert.strictEqual(finalFaucetBalance.toNumber(), initFaucetBalance.toNumber() + maxAmountPerUser * 2);
+
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        })
 
         it('admin (bob) should be able to update a token max amount in the faucet', async () => {
             try{
@@ -274,6 +302,66 @@ describe("MVN Faucet tests", async () => {
                 // Assertions
                 assert.equal(faucetEndBalance.toNumber(), faucetStartBalance.toNumber() - MVN(1000));
                 assert.equal(userEndBalance.toNumber(), userStartBalance.toNumber() + MVN(1000));
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('user (eve) should be able to request mvrk from the faucet for herself', async () => {
+
+            try{
+                // Initial values
+                await helperFunctions.signerFactory(tezos, userSk)
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const faucetStartBalance    = await utils.tezos.tz.getBalance(mvnFaucetInstance.address);
+                const userStartBalance      = await utils.tezos.tz.getBalance(user);
+                const tokenAddress          = zeroAddress;
+                const tokenId               = 0;
+                const amount                = 50000000;
+
+                // Operation
+                const operation             = await mvnFaucetInstance.methods.requestToken(amount, tokenAddress, tokenId, user).send();
+                await operation.confirmation();
+
+                // Final values
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const faucetEndBalance      = await utils.tezos.tz.getBalance(mvnFaucetInstance.address);
+                const userEndBalance        = await utils.tezos.tz.getBalance(user);
+
+                // Assertions
+                assert.equal(Math.trunc(faucetEndBalance.toNumber() / 1000000), Math.trunc(faucetStartBalance.toNumber() / 1000000) - Math.trunc(amount / 1000000));
+                assert.equal(Math.trunc(userEndBalance.toNumber() / 1000000), Math.trunc(userStartBalance.toNumber() / 1000000) + Math.trunc(amount / 1000000));
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('user (eve) should be able to request mvrk from the faucet for another user', async () => {
+
+            try{
+                // Initial values
+                await helperFunctions.signerFactory(tezos, userSk)
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const faucetStartBalance    = await utils.tezos.tz.getBalance(mvnFaucetInstance.address);
+                const userStartBalance      = await utils.tezos.tz.getBalance(secondUser);
+                const tokenAddress          = zeroAddress;
+                const tokenId               = 0;
+                const amount                = 50000000
+
+                // Operation
+                const operation             = await mvnFaucetInstance.methods.requestToken(amount, tokenAddress, tokenId, secondUser).send();
+                await operation.confirmation();
+
+                // Final values
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const faucetEndBalance      = await utils.tezos.tz.getBalance(mvnFaucetInstance.address);
+                const userEndBalance        = await utils.tezos.tz.getBalance(secondUser);
+
+                // Assertions
+                assert.equal(faucetEndBalance.toNumber(), faucetStartBalance.toNumber() - amount);
+                assert.equal(userEndBalance.toNumber(), userStartBalance.toNumber() + amount);
 
             } catch(e){
                 console.dir(e, {depth: 5});

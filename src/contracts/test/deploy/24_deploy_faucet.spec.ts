@@ -45,8 +45,6 @@ describe('MVN Faucet', async () => {
       // Originate and deploy contracts
       //----------------------------
   
-      mvnFaucetStorage.mvnTokenAddress  = contractDeployments.mvnToken.address
-      mvnFaucetStorage.fakeUsdtTokenAddress = contractDeployments.fakeUSDtToken.address
       mvnFaucet = await GeneralContract.originate(utils.tezos, "mvnFaucet", mvnFaucetStorage);
   
       await saveContractAddress('mvnFaucetAddress', mvnFaucet.contract.address)
