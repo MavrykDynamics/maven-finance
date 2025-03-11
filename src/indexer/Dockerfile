@@ -1,6 +1,6 @@
 FROM python:3.11.6-slim
 
-RUN pip install poetry
+RUN pip install poetry==1.8.4
 
 WORKDIR /maven
 COPY src/indexer/poetry.lock src/indexer/pyproject.toml /maven/
@@ -8,7 +8,7 @@ COPY src/indexer/dipdup.yml /maven/
 COPY src/indexer/dipdup.contract.yml /maven/
 COPY src/indexer/dipdup.prod.yml /maven/
 
-RUN poetry config virtualenvs.create false && poetry install --no-dev
+RUN poetry config virtualenvs.create false && poetry install --only main
 
 ADD src/indexer/maven /maven/maven/
 

@@ -134,10 +134,10 @@ async def origination(
         #     )
         # )
         # await ctx.add_index(
-        #     name="m_token_tzbtc",
+        #     name="m_token_wbtc",
         #     template="m_token_template",
         #     values=dict(
-        #         m_token_contract="m_token_tzbtc"
+        #         m_token_contract="m_token_wbtc"
         #     )
         # )
         await ctx.add_index(
@@ -156,7 +156,7 @@ async def origination(
                 governance_contract="governance",
                 governance_proxy_contract="governance_proxy",
                 mvn_token_contract="mvn_token",
-                mvn_faucet_contract="mvn_faucet",
+                # mvn_faucet_contract="mvn_faucet",
                 doorman_contract="doorman",
                 farm_factory_contract="farm_factory",
                 delegation_contract="delegation",
@@ -173,19 +173,6 @@ async def origination(
                 # lending_controller_mock_time_contract="lending_controller_mock_time"
             )
         )
-
-        # Start Liquidity Baking indexer
-        # liquidity_baking_enable_indexer = os.getenv("LIQUIDITY_BAKING_ENABLE_INDEXER")
-        # if str(liquidity_baking_enable_indexer).upper() == "TRUE":
-        #     await ctx.add_index(
-        #         name="liquidity_baking",
-        #         template="liquidity_baking_template",
-        #         values=dict(
-        #             liquidity_baking_contract="liquidity_baking",
-        #             sirius_contract="sirius",
-        #             tzbtc_contract="tzbtc"
-        #         )
-        #     )
 
     except BaseException as e:
         await save_error_report(e)
