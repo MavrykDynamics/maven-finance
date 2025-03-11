@@ -4,5 +4,5 @@ export type vaultStorageType = {
     admin                       : string;
     handle                      : {};
     name                        : string;
-    depositors                  : depositorsType;
+    depositors                  : {};
 }

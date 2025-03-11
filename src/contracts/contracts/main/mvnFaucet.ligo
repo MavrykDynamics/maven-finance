@@ -23,6 +23,7 @@ type action is
         Default         of unit
             
         // Housekeeping Entrypoints
+    |   SetAdmin        of setAdminType
     |   UpdateToken     of updateTokenType
     |   RemoveToken     of removeTokenType
 
@@ -68,12 +69,23 @@ const zeroAddress : address = "mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d";
 //
 // ------------------------------------------------------------------------------
 
+(* setAdmin entrypoint *)
+function setAdmin(const setAdminParams : setAdminType; var s : mvnFaucetStorageType) : return is
+block {
+    // entrypoints should not receive any mav amount
+    verifyNoAmountSent(Unit);
+    verifySenderIsAdmin(s.admin);
+
+    // Update admin
+    s.admin := setAdminParams;
+
+} with (noOperations, s)
+
 (* updateToken entrypoint *)
 function updateToken(const updateTokenParams : updateTokenType; var s : mvnFaucetStorageType) : return is
 block {
     // entrypoints should not receive any mav amount  
     verifyNoAmountSent(Unit);
-
     verifySenderIsAdmin(s.admin);
 
     // Update token record
@@ -86,7 +98,6 @@ function removeToken(const removeTokenParams : tokenIdentifierType; var s : mvnF
 block {
     // entrypoints should not receive any mav amount  
     verifyNoAmountSent(Unit);
-
     verifySenderIsAdmin(s.admin);
 
     // Remove token record
@@ -100,19 +111,24 @@ block {
 
     // entrypoints should not receive any mav amount  
     verifyNoAmountSent(Unit);
+    verifySenderIsAdmin(s.admin);
 
     // Parse parameters
     const tokenIdentifier : tokenIdentifierType = requestTokenParams.tokenIdentifier;
-    const tokenAmount : nat                     = requestTokenParams.tokenAmount;
-    const userAddress : address                 = requestTokenParams.userAddress;
-
-    // Check token amount doesn't exceed maximum
+    const userAddress : address = requestTokenParams.userAddress;
     const maxTokenPerUser : nat = case Big_map.find_opt(tokenIdentifier, s.tokens) of [
             Some (_v) -> _v
-        |   None      -> 0n
+        |   None      -> failwith("ERROR_TOKEN_NOT_FOUND")
     ];
-    if (tokenAmount > maxTokenPerUser) then
-    failwith("TOKEN_REQUEST_EXCEEDS_MAXIMUM_ALLOWED");
+
+    // Only admin can claim multiple time
+    if userAddress =/= s.admin then {
+        // Check user request
+        case Big_map.find_opt((userAddress, tokenIdentifier), s.userRequests) of [
+                Some (_v) -> failwith("ERROR_USER_ALREADY_CLAIMED_TOKEN")
+            |   None      -> s.userRequests := Big_map.update((userAddress, tokenIdentifier), Some(unit), s.userRequests)
+        ];
+    };
 
     // assign params to constants for better code readability
     const from_: address                = Mavryk.get_self_address();
@@ -124,25 +140,25 @@ block {
     if tokenContractAddress = zeroAddress then{
         // Check balance
         const selfBalance: nat = Mavryk.get_balance() / 1mumav;
-        if selfBalance < tokenAmount then failwith ("ERROR_MVRK_BALANCE_TOO_LOW");
+        if selfBalance < maxTokenPerUser then failwith ("ERROR_MVRK_BALANCE_TOO_LOW");
 
         // create tx
-        operations := Mavryk.transaction(unit, tokenAmount * 1mumav, (Mavryk.get_contract_with_error(userAddress, "ERROR_CONTRACT_NOT_FOUND") : contract(unit))) # operations;
+        operations := Mavryk.transaction(unit, maxTokenPerUser * 1mumav, (Mavryk.get_contract_with_error(userAddress, "ERROR_CONTRACT_NOT_FOUND") : contract(unit))) # operations;
     }
     else{
         // Check balance
         const balanceView : option (nat) = Mavryk.call_view ("get_balance", (Mavryk.get_self_address(), 0n), tokenContractAddress);
         const selfBalance: nat = case balanceView of [
                 Some (value) -> value
-            |   None         -> tokenAmount
+            |   None         -> maxTokenPerUser
         ];
-        if selfBalance < tokenAmount then failwith ("ERROR_MVN_BALANCE_TOO_LOW");
+        if selfBalance < maxTokenPerUser then failwith ("ERROR_TOKEN_BALANCE_TOO_LOW");
 
         // create tx
         operations := transferFa2Token(
             from_,
             userAddress,
-            tokenAmount,
+            maxTokenPerUser,
             tokenId,
             tokenContractAddress
         ) # operations;
@@ -166,6 +182,7 @@ function main (const action : action; const s : mvnFaucetStorageType) : return i
             Default(_parameters)                -> ((nil : list(operation)), s)
             
             // Housekeeping Entrypoints
+        |   SetAdmin (params)                  -> setAdmin(params, s)
         |   UpdateToken (params)               -> updateToken(params, s)
         |   RemoveToken (params)               -> removeToken(params, s)
 
