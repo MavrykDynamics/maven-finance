@@ -8,7 +8,7 @@ import { mockTokenData } from 'test/helpers/mockSampleData'
 
 export const mvnTokenDecimals = 9
 
-const totalSupply       = MVN(2200000)
+const totalSupply       = MVN(100000000)
 const maximumSupply     = MVN(10**9)
 const initialSupply     = new BigNumber(totalSupply)        // 2,200,000 MVN Tokens (1e9)
 const singleUserSupply  = new BigNumber(totalSupply / 11)   // 200,000 MVN Tokens (1e9)
@@ -16,17 +16,7 @@ const singleUserSupply  = new BigNumber(totalSupply / 11)   // 200,000 MVN Token
 const metadata = mockTokenData.mvnToken.metadata
 
 export const ledger = MichelsonMap.fromLiteral({
-    [bob.pkh]       : singleUserSupply,
-    [alice.pkh]     : singleUserSupply,
-    [eve.pkh]       : singleUserSupply,
-    [mallory.pkh]   : singleUserSupply,
-    [oscar.pkh]     : singleUserSupply,
-    [trudy.pkh]     : singleUserSupply,
-    [susie.pkh]     : singleUserSupply,
-    [david.pkh]     : singleUserSupply,
-    [ivan.pkh]      : singleUserSupply,
-    [isaac.pkh]     : singleUserSupply,
-    [baker.pkh]     : singleUserSupply
+    [bob.pkh]       : totalSupply
 })
 
 const token_metadata = MichelsonMap.fromLiteral({

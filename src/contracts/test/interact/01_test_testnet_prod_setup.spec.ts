@@ -45,14 +45,10 @@ describe("Testnet setup helper", async () => {
     let vestingInstance;
     let governanceFinancialInstance;
     let treasuryFactoryInstance;
-    let treasuryInstance;
-    let farmInstance;
     let lpTokenInstance;
     let governanceSatelliteInstance;
-    let aggregatorInstance;
     let aggregatorFactoryInstance;
     let lendingControllerInstance;
-    let lendingControllerMockTimeInstance;
     let vaultInstance;
     let vaultFactoryInstance;
     let mavenFa12TokenInstance;
@@ -70,14 +66,10 @@ describe("Testnet setup helper", async () => {
     let vestingStorage;
     let governanceFinancialStorage;
     let treasuryFactoryStorage;
-    let treasuryStorage;
-    let farmStorage;
     let lpTokenStorage;
     let governanceSatelliteStorage;
-    let aggregatorStorage;
     let aggregatorFactoryStorage;
     let lendingControllerStorage;
-    let lendingControllerMockTimeStorage;
     let vaultStorage;
     let vaultFactoryStorage;
     let mavenFa12TokenStorage;
@@ -104,14 +96,10 @@ describe("Testnet setup helper", async () => {
             vestingInstance                         = await utils.tezos.contract.at(contractDeployments.vesting.address);
             governanceFinancialInstance             = await utils.tezos.contract.at(contractDeployments.governanceFinancial.address);
             treasuryFactoryInstance                 = await utils.tezos.contract.at(contractDeployments.treasuryFactory.address);
-            treasuryInstance                        = await utils.tezos.contract.at(contractDeployments.treasury.address);
-            farmInstance                            = await utils.tezos.contract.at(contractDeployments.farm.address);
             lpTokenInstance                         = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
             governanceSatelliteInstance             = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
-            aggregatorInstance                      = await utils.tezos.contract.at(contractDeployments.aggregator.address);
             aggregatorFactoryInstance               = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
             lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
-            lendingControllerMockTimeInstance       = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
             mavenFa12TokenInstance                  = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
     
@@ -128,14 +116,10 @@ describe("Testnet setup helper", async () => {
             vestingStorage                          = await vestingInstance.storage();
             governanceFinancialStorage              = await governanceFinancialInstance.storage();
             treasuryFactoryStorage                  = await treasuryFactoryInstance.storage();
-            treasuryStorage                         = await treasuryInstance.storage();
-            farmStorage                             = await farmInstance.storage();
             lpTokenStorage                          = await lpTokenInstance.storage();
             governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
-            aggregatorStorage                       = await aggregatorInstance.storage();
             aggregatorFactoryStorage                = await aggregatorFactoryInstance.storage();
             lendingControllerStorage                = await lendingControllerInstance.storage();
-            lendingControllerMockTimeStorage        = await lendingControllerMockTimeInstance.storage();
             vaultFactoryStorage                     = await vaultFactoryInstance.storage();
             mavenFa12TokenStorage                  = await mavenFa12TokenInstance.storage();
     
@@ -149,8 +133,6 @@ describe("Testnet setup helper", async () => {
             console.log('Vesting Contract deployed at:'                         , contractDeployments.vesting.address);
             console.log('Governance Financial Contract deployed at:'            , contractDeployments.governanceFinancial.address);
             console.log('Treasury Factory Contract deployed at:'                , contractDeployments.treasuryFactory.address);
-            console.log('Treasury Contract deployed at:'                        , contractDeployments.treasury.address);
-            console.log('Farm Contract deployed at:'                            , contractDeployments.farm.address);
             console.log('LP Token Contract deployed at:'                        , contractDeployments.mavenFa12Token.address);
             console.log('Governance Satellite Contract deployed at:'            , contractDeployments.governanceSatellite.address);
             console.log('Aggregator Contract deployed at:'                      , contractDeployments.aggregator.address);
@@ -171,96 +153,36 @@ describe("Testnet setup helper", async () => {
             await helperFunctions.signerFactory(tezos, bob.sk);
         });
 
-        it('Faucet gets all MVN & Fake Tether', async () => {
-            try{
-                for(let accountName in accounts){
-                    let account = accounts[accountName];
-
-                    // MVN Transfer
-                    if(mvnLedger.has(account.pkh)){
-                        let balance = await mvnTokenStorage.ledger.get(account.pkh);
-                        if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== mvnFaucetAddress){
-                            // Transfer all funds to bob
-                            await helperFunctions.signerFactory(tezos, account.sk);
-                            console.log("account:", account)
-                            console.log("balance:", balance)
-                            let operation = await mvnTokenInstance.methods.transfer([
-                                {
-                                    from_: account.pkh,
-                                    txs: [
-                                    {
-                                        to_: mvnFaucetAddress,
-                                        token_id: 0,
-                                        amount: balance.toNumber(),
-                                    }
-                                    ],
-                                },
-                                ])
-                                .send()
-                            await operation.confirmation();
-                        }
-                    }
-
-                    // FakeUSDt Transfer
-                    if(fakeUsdtLedger.has(account.pkh)){
-                        let balance = await fakeUSDTTokenStorage.ledger.get(account.pkh);
-                        if(balance !== undefined && balance.toNumber() > 0 && account.pkh !== mvnFaucetAddress){
-                            // Transfer all funds to bob
-                            await helperFunctions.signerFactory(tezos, account.sk);
-                            console.log("account:", account)
-                            console.log("balance:", balance)
-                            let operation = await fakeUSDTTokenInstance.methods.transfer([
-                                {
-                                    from_: account.pkh,
-                                    txs: [
-                                    {
-                                        to_: mvnFaucetAddress,
-                                        token_id: 0,
-                                        amount: balance.toNumber(),
-                                    }
-                                    ],
-                                },
-                                ])
-                                .send()
-                            await operation.confirmation();
-                        }
-                    }
-                }
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin sets admin and whitelist of all contracts', async () => {
             try{
                 // Set general contracts admin
                 governanceStorage             = await governanceInstance.storage();
-                var generalContracts          = [
-                    contractDeployments.aggregatorFactory.address,
-                    contractDeployments.breakGlass.address,
-                    contractDeployments.council.address,
-                    contractDeployments.delegation.address,
-                    contractDeployments.doorman.address,
-                    contractDeployments.emergencyGovernance.address,
-                    contractDeployments.farmFactory.address,
-                    contractDeployments.vesting.address,
-                    contractDeployments.treasuryFactory.address,
-                    contractDeployments.lendingController.address,
-                    contractDeployments.vaultFactory.address,
-                    contractDeployments.governance.address,
-                ]
+                // var generalContracts          = [
+                //     contractDeployments.aggregatorFactory.address,
+                //     contractDeployments.breakGlass.address,
+                //     contractDeployments.council.address,
+                //     contractDeployments.delegation.address,
+                //     contractDeployments.doorman.address,
+                //     contractDeployments.emergencyGovernance.address,
+                //     contractDeployments.farmFactory.address,
+                //     contractDeployments.vesting.address,
+                //     contractDeployments.treasuryFactory.address,
+                //     contractDeployments.lendingController.address,
+                //     contractDeployments.vaultFactory.address,
+                //     contractDeployments.governance.address,
+                // ]
                 
-                for (let entry of generalContracts){
-                    // Get contract storage
-                    var contract        = await utils.tezos.contract.at(entry);
-                    var storage:any     = await contract.storage();
+                // for (let entry of generalContracts){
+                //     // Get contract storage
+                //     var contract        = await utils.tezos.contract.at(entry);
+                //     var storage:any     = await contract.storage();
 
-                    // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
-                }
+                //     // Check admin
+                //     if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                //         var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                //         await setAdminOperation.confirmation()
+                //     }
+                // }
 
                 // Set farm contracts admin
                 farmFactoryStorage              = await farmFactoryInstance.storage();
@@ -283,10 +205,10 @@ describe("Testnet setup helper", async () => {
                     }
 
                     // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
+                    // if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                    //     var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                    //     await setAdminOperation.confirmation()
+                    // }
                 }
 
                 // Set treasury contracts admin
@@ -310,10 +232,10 @@ describe("Testnet setup helper", async () => {
                     }
 
                     // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
+                    // if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                    //     var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                    //     await setAdminOperation.confirmation()
+                    // }
                 }
 
                 // Set aggregator contracts admin
@@ -337,21 +259,21 @@ describe("Testnet setup helper", async () => {
                     }
 
                     // Check admin
-                    if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                        await setAdminOperation.confirmation()
-                    }
+                    // if(storage.hasOwnProperty('admin') && storage.admin!==contractDeployments.governanceProxy.address){
+                    //     var setAdminOperation   = await contract.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                    //     await setAdminOperation.confirmation()
+                    // }
                 }
 
                 // Set governance proxy admin, governance admin and mvnToken admin
-                setAdminOperation   = await governanceProxyInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                await setAdminOperation.confirmation()
-
-                // setAdminOperation   = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                // setAdminOperation   = await governanceProxyInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
                 // await setAdminOperation.confirmation()
+
+                // // setAdminOperation   = await governanceInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                // // await setAdminOperation.confirmation()
                 
-                setAdminOperation   = await mvnTokenInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
-                await setAdminOperation.confirmation()
+                // setAdminOperation   = await mvnTokenInstance.methods.setAdmin(contractDeployments.governanceProxy.address).send();
+                // await setAdminOperation.confirmation()
                 
             } catch(e){
                 console.dir(e, {depth: 5})

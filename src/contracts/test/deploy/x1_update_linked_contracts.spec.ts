@@ -50,16 +50,16 @@ describe('Linked contracts updates for Tests', async () => {
             const governanceSatelliteInstance: any          = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
             const breakGlassInstance: any                   = await utils.tezos.contract.at(contractDeployments.breakGlass.address);
             const vestingInstance: any                      = await utils.tezos.contract.at(contractDeployments.vesting.address);
-            const treasuryInstance: any                     = await utils.tezos.contract.at(contractDeployments.treasury.address);
+            // const treasuryInstance: any                     = await utils.tezos.contract.at(contractDeployments.treasury.address);
             const farmFactoryInstance: any                  = await utils.tezos.contract.at(contractDeployments.farmFactory.address);
             const treasuryFactoryInstance: any              = await utils.tezos.contract.at(contractDeployments.treasuryFactory.address);
-            const farmInstance: any                         = await utils.tezos.contract.at(contractDeployments.farm.address);
-            const farmFa2Instance: any                      = await utils.tezos.contract.at(contractDeployments.farmFa2.address);
-            const aggregatorInstance: any                   = await utils.tezos.contract.at(contractDeployments.aggregator.address);
+            // const farmInstance: any                         = await utils.tezos.contract.at(contractDeployments.farm.address);
+            // const farmFa2Instance: any                      = await utils.tezos.contract.at(contractDeployments.farmFa2.address);
+            // const aggregatorInstance: any                   = await utils.tezos.contract.at(contractDeployments.aggregator.address);
             const aggregatorFactoryInstance: any            = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
             // const lendingControllerInstance: any            = await utils.tezos.contract.at(contractDeployments.lendingController.address);
             // const lendingControllerMockTimeInstance: any    = await utils.tezos.contract.at(contractDeployments.lendingControllerMockTime.address);
-            const vaultFactoryInstance: any                 = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
+            // const vaultFactoryInstance: any                 = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
 
             //----------------------------
             // Set remaining contract addresses - post-deployment
@@ -97,15 +97,15 @@ describe('Linked contracts updates for Tests', async () => {
             console.log('Aggregator Factory Contract - set whitelist contract addresses [governanceSatellite]')
 
             // Aggregator Contract - set whitelist contract addresses [aggregatorFactory]
-            const aggregatorContractsBatch = await utils.tezos.wallet
-            .batch()
-            .withContractCall(aggregatorInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address, 'update'))
-            .withContractCall(aggregatorInstance.methods.updateWhitelistContracts(contractDeployments.governanceSatellite.address, 'update'))
+            // const aggregatorContractsBatch = await utils.tezos.wallet
+            // .batch()
+            // .withContractCall(aggregatorInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address, 'update'))
+            // .withContractCall(aggregatorInstance.methods.updateWhitelistContracts(contractDeployments.governanceSatellite.address, 'update'))
             
-            const aggregatorContractsBatchOperation = await aggregatorContractsBatch.send()
-            await aggregatorContractsBatchOperation.confirmation();
+            // const aggregatorContractsBatchOperation = await aggregatorContractsBatch.send()
+            // await aggregatorContractsBatchOperation.confirmation();
             
-            console.log('Aggregator Contract - set whitelist contract addresses [aggregatorFactory, governanceSatellite]')
+            // console.log('Aggregator Contract - set whitelist contract addresses [aggregatorFactory, governanceSatellite]')
 
             // MVN Token Contract - set governance contract address
             // MVN Token Contract - set whitelist contract addresses [doorman, vesting, treasury]
@@ -128,15 +128,15 @@ describe('Linked contracts updates for Tests', async () => {
             // Farm FA12 Contract - set whitelist contract addresses [council] 
             // Farm FA2 Contract - set general contract addresses [doorman]
             // Farm FA2 Contract - set whitelist contract addresses [council]
-            const farmContractsBatch = await utils.tezos.wallet
-                .batch()
-                .withContractCall(farmInstance.methods.updateWhitelistContracts(contractDeployments.council.address, 'update'))
-                .withContractCall(farmFa2Instance.methods.updateWhitelistContracts(contractDeployments.council.address, 'update'))
-            const farmContractsBatchOperation = await farmContractsBatch.send()
-            await farmContractsBatchOperation.confirmation();
+            // const farmContractsBatch = await utils.tezos.wallet
+            //     .batch()
+            //     .withContractCall(farmInstance.methods.updateWhitelistContracts(contractDeployments.council.address, 'update'))
+            //     .withContractCall(farmFa2Instance.methods.updateWhitelistContracts(contractDeployments.council.address, 'update'))
+            // const farmContractsBatchOperation = await farmContractsBatch.send()
+            // await farmContractsBatchOperation.confirmation();
         
-            console.log('Farm FA12 Contract - set whitelist contract addresses [council]')
-            console.log('Farm FA2 Contract - set whitelist contract addresses [council]')
+            // console.log('Farm FA12 Contract - set whitelist contract addresses [council]')
+            // console.log('Farm FA2 Contract - set whitelist contract addresses [council]')
             
         
         
@@ -223,25 +223,25 @@ describe('Linked contracts updates for Tests', async () => {
 
             // Treasury Contract - set whitelist contract addresses map [council, aggregatorFactory]
             // Treasury Contract - set whitelist token contract addresses map [mavenFa12, mavenFA2, MVN]
-            const treasuryContractsBatch = await utils.tezos.wallet
-            .batch()
+            // const treasuryContractsBatch = await utils.tezos.wallet
+            // .batch()
         
-            // whitelist contracts
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governanceProxy.address,        'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address,      'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.treasuryFactory.address,        'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.doorman.address,                'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.delegation.address,             'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governanceFinancial.address,    'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governance.address,             'update'))
+            // // whitelist contracts
+            // .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governanceProxy.address,        'update'))
+            // .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.aggregatorFactory.address,      'update'))
+            // .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.treasuryFactory.address,        'update'))
+            // .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.doorman.address,                'update'))
+            // .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.delegation.address,             'update'))
+            // .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governanceFinancial.address,    'update'))
+            // .withContractCall(treasuryInstance.methods.updateWhitelistContracts(contractDeployments.governance.address,             'update'))
         
-            // whitelist token contracts
-            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavenFa2Token.address,    'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavenFa12Token.address,   'update'))
-            .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvnToken.address,          'update'))
+            // // whitelist token contracts
+            // .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavenFa2Token.address,    'update'))
+            // .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mavenFa12Token.address,   'update'))
+            // .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvnToken.address,          'update'))
         
-            const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
-            await treasuryContractsBatchOperation.confirmation();
+            // const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
+            // await treasuryContractsBatchOperation.confirmation();
             
             console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy, aggregatorFactory, treasuryFactory]')
             console.log('Treasury Contract - set whitelist token contract addresses map [MavenFA12, MavenFA2, MVN]')

@@ -105,35 +105,24 @@ describe('Oracle Setup', async () => {
                     'ascii',
                 ).toString('hex')
 
-                const oceanUsdMetadata = Buffer.from(
-                    JSON.stringify({
-                        name: 'OCEAN/USD Aggregator Contract',
-                        icon: 'https://infura-ipfs.io/ipfs/QmVvUnYu7jfKFR6KDVhPbPXC89tYCCajDvDHuYgPdH6unK',
-                        version: 'v1.0.0',
-                        authors: ['Equiteez <info@mavryk.io>'],
-                        category: 'rwa'
-                    }),
-                    'ascii',
-                ).toString('hex')
-
-                const mars1UsdMetadata = Buffer.from(
-                    JSON.stringify({
-                        name: 'MARS1/USD Aggregator Contract',
-                        icon: 'https://cloudflare-ipfs.com/ipfs/QmdkDb6KnboFNknuyK72eFdM1qKgetYZegBoQkcjDYhG5k',
-                        version: 'v1.0.0',
-                        authors: ['Equiteez <info@mavryk.io>'],
-                        category: 'rwa'
-                    }),
-                    'ascii',
-                ).toString('hex')
-
-                // const eurtUsdMetadata = Buffer.from(
+                // const oceanUsdMetadata = Buffer.from(
                 //     JSON.stringify({
-                //         name: 'EURT/USD Aggregator Contract',
-                //         icon: 'https://www.circle.com/hubfs/euro-coin-lockup-sm.svg',
+                //         name: 'OCEAN/USD Aggregator Contract',
+                //         icon: 'https://infura-ipfs.io/ipfs/QmVvUnYu7jfKFR6KDVhPbPXC89tYCCajDvDHuYgPdH6unK',
                 //         version: 'v1.0.0',
-                //         authors: ['Maven Dev Team <info@mavryk.io>'],
-                //         category: 'stablecoin'
+                //         authors: ['Equiteez <info@mavryk.io>'],
+                //         category: 'rwa'
+                //     }),
+                //     'ascii',
+                // ).toString('hex')
+
+                // const mars1UsdMetadata = Buffer.from(
+                //     JSON.stringify({
+                //         name: 'MARS1/USD Aggregator Contract',
+                //         icon: 'https://cloudflare-ipfs.com/ipfs/QmdkDb6KnboFNknuyK72eFdM1qKgetYZegBoQkcjDYhG5k',
+                //         version: 'v1.0.0',
+                //         authors: ['Equiteez <info@mavryk.io>'],
+                //         category: 'rwa'
                 //     }),
                 //     'ascii',
                 // ).toString('hex')
@@ -197,52 +186,14 @@ describe('Oracle Setup', async () => {
                         usdtUsdMetadata               // metadata bytes
                         
                     ))
-                    .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-        
-                        'OCEAN/USD',
-                        true,
-                        
-                        oracleMap,
-
-                        new BigNumber(3),             // decimals
-                        new BigNumber(2),             // alphaPercentPerThousand
-                        
-                        new BigNumber(60),            // percentOracleThreshold
-                        new BigNumber(300),           // heartbeatSeconds
-
-                        new BigNumber(10000000),      // rewardAmountStakedMvn
-                        new BigNumber(1300),          // rewardAmountMvrk
-                        
-                        oceanUsdMetadata               // metadata bytes
-                        
-                    ))
-                    .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
-        
-                        'MARS1/USD',
-                        true,
-                        
-                        oracleMap,
-
-                        new BigNumber(3),             // decimals
-                        new BigNumber(2),             // alphaPercentPerThousand
-                        
-                        new BigNumber(60),            // percentOracleThreshold
-                        new BigNumber(300),           // heartbeatSeconds
-
-                        new BigNumber(10000000),      // rewardAmountStakedMvn
-                        new BigNumber(1300),          // rewardAmountMvrk
-                        
-                        mars1UsdMetadata               // metadata bytes
-                        
-                    ))
                     // .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
         
-                    //     'EURT/USD',
+                    //     'OCEAN/USD',
                     //     true,
                         
                     //     oracleMap,
-        
-                    //     new BigNumber(6),             // decimals
+
+                    //     new BigNumber(3),             // decimals
                     //     new BigNumber(2),             // alphaPercentPerThousand
                         
                     //     new BigNumber(60),            // percentOracleThreshold
@@ -251,7 +202,26 @@ describe('Oracle Setup', async () => {
                     //     new BigNumber(10000000),      // rewardAmountStakedMvn
                     //     new BigNumber(1300),          // rewardAmountMvrk
                         
-                    //     eurtUsdMetadata              // metadata
+                    //     oceanUsdMetadata               // metadata bytes
+                        
+                    // ))
+                    // .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
+        
+                    //     'MARS1/USD',
+                    //     true,
+                        
+                    //     oracleMap,
+
+                    //     new BigNumber(3),             // decimals
+                    //     new BigNumber(2),             // alphaPercentPerThousand
+                        
+                    //     new BigNumber(60),            // percentOracleThreshold
+                    //     new BigNumber(300),           // heartbeatSeconds
+
+                    //     new BigNumber(10000000),      // rewardAmountStakedMvn
+                    //     new BigNumber(1300),          // rewardAmountMvrk
+                        
+                    //     mars1UsdMetadata               // metadata bytes
                         
                     // ))
         
