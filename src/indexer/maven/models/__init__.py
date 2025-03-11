@@ -18,9 +18,8 @@ from maven.models.governance_proxy import *
 from maven.models.governance_satellite import *
 from maven.models.governance import *
 from maven.models.lending_controller import *
-from maven.models.liquidity_baking import *
 from maven.models.mvn_token import *
-from maven.models.mvn_faucet import *
+# from maven.models.mvn_faucet import *
 from maven.models.m_token import *
 from maven.models.shared import *
 from maven.models.treasury_factory import *
