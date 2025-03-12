@@ -303,6 +303,7 @@ for contract_test in "${CONTRACTS_DEPLOY_ARRAY[@]}"; do
             COMMANDS+=("yarn ts-mocha --paths test/deploy/24_deploy_vault_factory.spec.ts --bail --timeout 9000000 --exit")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 9000000 --exit")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/x3_oracle_setup.spec.ts --bail --timeout 9000000 --exit")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/25_deploy_faucet.spec.ts --bail --timeout 9000000 --exit")
             ;;
         *)
             echo "Unknown contract test: $contract_test"

@@ -186,7 +186,7 @@ describe("Testnet setup helper", async () => {
                 .send()
             await operation.confirmation();
             
-            operation = await utils.tezos.contract.transfer({ to: susie.pkh, amount: 1000000, mumav: false});
+            var operation = await utils.tezos.contract.transfer({ to: susie.pkh, amount: 1000000, mumav: false});
             await operation.confirmation();
             
             operation = await utils.tezos.contract.transfer({ to: eve.pkh, amount: 1000000, mumav: false});
@@ -366,7 +366,7 @@ describe("Testnet setup helper", async () => {
                     10000,
 
                     "fa2",
-                    "KT1A5hFGc8uGQLZhkpSgTieDd1jEReZkZ65i",
+                    contractDeployments.fakeUSDtToken.address,
                     0
                 ).send();
                 await setLoanTokenOperation.confirmation();
@@ -428,7 +428,7 @@ describe("Testnet setup helper", async () => {
                     "createCollateralToken",
 
                     "usdt",
-                    "KT1A5hFGc8uGQLZhkpSgTieDd1jEReZkZ65i",
+                    contractDeployments.fakeUSDtToken.address,
                     6,
 
                     usdtAggregator,
@@ -439,7 +439,7 @@ describe("Testnet setup helper", async () => {
                     null, // Max deposit amount
 
                     "fa2",
-                    "KT1A5hFGc8uGQLZhkpSgTieDd1jEReZkZ65i",
+                    contractDeployments.fakeUSDtToken.address,
                     0
                 ).send();
                 await setCollateralTokenOperation.confirmation();
@@ -620,8 +620,8 @@ describe("Testnet setup helper", async () => {
                     const treasuryInstance: any = await utils.tezos.contract.at(treasuryAddress);
                     const treasuryBatch         = await utils.tezos.wallet
                     .batch()
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1A5hFGc8uGQLZhkpSgTieDd1jEReZkZ65i", "update"))
-                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts("KT1E4Y9mgo2isJRuLJqhDhStqbmzb2gvJE69", "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.fakeUSDtToken.address, "update"))
+                    .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.fakeWBTCToken.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mvnToken.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenMvrk.address, "update"))
                     .withContractCall(treasuryInstance.methods.updateWhitelistTokenContracts(contractDeployments.mTokenUsdt.address, "update"))

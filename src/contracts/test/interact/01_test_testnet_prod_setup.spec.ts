@@ -1,4 +1,4 @@
-import { Utils } from "../helpers/Utils"
+import { MVN, Utils } from "../helpers/Utils"
 
 const chai = require("chai")
 const chaiAsPromised = require('chai-as-promised')
@@ -50,6 +50,8 @@ describe("Testnet setup helper", async () => {
     let aggregatorFactoryInstance;
     let lendingControllerInstance;
     let vaultInstance;
+    let fakeUsdtTokenInstance;
+    let mvnFaucetInstance;
     let vaultFactoryInstance;
     let mavenFa12TokenInstance;
 
@@ -97,12 +99,14 @@ describe("Testnet setup helper", async () => {
             governanceFinancialInstance             = await utils.tezos.contract.at(contractDeployments.governanceFinancial.address);
             treasuryFactoryInstance                 = await utils.tezos.contract.at(contractDeployments.treasuryFactory.address);
             lpTokenInstance                         = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
+            mvnFaucetInstance                       = await utils.tezos.contract.at(contractDeployments.mvnFaucet.address);
             governanceSatelliteInstance             = await utils.tezos.contract.at(contractDeployments.governanceSatellite.address);
             aggregatorFactoryInstance               = await utils.tezos.contract.at(contractDeployments.aggregatorFactory.address);
             lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
             vaultFactoryInstance                    = await utils.tezos.contract.at(contractDeployments.vaultFactory.address);
             mavenFa12TokenInstance                  = await utils.tezos.contract.at(contractDeployments.mavenFa12Token.address);
-    
+            fakeUsdtTokenInstance                   = await utils.tezos.contract.at(contractDeployments.fakeUSDtToken.address);
+
             doormanStorage                          = await doormanInstance.storage();
             delegationStorage                       = await delegationInstance.storage();
             mvnTokenStorage                         = await mvnTokenInstance.storage();
@@ -151,6 +155,60 @@ describe("Testnet setup helper", async () => {
 
         beforeEach("Set signer to admin", async () => {
             await helperFunctions.signerFactory(tezos, bob.sk);
+        });
+
+        it('Admin add USDT and MVN as tokens on the faucet', async () => {
+            try{
+                // Operation
+                var operation             = await mvnFaucetInstance.methods.updateToken(MVN(400), contractDeployments.mvnToken.address, 0).send();
+                await operation.confirmation();
+                operation                 = await mvnFaucetInstance.methods.updateToken(1000000000, contractDeployments.fakeUSDtToken.address, 0).send();
+                await operation.confirmation();
+                operation                 = await mvnFaucetInstance.methods.updateToken(100000000, "mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d", 0).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts of USDT', async () => {
+            try{
+                // Operation
+                const operation = await fakeUsdtTokenInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin mints 10,000,000 USDT on the faucet', async () => {
+            try{
+                // Operation
+                var operation             = await fakeUsdtTokenInstance.methods.mintOrBurn(mvnFaucetInstance.address, 0, 10000000000000).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts of MVN', async () => {
+            try{
+                // Operation
+                const operation = await mvnTokenInstance.methods.updateWhitelistContracts(bob.pkh, "update").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin mints 10,000,000 MVN on the faucet', async () => {
+            try{
+                // Operation
+                var operation             = await mvnTokenInstance.methods.mint(mvnFaucetInstance.address, MVN(10000000)).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
         });
 
         it('Admin sets admin and whitelist of all contracts', async () => {
