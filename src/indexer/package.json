@@ -6,9 +6,9 @@
     "setup-env": "poetry install",
     "start-sandbox": "docker compose -f maven/deploy/docker-compose.yml up -d",
     "clear-sandbox": "docker compose -f maven/deploy/docker-compose.yml down -v --remove-orphans",
-    "init-types": "poetry run dipdup -c dipdup.local.yml -c dipdup.contract.yml -c dipdup.types.yml init -f",
-    "start": "DEBUG_MODE=True poetry run dipdup -c dipdup.local.yml -c dipdup.contract.yml -c dipdup.yml run",
-    "wipe": "DEBUG_MODE=True poetry run dipdup -c dipdup.local.yml -c dipdup.contract.yml -c dipdup.yml schema wipe --force",
+    "init-types": "poetry run dipdup -c dipdup.local.yml -c dipdup.contracts.yml -c dipdup.types.yml init -f",
+    "start": "DEBUG_MODE=True poetry run dipdup -c dipdup.local.yml -c dipdup.contracts.yml -c dipdup.yml run",
+    "wipe": "DEBUG_MODE=True poetry run dipdup -c dipdup.local.yml -c dipdup.contracts.yml -c dipdup.yml schema wipe --force",
     "restart": "yarn wipe && yarn start",
     "import-contracts": "poetry run python ./scripts/import-contracts.py"
   },
