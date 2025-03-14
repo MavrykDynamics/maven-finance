@@ -58,6 +58,8 @@ describe("Testnet setup helper", async () => {
     let btcAggregator;
     let oceanAggregator;
     let mars1Aggregator;
+    let queenAggregator;
+    let ntbmAggregator;
 
     before("setup", async () => {
         try{
@@ -130,6 +132,12 @@ describe("Testnet setup helper", async () => {
                     case "MARS1/USD":
                         mars1Aggregator   = aggregatorAddress;
                         // mars1Aggregator   = "KT1J27dgN5U5Zo73pXyq74VmudcnHQq3uTEK";
+                        break;
+                    case "QUEEN/USD":
+                        queenAggregator   = aggregatorAddress;
+                        break;
+                    case "NTBM/USD":
+                        ntbmAggregator   = aggregatorAddress;
                         break;
                     default: 
                         break
@@ -445,46 +453,88 @@ describe("Testnet setup helper", async () => {
                 await setCollateralTokenOperation.confirmation();
                 
                 // ocean
-                // setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
-                //     "createCollateralToken",
+                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
 
-                //     "ocean",
-                //     "KT1J1p1f1owAEjJigKGXhwzu3tVCvRPVgGCh",
-                //     3,
+                    "ocean",
+                    "KT1P6hE9g2sPeTCqcHDX2Sk4zdaF2aGAGCrZ",
+                    6,
 
-                //     oceanAggregator,
-                //     false,
-                //     false,
-                //     false,
-                //     null,
-                //     null, // Max deposit amount
+                    oceanAggregator,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null, // Max deposit amount
 
-                //     "fa2",
-                //     "KT1J1p1f1owAEjJigKGXhwzu3tVCvRPVgGCh",
-                //     0
-                // ).send();
-                // await setCollateralTokenOperation.confirmation();
+                    "fa2",
+                    "KT1P6hE9g2sPeTCqcHDX2Sk4zdaF2aGAGCrZ",
+                    0
+                ).send();
+                await setCollateralTokenOperation.confirmation();
                 
-                // // mars1
-                // setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
-                //     "createCollateralToken",
+                // mars1
+                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
 
-                //     "mars1",
-                //     "KT1CgLvrzj5MziwPWWzPkZj1eDeEpRAsYvQ9",
-                //     3,
+                    "mars1",
+                    "KT1M3U8zRf3AwaerkTXCThcffUqWpie3UMoj",
+                    6,
 
-                //     mars1Aggregator,
-                //     false,
-                //     false,
-                //     false,
-                //     null,
-                //     null, // Max deposit amount
+                    mars1Aggregator,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null, // Max deposit amount
 
-                //     "fa2",
-                //     "KT1CgLvrzj5MziwPWWzPkZj1eDeEpRAsYvQ9",
-                //     0
-                // ).send();
-                // await setCollateralTokenOperation.confirmation();
+                    "fa2",
+                    "KT1M3U8zRf3AwaerkTXCThcffUqWpie3UMoj",
+                    0
+                ).send();
+                await setCollateralTokenOperation.confirmation();
+                
+                // queen
+                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
+
+                    "queen",
+                    "KT1PgkWg76a3EqkVyt2aTaR91Y3dSQrm3sWG",
+                    6,
+
+                    queenAggregator,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null, // Max deposit amount
+
+                    "fa2",
+                    "KT1PgkWg76a3EqkVyt2aTaR91Y3dSQrm3sWG",
+                    0
+                ).send();
+                await setCollateralTokenOperation.confirmation();
+                
+                // ntbm
+                setCollateralTokenOperation = await lendingControllerInstance.methods.setCollateralToken(
+                    "createCollateralToken",
+
+                    "ntbm",
+                    "KT1HrjerqExE8MfrHBMgbcJVsmTY7HjDzHJu",
+                    6,
+
+                    ntbmAggregator,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null, // Max deposit amount
+
+                    "fa2",
+                    "KT1HrjerqExE8MfrHBMgbcJVsmTY7HjDzHJu",
+                    0
+                ).send();
+                await setCollateralTokenOperation.confirmation();
 
             } catch(e) {
                 console.dir(e, {depth: 5});
