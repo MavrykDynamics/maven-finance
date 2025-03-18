@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "maven-indexer"
-version = "0.1.0"
+version = "1.0.0"
 description = ""
 authors = ["Tristan Allaire <tristan.allaire@alarch.fr>"]
 
