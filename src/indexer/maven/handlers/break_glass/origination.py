@@ -1,15 +1,14 @@
 from maven.utils.error_reporting import save_error_report
 
-from unicodedata import name
-from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos import TezosOrigination
 from dipdup.context import HandlerContext
 from maven.utils.contracts import get_contract_metadata
 from maven.types.break_glass.tezos_storage import BreakGlassStorage
-import maven.models as models
+from maven import models as models
 
 async def origination(
     ctx: HandlerContext,
-    break_glass_origination: TzktOrigination[BreakGlassStorage],
+    break_glass_origination: TezosOrigination[BreakGlassStorage],
 ) -> None:
 
     try:
@@ -34,12 +33,12 @@ async def origination(
         )
     
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
+        governance                  = await models.Governance.get(network = 'atlasnet')
     
         # Create record
         break_glass  = models.BreakGlass(
             address                             = address,
-            network                             = ctx.datasource.name.replace('mvkt_',''),
+            network                             = 'atlasnet',
             metadata                            = contract_metadata,
             admin                               = admin,
             last_updated_at                     = timestamp,
@@ -56,7 +55,7 @@ async def origination(
         await break_glass.save()
     
         for member_address in council_members:
-            user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=member_address)
+            user                = await models.maven_user_cache.get(network='atlasnet', address=member_address)
             memberInfo          = council_members[member_address]
             council_member      = models.BreakGlassCouncilMember(
                 user        = user,

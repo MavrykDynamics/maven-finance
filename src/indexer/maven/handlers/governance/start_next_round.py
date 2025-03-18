@@ -2,14 +2,14 @@ from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from maven.types.governance.tezos_storage import GovernanceStorage, Round as proposal, Round1 as timelock, Round2 as voting
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from tortoise.models import Q
 from maven.types.governance.tezos_parameters.start_next_round import StartNextRoundParameter
-import maven.models as models
+from maven import models as models
 
 async def start_next_round(
     ctx: HandlerContext,
-    start_next_round: TzktTransaction[StartNextRoundParameter, GovernanceStorage],
+    start_next_round: TezosTransaction[StartNextRoundParameter, GovernanceStorage],
 ) -> None:
 
     try:
@@ -41,7 +41,7 @@ async def start_next_round(
             current_round_type = models.GovernanceRoundType.VOTING
     
         # Update record
-        governance  = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
+        governance  = await models.Governance.get(network='atlasnet', address= governance_address)
         governance.current_round                            = current_round_type
         governance.current_blocks_per_proposal_round        = current_blocks_proposal_round
         governance.current_blocks_per_voting_round          = current_block_voting_round

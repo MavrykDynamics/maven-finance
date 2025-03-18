@@ -8,10 +8,10 @@ from maven.models.parents import LinkedContract, ContractLambda, MavenContract
 class Farm(MavenContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='farms')
     factory                                 = fields.ForeignKeyField('models.FarmFactory', related_name='farms', null=True)
-    lp_token                                = fields.ForeignKeyField('models.Token', related_name='farms_lp_tokens')
+    lp_token                                = fields.ForeignKeyField('models.Token', related_name='farms_lp_tokens', index=True)
     loan_token_name                         = fields.CharField(max_length=36, null=True)
-    token0                                  = fields.ForeignKeyField('models.Token', related_name='farms_tokens_0', null=True)
-    token1                                  = fields.ForeignKeyField('models.Token', related_name='farms_tokens_1', null=True)
+    token0                                  = fields.ForeignKeyField('models.Token', related_name='farms_tokens_0', null=True, index=True)
+    token1                                  = fields.ForeignKeyField('models.Token', related_name='farms_tokens_1', null=True, index=True)
     creation_timestamp                      = fields.DatetimeField()
     start_timestamp                         = fields.DatetimeField(null=True)
     end_timestamp                           = fields.DatetimeField(null=True)
@@ -26,7 +26,7 @@ class Farm(MavenContract, Model):
     withdraw_paused                         = fields.BooleanField(default=False)
     claim_paused                            = fields.BooleanField(default=False)
     last_block_update                       = fields.BigIntField(default=0)
-    open                                    = fields.BooleanField(default=False)
+    open                                    = fields.BooleanField(default=False, index=True)
     init                                    = fields.BooleanField(default=False)
     init_block                              = fields.BigIntField(default=0)
     accumulated_rewards_per_share           = fields.FloatField(default=0)
@@ -37,6 +37,9 @@ class Farm(MavenContract, Model):
 
     class Meta:
         table = 'farm'
+        indexes = [
+            ("open", "creation_timestamp"),
+        ]
 
 class FarmLambda(ContractLambda, Model):
     contract                                = fields.ForeignKeyField('models.Farm', related_name='lambdas')
@@ -59,13 +62,17 @@ class FarmWhitelistContract(LinkedContract, Model):
 
 class FarmAccount(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    user                                    = fields.ForeignKeyField('models.MavenUser', related_name='farm_accounts')
-    farm                                    = fields.ForeignKeyField('models.Farm', related_name='farm_accounts')
+    user                                    = fields.ForeignKeyField('models.MavenUser', related_name='farm_accounts', index=True)
+    farm                                    = fields.ForeignKeyField('models.Farm', related_name='farm_accounts', index=True)
     deposited_amount                        = fields.BigIntField(default=0)
     participation_rewards_per_share         = fields.FloatField(default=0)
     unclaimed_rewards                       = fields.FloatField(default=0)
-    claimed_rewards                         = fields.FloatField(default=0)
+    claimed_rewards                         = fields.FloatField(default=0, index=True)
     token_reward_index                      = fields.FloatField(null=True)
 
     class Meta:
         table = 'farm_account'
+        indexes = [
+            ("farm_id", "user_id"),
+            ("user_id", "farm_id"),
+        ]

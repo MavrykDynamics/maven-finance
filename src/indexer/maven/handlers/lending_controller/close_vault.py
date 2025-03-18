@@ -1,14 +1,14 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.lending_controller.tezos_parameters.close_vault import CloseVaultParameter
 from maven.types.lending_controller.tezos_storage import LendingControllerStorage
-import maven.models as models
+from maven import models as models
 
 async def close_vault(
     ctx: HandlerContext,
-    close_vault: TzktTransaction[CloseVaultParameter, LendingControllerStorage],
+    close_vault: TezosTransaction[CloseVaultParameter, LendingControllerStorage],
 ) -> None:
 
     try:
@@ -19,14 +19,14 @@ async def close_vault(
         operation_hash              = close_vault.data.hash
         sender_address              = close_vault.data.sender_address
         vault_owner_address         = close_vault.data.sender_address
-        vault_internal_id           = int(close_vault.parameter.__root__)
+        vault_internal_id           = int(close_vault.parameter.root)
     
         # Update record
         lending_controller          = await models.LendingController.get(
-            network             = ctx.datasource.name.replace('mvkt_',''),
+            network             = 'atlasnet',
             address             = lending_controller_address,
         )
-        owner                       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vault_owner_address)
+        owner                       = await models.maven_user_cache.get(network='atlasnet', address=vault_owner_address)
         lending_controller_vault    = await models.LendingControllerVault.get(
             lending_controller  = lending_controller,
             owner               = owner,
@@ -43,7 +43,7 @@ async def close_vault(
             await vault_collateral_balance.save()
     
         # Save history data
-        sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
+        sender                                  = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
         history_data                            = models.LendingControllerHistoryData(
             lending_controller  = lending_controller,
             loan_token          = loan_token,

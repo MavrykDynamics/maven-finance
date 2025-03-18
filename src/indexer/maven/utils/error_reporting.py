@@ -1,4 +1,4 @@
-import maven.models as models
+from maven import models as models
 import sys
 import traceback
 import os

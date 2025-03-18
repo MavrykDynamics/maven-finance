@@ -1,6 +1,6 @@
 
 from dipdup.context import HookContext
-import maven.models as models
+from maven import models as models
 
 async def on_synchronized(
     ctx: HookContext,

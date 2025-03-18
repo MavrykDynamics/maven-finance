@@ -4,11 +4,11 @@ from dipdup.context import HandlerContext
 from maven.utils.persisters import persist_break_glass_action
 from maven.types.break_glass.tezos_parameters.remove_break_glass_control import RemoveBreakGlassControlParameter
 from maven.types.break_glass.tezos_storage import BreakGlassStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 
 async def remove_break_glass_control(
     ctx: HandlerContext,
-    remove_break_glass_control: TzktTransaction[RemoveBreakGlassControlParameter, BreakGlassStorage],
+    remove_break_glass_control: TezosTransaction[RemoveBreakGlassControlParameter, BreakGlassStorage],
 ) -> None:
 
     try:

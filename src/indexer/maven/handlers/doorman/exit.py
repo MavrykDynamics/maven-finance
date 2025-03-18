@@ -1,16 +1,16 @@
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.doorman.tezos_parameters.exit import ExitParameter
 from maven.types.doorman.tezos_storage import DoormanStorage
 from maven.types.mvn_token.tezos_parameters.transfer import TransferParameter
 from maven.types.mvn_token.tezos_storage import MvnTokenStorage
-import maven.models as models
+from maven import models as models
 from maven.utils.error_reporting import save_error_report
 
 async def exit(
     ctx: HandlerContext,
-    exit: TzktTransaction[ExitParameter, DoormanStorage],
-    transfer: TzktTransaction[TransferParameter, MvnTokenStorage],
+    exit: TezosTransaction[ExitParameter, DoormanStorage],
+    transfer: TezosTransaction[TransferParameter, MvnTokenStorage],
 ) -> None:
 
     try:
@@ -25,13 +25,13 @@ async def exit(
         total_farm_rewards_claimed              = float(initiator_stake_balance_ledger.totalFarmRewardsClaimed)
         participation_fees_per_share            = float(initiator_stake_balance_ledger.participationFeesPerShare)
         timestamp                               = exit.data.timestamp
-        final_amount                            = float(transfer.parameter.__root__[0].txs[0].amount)
+        final_amount                            = float(transfer.parameter.root[0].txs[0].amount)
         doorman                                 = await models.Doorman.get(address=doorman_address)
         unclaimed_rewards                       = float(exit.storage.unclaimedRewards)
         accumulated_fees_per_share              = float(exit.storage.accumulatedFeesPerShare)
 
         # Get or create the interacting user
-        user                                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=initiator_address)
+        user                                    = await models.maven_user_cache.get(network='atlasnet', address=initiator_address)
         user.mvn_balance                        = mvn_balance
         user.smvn_balance                       = smvn_balance
         await user.save()

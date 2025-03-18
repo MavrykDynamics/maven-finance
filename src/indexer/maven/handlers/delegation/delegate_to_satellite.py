@@ -1,15 +1,15 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from dipdup.context import HandlerContext
 from maven.types.delegation.tezos_parameters.delegate_to_satellite import DelegateToSatelliteParameter
 from maven.types.delegation.tezos_storage import DelegationStorage
 from dateutil import parser
-import maven.models as models
+from maven import models as models
 
 async def delegate_to_satellite(
     ctx: HandlerContext,
-    delegate_to_satellite: TzktTransaction[DelegateToSatelliteParameter, DelegationStorage],
+    delegate_to_satellite: TezosTransaction[DelegateToSatelliteParameter, DelegationStorage],
 ) -> None:
 
     try:
@@ -27,10 +27,10 @@ async def delegate_to_satellite(
             total_delegated_amount  = float(satellite_storage.totalDelegatedAmount)
     
             # Create and/or update record
-            user                                                                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=user_address)
-            satellite                                                           = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=satellite_address)
+            user                                                                = await models.maven_user_cache.get(network='atlasnet', address=user_address)
+            satellite                                                           = await models.maven_user_cache.get(network='atlasnet', address=satellite_address)
             delegation                                                          = await models.Delegation.get(
-                network     = ctx.datasource.name.replace('mvkt_',''),
+                network     = 'atlasnet',
                 address     = delegation_address
             )
             satellite_record                                                    = await models.Satellite.get(

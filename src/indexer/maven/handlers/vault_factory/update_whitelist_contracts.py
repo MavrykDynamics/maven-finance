@@ -3,12 +3,12 @@ from maven.utils.persisters import persist_linked_contract
 from maven.types.vault_factory.tezos_parameters.update_whitelist_contracts import UpdateWhitelistContractsParameter
 from maven.types.vault_factory.tezos_storage import VaultFactoryStorage
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
-import maven.models as models
+from dipdup.models.tezos import TezosTransaction
+from maven import models as models
 
 async def update_whitelist_contracts(
     ctx: HandlerContext,
-    update_whitelist_contracts: TzktTransaction[UpdateWhitelistContractsParameter, VaultFactoryStorage],
+    update_whitelist_contracts: TezosTransaction[UpdateWhitelistContractsParameter, VaultFactoryStorage],
 ) -> None:
 
     try:

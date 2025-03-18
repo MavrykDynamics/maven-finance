@@ -42,8 +42,8 @@ class CouncilWhitelistContract(LinkedContract, Model):
 
 class CouncilCouncilMember(Model):
     id                                      = fields.BigIntField(pk=True)
-    user                                    = fields.ForeignKeyField('models.MavenUser', related_name='council_council_members')
-    council                                 = fields.ForeignKeyField('models.Council', related_name='members')
+    user                                    = fields.ForeignKeyField('models.MavenUser', related_name='council_council_members', index=True)
+    council                                 = fields.ForeignKeyField('models.Council', related_name='members', index=True)
     name                                    = fields.TextField(default="")
     website                                 = fields.TextField(default="")
     image                                   = fields.TextField(default="")
@@ -54,9 +54,9 @@ class CouncilCouncilMember(Model):
 class CouncilAction(Model):
     id                                      = fields.BigIntField(pk=True)
     internal_id                             = fields.BigIntField(default=0)
-    council                                 = fields.ForeignKeyField('models.Council', related_name='actions')
+    council                                 = fields.ForeignKeyField('models.Council', related_name='actions', index=True)
     initiator                               = fields.ForeignKeyField('models.MavenUser', related_name='council_actions_initiator', index=True)
-    start_datetime                          = fields.DatetimeField()
+    start_datetime                          = fields.DatetimeField(index=True)
     execution_datetime                      = fields.DatetimeField(null=True)
     execution_level                         = fields.BigIntField(null=True)
     expiration_datetime                     = fields.DatetimeField(index=True)
@@ -82,15 +82,15 @@ class CouncilActionTempMemberParameter(Model):
 
 class CouncilActionSigner(Model):
     id                                      = fields.BigIntField(pk=True)
-    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='signers')
+    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='signers', index=True)
     signer                                  = fields.ForeignKeyField('models.MavenUser', related_name='council_actions_signer', index=True)
 
     class Meta:
         table = 'council_action_signer'
 
 class CouncilActionParameter(Model):
-    id                                      = fields.BigIntField(pk=True)
-    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='parameters')
+    id                                      = fields.BigIntField(pk=True, index=True)
+    council_action                          = fields.ForeignKeyField('models.CouncilAction', related_name='parameters', index=True)
     name                                    = fields.TextField(default="")
     value                                   = fields.TextField(default="")
 

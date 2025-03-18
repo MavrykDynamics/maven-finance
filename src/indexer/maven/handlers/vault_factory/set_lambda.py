@@ -3,12 +3,12 @@ from maven.utils.persisters import persist_lambda
 from maven.types.vault_factory.tezos_storage import VaultFactoryStorage
 from maven.types.vault_factory.tezos_parameters.set_lambda import SetLambdaParameter
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
-import maven.models as models
+from dipdup.models.tezos import TezosTransaction
+from maven import models as models
 
 async def set_lambda(
     ctx: HandlerContext,
-    set_lambda: TzktTransaction[SetLambdaParameter, VaultFactoryStorage],
+    set_lambda: TezosTransaction[SetLambdaParameter, VaultFactoryStorage],
 ) -> None:
 
     try:

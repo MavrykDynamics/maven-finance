@@ -2,15 +2,15 @@ from maven.utils.contracts import get_token_standard
 from maven.utils.error_reporting import save_error_report
 
 from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenType1 as Fa2
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from dipdup.context import HandlerContext
 from maven.types.lending_controller_mock_time.tezos_parameters.liquidate_vault import LiquidateVaultParameter
-import maven.models as models
+from maven import models as models
 from dateutil import parser
 
 async def liquidate_vault(
     ctx: HandlerContext,
-    liquidate_vault: TzktTransaction[LiquidateVaultParameter, LendingControllerMockTimeStorage],
+    liquidate_vault: TezosTransaction[LiquidateVaultParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
     try:
@@ -27,10 +27,10 @@ async def liquidate_vault(
     
         # Update record
         lending_controller          = await models.LendingController.get(
-            network         = ctx.datasource.name.replace('mvkt_',''),
+            network         = 'atlasnet',
             address         = lending_controller_address,
         )
-        vault_owner                 = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vault_owner_address)
+        vault_owner                 = await models.maven_user_cache.get(network='atlasnet', address=vault_owner_address)
         
         for vault_storage in vaults_storage:
             if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:
@@ -98,7 +98,7 @@ async def liquidate_vault(
                     await lending_controller_collateral_balance.save()
     
                 # Save history data
-                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
+                sender                                  = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

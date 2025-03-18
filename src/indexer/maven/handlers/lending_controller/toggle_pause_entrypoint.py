@@ -1,14 +1,14 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.lending_controller.tezos_parameters.toggle_pause_entrypoint import TogglePauseEntrypointParameter
 from maven.types.lending_controller.tezos_storage import LendingControllerStorage
-import maven.models as models
+from maven import models as models
 
 async def toggle_pause_entrypoint(
     ctx: HandlerContext,
-    toggle_pause_entrypoint: TzktTransaction[TogglePauseEntrypointParameter, LendingControllerStorage],
+    toggle_pause_entrypoint: TezosTransaction[TogglePauseEntrypointParameter, LendingControllerStorage],
 ) -> None:
 
     try:
@@ -34,7 +34,7 @@ async def toggle_pause_entrypoint(
     
         # Update record
         await models.LendingController.filter(
-            network         = ctx.datasource.name.replace('mvkt_',''),
+            network         = 'atlasnet',
             address         = lending_controller_address
         ).update(
             add_liquidity_paused                     = add_liquidity_paused,

@@ -63,7 +63,7 @@ class SatelliteRewards(Model):
 class Satellite(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     user                                    = fields.ForeignKeyField('models.MavenUser', related_name='satellites', index=True)
-    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellites')
+    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellites', index=True)
     public_key                              = fields.CharField(max_length=54, null=True)
     peer_id                                 = fields.TextField(null=True)
     status                                  = fields.IntEnumField(enum_type=SatelliteStatus, default=SatelliteStatus.ACTIVE)
@@ -73,14 +73,18 @@ class Satellite(Model):
     image                                   = fields.TextField(default="")
     website                                 = fields.TextField(default="", index=True)
     registration_timestamp                  = fields.DatetimeField(auto_now=True)
-    currently_registered                    = fields.BooleanField(default=True)
-    total_delegated_amount                  = fields.FloatField(default=0.0)
+    currently_registered                    = fields.BooleanField(default=True, index=True)
+    total_delegated_amount                  = fields.FloatField(default=0.0, index=True)
     satellite_action_counter                = fields.BigIntField(default=0)
     financial_request_counter               = fields.BigIntField(default=0)
     governance_proposal_counter             = fields.BigIntField(default=0)
 
     class Meta:
         table = 'satellite'
+        indexes = [
+            ("user", "delegation"),
+            ("currently_registered", "total_delegated_amount"),
+        ]
 
 class DelegationRecord(Model):
     id                                      = fields.BigIntField(pk=True)

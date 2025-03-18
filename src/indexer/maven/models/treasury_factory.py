@@ -42,7 +42,7 @@ class TreasuryFactoryWhitelistContract(LinkedContract, Model):
 
 class TreasuryFactoryWhitelistTokenContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.TreasuryFactory', related_name='whitelist_token_contracts')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_factory_whitelist_token_contracts')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_factory_whitelist_token_contracts', index=True)
 
     class Meta:
         table = 'treasury_factory_whitelist_token_contract'

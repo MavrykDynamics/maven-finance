@@ -6,7 +6,7 @@ from maven.models.parents import LinkedContract, ContractLambda, MavenContract
 ###
 
 class Vesting(MavenContract, Model):
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='vestings')
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='vestings', index=True)
     total_vested_amount                     = fields.BigIntField(default=0)
 
     class Meta:
@@ -33,8 +33,8 @@ class VestingWhitelistContract(LinkedContract, Model):
 
 class VestingVestee(Model):
     id                                      = fields.BigIntField(pk=True)
-    vesting                                 = fields.ForeignKeyField('models.Vesting', related_name='vestees')
-    vestee                                  = fields.ForeignKeyField('models.MavenUser', related_name='vesting_vestees')
+    vesting                                 = fields.ForeignKeyField('models.Vesting', related_name='vestees', index=True)
+    vestee                                  = fields.ForeignKeyField('models.MavenUser', related_name='vesting_vestees', index=True)
     total_allocated_amount                  = fields.FloatField(default=0)
     claim_amount_per_month                  = fields.FloatField(default=0)
     start_timestamp                         = fields.DatetimeField()
@@ -43,8 +43,8 @@ class VestingVestee(Model):
     end_cliff_timestamp                     = fields.DatetimeField()
     end_vesting_timestamp                   = fields.DatetimeField()
     locked                                  = fields.BooleanField(default=False)
-    total_remainder                         = fields.FloatField(default=0)
-    total_claimed                           = fields.FloatField(default=0)
+    total_remainder                         = fields.FloatField(default=0, index=True)
+    total_claimed                           = fields.FloatField(default=0, index=True)
     months_claimed                          = fields.SmallIntField(default=0)
     months_remaining                        = fields.SmallIntField(default=0)
     next_redemption_timestamp               = fields.DatetimeField()

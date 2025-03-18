@@ -8,7 +8,7 @@ from maven.models.enums import MintOrBurnType
 
 class MVNToken(MavenContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='mvn_tokens')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='mvn_tokens')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='mvn_tokens', index=True)
     maximum_supply                          = fields.FloatField(default=0)
     total_supply                            = fields.FloatField(default=0)
     inflation_rate                          = fields.SmallIntField(default=0)

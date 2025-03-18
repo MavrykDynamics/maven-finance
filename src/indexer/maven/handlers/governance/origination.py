@@ -1,17 +1,15 @@
-from maven.utils.error_reporting import save_error_report
-
-from maven.utils.contracts import get_contract_metadata
-from maven.types.governance.tezos_storage import GovernanceStorage, Round as proposal, Round1 as timelock, Round2 as voting
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktOrigination
-import maven.models as models
-import os
+from dipdup.models.tezos import TezosOrigination
+from maven import models as models
+from maven.types.governance.tezos_storage import GovernanceStorage, Round as proposal, Round1 as timelock, Round2 as voting
+from maven.types.governance.tezos_storage import GovernanceStorage
+from maven.utils.contracts import get_contract_metadata
+from maven.utils.error_reporting import save_error_report
 
 async def origination(
     ctx: HandlerContext,
-    governance_origination: TzktOrigination[GovernanceStorage],
+    governance_origination: TezosOrigination[GovernanceStorage],
 ) -> None:
-
     try:
         # Get operation values
         address                                 = governance_origination.data.originated_contract_address
@@ -65,7 +63,7 @@ async def origination(
         # Create record
         governance          = models.Governance(
             address                                 = address,
-            network                                 = ctx.datasource.name.replace('mvkt_',''),
+            network                                 = 'atlasnet',
             metadata                                = contract_metadata,
             admin                                   = admin,
             last_updated_at                         = timestamp,
@@ -102,7 +100,7 @@ async def origination(
     
         # Add whitelisted developers
         for whitelisted_developer_address in whitelisted_developers:
-            user                                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=whitelisted_developer_address)
+            user                                    = await models.maven_user_cache.get(network='atlasnet', address=whitelisted_developer_address)
             whitelist_developer, _                  = await models.WhitelistDeveloper.get_or_create(
                 governance  = governance,
                 developer   = user
@@ -176,4 +174,3 @@ async def origination(
 
     except BaseException as e:
         await save_error_report(e)
-

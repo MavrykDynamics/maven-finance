@@ -1,15 +1,15 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.governance_satellite.tezos_parameters.vote_for_action import VoteForActionParameter, Vote as nay, Vote1 as pass_, Vote2 as yay
 from dipdup.context import HandlerContext
 from maven.types.governance_satellite.tezos_storage import GovernanceSatelliteStorage
-import maven.models as models
+from maven import models as models
 from dateutil import parser
 
 async def vote_for_action(
     ctx: HandlerContext,
-    vote_for_action: TzktTransaction[VoteForActionParameter, GovernanceSatelliteStorage],
+    vote_for_action: TezosTransaction[VoteForActionParameter, GovernanceSatelliteStorage],
 ) -> None:
 
     try:
@@ -38,8 +38,8 @@ async def vote_for_action(
         satellite_aggregator_ledger     = vote_for_action.storage.satelliteAggregatorLedger
     
         # Create or update vote record
-        governance              = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
-        governance_satellite    = await models.GovernanceSatellite.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_satellite_address)
+        governance              = await models.Governance.get(network='atlasnet', address= governance_address)
+        governance_satellite    = await models.GovernanceSatellite.get(network='atlasnet', address= governance_satellite_address)
         action_record           = await models.GovernanceSatelliteAction.get(
             governance_satellite    = governance_satellite,
             internal_id             = action_id
@@ -52,7 +52,7 @@ async def vote_for_action(
             action_record.execution_datetime    = execution_datetime
         await action_record.save()
     
-        voter                   = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=voter_address)
+        voter                   = await models.maven_user_cache.get(network='atlasnet', address=voter_address)
     
         # Register vote
         satellite_snapshot, _   = await models.GovernanceSatelliteSnapshot.get_or_create(
@@ -72,7 +72,7 @@ async def vote_for_action(
     
         # Save other personal executions
         for oracle_address in satellite_aggregator_ledger:
-            oracle                      = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=oracle_address)
+            oracle                      = await models.maven_user_cache.get(network='atlasnet', address=oracle_address)
             satellite_oracle_storage    = satellite_aggregator_ledger[oracle_address]
             aggregators                 = satellite_oracle_storage
             satellite_oracle_record, _  = await models.GovernanceSatelliteOracle.get_or_create(
@@ -97,7 +97,7 @@ async def vote_for_action(
 
                 # Aggregators not created by the factory won't be saved
                 # TODO: keep?
-                aggregator  = await models.Aggregator.get_or_none(network=ctx.datasource.name.replace('mvkt_',''), address= aggregator_address)
+                aggregator  = await models.Aggregator.get_or_none(network='atlasnet', address= aggregator_address)
                 
                 if aggregator:
                     start_timestamp                     = parser.parse(aggregators[aggregator_address])

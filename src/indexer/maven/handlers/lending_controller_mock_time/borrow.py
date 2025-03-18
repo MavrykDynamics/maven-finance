@@ -2,14 +2,14 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
 from maven.types.lending_controller_mock_time.tezos_parameters.borrow import BorrowParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from dipdup.context import HandlerContext
-import maven.models as models
+from maven import models as models
 from dateutil import parser
 
 async def borrow(
     ctx: HandlerContext,
-    borrow: TzktTransaction[BorrowParameter, LendingControllerMockTimeStorage],
+    borrow: TezosTransaction[BorrowParameter, LendingControllerMockTimeStorage],
 ) -> None:
 
     try:
@@ -23,7 +23,7 @@ async def borrow(
         vault_internal_id                       = int(borrow.parameter.vaultId)
         vaults_storage                          = borrow.storage.vaults
         lending_controller                      = await models.LendingController.get(
-            network             = ctx.datasource.name.replace('mvkt_',''),
+            network             = 'atlasnet',
             address             = lending_controller_address,
         )
         lending_controller_vault                = await models.LendingControllerVault.get(
@@ -85,7 +85,7 @@ async def borrow(
                 await lending_controller_vault.save()
     
                 # Save history data
-                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
+                sender                                  = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

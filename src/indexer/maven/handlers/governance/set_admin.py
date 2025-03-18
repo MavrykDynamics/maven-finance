@@ -4,12 +4,12 @@ from maven.utils.persisters import persist_admin
 from maven.types.governance.tezos_parameters.set_admin import SetAdminParameter
 from dipdup.context import HandlerContext
 from maven.types.governance.tezos_storage import GovernanceStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
-import maven.models as models
+from dipdup.models.tezos import TezosTransaction
+from maven import models as models
 
 async def set_admin(
     ctx: HandlerContext,
-    set_admin: TzktTransaction[SetAdminParameter, GovernanceStorage],
+    set_admin: TezosTransaction[SetAdminParameter, GovernanceStorage],
 ) -> None:
 
     try:

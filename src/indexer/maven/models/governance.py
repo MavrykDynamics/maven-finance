@@ -69,9 +69,9 @@ class WhitelistDeveloper(Model):
 class GovernanceProposal(Model):
     id                                      = fields.BigIntField(pk=True)
     internal_id                             = fields.BigIntField(default=0)
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='proposals')
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='proposals', index=True)
     proposer                                = fields.ForeignKeyField('models.MavenUser', related_name='governance_proposals_proposer', index=True)
-    status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus)
+    status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus, index=True)
     execution_counter                       = fields.SmallIntField(default=0)
     title                                   = fields.TextField(default="")
     description                             = fields.TextField(default="")
@@ -98,8 +98,8 @@ class GovernanceProposal(Model):
     min_yay_vote_percentage                 = fields.FloatField(default=0)
     quorum_count                            = fields.BigIntField(default=0)
     quorum_smvn_total                       = fields.FloatField(default=0)
-    start_datetime                          = fields.DatetimeField()
-    execution_datetime                      = fields.DatetimeField(null=True)
+    start_datetime                          = fields.DatetimeField(index=True)
+    execution_datetime                      = fields.DatetimeField(null=True, index=True)
     dropped_datetime                        = fields.DatetimeField(null=True)
     defeated_datetime                       = fields.DatetimeField(null=True)
     cycle                                   = fields.BigIntField(default=0)
@@ -109,6 +109,10 @@ class GovernanceProposal(Model):
 
     class Meta:
         table = 'governance_proposal'
+        indexes = [
+            ("governance", "proposer"),
+            ("status", "start_datetime"),
+        ]
 
 class GovernanceProposalData(Model):
     id                                      = fields.BigIntField(pk=True)
@@ -125,7 +129,7 @@ class GovernanceProposalPayment(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='payments')
     internal_id                             = fields.SmallIntField(default=0)
-    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_proposals_payments', null=True)
+    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_proposals_payments', null=True, index=True)
     title                                   = fields.TextField(default="", null=True)
     to_                                     = fields.ForeignKeyField('models.MavenUser', related_name='governance_proposals_payments', null=True)
     token_amount                            = fields.FloatField(default=0.0, null=True)

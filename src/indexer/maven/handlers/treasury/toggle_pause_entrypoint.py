@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.types.treasury.tezos_storage import TreasuryStorage
 from maven.types.treasury.tezos_parameters.toggle_pause_entrypoint import TogglePauseEntrypointParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from dipdup.context import HandlerContext
-import maven.models as models
+from maven import models as models
 
 async def toggle_pause_entrypoint(
     ctx: HandlerContext,
-    toggle_pause_entrypoint: TzktTransaction[TogglePauseEntrypointParameter, TreasuryStorage],
+    toggle_pause_entrypoint: TezosTransaction[TogglePauseEntrypointParameter, TreasuryStorage],
 ) -> None:
 
     try:
@@ -16,7 +16,7 @@ async def toggle_pause_entrypoint(
         treasury_address    = toggle_pause_entrypoint.data.target_address
     
         # Update record
-        treasury            = await models.Treasury.filter(network=ctx.datasource.name.replace('mvkt_',''), address=treasury_address).update(
+        treasury            = await models.Treasury.filter(network='atlasnet', address=treasury_address).update(
             transfer_paused                 = toggle_pause_entrypoint.storage.breakGlassConfig.transferIsPaused,
             mint_mvn_and_transfer_paused    = toggle_pause_entrypoint.storage.breakGlassConfig.mintMvnAndTransferIsPaused,
             update_token_operators_paused   = toggle_pause_entrypoint.storage.breakGlassConfig.updateTokenOperatorsIsPaused,

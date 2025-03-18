@@ -15,7 +15,7 @@ class LinkedContract():
     contract_address                        = fields.CharField(max_length=36, default="")
 
 class MavenContract():
-    id                                      = fields.BigIntField(pk=True)
+    id                                      = fields.BigIntField(pk=True, index=True)
     address                                 = fields.CharField(max_length=36, index=True)
     network                                 = fields.CharField(max_length=51, index=True)
     admin                                   = fields.CharField(max_length=36, default="", index=True)

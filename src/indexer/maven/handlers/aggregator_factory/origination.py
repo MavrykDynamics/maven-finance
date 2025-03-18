@@ -1,14 +1,14 @@
 from maven.utils.contracts import get_contract_metadata
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos import TezosOrigination
 from maven.types.aggregator_factory.tezos_storage import AggregatorFactoryStorage
 from dipdup.context import HandlerContext
-import maven.models as models
+from maven import models as models
 
 async def origination(
     ctx: HandlerContext,
-    aggregator_factory_origination: TzktOrigination[AggregatorFactoryStorage],
+    aggregator_factory_origination: TezosOrigination[AggregatorFactoryStorage],
 ) -> None:
 
     try:
@@ -28,12 +28,12 @@ async def origination(
         )
     
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
+        governance                  = await models.Governance.get(network = 'atlasnet')
     
         # Create record
         aggregator_factory          = models.AggregatorFactory(
             address                         = aggregator_factory_address,
-            network                         = ctx.datasource.name.replace('mvkt_',''),
+            network                         = 'atlasnet',
             metadata                        = contract_metadata,
             admin                           = admin,
             governance                      = governance,

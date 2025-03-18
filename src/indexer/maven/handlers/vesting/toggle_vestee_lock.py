@@ -1,20 +1,20 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.vesting.tezos_storage import VestingStorage
 from dipdup.context import HandlerContext
 from maven.types.vesting.tezos_parameters.toggle_vestee_lock import ToggleVesteeLockParameter
-import maven.models as models
+from maven import models as models
 
 async def toggle_vestee_lock(
     ctx: HandlerContext,
-    toggle_vestee_lock: TzktTransaction[ToggleVesteeLockParameter, VestingStorage],
+    toggle_vestee_lock: TezosTransaction[ToggleVesteeLockParameter, VestingStorage],
 ) -> None:
 
     try:
         # Get operation values
         vesting_address = toggle_vestee_lock.data.target_address
-        vestee_address  = toggle_vestee_lock.parameter.__root__
+        vestee_address  = toggle_vestee_lock.parameter.root
         status          = toggle_vestee_lock.storage.vesteeLedger[vestee_address].status
         locked          = False
         if status == 'LOCKED':
@@ -22,10 +22,10 @@ async def toggle_vestee_lock(
     
         # Update record
         vesting = await models.Vesting.get(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address=vesting_address
         )
-        vestee  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vestee_address)
+        vestee  = await models.maven_user_cache.get(network='atlasnet', address=vestee_address)
         await models.VestingVestee.filter(
             vestee  = vestee,
             vesting = vesting

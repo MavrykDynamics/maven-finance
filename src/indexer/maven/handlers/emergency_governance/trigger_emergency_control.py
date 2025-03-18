@@ -1,15 +1,15 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.emergency_governance.tezos_parameters.trigger_emergency_control import TriggerEmergencyControlParameter
 from maven.types.emergency_governance.tezos_storage import EmergencyGovernanceStorage
 from dateutil import parser 
-import maven.models as models
+from maven import models as models
 
 async def trigger_emergency_control(
     ctx: HandlerContext,
-    trigger_emergency_control: TzktTransaction[TriggerEmergencyControlParameter, EmergencyGovernanceStorage],
+    trigger_emergency_control: TezosTransaction[TriggerEmergencyControlParameter, EmergencyGovernanceStorage],
 ) -> None:
 
     try:
@@ -37,14 +37,14 @@ async def trigger_emergency_control(
         
         # Create record
         emergency  = await models.EmergencyGovernance.get(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = emergency_address
         )
         emergency.current_emergency_record_id   = int(emergency_id)
         emergency.next_emergency_record_id      = int(emergency_next_id)
         await emergency.save()
     
-        proposer    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=proposer_address)
+        proposer    = await models.maven_user_cache.get(network='atlasnet', address=proposer_address)
     
         emergency_record = models.EmergencyGovernanceRecord(
             internal_id                     = emergency_id,

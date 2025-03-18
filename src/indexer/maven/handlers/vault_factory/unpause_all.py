@@ -3,12 +3,12 @@ from maven.utils.error_reporting import save_error_report
 from maven.types.vault_factory.tezos_storage import VaultFactoryStorage
 from maven.types.vault_factory.tezos_parameters.unpause_all import UnpauseAllParameter
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
-import maven.models as models
+from dipdup.models.tezos import TezosTransaction
+from maven import models as models
 
 async def unpause_all(
     ctx: HandlerContext,
-    unpause_all: TzktTransaction[UnpauseAllParameter, VaultFactoryStorage],
+    unpause_all: TezosTransaction[UnpauseAllParameter, VaultFactoryStorage],
 ) -> None:
 
     try:
@@ -18,7 +18,7 @@ async def unpause_all(
     
         # Update record
         await models.VaultFactory.filter(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = vault_factory_address
         ).update(
             create_vault_paused   = create_vault_paused

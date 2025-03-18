@@ -3,12 +3,12 @@ from maven.utils.error_reporting import save_error_report
 from maven.types.delegation.tezos_storage import DelegationStorage
 from maven.types.delegation.tezos_parameters.distribute_reward import DistributeRewardParameter
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
-import maven.models as models
+from dipdup.models.tezos import TezosTransaction
+from maven import models as models
 
 async def distribute_reward(
     ctx: HandlerContext,
-    distribute_reward: TzktTransaction[DistributeRewardParameter, DelegationStorage],
+    distribute_reward: TezosTransaction[DistributeRewardParameter, DelegationStorage],
 ) -> None:
 
     try:
@@ -19,9 +19,9 @@ async def distribute_reward(
         reward_amount           = float(distribute_reward.parameter.totalStakedMvnReward)
     
         # Get and update records
-        delegation  = await models.Delegation.get(network=ctx.datasource.name.replace('mvkt_',''), address= delegation_address)
+        delegation  = await models.Delegation.get(network='atlasnet', address= delegation_address)
         for satellite_address in elligible_satellites:
-            user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=satellite_address)
+            user                    = await models.maven_user_cache.get(network='atlasnet', address=satellite_address)
             rewards_record          = distribute_reward.storage.satelliteRewardsLedger[satellite_address]
             satellite_rewards, _    = await models.SatelliteRewards.get_or_create(
                 user        = user,
@@ -37,7 +37,7 @@ async def distribute_reward(
     
         # Create a stakeMvn record
         doorman         = await models.Doorman.get(
-            network     = ctx.datasource.name.replace('mvkt_','')
+            network     = 'atlasnet'
         )
         stake_record    = models.StakeHistoryData(
             timestamp           = timestamp,

@@ -1,14 +1,14 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.utils.persisters import persist_linked_contract
 from maven.types.m_farm.tezos_parameters.update_general_contracts import UpdateGeneralContractsParameter
 from maven.types.m_farm.tezos_storage import MFarmStorage
-import maven.models as models
+from maven import models as models
 
 async def update_general_contracts(
     ctx: HandlerContext,
-    update_general_contracts: TzktTransaction[UpdateGeneralContractsParameter, MFarmStorage],
+    update_general_contracts: TezosTransaction[UpdateGeneralContractsParameter, MFarmStorage],
 ) -> None:
 
     try:

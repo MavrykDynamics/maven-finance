@@ -41,7 +41,7 @@ class TreasuryWhitelistContract(LinkedContract, Model):
 
 class TreasuryWhitelistTokenContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.Treasury', related_name='whitelist_token_contracts')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_whitelist_token_contracts')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_whitelist_token_contracts', index=True)
 
     class Meta:
         table = 'treasury_whitelist_token_contract'
@@ -60,7 +60,7 @@ class TreasuryTransferHistoryData(Model):
 class TreasuryBalance(Model):
     id                                      = fields.BigIntField(pk=True)
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='balances')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_balances')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_balances', index=True)
     mvkt_token_id                           = fields.BigIntField(default=0)
     balance                                 = fields.FloatField(default=0.0)
     whitelisted                             = fields.BooleanField(default=False)

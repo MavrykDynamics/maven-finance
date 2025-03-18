@@ -57,24 +57,32 @@ class DoormanStakeAccount(Model):
 
 class StakeHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
-    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stakes_history_data')
-    from_                                   = fields.ForeignKeyField('models.MavenUser', related_name='stakes_history_data')
-    timestamp                               = fields.DatetimeField()
+    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stakes_history_data', index=True)
+    from_                                   = fields.ForeignKeyField('models.MavenUser', related_name='stakes_history_data', index=True)
+    timestamp                               = fields.DatetimeField(index=True)
     type                                    = fields.IntEnumField(enum_type=StakeType, index=True)
     desired_amount                          = fields.FloatField(default=0.0)
     final_amount                            = fields.FloatField(default=0.0)
 
     class Meta:
         table = 'stake_history_data'
+        indexes = [
+            ("doorman", "timestamp"),
+            ("from_", "type"),
+        ]
 
 class SMVNHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
-    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stakes_mvn_history_data')
-    level                                   = fields.BigIntField(default=0)
-    timestamp                               = fields.DatetimeField()
+    doorman                                 = fields.ForeignKeyField('models.Doorman', related_name='stakes_mvn_history_data', index=True)
+    level                                   = fields.BigIntField(default=0, index=True)
+    timestamp                               = fields.DatetimeField(index=True)
     smvn_total_supply                       = fields.FloatField(default=0.0)
     mvn_total_supply                        = fields.FloatField(default=0.0)
     avg_smvn_per_user                        = fields.FloatField(default=0.0)
 
     class Meta:
         table = 'smvn_history_data'
+        indexes = [
+            ('timestamp', 'doorman'),
+            ("level", "timestamp"),
+        ]

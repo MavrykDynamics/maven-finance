@@ -3,13 +3,13 @@ from maven.utils.error_reporting import save_error_report
 from maven.types.governance.tezos_parameters.process_proposal_single_data import ProcessProposalSingleDataParameter
 from dipdup.context import HandlerContext
 from maven.types.governance.tezos_storage import GovernanceStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
-import maven.models as models
+from dipdup.models.tezos import TezosTransaction
+from maven import models as models
 from dateutil import parser
 
 async def process_proposal_single_data(
     ctx: HandlerContext,
-    process_proposal_single_data: TzktTransaction[ProcessProposalSingleDataParameter, GovernanceStorage],
+    process_proposal_single_data: TezosTransaction[ProcessProposalSingleDataParameter, GovernanceStorage],
 ) -> None:
 
     try:
@@ -24,7 +24,7 @@ async def process_proposal_single_data(
             execution_datetime  = parser.parse(storage_proposal.executedDateTime)
     
         # Update record
-        governance          = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
+        governance          = await models.Governance.get(network='atlasnet', address= governance_address)
         await models.GovernanceProposal.filter(
             governance  = governance,
             internal_id = proposal_id

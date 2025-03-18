@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from maven.types.lending_controller.tezos_parameters.update_config import UpdateConfigParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.lending_controller.tezos_storage import LendingControllerStorage
-import maven.models as models
+from maven import models as models
 
 async def update_config(
     ctx: HandlerContext,
-    update_config: TzktTransaction[UpdateConfigParameter, LendingControllerStorage],
+    update_config: TezosTransaction[UpdateConfigParameter, LendingControllerStorage],
 ) -> None:
 
     try:
@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.LendingController.filter(
-            network         = ctx.datasource.name.replace('mvkt_',''),
+            network         = 'atlasnet',
             address         = lending_controller_address
         ).update(
             last_updated_at                 = timestamp,
