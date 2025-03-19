@@ -59,6 +59,9 @@ async def origination(
             governance_round_type = models.GovernanceRoundType.TIMELOCK
         elif type(current_round) == voting:
             governance_round_type = models.GovernanceRoundType.VOTING
+
+        # Create hypertables
+        #ctx.execute_sql_script('create_distributed_hypertables')
     
         # Create record
         governance          = models.Governance(
