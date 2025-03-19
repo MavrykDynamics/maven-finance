@@ -3,6 +3,7 @@ name = "maven-indexer"
 version = "1.0.0"
 description = ""
 authors = ["Tristan Allaire <tristan.allaire@alarch.fr>"]
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "3.12.4"
