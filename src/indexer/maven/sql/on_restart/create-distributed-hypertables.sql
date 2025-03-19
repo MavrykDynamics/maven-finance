@@ -7,7 +7,7 @@ BEGIN
 
         -- Check and create distributed hypertables if not already created
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'aggregator_oracle_observation') THEN
+                       WHERE hypertable_name = 'aggregator_oracle_observation') THEN
             RAISE NOTICE 'Creating distributed hypertable for aggregator_oracle_observation...';
             SELECT create_distributed_hypertable('aggregator_oracle_observation', 'timestamp', migrate_data => true);
         ELSE
@@ -15,7 +15,7 @@ BEGIN
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'aggregator_history_data') THEN
+                       WHERE hypertable_name = 'aggregator_history_data') THEN
             RAISE NOTICE 'Creating distributed hypertable for aggregator_history_data...';
             SELECT create_distributed_hypertable('aggregator_history_data', 'timestamp', migrate_data => true);
         ELSE
@@ -23,7 +23,7 @@ BEGIN
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'dipdup_exception') THEN
+                       WHERE hypertable_name = 'dipdup_exception') THEN
             RAISE NOTICE 'Creating distributed hypertable for dipdup_exception...';
             SELECT create_distributed_hypertable('dipdup_exception', 'timestamp', 'type', migrate_data => true);
         ELSE
@@ -31,7 +31,7 @@ BEGIN
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'stake_history_data') THEN
+                       WHERE hypertable_name = 'stake_history_data') THEN
             RAISE NOTICE 'Creating distributed hypertable for stake_history_data...';
             SELECT create_distributed_hypertable('stake_history_data', 'timestamp', 'type', migrate_data => true);
         ELSE
@@ -39,7 +39,7 @@ BEGIN
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'smvn_history_data') THEN
+                       WHERE hypertable_name = 'smvn_history_data') THEN
             RAISE NOTICE 'Creating distributed hypertable for smvn_history_data...';
             SELECT create_distributed_hypertable('smvn_history_data', 'timestamp', migrate_data => true);
         ELSE
@@ -47,7 +47,7 @@ BEGIN
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'emergency_governance_vote') THEN
+                       WHERE hypertable_name = 'emergency_governance_vote') THEN
             RAISE NOTICE 'Creating distributed hypertable for emergency_governance_vote...';
             SELECT create_distributed_hypertable('emergency_governance_vote', 'timestamp', migrate_data => true);
         ELSE
@@ -55,7 +55,7 @@ BEGIN
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'governance_financial_request_vote') THEN
+                       WHERE hypertable_name = 'governance_financial_request_vote') THEN
             RAISE NOTICE 'Creating distributed hypertable for governance_financial_request_vote...';
             SELECT create_distributed_hypertable('governance_financial_request_vote', 'timestamp', 'governance_financial_request_id', migrate_data => true);
         ELSE
@@ -63,7 +63,7 @@ BEGIN
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'governance_satellite_action_vote') THEN
+                       WHERE hypertable_name = 'governance_satellite_action_vote') THEN
             RAISE NOTICE 'Creating distributed hypertable for governance_satellite_action_vote...';
             SELECT create_distributed_hypertable('governance_satellite_action_vote', 'timestamp', 'governance_satellite_action_id', migrate_data => true);
         ELSE
@@ -71,7 +71,7 @@ BEGIN
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'governance_proposal_vote') THEN
+                       WHERE hypertable_name = 'governance_proposal_vote') THEN
             RAISE NOTICE 'Creating distributed hypertable for governance_proposal_vote...';
             SELECT create_distributed_hypertable('governance_proposal_vote', 'timestamp', 'round', migrate_data => true);
         ELSE
@@ -79,7 +79,7 @@ BEGIN
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'lending_controller_history_data') THEN
+                       WHERE hypertable_name = 'lending_controller_history_data') THEN
             RAISE NOTICE 'Creating distributed hypertable for lending_controller_history_data...';
             SELECT create_distributed_hypertable('lending_controller_history_data', 'timestamp', 'type', migrate_data => true);
         ELSE
@@ -87,7 +87,7 @@ BEGIN
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'm_token_account_history_data') THEN
+                       WHERE hypertable_name = 'm_token_account_history_data') THEN
             RAISE NOTICE 'Creating distributed hypertable for m_token_account_history_data...';
             SELECT create_distributed_hypertable('m_token_account_history_data', 'timestamp', 'type', migrate_data => true);
         ELSE
@@ -95,7 +95,7 @@ BEGIN
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'mvn_faucet_requester') THEN
+                       WHERE hypertable_name = 'mvn_faucet_requester') THEN
             RAISE NOTICE 'Creating distributed hypertable for mvn_faucet_requester...';
             SELECT create_distributed_hypertable('mvn_faucet_requester', 'timestamp', 'request_type', migrate_data => true);
         ELSE
@@ -103,7 +103,7 @@ BEGIN
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'mvn_transfer_history_data') THEN
+                       WHERE hypertable_name = 'mvn_transfer_history_data') THEN
             RAISE NOTICE 'Creating distributed hypertable for mvn_transfer_history_data...';
             SELECT create_distributed_hypertable('mvn_transfer_history_data', 'timestamp', migrate_data => true);
         ELSE
@@ -111,7 +111,7 @@ BEGIN
         END IF;
 
         IF NOT EXISTS (SELECT 1 FROM timescaledb_information.hypertables 
-                       WHERE table_name = 'treasury_transfer_history_data') THEN
+                       WHERE hypertable_name = 'treasury_transfer_history_data') THEN
             RAISE NOTICE 'Creating distributed hypertable for treasury_transfer_history_data...';
             SELECT create_distributed_hypertable('treasury_transfer_history_data', 'timestamp', 'token_address', migrate_data => true);
         ELSE
