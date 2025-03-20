@@ -109,29 +109,35 @@ class LendingControllerLoanToken(Model):
     m_token                                 = fields.ForeignKeyField('models.MToken', related_name='lending_controller_loan_tokens', index=True)
     oracle                                  = fields.ForeignKeyField('models.MavenUser', related_name='lending_controller_loan_token_oracles', index=True)
     token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_loan_tokens', index=True)
-    loan_token_name                         = fields.CharField(max_length=36, default="")
+    loan_token_name                         = fields.CharField(max_length=36, default="", index=True)
     raw_m_tokens_total_supply               = fields.FloatField(default=0.0)
     reserve_ratio                           = fields.SmallIntField(default=0)
-    token_pool_total                        = fields.FloatField(default=0.0)
-    total_borrowed                          = fields.FloatField(default=0.0)
-    total_remaining                         = fields.FloatField(default=0.0)
-    utilisation_rate                        = fields.FloatField(default=0)
+    token_pool_total                        = fields.FloatField(default=0.0, index=True)
+    total_borrowed                          = fields.FloatField(default=0.0, index=True)
+    total_remaining                         = fields.FloatField(default=0.0, index=True)
+    utilisation_rate                        = fields.FloatField(default=0, index=True)
     optimal_utilisation_rate                = fields.FloatField(default=0)
     base_interest_rate                      = fields.FloatField(default=0)
     max_interest_rate                       = fields.FloatField(default=0)
     interest_rate_below_optimal_utilisation = fields.FloatField(default=0)
     interest_rate_above_optimal_utilisation = fields.FloatField(default=0)
-    current_interest_rate                   = fields.FloatField(default=0)
+    current_interest_rate                   = fields.FloatField(default=0, index=True)
     last_updated_block_level                = fields.BigIntField(default=0)
     token_reward_index                      = fields.FloatField(default=0.0)
     borrow_index                            = fields.FloatField(default=0)
     min_repayment_amount                    = fields.FloatField(default=0.0)
-    paused                                  = fields.BooleanField(default=False)
+    paused                                  = fields.BooleanField(default=False, index=True)
 
     class Meta:
         table = 'lending_controller_loan_token'
         indexes = [
-            ('lending_controller', 'token')
+            ('lending_controller', 'token'),
+            ('token_id',),
+            ('m_token_id',),
+            ('paused', 'token_pool_total'),
+            ('lending_controller_id', 'paused'),
+            ('token_id', 'total_borrowed', 'token_pool_total'),
+            ('utilisation_rate', 'current_interest_rate'),
         ]
 
 class LendingControllerHistoryData(Model):
@@ -140,7 +146,7 @@ class LendingControllerHistoryData(Model):
     vault                                   = fields.ForeignKeyField('models.LendingControllerVault', related_name='history_data', null=True, index=True)
     loan_token                              = fields.ForeignKeyField('models.LendingControllerLoanToken', related_name='history_data', null=True, index=True)
     collateral_token                        = fields.ForeignKeyField('models.LendingControllerCollateralToken', related_name='history_data', null=True)
-    sender                                  = fields.ForeignKeyField('models.MavenUser', related_name='lending_controller_history_data_sender')
+    sender                                  = fields.ForeignKeyField('models.MavenUser', related_name='lending_controller_history_data_sender', index=True)
     operation_hash                          = fields.CharField(max_length=51)
     timestamp                               = fields.DatetimeField(index=True)
     level                                   = fields.BigIntField(default=0)
@@ -150,5 +156,9 @@ class LendingControllerHistoryData(Model):
     class Meta:
         table = 'lending_controller_history_data'
         indexes = [
-            ('type', 'timestamp'),
+            ("sender", "type", "timestamp"),
+            ("loan_token", "type", "timestamp"),
+            ("vault", "type", "timestamp"),
+            ("type", "timestamp"),
+            ("loan_token", "sender", "type"),
         ]

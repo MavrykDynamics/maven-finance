@@ -41,14 +41,19 @@ class BreakGlassWhitelistContract(LinkedContract, Model):
 
 class BreakGlassCouncilMember(Model):
     id                                      = fields.BigIntField(pk=True)
-    user                                    = fields.ForeignKeyField('models.MavenUser', related_name='break_glass_council_members')
-    break_glass                             = fields.ForeignKeyField('models.BreakGlass', related_name='council_members')
-    name                                    = fields.TextField(default="")
+    user                                    = fields.ForeignKeyField('models.MavenUser', related_name='break_glass_council_members', index=True)
+    break_glass                             = fields.ForeignKeyField('models.BreakGlass', related_name='council_members', index=True)
+    name                                    = fields.TextField(default="", index=True)
     website                                 = fields.TextField(default="")
     image                                   = fields.TextField(default="")
 
     class Meta:
         table = 'break_glass_council_member'
+        indexes = [
+            ("user", "break_glass"),
+            ("break_glass", "user"),
+            ("name", "image"),
+        ]
 
 class BreakGlassAction(Model):
     id                                      = fields.BigIntField(pk=True)

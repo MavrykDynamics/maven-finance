@@ -32,7 +32,7 @@ async def get_contract_metadata(ctx, contract_address):
     contract_metadata           = None
 
     try:
-        metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
+        metadata_datasource         = ctx.get_tzip_metadata_datasource(metadata_datasource_name)
     except BaseException as e:
         ...
 
@@ -51,14 +51,14 @@ async def get_contract_token_metadata(ctx, token_address, token_id='0'):
     token_metadata              = None
 
     try:
-        metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
+        metadata_datasource         = ctx.get_tzip_metadata_datasource(metadata_datasource_name)
         token_metadata              = await metadata_datasource.get_token_metadata(token_address, token_id)
 
         if not token_metadata:
             # TODO: Remove in prod
             # Check for mainnet as well
             metadata_datasource_name    = 'metadata_mainnet'
-            metadata_datasource         = ctx.get_metadata_datasource(metadata_datasource_name)
+            metadata_datasource         = ctx.get_tzip_metadata_datasource(metadata_datasource_name)
             token_metadata              = await metadata_datasource.get_token_metadata(token_address, token_id)
     except BaseException as e:
         ...

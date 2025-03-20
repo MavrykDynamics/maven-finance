@@ -7,10 +7,10 @@ from maven.models.parents import ContractLambda, MavenContract
 ###
 
 class Vault(MavenContract, Model):
-    factory                                 = fields.ForeignKeyField('models.VaultFactory', related_name='vaults')
+    factory                                 = fields.ForeignKeyField('models.VaultFactory', related_name='vaults', index=True, null=True)
     baker                                   = fields.ForeignKeyField('models.MavenUser', related_name='delegated_vaults', null=True)
     name                                    = fields.TextField(default='', index=True)
-    creation_timestamp                      = fields.DatetimeField()
+    creation_timestamp                      = fields.DatetimeField(null=True)
     allowance                               = fields.IntEnumField(enum_type=VaultAllowance, default=VaultAllowance.ANY, index=True)
 
     class Meta:

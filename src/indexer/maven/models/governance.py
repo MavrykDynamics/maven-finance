@@ -77,9 +77,9 @@ class GovernanceProposal(Model):
     description                             = fields.TextField(default="")
     invoice                                 = fields.TextField(default="")
     source_code                             = fields.TextField(default="")
-    executed                                = fields.BooleanField(default=False)
-    locked                                  = fields.BooleanField(default=False)
-    payment_processed                       = fields.BooleanField(default=False)
+    executed                                = fields.BooleanField(default=False, index=True)
+    locked                                  = fields.BooleanField(default=False, index=True)
+    payment_processed                       = fields.BooleanField(default=False, index=True)
     reward_claim_ready                      = fields.BooleanField(default=False, index=True)
     execution_ready                         = fields.BooleanField(default=False)
     success_reward                          = fields.FloatField(default=0)
@@ -100,18 +100,22 @@ class GovernanceProposal(Model):
     quorum_smvn_total                       = fields.FloatField(default=0)
     start_datetime                          = fields.DatetimeField(index=True)
     execution_datetime                      = fields.DatetimeField(null=True, index=True)
-    dropped_datetime                        = fields.DatetimeField(null=True)
-    defeated_datetime                       = fields.DatetimeField(null=True)
-    cycle                                   = fields.BigIntField(default=0)
+    dropped_datetime                        = fields.DatetimeField(null=True, index=True)
+    defeated_datetime                       = fields.DatetimeField(null=True, index=True)
+    cycle                                   = fields.BigIntField(default=0, index=True)
     current_cycle_start_level               = fields.BigIntField(default=0)
     current_cycle_end_level                 = fields.BigIntField(default=0)
-    current_round_proposal                  = fields.BooleanField(default=True)
+    current_round_proposal                  = fields.BooleanField(default=True, index=True)
 
     class Meta:
         table = 'governance_proposal'
         indexes = [
             ("governance", "proposer"),
             ("status", "start_datetime"),
+            ("current_round_proposal", "governance"),
+            ("executed", "locked", "status"),
+            ("executed", "payment_processed"),
+            ("cycle", "current_round_proposal"),
         ]
 
 class GovernanceProposalData(Model):

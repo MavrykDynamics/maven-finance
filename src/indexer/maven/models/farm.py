@@ -12,12 +12,12 @@ class Farm(MavenContract, Model):
     loan_token_name                         = fields.CharField(max_length=36, null=True)
     token0                                  = fields.ForeignKeyField('models.Token', related_name='farms_tokens_0', null=True, index=True)
     token1                                  = fields.ForeignKeyField('models.Token', related_name='farms_tokens_1', null=True, index=True)
-    creation_timestamp                      = fields.DatetimeField()
-    start_timestamp                         = fields.DatetimeField(null=True)
-    end_timestamp                           = fields.DatetimeField(null=True)
+    creation_timestamp                      = fields.DatetimeField(index=True)
+    start_timestamp                         = fields.DatetimeField(null=True, index=True)
+    end_timestamp                           = fields.DatetimeField(null=True, index=True)
     name                                    = fields.TextField(default='')
     force_rewards_from_transfer             = fields.BooleanField(default=False)
-    infinite                                = fields.BooleanField(default=False)
+    infinite                                = fields.BooleanField(default=False, index=True)
     lp_token_balance                        = fields.BigIntField(default=0)
     total_blocks                            = fields.BigIntField(default=0)
     current_reward_per_block                = fields.FloatField(default=0)
@@ -33,12 +33,14 @@ class Farm(MavenContract, Model):
     unpaid_rewards                          = fields.FloatField(default=0)
     paid_rewards                            = fields.FloatField(default=0)
     min_block_time_snapshot                 = fields.SmallIntField(default=0)
-    is_m_farm                               = fields.BooleanField(default=False)
+    is_m_farm                               = fields.BooleanField(default=False, index=True)
 
     class Meta:
         table = 'farm'
         indexes = [
             ("open", "creation_timestamp"),
+            ("open", "is_m_farm"),
+            ("open", "infinite"),
         ]
 
 class FarmLambda(ContractLambda, Model):

@@ -18,7 +18,7 @@ async def update_depositor(
         allowance_type      = models.VaultAllowance.ANY
     
         # Update record
-        vault               = await models.Vault.get(
+        vault, _            = await models.Vault.get_or_create(
             network = 'atlasnet',
             address = vault_address
         )

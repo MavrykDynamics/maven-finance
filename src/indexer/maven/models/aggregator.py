@@ -38,13 +38,16 @@ class AggregatorOracle(Model):
     user                                    = fields.ForeignKeyField('models.MavenUser', related_name='aggregator_oracles', index=True)
     public_key                              = fields.CharField(max_length=54, default="", index=True)
     peer_id                                 = fields.TextField(default="")
-    init_round                              = fields.BigIntField()
-    init_epoch                              = fields.BigIntField()
+    init_round                              = fields.BigIntField(index=True)
+    init_epoch                              = fields.BigIntField(index=True)
 
     class Meta:
         table = 'aggregator_oracle'
         indexes = [
             ("aggregator", "user"),
+            ("user", "aggregator"),
+            ("aggregator", "init_epoch", "init_round"),
+            ("public_key", "user"),
         ]
 
 class AggregatorOracleObservation(Model):
@@ -66,10 +69,14 @@ class AggregatorOracleReward(Model):
     id                                      = fields.BigIntField(pk=True)
     oracle                                  = fields.ForeignKeyField('models.AggregatorOracle', related_name='rewards', index=True)
     type                                    = fields.IntEnumField(enum_type=RewardType, index=True)
-    reward                                  = fields.FloatField(default=0)
+    reward                                  = fields.FloatField(default=0, index=True)
 
     class Meta:
         table = 'aggregator_oracle_reward'
+        indexes = [
+            ("oracle", "type"),
+            ("type", "reward"),
+        ]
 
 class AggregatorLambda(ContractLambda, Model):
     contract                                = fields.ForeignKeyField('models.Aggregator', related_name='lambdas')
@@ -104,4 +111,6 @@ class AggregatorHistoryData(Model):
         indexes = [
             ("aggregator", "timestamp"),
             ("round", "epoch"),
+            ("aggregator", "timestamp", "epoch"),
+            ("epoch", "timestamp"),
         ]

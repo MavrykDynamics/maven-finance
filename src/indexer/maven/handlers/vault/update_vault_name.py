@@ -16,12 +16,12 @@ async def update_vault_name(
         updated_name        = update_vault_name.parameter.root
     
         # Update record
-        await models.Vault.filter(
+        vault, _            = await models.Vault.get_or_create(
             network = 'atlasnet',
             address = vault_address
-        ).update(
-            name          = updated_name
         )
+        vault.name  = updated_name
+        await vault.save()
 
     except BaseException as e:
         await save_error_report(e)

@@ -300,6 +300,7 @@ templates:
       pattern:
       - destination: <vault_contract>
         entrypoint: updateVaultName
+
   # MToken template
   m_token_template:
     kind: tezos.operations
@@ -1521,3 +1522,23 @@ indexes:
       pattern:
       - type: origination
         originated_contract: governance
+  # Initialize all vaults
+  vault:
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
+    types:
+    - transaction
+    handlers:
+    - callback: vault.set_baker
+      pattern:
+      - destination: vault
+        entrypoint: setBaker
+    - callback: vault.update_depositor
+      pattern:
+      - destination: vault
+        entrypoint: updateDepositor
+    - callback: vault.update_vault_name
+      pattern:
+      - destination: vault
+        entrypoint: updateVaultName
