@@ -41,6 +41,7 @@ class Farm(MavenContract, Model):
             ("open", "creation_timestamp"),
             ("open", "is_m_farm"),
             ("open", "infinite"),
+            ("open", "lp_token_balance"),
         ]
 
 class FarmLambda(ContractLambda, Model):
@@ -76,5 +77,4 @@ class FarmAccount(Model):
         table = 'farm_account'
         indexes = [
             ("farm_id", "user_id"),
-            ("user_id", "farm_id"),
         ]

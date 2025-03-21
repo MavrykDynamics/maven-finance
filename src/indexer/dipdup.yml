@@ -1542,3 +1542,13 @@ indexes:
       pattern:
       - destination: vault
         entrypoint: updateVaultName
+
+hooks:
+  refresh_views:
+    callback: refresh_views
+    atomic: False
+
+jobs:
+  refresh_views:
+    hook: refresh_views
+    interval: 300

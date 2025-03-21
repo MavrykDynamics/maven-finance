@@ -19,10 +19,10 @@ class MToken(MavenContract, Model):
     class Meta:
         table = 'm_token'
         indexes = [
-            ("token", "token_reward_index"),
-            ("total_supply", "token_id"),
-            ("is_scaled_token", "token_id"),
+            ("token_id", "total_supply"),
             ("governance_id", "token_id"),
+            ("address", "token_id"),
+            ("total_supply", "token_reward_index", "is_scaled_token"),
         ]
 
 class MTokenLambda(ContractLambda, Model):
@@ -37,6 +37,9 @@ class MTokenGeneralContract(LinkedContract, Model):
 
     class Meta:
         table = 'm_token_general_contract'
+        indexes = [
+            ("contract_id", "contract_name"),
+        ]
 
 class MTokenWhitelistContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.MToken', related_name='whitelist_contracts')
@@ -53,9 +56,8 @@ class MTokenOperator(Model):
     class Meta:
         table = 'm_token_operator'
         indexes = [
-            ("m_token", "owner"),
-            ("m_token", "operator"),
-            ("owner", "operator"),
+            ("m_token_id", "owner_id"),
+            ("m_token_id", "operator_id", "owner_id"),
         ]
 
 class MTokenAccount(Model):
@@ -69,10 +71,10 @@ class MTokenAccount(Model):
     class Meta:
         table = 'm_token_account'
         indexes = [
-            ("user", "m_token"),
-            ("m_token", "balance"),
-            ("m_token", "rewards_earned"),
-            ("balance", "user_id", "m_token_id"),
+            ("user_id", "m_token_id"),
+            ("m_token_id", "balance"),
+            ("user_id", "m_token_id", "balance", "rewards_earned"),
+            ("m_token_id", "balance", "rewards_earned"),
         ]
 
 class MTokenAccountHistoryData(Model):
@@ -89,7 +91,7 @@ class MTokenAccountHistoryData(Model):
     class Meta:
         table = 'm_token_account_history_data'
         indexes = [
-            ("m_token_account", "timestamp"),
+            ("m_token_account_id", "timestamp"),
             ("type", "timestamp"),
-            ("m_token_account", "type", "timestamp"),
+            ("timestamp", "type", "m_token_account_id"),
         ]

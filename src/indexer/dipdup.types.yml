@@ -1511,3 +1511,13 @@ indexes:
     template: m_token_template
     values:
       m_token_contract: m_token_usdt
+
+hooks:
+  refresh_views:
+    callback: refresh_views
+    atomic: False
+
+jobs:
+  refresh_views:
+    hook: refresh_views
+    interval: 300

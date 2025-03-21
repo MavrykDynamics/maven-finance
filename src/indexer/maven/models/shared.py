@@ -20,7 +20,7 @@ class Token(Model):
     network                                 = fields.CharField(max_length=51, index=True)
     token_address                           = fields.CharField(max_length=36, index=True)
     token_id                                = fields.SmallIntField(default=0, index=True)
-    token_standard                          = fields.CharField(max_length=4, null=True)
+    token_standard                          = fields.CharField(max_length=4, null=True, index=True)
     metadata                                = fields.JSONField(default=token_metadata_default_value, null=True)
 
     class Meta:

@@ -59,6 +59,9 @@ class SatelliteRewards(Model):
 
     class Meta:
         table = 'satellite_rewards'
+        indexes = [
+            ("user_id", "unpaid"),
+        ] 
 
 class Satellite(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
@@ -82,12 +85,12 @@ class Satellite(Model):
     class Meta:
         table = 'satellite'
         indexes = [
-            ("user", "delegation"),
+            ("user_id", "delegation_id"),
             ("currently_registered", "total_delegated_amount"),
             ("currently_registered", "status"),
             ("status", "registration_timestamp"),
             ("registration_timestamp", "currently_registered"),
-        ] 
+        ]
 
 class DelegationRecord(Model):
     id                                      = fields.BigIntField(pk=True)

@@ -1,0 +1,4 @@
+REFRESH MATERIALIZED VIEW materialized_loan_token_view;
+REFRESH MATERIALIZED VIEW materialized_vault_collateral_view;
+REFRESH MATERIALIZED VIEW materialized_tvl_stats;
+REFRESH MATERIALIZED VIEW materialized_user_dashboard; 
