@@ -1,36 +1,25 @@
 CREATE OR REPLACE VIEW gql_loan_token_market_stats AS
-WITH vault_counts AS (
-    SELECT 
-        lcv.loan_token_id,
-        COUNT(DISTINCT lcv.id) as vaults_count
-    FROM 
-        lending_controller_vault lcv
-    GROUP BY 
-        lcv.loan_token_id
-)
 SELECT 
-    ltv.id,
-    ltv.token_address,
-    ltv.m_token_address,
-    ltv.loan_token_name,
-    ltv.token_pool_total,
-    ltv.total_borrowed,
-    ltv.total_remaining,
-    ltv.utilisation_rate,
-    ltv.current_interest_rate,
-    ltv.depositors_count,
-    ltv.borrowers_count,
-    ltv.rewards_earned_total,
-    ltv.lending_controller_id,
-    ltv.token_id,
-    ltv.m_token_id,
-    ltv.last_updated,
-    ltv.paused,
-    COALESCE(vc.vaults_count, 0) as vaults_count,
-    (SELECT lt.reserve_ratio FROM lending_controller_loan_token lt WHERE lt.id = ltv.id) as reserve_ratio
+    id,
+    token_address,
+    m_token_address,
+    loan_token_name,
+    token_pool_total,
+    total_borrowed,
+    total_remaining,
+    utilisation_rate,
+    current_interest_rate,
+    depositors_count,
+    borrowers_count,
+    rewards_earned_total,
+    lending_controller_id,
+    token_id,
+    m_token_id,
+    last_updated,
+    paused,
+    (SELECT lt.reserve_ratio FROM lending_controller_loan_token lt WHERE lt.id = loan_token_view.id) as reserve_ratio
 FROM 
-    loan_token_view ltv
-    LEFT JOIN vault_counts vc ON ltv.id = vc.loan_token_id;
+    loan_token_view;
 
 CREATE OR REPLACE VIEW gql_vault_with_balances AS
 WITH vault_data AS (
