@@ -82,36 +82,52 @@ CREATE UNIQUE INDEX IF NOT EXISTS materialized_tvl_stats_id_idx ON materialized_
 CREATE INDEX IF NOT EXISTS materialized_tvl_stats_token_address_idx ON materialized_tvl_stats (token_address);
 
 -- Create materialized view for user dashboard
--- OPTIMIZED: Restructured the query to be more efficient for writing
-CREATE MATERIALIZED VIEW IF NOT EXISTS materialized_user_dashboard AS
-SELECT
-    mu.id as user_id,
-    mu.address as user_address,
-    COUNT(DISTINCT v.id) as vaults_count,
-    COUNT(DISTINCT lcv.id) FILTER (WHERE lcv.open = true) as active_vaults_count,
-    COALESCE(SUM(lcv.loan_outstanding_total), 0) as total_borrowed,
-    COALESCE(
-        (SELECT jsonb_object_agg(
+-- OPTIMIZED: Restructured completely to avoid expensive nested subqueries
+CREATE MATERIALIZED VIEW materialized_user_dashboard AS
+WITH user_vaults AS (
+    SELECT
+        mu.id as user_id,
+        mu.address as user_address,
+        COUNT(DISTINCT v.id) as vaults_count,
+        COUNT(DISTINCT lcv.id) FILTER (WHERE lcv.open = true) as active_vaults_count,
+        COALESCE(SUM(lcv.loan_outstanding_total), 0) as total_borrowed
+    FROM
+        maven_user mu
+        LEFT JOIN lending_controller_vault lcv ON mu.id = lcv.owner_id
+        LEFT JOIN vault v ON lcv.vault_id = v.id
+    GROUP BY
+        mu.id, mu.address
+),
+user_tokens AS (
+    SELECT
+        mta.user_id,
+        jsonb_object_agg(
             mt.address,
             jsonb_build_object(
                 'm_token_address', mt.address,
                 'balance', mta.balance,
                 'rewards_earned', mta.rewards_earned
             )
-        )
-        FROM m_token_account mta 
+        ) as m_tokens
+    FROM 
+        m_token_account mta 
         JOIN m_token mt ON mta.m_token_id = mt.id
-        WHERE mta.user_id = mu.id AND mta.balance > 0
-        ),
-        '{{}}'::jsonb
-    ) as m_tokens,
+    WHERE 
+        mta.balance > 0
+    GROUP BY 
+        mta.user_id
+)
+SELECT
+    uv.user_id,
+    uv.user_address,
+    uv.vaults_count,
+    uv.active_vaults_count,
+    uv.total_borrowed,
+    COALESCE(ut.m_tokens, '{}'::jsonb) as m_tokens,
     NOW() as last_updated
 FROM
-    maven_user mu
-    LEFT JOIN lending_controller_vault lcv ON mu.id = lcv.owner_id
-    LEFT JOIN vault v ON lcv.vault_id = v.id
-GROUP BY
-    mu.id, mu.address
+    user_vaults uv
+    LEFT JOIN user_tokens ut ON uv.user_id = ut.user_id
 WITH NO DATA;
 
 CREATE UNIQUE INDEX IF NOT EXISTS materialized_user_dashboard_user_id_idx ON materialized_user_dashboard (user_id);
