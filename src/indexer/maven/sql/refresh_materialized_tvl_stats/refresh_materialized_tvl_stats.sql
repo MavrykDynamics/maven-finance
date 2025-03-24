@@ -1,1 +1,0 @@
-    REFRESH MATERIALIZED VIEW CONCURRENTLY materialized_tvl_stats;

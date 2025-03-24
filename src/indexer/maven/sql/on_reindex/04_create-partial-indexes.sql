@@ -100,29 +100,23 @@ ON lending_controller_vault_collateral_balance (balance DESC, lending_controller
 -- MATERIALIZED VIEW INDEXES
 -- =========================================================
 
--- === materialized_loan_token_view Indexes ===
--- OPTIMIZED: Consolidated materialized view indexes
-CREATE INDEX IF NOT EXISTS idx_mlv_token_query
-ON materialized_loan_token_view (token_address, paused, token_id, current_interest_rate, utilisation_rate);
+-- === loan_token_view Indexes ===
+CREATE INDEX IF NOT EXISTS loan_token_view_market_data_idx 
+ON loan_token_view (token_address, paused, token_id, current_interest_rate, utilisation_rate);
 
--- OPTIMIZED: Comprehensive sorting index
-CREATE INDEX IF NOT EXISTS idx_mlv_performance_metrics
-ON materialized_loan_token_view (depositors_count DESC, total_borrowed DESC, utilisation_rate DESC);
+CREATE INDEX IF NOT EXISTS loan_token_view_stats_desc_idx 
+ON loan_token_view (depositors_count DESC, total_borrowed DESC, utilisation_rate DESC);
 
--- === materialized_vault_collateral_view Indexes ===
--- OPTIMIZED: Consolidated vault collateral indexes
-CREATE INDEX IF NOT EXISTS idx_mvcv_query_optimization
-ON materialized_vault_collateral_view (owner_address, vault_address, token_address, balance, loan_outstanding_total);
+-- === vault_collateral_view Indexes ===
+CREATE INDEX IF NOT EXISTS vault_collateral_view_owner_idx 
+ON vault_collateral_view (owner_address, vault_address, token_address, balance, loan_outstanding_total);
 
--- OPTIMIZED: Sorting index for prioritized operations
-CREATE INDEX IF NOT EXISTS idx_mvcv_sort_optimization
-ON materialized_vault_collateral_view (balance DESC, loan_outstanding_total DESC);
+CREATE INDEX IF NOT EXISTS vault_collateral_view_stats_desc_idx 
+ON vault_collateral_view (balance DESC, loan_outstanding_total DESC);
 
--- === materialized_user_dashboard Indexes ===
--- OPTIMIZED: Consolidated user dashboard indexes
-CREATE INDEX IF NOT EXISTS idx_mud_user_metrics
-ON materialized_user_dashboard (user_address, user_id, total_borrowed DESC, vaults_count DESC, active_vaults_count DESC);
+-- === user_dashboard Indexes ===
+CREATE INDEX IF NOT EXISTS user_dashboard_stats_idx 
+ON user_dashboard (user_address, user_id, total_borrowed DESC, vaults_count DESC, active_vaults_count DESC);
 
--- OPTIMIZED: Add hash index for JSON operations
-CREATE INDEX IF NOT EXISTS idx_mud_m_tokens_jsonb
-ON materialized_user_dashboard USING GIN (m_tokens);
+CREATE INDEX IF NOT EXISTS user_dashboard_tokens_idx 
+ON user_dashboard USING GIN (m_tokens);

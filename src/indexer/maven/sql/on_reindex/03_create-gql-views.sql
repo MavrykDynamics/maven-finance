@@ -1,31 +1,37 @@
--- Create view for loan token market stats
--- OPTIMIZED: Use materialized view instead of direct table access
 CREATE OR REPLACE VIEW gql_loan_token_market_stats AS
+WITH vault_counts AS (
+    SELECT 
+        lcv.loan_token_id,
+        COUNT(DISTINCT lcv.id) as vaults_count
+    FROM 
+        lending_controller_vault lcv
+    GROUP BY 
+        lcv.loan_token_id
+)
 SELECT 
-    id,
-    token_address,
-    m_token_address,
-    loan_token_name,
-    token_pool_total,
-    total_borrowed,
-    total_remaining,
-    utilisation_rate,
-    current_interest_rate,
-    depositors_count,
-    borrowers_count,
-    rewards_earned_total,
-    lending_controller_id,
-    token_id,
-    m_token_id,
-    last_updated,
-    paused,
-    -- Get the reserve_ratio directly from the loan_token table
-    (SELECT lt.reserve_ratio FROM lending_controller_loan_token lt WHERE lt.id = materialized_loan_token_view.id) as reserve_ratio
+    ltv.id,
+    ltv.token_address,
+    ltv.m_token_address,
+    ltv.loan_token_name,
+    ltv.token_pool_total,
+    ltv.total_borrowed,
+    ltv.total_remaining,
+    ltv.utilisation_rate,
+    ltv.current_interest_rate,
+    ltv.depositors_count,
+    ltv.borrowers_count,
+    ltv.rewards_earned_total,
+    ltv.lending_controller_id,
+    ltv.token_id,
+    ltv.m_token_id,
+    ltv.last_updated,
+    ltv.paused,
+    COALESCE(vc.vaults_count, 0) as vaults_count,
+    (SELECT lt.reserve_ratio FROM lending_controller_loan_token lt WHERE lt.id = ltv.id) as reserve_ratio
 FROM 
-    materialized_loan_token_view;
+    loan_token_view ltv
+    LEFT JOIN vault_counts vc ON ltv.id = vc.loan_token_id;
 
--- Create view for vaults with pre-computed balances for optimized GraphQL queries
--- OPTIMIZED: Use materialized views where possible and simplified joins
 CREATE OR REPLACE VIEW gql_vault_with_balances AS
 WITH vault_data AS (
     SELECT 
@@ -51,19 +57,19 @@ WITH vault_data AS (
 ),
 collateral_data AS (
     SELECT 
-        mvcv.lending_controller_vault_id,
+        vcv.lending_controller_vault_id,
         jsonb_object_agg(
-            mvcv.token_address, 
+            vcv.token_address, 
             jsonb_build_object(
-                'balance', mvcv.balance,
-                'token_name', mvcv.collateral_token_name,
-                'token_id', mvcv.collateral_token_id
+                'balance', vcv.balance,
+                'token_name', vcv.collateral_token_name,
+                'token_id', vcv.collateral_token_id
             )
         ) as collateral_json
     FROM 
-        materialized_vault_collateral_view mvcv
+        vault_collateral_view vcv
     GROUP BY 
-        mvcv.lending_controller_vault_id
+        vcv.lending_controller_vault_id
 ),
 depositor_data AS (
     SELECT 
@@ -103,8 +109,6 @@ FROM
     LEFT JOIN collateral_data cd ON vd.lending_controller_vault_id = cd.lending_controller_vault_id
     LEFT JOIN depositor_data dd ON vd.vault_id = dd.vault_id;
 
--- Create view for history data summary to avoid expensive aggregations at query time
--- OPTIMIZED: Use hypertable efficiently with date_trunc for better partitioning
 CREATE OR REPLACE VIEW gql_history_data_summary AS
 SELECT 
     ROW_NUMBER() OVER () as id,
