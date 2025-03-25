@@ -95,28 +95,3 @@ INCLUDE (loan_token_id, sender_id);
 -- OPTIMIZED: Added commonly queried fields
 CREATE INDEX IF NOT EXISTS idx_lcv_collateral_balance_desc
 ON lending_controller_vault_collateral_balance (balance DESC, lending_controller_vault_id, collateral_token_id);
-
--- =========================================================
--- MATERIALIZED VIEW INDEXES
--- =========================================================
-
--- === loan_token_view Indexes ===
-CREATE INDEX IF NOT EXISTS loan_token_view_market_data_idx 
-ON loan_token_view (token_address, paused, token_id, current_interest_rate, utilisation_rate);
-
-CREATE INDEX IF NOT EXISTS loan_token_view_stats_desc_idx 
-ON loan_token_view (depositors_count DESC, total_borrowed DESC, utilisation_rate DESC);
-
--- === vault_collateral_view Indexes ===
-CREATE INDEX IF NOT EXISTS vault_collateral_view_owner_idx 
-ON vault_collateral_view (owner_address, vault_address, token_address, balance, loan_outstanding_total);
-
-CREATE INDEX IF NOT EXISTS vault_collateral_view_stats_desc_idx 
-ON vault_collateral_view (balance DESC, loan_outstanding_total DESC);
-
--- === user_dashboard Indexes ===
-CREATE INDEX IF NOT EXISTS user_dashboard_stats_idx 
-ON user_dashboard (user_address, user_id, total_borrowed DESC, vaults_count DESC, active_vaults_count DESC);
-
-CREATE INDEX IF NOT EXISTS user_dashboard_tokens_idx 
-ON user_dashboard USING GIN (m_tokens);
