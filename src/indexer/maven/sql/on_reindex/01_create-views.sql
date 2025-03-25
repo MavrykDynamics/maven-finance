@@ -1,4 +1,5 @@
 -- Create regular view for loan tokens (optimized)
+DROP VIEW IF EXISTS loan_token_view CASCADE;
 CREATE OR REPLACE VIEW loan_token_view AS
 WITH depositor_counts AS (
     SELECT
@@ -46,6 +47,7 @@ FROM
     LEFT JOIN borrower_counts bc ON lt.id = bc.loan_token_id;
 
 -- Create regular view for vault collateral (optimized)
+DROP VIEW IF EXISTS vault_collateral_view CASCADE;
 CREATE OR REPLACE VIEW vault_collateral_view AS
 SELECT 
     ROW_NUMBER() OVER () as id,
@@ -70,6 +72,7 @@ FROM
     JOIN maven_user mu ON lcv.owner_id = mu.id;
 
 -- Create regular view for TVL calculations (optimized)
+DROP VIEW IF EXISTS tvl_stats CASCADE;
 CREATE OR REPLACE VIEW tvl_stats AS
 SELECT 
     ROW_NUMBER() OVER () as id,
@@ -82,6 +85,7 @@ FROM
     JOIN token tk ON lt.token_id = tk.id;
 
 -- Create regular view for user dashboard (optimized)
+DROP VIEW IF EXISTS user_dashboard CASCADE;
 CREATE OR REPLACE VIEW user_dashboard AS
 WITH user_vaults AS (
     SELECT

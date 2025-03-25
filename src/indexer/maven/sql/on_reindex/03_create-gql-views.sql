@@ -1,3 +1,4 @@
+DROP VIEW IF EXISTS gql_loan_token_market_stats CASCADE;
 CREATE OR REPLACE VIEW gql_loan_token_market_stats AS
 SELECT 
     id,
@@ -21,6 +22,7 @@ SELECT
 FROM 
     loan_token_view;
 
+DROP VIEW IF EXISTS gql_vault_with_balances CASCADE;
 CREATE OR REPLACE VIEW gql_vault_with_balances AS
 WITH vault_data AS (
     SELECT 
@@ -98,6 +100,7 @@ FROM
     LEFT JOIN collateral_data cd ON vd.lending_controller_vault_id = cd.lending_controller_vault_id
     LEFT JOIN depositor_data dd ON vd.vault_id = dd.vault_id;
 
+DROP VIEW IF EXISTS gql_history_data_summary CASCADE;
 CREATE OR REPLACE VIEW gql_history_data_summary AS
 SELECT 
     ROW_NUMBER() OVER () as id,
