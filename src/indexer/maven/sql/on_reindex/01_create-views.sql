@@ -126,7 +126,7 @@ SELECT
     uv.vaults_count,
     uv.active_vaults_count,
     uv.total_borrowed,
-    COALESCE(ut.m_tokens, '{}'::jsonb) as m_tokens,
+    COALESCE(ut.m_tokens, '{{}}'::jsonb) as m_tokens,
     NOW() as last_updated
 FROM
     user_vaults uv
