@@ -32,7 +32,7 @@ advanced:
     manual: wipe
     migration: exception
     rollback: ignore
-    config_modified: wipe
+    config_modified: ignore
     schema_modified: wipe
 
 datasources:
