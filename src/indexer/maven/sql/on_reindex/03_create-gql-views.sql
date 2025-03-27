@@ -38,7 +38,14 @@ WITH vault_data AS (
         lcv.loan_outstanding_total,
         lcv.loan_principal_total,
         lcv.loan_interest_total,
-        lcv.open as is_open
+        lcv.open as is_open,
+        v.allowance,
+        lct.current_interest_rate,
+        lct.borrow_index,
+        lct.total_remaining,
+        lct.token_pool_total,
+        lct.reserve_ratio,
+        lct.min_repayment_amount
     FROM 
         lending_controller_vault lcv
         JOIN vault v ON lcv.vault_id = v.id
@@ -91,9 +98,16 @@ SELECT
     vd.loan_outstanding_total,
     vd.loan_principal_total,
     vd.loan_interest_total,
-    COALESCE(cd.collateral_json, '{{}}'::jsonb) as collateral_json,
-    COALESCE(dd.depositors_json, '{{}}'::jsonb) as depositors_json,
+    COALESCE(cd.collateral_json, '{}'::jsonb) as collateral_json,
+    COALESCE(dd.depositors_json, '{}'::jsonb) as depositors_json,
     vd.is_open,
+    vd.allowance,
+    vd.current_interest_rate,
+    vd.borrow_index,
+    vd.total_remaining,
+    vd.token_pool_total,
+    vd.reserve_ratio,
+    vd.min_repayment_amount,
     NOW() as last_updated
 FROM 
     vault_data vd
