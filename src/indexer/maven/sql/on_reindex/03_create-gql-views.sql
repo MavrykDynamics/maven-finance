@@ -40,6 +40,13 @@ WITH vault_data AS (
         lcv.loan_interest_total,
         lcv.open as is_open,
         v.allowance,
+        v.creation_timestamp,
+        v.baker_id,
+        mu_baker.address as baker_address,
+        lcv.last_updated_block_level,
+        lcv.marked_for_liquidation_level,
+        lcv.liquidation_end_level,
+        lcv.internal_id,
         lct.current_interest_rate,
         lct.borrow_index,
         lct.total_remaining,
@@ -50,6 +57,7 @@ WITH vault_data AS (
         lending_controller_vault lcv
         JOIN vault v ON lcv.vault_id = v.id
         JOIN maven_user mu ON lcv.owner_id = mu.id
+        LEFT JOIN maven_user mu_baker ON v.baker_id = mu_baker.id
         JOIN lending_controller_loan_token lct ON lcv.loan_token_id = lct.id
         JOIN token tk ON lct.token_id = tk.id
 ),
@@ -98,10 +106,16 @@ SELECT
     vd.loan_outstanding_total,
     vd.loan_principal_total,
     vd.loan_interest_total,
-    COALESCE(cd.collateral_json, '{}'::jsonb) as collateral_json,
-    COALESCE(dd.depositors_json, '{}'::jsonb) as depositors_json,
+    COALESCE(cd.collateral_json, '{{}}'::jsonb) as collateral_json,
+    COALESCE(dd.depositors_json, '{{}}'::jsonb) as depositors_json,
     vd.is_open,
     vd.allowance,
+    vd.creation_timestamp,
+    vd.baker_address,
+    vd.last_updated_block_level,
+    vd.marked_for_liquidation_level,
+    vd.liquidation_end_level,
+    vd.internal_id,
     vd.current_interest_rate,
     vd.borrow_index,
     vd.total_remaining,

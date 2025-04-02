@@ -19,11 +19,6 @@ hasura:
   select_limit: 1000
   rest: false
 
-prometheus:
-  host: 0.0.0.0
-  port: 9090
-  update_interval: 5
-
 advanced:
   scheduler:
     apscheduler.job_defaults.coalesce: true

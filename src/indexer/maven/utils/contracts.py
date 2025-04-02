@@ -8,7 +8,8 @@ async def get_token_standard(ctx, contract_address):
     elif contract_address[0:3] == 'KT1' and len(contract_address) == 36:
         contract_summary        = None
         try:
-            contract_summary    = await ctx.datasource.get_contract_summary(
+            datasource          = ctx.get_tezos_tzkt_datasource('mvkt_atlasnet')
+            contract_summary    = await datasource.get_contract_summary(
                 address = contract_address
             )
         except BaseException as e:
