@@ -78,7 +78,7 @@ class GovernanceFinancialRequestVote(Model):
     governance_financial_request            = fields.ForeignKeyField('models.GovernanceFinancialRequest', related_name='votes')
     voter                                   = fields.ForeignKeyField('models.MavenUser', related_name='governance_financial_requests_votes')
     satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshot', related_name='governance_financial_requests_votes')
-    timestamp                               = fields.DatetimeField(auto_now=True)
+    timestamp                               = fields.DatetimeField(null=True)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
 
     class Meta:

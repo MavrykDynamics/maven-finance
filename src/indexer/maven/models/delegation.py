@@ -75,7 +75,7 @@ class Satellite(Model):
     description                             = fields.TextField(default="")
     image                                   = fields.TextField(default="")
     website                                 = fields.TextField(default="", index=True)
-    registration_timestamp                  = fields.DatetimeField(auto_now=True, index=True)
+    registration_timestamp                  = fields.DatetimeField(index=True, null=True)
     currently_registered                    = fields.BooleanField(default=True, index=True)
     total_delegated_amount                  = fields.FloatField(default=0.0, index=True)
     satellite_action_counter                = fields.BigIntField(default=0)
@@ -97,7 +97,7 @@ class DelegationRecord(Model):
     satellite                               = fields.ForeignKeyField('models.Satellite', related_name='delegations', index=True)
     user                                    = fields.ForeignKeyField('models.MavenUser', related_name='delegations', index=True)
     delegation                              = fields.ForeignKeyField('models.Delegation', related_name='delegations', index=True)
-    satellite_registration_timestamp        = fields.DatetimeField(auto_now=True, index=True)
+    satellite_registration_timestamp        = fields.DatetimeField(index=True, null=True)
 
     class Meta:
         table = 'delegation_record'

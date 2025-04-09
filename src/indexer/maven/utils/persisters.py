@@ -234,9 +234,10 @@ async def persist_financial_request(ctx, action):
                 # Create a temp treasury
                 governance  = await governanceFinancial.governance
                 treasury    = models.Treasury(
-                    address     = treasury_address,
-                    network     = 'atlasnet',
-                    governance  = governance
+                    address             = treasury_address,
+                    network             = 'atlasnet',
+                    governance          = governance,
+                    creation_timestamp  = action.data.timestamp
                 )
                 await treasury.save()
 

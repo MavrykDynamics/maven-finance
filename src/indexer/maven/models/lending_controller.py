@@ -62,7 +62,7 @@ class LendingControllerVault(Model):
     loan_decimals                           = fields.SmallIntField(default=0)
     borrow_index                            = fields.FloatField(default=0)
     last_updated_block_level                = fields.BigIntField(default=0)
-    last_updated_timestamp                  = fields.DatetimeField(auto_now=True)
+    last_updated_timestamp                  = fields.DatetimeField(null=True)
     marked_for_liquidation_level            = fields.BigIntField(default=0)
     liquidation_end_level                   = fields.BigIntField(default=0)
     open                                    = fields.BooleanField(default=True)

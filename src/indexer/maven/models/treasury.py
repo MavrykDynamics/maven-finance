@@ -9,7 +9,7 @@ class Treasury(MavenContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='treasuries')
     factory                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='treasuries', null=True)
     baker                                   = fields.ForeignKeyField('models.MavenUser', related_name='delegated_treasuries', null=True)
-    creation_timestamp                      = fields.DatetimeField(auto_now=True)
+    creation_timestamp                      = fields.DatetimeField(null=True)
     name                                    = fields.TextField(default='')
     transfer_paused                         = fields.BooleanField(default=False)
     mint_mvn_and_transfer_paused            = fields.BooleanField(default=False)

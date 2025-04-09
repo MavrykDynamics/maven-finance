@@ -72,7 +72,7 @@ class GovernanceSatelliteActionVote(Model):
     governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteAction', related_name='votes')
     voter                                   = fields.ForeignKeyField('models.MavenUser', related_name='governance_satellite_actions_votes')
     satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshot', related_name='governance_satellite_actions_votes')
-    timestamp                               = fields.DatetimeField(auto_now=True)
+    timestamp                               = fields.DatetimeField(null=True)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
     class Meta:
         table = 'governance_satellite_action_vote'

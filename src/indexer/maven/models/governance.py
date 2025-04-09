@@ -145,7 +145,7 @@ class GovernanceProposalVote(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_proposal                     = fields.ForeignKeyField('models.GovernanceProposal', related_name='votes')
     voter                                   = fields.ForeignKeyField('models.MavenUser', related_name='governance_proposals_votes')
-    timestamp                               = fields.DatetimeField(auto_now=True)
+    timestamp                               = fields.DatetimeField(null=True)
     round                                   = fields.IntEnumField(enum_type=GovernanceRoundType, index=True)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
     voting_power                            = fields.FloatField(default=0.0)
