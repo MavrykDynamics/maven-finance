@@ -47,7 +47,7 @@ async def register_withdrawal(
                 vault_collateral_balance_ledger         = vault_storage.value.collateralBalanceLedger
     
                 # Save updated vault
-                lending_controller_vault                = await models.LendingControllerVault.get(
+                lending_controller_vault, _             = await models.LendingControllerVault.get_or_create(
                     lending_controller  = lending_controller,
                     owner               = vault_owner,
                     internal_id         = vault_internal_id
