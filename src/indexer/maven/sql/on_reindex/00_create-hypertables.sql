@@ -19,22 +19,6 @@ ALTER TABLE smvn_history_data DROP CONSTRAINT smvn_history_data_pkey;
 ALTER TABLE smvn_history_data ADD PRIMARY KEY (id, timestamp);
 SELECT create_hypertable('smvn_history_data', 'timestamp', if_not_exists => TRUE);
 
-ALTER TABLE emergency_governance_vote DROP CONSTRAINT emergency_governance_vote_pkey;
-ALTER TABLE emergency_governance_vote ADD PRIMARY KEY (id, timestamp);
-SELECT create_hypertable('emergency_governance_vote', 'timestamp', if_not_exists => TRUE);
-
-ALTER TABLE governance_financial_request_vote DROP CONSTRAINT governance_financial_request_vote_pkey;
-ALTER TABLE governance_financial_request_vote ADD PRIMARY KEY (id, timestamp);
-SELECT create_hypertable('governance_financial_request_vote', 'timestamp', if_not_exists => TRUE);
-
-ALTER TABLE governance_satellite_action_vote DROP CONSTRAINT governance_satellite_action_vote_pkey;
-ALTER TABLE governance_satellite_action_vote ADD PRIMARY KEY (id, timestamp);
-SELECT create_hypertable('governance_satellite_action_vote', 'timestamp', if_not_exists => TRUE);
-
-ALTER TABLE governance_proposal_vote DROP CONSTRAINT governance_proposal_vote_pkey;
-ALTER TABLE governance_proposal_vote ADD PRIMARY KEY (id, timestamp);
-SELECT create_hypertable('governance_proposal_vote', 'timestamp', if_not_exists => TRUE);
-
 ALTER TABLE lending_controller_history_data DROP CONSTRAINT lending_controller_history_data_pkey;
 ALTER TABLE lending_controller_history_data ADD PRIMARY KEY (id, timestamp);
 SELECT create_hypertable('lending_controller_history_data', 'timestamp', if_not_exists => TRUE);

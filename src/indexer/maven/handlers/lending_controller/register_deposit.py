@@ -47,11 +47,11 @@ async def register_deposit(
                 vault_collateral_balance_ledger         = vault_storage.value.collateralBalanceLedger
     
                 # Save updated vault
-                lending_controller_vault, _             = await models.LendingControllerVault.get_or_create(
+                lending_controller_vault                = await models.LendingControllerVault.filter(
                     lending_controller  = lending_controller,
                     owner               = vault_owner,
                     internal_id         = vault_internal_id
-                )
+                ).first()
                 lending_controller_vault.internal_id                        = vault_internal_id
                 lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
                 lending_controller_vault.loan_principal_total               = vault_loan_principal_total
