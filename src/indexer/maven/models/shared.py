@@ -45,6 +45,7 @@ class MavenUserCache:
         if address not in self._maven_users:
             # NOTE: Already created on origination
             self._maven_users[address], _ = await MavenUser.get_or_create(network=network, address=address)
+            await self._maven_users[address].save()
             if len(self._maven_users) > self._size:
                 self._maven_users.popitem(last=False)
 
