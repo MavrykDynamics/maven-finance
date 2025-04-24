@@ -28,7 +28,7 @@ async def on_stake_change(
             # Get and update records
             if user_address in on_stake_change.storage.satelliteRewardsLedger:
                 rewards_record          = on_stake_change.storage.satelliteRewardsLedger[user_address]
-                user                    = await models.maven_user_cache.get(network='atlasnet', address=user_address)
+                user                    = await models.get_user(network='atlasnet', address=user_address)
                 satellite_rewards, _    = await models.SatelliteRewards.get_or_create(
                     user        = user,
                     delegation  = delegation
@@ -44,7 +44,7 @@ async def on_stake_change(
         # Update satellites total delegated amount
         for satellite_address in satellite_ledger:
             satellite_storage                       = satellite_ledger[satellite_address]
-            satellite                               = await models.maven_user_cache.get(network='atlasnet', address=satellite_address)
+            satellite                               = await models.get_user(network='atlasnet', address=satellite_address)
             satellite_record                        = await models.Satellite.get(
                 user        = satellite,
                 delegation  = delegation

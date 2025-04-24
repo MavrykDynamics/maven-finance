@@ -57,7 +57,7 @@ async def transfer(
                 token_id=str(token_id)
             )
     
-            receiver                = await models.maven_user_cache.get(network='atlasnet', address=receiver_address)
+            receiver                = await models.get_user(network='atlasnet', address=receiver_address)
             treasury_transfer_data  = models.TreasuryTransferHistoryData(
                 timestamp                       = timestamp,
                 treasury                        = treasury,

@@ -22,7 +22,7 @@ async def request_mvn(
             network = 'atlasnet',
             address = mvn_faucet_address
         )
-        user                = await models.maven_user_cache.get(network='atlasnet', 
+        user                = await models.get_user(network='atlasnet', 
             address = requester_address
         )
         requester           = models.MVNFaucetRequester(

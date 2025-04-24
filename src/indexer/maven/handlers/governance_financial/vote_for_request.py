@@ -56,7 +56,7 @@ async def vote_for_request(
                 execution_datetime    = execution_datetime
             )
     
-        voter                   = await models.maven_user_cache.get(network='atlasnet', address=voter_address)
+        voter                   = await models.get_user(network='atlasnet', address=voter_address)
     
         # Register vote
         satellite_snapshot, _   = await models.GovernanceSatelliteSnapshot.get_or_create(

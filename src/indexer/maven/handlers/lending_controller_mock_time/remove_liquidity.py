@@ -88,7 +88,7 @@ async def remove_liquidity(
         await lending_controller_loan_token.save()
     
         # Save history data
-        sender                                  = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
+        sender                                  = await models.get_user(network='atlasnet', address=sender_address)
         history_data                            = models.LendingControllerHistoryData(
             lending_controller  = lending_controller,
             sender              = sender,

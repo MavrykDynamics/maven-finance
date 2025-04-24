@@ -44,7 +44,7 @@ async def trigger_emergency_control(
         emergency.next_emergency_record_id      = int(emergency_next_id)
         await emergency.save()
     
-        proposer    = await models.maven_user_cache.get(network='atlasnet', address=proposer_address)
+        proposer    = await models.get_user(network='atlasnet', address=proposer_address)
     
         emergency_record = models.EmergencyGovernanceRecord(
             internal_id                     = emergency_id,

@@ -19,7 +19,7 @@ async def update_whitelist_developers(
     
         # Create/Update records
         governance              = await models.Governance.get(network='atlasnet', address= governance_address)
-        user                    = await models.maven_user_cache.get(network='atlasnet', address=developer)
+        user                    = await models.get_user(network='atlasnet', address=developer)
         whitelist_developer, _  = await models.WhitelistDeveloper.get_or_create(
             governance  = governance,
             developer   = user

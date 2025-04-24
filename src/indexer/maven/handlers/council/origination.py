@@ -57,7 +57,7 @@ async def origination(
         await council.save()
     
         for member_address in council_members:
-            user            = await models.maven_user_cache.get(network='atlasnet', address=member_address)
+            user            = await models.get_user(network='atlasnet', address=member_address)
             user.council    = council
             await user.save()
     

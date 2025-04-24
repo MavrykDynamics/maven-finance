@@ -103,7 +103,7 @@ async def origination(
     
         # Add whitelisted developers
         for whitelisted_developer_address in whitelisted_developers:
-            user                                    = await models.maven_user_cache.get(network='atlasnet', address=whitelisted_developer_address)
+            user                                    = await models.get_user(network='atlasnet', address=whitelisted_developer_address)
             whitelist_developer, _                  = await models.WhitelistDeveloper.get_or_create(
                 governance  = governance,
                 developer   = user

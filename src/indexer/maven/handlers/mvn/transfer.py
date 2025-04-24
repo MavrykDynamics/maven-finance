@@ -28,7 +28,7 @@ async def transfer(
             transactions = entry.txs
     
             # Get or create sender
-            sender    = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
+            sender    = await models.get_user(network='atlasnet', address=sender_address)
             sender.mvn_balance = user_ledger[sender_address]
             await sender.save()
     
@@ -37,7 +37,7 @@ async def transfer(
                 amount = int(transaction.amount)
     
                 # Get or create receiver
-                receiver    = await models.maven_user_cache.get(network='atlasnet', address=receiver_address)
+                receiver    = await models.get_user(network='atlasnet', address=receiver_address)
                 receiver.mvn_balance = user_ledger[receiver_address]
                 await receiver.save()
     

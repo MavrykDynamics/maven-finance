@@ -89,7 +89,7 @@ async def create_vault(
 
         # Create a baker or not
         if baker_address:
-            baker       = await models.maven_user_cache.get(network='atlasnet', address=baker_address)
+            baker       = await models.get_user(network='atlasnet', address=baker_address)
             vault.baker = baker
 
         # Save vault
@@ -97,7 +97,7 @@ async def create_vault(
 
         # Register depositors
         for depositor_address in whitelisted_addresses:
-            depositor           = await models.maven_user_cache.get(network='atlasnet', address=depositor_address)
+            depositor           = await models.get_user(network='atlasnet', address=depositor_address)
             vault_depositor, _  = await models.VaultDepositor.get_or_create(
                 vault       = vault,
                 depositor   = depositor
@@ -110,7 +110,7 @@ async def create_vault(
             network         = 'atlasnet',
             address         = lending_controller_address,
         )
-        vault_owner                 = await models.maven_user_cache.get(network='atlasnet', address=vault_owner_address)
+        vault_owner                 = await models.get_user(network='atlasnet', address=vault_owner_address)
 
         for vault_storage in vaults_storage:
             vault_address                           = vault_storage.value.address
@@ -150,7 +150,7 @@ async def create_vault(
             await lending_controller_vault.save()
     
             # Save history data
-            sender                                  = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
+            sender                                  = await models.get_user(network='atlasnet', address=sender_address)
             history_data                            = models.LendingControllerHistoryData(
                 lending_controller  = lending_controller,
                 loan_token          = lending_controller_loan_token,

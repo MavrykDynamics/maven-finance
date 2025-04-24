@@ -36,7 +36,7 @@ async def update_vestee(
             locked    = True
     
         # Create and update records
-        user    = await models.maven_user_cache.get(network='atlasnet', address=vestee_address)
+        user    = await models.get_user(network='atlasnet', address=vestee_address)
         vesting = await models.Vesting.get(
             network = 'atlasnet',
             address = vesting_address

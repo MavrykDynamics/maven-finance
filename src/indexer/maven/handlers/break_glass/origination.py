@@ -55,7 +55,7 @@ async def origination(
         await break_glass.save()
     
         for member_address in council_members:
-            user                = await models.maven_user_cache.get(network='atlasnet', address=member_address)
+            user                = await models.get_user(network='atlasnet', address=member_address)
             memberInfo          = council_members[member_address]
             council_member      = models.BreakGlassCouncilMember(
                 user        = user,

@@ -8,6 +8,3 @@ async def on_synchronized(
 
     # Execute sql script
     await ctx.execute_sql('on_synchronized')
-
-    # Clear user cache
-    await models.maven_user_cache.clear()

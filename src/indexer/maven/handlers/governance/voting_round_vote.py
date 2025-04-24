@@ -39,7 +39,7 @@ async def voting_round_vote(
     
         # Create and update records
         governance  = await models.Governance.get(network='atlasnet', address= governance_address)
-        voter       = await models.maven_user_cache.get(network='atlasnet', address=voter_address)
+        voter       = await models.get_user(network='atlasnet', address=voter_address)
     
         # Update or a satellite snapshot record
         governance_snapshot = await models.GovernanceSatelliteSnapshot.get_or_none(

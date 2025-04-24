@@ -18,7 +18,7 @@ async def set_baker(
         # Update record
         baker               = None
         if baker_address:
-            baker   = await models.maven_user_cache.get(network='atlasnet', address=baker_address)       
+            baker   = await models.get_user(network='atlasnet', address=baker_address)       
         vault, _            = await models.Vault.get_or_create(
             network = 'atlasnet',
             address = vault_address

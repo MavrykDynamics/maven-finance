@@ -32,8 +32,8 @@ async def update_operators(
                 owner_address       = operatorChange.add_operator.owner
                 operator_address    = operatorChange.add_operator.operator
                 
-                owner               = await models.maven_user_cache.get(network='atlasnet', address=owner_address)            
-                operator            = await models.maven_user_cache.get(network='atlasnet', address=operator_address)
+                owner               = await models.get_user(network='atlasnet', address=owner_address)            
+                operator            = await models.get_user(network='atlasnet', address=operator_address)
     
                 operator_record, _  = await models.MTokenOperator.get_or_create(
                     m_token     = m_token,
@@ -45,8 +45,8 @@ async def update_operators(
                 owner_address       = operatorChange.remove_operator.owner
                 operator_address    = operatorChange.remove_operator.operator
                 
-                owner               = await models.maven_user_cache.get(network='atlasnet', address=owner_address)
-                operator            = await models.maven_user_cache.get(network='atlasnet', address=operator_address)
+                owner               = await models.get_user(network='atlasnet', address=owner_address)
+                operator            = await models.get_user(network='atlasnet', address=operator_address)
     
                 operator_record, _  = await models.MTokenOperator.get_or_create(
                     m_token     = m_token,

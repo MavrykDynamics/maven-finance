@@ -36,22 +36,7 @@ class MavenUser(Model):
     class Meta:
         table = 'maven_user'
 
-class MavenUserCache:
-    def __init__(self, size: int = 1000) -> None:
-        self._size = size
-        self._maven_users: OrderedDict[str, MavenUser] = OrderedDict()
-
-    async def get(self, network: str, address: str) -> MavenUser:
-        if address not in self._maven_users:
-            # NOTE: Already created on origination
-            self._maven_users[address], _ = await MavenUser.get_or_create(network=network, address=address)
-            await self._maven_users[address].save()
-            if len(self._maven_users) > self._size:
-                self._maven_users.popitem(last=False)
-
-        return self._maven_users[address]
-
-    async def clear(self) -> None:
-       self._maven_users.clear()
-
-maven_user_cache = MavenUserCache()
+async def get_user(network: str, address: str):
+    user, _ = await MavenUser.get_or_create(network=network, address=address)
+    await user.save()
+    return user

@@ -35,7 +35,7 @@ async def on_vault_liquidate_stake(
         )
         
         # Vault owner
-        vault_owner                     = await models.maven_user_cache.get(network='atlasnet', address=vault_owner_address)
+        vault_owner                     = await models.get_user(network='atlasnet', address=vault_owner_address)
         vault_owner_smvn_amount         = vault_owner_smvn_balance - vault_owner.smvn_balance
         vault_owner.smvn_balance        = vault_owner_smvn_balance
         await vault_owner.save()
@@ -52,7 +52,7 @@ async def on_vault_liquidate_stake(
         await vault_owner_stake_account.save()
         
         # Vault
-        vault                           = await models.maven_user_cache.get(network='atlasnet', address=vault_address)
+        vault                           = await models.get_user(network='atlasnet', address=vault_address)
         vault_smvn_amount               = vault_smvn_balance - vault.smvn_balance
         vault.smvn_balance              = vault_smvn_balance
         await vault_owner.save()
@@ -66,7 +66,7 @@ async def on_vault_liquidate_stake(
         await vault_stake_account.save()
         
         # Get doorman info
-        doorman_user        = await models.maven_user_cache.get(network='atlasnet', address=doorman_address)
+        doorman_user        = await models.get_user(network='atlasnet', address=doorman_address)
         smvn_total_supply   = doorman_user.mvn_balance
         smvn_users          = await models.MavenUser.filter(smvn_balance__gt=0).count()
         avg_smvn_per_user   = float(smvn_total_supply) / float(smvn_users)

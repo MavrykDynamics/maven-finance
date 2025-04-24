@@ -36,7 +36,7 @@ async def update_depositor(
             allowance_type      = models.VaultAllowance.WHITELIST
             depositor_address   = depositor.whitelist.address
             add_depositor       = depositor.whitelist.bool
-            user                = await models.maven_user_cache.get(network='atlasnet', address=depositor_address)
+            user                = await models.get_user(network='atlasnet', address=depositor_address)
             vault_depositor, _  = await models.VaultDepositor.get_or_create(
                 vault       = vault,
                 depositor   = user

@@ -33,7 +33,7 @@ async def snapshot_ledger_update(
     
             # Get governance record
             governance                      = await models.Governance.get(network = 'atlasnet')
-            user                            = await models.maven_user_cache.get(network='atlasnet', address=satellite_address)
+            user                            = await models.get_user(network='atlasnet', address=satellite_address)
             snapshot_record, _              = await models.GovernanceSatelliteSnapshot.get_or_create(
                 governance              = governance,
                 user                    = user,

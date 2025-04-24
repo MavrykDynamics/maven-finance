@@ -21,7 +21,7 @@ async def distribute_reward(
         # Get and update records
         delegation  = await models.Delegation.get(network='atlasnet', address= delegation_address)
         for satellite_address in elligible_satellites:
-            user                    = await models.maven_user_cache.get(network='atlasnet', address=satellite_address)
+            user                    = await models.get_user(network='atlasnet', address=satellite_address)
             rewards_record          = distribute_reward.storage.satelliteRewardsLedger[satellite_address]
             satellite_rewards, _    = await models.SatelliteRewards.get_or_create(
                 user        = user,

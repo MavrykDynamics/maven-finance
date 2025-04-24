@@ -52,7 +52,7 @@ async def vote_for_action(
             action_record.execution_datetime    = execution_datetime
         await action_record.save()
     
-        voter                   = await models.maven_user_cache.get(network='atlasnet', address=voter_address)
+        voter                   = await models.get_user(network='atlasnet', address=voter_address)
     
         # Register vote
         satellite_snapshot, _   = await models.GovernanceSatelliteSnapshot.get_or_create(
@@ -72,7 +72,7 @@ async def vote_for_action(
     
         # Save other personal executions
         for oracle_address in satellite_aggregator_ledger:
-            oracle                      = await models.maven_user_cache.get(network='atlasnet', address=oracle_address)
+            oracle                      = await models.get_user(network='atlasnet', address=oracle_address)
             satellite_oracle_storage    = satellite_aggregator_ledger[oracle_address]
             aggregators                 = satellite_oracle_storage
             satellite_oracle_record, _  = await models.GovernanceSatelliteOracle.get_or_create(

@@ -18,7 +18,7 @@ async def unregister_as_satellite(
         rewards_record              = unregister_as_satellite.storage.satelliteRewardsLedger[satellite_address]
     
         # Delete records
-        user                        = await models.maven_user_cache.get(network='atlasnet', address=satellite_address)
+        user                        = await models.get_user(network='atlasnet', address=satellite_address)
         delegation = await models.Delegation.get(
             network = 'atlasnet',
             address = delegation_address

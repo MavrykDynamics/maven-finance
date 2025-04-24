@@ -76,7 +76,7 @@ async def set_loan_token(
             network         = 'atlasnet',
             address         = lending_controller_address,
         )
-        oracle                              = await models.maven_user_cache.get(network='atlasnet', address=loan_token_oracle_address)
+        oracle                              = await models.get_user(network='atlasnet', address=loan_token_oracle_address)
         token                               = await models.Token.get(
             network         = 'atlasnet',
             token_address   = loan_token_m_token_address,

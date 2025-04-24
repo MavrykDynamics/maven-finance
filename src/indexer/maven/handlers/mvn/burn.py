@@ -21,7 +21,7 @@ async def burn(
         total_supply        = float(burn.storage.totalSupply)
 
         # Get mint account
-        user                = await models.maven_user_cache.get(network='atlasnet', address=burn_address)
+        user                = await models.get_user(network='atlasnet', address=burn_address)
         user.mvn_balance    = new_user_balance
         await user.save()
     

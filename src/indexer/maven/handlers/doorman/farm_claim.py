@@ -36,7 +36,7 @@ async def farm_claim(
             timestamp                       = farm_claim.data.timestamp
         
             # Get or create the interacting user
-            user                = await models.maven_user_cache.get(network='atlasnet', address=user_address)
+            user                = await models.get_user(network='atlasnet', address=user_address)
             amount                          = smvn_balance - user.smvn_balance
             user.smvn_balance               = smvn_balance
             await user.save()

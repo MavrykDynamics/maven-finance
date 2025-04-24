@@ -32,7 +32,7 @@ async def stake_mvn(
         accumulated_fees_per_share          = float(stake_mvn.storage.accumulatedFeesPerShare)
     
         # Get or create the interacting user
-        user                = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
+        user                = await models.get_user(network='atlasnet', address=sender_address)
         user.mvn_balance    = mvn_balance
         user.smvn_balance   = smvn_balance
         await user.save()

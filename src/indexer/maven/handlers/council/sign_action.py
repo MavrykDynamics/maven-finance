@@ -83,7 +83,7 @@ async def sign_action(
             for council_member_address in council_members:
                 # Change or update records
                 member_info             = council_members[council_member_address]
-                member_user             = await models.maven_user_cache.get(network='atlasnet', address=council_member_address)
+                member_user             = await models.get_user(network='atlasnet', address=council_member_address)
                 updated_member, _       = await models.CouncilCouncilMember.get_or_create(
                     council = council,
                     user    = member_user
@@ -97,7 +97,7 @@ async def sign_action(
                 council_action  = action_record
             )
             old_council_member_address      = council_temp_member_parameter.old_council_member_address
-            old_council_member_user         = await models.maven_user_cache.get(network='atlasnet', address=old_council_member_address)
+            old_council_member_user         = await models.get_user(network='atlasnet', address=old_council_member_address)
             old_council_member              = await models.CouncilCouncilMember.get(
                 council     = council,
                 user        = old_council_member_user
@@ -109,7 +109,7 @@ async def sign_action(
                 council_action  = action_record
             )
             old_council_member_address      = council_temp_member_parameter.old_council_member_address
-            old_council_member_user         = await models.maven_user_cache.get(network='atlasnet', address=old_council_member_address)
+            old_council_member_user         = await models.get_user(network='atlasnet', address=old_council_member_address)
             old_council_member              = await models.CouncilCouncilMember.get(
                 council     = council,
                 user        = old_council_member_user
@@ -119,7 +119,7 @@ async def sign_action(
             for council_member_address in council_members:
                 # Change or update records
                 member_info             = council_members[council_member_address]
-                member_user             = await models.maven_user_cache.get(network='atlasnet', address=council_member_address)
+                member_user             = await models.get_user(network='atlasnet', address=council_member_address)
                 updated_member, _       = await models.CouncilCouncilMember.get_or_create(
                     council     = council,
                     user        = member_user
@@ -130,7 +130,7 @@ async def sign_action(
                 await updated_member.save()
         
         # Create signature record
-        user                    = await models.maven_user_cache.get(network='atlasnet', address=signer_address)
+        user                    = await models.get_user(network='atlasnet', address=signer_address)
         signer_record           = models.CouncilActionSigner(
             council_action              = action_record,
             signer                      = user

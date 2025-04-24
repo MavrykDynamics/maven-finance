@@ -32,7 +32,7 @@ async def compound(
 
         # Update users
         for user_address in user_addresses:
-            user                        = await models.maven_user_cache.get(network='atlasnet', address=user_address)
+            user                        = await models.get_user(network='atlasnet', address=user_address)
             user_account, _             = await models.MTokenAccount.get_or_create(
                 m_token = m_token,
                 user    = user

@@ -45,7 +45,7 @@ async def vote_for_emergency_control(
             emergency_record.execution_level       = execution_level
             await emergency_record.save()
         
-            voter                       = await models.maven_user_cache.get(network='atlasnet', address=voter_address)
+            voter                       = await models.get_user(network='atlasnet', address=voter_address)
 
             emergency_vote_record       = models.EmergencyGovernanceVote(
                 timestamp                   = timestamp,

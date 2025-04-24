@@ -112,7 +112,7 @@ async def create_aggregator(
                 oracle_peer_id          = oracle_storage_record.oraclePeerId
     
                 # Create record
-                oracle                  = await models.maven_user_cache.get(network='atlasnet', address=oracle_address)
+                oracle                  = await models.get_user(network='atlasnet', address=oracle_address)
                 aggregator_oracle       = models.AggregatorOracle(
                     aggregator  = aggregator,
                     user        = oracle,

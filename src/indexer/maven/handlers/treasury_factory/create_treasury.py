@@ -98,7 +98,7 @@ async def create_treasury(
     
             # Create a baker or not
             if baker_address:
-                baker       = await models.maven_user_cache.get(network='atlasnet', address=baker_address)
+                baker       = await models.get_user(network='atlasnet', address=baker_address)
                 treasury.baker = baker
     
             await treasury.save()

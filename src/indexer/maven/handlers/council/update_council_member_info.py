@@ -22,7 +22,7 @@ async def update_council_member_info(
     
         # Update record
         council                 = await models.Council.get(network='atlasnet', address= council_address)
-        user                    = await models.maven_user_cache.get(network='atlasnet', address=council_member_address)
+        user                    = await models.get_user(network='atlasnet', address=council_member_address)
         await models.CouncilCouncilMember.filter(
             council     = council,
             user        = user

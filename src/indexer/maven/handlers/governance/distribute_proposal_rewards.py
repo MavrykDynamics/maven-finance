@@ -20,7 +20,7 @@ async def distribute_proposal_rewards(
             network     = 'atlasnet'
         )
         for proposal_id in proposal_ids:
-            satellite                           = await models.maven_user_cache.get(network='atlasnet', address=satellite_address)
+            satellite                           = await models.get_user(network='atlasnet', address=satellite_address)
             proposal                            = await models.GovernanceProposal.get(
                 governance  = governance,
                 internal_id = int(proposal_id)

@@ -39,7 +39,7 @@ async def transfer(
             transactions            = entry.txs
     
             # Get or create from
-            from_user               = await models.maven_user_cache.get(network='atlasnet', address=from_address)
+            from_user               = await models.get_user(network='atlasnet', address=from_address)
             from_account, _         = await models.MTokenAccount.get_or_create(
                 m_token = m_token,
                 user    = from_user
@@ -65,7 +65,7 @@ async def transfer(
                 to_address          = transaction.to_
     
                 # Get or create to
-                to_user             = await models.maven_user_cache.get(network='atlasnet', address=to_address)
+                to_user             = await models.get_user(network='atlasnet', address=to_address)
                 to_account, _       = await models.MTokenAccount.get_or_create(
                     m_token = m_token,
                     user    = to_user

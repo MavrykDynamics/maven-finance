@@ -85,7 +85,7 @@ async def borrow(
                 await lending_controller_vault.save()
     
                 # Save history data
-                sender                                                      = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
+                sender                                                      = await models.get_user(network='atlasnet', address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

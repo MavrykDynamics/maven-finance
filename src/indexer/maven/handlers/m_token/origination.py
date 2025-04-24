@@ -73,7 +73,7 @@ async def origination(
         originated_ledger               = m_token_origination.storage.ledger
         originated_reward_index_ledger  = m_token_origination.storage.rewardIndexLedger
         for address in originated_ledger:
-            new_user                    = await models.maven_user_cache.get(network='atlasnet', address=address)
+            new_user                    = await models.get_user(network='atlasnet', address=address)
             await new_user.save()
     
             user_account                = await models.MTokenAccount.get_or_create(

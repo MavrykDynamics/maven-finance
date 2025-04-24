@@ -109,7 +109,7 @@ async def update_proposal_data(
 
                 # Get receiver
                 receiver_address                = payment_single_data.transaction.to_
-                receiver                        = await models.maven_user_cache.get(network='atlasnet', address=receiver_address)
+                receiver                        = await models.get_user(network='atlasnet', address=receiver_address)
 
                 # Save the payment record
                 payment_data.title              = payment_single_data.title

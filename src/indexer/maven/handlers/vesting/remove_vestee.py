@@ -21,7 +21,7 @@ async def remove_vestee(
             network = 'atlasnet',
             address=vesting_address
         )
-        vestee  = await models.maven_user_cache.get(network='atlasnet', address=vestee_address)
+        vestee  = await models.get_user(network='atlasnet', address=vestee_address)
         await models.VestingVestee.filter(
             vestee  = vestee,
             vesting = vesting

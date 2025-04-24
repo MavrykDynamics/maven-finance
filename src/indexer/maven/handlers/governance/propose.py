@@ -56,7 +56,7 @@ async def propose(
         satellite_snapshots     = propose.storage.snapshotLedger
     
         # Proposal record
-        user                    = await models.maven_user_cache.get(network='atlasnet', address=proposer_address)
+        user                    = await models.get_user(network='atlasnet', address=proposer_address)
     
         proposalRecord              = models.GovernanceProposal(
             internal_id                     = int(current_id),

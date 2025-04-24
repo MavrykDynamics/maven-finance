@@ -31,7 +31,7 @@ async def register_deposit(
             network         = 'atlasnet',
             address         = lending_controller_address,
         )
-        vault_owner                 = await models.maven_user_cache.get(network='atlasnet', address=vault_owner_address)
+        vault_owner                 = await models.get_user(network='atlasnet', address=vault_owner_address)
         
         for vault_storage in vaults_storage:
             if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:
@@ -97,7 +97,7 @@ async def register_deposit(
                 await lending_controller_collateral_balance.save()
     
                 # Save history data
-                sender                                  = await models.maven_user_cache.get(network='atlasnet', address=sender_address)
+                sender                                  = await models.get_user(network='atlasnet', address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

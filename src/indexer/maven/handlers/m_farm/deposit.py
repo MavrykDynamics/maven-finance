@@ -48,7 +48,7 @@ async def deposit(
         farm.paid_rewards               = paid_rewards
         await farm.save()
     
-        user                            = await models.maven_user_cache.get(network='atlasnet', address=depositor_address)
+        user                            = await models.get_user(network='atlasnet', address=depositor_address)
     
         farm_account, _                 = await models.FarmAccount.get_or_create(
             user = user,

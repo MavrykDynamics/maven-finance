@@ -73,7 +73,7 @@ async def origination(
         # Create first users
         originated_ledger = mvn_origination.storage.ledger
         for address in originated_ledger:
-            new_user                = await models.maven_user_cache.get(network='atlasnet', address=address)
+            new_user                = await models.get_user(network='atlasnet', address=address)
             new_user.mvn_balance    = originated_ledger[address]
             await new_user.save()
 

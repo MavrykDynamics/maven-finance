@@ -29,7 +29,7 @@ async def compound(
             accumulated_fees_per_share      = float(compound.storage.accumulatedFeesPerShare)
         
             # Get or create the interacting user
-            user                            = await models.maven_user_cache.get(network='atlasnet', address=user_address)
+            user                            = await models.get_user(network='atlasnet', address=user_address)
             amount                          = smvn_balance - user.smvn_balance
             user.smvn_balance               = smvn_balance
             await user.save()
@@ -46,7 +46,7 @@ async def compound(
             await stake_account.save()
             
             # Get doorman info
-            doorman_user        = await models.maven_user_cache.get(network='atlasnet', address=doorman_address)
+            doorman_user        = await models.get_user(network='atlasnet', address=doorman_address)
             smvn_total_supply   = doorman_user.mvn_balance
             smvn_users          = await models.MavenUser.filter(smvn_balance__gt=0).count()
             avg_smvn_per_user   = float(smvn_total_supply) / float(smvn_users)

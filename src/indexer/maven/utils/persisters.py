@@ -45,7 +45,7 @@ async def persist_council_action(ctx, action):
         elif council_action_status == 'EXPIRED':
             record_status    = models.ActionStatus.EXPIRED
 
-        initiator                       = await models.maven_user_cache.get(network='atlasnet', address=council_action_initiator)
+        initiator                       = await models.get_user(network='atlasnet', address=council_action_initiator)
 
         action_exists                   = await models.CouncilAction.filter(
             council     = council,
@@ -85,7 +85,7 @@ async def persist_council_action(ctx, action):
 
                 if action_id == council_action_id:
                     # Signers
-                    user                            = await models.maven_user_cache.get(network='atlasnet', address=action_signer)
+                    user                            = await models.get_user(network='atlasnet', address=action_signer)
                     council_action_record_signer    = models.CouncilActionSigner(
                         signer                  = user,
                         council_action          = council_action_record
@@ -130,7 +130,7 @@ async def persist_break_glass_action(ctx, action):
         elif break_glass_action_status == 'EXPIRED':
             record_status   = models.ActionStatus.EXPIRED
 
-        initiator       = await models.maven_user_cache.get(network='atlasnet', address=break_glass_action_initiator)
+        initiator       = await models.get_user(network='atlasnet', address=break_glass_action_initiator)
 
         action_exists   = await models.BreakGlassAction.filter(
             break_glass = break_glass,
@@ -170,7 +170,7 @@ async def persist_break_glass_action(ctx, action):
                 
                 if action_id == break_glass_action_id:
                     # Signers
-                    user                                = await models.maven_user_cache.get(network='atlasnet', address=action_signer)
+                    user                                = await models.get_user(network='atlasnet', address=action_signer)
                     break_glass_action_record_signer    = models.BreakGlassActionSigner(
                         signer                      = user,
                         break_glass_action          = break_glass_action_record
@@ -265,8 +265,8 @@ async def persist_financial_request(ctx, action):
             token.token_standard    = standard
             await token.save()
 
-            requester               = await models.maven_user_cache.get(network='atlasnet', address=requester_address)
-            receiver                = await models.maven_user_cache.get(network='atlasnet', address=receiver_address)
+            requester               = await models.get_user(network='atlasnet', address=requester_address)
+            receiver                = await models.get_user(network='atlasnet', address=receiver_address)
             requestRecord           = models.GovernanceFinancialRequest(
                 internal_id                     = int(request_id),
                 governance_financial            = governanceFinancial,
@@ -339,7 +339,7 @@ async def persist_governance_satellite_action(ctx, action):
             governance_cycle_id             = int(action_record_storage.governanceCycleId)
             data                            = action_record_storage.dataMap
 
-            initiator                       = await models.maven_user_cache.get(network='atlasnet', address=initiator_address)
+            initiator                       = await models.get_user(network='atlasnet', address=initiator_address)
             action_record                   = models.GovernanceSatelliteAction(
                 internal_id                     = int(action_id),
                 governance_satellite            = governance_satellite,
