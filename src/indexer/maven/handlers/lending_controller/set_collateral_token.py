@@ -64,7 +64,7 @@ async def set_collateral_token(
                 network         = 'atlasnet',
                 address         = lending_controller_address,
             )
-            oracle                      = await models.get_user(network='atlasnet', address=collateral_token_oracle_address)
+            oracle                  = await models.Aggregator.get_or_none(network='atlasnet', address=collateral_token_oracle_address)
             lending_controller_collateral_token, _  = await models.LendingControllerCollateralToken.get_or_create(
                 lending_controller  = lending_controller,
                 token               = token,

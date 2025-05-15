@@ -95,7 +95,7 @@ class LendingControllerVaultCollateralBalance(Model):
 class LendingControllerCollateralToken(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='collateral_tokens', index=True)
-    oracle                                  = fields.ForeignKeyField('models.MavenUser', related_name='lending_controller_collateral_token_oracles', index=True)
+    oracle                                  = fields.ForeignKeyField('models.Aggregator', related_name='lending_controller_collateral_token_oracles', index=True, null=True)
     token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_collateral_tokens', index=True)
     protected                               = fields.BooleanField(default=False)
     is_scaled_token                         = fields.BooleanField(default=False)
@@ -118,7 +118,7 @@ class LendingControllerLoanToken(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='loan_tokens', index=True)
     m_token                                 = fields.ForeignKeyField('models.MToken', related_name='lending_controller_loan_tokens', index=True)
-    oracle                                  = fields.ForeignKeyField('models.MavenUser', related_name='lending_controller_loan_token_oracles', index=True)
+    oracle                                  = fields.ForeignKeyField('models.Aggregator', related_name='lending_controller_loan_token_oracles', index=True, null=True)
     token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_loan_tokens', index=True)
     loan_token_name                         = fields.CharField(max_length=36, default="", index=True)
     raw_m_tokens_total_supply               = fields.FloatField(default=0.0)
