@@ -81,13 +81,13 @@ collateral_usd_value AS (
     SELECT
         vcv.lending_controller_vault_id,
         COALESCE(SUM(
-            vcv.balance * 
-            COALESCE(agg.last_completed_data, 0.0) * 
-            POWER(10, -COALESCE(agg.decimals, 0))
+            vcv.balance * POWER(10, -COALESCE(tk.decimals, 0)) * 
+            COALESCE(agg.last_completed_data, 0.0)
         ), 0.0) as total_collateral_usd_value
     FROM
         vault_collateral_view vcv
         JOIN lending_controller_collateral_token lct ON vcv.collateral_token_id = lct.id
+        JOIN token tk ON lct.token_id = tk.id
         LEFT JOIN aggregator agg ON lct.oracle_id = agg.id
     GROUP BY
         vcv.lending_controller_vault_id
