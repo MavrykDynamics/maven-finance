@@ -80,7 +80,6 @@ async def transfer(
                     "name": "Mavryk",
                     "symbol": "MVRK",
                     "decimals": "6",
-                    "icon": "ipfs://QmbHaFX2gyFEzdwp54vqtf7McL74BvT7r4pw6UVyfEdKhu",
                     "thumbnailUri": "ipfs://QmbHaFX2gyFEzdwp54vqtf7McL74BvT7r4pw6UVyfEdKhu",
                 }
             token.token_standard    = token_standard

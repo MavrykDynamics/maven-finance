@@ -9,7 +9,6 @@ def token_metadata_default_value():
     return {
         "name": None,
         "symbol": None,
-        "icon": None,
         "decimals": None,
         "shouldPreferSymbol": None,
         "thumbnailUri": None,
