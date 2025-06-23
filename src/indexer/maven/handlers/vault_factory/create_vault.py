@@ -133,11 +133,11 @@ async def create_vault(
 
             lending_controller_vault, _                 = await models.LendingControllerVault.get_or_create(
                 lending_controller  = lending_controller,
+                internal_id         = vault_internal_id,
                 vault               = vault,
                 owner               = vault_owner,
                 loan_token          = lending_controller_loan_token
             )
-            lending_controller_vault.internal_id                        = vault_internal_id
             lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
             lending_controller_vault.loan_principal_total               = vault_loan_principal_total
             lending_controller_vault.loan_interest_total                = vault_loan_interest_total
