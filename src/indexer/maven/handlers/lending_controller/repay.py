@@ -26,7 +26,7 @@ async def repay(
             network             = 'atlasnet',
             address             = lending_controller_address,
         )
-        lending_controller_vault, _             = await models.LendingControllerVault.get_or_create(
+        lending_controller_vault                = await models.LendingControllerVault.get(
             lending_controller  = lending_controller,
             internal_id         = vault_internal_id
         )
