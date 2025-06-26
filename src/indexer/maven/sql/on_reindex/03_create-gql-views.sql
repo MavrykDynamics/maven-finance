@@ -175,11 +175,8 @@ SELECT
     delegation_ratio,
     delegation_count,
     proposals_voted_on,
-    total_proposals,
     financial_requests_voted_on,
-    total_financial_requests,
     satellite_actions_voted_on,
-    total_satellite_actions,
     participation_rate,
     total_active_satellites,
     avg_delegated_smvn,
@@ -192,7 +189,6 @@ SELECT
     total_mvn_staked,
     total_delegations,
     total_votes_cast,
-    total_governance_items,
     last_updated
 FROM 
     satellite_metrics_view;
