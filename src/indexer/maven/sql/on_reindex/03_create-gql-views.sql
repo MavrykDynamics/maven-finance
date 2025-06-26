@@ -161,3 +161,54 @@ FROM
     JOIN token tk ON lt.token_id = tk.id
 GROUP BY 
     date_trunc('day', hd.timestamp), tk.token_address, tk.id, hd.type, hd.lending_controller_id;
+
+DROP VIEW IF EXISTS gql_satellite_metrics CASCADE;
+CREATE OR REPLACE VIEW gql_satellite_metrics AS
+SELECT 
+    satellite_id,
+    user_id,
+    delegation_id,
+    delegation_fee,
+    delegated_smvn,
+    free_smvn_balance,
+    mvn_staked,
+    delegation_ratio,
+    delegation_count,
+    proposals_voted_on,
+    total_proposals,
+    financial_requests_voted_on,
+    total_financial_requests,
+    satellite_actions_voted_on,
+    total_satellite_actions,
+    participation_rate,
+    total_active_satellites,
+    avg_delegated_smvn,
+    avg_free_smvn_balance,
+    avg_delegation_fee,
+    avg_mvn_staked,
+    avg_participation_rate,
+    total_delegated_smvn,
+    total_free_smvn_balance,
+    total_mvn_staked,
+    total_delegations,
+    total_votes_cast,
+    total_governance_items,
+    last_updated
+FROM 
+    satellite_metrics_view;
+
+DROP VIEW IF EXISTS gql_satellite_summary CASCADE;
+CREATE OR REPLACE VIEW gql_satellite_summary AS
+SELECT 
+    total_active_satellites,
+    avg_delegated_smvn,
+    avg_free_smvn_balance,
+    avg_delegation_fee,
+    avg_mvn_staked,
+    avg_participation_rate,
+    total_delegated_smvn,
+    total_free_smvn_balance,
+    total_mvn_staked,
+    last_updated
+FROM 
+    satellite_summary_view;

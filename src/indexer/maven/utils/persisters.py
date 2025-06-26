@@ -307,7 +307,7 @@ async def persist_governance_satellite_action(ctx, action):
         network = 'atlasnet',
         address = governance_satellite_address
     )
-    governance_satellite.fin_req_counter = action_counter
+    governance_satellite.governance_satellite_counter = action_counter
     await governance_satellite.save()
 
     for action_id in action_ledger:
