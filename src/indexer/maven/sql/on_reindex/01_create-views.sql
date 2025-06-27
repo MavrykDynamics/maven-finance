@@ -499,6 +499,93 @@ satellite_feeds_observations AS (
     GROUP BY 
         ao.user_id
 ),
+satellite_oracle_efficiency AS (
+    -- Calculate oracle efficiency (participated_feeds)
+    WITH oracle_latest_observations AS (
+        -- For each oracle, get its latest observation
+        SELECT DISTINCT ON (ao.id)
+            ao.id as oracle_id,
+            ao.user_id,
+            ao.init_epoch,
+            ao.init_round,
+            aoo.epoch,
+            aoo.round,
+            aoo.timestamp
+        FROM 
+            aggregator_oracle ao
+            LEFT JOIN aggregator_oracle_observation aoo ON ao.id = aoo.oracle_id
+        WHERE 
+            aoo.timestamp IS NOT NULL
+        ORDER BY 
+            ao.id, aoo.timestamp DESC
+    ),
+    latest_observations AS (
+        -- Find the oracle with the latest observation for each user (matching JavaScript reduce logic)
+        SELECT DISTINCT ON (olo.user_id)
+            olo.user_id,
+            olo.init_epoch,
+            olo.init_round,
+            olo.epoch,
+            olo.round,
+            olo.timestamp as latest_timestamp
+        FROM 
+            oracle_latest_observations olo
+        ORDER BY 
+            olo.user_id, olo.timestamp DESC
+    ),
+    total_observations AS (
+        -- Get total observations count across ALL aggregators for each satellite
+        SELECT 
+            ao.user_id,
+            COUNT(aoo.id) as total_feeds_observation
+        FROM 
+            aggregator_oracle ao
+            LEFT JOIN aggregator_oracle_observation aoo ON ao.id = aoo.oracle_id
+        GROUP BY 
+            ao.user_id
+    )
+    SELECT 
+        lo.user_id,
+        -- Calculate prediction success ratio: (epoch / round) - (init_epoch / init_round)
+        (lo.epoch::float / GREATEST(lo.round, 1)::float) - (lo.init_epoch::float / GREATEST(lo.init_round, 1)::float) as prediction_success_ratio,
+        COALESCE(total_obs.total_feeds_observation, 0) as total_feeds_observation
+    FROM 
+        latest_observations lo
+        LEFT JOIN total_observations total_obs ON lo.user_id = total_obs.user_id
+),
+satellite_last_observation AS (
+    -- Get the last observation details for each satellite
+    WITH oracle_latest_observations AS (
+        -- For each oracle, get its latest observation with aggregator details
+        SELECT DISTINCT ON (ao.id)
+            ao.id as oracle_id,
+            ao.user_id,
+            aoo.epoch,
+            aoo.round,
+            aoo.timestamp,
+            aoo.data,
+            agg.address as aggregator_address
+        FROM 
+            aggregator_oracle ao
+            LEFT JOIN aggregator_oracle_observation aoo ON ao.id = aoo.oracle_id
+            LEFT JOIN aggregator agg ON ao.aggregator_id = agg.id
+        WHERE 
+            aoo.timestamp IS NOT NULL
+        ORDER BY 
+            ao.id, aoo.timestamp DESC
+    )
+    SELECT DISTINCT ON (olo.user_id)
+        olo.user_id,
+        olo.aggregator_address as last_observation_aggregator_address,
+        olo.timestamp as last_observation_timestamp,
+        olo.data as last_observation_data,
+        olo.epoch as last_observation_epoch,
+        olo.round as last_observation_round
+    FROM 
+        oracle_latest_observations olo
+    ORDER BY 
+        olo.user_id, olo.timestamp DESC
+),
 satellite_governance_counts AS (
     -- Count governance activities for satellites
     SELECT 
@@ -589,10 +676,12 @@ SELECT
     -- Participation rate calculation based on governance contract counters (scaled to 0-10000)
     CASE 
         WHEN (gc.total_proposals_created + gc.total_financial_requests_created + gc.total_satellite_actions_created) > 0 
-        THEN (
-            (COALESCE(sgp.proposals_voted_on, 0) + COALESCE(sfp.financial_requests_voted_on, 0) + COALESCE(sap.satellite_actions_voted_on, 0))::float / 
-            (gc.total_proposals_created + gc.total_financial_requests_created + gc.total_satellite_actions_created)::float
-        ) * 10000
+        THEN ROUND(
+            (
+                (COALESCE(sgp.proposals_voted_on, 0) + COALESCE(sfp.financial_requests_voted_on, 0) + COALESCE(sap.satellite_actions_voted_on, 0))::float / 
+                (gc.total_proposals_created + gc.total_financial_requests_created + gc.total_satellite_actions_created)::float
+            ) * 10000
+        )
         ELSE 0 
     END as participation_rate,
     
@@ -607,6 +696,13 @@ SELECT
     
     -- Feeds observations
     COALESCE(sfo.total_observations_count, 0) as total_observations_count,
+    
+    -- Oracle efficiency (participated_feeds)
+    CASE 
+        WHEN soe.total_feeds_observation > 0 THEN
+            ROUND(LEAST(10000, GREATEST(0, (soe.prediction_success_ratio / soe.total_feeds_observation::float) * 10000)))
+        ELSE 0
+    END as participated_feeds,
     
     -- Governance counts
     COALESCE(sgc.created_gov_proposals_count, 0) as created_gov_proposals_count,
@@ -627,6 +723,13 @@ SELECT
     lvp2.current_round_proposal as last_proposal_current_round,
     lvp2.governance_cycle_id as last_proposal_governance_cycle_id,
     
+    -- Last observation details
+    COALESCE(slo.last_observation_aggregator_address, '') as last_observation_aggregator_address,
+    slo.last_observation_timestamp as last_observation_timestamp,
+    COALESCE(slo.last_observation_data, 0) as last_observation_data,
+    COALESCE(slo.last_observation_epoch, 0) as last_observation_epoch,
+    COALESCE(slo.last_observation_round, 0) as last_observation_round,
+    
     -- Timestamp
     NOW() as last_updated
 FROM 
@@ -640,8 +743,10 @@ FROM
     LEFT JOIN governance_counters gc ON true
     LEFT JOIN satellite_rewards sr ON s.user_id = sr.user_id
     LEFT JOIN satellite_feeds_observations sfo ON s.user_id = sfo.user_id
+    LEFT JOIN satellite_oracle_efficiency soe ON s.user_id = soe.user_id
     LEFT JOIN satellite_governance_counts sgc ON s.user_id = sgc.user_id
     LEFT JOIN latest_voting_power lvp ON s.user_id = lvp.user_id
     LEFT JOIN last_voted_proposal lvp2 ON s.user_id = lvp2.voter_id
+    LEFT JOIN satellite_last_observation slo ON s.user_id = slo.user_id
 ORDER BY 
     s.total_delegated_amount DESC; 
