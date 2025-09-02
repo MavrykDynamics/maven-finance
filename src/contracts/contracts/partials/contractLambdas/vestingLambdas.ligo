@@ -219,6 +219,8 @@ block {
     // 3. Check if the vestee exists
     // 4. Update vestee with new inputs and account for any changes
 
+    var operations : list(operation) := nil;
+    
     case vestingLambdaAction of [
         |   LambdaUpdateVestee(updateVesteeParams) -> {
                 
@@ -240,6 +242,19 @@ block {
                 // Get vestee record from ledger
                 var vestee : vesteeRecordType := getVesteeRecord(vesteeAddress, s);
 
+                // to be refactored with strings when maven finance is refactored
+                const errorTempCodeOne : nat = 99999n; // error_NEW_VESTING_IN_MONTHS_SHOULD_BE_GREATER_THAN_MONTHS_CLAIMED
+                const errorTempCodeTwo : nat = 99998n; // error_NEW_TOTAL_ALLOCATED_AMOUNT_SHOULD_BE_GREATER_THAN_TOTAL_CLAIMED
+
+                // Verify that monthsClaimed cannot be greater than or equal to new vestingInMonths (duration error)
+                verifyLessThan(vestee.monthsClaimed, newVestingInMonths, errorTempCodeOne);
+
+                // Verify that totalClaimed cannot be greater than new total allocated amount (calculation error)
+                verifyLessThanOrEqual(vestee.totalClaimed, newTotalAllocatedAmount, errorTempCodeTwo);
+
+                // check if newTotalAllocatedAmount is greater or less than old total allocated amount
+                const differenceInTotalAllocatedAmount : int = newTotalAllocatedAmount - vestee.totalAllocatedAmount;
+
                 vestee.totalAllocatedAmount := newTotalAllocatedAmount;  // totalAllocatedAmount should be in mu (10^6)
 
                 // factor any amount that vestee has claimed so far and update new claim amount per month accordingly
@@ -259,25 +274,53 @@ block {
                 vestee.endVestingDateTime   := vestee.startTimestamp + (newVestingInMonths * thirty_days);              // calculated end of new vesting duration in timestamp based on dateTimeStart
 
                 // calculate next redemption block based on new cliff months and whether vestee has made a claim 
-                if newCliffInMonths <= vestee.monthsClaimed then block {
-                    
-                    // no changes to vestee next redemption period
-                    vestee.nextRedemptionTimestamp  := vestee.startTimestamp + (vestee.monthsClaimed * thirty_days) + thirty_days;  // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
+                if vestee.monthsClaimed = 0n and newCliffInMonths = 0n then
+                    // zero cliff and no claims yet
+                    vestee.nextRedemptionTimestamp := vestee.startTimestamp
 
-                } else block {
+                else block {
 
-                    // cliff has been adjusted upwards, requiring vestee to wait for cliff period to end again before he can start to claim
-                    vestee.nextRedemptionTimestamp  := vestee.startTimestamp + (newCliffInMonths * thirty_days);            // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
+                    //  cliff adjusted downwards
+                    if newCliffInMonths <= vestee.monthsClaimed then block {
 
+                        const cliff_end : timestamp = vestee.startTimestamp + (newCliffInMonths * thirty_days);
+                        var next_due : timestamp := vestee.startTimestamp + (vestee.monthsClaimed * thirty_days);
+
+                        // enforce new cliff 
+                        if next_due < cliff_end then next_due := cliff_end else skip;
+                        vestee.nextRedemptionTimestamp := next_due;
+
+                    } else block {
+
+                        // cliff has been adjusted upwards, requiring vestee to wait for cliff period to end again before he can start to claim
+                        vestee.nextRedemptionTimestamp  := vestee.startTimestamp + (newCliffInMonths * thirty_days);            // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
+
+                    };
                 };
 
                 s.vesteeLedger[vesteeAddress] := vestee;
+
+                // process refund or transfer of new funds depending on differenceInTotalAllocatedAmount
+                if differenceInTotalAllocatedAmount > 0 then skip 
+                else if differenceInTotalAllocatedAmount < 0 then {
+                    
+                    // vesting total amount decreased, admin should receive refund of the difference
+                    const refundVestingAmountOperation : operation = transferFa2Token(
+                        Mavryk.get_self_address(),
+                        Mavryk.get_sender(),
+                        abs(differenceInTotalAllocatedAmount),
+                        0n,
+                        s.mvnTokenAddress
+                    );
+                    operations := refundVestingAmountOperation # operations;
+
+                } else skip;
 
             }
         |   _ -> skip
     ];
 
-} with (noOperations, s)
+} with (operations, s)
 
 
 
@@ -373,7 +416,7 @@ block {
 
                     // mint MVN Tokens based on total claim amount
                     const mintMvnTokensOperation : operation = mintTokens(
-                        Mavryk.get_sender(),           // to address
+                        Mavryk.get_sender(),          // to address
                         totalClaimAmount,             // amount of mvn Tokens to be minted
                         s                             // storage
                     ); 
@@ -402,7 +445,7 @@ block {
 
                     var totalRemainder : nat := 0n;
                     if _vestee.totalAllocatedAmount < totalClaimAmount then totalRemainder := 0n
-                    else totalRemainder := abs(_vestee.totalAllocatedAmount - totalClaimAmount);
+                    else totalRemainder := abs(_vestee.totalAllocatedAmount - _vestee.totalClaimed);
                     _vestee.totalRemainder           := totalRemainder;
 
                     s.vesteeLedger[Mavryk.get_sender()] := _vestee;
