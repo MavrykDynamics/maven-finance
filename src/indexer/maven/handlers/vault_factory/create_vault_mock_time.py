@@ -126,10 +126,10 @@ async def create_vault_mock_time(
             vault_liquidation_end_level             = int(vault_storage.value.liquidationEndLevel)
             vault_internal_id                       = int(vault_storage.key.id)
 
-            lending_controller_vault                = await models.LendingControllerVault.get_or_none(
+            lending_controller_vault                = await models.LendingControllerVault.filter(
                 lending_controller  = lending_controller,
                 internal_id         = vault_internal_id
-            )
+            ).first()
 
             if not lending_controller_vault:
                 lending_controller_loan_token               = await models.LendingControllerLoanToken.get(

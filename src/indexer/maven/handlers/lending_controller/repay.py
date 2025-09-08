@@ -26,10 +26,10 @@ async def repay(
             network             = 'atlasnet',
             address             = lending_controller_address,
         )
-        lending_controller_vault                = await models.LendingControllerVault.get_or_none(
+        lending_controller_vault                = await models.LendingControllerVault.filter(
             lending_controller  = lending_controller,
             internal_id         = vault_internal_id
-        )
+        ).first()
         if lending_controller_vault:
             loan_token                              = await lending_controller_vault.loan_token
             loan_token_name                         = loan_token.loan_token_name

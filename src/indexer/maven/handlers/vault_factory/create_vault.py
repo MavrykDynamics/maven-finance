@@ -131,10 +131,10 @@ async def create_vault(
                 loan_token_name     = vault_loan_token_name
             )
 
-            lending_controller_vault                = await models.LendingControllerVault.get_or_none(
+            lending_controller_vault                = await models.LendingControllerVault.filter(
                 lending_controller  = lending_controller,
                 internal_id         = vault_internal_id
-            )
+            ).first()
 
             if not lending_controller_vault:
                 lending_controller_vault, _                 = await models.LendingControllerVault.get_or_create(
