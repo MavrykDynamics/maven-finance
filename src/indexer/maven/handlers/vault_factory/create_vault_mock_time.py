@@ -126,43 +126,49 @@ async def create_vault_mock_time(
             vault_liquidation_end_level             = int(vault_storage.value.liquidationEndLevel)
             vault_internal_id                       = int(vault_storage.key.id)
 
-            lending_controller_loan_token               = await models.LendingControllerLoanToken.get(
+            lending_controller_vault                = await models.LendingControllerVault.get_or_none(
                 lending_controller  = lending_controller,
-                loan_token_name     = vault_loan_token_name
+                internal_id         = vault_internal_id
             )
 
-            lending_controller_vault, _                 = await models.LendingControllerVault.get_or_create(
-                lending_controller  = lending_controller,
-                internal_id         = vault_internal_id,
-                vault               = vault,
-                owner               = vault_owner,
-                loan_token          = lending_controller_loan_token
-            )
-            lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
-            lending_controller_vault.loan_principal_total               = vault_loan_principal_total
-            lending_controller_vault.loan_interest_total                = vault_loan_interest_total
-            lending_controller_vault.loan_decimals                      = vault_loan_decimals
-            lending_controller_vault.borrow_index                       = vault_borrow_index
-            lending_controller_vault.last_updated_block_level           = vault_last_updated_block_level
-            lending_controller_vault.last_updated_timestamp             = vault_last_updated_timestamp
-            lending_controller_vault.marked_for_liquidation_level       = vault_marked_for_liquidation_level
-            lending_controller_vault.liquidation_end_level              = vault_liquidation_end_level
-            await lending_controller_vault.save()
+            if not lending_controller_vault:
+                lending_controller_loan_token               = await models.LendingControllerLoanToken.get(
+                    lending_controller  = lending_controller,
+                    loan_token_name     = vault_loan_token_name
+                )
 
-            # Save history data
-            sender                                  = await models.get_user(network='atlasnet', address=sender_address)
-            history_data                            = models.LendingControllerHistoryData(
-                lending_controller  = lending_controller,
-                loan_token          = lending_controller_loan_token,
-                vault               = lending_controller_vault,
-                sender              = sender,
-                operation_hash      = operation_hash,
-                timestamp           = timestamp,
-                level               = level,
-                type                = models.LendingControllerOperationType.VAULT_CREATION,
-                amount              = 0
-            )
-            await history_data.save()
+                lending_controller_vault, _                 = await models.LendingControllerVault.get_or_create(
+                    lending_controller  = lending_controller,
+                    internal_id         = vault_internal_id,
+                    vault               = vault,
+                    owner               = vault_owner,
+                    loan_token          = lending_controller_loan_token
+                )
+                lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
+                lending_controller_vault.loan_principal_total               = vault_loan_principal_total
+                lending_controller_vault.loan_interest_total                = vault_loan_interest_total
+                lending_controller_vault.loan_decimals                      = vault_loan_decimals
+                lending_controller_vault.borrow_index                       = vault_borrow_index
+                lending_controller_vault.last_updated_block_level           = vault_last_updated_block_level
+                lending_controller_vault.last_updated_timestamp             = vault_last_updated_timestamp
+                lending_controller_vault.marked_for_liquidation_level       = vault_marked_for_liquidation_level
+                lending_controller_vault.liquidation_end_level              = vault_liquidation_end_level
+                await lending_controller_vault.save()
+
+                # Save history data
+                sender                                  = await models.get_user(network='atlasnet', address=sender_address)
+                history_data                            = models.LendingControllerHistoryData(
+                    lending_controller  = lending_controller,
+                    loan_token          = lending_controller_loan_token,
+                    vault               = lending_controller_vault,
+                    sender              = sender,
+                    operation_hash      = operation_hash,
+                    timestamp           = timestamp,
+                    level               = level,
+                    type                = models.LendingControllerOperationType.VAULT_CREATION,
+                    amount              = 0
+                )
+                await history_data.save()
 
     except BaseException as e:
         await save_error_report(e)
