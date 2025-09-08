@@ -12,6 +12,6 @@ RUN poetry config virtualenvs.create false && poetry install --only main
 
 ADD src/indexer/maven /indexer/maven/
 
-ENTRYPOINT ["poetry", "run", "dipdup", "-c", "dipdup.prod.yml", "-c", "dipdup.contracts.yml", "-c", "dipdup.yml", "run"]
+ENTRYPOINT ["poetry", "run", "dipdup", "-c", "dipdup.prod.yml", "-c", "dipdup.contracts.yml", "-c", "dipdup.yml", "schema", "wipe", "--force"]
 
 EXPOSE 9090/tcp
