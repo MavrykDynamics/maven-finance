@@ -25,7 +25,7 @@ async def create_vault(
         name                        = vault_origination.storage.name
         whitelisted_addresses       = []
         allowance_type              = models.VaultAllowance.ANY
-        
+
         if type(depositors) == Any:
             allowance_type          = models.VaultAllowance.ANY
         elif type(depositors) == Whitelist:
