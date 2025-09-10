@@ -52,6 +52,8 @@ async def register_deposit(
                     owner               = vault_owner,
                     internal_id         = vault_internal_id
                 ).first()
+                if not lending_controller_vault:
+                    return
                 lending_controller_vault.internal_id                        = vault_internal_id
                 lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
                 lending_controller_vault.loan_principal_total               = vault_loan_principal_total
