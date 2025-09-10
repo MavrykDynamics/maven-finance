@@ -1311,18 +1311,12 @@ indexes:
         entrypoint: createVault
       - type: origination
         originated_contract: vault
-      - source: vault_factory
-        destination: lending_controller
-        entrypoint: registerVaultCreation
     # - callback: vault_factory.create_vault_mock_time
     #   pattern:
     #   - destination: vault_factory
     #     entrypoint: createVault
     #   - type: origination
     #     originated_contract: vault
-    #   - source: vault_factory
-    #     destination: lending_controller_mock_time
-    #     entrypoint: registerVaultCreation
     - callback: vault_factory.set_lambda
       pattern:
       - destination: vault_factory
@@ -1357,6 +1351,10 @@ indexes:
       pattern:
       - destination: lending_controller
         entrypoint: togglePauseEntrypoint
+    - callback: lending_controller.register_vault_creation
+      pattern:
+      - destination: lending_controller
+        entrypoint: registerVaultCreation
     - callback: lending_controller.set_loan_token
       pattern:
       - destination: lending_controller
@@ -1439,6 +1437,10 @@ indexes:
     #   pattern:
     #   - destination: lending_controller_mock_time
     #     entrypoint: togglePauseEntrypoint
+    # - callback: lending_controller_mock_time.register_vault_creation
+    #   pattern:
+    #   - destination: lending_controller_mock_time
+    #     entrypoint: registerVaultCreation
     # - callback: lending_controller_mock_time.set_loan_token
     #   pattern:
     #   - destination: lending_controller_mock_time
