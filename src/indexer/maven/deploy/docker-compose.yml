@@ -1,24 +1,11 @@
-version: "3.8"
-
 services:
-  # indexer:
-  #   build: .
-  #   depends_on:
-  #     - db
-  #     - hasura
-  #   restart: "no"
-  #   environment:
-  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
-  #     - ADMIN_SECRET=${ADMIN_SECRET:-changeme}
-  #     - TZKT_URL=${TZKT_URL:-changeme}
-
-  db:
+  maven-db:
     image: timescale/timescaledb:latest-pg15
     ports:
       - 127.0.0.1:5432:5432
     restart: always
     volumes:
-      - db:/var/lib/postgres/data
+      - maven-db:/var/lib/postgres/data
     environment:
       - POSTGRES_USER=dipdup
       - POSTGRES_DB=dipdup
@@ -29,15 +16,15 @@ services:
       timeout: 5s
       retries: 5
 
-  hasura:
+  maven-hasura:
     image: hasura/graphql-engine:v2.38.1
     ports:
       - 127.0.0.1:42000:8080
     depends_on:
-      - db
+      - maven-db
     restart: always
     environment:
-      - HASURA_GRAPHQL_DATABASE_URL=postgres://dipdup:dipdup12345@db:5432/dipdup
+      - HASURA_GRAPHQL_DATABASE_URL=postgres://dipdup:dipdup12345@maven-db:5432/dipdup
       - HASURA_GRAPHQL_ADMIN_SECRET=hasura12345
       - HASURA_GRAPHQL_ENABLE_CONSOLE=true
       - HASURA_GRAPHQL_DEV_MODE=true
@@ -47,4 +34,4 @@ services:
       - HASURA_GRAPHQL_STRINGIFY_NUMERIC_TYPES=true
 
 volumes:
-  db:
+  maven-db:

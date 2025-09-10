@@ -1,14 +1,14 @@
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.break_glass.tezos_parameters.council_action_remove_member import CouncilActionRemoveMemberParameter
 from maven.types.break_glass.tezos_storage import BreakGlassStorage
 from maven.utils.persisters import persist_break_glass_action
 from maven.utils.error_reporting import save_error_report
-import maven.models as models
+from maven import models as models
 
 async def council_action_remove_member(
     ctx: HandlerContext,
-    council_action_remove_member: TzktTransaction[CouncilActionRemoveMemberParameter, BreakGlassStorage],
+    council_action_remove_member: TezosTransaction[CouncilActionRemoveMemberParameter, BreakGlassStorage],
 ) -> None:
 
     try:
@@ -16,8 +16,8 @@ async def council_action_remove_member(
 
         # Save the old member in a temp record in case the action is executed
         break_glass_address                 = council_action_remove_member.data.target_address
-        old_council_member_address          = council_action_remove_member.parameter.__root__
-        break_glass                         = await models.BreakGlass.get(network=ctx.datasource.name.replace('mvkt_',''), address=break_glass_address)
+        old_council_member_address          = council_action_remove_member.parameter.root
+        break_glass                         = await models.BreakGlass.get(network='atlasnet', address=break_glass_address)
         break_glass_action_id               = break_glass.action_counter - 1
         break_glass_action                  = await models.BreakGlassAction.get(
             internal_id = break_glass_action_id,

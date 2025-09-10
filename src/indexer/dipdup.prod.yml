@@ -1,4 +1,4 @@
-spec_version: 2.0
+spec_version: 3.0
 
 package: maven
 
@@ -11,6 +11,12 @@ database:
   database: ${POSTGRES_DB:-changeme}
   schema_name: public
   connection_timeout: 60
+  
+hasura:
+  url: ${HASURA_URL:-changeme}
+  admin_secret: ${ADMIN_SECRET:-changeme}
+  select_limit: 1000
+  rest: false
 
 prometheus:
   host: 0.0.0.0
@@ -25,14 +31,10 @@ advanced:
     manual: wipe
     migration: exception
     rollback: ignore
-    config_modified: wipe
-    schema_modified: wipe
+    config_modified: ignore
+    schema_modified: ignore
 
 datasources:
-  metadata_mainnet:
-    kind: tzip_metadata
-    url: https://metadata.dipdup.net
-    network: mainnet
   metadata_atlasnet:
     kind: tzip_metadata
     url: https://dipdup-metadata-api.mavryk.network
@@ -40,8 +42,4 @@ datasources:
   mvkt_atlasnet:
     kind: tezos.tzkt
     url: ${MVKT_ATLASNET_URL:-changeme}
-    merge_subscriptions: true
-  tzkt_mainnet:
-    kind: tezos.tzkt
-    url: ${TZKT_MAINNET_URL:-changeme}
     merge_subscriptions: true

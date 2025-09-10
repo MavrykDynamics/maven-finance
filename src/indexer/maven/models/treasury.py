@@ -9,7 +9,7 @@ class Treasury(MavenContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='treasuries')
     factory                                 = fields.ForeignKeyField('models.TreasuryFactory', related_name='treasuries', null=True)
     baker                                   = fields.ForeignKeyField('models.MavenUser', related_name='delegated_treasuries', null=True)
-    creation_timestamp                      = fields.DatetimeField(auto_now=True)
+    creation_timestamp                      = fields.DatetimeField(null=True)
     name                                    = fields.TextField(default='')
     transfer_paused                         = fields.BooleanField(default=False)
     mint_mvn_and_transfer_paused            = fields.BooleanField(default=False)
@@ -41,7 +41,7 @@ class TreasuryWhitelistContract(LinkedContract, Model):
 
 class TreasuryWhitelistTokenContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.Treasury', related_name='whitelist_token_contracts')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_whitelist_token_contracts')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_whitelist_token_contracts', index=True)
 
     class Meta:
         table = 'treasury_whitelist_token_contract'
@@ -60,7 +60,7 @@ class TreasuryTransferHistoryData(Model):
 class TreasuryBalance(Model):
     id                                      = fields.BigIntField(pk=True)
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='balances')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_balances')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_balances', index=True)
     mvkt_token_id                           = fields.BigIntField(default=0)
     balance                                 = fields.FloatField(default=0.0)
     whitelisted                             = fields.BooleanField(default=False)

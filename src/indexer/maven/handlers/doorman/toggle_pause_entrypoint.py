@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.types.doorman.tezos_storage import DoormanStorage
 from maven.types.doorman.tezos_parameters.toggle_pause_entrypoint import TogglePauseEntrypointParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from dipdup.context import HandlerContext
-import maven.models as models
+from maven import models as models
 
 async def toggle_pause_entrypoint(
     ctx: HandlerContext,
-    toggle_pause_entrypoint: TzktTransaction[TogglePauseEntrypointParameter, DoormanStorage],
+    toggle_pause_entrypoint: TezosTransaction[TogglePauseEntrypointParameter, DoormanStorage],
 ) -> None:
 
     try:
@@ -16,7 +16,7 @@ async def toggle_pause_entrypoint(
         doorman_address = toggle_pause_entrypoint.data.target_address
     
         # Update doorman
-        await models.Doorman.filter(network=ctx.datasource.name.replace('mvkt_',''), address=doorman_address).update(
+        await models.Doorman.filter(network='atlasnet', address=doorman_address).update(
             stake_mvn_paused                    = toggle_pause_entrypoint.storage.breakGlassConfig.stakeMvnIsPaused,
             unstake_mvn_paused                  = toggle_pause_entrypoint.storage.breakGlassConfig.unstakeMvnIsPaused,
             compound_paused                 = toggle_pause_entrypoint.storage.breakGlassConfig.compoundIsPaused,

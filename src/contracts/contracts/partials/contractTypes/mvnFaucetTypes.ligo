@@ -1,21 +1,30 @@
 // ------------------------------------------------------------------------------
 // Storage Types
 // ------------------------------------------------------------------------------
-type requestVariantType is 
-    Mvn         of unit
-|   FakeUsdt    of unit
-type requestersType is big_map((address * requestVariantType), unit);
+type tokenIdentifierType is (address * nat)
+type tokensType is big_map(tokenIdentifierType, nat) // token address * token_id
+type userRequestsType is big_map(address * tokenIdentifierType, unit)
+
+// ------------------------------------------------------------------------------
+// Entrypoints
+// ------------------------------------------------------------------------------
+type setAdminType is address
+type updateTokenType is record[
+    tokenIdentifier     : tokenIdentifierType;
+    maxAmountPerUser    : nat;
+]
+type removeTokenType is tokenIdentifierType;
+type requestTokenType is record[
+    tokenIdentifier     : tokenIdentifierType;
+    userAddress         : address;
+];
 
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
-
-
 type mvnFaucetStorageType is record [
-    mvnTokenAddress         : address;
-    fakeUsdtTokenAddress    : address;
+    admin                   : address;
     metadata                : metadataType;
-    mvnAmountPerUser        : nat;
-    fakeUsdtAmountPerUser   : nat;
-    requesters              : requestersType;
+    tokens                  : tokensType; // Max amount per user
+    userRequests            : userRequestsType;
 ]

@@ -3,12 +3,12 @@ from maven.utils.persisters import persist_council_action
 from maven.types.council.tezos_parameters.council_action_remove_member import CouncilActionRemoveMemberParameter
 from maven.types.council.tezos_storage import CouncilStorage
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
-import maven.models as models
+from dipdup.models.tezos import TezosTransaction
+from maven import models as models
 
 async def council_action_remove_member(
     ctx: HandlerContext,
-    council_action_remove_member: TzktTransaction[CouncilActionRemoveMemberParameter, CouncilStorage],
+    council_action_remove_member: TezosTransaction[CouncilActionRemoveMemberParameter, CouncilStorage],
 ) -> None:
 
     try:
@@ -16,8 +16,8 @@ async def council_action_remove_member(
 
         # Save the old member in a temp record in case the action is executed
         council_address                 = council_action_remove_member.data.target_address
-        old_council_member_address      = council_action_remove_member.parameter.__root__
-        council                         = await models.Council.get(network=ctx.datasource.name.replace('mvkt_',''), address=council_address)
+        old_council_member_address      = council_action_remove_member.parameter.root
+        council                         = await models.Council.get(network='atlasnet', address=council_address)
         council_action_id               = council.action_counter - 1
         council_action                  = await models.CouncilAction.get(
             internal_id = council_action_id,

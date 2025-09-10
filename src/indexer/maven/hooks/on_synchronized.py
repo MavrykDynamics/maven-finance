@@ -1,6 +1,6 @@
 
 from dipdup.context import HookContext
-import maven.models as models
+from maven import models as models
 
 async def on_synchronized(
     ctx: HookContext,
@@ -8,6 +8,3 @@ async def on_synchronized(
 
     # Execute sql script
     await ctx.execute_sql('on_synchronized')
-
-    # Clear user cache
-    await models.maven_user_cache.clear()

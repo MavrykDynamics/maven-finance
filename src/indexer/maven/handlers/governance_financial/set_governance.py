@@ -4,12 +4,12 @@ from maven.utils.persisters import persist_governance
 from maven.types.governance_financial.tezos_parameters.set_governance import SetGovernanceParameter
 from maven.types.governance_financial.tezos_storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
-import maven.models as models
+from dipdup.models.tezos import TezosTransaction
+from maven import models as models
 
 async def set_governance(
     ctx: HandlerContext,
-    set_governance: TzktTransaction[SetGovernanceParameter, GovernanceFinancialStorage],
+    set_governance: TezosTransaction[SetGovernanceParameter, GovernanceFinancialStorage],
 ) -> None:
 
     try:

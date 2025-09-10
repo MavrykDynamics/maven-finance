@@ -3,12 +3,12 @@ from maven.utils.error_reporting import save_error_report
 from maven.utils.persisters import persist_governance_satellite_action
 from maven.types.governance_satellite.tezos_parameters.remove_all_satellite_oracles import RemoveAllSatelliteOraclesParameter
 from maven.types.governance_satellite.tezos_storage import GovernanceSatelliteStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from dipdup.context import HandlerContext
 
 async def remove_all_satellite_oracles(
     ctx: HandlerContext,
-    remove_all_satellite_oracles: TzktTransaction[RemoveAllSatelliteOraclesParameter, GovernanceSatelliteStorage],
+    remove_all_satellite_oracles: TezosTransaction[RemoveAllSatelliteOraclesParameter, GovernanceSatelliteStorage],
 ) -> None:
 
     try:

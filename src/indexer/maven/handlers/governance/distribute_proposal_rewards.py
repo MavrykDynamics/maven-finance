@@ -1,13 +1,13 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.governance.tezos_parameters.distribute_proposal_rewards import DistributeProposalRewardsParameter
 from maven.types.governance.tezos_storage import GovernanceStorage
-import maven.models as models
+from maven import models as models
 
 async def distribute_proposal_rewards(
     ctx: HandlerContext,
-    distribute_proposal_rewards: TzktTransaction[DistributeProposalRewardsParameter, GovernanceStorage],
+    distribute_proposal_rewards: TezosTransaction[DistributeProposalRewardsParameter, GovernanceStorage],
 ) -> None:
 
     try:
@@ -17,10 +17,10 @@ async def distribute_proposal_rewards(
     
         # Update records
         governance          = await models.Governance.get(
-            network     = ctx.datasource.name.replace('mvkt_','')
+            network     = 'atlasnet'
         )
         for proposal_id in proposal_ids:
-            satellite                           = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=satellite_address)
+            satellite                           = await models.get_user(network='atlasnet', address=satellite_address)
             proposal                            = await models.GovernanceProposal.get(
                 governance  = governance,
                 internal_id = int(proposal_id)

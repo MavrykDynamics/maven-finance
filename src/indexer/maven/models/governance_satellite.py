@@ -39,11 +39,11 @@ class GovernanceSatelliteWhitelistContract(LinkedContract, Model):
 class GovernanceSatelliteAction(Model):
     id                                      = fields.BigIntField(pk=True)
     internal_id                             = fields.BigIntField(default=0)
-    governance_satellite                    = fields.ForeignKeyField('models.GovernanceSatellite', related_name='actions')
-    initiator                               = fields.ForeignKeyField('models.MavenUser', related_name='governance_satellite_action_initiators')
-    governance_type                         = fields.CharField(max_length=255)
+    governance_satellite                    = fields.ForeignKeyField('models.GovernanceSatellite', related_name='actions', index=True)
+    initiator                               = fields.ForeignKeyField('models.MavenUser', related_name='governance_satellite_action_initiators', index=True)
+    governance_type                         = fields.CharField(max_length=255, index=True)
     status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus, default=GovernanceActionStatus.ACTIVE, index=True)
-    executed                                = fields.BooleanField(default=False)
+    executed                                = fields.BooleanField(default=False, index=True)
     governance_purpose                      = fields.TextField(default="")
     yay_vote_smvn_total                     = fields.FloatField(default=0.0)
     nay_vote_smvn_total                     = fields.FloatField(default=0.0)
@@ -51,21 +51,28 @@ class GovernanceSatelliteAction(Model):
     snapshot_smvn_total_supply              = fields.FloatField(default=0.0)
     smvn_percentage_for_approval            = fields.SmallIntField(default=0)
     smvn_required_for_approval              = fields.FloatField(default=0.0)
-    execution_datetime                      = fields.DatetimeField(null=True)
-    expiration_datetime                     = fields.DatetimeField(null=True)
-    start_datetime                          = fields.DatetimeField()
-    governance_cycle_id                     = fields.BigIntField(default=0)
+    execution_datetime                      = fields.DatetimeField(null=True, index=True)
+    expiration_datetime                     = fields.DatetimeField(null=True, index=True)
+    start_datetime                          = fields.DatetimeField(index=True)
+    governance_cycle_id                     = fields.BigIntField(default=0, index=True)
     dropped_datetime                        = fields.DatetimeField(null=True)
 
     class Meta:
         table = 'governance_satellite_action'
+        indexes = [
+            ("status", "expiration_datetime"),
+            ("executed", "status"),
+            ("governance_satellite", "status"),
+            ("initiator", "status"),
+            ("governance_satellite", "expiration_datetime"),
+        ]
 
 class GovernanceSatelliteActionVote(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteAction', related_name='votes')
     voter                                   = fields.ForeignKeyField('models.MavenUser', related_name='governance_satellite_actions_votes')
     satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshot', related_name='governance_satellite_actions_votes')
-    timestamp                               = fields.DatetimeField(auto_now=True)
+    timestamp                               = fields.DatetimeField(null=True)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
     class Meta:
         table = 'governance_satellite_action_vote'

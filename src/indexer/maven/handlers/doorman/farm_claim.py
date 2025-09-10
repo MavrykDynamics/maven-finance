@@ -1,21 +1,21 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.doorman.tezos_storage import DoormanStorage
 from maven.types.doorman.tezos_parameters.farm_claim import FarmClaimParameter
-import maven.models as models
+from maven import models as models
 
 async def farm_claim(
     ctx: HandlerContext,
-    farm_claim: TzktTransaction[FarmClaimParameter, DoormanStorage],
+    farm_claim: TezosTransaction[FarmClaimParameter, DoormanStorage],
 ) -> None:
 
     try:
         # Get operation info
         doorman_address                 = farm_claim.data.target_address
         user_claim_records              = farm_claim.parameter.set
-        doorman                         = await models.Doorman.get(network=ctx.datasource.name.replace('mvkt_',''), address=doorman_address)
+        doorman                         = await models.Doorman.get(network='atlasnet', address=doorman_address)
 
         # Update doorman
         unclaimed_rewards                   = float(farm_claim.storage.unclaimedRewards)
@@ -36,7 +36,7 @@ async def farm_claim(
             timestamp                       = farm_claim.data.timestamp
         
             # Get or create the interacting user
-            user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=user_address)
+            user                = await models.get_user(network='atlasnet', address=user_address)
             amount                          = smvn_balance - user.smvn_balance
             user.smvn_balance               = smvn_balance
             await user.save()

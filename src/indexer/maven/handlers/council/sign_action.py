@@ -1,15 +1,15 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.council.tezos_parameters.sign_action import SignActionParameter
 from maven.types.council.tezos_storage import CouncilStorage
 from dateutil import parser
-import maven.models as models
+from maven import models as models
 
 async def sign_action(
     ctx: HandlerContext,
-    sign_action: TzktTransaction[SignActionParameter, CouncilStorage],
+    sign_action: TezosTransaction[SignActionParameter, CouncilStorage],
 ) -> None:
 
     try:
@@ -17,8 +17,8 @@ async def sign_action(
         council_address         = sign_action.data.target_address
         signer_address          = sign_action.data.sender_address
         timestamp               = sign_action.data.timestamp
-        action_id               = int(sign_action.parameter.__root__)
-        action_record_storage   = sign_action.storage.councilActionsLedger[sign_action.parameter.__root__]
+        action_id               = int(sign_action.parameter.root)
+        action_record_storage   = sign_action.storage.councilActionsLedger[sign_action.parameter.root]
         signer_count            = int(action_record_storage.signersCount)
         status                  = action_record_storage.status
         action_type             = action_record_storage.actionType
@@ -41,7 +41,7 @@ async def sign_action(
             status_type = models.ActionStatus.EXECUTED
     
         # Update record
-        council = await models.Council.get(network=ctx.datasource.name.replace('mvkt_',''), address= council_address)
+        council = await models.Council.get(network='atlasnet', address= council_address)
         council.council_size    = council_size
         await council.save()
         action_record   = await models.CouncilAction.get(
@@ -83,7 +83,7 @@ async def sign_action(
             for council_member_address in council_members:
                 # Change or update records
                 member_info             = council_members[council_member_address]
-                member_user             = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=council_member_address)
+                member_user             = await models.get_user(network='atlasnet', address=council_member_address)
                 updated_member, _       = await models.CouncilCouncilMember.get_or_create(
                     council = council,
                     user    = member_user
@@ -97,7 +97,7 @@ async def sign_action(
                 council_action  = action_record
             )
             old_council_member_address      = council_temp_member_parameter.old_council_member_address
-            old_council_member_user         = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=old_council_member_address)
+            old_council_member_user         = await models.get_user(network='atlasnet', address=old_council_member_address)
             old_council_member              = await models.CouncilCouncilMember.get(
                 council     = council,
                 user        = old_council_member_user
@@ -109,7 +109,7 @@ async def sign_action(
                 council_action  = action_record
             )
             old_council_member_address      = council_temp_member_parameter.old_council_member_address
-            old_council_member_user         = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=old_council_member_address)
+            old_council_member_user         = await models.get_user(network='atlasnet', address=old_council_member_address)
             old_council_member              = await models.CouncilCouncilMember.get(
                 council     = council,
                 user        = old_council_member_user
@@ -119,7 +119,7 @@ async def sign_action(
             for council_member_address in council_members:
                 # Change or update records
                 member_info             = council_members[council_member_address]
-                member_user             = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=council_member_address)
+                member_user             = await models.get_user(network='atlasnet', address=council_member_address)
                 updated_member, _       = await models.CouncilCouncilMember.get_or_create(
                     council     = council,
                     user        = member_user
@@ -130,7 +130,7 @@ async def sign_action(
                 await updated_member.save()
         
         # Create signature record
-        user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=signer_address)
+        user                    = await models.get_user(network='atlasnet', address=signer_address)
         signer_record           = models.CouncilActionSigner(
             council_action              = action_record,
             signer                      = user

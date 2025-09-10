@@ -18,7 +18,7 @@ import contractDeployments from './contractDeployments.json'
 // Contract Helpers
 // ------------------------------------------------------------------------------
 
-import { bob, eve } from "../scripts/sandbox/accounts";
+import { bob, eve, mallory } from "../scripts/sandbox/accounts";
 import * as helperFunctions from './helpers/helperFunctions'
 
 // ------------------------------------------------------------------------------
@@ -35,6 +35,8 @@ describe("MVN Faucet tests", async () => {
 
     let admin
     let adminSk
+
+    const zeroAddress = "mv2ZZZZZZZZZZZZZZZZZZZZZZZZZZZDXMF2d"
 
     let mvnFaucetInstance
     let mvnTokenInstance
@@ -71,22 +73,159 @@ describe("MVN Faucet tests", async () => {
 
     });
 
-
-
-    describe('%requestMvn', function () {
-
-        before('admin (bob) sends token to the faucet', async () => {
+    describe('%updateToken', function () {
+        it('admin (bob) should be able to add a token in the faucet', async () => {
             try{
-                // Admin sends MVN token to the faucet
+                // Initial values
                 await helperFunctions.signerFactory(tezos, adminSk)
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const maxAmountPerUser      = MVN(6000);
+                const tokenAddress          = mvnTokenInstance.address;
+                const tokenId               = 0;
+                const initFaucetToken       = await mvnFaucetStorage.tokens.get({
+                    0: tokenAddress,
+                    1: tokenId
+                });
+                
+                // Operation
+                const operation             = await mvnFaucetInstance.methods.updateToken(maxAmountPerUser, tokenAddress, tokenId).send();
+                await operation.confirmation();
+
+                // Final values
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const finalFaucetToken      = await mvnFaucetStorage.tokens.get({
+                    0: tokenAddress,
+                    1: tokenId
+                });
+
+                // Assertions
+                assert.strictEqual(initFaucetToken, undefined);
+                assert.equal(finalFaucetToken.toNumber(), maxAmountPerUser);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('admin (bob) should be able to add MVRK in the faucet', async () => {
+            try{
+                // Admin adds mvrk to the faucet
+                await helperFunctions.signerFactory(tezos, adminSk)
+                const maxAmountPerUser      = 100000000;
+                const tokenAddress          = zeroAddress;
+                const tokenId               = 0;
+                const initFaucetBalance     = await utils.tezos.tz.getBalance(mvnFaucetInstance.address);
+
+                // Operation
+                var operation                   = await mvnFaucetInstance.methods.updateToken(maxAmountPerUser, tokenAddress, tokenId).send();
+                await operation.confirmation();
+
+                // Admin sends MVN token to the faucet
+                operation                       = await utils.tezos.contract.transfer({ to: mvnFaucetInstance.address, amount: maxAmountPerUser * 2, mumav: true});
+                await operation.confirmation()
+
+                // Final values
+                const finalFaucetBalance     = await utils.tezos.tz.getBalance(mvnFaucetInstance.address);
+                assert.strictEqual(finalFaucetBalance.toNumber(), initFaucetBalance.toNumber() + maxAmountPerUser * 2);
+
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        })
+
+        it('admin (bob) should be able to update a token max amount in the faucet', async () => {
+            try{
+                // Initial values
+                await helperFunctions.signerFactory(tezos, adminSk)
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const maxAmountPerUser      = MVN(8000);
+                const tokenAddress          = mvnTokenInstance.address;
+                const tokenId               = 0;
+                const initFaucetToken       = await mvnFaucetStorage.tokens.get({
+                    0: tokenAddress,
+                    1: tokenId
+                });
+                
+                // Operation
+                const operation             = await mvnFaucetInstance.methods.updateToken(maxAmountPerUser, tokenAddress, tokenId).send();
+                await operation.confirmation();
+
+                // Final values
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const finalFaucetToken      = await mvnFaucetStorage.tokens.get({
+                    0: tokenAddress,
+                    1: tokenId
+                });
+
+                // Assertions
+                assert.notStrictEqual(initFaucetToken, undefined);
+                assert.equal(finalFaucetToken.toNumber(), maxAmountPerUser);
+                assert.notEqual(initFaucetToken.toNumber(), finalFaucetToken.toNumber());
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+    })
+
+    describe('%removeToken', function () {
+        it('admin (bob) should be able to remove a token from the faucet', async () => {
+            try{
+                // Initial values
+                await helperFunctions.signerFactory(tezos, adminSk)
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const tokenAddress          = mvnTokenInstance.address;
+                const tokenId               = 0;
+                const initFaucetToken       = await mvnFaucetStorage.tokens.get({
+                    0: tokenAddress,
+                    1: tokenId
+                });
+                
+                // Operation
+                const operation             = await mvnFaucetInstance.methods.removeToken(tokenAddress, tokenId).send();
+                await operation.confirmation();
+
+                // Final values
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const finalFaucetToken      = await mvnFaucetStorage.tokens.get({
+                    0: tokenAddress,
+                    1: tokenId
+                });
+
+                // Assertions
+                assert.notStrictEqual(initFaucetToken, undefined);
+                assert.strictEqual(finalFaucetToken, undefined);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+    });
+
+
+    describe('%requestToken', function () {
+
+        before('admin (bob) adds and sends token to the faucet', async () => {
+            try{
+                // Admin adds token to the faucet
+                await helperFunctions.signerFactory(tezos, adminSk)
+                const maxAmountPerUser      = MVN(6000);
+                const tokenAddress          = mvnTokenInstance.address;
+                const tokenId               = 0;
+
+                // Operation
+                var operation                   = await mvnFaucetInstance.methods.updateToken(maxAmountPerUser, tokenAddress, tokenId).send();
+                await operation.confirmation();
+
+                // Admin sends MVN token to the faucet
                 const adminEntireMVNBalance     = await mvnTokenStorage.ledger.get(admin)
-                var operation                   = await mvnTokenInstance.methods.transfer([
+                operation                       = await mvnTokenInstance.methods.transfer([
                     {
                         from_: admin,
                         txs: [
                         {
                             to_: mvnFaucetInstance.address,
-                            token_id: 0,
+                            token_id: tokenId,
                             amount: adminEntireMVNBalance,
                         },
                         ],
@@ -100,163 +239,251 @@ describe("MVN Faucet tests", async () => {
             }
         })
 
-        it('user (eve) should be able to request 1000MVN from the faucet', async () => {
+        it('admin (bob) should be able to claim from the faucet multiple times', async () => {
 
             try{
                 // Initial values
-                await helperFunctions.signerFactory(tezos, userSk)
+                await helperFunctions.signerFactory(tezos, adminSk)
                 mvnTokenStorage             = await mvnTokenInstance.storage();
                 mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const amount                = await mvnFaucetStorage.tokens.get({
+                    0: mvnTokenInstance.address,
+                    1: 0
+                })
+                const userStartRequest      = await mvnFaucetStorage.userRequests.get({
+                    0: admin,
+                    1: mvnTokenInstance.address,
+                    2: 0
+                })
+                const faucetStartBalance    = await mvnTokenStorage.ledger.get(mvnFaucetInstance.address);
+                const userStartBalance      = await mvnTokenStorage.ledger.get(admin);
+                const tokenAddress          = mvnTokenInstance.address;
+                const tokenId               = 0;
+
+                // Operation
+                let operation             = await mvnFaucetInstance.methods.requestToken(tokenAddress, tokenId, admin).send();
+                await operation.confirmation();
+
+                // Mid values
+                mvnTokenStorage             = await mvnTokenInstance.storage();
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const userMidRequest        = await mvnFaucetStorage.userRequests.get({
+                    0: admin,
+                    1: mvnTokenInstance.address,
+                    2: 0
+                })
+                const faucetMidBalance      = await mvnTokenStorage.ledger.get(mvnFaucetInstance.address);
+                const userMidBalance        = await mvnTokenStorage.ledger.get(admin);
+
+                // Assertions
+                assert.equal(faucetMidBalance.toNumber(), faucetStartBalance.toNumber() - amount.toNumber());
+                assert.equal(userMidBalance.toNumber(), userStartBalance.toNumber() + amount.toNumber());
+                assert.strictEqual(userStartRequest, userMidRequest);
+                assert.strictEqual(userMidRequest, undefined);
+
+                // Operation
+                operation             = await mvnFaucetInstance.methods.requestToken(tokenAddress, tokenId, admin).send();
+                await operation.confirmation();
+
+                // Mid values
+                mvnTokenStorage             = await mvnTokenInstance.storage();
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const userFinalRequest      = await mvnFaucetStorage.userRequests.get({
+                    0: admin,
+                    1: mvnTokenInstance.address,
+                    2: 0
+                })
+                const faucetEndBalance      = await mvnTokenStorage.ledger.get(mvnFaucetInstance.address);
+                const userEndBalance        = await mvnTokenStorage.ledger.get(admin);
+
+                // Assertions
+                assert.equal(faucetEndBalance.toNumber(), faucetMidBalance.toNumber() - amount.toNumber());
+                assert.equal(userEndBalance.toNumber(), userMidBalance.toNumber() + amount.toNumber());
+                assert.strictEqual(userFinalRequest, undefined);
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('admin (bob) should be able to request token from the faucet for another user', async () => {
+
+            try{
+                // Initial values
+                await helperFunctions.signerFactory(tezos, adminSk)
+                mvnTokenStorage             = await mvnTokenInstance.storage();
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const amount                = await mvnFaucetStorage.tokens.get({
+                    0: mvnTokenInstance.address,
+                    1: 0
+                })
+                const userStartRequest      = await mvnFaucetStorage.userRequests.get({
+                    0: user,
+                    1: mvnTokenInstance.address,
+                    2: 0
+                })
                 const faucetStartBalance    = await mvnTokenStorage.ledger.get(mvnFaucetInstance.address);
                 const userStartBalance      = await mvnTokenStorage.ledger.get(user);
-                const userRequestStartTrace = await mvnFaucetStorage.requesters.get({
-                    0: user,
-                    1: {
-                        mvn: null
-                    }
-                });
+                const tokenAddress          = mvnTokenInstance.address;
+                const tokenId               = 0;
 
                 // Operation
-                const operation             = await mvnFaucetInstance.methods.requestMvn().send();
+                const operation             = await mvnFaucetInstance.methods.requestToken(tokenAddress, tokenId, user).send();
                 await operation.confirmation();
 
                 // Final values
                 mvnTokenStorage             = await mvnTokenInstance.storage();
                 mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const userFinalRequest      = await mvnFaucetStorage.userRequests.get({
+                    0: user,
+                    1: mvnTokenInstance.address,
+                    2: 0
+                })
                 const faucetEndBalance      = await mvnTokenStorage.ledger.get(mvnFaucetInstance.address);
                 const userEndBalance        = await mvnTokenStorage.ledger.get(user);
-                const userRequestEndTrace   = await mvnFaucetStorage.requesters.get({
-                    0: user,
-                    1: {
-                        mvn: null
-                    }
-                });
 
                 // Assertions
-                assert.equal(faucetEndBalance.toNumber(), faucetStartBalance.toNumber() - MVN(1000));
-                assert.equal(userEndBalance.toNumber(), userStartBalance.toNumber() + MVN(1000));
-                assert.strictEqual(userRequestStartTrace, undefined);
-                assert.notStrictEqual(userRequestEndTrace, undefined);
+                assert.equal(faucetEndBalance.toNumber(), faucetStartBalance.toNumber() - amount.toNumber());
+                assert.equal(userEndBalance.toNumber(), userStartBalance.toNumber() + amount.toNumber());
+                assert.strictEqual(userStartRequest, undefined);
+                assert.notStrictEqual(userFinalRequest, undefined);
 
             } catch(e){
                 console.dir(e, {depth: 5});
             } 
         });
 
-        it('user (eve) should not be able to request MVN twice', async () => {
+        it('admin (bob) should not be able to request token from the faucet for another user twice', async () => {
 
             try{
                 // Initial values
-                await helperFunctions.signerFactory(tezos, userSk)
-                mvnFaucetStorage            = await mvnFaucetInstance.storage();
-                const userRequestTrace      = await mvnFaucetStorage.requesters.get({
-                    0: user,
-                    1: {
-                        mvn: null
-                    }
-                });
-
-                // Operation
-                await chai.expect(mvnFaucetInstance.methods.requestMvn().send()).to.be.rejected;
-
-                // Assertions
-                assert.notStrictEqual(userRequestTrace, undefined);
-
-            } catch(e){
-                console.dir(e, {depth: 5});
-            } 
-        });
-
-    });
-
-    describe('%requestFakeUsdt', function () {
-
-        before('admin (bob) sends token to the faucet', async () => {
-            try{
-                // Admin sends MVN token to the faucet
                 await helperFunctions.signerFactory(tezos, adminSk)
-                const adminEntireUSDtBalance    = await usdtTokenStorage.ledger.get(admin)
-                var operation                 = await usdtTokenInstance.methods.transfer([
-                    {
-                        from_: admin,
-                        txs: [
-                        {
-                            to_: mvnFaucetInstance.address,
-                            token_id: 0,
-                            amount: adminEntireUSDtBalance,
-                        },
-                        ],
-                    },
-                    ])
-                .send()
-                await operation.confirmation()
+                mvnTokenStorage             = await mvnTokenInstance.storage();
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const tokenAddress          = mvnTokenInstance.address;
+                const tokenId               = 0;
 
+                // Operation
+                await chai.expect(mvnFaucetInstance.methods.requestToken(tokenAddress, tokenId, user).send()).to.be.rejected;
             } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        })
+                console.dir(e, {depth: 5});
+            } 
+        });
 
-        it('user (eve) should be able to request 1000USDt from the faucet', async () => {
+        it('user (eve) should be not able to request token from the faucet for herself', async () => {
 
             try{
                 // Initial values
                 await helperFunctions.signerFactory(tezos, userSk)
-                usdtTokenStorage            = await usdtTokenInstance.storage();
+                mvnTokenStorage             = await mvnTokenInstance.storage();
                 mvnFaucetStorage            = await mvnFaucetInstance.storage();
-                const faucetStartBalance    = await usdtTokenStorage.ledger.get(mvnFaucetInstance.address);
-                const userStartBalance      = await usdtTokenStorage.ledger.get(user);
-                const userRequestStartTrace = await mvnFaucetStorage.requesters.get({
-                    0: user,
-                    1: {
-                        fakeUsdt: null
-                    }
-                });
+                const tokenAddress          = mvnTokenInstance.address;
+                const tokenId               = 0;
 
                 // Operation
-                const operation             = await mvnFaucetInstance.methods.requestFakeUsdt().send();
+                await chai.expect(mvnFaucetInstance.methods.requestToken(tokenAddress, tokenId, user).send()).to.be.rejected;
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('admin (bob) should be able to request mvrk from the faucet for another user', async () => {
+
+            try{
+                // Initial values
+                await helperFunctions.signerFactory(tezos, adminSk)
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const userStartRequest      = await mvnFaucetStorage.userRequests.get({
+                    0: user,
+                    1: zeroAddress,
+                    2: 0
+                })
+                const faucetStartBalance    = await utils.tezos.tz.getBalance(mvnFaucetInstance.address);
+                const userStartBalance      = await utils.tezos.tz.getBalance(user);
+                const tokenAddress          = zeroAddress;
+                const tokenId               = 0;
+                const amount                = await mvnFaucetStorage.tokens.get({
+                    0: zeroAddress,
+                    1: 0
+                })
+
+                // Operation
+                const operation             = await mvnFaucetInstance.methods.requestToken(tokenAddress, tokenId, user).send();
                 await operation.confirmation();
 
                 // Final values
-                usdtTokenStorage            = await usdtTokenInstance.storage();
                 mvnFaucetStorage            = await mvnFaucetInstance.storage();
-                const faucetEndBalance      = await usdtTokenStorage.ledger.get(mvnFaucetInstance.address);
-                const userEndBalance        = await usdtTokenStorage.ledger.get(user);
-                const userRequestEndTrace   = await mvnFaucetStorage.requesters.get({
+                const userFinalRequest      = await mvnFaucetStorage.userRequests.get({
                     0: user,
-                    1: {
-                        fakeUsdt: null
-                    }
-                });
+                    1: zeroAddress,
+                    2: 0
+                })
+                const faucetEndBalance      = await utils.tezos.tz.getBalance(mvnFaucetInstance.address);
+                const userEndBalance        = await utils.tezos.tz.getBalance(user);
 
                 // Assertions
-                assert.equal(faucetEndBalance.toNumber(), faucetStartBalance.toNumber() - 1000000000);
-                assert.equal(userEndBalance.toNumber(), userStartBalance.toNumber() + 1000000000);
-                assert.strictEqual(userRequestStartTrace, undefined);
-                assert.notStrictEqual(userRequestEndTrace, undefined);
+                assert.equal(faucetEndBalance.toNumber(), faucetStartBalance.toNumber() - amount.toNumber());
+                assert.equal(userEndBalance.toNumber(), userStartBalance.toNumber() + amount.toNumber());
+                assert.strictEqual(userStartRequest, undefined);
+                assert.notStrictEqual(userFinalRequest, undefined);
 
             } catch(e){
                 console.dir(e, {depth: 5});
             } 
         });
 
-        it('user (eve) should not be able to request MVN twice', async () => {
+        it('admin (bob) should be not able to request mvrk from the faucet for another user twice', async () => {
+
+            try{
+                // Initial values
+                await helperFunctions.signerFactory(tezos, adminSk)
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const tokenAddress          = zeroAddress;
+                const tokenId               = 0;
+
+                // Operation
+                await chai.expect(mvnFaucetInstance.methods.requestToken(tokenAddress, tokenId, user).send()).to.be.rejected;
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('user (eve) should be not be able to request mvrk from the faucet for herself', async () => {
 
             try{
                 // Initial values
                 await helperFunctions.signerFactory(tezos, userSk)
                 mvnFaucetStorage            = await mvnFaucetInstance.storage();
-                const userRequestTrace      = await mvnFaucetStorage.requesters.get({
-                    0: user,
-                    1: {
-                        fakeUsdt: null
-                    }
+                const tokenAddress          = zeroAddress;
+                const tokenId               = 0;
+
+                // Operation
+                await chai.expect(mvnFaucetInstance.methods.requestToken(tokenAddress, tokenId, user).send()).to.be.rejected;
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            } 
+        });
+
+        it('admin (bob) should not be able to request from a token not registered on the faucet', async () => {
+
+            try{
+                // Initial values
+                await helperFunctions.signerFactory(tezos, adminSk)
+                mvnFaucetStorage            = await mvnFaucetInstance.storage();
+                const tokenAddress          = usdtTokenInstance.address;
+                const tokenId               = 0;
+                const maxAmountPerUser      = await mvnFaucetStorage.tokens.get({
+                    0: tokenAddress,
+                    1: tokenId
                 });
 
                 // Operation
-                await chai.expect(mvnFaucetInstance.methods.requestFakeUsdt().send()).to.be.rejected;
+                await chai.expect(mvnFaucetInstance.methods.requestToken(tokenAddress, tokenId, user).send()).to.be.rejected;
 
                 // Assertions
-                assert.notStrictEqual(userRequestTrace, undefined);
+                assert.strictEqual(maxAmountPerUser, undefined);
 
             } catch(e){
                 console.dir(e, {depth: 5});
@@ -264,5 +491,4 @@ describe("MVN Faucet tests", async () => {
         });
 
     });
-
 });

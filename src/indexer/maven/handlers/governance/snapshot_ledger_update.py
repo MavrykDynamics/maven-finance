@@ -5,11 +5,11 @@ from maven.types.governance.tezos_big_maps.snapshot_ledger_value import Snapshot
 from maven import models as models
 from dipdup.context import HandlerContext
 from tortoise.models import Q
-from dipdup.models.tezos_tzkt import TzktBigMapDiff
+from dipdup.models.tezos import TezosBigMapDiff
 
 async def snapshot_ledger_update(
     ctx: HandlerContext,
-    snapshot_ledger: TzktBigMapDiff[SnapshotLedgerKey, SnapshotLedgerValue],
+    snapshot_ledger: TezosBigMapDiff[SnapshotLedgerKey, SnapshotLedgerValue],
 ) -> None:
 
     try:
@@ -32,8 +32,8 @@ async def snapshot_ledger_update(
                 next_snapshot_cycle_id  = int(next_snapshot_cycle_id)
     
             # Get governance record
-            governance                      = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
-            user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=satellite_address)
+            governance                      = await models.Governance.get(network = 'atlasnet')
+            user                            = await models.get_user(network='atlasnet', address=satellite_address)
             snapshot_record, _              = await models.GovernanceSatelliteSnapshot.get_or_create(
                 governance              = governance,
                 user                    = user,

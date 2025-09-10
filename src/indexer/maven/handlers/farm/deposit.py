@@ -3,13 +3,13 @@ from maven.utils.error_reporting import save_error_report
 from maven.types.farm.tezos_parameters.deposit import DepositParameter
 from dipdup.context import HandlerContext
 from maven.types.farm.tezos_storage import FarmStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
-import maven.models as models
+from dipdup.models.tezos import TezosTransaction
+from maven import models as models
 import datetime
 
 async def deposit(
     ctx: HandlerContext,
-    deposit: TzktTransaction[DepositParameter, FarmStorage],
+    deposit: TezosTransaction[DepositParameter, FarmStorage],
 ) -> None:
 
     try:
@@ -35,7 +35,7 @@ async def deposit(
 
         # Create and update records
         farm                            = await models.Farm.get(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = farm_address
         )
         farm.total_rewards              = total_rewards
@@ -53,7 +53,7 @@ async def deposit(
             farm.end_timestamp  = farm.start_timestamp + datetime.timedelta(seconds=farm_duration)
         await farm.save()
     
-        user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=depositor_address)
+        user                            = await models.get_user(network='atlasnet', address=depositor_address)
     
         farm_account, _                 = await models.FarmAccount.get_or_create(
             user = user,

@@ -3,13 +3,13 @@ from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
 from maven.types.break_glass.tezos_parameters.sign_action import SignActionParameter
 from maven.types.break_glass.tezos_storage import BreakGlassStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from dateutil import parser
-import maven.models as models
+from maven import models as models
 
 async def sign_action(
     ctx: HandlerContext,
-    sign_action: TzktTransaction[SignActionParameter, BreakGlassStorage],
+    sign_action: TezosTransaction[SignActionParameter, BreakGlassStorage],
 ) -> None:
 
     try:
@@ -17,8 +17,8 @@ async def sign_action(
         break_glass_address     = sign_action.data.target_address
         signer_address          = sign_action.data.sender_address
         timestamp               = sign_action.data.timestamp
-        action_id               = int(sign_action.parameter.__root__)
-        action_record_storage   = sign_action.storage.actionsLedger[sign_action.parameter.__root__]
+        action_id               = int(sign_action.parameter.root)
+        action_record_storage   = sign_action.storage.actionsLedger[sign_action.parameter.root]
         signer_count            = int(action_record_storage.signersCount)
         status                  = action_record_storage.status
         action_type             = action_record_storage.actionType
@@ -43,7 +43,7 @@ async def sign_action(
             status_type = models.ActionStatus.EXECUTED
     
         # Update record
-        break_glass                 = await models.BreakGlass.get(network=ctx.datasource.name.replace('mvkt_',''), address= break_glass_address)
+        break_glass                 = await models.BreakGlass.get(network='atlasnet', address= break_glass_address)
         break_glass.admin           = admin
         break_glass.glass_broken    = glass_broken
         break_glass.council_size    = council_size
@@ -89,7 +89,7 @@ async def sign_action(
             for council_member_address in council_members:
                 # Add record
                 member_info             = council_members[council_member_address]
-                member_user             = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=council_member_address)
+                member_user             = await models.get_user(network='atlasnet', address=council_member_address)
                 updated_member, _       = await models.BreakGlassCouncilMember.get_or_create(
                     break_glass = break_glass,
                     user        = member_user
@@ -103,7 +103,7 @@ async def sign_action(
                 break_glass_action          = action_record
             )
             old_council_member_address      = break_glass_temp_member_parameter.old_council_member_address
-            old_council_member_user         = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=old_council_member_address)
+            old_council_member_user         = await models.get_user(network='atlasnet', address=old_council_member_address)
             old_council_member              = await models.BreakGlassCouncilMember.get(
                 break_glass = break_glass,
                 user        = old_council_member_user
@@ -115,7 +115,7 @@ async def sign_action(
                 break_glass_action          = action_record
             )
             old_council_member_address      = break_glass_temp_member_parameter.old_council_member_address
-            old_council_member_user         = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=old_council_member_address)
+            old_council_member_user         = await models.get_user(network='atlasnet', address=old_council_member_address)
             old_council_member              = await models.BreakGlassCouncilMember.get(
                 break_glass = break_glass,
                 user        = old_council_member_user
@@ -125,7 +125,7 @@ async def sign_action(
             for council_member_address in council_members:
                 # Change record
                 member_info             = council_members[council_member_address]
-                member_user             = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=council_member_address)
+                member_user             = await models.get_user(network='atlasnet', address=council_member_address)
                 updated_member, _       = await models.BreakGlassCouncilMember.get_or_create(
                     break_glass = break_glass,
                     user        = member_user
@@ -136,7 +136,7 @@ async def sign_action(
                 await updated_member.save() 
         
         # Create signature record
-        user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=signer_address)
+        user                    = await models.get_user(network='atlasnet', address=signer_address)
         signer_record           = models.BreakGlassActionSigner(
             break_glass_action          = action_record,
             signer                      = user

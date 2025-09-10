@@ -1,17 +1,15 @@
-from maven.utils.error_reporting import save_error_report
-
-from maven.utils.contracts import get_contract_metadata
-from maven.types.governance.tezos_storage import GovernanceStorage, Round as proposal, Round1 as timelock, Round2 as voting
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktOrigination
-import maven.models as models
-import os
+from dipdup.models.tezos import TezosOrigination
+from maven import models as models
+from maven.types.governance.tezos_storage import GovernanceStorage, Round as proposal, Round1 as timelock, Round2 as voting
+from maven.types.governance.tezos_storage import GovernanceStorage
+from maven.utils.contracts import get_contract_metadata
+from maven.utils.error_reporting import save_error_report
 
 async def origination(
     ctx: HandlerContext,
-    governance_origination: TzktOrigination[GovernanceStorage],
+    governance_origination: TezosOrigination[GovernanceStorage],
 ) -> None:
-
     try:
         # Get operation values
         address                                 = governance_origination.data.originated_contract_address
@@ -61,11 +59,14 @@ async def origination(
             governance_round_type = models.GovernanceRoundType.TIMELOCK
         elif type(current_round) == voting:
             governance_round_type = models.GovernanceRoundType.VOTING
+
+        # Create hypertables
+        #ctx.execute_sql_script('create_distributed_hypertables')
     
         # Create record
         governance          = models.Governance(
             address                                 = address,
-            network                                 = ctx.datasource.name.replace('mvkt_',''),
+            network                                 = 'atlasnet',
             metadata                                = contract_metadata,
             admin                                   = admin,
             last_updated_at                         = timestamp,
@@ -102,7 +103,7 @@ async def origination(
     
         # Add whitelisted developers
         for whitelisted_developer_address in whitelisted_developers:
-            user                                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=whitelisted_developer_address)
+            user                                    = await models.get_user(network='atlasnet', address=whitelisted_developer_address)
             whitelist_developer, _                  = await models.WhitelistDeveloper.get_or_create(
                 governance  = governance,
                 developer   = user
@@ -134,10 +135,10 @@ async def origination(
         #     )
         # )
         # await ctx.add_index(
-        #     name="m_token_tzbtc",
+        #     name="m_token_wbtc",
         #     template="m_token_template",
         #     values=dict(
-        #         m_token_contract="m_token_tzbtc"
+        #         m_token_contract="m_token_wbtc"
         #     )
         # )
         await ctx.add_index(
@@ -156,7 +157,7 @@ async def origination(
                 governance_contract="governance",
                 governance_proxy_contract="governance_proxy",
                 mvn_token_contract="mvn_token",
-                mvn_faucet_contract="mvn_faucet",
+                # mvn_faucet_contract="mvn_faucet",
                 doorman_contract="doorman",
                 farm_factory_contract="farm_factory",
                 delegation_contract="delegation",
@@ -174,19 +175,5 @@ async def origination(
             )
         )
 
-        # Start Liquidity Baking indexer
-        # liquidity_baking_enable_indexer = os.getenv("LIQUIDITY_BAKING_ENABLE_INDEXER")
-        # if str(liquidity_baking_enable_indexer).upper() == "TRUE":
-        #     await ctx.add_index(
-        #         name="liquidity_baking",
-        #         template="liquidity_baking_template",
-        #         values=dict(
-        #             liquidity_baking_contract="liquidity_baking",
-        #             sirius_contract="sirius",
-        #             tzbtc_contract="tzbtc"
-        #         )
-        #     )
-
     except BaseException as e:
         await save_error_report(e)
-

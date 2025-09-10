@@ -1,13 +1,13 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.treasury.tezos_parameters.default import DefaultParameter
 from maven.types.treasury.tezos_storage import TreasuryStorage
 from maven import models as models
 
 async def default(
     ctx: HandlerContext,
-    default: TzktTransaction[DefaultParameter, TreasuryStorage],
+    default: TezosTransaction[DefaultParameter, TreasuryStorage],
 ) -> None:
     try:    
         # Get operation info
@@ -19,14 +19,13 @@ async def default(
           "name": "Mavryk",
           "symbol": "MVRK",
           "decimals": "6",
-          "icon": "ipfs://QmbHaFX2gyFEzdwp54vqtf7McL74BvT7r4pw6UVyfEdKhu",
           "thumbnailUri": "ipfs://QmbHaFX2gyFEzdwp54vqtf7McL74BvT7r4pw6UVyfEdKhu",
         }
 
         # Create the MVRK token record
         token, _            = await models.Token.get_or_create(
             token_address       = token_address,
-            network             = ctx.datasource.name.replace('mvkt_','')
+            network             = 'atlasnet'
         )
         token.token_standard    = token_standard
         token.metadata          = metadata
@@ -34,7 +33,7 @@ async def default(
 
         # Update records
         treasury            = await models.Treasury.get(
-            network         = ctx.datasource.name.replace('mvkt_',''),
+            network         = 'atlasnet',
             address         = treasury_address
         )
         treasury_balance, _ = await models.TreasuryBalance.get_or_create(

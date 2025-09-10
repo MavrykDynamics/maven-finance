@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.utils.contracts import get_contract_metadata
 from maven.types.council.tezos_storage import CouncilStorage
-from dipdup.models.tezos_tzkt import TzktOrigination
+from dipdup.models.tezos import TezosOrigination
 from dipdup.context import HandlerContext
-import maven.models as models
+from maven import models as models
 
 async def origination(
     ctx: HandlerContext,
-    council_origination: TzktOrigination[CouncilStorage],
+    council_origination: TezosOrigination[CouncilStorage],
 ) -> None:
 
     try:
@@ -34,12 +34,12 @@ async def origination(
         )
         
         # Get governance record
-        governance                  = await models.Governance.get(network = ctx.datasource.name.replace('mvkt_',''))
+        governance                  = await models.Governance.get(network = 'atlasnet')
     
         # Update and create record
         council = models.Council(
             address                             = address,
-            network                             = ctx.datasource.name.replace('mvkt_',''),
+            network                             = 'atlasnet',
             metadata                            = contract_metadata,
             admin                               = admin,
             last_updated_at                     = timestamp,
@@ -57,7 +57,7 @@ async def origination(
         await council.save()
     
         for member_address in council_members:
-            user            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=member_address)
+            user            = await models.get_user(network='atlasnet', address=member_address)
             user.council    = council
             await user.save()
     

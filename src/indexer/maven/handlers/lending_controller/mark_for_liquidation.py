@@ -3,13 +3,13 @@ from maven.utils.error_reporting import save_error_report
 from maven.types.lending_controller.tezos_storage import LendingControllerStorage
 from maven.types.lending_controller.tezos_parameters.mark_for_liquidation import MarkForLiquidationParameter
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
-import maven.models as models
+from dipdup.models.tezos import TezosTransaction
+from maven import models as models
 from dateutil import parser
 
 async def mark_for_liquidation(
     ctx: HandlerContext,
-    mark_for_liquidation: TzktTransaction[MarkForLiquidationParameter, LendingControllerStorage],
+    mark_for_liquidation: TezosTransaction[MarkForLiquidationParameter, LendingControllerStorage],
 ) -> None:
 
     try:
@@ -25,10 +25,10 @@ async def mark_for_liquidation(
     
         # Update records
         lending_controller          = await models.LendingController.get(
-            network         = ctx.datasource.name.replace('mvkt_',''),
+            network         = 'atlasnet',
             address         = lending_controller_address,
         )
-        vault_owner                 = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vault_owner_address)
+        vault_owner                 = await models.get_user(network='atlasnet', address=vault_owner_address)
     
         for vault_storage in vaults_storage:
             if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:
@@ -43,11 +43,11 @@ async def mark_for_liquidation(
                 vault_liquidation_end_level             = int(vault_storage.value.liquidationEndLevel)
     
                 # Save updated vault
-                lending_controller_vault                = await models.LendingControllerVault.get(
+                lending_controller_vault                = await models.LendingControllerVault.filter(
                     lending_controller  = lending_controller,
                     owner               = vault_owner,
                     internal_id         = vault_internal_id
-                )
+                ).first()
                 lending_controller_vault.internal_id                        = vault_internal_id
                 lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
                 lending_controller_vault.loan_principal_total               = vault_loan_principal_total
@@ -80,7 +80,7 @@ async def mark_for_liquidation(
                 await loan_token.save()
     
                 # Save history data
-                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
+                sender                                  = await models.get_user(network='atlasnet', address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

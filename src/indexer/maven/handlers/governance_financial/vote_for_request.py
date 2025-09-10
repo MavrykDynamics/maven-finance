@@ -1,15 +1,15 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.governance_financial.tezos_storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
 from maven.types.governance_financial.tezos_parameters.vote_for_request import VoteForRequestParameter, Vote as nay, Vote1 as pass_, Vote2 as yay
-import maven.models as models
+from maven import models as models
 from dateutil import parser
 
 async def vote_for_request(
     ctx: HandlerContext,
-    vote_for_request: TzktTransaction[VoteForRequestParameter, GovernanceFinancialStorage],
+    vote_for_request: TezosTransaction[VoteForRequestParameter, GovernanceFinancialStorage],
 ) -> None:
 
     try:
@@ -37,8 +37,8 @@ async def vote_for_request(
             vote_type       = models.GovernanceVoteType.PASS
     
         # Create and update records
-        governance              = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
-        governance_financial    = await models.GovernanceFinancial.get(network=ctx.datasource.name.replace('mvkt_',''), address= financial_address)
+        governance              = await models.Governance.get(network='atlasnet', address= governance_address)
+        governance_financial    = await models.GovernanceFinancial.get(network='atlasnet', address= financial_address)
         await models.GovernanceFinancialRequest.filter(
             governance_financial    = governance_financial,
             internal_id             = request_id
@@ -56,7 +56,7 @@ async def vote_for_request(
                 execution_datetime    = execution_datetime
             )
     
-        voter                   = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=voter_address)
+        voter                   = await models.get_user(network='atlasnet', address=voter_address)
     
         # Register vote
         satellite_snapshot, _   = await models.GovernanceSatelliteSnapshot.get_or_create(

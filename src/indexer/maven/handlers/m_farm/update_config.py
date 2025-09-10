@@ -1,13 +1,13 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.m_farm.tezos_parameters.update_config import UpdateConfigParameter
 from maven.types.m_farm.tezos_storage import MFarmStorage
-import maven.models as models
+from maven import models as models
 
 async def update_config(
     ctx: HandlerContext,
-    update_config: TzktTransaction[UpdateConfigParameter, MFarmStorage],
+    update_config: TezosTransaction[UpdateConfigParameter, MFarmStorage],
 ) -> None:
 
     try:
@@ -26,7 +26,7 @@ async def update_config(
     
         # Update contract
         await models.Farm.filter(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = farm_address
         ).update(
             last_updated_at                = timestamp,

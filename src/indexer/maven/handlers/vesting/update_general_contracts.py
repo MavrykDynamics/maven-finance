@@ -4,12 +4,12 @@ from maven.utils.persisters import persist_linked_contract
 from maven.types.vesting.tezos_storage import VestingStorage
 from dipdup.context import HandlerContext
 from maven.types.vesting.tezos_parameters.update_general_contracts import UpdateGeneralContractsParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
-import maven.models as models
+from dipdup.models.tezos import TezosTransaction
+from maven import models as models
 
 async def update_general_contracts(
     ctx: HandlerContext,
-    update_general_contracts: TzktTransaction[UpdateGeneralContractsParameter, VestingStorage],
+    update_general_contracts: TezosTransaction[UpdateGeneralContractsParameter, VestingStorage],
 ) -> None:
 
     try:

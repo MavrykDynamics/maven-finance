@@ -1,20 +1,20 @@
 from maven.utils.error_reporting import save_error_report
 from maven.types.governance.tezos_storage import GovernanceStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.governance.tezos_parameters.propose import ProposeParameter
 from dipdup.context import HandlerContext
 from dateutil import parser 
-import maven.models as models
+from maven import models as models
 
 async def propose(
     ctx: HandlerContext,
-    propose: TzktTransaction[ProposeParameter, GovernanceStorage],
+    propose: TezosTransaction[ProposeParameter, GovernanceStorage],
 ) -> None:
 
     try:
         # Get operation values
         governance              = await models.Governance.get(
-            network = ctx.datasource.name.replace('mvkt_','')
+            network = 'atlasnet'
         )
         next_proposal_id        = int(propose.storage.nextProposalId)
         current_id              = str(next_proposal_id - 1)
@@ -56,7 +56,7 @@ async def propose(
         satellite_snapshots     = propose.storage.snapshotLedger
     
         # Proposal record
-        user                    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=proposer_address)
+        user                    = await models.get_user(network='atlasnet', address=proposer_address)
     
         proposalRecord              = models.GovernanceProposal(
             internal_id                     = int(current_id),

@@ -2,13 +2,13 @@ from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
 from maven.types.aggregator_factory.tezos_parameters.update_config import UpdateConfigParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.aggregator_factory.tezos_storage import AggregatorFactoryStorage
-import maven.models as models
+from maven import models as models
 
 async def update_config(
     ctx: HandlerContext,
-    update_config: TzktTransaction[UpdateConfigParameter, AggregatorFactoryStorage],
+    update_config: TezosTransaction[UpdateConfigParameter, AggregatorFactoryStorage],
 ) -> None:
 
     try:
@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.AggregatorFactory.filter(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = aggregator_factory_address
         ).update(
             last_updated_at                 = timestamp,

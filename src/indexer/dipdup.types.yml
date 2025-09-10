@@ -1,23 +1,8 @@
-hooks:
-  fetch_liquidity_baking_prices:
-    callback: fetch_liquidity_baking_prices
-    atomic: false
-    args:
-      datasource: str
-      batch_size: int
-
-jobs:
-  fetch_liquidity_baking_prices:
-    hook: fetch_liquidity_baking_prices
-    interval: 500
-    args:
-      datasource: tzkt_mainnet
-      batch_size: 10000
-
 templates:
   m_token_template:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - origination
     - transaction
@@ -59,14 +44,16 @@ templates:
 
 indexes:
   treasury_token_transfer_receiver:
-    kind: tezos.tzkt.token_transfers
-    datasource: mvkt_atlasnet
+    kind: tezos.token_transfers
+    datasources:
+    - mvkt_atlasnet
     handlers:
     - callback: treasury.token_transfer_receiver
-      to: doorman
+      contract: doorman
   farm:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -131,8 +118,9 @@ indexes:
       - destination: farm
         entrypoint: setLambda
   m_farm:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -197,8 +185,9 @@ indexes:
       - destination: farm_m_token
         entrypoint: setLambda
   aggregator:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -271,8 +260,9 @@ indexes:
       - destination: aggregator
         entrypoint: setLambda
   treasury:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -325,8 +315,9 @@ indexes:
       - destination: treasury
         entrypoint: setLambda
   vault:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - transaction
     handlers:
@@ -343,76 +334,18 @@ indexes:
       - destination: vault
         entrypoint: updateVaultName
   governance_satellite_snapshot:
-    kind: tezos.tzkt.big_maps
-    datasource: mvkt_atlasnet
+    kind: tezos.big_maps
+    datasources:
+    - mvkt_atlasnet
     skip_history: never
     handlers:
     - callback: governance.snapshot_ledger_update
       contract: governance
       path: snapshotLedger
-  liquidity_baking:
-    kind: tezos.tzkt.operations
-    datasource: tzkt_mainnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - liquidity_baking
-    handlers:
-    - callback: liquidity_baking.add_liquidity
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: addLiquidity
-      - destination: tzbtc
-        entrypoint: transfer
-      - destination: sirius
-        entrypoint: mintOrBurn
-    - callback: liquidity_baking.remove_liquidity
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: removeLiquidity
-      - destination: sirius
-        entrypoint: mintOrBurn
-      - destination: tzbtc
-        entrypoint: transfer
-      - source: liquidity_baking
-        type: transaction
-    - callback: liquidity_baking.token_to_xtz
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: tokenToXtz
-      - destination: tzbtc
-        entrypoint: transfer
-      - source: liquidity_baking
-        type: transaction
-      - source: liquidity_baking
-        type: transaction
-    - callback: liquidity_baking.xtz_to_token
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: xtzToToken
-      - destination: tzbtc
-        entrypoint: transfer
-    - callback: liquidity_baking.default
-      pattern:
-      - destination: liquidity_baking
-        entrypoint: default
-  sirius:
-    kind: tezos.tzkt.operations
-    datasource: tzkt_mainnet
-    types:
-    - origination
-    - transaction
-    contracts:
-    - sirius
-    handlers:
-    - callback: sirius.transfer
-      pattern:
-      - destination: sirius
-        entrypoint: transfer
   initializer:
-    kind: tezos.tzkt.operations
-    datasource: mvkt_atlasnet
+    kind: tezos.operations
+    datasources:
+    - mvkt_atlasnet
     types:
     - origination
     - transaction
@@ -420,7 +353,7 @@ indexes:
     - governance
     - governance_proxy
     - mvn_token
-    - mvn_faucet
+    # - mvn_faucet
     - doorman
     - delegation
     - vesting
@@ -446,10 +379,10 @@ indexes:
       pattern:
       - type: origination
         originated_contract: mvn_token
-    - callback: mvn_faucet.origination
-      pattern:
-      - type: origination
-        originated_contract: mvn_faucet
+    # - callback: mvn_faucet.origination
+    #   pattern:
+    #   - type: origination
+    #     originated_contract: mvn_faucet
     - callback: governance_proxy.origination
       pattern:
       - type: origination
@@ -554,15 +487,15 @@ indexes:
       - destination: mvn_token
         entrypoint: triggerInflation
 
-    # MVN Faucet handlers
-    - callback: mvn_faucet.request_mvn
-      pattern:
-      - destination: mvn_faucet
-        entrypoint: requestMvn
-    - callback: mvn_faucet.request_fake_usdt
-      pattern:
-      - destination: mvn_faucet
-        entrypoint: requestFakeUsdt
+    # # MVN Faucet handlers
+    # - callback: mvn_faucet.request_mvn
+    #   pattern:
+    #   - destination: mvn_faucet
+    #     entrypoint: requestMvn
+    # - callback: mvn_faucet.request_fake_usdt
+    #   pattern:
+    #   - destination: mvn_faucet
+    #     entrypoint: requestFakeUsdt
 
     # Governance Proxy Handlers
     - callback: governance_proxy.set_admin
@@ -1570,11 +1503,21 @@ indexes:
   #   template: m_token_template
   #   values:
   #     m_token_contract: m_token_eurt
-  # m_token_tzbtc:
+  # m_token_wbtc:
   #   template: m_token_template
   #   values:
-  #     m_token_contract: m_token_tzbtc
+  #     m_token_contract: m_token_wbtc
   m_token_usdt:
     template: m_token_template
     values:
       m_token_contract: m_token_usdt
+
+hooks:
+  refresh_views:
+    callback: refresh_views
+    atomic: False
+
+jobs:
+  refresh_views:
+    hook: refresh_views
+    interval: 300

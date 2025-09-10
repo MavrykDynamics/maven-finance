@@ -1,4 +1,4 @@
-spec_version: 2.0
+spec_version: 3.0
 
 package: maven
 
@@ -19,11 +19,6 @@ hasura:
   select_limit: 1000
   rest: false
 
-prometheus:
-  host: 0.0.0.0
-  port: 9090
-  update_interval: 5
-
 advanced:
   scheduler:
     apscheduler.job_defaults.coalesce: true
@@ -32,14 +27,10 @@ advanced:
     manual: wipe
     migration: exception
     rollback: ignore
-    config_modified: wipe
+    config_modified: ignore
     schema_modified: wipe
 
 datasources:
-  metadata_mainnet:
-    kind: tzip_metadata
-    url: https://metadata.dipdup.net
-    network: mainnet
   metadata_atlasnet:
     kind: tzip_metadata
     url: https://dipdup-metadata-api.mavryk.network
@@ -47,8 +38,4 @@ datasources:
   mvkt_atlasnet:
     kind: tezos.tzkt
     url: https://atlasnet.api.mavryk.network
-    merge_subscriptions: true
-  tzkt_mainnet:
-    kind: tezos.tzkt
-    url: https://api.tzkt.io
     merge_subscriptions: true

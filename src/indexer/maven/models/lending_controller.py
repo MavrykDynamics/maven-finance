@@ -7,7 +7,7 @@ from maven.models.parents import LinkedContract, ContractLambda, MavenContract
 ###
 
 class LendingController(MavenContract, Model):
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='lending_controllers')
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='lending_controllers', index=True)
     collateral_ratio                        = fields.SmallIntField(default=0)
     liquidation_ratio                       = fields.SmallIntField(default=0)
     liquidation_fee_pct                     = fields.SmallIntField(default=0)
@@ -52,38 +52,51 @@ class LendingControllerLambda(ContractLambda, Model):
 class LendingControllerVault(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     internal_id                             = fields.BigIntField(default=0)
-    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='vaults')
-    vault                                   = fields.ForeignKeyField('models.Vault', related_name='lending_controller_vaults', null=True)
+    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='vaults', index=True)
+    vault                                   = fields.ForeignKeyField('models.Vault', related_name='lending_controller_vaults', null=True, index=True)
     owner                                   = fields.ForeignKeyField('models.MavenUser', related_name='lending_controller_vaults', index=True)
-    loan_token                              = fields.ForeignKeyField('models.LendingControllerLoanToken', related_name='vaults')
+    loan_token                              = fields.ForeignKeyField('models.LendingControllerLoanToken', related_name='vaults', index=True)
     loan_outstanding_total                  = fields.FloatField(default=0.0, index=True)
     loan_principal_total                    = fields.FloatField(default=0.0)
     loan_interest_total                     = fields.FloatField(default=0.0)
     loan_decimals                           = fields.SmallIntField(default=0)
     borrow_index                            = fields.FloatField(default=0)
     last_updated_block_level                = fields.BigIntField(default=0)
-    last_updated_timestamp                  = fields.DatetimeField(auto_now=True)
+    last_updated_timestamp                  = fields.DatetimeField(null=True)
     marked_for_liquidation_level            = fields.BigIntField(default=0)
     liquidation_end_level                   = fields.BigIntField(default=0)
-    open                                    = fields.BooleanField(default=True, index=True)
+    open                                    = fields.BooleanField(default=True)
 
     class Meta:
         table = 'lending_controller_vault'
+        indexes = [
+            ("open", "loan_token_id"),
+            ("owner_id", "loan_outstanding_total"),
+            ("owner_id", "loan_token_id"),
+            ("owner_id", "open", "loan_token_id", "loan_outstanding_total"),
+            ("vault_id", "open", "owner_id"),
+            ("vault_id", "open", "loan_outstanding_total"),
+        ]
 
 class LendingControllerVaultCollateralBalance(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    lending_controller_vault                = fields.ForeignKeyField('models.LendingControllerVault', related_name='collateral_balances')
-    collateral_token                        = fields.ForeignKeyField('models.LendingControllerCollateralToken', related_name='balances')
+    lending_controller_vault                = fields.ForeignKeyField('models.LendingControllerVault', related_name='collateral_balances', index=True)
+    collateral_token                        = fields.ForeignKeyField('models.LendingControllerCollateralToken', related_name='balances', index=True)
     balance                                 = fields.FloatField(default=0.0)
 
     class Meta:
         table = 'lending_controller_vault_collateral_balance'
+        indexes = [
+            ('lending_controller_vault_id', 'collateral_token_id'),
+            ('lending_controller_vault_id', 'balance'),
+            ('lending_controller_vault_id', 'collateral_token_id', 'balance'),
+        ] 
 
 class LendingControllerCollateralToken(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='collateral_tokens')
-    oracle                                  = fields.ForeignKeyField('models.MavenUser', related_name='lending_controller_collateral_token_oracles')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_collateral_tokens')
+    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='collateral_tokens', index=True)
+    oracle                                  = fields.ForeignKeyField('models.Aggregator', related_name='lending_controller_collateral_token_oracles', index=True, null=True)
+    token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_collateral_tokens', index=True)
     protected                               = fields.BooleanField(default=False)
     is_scaled_token                         = fields.BooleanField(default=False)
     is_staked_token                         = fields.BooleanField(default=False)
@@ -95,47 +108,69 @@ class LendingControllerCollateralToken(Model):
 
     class Meta:
         table = 'lending_controller_collateral_token'
+        indexes = [
+            ('lending_controller_id', 'token_id'),
+            ('token_name', 'token_id'),
+            ('token_id', 'paused', 'total_deposited'),
+        ]
 
 class LendingControllerLoanToken(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
-    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='loan_tokens')
-    m_token                                 = fields.ForeignKeyField('models.MToken', related_name='lending_controller_loan_tokens')
-    oracle                                  = fields.ForeignKeyField('models.MavenUser', related_name='lending_controller_loan_token_oracles')
+    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='loan_tokens', index=True)
+    m_token                                 = fields.ForeignKeyField('models.MToken', related_name='lending_controller_loan_tokens', index=True)
+    oracle                                  = fields.ForeignKeyField('models.Aggregator', related_name='lending_controller_loan_token_oracles', index=True, null=True)
     token                                   = fields.ForeignKeyField('models.Token', related_name='lending_controller_loan_tokens', index=True)
-    loan_token_name                         = fields.CharField(max_length=36, default="")
+    loan_token_name                         = fields.CharField(max_length=36, default="", index=True)
     raw_m_tokens_total_supply               = fields.FloatField(default=0.0)
     reserve_ratio                           = fields.SmallIntField(default=0)
-    token_pool_total                        = fields.FloatField(default=0.0)
+    token_pool_total                        = fields.FloatField(default=0.0, index=True)
     total_borrowed                          = fields.FloatField(default=0.0)
-    total_remaining                         = fields.FloatField(default=0.0)
-    utilisation_rate                        = fields.FloatField(default=0)
+    total_remaining                         = fields.FloatField(default=0.0, index=True)
+    utilisation_rate                        = fields.FloatField(default=0, index=True)
     optimal_utilisation_rate                = fields.FloatField(default=0)
     base_interest_rate                      = fields.FloatField(default=0)
     max_interest_rate                       = fields.FloatField(default=0)
     interest_rate_below_optimal_utilisation = fields.FloatField(default=0)
     interest_rate_above_optimal_utilisation = fields.FloatField(default=0)
-    current_interest_rate                   = fields.FloatField(default=0)
+    current_interest_rate                   = fields.FloatField(default=0, index=True)
     last_updated_block_level                = fields.BigIntField(default=0)
     token_reward_index                      = fields.FloatField(default=0.0)
     borrow_index                            = fields.FloatField(default=0)
     min_repayment_amount                    = fields.FloatField(default=0.0)
-    paused                                  = fields.BooleanField(default=False)
+    paused                                  = fields.BooleanField(default=False, index=True)
 
     class Meta:
         table = 'lending_controller_loan_token'
+        indexes = [
+            ('lending_controller_id', 'token_id'),
+            ('token_id', 'paused'),
+            ('token_id', 'total_borrowed', 'token_pool_total'),
+            ('utilisation_rate', 'current_interest_rate'),
+            ('token_id', 'paused', 'utilisation_rate', 'current_interest_rate'),
+            ('m_token_id', 'token_id', 'token_pool_total', 'total_borrowed'),
+        ]
 
 class LendingControllerHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
-    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='history_data')
+    lending_controller                      = fields.ForeignKeyField('models.LendingController', related_name='history_data', index=True)
     vault                                   = fields.ForeignKeyField('models.LendingControllerVault', related_name='history_data', null=True, index=True)
     loan_token                              = fields.ForeignKeyField('models.LendingControllerLoanToken', related_name='history_data', null=True, index=True)
-    collateral_token                        = fields.ForeignKeyField('models.LendingControllerCollateralToken', related_name='history_data', null=True)
-    sender                                  = fields.ForeignKeyField('models.MavenUser', related_name='lending_controller_history_data_sender')
+    collateral_token                        = fields.ForeignKeyField('models.LendingControllerCollateralToken', related_name='history_data', null=True, index=True)
+    sender                                  = fields.ForeignKeyField('models.MavenUser', related_name='lending_controller_history_data_sender', index=True)
     operation_hash                          = fields.CharField(max_length=51)
-    timestamp                               = fields.DatetimeField(index=True)
-    level                                   = fields.BigIntField(default=0)
+    timestamp                               = fields.DatetimeField()
+    level                                   = fields.BigIntField(default=0, index=True)
     type                                    = fields.IntEnumField(enum_type=LendingControllerOperationType, index=True)
     amount                                  = fields.FloatField(default=0.0)
 
     class Meta:
         table = 'lending_controller_history_data'
+        indexes = [
+            ("loan_token_id", "type", "timestamp"),
+            ("type", "timestamp"),
+            ("sender_id", "timestamp"),
+            ("loan_token_id", "sender_id", "type"),
+            ("loan_token_id", "timestamp", "type", "amount"),
+            ("timestamp", "type", "loan_token_id", "amount"),
+            ("vault_id", "timestamp", "type"),
+        ]

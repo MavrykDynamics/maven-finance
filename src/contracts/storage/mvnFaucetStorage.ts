@@ -6,6 +6,7 @@ import { Buffer } from 'buffer'
 import { MVN, zeroAddress } from '../test/helpers/Utils'
 
 import { mvnFaucetStorageType } from './storageTypes/mvnFaucetStorageType'
+import { bob } from 'scripts/sandbox/accounts'
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
@@ -21,11 +22,9 @@ const metadata = MichelsonMap.fromLiteral({
 
 export const mvnFaucetStorage: mvnFaucetStorageType = {
     
-    mvnTokenAddress: zeroAddress,
-    fakeUsdtTokenAddress: zeroAddress,
+    admin: bob.pkh,
     metadata: metadata,
-    mvnAmountPerUser: new BigNumber(MVN(1000)),
-    fakeUsdtAmountPerUser: new BigNumber(1000000000),
-    requesters: MichelsonMap.fromLiteral({}),
+    tokens: MichelsonMap.fromLiteral({}),
+    userRequests: MichelsonMap.fromLiteral({})
 
 }

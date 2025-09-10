@@ -36,7 +36,7 @@ class GovernanceFinancialWhitelistContract(LinkedContract, Model):
 
 class GovernanceFinancialWhitelistTokenContract(LinkedContract, Model):
     contract                                = fields.ForeignKeyField('models.GovernanceFinancial', related_name='whitelist_token_contracts')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_whitelist_token_contracts')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_whitelist_token_contracts', index=True)
 
     class Meta:
         table = 'governance_financial_whitelist_token_contract'
@@ -44,11 +44,11 @@ class GovernanceFinancialWhitelistTokenContract(LinkedContract, Model):
 class GovernanceFinancialRequest(Model):
     id                                      = fields.BigIntField(pk=True)
     internal_id                             = fields.BigIntField(default=0)
-    governance_financial                    = fields.ForeignKeyField('models.GovernanceFinancial', related_name='requests')
+    governance_financial                    = fields.ForeignKeyField('models.GovernanceFinancial', related_name='requests', index=True)
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='governance_financial_requests')
-    requester                               = fields.ForeignKeyField('models.MavenUser', related_name='governance_financial_requests_requester')
-    receiver                                = fields.ForeignKeyField('models.MavenUser', related_name='governance_financial_requests_receiver')
-    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_requests')
+    requester                               = fields.ForeignKeyField('models.MavenUser', related_name='governance_financial_requests_requester', index=True)
+    receiver                                = fields.ForeignKeyField('models.MavenUser', related_name='governance_financial_requests_receiver', index=True)
+    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_requests', index=True)
     request_type                            = fields.CharField(max_length=255)
     status                                  = fields.IntEnumField(enum_type=GovernanceActionStatus, default=GovernanceActionStatus.ACTIVE, index=True)
     executed                                = fields.BooleanField(default=False)
@@ -62,19 +62,23 @@ class GovernanceFinancialRequest(Model):
     smvn_required_for_approval              = fields.FloatField(default=0.0)
     execution_datetime                      = fields.DatetimeField(null=True)
     expiration_datetime                     = fields.DatetimeField(index=True)
-    requested_datetime                      = fields.DatetimeField()
+    requested_datetime                      = fields.DatetimeField(index=True)
     governance_cycle_id                     = fields.BigIntField(default=0)
     dropped_datetime                        = fields.DatetimeField(null=True)
 
     class Meta:
         table = 'governance_financial_request'
+        indexes = [
+            ("governance_financial", "status"),
+            ("requester", "receiver"),
+        ]
 
 class GovernanceFinancialRequestVote(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_financial_request            = fields.ForeignKeyField('models.GovernanceFinancialRequest', related_name='votes')
     voter                                   = fields.ForeignKeyField('models.MavenUser', related_name='governance_financial_requests_votes')
     satellite_snapshot                      = fields.ForeignKeyField('models.GovernanceSatelliteSnapshot', related_name='governance_financial_requests_votes')
-    timestamp                               = fields.DatetimeField(auto_now=True)
+    timestamp                               = fields.DatetimeField(null=True)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
 
     class Meta:

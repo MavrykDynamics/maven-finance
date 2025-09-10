@@ -5,14 +5,14 @@ from maven.types.treasury_factory.tezos_storage import TreasuryFactoryStorage
 from dipdup.context import HandlerContext
 from maven.types.treasury_factory.tezos_parameters.create_treasury import CreateTreasuryParameter
 from maven.types.treasury.tezos_storage import TreasuryStorage
-from dipdup.models.tezos_tzkt import TzktOrigination
-from dipdup.models.tezos_tzkt import TzktTransaction
-import maven.models as models
+from dipdup.models.tezos import TezosOrigination
+from dipdup.models.tezos import TezosTransaction
+from maven import models as models
 
 async def create_treasury(
     ctx: HandlerContext,
-    create_treasury: TzktTransaction[CreateTreasuryParameter, TreasuryFactoryStorage],
-    treasury_origination: TzktOrigination[TreasuryStorage],
+    create_treasury: TezosTransaction[CreateTreasuryParameter, TreasuryFactoryStorage],
+    treasury_origination: TezosOrigination[TreasuryStorage],
 ) -> None:
 
     try:
@@ -32,7 +32,7 @@ async def create_treasury(
     
         # Check treasury does not already exists
         treasury_exists                     = await models.Treasury.filter(
-            network     = ctx.datasource.name.replace('mvkt_',''),
+            network     = 'atlasnet',
             address     = treasury_address
         ).exists()
     
@@ -74,15 +74,15 @@ async def create_treasury(
     
             # Create record
             treasury_factory    = await models.TreasuryFactory.get(
-                network = ctx.datasource.name.replace('mvkt_',''),
+                network = 'atlasnet',
                 address = treasury_factory_address
             )
             governance          = await models.Governance.get(
-                network = ctx.datasource.name.replace('mvkt_','')
+                network = 'atlasnet'
             )
             treasury            = models.Treasury(
                 address                         = treasury_address,
-                network                         = ctx.datasource.name.replace('mvkt_',''),
+                network                         = 'atlasnet',
                 metadata                        = contract_metadata,
                 governance                      = governance,
                 admin                           = admin,
@@ -98,7 +98,7 @@ async def create_treasury(
     
             # Create a baker or not
             if baker_address:
-                baker       = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=baker_address)
+                baker       = await models.get_user(network='atlasnet', address=baker_address)
                 treasury.baker = baker
     
             await treasury.save()

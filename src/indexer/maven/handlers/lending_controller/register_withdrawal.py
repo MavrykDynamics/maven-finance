@@ -1,16 +1,16 @@
 from maven.utils.error_reporting import save_error_report
 
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.utils.contracts import get_token_standard
 from maven.types.lending_controller.tezos_parameters.register_withdrawal import RegisterWithdrawalParameter
 from maven.types.lending_controller.tezos_storage import LendingControllerStorage, TokenType1 as Fa2
-import maven.models as models
+from maven import models as models
 from dateutil import parser
 
 async def register_withdrawal(
     ctx: HandlerContext,
-    register_withdrawal: TzktTransaction[RegisterWithdrawalParameter, LendingControllerStorage],
+    register_withdrawal: TezosTransaction[RegisterWithdrawalParameter, LendingControllerStorage],
 ) -> None:
 
     try:
@@ -28,10 +28,10 @@ async def register_withdrawal(
     
         # Update record
         lending_controller          = await models.LendingController.get(
-            network         = ctx.datasource.name.replace('mvkt_',''),
+            network         = 'atlasnet',
             address         = lending_controller_address,
         )
-        vault_owner                 = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vault_owner_address)
+        vault_owner                 = await models.get_user(network='atlasnet', address=vault_owner_address)
     
         for vault_storage in vaults_storage:
             if int(vault_storage.key.id) == vault_internal_id and vault_storage.key.owner == vault_owner_address:
@@ -47,11 +47,13 @@ async def register_withdrawal(
                 vault_collateral_balance_ledger         = vault_storage.value.collateralBalanceLedger
     
                 # Save updated vault
-                lending_controller_vault                = await models.LendingControllerVault.get(
+                lending_controller_vault                = await models.LendingControllerVault.filter(
                     lending_controller  = lending_controller,
                     owner               = vault_owner,
                     internal_id         = vault_internal_id
-                )
+                ).first()
+                if not lending_controller_vault:
+                    return
                 lending_controller_vault.internal_id                        = vault_internal_id
                 lending_controller_vault.loan_outstanding_total             = vault_loan_oustanding_total
                 lending_controller_vault.loan_principal_total               = vault_loan_principal_total
@@ -97,7 +99,7 @@ async def register_withdrawal(
                 await lending_controller_collateral_balance.save()
 
                 # Save history data
-                sender                                  = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=sender_address)
+                sender                                  = await models.get_user(network='atlasnet', address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = loan_token,

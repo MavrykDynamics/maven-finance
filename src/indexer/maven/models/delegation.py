@@ -59,35 +59,51 @@ class SatelliteRewards(Model):
 
     class Meta:
         table = 'satellite_rewards'
+        indexes = [
+            ("user_id", "unpaid"),
+        ] 
 
 class Satellite(Model):
     id                                      = fields.BigIntField(pk=True, default=0)
     user                                    = fields.ForeignKeyField('models.MavenUser', related_name='satellites', index=True)
-    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellites')
+    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellites', index=True)
     public_key                              = fields.CharField(max_length=54, null=True)
     peer_id                                 = fields.TextField(null=True)
-    status                                  = fields.IntEnumField(enum_type=SatelliteStatus, default=SatelliteStatus.ACTIVE)
+    status                                  = fields.IntEnumField(enum_type=SatelliteStatus, default=SatelliteStatus.ACTIVE, index=True)
     fee                                     = fields.SmallIntField(default=0)
-    name                                    = fields.TextField(default="")
+    name                                    = fields.TextField(default="", index=True)
     description                             = fields.TextField(default="")
     image                                   = fields.TextField(default="")
     website                                 = fields.TextField(default="", index=True)
-    registration_timestamp                  = fields.DatetimeField(auto_now=True)
-    currently_registered                    = fields.BooleanField(default=True)
-    total_delegated_amount                  = fields.FloatField(default=0.0)
+    registration_timestamp                  = fields.DatetimeField(index=True, null=True)
+    currently_registered                    = fields.BooleanField(default=True, index=True)
+    total_delegated_amount                  = fields.FloatField(default=0.0, index=True)
     satellite_action_counter                = fields.BigIntField(default=0)
     financial_request_counter               = fields.BigIntField(default=0)
     governance_proposal_counter             = fields.BigIntField(default=0)
 
     class Meta:
         table = 'satellite'
+        indexes = [
+            ("user_id", "delegation_id"),
+            ("currently_registered", "total_delegated_amount"),
+            ("currently_registered", "status"),
+            ("status", "registration_timestamp"),
+            ("registration_timestamp", "currently_registered"),
+        ]
 
 class DelegationRecord(Model):
     id                                      = fields.BigIntField(pk=True)
-    satellite                               = fields.ForeignKeyField('models.Satellite', related_name='delegations')
-    user                                    = fields.ForeignKeyField('models.MavenUser', related_name='delegations')
-    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='delegations')
-    satellite_registration_timestamp        = fields.DatetimeField(auto_now=True)
+    satellite                               = fields.ForeignKeyField('models.Satellite', related_name='delegations', index=True)
+    user                                    = fields.ForeignKeyField('models.MavenUser', related_name='delegations', index=True)
+    delegation                              = fields.ForeignKeyField('models.Delegation', related_name='delegations', index=True)
+    satellite_registration_timestamp        = fields.DatetimeField(index=True, null=True)
 
     class Meta:
         table = 'delegation_record'
+        indexes = [
+            ("user", "delegation"),
+            ("satellite", "user"),
+            ("delegation", "satellite"),
+            ("satellite_registration_timestamp", "user"),
+        ]

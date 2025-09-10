@@ -2,25 +2,25 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.types.aggregator.tezos_parameters.withdraw_reward_mvrk import WithdrawRewardMvrkParameter
 from maven.types.aggregator.tezos_storage import AggregatorStorage
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from dipdup.context import HandlerContext
-import maven.models as models
+from maven import models as models
 
 async def withdraw_reward_mvrk(
     ctx: HandlerContext,
-    withdraw_reward_mvrk: TzktTransaction[WithdrawRewardMvrkParameter, AggregatorStorage],
+    withdraw_reward_mvrk: TezosTransaction[WithdrawRewardMvrkParameter, AggregatorStorage],
 ) -> None:
 
     try:
         # Get operation info
         aggregator_address          = withdraw_reward_mvrk.data.target_address
-        oracle_address              = withdraw_reward_mvrk.parameter.__root__
+        oracle_address              = withdraw_reward_mvrk.parameter.root
         if oracle_address in withdraw_reward_mvrk.storage.oracleRewardMvrk:
             oracle_reward_mvrk_storage   = withdraw_reward_mvrk.storage.oracleRewardMvrk[oracle_address]
         
             # Update record
-            user                            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=oracle_address)
-            aggregator                      = await models.Aggregator.get(network=ctx.datasource.name.replace('mvkt_',''), address= aggregator_address)
+            user                            = await models.get_user(network='atlasnet', address=oracle_address)
+            aggregator                      = await models.Aggregator.get(network='atlasnet', address= aggregator_address)
             oracle                          = await models.AggregatorOracle.get(
                 aggregator  = aggregator,
                 user        = user

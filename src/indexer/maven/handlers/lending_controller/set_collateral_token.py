@@ -1,14 +1,14 @@
 from maven.utils.error_reporting import save_error_report
 from maven.utils.contracts import get_contract_token_metadata, get_token_standard
 from maven.types.lending_controller.tezos_parameters.set_collateral_token import SetCollateralTokenParameter, Action as createCollateralToken
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.lending_controller.tezos_storage import LendingControllerStorage
 from dipdup.context import HandlerContext
-import maven.models as models
+from maven import models as models
 
 async def set_collateral_token(
     ctx: HandlerContext,
-    set_collateral_token: TzktTransaction[SetCollateralTokenParameter, LendingControllerStorage],
+    set_collateral_token: TezosTransaction[SetCollateralTokenParameter, LendingControllerStorage],
 ) -> None:
 
     try:
@@ -52,7 +52,7 @@ async def set_collateral_token(
             token, _                                    = await models.Token.get_or_create(
                 token_address       = collateral_token_address,
                 token_id            = collateral_token_id,
-                network             = ctx.datasource.name.replace('mvkt_','')
+                network             = 'atlasnet'
             )
             if token_contract_metadata:
                 token.metadata          = token_contract_metadata
@@ -61,10 +61,10 @@ async def set_collateral_token(
     
             # Create / Update record
             lending_controller          = await models.LendingController.get(
-                network         = ctx.datasource.name.replace('mvkt_',''),
+                network         = 'atlasnet',
                 address         = lending_controller_address,
             )
-            oracle                      = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=collateral_token_oracle_address)
+            oracle                  = await models.Aggregator.get_or_none(network='atlasnet', address=collateral_token_oracle_address)
             lending_controller_collateral_token, _  = await models.LendingControllerCollateralToken.get_or_create(
                 lending_controller  = lending_controller,
                 token               = token,

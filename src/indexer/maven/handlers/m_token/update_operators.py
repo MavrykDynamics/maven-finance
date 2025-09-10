@@ -1,29 +1,29 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.m_token.tezos_parameters.update_operators import UpdateOperatorsParameter
 from maven.types.m_token.tezos_storage import MTokenStorage
-import maven.models as models
+from maven import models as models
 
 
 async def update_operators(
     ctx: HandlerContext,
-    update_operators: TzktTransaction[UpdateOperatorsParameter, MTokenStorage],
+    update_operators: TezosTransaction[UpdateOperatorsParameter, MTokenStorage],
 ) -> None:
 
     try:
         # Get operation values
-        operator_changes    = update_operators.parameter.__root__
+        operator_changes    = update_operators.parameter.root
         m_token_address     = update_operators.data.target_address
     
         # Update records
         token               = await models.Token.get(
-            network         = ctx.datasource.name.replace('mvkt_',''),
+            network         = 'atlasnet',
             token_address   = m_token_address,
             token_id        = 0
         )
         m_token             = await models.MToken.get(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = m_token_address,
             token   = token
         )
@@ -32,8 +32,8 @@ async def update_operators(
                 owner_address       = operatorChange.add_operator.owner
                 operator_address    = operatorChange.add_operator.operator
                 
-                owner               = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=owner_address)            
-                operator            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=operator_address)
+                owner               = await models.get_user(network='atlasnet', address=owner_address)            
+                operator            = await models.get_user(network='atlasnet', address=operator_address)
     
                 operator_record, _  = await models.MTokenOperator.get_or_create(
                     m_token     = m_token,
@@ -45,8 +45,8 @@ async def update_operators(
                 owner_address       = operatorChange.remove_operator.owner
                 operator_address    = operatorChange.remove_operator.operator
                 
-                owner               = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=owner_address)
-                operator            = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=operator_address)
+                owner               = await models.get_user(network='atlasnet', address=owner_address)
+                operator            = await models.get_user(network='atlasnet', address=operator_address)
     
                 operator_record, _  = await models.MTokenOperator.get_or_create(
                     m_token     = m_token,

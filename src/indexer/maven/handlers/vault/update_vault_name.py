@@ -1,27 +1,27 @@
 from maven.utils.error_reporting import save_error_report
 from dipdup.context import HandlerContext
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.vault.tezos_parameters.update_vault_name import UpdateVaultNameParameter
 from maven.types.vault.tezos_storage import VaultStorage
-import maven.models as models
+from maven import models as models
 
 async def update_vault_name(
     ctx: HandlerContext,
-    update_vault_name: TzktTransaction[UpdateVaultNameParameter, VaultStorage],
+    update_vault_name: TezosTransaction[UpdateVaultNameParameter, VaultStorage],
 ) -> None:
 
     try:
         # Get operation info
         vault_address       = update_vault_name.data.target_address
-        updated_name        = update_vault_name.parameter.__root__
+        updated_name        = update_vault_name.parameter.root
     
         # Update record
-        await models.Vault.filter(
-            network = ctx.datasource.name.replace('mvkt_',''),
+        vault, _            = await models.Vault.get_or_create(
+            network = 'atlasnet',
             address = vault_address
-        ).update(
-            name          = updated_name
         )
+        vault.name  = updated_name
+        await vault.save()
 
     except BaseException as e:
         await save_error_report(e)

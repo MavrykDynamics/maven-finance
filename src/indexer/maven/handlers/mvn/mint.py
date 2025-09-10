@@ -3,12 +3,12 @@ from maven.utils.error_reporting import save_error_report
 from maven.types.mvn_token.tezos_storage import MvnTokenStorage
 from dipdup.context import HandlerContext
 from maven.types.mvn_token.tezos_parameters.mint import MintParameter
-from dipdup.models.tezos_tzkt import TzktTransaction
-import maven.models as models
+from dipdup.models.tezos import TezosTransaction
+from maven import models as models
 
 async def mint(
     ctx: HandlerContext,
-    mint: TzktTransaction[MintParameter, MvnTokenStorage],
+    mint: TezosTransaction[MintParameter, MvnTokenStorage],
 ) -> None:
 
     try:
@@ -22,17 +22,17 @@ async def mint(
         total_supply        = float(mint.storage.totalSupply)
 
         # Get mint account
-        user                = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=mint_address)
+        user                = await models.get_user(network='atlasnet', address=mint_address)
         user.mvn_balance    = new_user_balance
         await user.save()
     
         # Create record
         token               = await models.Token.get(
-            network         = ctx.datasource.name.replace('mvkt_',''),
+            network         = 'atlasnet',
             token_address   = mvn_token_address,
             token_id        = 0
         )
-        mvn_token               = await models.MVNToken.get(network=ctx.datasource.name.replace('mvkt_',''), address= mvn_token_address, token=token)
+        mvn_token               = await models.MVNToken.get(network='atlasnet', address= mvn_token_address, token=token)
         mvn_token.total_supply  = total_supply
         await mvn_token.save()
         

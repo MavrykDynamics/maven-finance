@@ -2,14 +2,14 @@ from maven.utils.error_reporting import save_error_report
 
 from maven.utils.contracts import get_token_standard, get_contract_token_metadata
 from maven.types.governance.tezos_storage import GovernanceStorage, Token as fa12, Token1 as fa2, Token2 as mav
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from dipdup.context import HandlerContext
 from maven.types.governance.tezos_parameters.update_proposal_data import UpdateProposalDataParameter
-import maven.models as models
+from maven import models as models
 
 async def update_proposal_data(
     ctx: HandlerContext,
-    update_proposal_data: TzktTransaction[UpdateProposalDataParameter, GovernanceStorage],
+    update_proposal_data: TezosTransaction[UpdateProposalDataParameter, GovernanceStorage],
 ) -> None:
 
     try:
@@ -21,7 +21,7 @@ async def update_proposal_data(
         payment_data_storage    = storage_proposal.paymentData
         
         # Update or create record
-        governance      = await models.Governance.get(network=ctx.datasource.name.replace('mvkt_',''), address= governance_address)
+        governance      = await models.Governance.get(network='atlasnet', address= governance_address)
         proposal        = await models.GovernanceProposal.get(
             internal_id         = proposal_id,
             governance          = governance
@@ -87,7 +87,6 @@ async def update_proposal_data(
                         "name": "Mavryk",
                         "symbol": "MVRK",
                         "decimals": "6",
-                        "icon": "ipfs://QmbHaFX2gyFEzdwp54vqtf7McL74BvT7r4pw6UVyfEdKhu",
                         "thumbnailUri": "ipfs://QmbHaFX2gyFEzdwp54vqtf7McL74BvT7r4pw6UVyfEdKhu",
                     }
 
@@ -101,7 +100,7 @@ async def update_proposal_data(
                 token, _            = await models.Token.get_or_create(
                     token_address       = token_address,
                     token_id            = token_id,
-                    network             = ctx.datasource.name.replace('mvkt_','')
+                    network             = 'atlasnet'
                 )
                 token.metadata          = token_contract_metadata
                 token.token_standard    = standard
@@ -109,7 +108,7 @@ async def update_proposal_data(
 
                 # Get receiver
                 receiver_address                = payment_single_data.transaction.to_
-                receiver                        = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=receiver_address)
+                receiver                        = await models.get_user(network='atlasnet', address=receiver_address)
 
                 # Save the payment record
                 payment_data.title              = payment_single_data.title

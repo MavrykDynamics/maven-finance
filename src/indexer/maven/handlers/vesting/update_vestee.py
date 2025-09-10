@@ -1,15 +1,15 @@
 from maven.utils.error_reporting import save_error_report
 
-from dipdup.models.tezos_tzkt import TzktTransaction
+from dipdup.models.tezos import TezosTransaction
 from maven.types.vesting.tezos_parameters.update_vestee import UpdateVesteeParameter
 from maven.types.vesting.tezos_storage import VestingStorage
 from dipdup.context import HandlerContext
 from dateutil import parser 
-import maven.models as models
+from maven import models as models
 
 async def update_vestee(
     ctx: HandlerContext,
-    update_vestee: TzktTransaction[UpdateVesteeParameter, VestingStorage],
+    update_vestee: TezosTransaction[UpdateVesteeParameter, VestingStorage],
 ) -> None:
 
     try:
@@ -36,9 +36,9 @@ async def update_vestee(
             locked    = True
     
         # Create and update records
-        user    = await models.maven_user_cache.get(network=ctx.datasource.name.replace('mvkt_',''), address=vestee_address)
+        user    = await models.get_user(network='atlasnet', address=vestee_address)
         vesting = await models.Vesting.get(
-            network = ctx.datasource.name.replace('mvkt_',''),
+            network = 'atlasnet',
             address = vesting_address
         )
         await models.VestingVestee.filter(
