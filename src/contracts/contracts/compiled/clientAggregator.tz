@@ -1,0 +1,19 @@
+{ parameter address ;
+  storage
+    (pair (nat %round)
+          (nat %data)
+          (nat %percentOracleResponse)
+          (nat %decimals)
+          (timestamp %lastUpdatedAt)) ;
+  code { CAR ;
+         UNIT ;
+         VIEW "lastCompletedRoundData"
+              (pair (nat %round)
+                    (nat %data)
+                    (nat %percentOracleResponse)
+                    (nat %decimals)
+                    (timestamp %lastUpdatedAt)) ;
+         IF_NONE { PUSH string "Oh no" ; FAILWITH } {} ;
+         NIL operation ;
+         PAIR } }
+

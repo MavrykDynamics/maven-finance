@@ -1,17 +1,131 @@
-const { alice, bob, eve, mallory } = require("./scripts/sandbox/accounts");
+const { bob } = require("./scripts/sandbox/accounts");
 
 module.exports = {
   confirmationPollingTimeoutSecond: 500000,
 
-  // test config
-
   syncInterval: 0,
   confirmTimeout: 90000,
 
-  // testnet deployment config
+  contracts : {
 
-  // syncInterval: 5000,
-  // confirmTimeout: 1800000,
+    mainnet : {
+      aggregator                : "",
+      aggregatorFactory         : "",
+      breakGlass                : "",
+      
+      council                   : "",
+      delegation                : "",
+      doorman                   : "",
+
+      emergencyGovevrnance      : "",
+      farm                      : "",
+
+      farmFactory               : "",
+      farmMToken                : "",
+      governance                : "",
+
+      governanceFinancial       : "",
+      governanceProxy           : "",
+      governanceSatellite       : "",
+      governanceProxy           : "",
+
+      lendingController         : "",
+      lendingControllerMockTime : "",
+      mavenFa2Token             : "",
+      mavenFa12Token            : "",
+      mavenLite                 : "",
+
+      mToken                    : "",
+      mvnFacuet                 : "",
+      mvnToken                  : "",
+
+      treasury                  : "",
+      treasuryFactory           : "",
+      vault                     : "",
+      vaultFactory              : "",
+      vaultRwa                  : "",
+
+      vesting                   : ""
+    },
+    atlasnet : {
+      aggregator                : "",
+      aggregatorFactory         : "",
+      breakGlass                : "",
+      
+      council                   : "",
+      delegation                : "",
+      doorman                   : "",
+
+      emergencyGovevrnance      : "",
+      farm                      : "",
+
+      farmFactory               : "",
+      farmMToken                : "",
+      governance                : "",
+
+      governanceFinancial       : "",
+      governanceProxy           : "",
+      governanceSatellite       : "",
+      governanceProxy           : "",
+
+      lendingController         : "",
+      lendingControllerMockTime : "",
+      mavenFa2Token             : "",
+      mavenFa12Token            : "",
+      mavenLite                 : "",
+
+      mToken                    : "",
+      mvnFacuet                 : "",
+      mvnToken                  : "",
+
+      treasury                  : "",
+      treasuryFactory           : "",
+      vault                     : "",
+      vaultFactory              : "",
+      vaultRwa                  : "",
+
+      vesting                   : ""
+    },
+    local: {
+      aggregator                : "",
+      aggregatorFactory         : "",
+      breakGlass                : "",
+      
+      council                   : "",
+      delegation                : "",
+      doorman                   : "",
+
+      emergencyGovevrnance      : "",
+      farm                      : "",
+
+      farmFactory               : "",
+      farmMToken                : "",
+      governance                : "",
+
+      governanceFinancial       : "",
+      governanceProxy           : "",
+      governanceSatellite       : "",
+      governanceProxy           : "",
+
+      lendingController         : "",
+      lendingControllerMockTime : "",
+      mavenFa2Token             : "",
+      mavenFa12Token            : "",
+      mavenLite                 : "",
+
+      mToken                    : "",
+      mvnFacuet                 : "",
+      mvnToken                  : "",
+
+      treasury                  : "",
+      treasuryFactory           : "",
+      vault                     : "",
+      vaultFactory              : "",
+      vaultRwa                  : "",
+
+      vesting                   : ""
+    }
+  },
 
   buildDir: "build",
   michelsonBuildDir : "contracts/compiled",

@@ -5,7 +5,6 @@ export type vaultFactoryStorageType = {
 
     admin                 : string;
     metadata              : MichelsonMap<MichelsonMapKey, unknown>;
-    vaultMetadata         : MichelsonMap<MichelsonMapKey, unknown>;
     config                : {
         vaultNameMaxLength   : BigNumber
     };

@@ -288,10 +288,11 @@ block{
         |   LambdaCreateVault(createVaultParams) -> {
 
                 // init variables
-                const vaultDelegate         : option(key_hash) = createVaultParams.baker;
-                const vaultLoanTokenName    : string = createVaultParams.loanTokenName; // e.g. USDT, EURT 
-                const vaultOwner            : address = Mavryk.get_sender();
-                const newVaultId            : vaultIdType = s.vaultCounter;
+                const vaultDelegate         : option(key_hash)  = createVaultParams.baker;
+                const vaultConfig           : nat               = createVaultParams.vaultConfig;
+                const vaultLoanTokenName    : string            = createVaultParams.loanTokenName; // e.g. USDT, EURT 
+                const vaultOwner            : address           = Mavryk.get_sender();
+                const newVaultId            : vaultIdType       = s.vaultCounter;
 
                 // Get deposits if any
                 const collateralDepositList : list(depositType) = case createVaultParams.collateral of [
@@ -325,6 +326,7 @@ block{
                     vaultOwner,                 // vault owner address
                     newVaultId,                 // vault id
                     vaultAddress,               // vault address
+                    vaultConfig,                // vault config
                     vaultLoanTokenName,         // vault loan token name
                     lendingControllerAddress  
                 ); 
@@ -357,7 +359,7 @@ block{
                     if tokenName =/= "mav" then {
                         
                         const processVaultDepositOperation : operation = processVaultCollateralTransfer(
-                            Mavryk.get_sender(),         // from_
+                            Mavryk.get_sender(),        // from_
                             vaultAddress,               // to_
                             amount,                     // amount
                             tokenType                   // tokenType
@@ -368,6 +370,17 @@ block{
                 } with operationList;
 
                 operations := List.fold_right(processNewVaultCollateralDeposit, collateralDepositList, operations);
+
+                // todo: kyc for rwa vaults
+                // Process KYC if vault owner is KYC-ed
+                // const kycAddress: address              = getContractAddressFromGovernanceContract("kyc", s.governanceAddress, error_KYC_CONTRACT_NOT_FOUND);
+                // const userIsVerifiedBool : bool        = verifyUserIsKyced(vaultOwner, kycAddress);
+
+                // if userIsVerifiedBool = True then {
+                //     // KYC vault if vault owner is KYC-ed
+                //     const setVaultKycOperation : operation = processNewVaultKyc(vaultAddress, kycAddress);
+                //     operations := setVaultKycOperation # operations;
+                // } else skip;
 
                 // FILO (First-In, Last-Out) - originate vault first then register vault creation in lending controller
                 operations := registerVaultCreationOperation # operations;

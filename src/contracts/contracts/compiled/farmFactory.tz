@@ -1,0 +1,749 @@
+{ parameter
+    (or (or (or (or (pair %createFarm
+                       (string %name)
+                       (bool %addToGeneralContracts)
+                       (bool %forceRewardFromTransfer)
+                       (bool %infinite)
+                       (pair %plannedRewards (nat %totalBlocks) (nat %currentRewardPerBlock))
+                       (bytes %metadata)
+                       (pair %lpToken
+                          (address %tokenAddress)
+                          (nat %tokenId)
+                          (or %tokenStandard (unit %fa12) (unit %fa2))))
+                    (pair %createFarmMToken
+                       (string %name)
+                       (string %loanToken)
+                       (bool %addToGeneralContracts)
+                       (bool %forceRewardFromTransfer)
+                       (bool %infinite)
+                       (pair %plannedRewards (nat %totalBlocks) (nat %currentRewardPerBlock))
+                       (bytes %metadata)
+                       (pair %lpToken
+                          (address %tokenAddress)
+                          (nat %tokenId)
+                          (or %tokenStandard (unit %fa12) (unit %fa2)))))
+                (or (list %mistakenTransfer
+                       (pair (address %to_)
+                             (nat %amount)
+                             (or %token
+                                (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                (unit %mav))))
+                    (unit %pauseAll)))
+            (or (or (address %setAdmin) (address %setGovernance))
+                (or (pair %setLambda (string %name) (bytes %func_bytes))
+                    (pair %setProductLambda
+                       (string %name)
+                       (bytes %func_bytes)
+                       (or %farmType (unit %farm) (unit %mFarm))))))
+        (or (or (or (pair %togglePauseEntrypoint
+                       (or %targetEntrypoint
+                          (or (bool %createFarm) (bool %createFarmMToken))
+                          (or (bool %trackFarm) (bool %untrackFarm)))
+                       (unit %empty))
+                    (address %trackFarm))
+                (or (unit %unpauseAll) (address %untrackFarm)))
+            (or (or (pair %updateConfig
+                       (nat %updateConfigNewValue)
+                       (or %updateConfigAction (unit %configFarmNameMaxLength) (unit %empty)))
+                    (pair %updateGeneralContracts
+                       (string %generalContractName)
+                       (address %generalContractAddress)
+                       (or %updateType (unit %remove) (unit %update))))
+                (or (pair %updateMetadata (string %metadataKey) (bytes %metadataHash))
+                    (pair %updateWhitelistContracts
+                       (address %whitelistContractAddress)
+                       (or %updateType (unit %remove) (unit %update))))))) ;
+  storage
+    (pair (address %admin)
+          (big_map %metadata string bytes)
+          (pair %config (nat %farmNameMaxLength) (unit %empty))
+          (address %mvnTokenAddress)
+          (address %governanceAddress)
+          (big_map %whitelistContracts address unit)
+          (big_map %generalContracts string address)
+          (pair %breakGlassConfig
+             (bool %createFarmIsPaused)
+             (bool %createFarmMTokenIsPaused)
+             (bool %trackFarmIsPaused)
+             (bool %untrackFarmIsPaused))
+          (set %trackedFarms address)
+          (big_map %lambdaLedger string bytes)
+          (big_map %farmLambdaLedger string bytes)
+          (big_map %mFarmLambdaLedger string bytes)) ;
+  code { UNIT ;
+         LAMBDA
+           (pair unit address)
+           unit
+           { UNPAIR ;
+             SWAP ;
+             SENDER ;
+             SWAP ;
+             COMPARE ;
+             EQ ;
+             IF {} { PUSH nat 14 ; FAILWITH } } ;
+         DUP 2 ;
+         APPLY ;
+         LAMBDA
+           (pair string (big_map string bytes))
+           bytes
+           { UNPAIR ; GET ; IF_NONE { PUSH nat 2 ; FAILWITH } {} } ;
+         NIL operation ;
+         LAMBDA
+           (pair (pair bytes
+                       (or (or (or (or (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit)))
+                                       (pair string
+                                             string
+                                             bool
+                                             bool
+                                             bool
+                                             (pair nat nat)
+                                             bytes
+                                             (pair address nat (or unit unit))))
+                                   (or (list (pair address nat (or (or address (pair address nat)) unit))) unit))
+                               (or (or address address) (or (pair (or (or bool bool) (or bool bool)) unit) address)))
+                           (or (or (or unit address) (or (pair nat (or unit unit)) (pair string address (or unit unit))))
+                               (or (pair string bytes) (pair address (or unit unit))))))
+                 address
+                 (big_map string bytes)
+                 (pair nat unit)
+                 address
+                 address
+                 (big_map address unit)
+                 (big_map string address)
+                 (pair bool bool bool bool)
+                 (set address)
+                 (big_map string bytes)
+                 (big_map string bytes)
+                 (big_map string bytes))
+           (pair (list operation)
+                 address
+                 (big_map string bytes)
+                 (pair nat unit)
+                 address
+                 address
+                 (big_map address unit)
+                 (big_map string address)
+                 (pair bool bool bool bool)
+                 (set address)
+                 (big_map string bytes)
+                 (big_map string bytes)
+                 (big_map string bytes))
+           { UNPAIR ;
+             UNPAIR ;
+             UNPACK
+               (lambda
+                  (pair (or (or (or (or (pair %lambdaCreateFarm
+                                           (string %name)
+                                           (bool %addToGeneralContracts)
+                                           (bool %forceRewardFromTransfer)
+                                           (bool %infinite)
+                                           (pair %plannedRewards (nat %totalBlocks) (nat %currentRewardPerBlock))
+                                           (bytes %metadata)
+                                           (pair %lpToken
+                                              (address %tokenAddress)
+                                              (nat %tokenId)
+                                              (or %tokenStandard (unit %fa12) (unit %fa2))))
+                                        (pair %lambdaCreateFarmMToken
+                                           (string %name)
+                                           (string %loanToken)
+                                           (bool %addToGeneralContracts)
+                                           (bool %forceRewardFromTransfer)
+                                           (bool %infinite)
+                                           (pair %plannedRewards (nat %totalBlocks) (nat %currentRewardPerBlock))
+                                           (bytes %metadata)
+                                           (pair %lpToken
+                                              (address %tokenAddress)
+                                              (nat %tokenId)
+                                              (or %tokenStandard (unit %fa12) (unit %fa2)))))
+                                    (or (list %lambdaMistakenTransfer
+                                           (pair (address %to_)
+                                                 (nat %amount)
+                                                 (or %token
+                                                    (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                                    (unit %mav))))
+                                        (unit %lambdaPauseAll)))
+                                (or (or (address %lambdaSetAdmin) (address %lambdaSetGovernance))
+                                    (or (pair %lambdaTogglePauseEntrypoint
+                                           (or %targetEntrypoint
+                                              (or (bool %createFarm) (bool %createFarmMToken))
+                                              (or (bool %trackFarm) (bool %untrackFarm)))
+                                           (unit %empty))
+                                        (address %lambdaTrackFarm))))
+                            (or (or (or (unit %lambdaUnpauseAll) (address %lambdaUntrackFarm))
+                                    (or (pair %lambdaUpdateConfig
+                                           (nat %updateConfigNewValue)
+                                           (or %updateConfigAction (unit %configFarmNameMaxLength) (unit %empty)))
+                                        (pair %lambdaUpdateGeneralContracts
+                                           (string %generalContractName)
+                                           (address %generalContractAddress)
+                                           (or %updateType (unit %remove) (unit %update)))))
+                                (or (pair %lambdaUpdateMetadata (string %metadataKey) (bytes %metadataHash))
+                                    (pair %lambdaUpdateWhitelistContracts
+                                       (address %whitelistContractAddress)
+                                       (or %updateType (unit %remove) (unit %update))))))
+                        (address %admin)
+                        (big_map %metadata string bytes)
+                        (pair %config (nat %farmNameMaxLength) (unit %empty))
+                        (address %mvnTokenAddress)
+                        (address %governanceAddress)
+                        (big_map %whitelistContracts address unit)
+                        (big_map %generalContracts string address)
+                        (pair %breakGlassConfig
+                           (bool %createFarmIsPaused)
+                           (bool %createFarmMTokenIsPaused)
+                           (bool %trackFarmIsPaused)
+                           (bool %untrackFarmIsPaused))
+                        (set %trackedFarms address)
+                        (big_map %lambdaLedger string bytes)
+                        (big_map %farmLambdaLedger string bytes)
+                        (big_map %mFarmLambdaLedger string bytes))
+                  (pair (list operation)
+                        (address %admin)
+                        (big_map %metadata string bytes)
+                        (pair %config (nat %farmNameMaxLength) (unit %empty))
+                        (address %mvnTokenAddress)
+                        (address %governanceAddress)
+                        (big_map %whitelistContracts address unit)
+                        (big_map %generalContracts string address)
+                        (pair %breakGlassConfig
+                           (bool %createFarmIsPaused)
+                           (bool %createFarmMTokenIsPaused)
+                           (bool %trackFarmIsPaused)
+                           (bool %untrackFarmIsPaused))
+                        (set %trackedFarms address)
+                        (big_map %lambdaLedger string bytes)
+                        (big_map %farmLambdaLedger string bytes)
+                        (big_map %mFarmLambdaLedger string bytes))) ;
+             IF_NONE { DROP 2 ; PUSH nat 3 ; FAILWITH } { DUG 2 ; PAIR ; EXEC } } ;
+         DIG 5 ;
+         UNPAIR ;
+         PUSH mumav 0 ;
+         AMOUNT ;
+         COMPARE ;
+         EQ ;
+         IF {} { PUSH nat 0 ; FAILWITH } ;
+         IF_LEFT
+           { IF_LEFT
+               { DIG 3 ;
+                 DIG 5 ;
+                 DROP 2 ;
+                 IF_LEFT
+                   { DIG 4 ;
+                     DROP ;
+                     IF_LEFT
+                       { DUP 2 ;
+                         GET 19 ;
+                         PUSH string "lambdaCreateFarm" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT (pair string
+                                    string
+                                    bool
+                                    bool
+                                    bool
+                                    (pair nat nat)
+                                    bytes
+                                    (pair address nat (or unit unit))) ;
+                         LEFT (or (list (pair address nat (or (or address (pair address nat)) unit))) unit) ;
+                         LEFT (or (or address address) (or (pair (or (or bool bool) (or bool bool)) unit) address)) ;
+                         LEFT (or (or (or unit address) (or (pair nat (or unit unit)) (pair string address (or unit unit))))
+                                  (or (pair string bytes) (pair address (or unit unit)))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 19 ;
+                         PUSH string "lambdaCreateFarmMToken" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT
+                           (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit))) ;
+                         LEFT (or (list (pair address nat (or (or address (pair address nat)) unit))) unit) ;
+                         LEFT (or (or address address) (or (pair (or (or bool bool) (or bool bool)) unit) address)) ;
+                         LEFT (or (or (or unit address) (or (pair nat (or unit unit)) (pair string address (or unit unit))))
+                                  (or (pair string bytes) (pair address (or unit unit)))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } }
+                   { IF_LEFT
+                       { DIG 4 ;
+                         DROP ;
+                         DUP 2 ;
+                         GET 19 ;
+                         PUSH string "lambdaMistakenTransfer" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT unit ;
+                         RIGHT
+                           (or (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit)))
+                               (pair string
+                                     string
+                                     bool
+                                     bool
+                                     bool
+                                     (pair nat nat)
+                                     bytes
+                                     (pair address nat (or unit unit)))) ;
+                         LEFT (or (or address address) (or (pair (or (or bool bool) (or bool bool)) unit) address)) ;
+                         LEFT (or (or (or unit address) (or (pair nat (or unit unit)) (pair string address (or unit unit))))
+                                  (or (pair string bytes) (pair address (or unit unit)))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DROP ;
+                         DUP ;
+                         GET 19 ;
+                         PUSH string "lambdaPauseAll" ;
+                         PAIR ;
+                         DIG 3 ;
+                         SWAP ;
+                         EXEC ;
+                         DIG 3 ;
+                         RIGHT (list (pair address nat (or (or address (pair address nat)) unit))) ;
+                         RIGHT
+                           (or (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit)))
+                               (pair string
+                                     string
+                                     bool
+                                     bool
+                                     bool
+                                     (pair nat nat)
+                                     bytes
+                                     (pair address nat (or unit unit)))) ;
+                         LEFT (or (or address address) (or (pair (or (or bool bool) (or bool bool)) unit) address)) ;
+                         LEFT (or (or (or unit address) (or (pair nat (or unit unit)) (pair string address (or unit unit))))
+                                  (or (pair string bytes) (pair address (or unit unit)))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } } }
+               { DIG 6 ;
+                 DROP ;
+                 IF_LEFT
+                   { DIG 3 ;
+                     DIG 5 ;
+                     DROP 2 ;
+                     IF_LEFT
+                       { DUP 2 ;
+                         GET 19 ;
+                         PUSH string "lambdaSetAdmin" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT address ;
+                         LEFT (or (pair (or (or bool bool) (or bool bool)) unit) address) ;
+                         RIGHT
+                           (or (or (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit)))
+                                   (pair string
+                                         string
+                                         bool
+                                         bool
+                                         bool
+                                         (pair nat nat)
+                                         bytes
+                                         (pair address nat (or unit unit))))
+                               (or (list (pair address nat (or (or address (pair address nat)) unit))) unit)) ;
+                         LEFT (or (or (or unit address) (or (pair nat (or unit unit)) (pair string address (or unit unit))))
+                                  (or (pair string bytes) (pair address (or unit unit)))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 19 ;
+                         PUSH string "lambdaSetGovernance" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT address ;
+                         LEFT (or (pair (or (or bool bool) (or bool bool)) unit) address) ;
+                         RIGHT
+                           (or (or (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit)))
+                                   (pair string
+                                         string
+                                         bool
+                                         bool
+                                         bool
+                                         (pair nat nat)
+                                         bytes
+                                         (pair address nat (or unit unit))))
+                               (or (list (pair address nat (or (or address (pair address nat)) unit))) unit)) ;
+                         LEFT (or (or (or unit address) (or (pair nat (or unit unit)) (pair string address (or unit unit))))
+                                  (or (pair string bytes) (pair address (or unit unit)))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } }
+                   { DIG 2 ;
+                     DIG 4 ;
+                     DROP 2 ;
+                     IF_LEFT
+                       { SWAP ;
+                         DUP ;
+                         CAR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         DROP ;
+                         DUP ;
+                         GET 19 ;
+                         DUP 3 ;
+                         CDR ;
+                         DIG 3 ;
+                         CAR ;
+                         SWAP ;
+                         SOME ;
+                         SWAP ;
+                         UPDATE ;
+                         UPDATE 19 }
+                       { SWAP ;
+                         DUP ;
+                         CAR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         DROP ;
+                         DUP 2 ;
+                         CAR ;
+                         DUP 3 ;
+                         GET 3 ;
+                         DIG 3 ;
+                         GET 4 ;
+                         IF_LEFT
+                           { DROP ;
+                             DUP 3 ;
+                             DIG 3 ;
+                             GET 21 ;
+                             DIG 2 ;
+                             DIG 3 ;
+                             SWAP ;
+                             SOME ;
+                             SWAP ;
+                             UPDATE ;
+                             UPDATE 21 }
+                           { DROP ;
+                             DUP 3 ;
+                             DIG 3 ;
+                             GET 22 ;
+                             DIG 2 ;
+                             DIG 3 ;
+                             SWAP ;
+                             SOME ;
+                             SWAP ;
+                             UPDATE ;
+                             UPDATE 22 } } ;
+                     SWAP ;
+                     PAIR } } }
+           { DIG 3 ;
+             DIG 5 ;
+             DROP 2 ;
+             IF_LEFT
+               { IF_LEFT
+                   { DIG 4 ;
+                     DROP ;
+                     IF_LEFT
+                       { DUP 2 ;
+                         GET 19 ;
+                         PUSH string "lambdaTogglePauseEntrypoint" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT address ;
+                         RIGHT (or address address) ;
+                         RIGHT
+                           (or (or (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit)))
+                                   (pair string
+                                         string
+                                         bool
+                                         bool
+                                         bool
+                                         (pair nat nat)
+                                         bytes
+                                         (pair address nat (or unit unit))))
+                               (or (list (pair address nat (or (or address (pair address nat)) unit))) unit)) ;
+                         LEFT (or (or (or unit address) (or (pair nat (or unit unit)) (pair string address (or unit unit))))
+                                  (or (pair string bytes) (pair address (or unit unit)))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 19 ;
+                         PUSH string "lambdaTrackFarm" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT (pair (or (or bool bool) (or bool bool)) unit) ;
+                         RIGHT (or address address) ;
+                         RIGHT
+                           (or (or (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit)))
+                                   (pair string
+                                         string
+                                         bool
+                                         bool
+                                         bool
+                                         (pair nat nat)
+                                         bytes
+                                         (pair address nat (or unit unit))))
+                               (or (list (pair address nat (or (or address (pair address nat)) unit))) unit)) ;
+                         LEFT (or (or (or unit address) (or (pair nat (or unit unit)) (pair string address (or unit unit))))
+                                  (or (pair string bytes) (pair address (or unit unit)))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } }
+                   { IF_LEFT
+                       { DROP ;
+                         DUP ;
+                         GET 19 ;
+                         PUSH string "lambdaUnpauseAll" ;
+                         PAIR ;
+                         DIG 3 ;
+                         SWAP ;
+                         EXEC ;
+                         DIG 3 ;
+                         LEFT address ;
+                         LEFT (or (pair nat (or unit unit)) (pair string address (or unit unit))) ;
+                         LEFT (or (pair string bytes) (pair address (or unit unit))) ;
+                         RIGHT
+                           (or (or (or (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit)))
+                                       (pair string
+                                             string
+                                             bool
+                                             bool
+                                             bool
+                                             (pair nat nat)
+                                             bytes
+                                             (pair address nat (or unit unit))))
+                                   (or (list (pair address nat (or (or address (pair address nat)) unit))) unit))
+                               (or (or address address) (or (pair (or (or bool bool) (or bool bool)) unit) address))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DIG 4 ;
+                         DROP ;
+                         DUP 2 ;
+                         GET 19 ;
+                         PUSH string "lambdaUntrackFarm" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT unit ;
+                         LEFT (or (pair nat (or unit unit)) (pair string address (or unit unit))) ;
+                         LEFT (or (pair string bytes) (pair address (or unit unit))) ;
+                         RIGHT
+                           (or (or (or (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit)))
+                                       (pair string
+                                             string
+                                             bool
+                                             bool
+                                             bool
+                                             (pair nat nat)
+                                             bytes
+                                             (pair address nat (or unit unit))))
+                                   (or (list (pair address nat (or (or address (pair address nat)) unit))) unit))
+                               (or (or address address) (or (pair (or (or bool bool) (or bool bool)) unit) address))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } } }
+               { DIG 4 ;
+                 DROP ;
+                 IF_LEFT
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 19 ;
+                         PUSH string "lambdaUpdateConfig" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT (pair string address (or unit unit)) ;
+                         RIGHT (or unit address) ;
+                         LEFT (or (pair string bytes) (pair address (or unit unit))) ;
+                         RIGHT
+                           (or (or (or (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit)))
+                                       (pair string
+                                             string
+                                             bool
+                                             bool
+                                             bool
+                                             (pair nat nat)
+                                             bytes
+                                             (pair address nat (or unit unit))))
+                                   (or (list (pair address nat (or (or address (pair address nat)) unit))) unit))
+                               (or (or address address) (or (pair (or (or bool bool) (or bool bool)) unit) address))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 19 ;
+                         PUSH string "lambdaUpdateGeneralContracts" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT (pair nat (or unit unit)) ;
+                         RIGHT (or unit address) ;
+                         LEFT (or (pair string bytes) (pair address (or unit unit))) ;
+                         RIGHT
+                           (or (or (or (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit)))
+                                       (pair string
+                                             string
+                                             bool
+                                             bool
+                                             bool
+                                             (pair nat nat)
+                                             bytes
+                                             (pair address nat (or unit unit))))
+                                   (or (list (pair address nat (or (or address (pair address nat)) unit))) unit))
+                               (or (or address address) (or (pair (or (or bool bool) (or bool bool)) unit) address))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } }
+                   { IF_LEFT
+                       { DUP 2 ;
+                         GET 19 ;
+                         PUSH string "lambdaUpdateMetadata" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         LEFT (pair address (or unit unit)) ;
+                         RIGHT
+                           (or (or unit address) (or (pair nat (or unit unit)) (pair string address (or unit unit)))) ;
+                         RIGHT
+                           (or (or (or (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit)))
+                                       (pair string
+                                             string
+                                             bool
+                                             bool
+                                             bool
+                                             (pair nat nat)
+                                             bytes
+                                             (pair address nat (or unit unit))))
+                                   (or (list (pair address nat (or (or address (pair address nat)) unit))) unit))
+                               (or (or address address) (or (pair (or (or bool bool) (or bool bool)) unit) address))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         GET 19 ;
+                         PUSH string "lambdaUpdateWhitelistContracts" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         SWAP ;
+                         RIGHT (pair string bytes) ;
+                         RIGHT
+                           (or (or unit address) (or (pair nat (or unit unit)) (pair string address (or unit unit)))) ;
+                         RIGHT
+                           (or (or (or (pair string bool bool bool (pair nat nat) bytes (pair address nat (or unit unit)))
+                                       (pair string
+                                             string
+                                             bool
+                                             bool
+                                             bool
+                                             (pair nat nat)
+                                             bytes
+                                             (pair address nat (or unit unit))))
+                                   (or (list (pair address nat (or (or address (pair address nat)) unit))) unit))
+                               (or (or address address) (or (pair (or (or bool bool) (or bool bool)) unit) address))) ;
+                         DIG 2 ;
+                         SWAP ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } } } } } ;
+  view "getAdmin" unit address { CDR ; CAR } ;
+  view "getGovernanceAddress" unit address { CDR ; GET 9 } ;
+  view "getConfig"
+       unit
+       (pair (nat %farmNameMaxLength) (unit %empty))
+       { CDR ; GET 5 } ;
+  view "getBreakGlassConfig"
+       unit
+       (pair (bool %createFarmIsPaused)
+             (bool %createFarmMTokenIsPaused)
+             (bool %trackFarmIsPaused)
+             (bool %untrackFarmIsPaused))
+       { CDR ; GET 15 } ;
+  view "getWhitelistContractOpt"
+       address
+       (option unit)
+       { UNPAIR ; SWAP ; GET 11 ; SWAP ; GET } ;
+  view "getGeneralContractOpt"
+       string
+       (option address)
+       { UNPAIR ; SWAP ; GET 13 ; SWAP ; GET } ;
+  view "checkFarmExists" address bool { UNPAIR ; SWAP ; GET 17 ; SWAP ; MEM } ;
+  view "getTrackedFarms" unit (set address) { CDR ; GET 17 } ;
+  view "getLambdaOpt"
+       string
+       (option bytes)
+       { UNPAIR ; SWAP ; GET 19 ; SWAP ; GET } ;
+  view "getFarmLambdaOpt"
+       string
+       (option bytes)
+       { UNPAIR ; SWAP ; GET 21 ; SWAP ; GET } ;
+  view "getMFarmLambdaOpt"
+       string
+       (option bytes)
+       { UNPAIR ; SWAP ; GET 22 ; SWAP ; GET } }
+

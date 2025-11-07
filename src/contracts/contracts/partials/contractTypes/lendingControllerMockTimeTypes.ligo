@@ -16,61 +16,37 @@ type collateralNameType          is string;
 // ------------------------------------------------------------------------------
 
 type lendingControllerConfigType is [@layout:comb] record [
-    
+    decimals                     : nat;         // decimals used for percentage calculation
+    interestRateDecimals         : nat;         // decimals used for interest rate (ray : 10^27)
+    maxDecimalsForCalculation    : nat;         // max decimals to be used in calculations
+    lastCompletedDataMaxDelay    : nat;         // max delay in last updated at for last completed data in fetching prices
+    mockLevel                    : nat;
+]
+
+type vaultConfigRecordType is [@layout:comb] record [
     collateralRatio              : nat;         // collateral ratio
     liquidationRatio             : nat;         // liquidation ratio
     
     liquidationFeePercent        : nat;         // liquidation fee percent - penalty fee paid by vault owner to liquidator
     adminLiquidationFeePercent   : nat;         // admin liquidation fee percent - penalty fee paid by vault owner to treasury
-
     minimumLoanFeePercent        : nat;         // minimum loan fee percent - taken at first minting
 
     minimumLoanFeeTreasuryShare  : nat;         // percentage of minimum loan fee that goes to the treasury
     interestTreasuryShare        : nat;         // percentage of interest that goes to the treasury
 
-    decimals                     : nat;         // decimals used for percentage calculation
-    interestRateDecimals         : nat;         // decimals used for interest rate (ray : 10^27)
-    maxDecimalsForCalculation    : nat;         // max decimals to be used in calculations
-    lastCompletedDataMaxDelay    : nat;         // max delay in last updated at for last completed data in fetching prices
-
-    maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% for AAVE)
+    maxVaultLiquidationPercent   : nat;         // max percentage of vault debt that can be liquidated (e.g. 50% on AAVE)
     liquidationDelayInMins       : nat;         // delay before a vault can be liquidated, after it has been marked for liquidation
-    liquidationMaxDuration       : nat;         // window of opportunity for a liquidation event to occur after a vault has been marked for liquidation
+    liquidationMaxDuration       : nat;         // window of opportunity (in mins) for a liquidation event to occur after a vault has been marked for liquidation
 
-    mockLevel                    : nat;         // mock level for time
+    interestRepaymentPeriod      : nat;         // period (in mins) in which vault has to repay interest in (e.g. every 30 days)
+    missedPeriodsForLiquidation  : nat;         // number of missed interest repayment periods before vault can be liquidated
+    repaymentWindow              : nat;         // repayment window (in mins) before fee penalty is applied if interest total did not reach zero
+    penaltyFeePercentage         : nat;         // percentage of interest outstanding that will be counted as penalty fee
+    liquidationConfig            : nat;         // liquidation config - 0: standard, 1: rwa
 ]
+type vaultConfigLedgerType is big_map(nat, vaultConfigRecordType);
 
-type lendingControllerBreakGlassConfigType is record [
-    
-    // Lending Controller Admin Entrypoints
-    setLoanTokenIsPaused                : bool;
-    setCollateralTokenIsPaused          : bool;
-
-    // Lending Controller Token Pool Entrypoints
-    addLiquidityIsPaused                : bool;
-    removeLiquidityIsPaused             : bool;
-
-    // Lending Controller Vault Entrypoints
-    registerVaultCreationIsPaused       : bool; 
-    closeVaultIsPaused                  : bool;
-    registerDepositIsPaused             : bool;
-    registerWithdrawalIsPaused          : bool;
-    markForLiquidationIsPaused          : bool;
-    liquidateVaultIsPaused              : bool;
-    borrowIsPaused                      : bool;
-    repayIsPaused                       : bool;
-
-    // Vault Entrypoints
-    vaultDepositIsPaused                : bool;
-    vaultWithdrawIsPaused               : bool;
-    vaultOnLiquidateIsPaused            : bool;
-
-    // Vault Staked Token Entrypoints
-    vaultDepositStakedTokenIsPaused     : bool;
-    vaultWithdrawStakedTokenIsPaused    : bool;
-
-]
-
+type breakGlassLedgerType is big_map(string, bool);
 
 
 type collateralTokenRecordType is [@layout:comb] record [
@@ -136,6 +112,7 @@ type vaultRecordType is [@layout:comb] record [
     address                     : address;
     collateralBalanceLedger     : collateralBalanceLedgerType;   // mav/token balance
     loanToken                   : string;                        // e.g. USDT, EURT,  
+    vaultConfig                 : nat;                           // e.g. 0: standard, 1: rwa
 
     // loan variables
     loanOutstandingTotal        : nat;                           // total amount debt (principal + interest)
@@ -149,8 +126,26 @@ type vaultRecordType is [@layout:comb] record [
 
     markedForLiquidationLevel   : nat;                           // block level of when vault was marked for liquidation
     liquidationEndLevel         : nat;                           // block level of when vault will no longer be liquidated, or will need to be marked for liquidation again
+
+    loanStartTimestamp          : option(timestamp);             // timestamp: for RWA-type vaults on when loan was first taken
+    lastInterestCleared         : timestamp;                     // timestamp: for RWA-type vault on last interest payment cleared
+    loanStartLevel              : option(nat);                   // block level: for RWA-type vaults on when loan was first taken
+    lastInterestClearedLevel    : nat;                           // block level: for RWA-type vault on last interest payment cleared
+
+    penaltyAppliedTimestamp     : option(timestamp);             // for RWA-type vault, on when penalty was last applied
+    penaltyAppliedLevel         : option(nat);                   // block level: for RWA-type vault, on when penalty was last applied
+
+    penaltyCounter              : nat;                           // for RWA-type vault, keep track of penalty counter
     
 ]
+
+type vaultPenaltyRecordType is [@layout:comb] record [
+    entrypoint                  : string;
+    penaltyFee                  : nat;
+    penaltyTimestamp            : timestamp;
+]
+type vaultPenaltyEventLedgerType is big_map((address * nat), vaultPenaltyRecordType) // vault address * penalty counter
+
 
 // owner types
 type ownerVaultSetType              is set(vaultIdType)                     // set of vault ids belonging to the owner 
@@ -172,27 +167,18 @@ type removeLiquidityActionType is [@layout:comb] record [
 ]
 
 
-type lendingControllerUpdateConfigNewValueType is nat
-type lendingControllerUpdateConfigActionType is 
-        
-        ConfigCollateralRatio           of unit
-    |   ConfigLiquidationRatio          of unit
-    |   ConfigLiquidationFeePercent     of unit
-    |   ConfigAdminLiquidationFee       of unit
-    |   ConfigMinimumLoanFeePercent     of unit
-    |   ConfigMinLoanFeeTreasuryShare   of unit
-    |   ConfigInterestTreasuryShare     of unit
-    |   ConfigMockLevel                 of unit
-
-type lendingControllerUpdateConfigParamsType is [@layout:comb] record [
-    updateConfigNewValue    : lendingControllerUpdateConfigNewValueType;  
-    updateConfigAction      : lendingControllerUpdateConfigActionType;
+type lendingControllerUpdateConfigSingleType is [@layout:comb] record [
+    configName      : string;
+    newValue        : nat;  
 ]
+type lendingControllerUpdateConfigActionType is list(lendingControllerUpdateConfigSingleType)
+
 
 type registerVaultCreationActionType is [@layout:comb] record [
     vaultOwner      : vaultOwnerType;
     vaultId         : vaultIdType;
     vaultAddress    : address;
+    vaultConfig     : nat;
     loanTokenName   : string;
 ]
 
@@ -240,6 +226,11 @@ type updateLoanTokenActionType is [@layout:comb] record [
 ]
 
 
+type setVaultConfigActionType is 
+    |   SetNewVaultConfig    of (nat * vaultConfigRecordType)                      // vault config id * vault config record
+    |   UpdateVaultConfig    of (nat * lendingControllerUpdateConfigActionType)    // vault config id * update config list
+
+
 type setLoanTokenType is 
     |   CreateLoanToken      of createLoanTokenActionType
     |   UpdateLoanToken      of updateLoanTokenActionType
@@ -279,6 +270,12 @@ type updateCollateralTokenActionType is [@layout:comb] record [
     stakingContractAddress  : option(address);
     maxDepositAmount        : option(nat);
 ]
+
+type breakGlassSingleType is [@layout:comb] record [
+    entrypoint     : string;
+    pauseBool      : bool;
+]
+type breakGlassListType is list(breakGlassSingleType)
 
 
 type setCollateralTokenType is 
@@ -326,6 +323,7 @@ type borrowActionType is [@layout:comb] record [
 
 type repayActionType is [@layout:comb] record [ 
     vaultId     : nat; 
+    vaultOwner  : address;
     quantity    : nat;
 ]
 
@@ -390,14 +388,13 @@ type lendingControllerLambdaActionType is
         // Housekeeping Entrypoints
     |   LambdaSetAdmin                        of (address)
     |   LambdaSetGovernance                   of (address)
-    |   LambdaUpdateConfig                    of lendingControllerUpdateConfigParamsType
+    |   LambdaUpdateConfig                    of lendingControllerUpdateConfigActionType
 
         // Pause / Break Glass Lambdas
-    |   LambdaPauseAll                        of (unit)
-    |   LambdaUnpauseAll                      of (unit)
-    |   LambdaTogglePauseEntrypoint           of lendingControllerTogglePauseEntrypointType
+    |   LambdaTogglePauseEntrypoint           of breakGlassListType
 
         // Admin Entrypoints
+    |   LambdaSetVaultConfig                  of setVaultConfigActionType  
     |   LambdaSetLoanToken                    of setLoanTokenActionType  
     |   LambdaSetCollateralToken              of setCollateralTokenActionType  
     |   LambdaRegisterVaultCreation           of registerVaultCreationActionType
@@ -430,7 +427,8 @@ type lendingControllerStorageType is [@layout:comb] record [
     tester                      : address;
     metadata                    : metadataType;
     config                      : lendingControllerConfigType;
-    breakGlassConfig            : lendingControllerBreakGlassConfigType;
+    breakGlassLedger            : breakGlassLedgerType;
+    vaultConfigLedger           : vaultConfigLedgerType;
 
     mvnTokenAddress             : address;
     governanceAddress           : address;
@@ -438,6 +436,7 @@ type lendingControllerStorageType is [@layout:comb] record [
     // vaults and owners
     vaults                      : big_map(vaultHandleType, vaultRecordType);
     ownerLedger                 : ownerLedgerType;              // for some convenience in checking vaults owned by user
+    vaultPenaltyEventLedger     : vaultPenaltyEventLedgerType;
 
     // collateral tokens
     collateralTokenLedger       : collateralTokenLedgerType;
@@ -445,5 +444,7 @@ type lendingControllerStorageType is [@layout:comb] record [
 
     // lambdas
     lambdaLedger                : lambdaLedgerType;
+
+    tempBoolMap                 : map(string, bool);
 
 ]

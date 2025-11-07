@@ -60,6 +60,19 @@ block {
 
 } with unit
 
+
+
+// verify lending controller entrypoint is not paused
+function verifyLendingControllerEntrypointIsNotPaused(const entrypoint : string; const errorCode : nat; const s : lendingControllerStorageType) : unit is 
+block {
+
+    case s.breakGlassLedger[entrypoint] of [
+            Some(_bool) -> if _bool = True then failwith(errorCode) else skip
+        |   None        -> failwith(errorCode)
+    ];
+
+} with unit
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -347,14 +360,15 @@ block {
 
 
 // helper function to create new vault record
-function createVaultRecord(const vaultAddress : address; const loanTokenName : string; const decimals : nat) : vaultRecordType is 
+function createVaultRecord(const vaultAddress : address; const vaultConfig : nat; const loanTokenName : string; const decimals : nat) : vaultRecordType is 
 block {
 
     const vaultRecord : vaultRecordType = record [
                         
         address                     = vaultAddress;
-        collateralBalanceLedger     = (map[] : collateralBalanceLedgerType); // init empty collateral balance ledger map
+        collateralBalanceLedger     = (map[] : collateralBalanceLedgerType);
         loanToken                   = loanTokenName;
+        vaultConfig                 = vaultConfig;
 
         loanOutstandingTotal        = 0n;
         loanPrincipalTotal          = 0n;
@@ -367,6 +381,17 @@ block {
 
         markedForLiquidationLevel   = 0n;
         liquidationEndLevel         = 0n;
+
+        loanStartTimestamp          = (None : option(timestamp));
+        lastInterestCleared         = Mavryk.get_now();
+        loanStartLevel              = (None : option(nat));
+        lastInterestClearedLevel    = Mavryk.get_level();
+
+        penaltyAppliedTimestamp     = (None : option(timestamp));
+        penaltyAppliedLevel         = (None : option(nat));
+
+        penaltyCounter              = 0n;
+
     ];
     
 } with vaultRecord
@@ -397,6 +422,19 @@ block {
     ];
 
 } with collateralTokenRecord
+
+
+
+// helper function to get vault config record 
+function getVaultConfigRecord(const vaultConfig : nat; const s : lendingControllerStorageType) : vaultConfigRecordType is
+block {
+
+    const vaultConfigRecord : vaultConfigRecordType = case s.vaultConfigLedger[vaultConfig] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_VAULT_CONFIG_RECORD_NOT_FOUND)
+    ];
+
+} with vaultConfigRecord
 
 
 
@@ -632,18 +670,11 @@ block {
 
 
 // helper function liquidate staked token (e.g. sMVN) from vault through the staking contract (e.g. Doorman Contract) - call %onVaultLiquidateStake in Doorman Contract
-function onLiquidateStakedTokenFromVaultOperation(const vaultAddress : address; const liquidator : address; const liquidatedAmount : nat; const stakingContractAddress : address) : operation is
+function onLiquidateStakedTokenFromVaultOperation(const onVaultLiquidateStakeListParams : onVaultLiquidateStakeType; const stakingContractAddress : address) : operation is
 block {
 
-    // Create operation to staking contract to liquidate staked token (e.g. sMVN) from vault to liquidator
-    const onVaultLiquidateStakeParams : onVaultLiquidateStakeType = record [
-        vaultAddress        = vaultAddress;
-        liquidator          = liquidator;
-        liquidatedAmount    = liquidatedAmount;
-    ];
-
     const vaultLiquidateStakeOperation : operation = Mavryk.transaction(
-        onVaultLiquidateStakeParams,
+        onVaultLiquidateStakeListParams,
         0mav,
         getOnVaultLiquidateStakeEntrypoint(stakingContractAddress)
     );
@@ -653,20 +684,14 @@ block {
 
 
 // helper function liquidate collateral from vault - call %onLiquidate in a specified Vault Contract
-function liquidateFromVaultOperation(const receiver : address; const tokenName : string; const amount : nat; const vaultAddress : address) : operation is
+function liquidateFromVaultOperation(const onLiquidateList : onLiquidateListType; const vaultAddress : address) : operation is
 block {
 
-    const liquidateOperationParams : initVaultActionType = OnLiquidate(
-        record[
-            receiver   = receiver;
-            amount     = amount;
-            tokenName  = tokenName;
-        ]
-    );
+    const liquidateOperationParams : initVaultActionType = OnLiquidate(onLiquidateList);
 
     const liquidateFromVaultOperation : operation = Mavryk.transaction(
         liquidateOperationParams,
-        0mumav,
+        0mav,
         getInitVaultActionEntrypoint(vaultAddress)
     );
 
@@ -897,13 +922,12 @@ block {
 
 
 // helper function to check if vault is under collaterized
-function isUnderCollaterized(const vault : vaultRecordType; var s : lendingControllerStorageType) : bool is 
+function isUnderCollaterized(const vault : vaultRecordType; const collateralRatio : nat; var s : lendingControllerStorageType) : bool is 
 block {
     
     // initialise variables - vaultCollateralValue and loanOutstanding
     const loanOutstandingTotal       : nat    = vault.loanOutstandingTotal;    
     const loanTokenName              : string = vault.loanToken;
-    const collateralRatio            : nat    = s.config.collateralRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
 
     // calculate vault collateral value rebased (1e32 or 10^32)
     const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.address, vault.collateralBalanceLedger, s);
@@ -912,20 +936,19 @@ block {
     const loanOutstandingRebased : nat = calculateLoanTokenValueRebased(loanTokenName, loanOutstandingTotal, s);
 
     // check is vault is under collaterized based on collateral ratio
-    const isUnderCollaterized : bool = vaultCollateralValueRebased < (collateralRatio * loanOutstandingRebased) / 1000n;
+    const isUnderCollaterized : bool = vaultCollateralValueRebased < (collateralRatio * loanOutstandingRebased) / 10000n;
     
 } with isUnderCollaterized
 
 
 
 // helper function to check if vault is liquidatable
-function isLiquidatable(const vault : vaultRecordType; var s : lendingControllerStorageType) : bool is 
+function isLiquidatable(const vault : vaultRecordType; const liquidationRatio : nat; var s : lendingControllerStorageType) : bool is 
 block {
     
     // initialise variables - vaultCollateralValue and loanOutstanding
     const loanOutstandingTotal       : nat    = vault.loanOutstandingTotal;    
     const loanTokenName              : string = vault.loanToken;
-    const liquidationRatio           : nat    = s.config.liquidationRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
 
     // calculate vault collateral value rebased (1e32 or 10^32)
     const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.address, vault.collateralBalanceLedger, s);
@@ -934,9 +957,89 @@ block {
     const loanOutstandingRebased : nat = calculateLoanTokenValueRebased(loanTokenName, loanOutstandingTotal, s);
 
     // check is vault is liquidatable based on liquidation ratio
-    const isLiquidatable : bool = vaultCollateralValueRebased < (liquidationRatio * loanOutstandingRebased) / 1000n;
+    const isLiquidatable : bool = vaultCollateralValueRebased < (liquidationRatio * loanOutstandingRebased) / 10000n;
     
 } with isLiquidatable
+
+
+
+// helper function to check if vault is penalized (has not made interest payments within allowable period)
+function isPenalizedForLiquidation(const interestRepaymentPeriod : nat; const lastInterestPayment : timestamp; const missedPeriodsForLiquidation : nat) : bool is 
+block {
+    
+    const currentTimestamp : timestamp              = Mavryk.get_now();
+    const interestRepaymentPeriodInSeconds : int    = int((interestRepaymentPeriod * missedPeriodsForLiquidation) * 60n);
+    const lastInterestPaymentWithPeriod : timestamp = lastInterestPayment + interestRepaymentPeriodInSeconds;
+    const isPenalized : bool                        = currentTimestamp > lastInterestPaymentWithPeriod;
+    
+} with isPenalized
+
+
+
+// helper function to apply vault penalty fee if interest repayment period has been missed
+function applyVaultPenaltyFee(
+    const loanInterestTotal : nat; 
+    const penaltyFeePercentage : nat; 
+    const repaymentWindow : nat; 
+    const interestRepaymentPeriod : nat; 
+    const loanStartTimestamp : timestamp;
+    const lastInterestClearedTimestamp : timestamp;
+    const penaltyAppliedTimestamp : option(timestamp)
+) : nat is block {
+
+    // penalty fee is total interest at this point in time multiplied by interest repayment periods missed
+    const onePeriodPenaltyFee : nat = (loanInterestTotal * penaltyFeePercentage * fixedPointAccuracy) / 10_000n / fixedPointAccuracy;
+    
+    const interestRepaymentPeriodInSeconds : int = int(interestRepaymentPeriod) * 60;
+    const currentTimestamp : timestamp           = Mavryk.get_now();
+    const repaymentWindowInSeconds : int         = int(repaymentWindow * 60n);
+    
+    var penaltyFee : nat                      := 0n; // 1% 
+    var numberOfMissedRepaymentPeriods : int  := 0;
+    
+    if interestRepaymentPeriod > 0n then {
+
+        // Calculate the end of the last repayment window
+        const timeSinceLoanStart : int             = currentTimestamp - loanStartTimestamp;
+        const totalInterestPeriodsElapsed : int    = timeSinceLoanStart / interestRepaymentPeriodInSeconds;
+        const lastRepaymentWindowStart : timestamp = loanStartTimestamp + (totalInterestPeriodsElapsed * interestRepaymentPeriodInSeconds);
+        const lastRepaymentWindowEnd : timestamp   = lastRepaymentWindowStart + repaymentWindowInSeconds;
+
+        // Determine if we're within the current repayment window
+        const withinCurrentRepaymentWindow : bool = currentTimestamp <= lastRepaymentWindowEnd and currentTimestamp > lastRepaymentWindowStart;
+
+        case penaltyAppliedTimestamp of [
+            Some(_penaltyAppliedTimestamp) -> {
+                
+                // If penalty was already applied in the current period, do not apply again
+                if _penaltyAppliedTimestamp >= lastRepaymentWindowStart then skip else {
+                    // Calculate missed periods since last penalty was applied
+                    var periodsSinceLastPenalty : int := (currentTimestamp - _penaltyAppliedTimestamp) / interestRepaymentPeriodInSeconds;
+                    if periodsSinceLastPenalty = 0 then periodsSinceLastPenalty := 1 else skip;
+                    numberOfMissedRepaymentPeriods := periodsSinceLastPenalty;
+                }
+            }
+        |   None -> {
+
+                // if within current repayment window and last interest cleared timestamp is after the start of previous period period start
+                if withinCurrentRepaymentWindow and lastInterestClearedTimestamp >= (lastRepaymentWindowStart - interestRepaymentPeriodInSeconds) then skip 
+                else {
+                    // Calculate missed periods since last interest was cleared
+                    var periodsSinceLastCleared : int := (currentTimestamp - lastInterestClearedTimestamp) / interestRepaymentPeriodInSeconds;
+                    if periodsSinceLastCleared = 0 then periodsSinceLastCleared := 1 else skip;
+                    numberOfMissedRepaymentPeriods := periodsSinceLastCleared;
+                }
+            }
+        ];
+
+         // Calculate penalty fee if there are missed periods
+        if numberOfMissedRepaymentPeriods > 0 then {
+            penaltyFee := abs(numberOfMissedRepaymentPeriods) * onePeriodPenaltyFee;
+        } else skip;
+
+    } else skip;
+
+} with penaltyFee
 
 // ------------------------------------------------------------------------------
 // Contract Helper Functions End
@@ -1094,12 +1197,11 @@ block {
 // ------------------------------------------------------------------------------
 
 // helper function to check correct duration has passed after being marked for liquidation
-function checkMarkedVaultLiquidationDuration(const vault : vaultRecordType; const s : lendingControllerStorageType) : unit is
+function checkMarkedVaultLiquidationDuration(const vault : vaultRecordType; const liquidationDelayInMins : nat) : unit is
 block {
 
     // Init variables and get level when vault can be liquidated
     const blocksPerMinute                : nat  = 60n / Mavryk.get_min_block_time();
-    const liquidationDelayInMins         : nat  = s.config.liquidationDelayInMins;
     const liquidationDelayInBlockLevel   : nat  = liquidationDelayInMins * blocksPerMinute; 
     const levelWhenVaultCanBeLiquidated  : nat  = vault.markedForLiquidationLevel + liquidationDelayInBlockLevel;
 
@@ -1129,7 +1231,7 @@ block {
 
 
 // helper function to calculate the ratio used in the collateral token amount receive calculation
-function calculateCollateralPriceAdjustmentRatio(const loanToken : (nat*nat); const collateralToken : (nat*nat)) : nat is
+function calculateCollateralPriceAdjustmentRatio(const loanToken : (nat * nat); const collateralToken : (nat * nat)) : nat is
 block {
 
     // Init variables
@@ -1161,14 +1263,14 @@ block {
 
 
 // helper function to calculate the collateral token proportion received during a liquidation
-function calculateCollateralTokenProportion(const collateralToken : collateralTokenRecordType; const collateralTokenLastCompletedData : lastCompletedDataReturnType; const collateralTokenBalance : nat; const vaultCollateralValueRebased : nat; const s : lendingControllerStorageType) : nat is
+function calculateCollateralTokenProportion(const collateralToken : collateralTokenRecordType; const collateralTokenLastCompletedData : lastCompletedDataReturnType; const collateralTokenBalance : nat; const vaultCollateralValueRebased : nat; const maxDecimalsForCalculation : nat) : nat is
 block {
 
-    const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation; // default 32 decimals i.e. 1e32
+    const maxDecimalsForCalculation  : nat  = maxDecimalsForCalculation; // default 32 decimals i.e. 1e32
     
-    const tokenDecimals             : nat  = collateralToken.tokenDecimals; 
-    const priceDecimals             : nat  = collateralTokenLastCompletedData.decimals;
-    const tokenPrice                : nat  = collateralTokenLastCompletedData.data;
+    const tokenDecimals              : nat  = collateralToken.tokenDecimals; 
+    const priceDecimals              : nat  = collateralTokenLastCompletedData.decimals;
+    const tokenPrice                 : nat  = collateralTokenLastCompletedData.data;
 
     // Calculate required number of decimals to rebase each token to the same unit for comparison                        
     if tokenDecimals + priceDecimals > maxDecimalsForCalculation then failwith(error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION) else skip;
@@ -1207,12 +1309,231 @@ block {
 
 
 
-// helper function to process transfer operations for the one collateral token
-function processLiquidationCollateralTransferOperations(const collateralToken : collateralTokenRecordType; const vaultAddress : address; const liquidator : (address*nat); const treasury : (address*nat); var operations : list(operation)) : list(operation) is
+// // helper function to process transfer operations for one collateral token
+// function processLiquidationCollateralTransferOperations(const collateralToken : collateralTokenRecordType; const vaultAddress : address; const liquidator : (address*nat); const treasury : (address*nat); var operations : list(operation)) : list(operation) is
+// block {
+
+//     // Init variables
+//     const collateralTokenName   : string      = collateralToken.tokenName;
+//     const liquidatorAddress     : address     = liquidator.0;
+//     const liquidatorTokenAmount : nat         = liquidator.1;
+//     const treasuryAddress       : address     = treasury.0;
+//     const treasuryTokenAmount   : nat         = treasury.1;
+
+//     // Transfer operations
+//     if collateralToken.isStakedToken then {
+
+//         // use %onVaultLiquidateStake entrypoint in Staking Contract (e.g. Doorman) to transfer staked token (e.g. sMvn) balances
+        
+//         // get staking contract address
+//         const stakingContractAddress : address = case collateralToken.stakingContractAddress of [
+//                 Some(_address) -> _address
+//             |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
+//         ];
+
+//         // send staked token from vault to liquidator
+//         const sendStakedTokenFromVaultToLiquidatorOperation : operation = onLiquidateStakedTokenFromVaultOperation(
+//             vaultAddress,                       // vault address
+//             liquidatorAddress,                  // liquidator              
+//             liquidatorTokenAmount,              // liquidated amount
+//             stakingContractAddress              // staking contract address
+//         );                
+
+//         operations := sendStakedTokenFromVaultToLiquidatorOperation # operations;
+
+//         // send staked token from vault to treasury
+//         const sendStakedTokenFromVaultToTreasuryOperation : operation = onLiquidateStakedTokenFromVaultOperation(
+//             vaultAddress,                       // vault address
+//             treasuryAddress,                    // liquidator              
+//             treasuryTokenAmount,                // liquidated amount
+//             stakingContractAddress              // staking contract address
+//         );                
+
+//         operations := sendStakedTokenFromVaultToTreasuryOperation # operations;
+
+//     } else {
+
+//         // use standard token transfer operations
+
+//         // send tokens from vault to liquidator
+//         const sendTokensFromVaultToLiquidatorOperation : operation = liquidateFromVaultOperation(
+//             liquidatorAddress,                  // receiver (i.e. to_)
+//             collateralTokenName,                // token name
+//             liquidatorTokenAmount,              // token amount to be withdrawn
+//             vaultAddress                        // vault address
+//         );
+//         operations := sendTokensFromVaultToLiquidatorOperation # operations;
+
+//         // send tokens from vault to treasury
+//         const sendTokensFromVaultToTreasuryOperation : operation = liquidateFromVaultOperation(
+//             treasuryAddress,                    // receiver (i.e. to_)
+//             collateralTokenName,                // token name
+//             treasuryTokenAmount,                // token amount to be withdrawn
+//             vaultAddress                        // vault address
+//         );
+//         operations := sendTokensFromVaultToTreasuryOperation # operations;
+
+//     };
+
+// } with(operations)
+
+
+
+// // helper function to calculate the ratio used in the collateral token amount receive calculation
+// function processCollateralTokenLiquidation(const liquidatorAddress : address; const treasuryAddress : address; const loanTokenDecimals : nat; const loanTokenLastCompletedData : lastCompletedDataReturnType; const vaultAddress : address; const vaultCollateralValueRebased; const collateralTokenName : string; const collateralTokenBalance : nat; const liquidationAmount : nat; var operations : list(operation); const s : lendingControllerStorageType) : list(operation) * nat is
+// block {
+
+//     // get collateral token record through on-chain view
+//     const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenReference(collateralTokenName, s);
+
+//     // get last completed data of token from Aggregator view
+//     const collateralTokenLastCompletedData : lastCompletedDataReturnType = getTokenLastCompletedDataFromAggregator(collateralTokenRecord.oracleAddress);
+
+//     // init variables
+//     const loanTokenPrice            : nat = loanTokenLastCompletedData.data;
+//     const loanTokenPriceDecimals    : nat = loanTokenLastCompletedData.decimals;
+//     const tokenDecimals             : nat = collateralTokenRecord.tokenDecimals;
+//     const tokenPrice                : nat = collateralTokenLastCompletedData.data;
+//     const priceDecimals             : nat = collateralTokenLastCompletedData.decimals;
+
+//     // if token is sMVN, get latest balance from Doorman Contract through on-chain views
+//     // - may differ from token balance if rewards have been claimed 
+//     // - requires a call to %compound on staking contract (i.e. doorman contract) to compound rewards for the vault and get the latest balance
+//     var collateralTokenBalance : nat := 
+//         // get vault staked balance from staking contract i.e. doorman contract (includes unclaimed exit fee rewards, does not include satellite rewards)
+//         // - for better accuracy, there should be a frontend call to compound rewards for the vault first
+//         if collateralTokenRecord.isStakedToken then {
+//             const stakingContractAddress : address = case collateralTokenRecord.stakingContractAddress of [
+//                     Some(_address) -> _address
+//                 |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
+//             ];
+//             const stakedBalance : nat = getBalanceFromStakingContract(vaultAddress, stakingContractAddress);
+//         } with stakedBalance
+//         // get updated scaled token balance (e.g. mToken)
+//         else if collateralTokenRecord.isScaledToken then getBalanceFromScaledTokenContract(vaultAddress, collateralTokenRecord.tokenContractAddress)
+//         else collateralTokenBalance;
+
+//     // get proportion of collateral token balance against total vault's collateral value
+//     const tokenProportion : nat = calculateCollateralTokenProportion(collateralTokenRecord, collateralTokenLastCompletedData, collateralTokenBalance, vaultCollateralValueRebased, s);
+
+//     // ------------------------------------------------------------------
+//     // Rebase decimals for calculation
+//     //  - account for exponent (decimal) differences between collateral and loan token decimals
+//     //  - account for exponent (decimal) differences between collateral price and loan token price decimals from aggregators
+//     // ------------------------------------------------------------------
+
+//     // ratio used in liquidator and treasury token amount calculation
+//     const collateralTokenPriceAdjustmentRatio   : nat = calculateCollateralPriceAdjustmentRatio(
+//         (loanTokenDecimals, loanTokenPriceDecimals),
+//         (tokenDecimals, priceDecimals)
+//     );
+
+//     // ------------------------------------------------------------------
+//     // Calculate Liquidator's Amount 
+//     // ------------------------------------------------------------------
+
+//     const liquidationFeePercent         : nat   = s.config.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator 
+//     const liquidationIncentive          : nat   = ((liquidationFeePercent * liquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+//     const liquidatorAmountAndIncentive  : nat   = liquidationAmount + liquidationIncentive;
+//     const liquidatorTokenQuantityTotal : nat    = calculateCollateralAmountReceived(
+//         loanTokenPrice,
+//         tokenPrice,
+//         tokenProportion,
+//         collateralTokenPriceAdjustmentRatio,
+//         liquidatorAmountAndIncentive
+//     ); 
+    
+//     // Calculate new collateral balance
+//     if liquidatorTokenQuantityTotal > collateralTokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
+//     var newCollateralTokenBalance : nat := abs(collateralTokenBalance - liquidatorTokenQuantityTotal);
+
+//     // ------------------------------------------------------------------
+//     // Calculate Treasury's Amount 
+//     // ------------------------------------------------------------------
+
+//     // calculate final amounts to be liquidated
+//     const adminLiquidationFeePercent    : nat   = s.config.adminLiquidationFeePercent;  // admin liquidation fee - penalty fee paid by vault owner to treasury
+//     const adminLiquidationFee           : nat   = ((adminLiquidationFeePercent * liquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+//     const treasuryTokenQuantityTotal    : nat   = calculateCollateralAmountReceived(
+//         loanTokenPrice,
+//         tokenPrice,
+//         tokenProportion,
+//         collateralTokenPriceAdjustmentRatio,
+//         adminLiquidationFee
+//     ); 
+
+//     // Calculate new collateral balance
+//     if treasuryTokenQuantityTotal > newCollateralTokenBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOKEN_COLLATERAL_BALANCE) else skip;
+//     newCollateralTokenBalance := abs(newCollateralTokenBalance - treasuryTokenQuantityTotal);
+
+//     // ------------------------------------------------------------------
+//     // Process liquidation transfer of collateral token
+//     // ------------------------------------------------------------------
+    
+//     operations := processLiquidationCollateralTransferOperations(
+//         collateralTokenRecord,
+//         vaultAddress,
+//         (liquidatorAddress, liquidatorTokenQuantityTotal),
+//         (treasuryAddress, treasuryTokenQuantityTotal),
+//         operations
+//     );
+
+// } with (operations, newCollateralTokenBalance)
+
+
+// helper function to process transfer record for collateral token
+function processLiquidationCollateralTokenTransferRecord(
+    const collateralToken : collateralTokenRecordType; 
+    // const vaultAddress : address; 
+    const liquidator : (address * nat); 
+    const treasury : (address * nat); 
+    var onLiquidateList : onLiquidateListType
+) : onLiquidateListType is
 block {
 
     // Init variables
     const collateralTokenName   : string      = collateralToken.tokenName;
+    const liquidatorAddress     : address     = liquidator.0;
+    const liquidatorTokenAmount : nat         = liquidator.1;
+    const treasuryAddress       : address     = treasury.0;
+    const treasuryTokenAmount   : nat         = treasury.1;
+
+    if liquidatorTokenAmount > 0n then {
+        // send tokens from vault to liquidator
+        const liquidateTokenToLiquidatorRecordParams : onLiquidateSingleType = record [
+            receiver   = liquidatorAddress;
+            amount     = liquidatorTokenAmount;
+            tokenName  = collateralTokenName;
+        ];
+        onLiquidateList := liquidateTokenToLiquidatorRecordParams # onLiquidateList;
+    };
+
+    if treasuryTokenAmount > 0n then {
+        // send tokens from vault to treasury
+        const liquidateTokenToTreasuryRecordParams : onLiquidateSingleType = record [
+            receiver   = treasuryAddress;
+            amount     = treasuryTokenAmount;
+            tokenName  = collateralTokenName;
+        ];
+        onLiquidateList := liquidateTokenToTreasuryRecordParams # onLiquidateList;
+    };
+
+} with onLiquidateList
+
+
+
+// helper function to process transfer record for collateral token
+function processLiquidationCollateralStakedTokenTransferOperations(
+    const collateralToken : collateralTokenRecordType; 
+    const vaultAddress : address; 
+    const liquidator : (address * nat); 
+    const treasury : (address * nat); 
+    var operations : list(operation)
+) : list(operation) is
+block {
+
+    // Init variables
+    // const collateralTokenName   : string      = collateralToken.tokenName;
     const liquidatorAddress     : address     = liquidator.0;
     const liquidatorTokenAmount : nat         = liquidator.1;
     const treasuryAddress       : address     = treasury.0;
@@ -1229,56 +1550,59 @@ block {
             |   None           -> failwith(error_STAKING_CONTRACT_ADDRESS_FOR_STAKED_TOKEN_NOT_FOUND)
         ];
 
-        // send staked token from vault to liquidator
-        const sendStakedTokenFromVaultToLiquidatorOperation : operation = onLiquidateStakedTokenFromVaultOperation(
-            vaultAddress,                       // vault address
-            liquidatorAddress,                  // liquidator              
-            liquidatorTokenAmount,              // liquidated amount
-            stakingContractAddress              // staking contract address
-        );                
+        var liquidationList : onVaultLiquidateStakeType := list[]; 
 
-        operations := sendStakedTokenFromVaultToLiquidatorOperation # operations;
+        if liquidatorTokenAmount > 0n then {
+            const sendStakedTokenFromVaultToLiquidatoRecord : onVaultLiquidateStakeSingleType = record [
+                vaultAddress      = vaultAddress;
+                liquidator        = liquidatorAddress;
+                liquidatedAmount  = liquidatorTokenAmount;
+            ];
 
-        // send staked token from vault to treasury
-        const sendStakedTokenFromVaultToTreasuryOperation : operation = onLiquidateStakedTokenFromVaultOperation(
-            vaultAddress,                       // vault address
-            treasuryAddress,                    // liquidator              
-            treasuryTokenAmount,                // liquidated amount
-            stakingContractAddress              // staking contract address
-        );                
+            liquidationList := sendStakedTokenFromVaultToLiquidatoRecord # liquidationList;
+        };
 
-        operations := sendStakedTokenFromVaultToTreasuryOperation # operations;
+        if liquidatorTokenAmount > 0n then {
+            const sendStakedTokenFromVaultToTreasuryRecord : onVaultLiquidateStakeSingleType = record [
+                vaultAddress      = vaultAddress;
+                liquidator        = treasuryAddress;
+                liquidatedAmount  = treasuryTokenAmount;
+            ];
+            liquidationList := sendStakedTokenFromVaultToTreasuryRecord # liquidationList;
+        };
 
-    } else {
+        if List.length(liquidationList) > 0n then {
+            const liquidateVaultStakedTokenOperation : operation = onLiquidateStakedTokenFromVaultOperation(
+                liquidationList,
+                stakingContractAddress              // staking contract address
+            );                
 
-        // use standard token transfer operations
+            operations := liquidateVaultStakedTokenOperation # operations;
+        };
 
-        // send tokens from vault to liquidator
-        const sendTokensFromVaultToLiquidatorOperation : operation = liquidateFromVaultOperation(
-            liquidatorAddress,                  // receiver (i.e. to_)
-            collateralTokenName,                // token name
-            liquidatorTokenAmount,              // token amount to be withdrawn
-            vaultAddress                        // vault address
-        );
-        operations := sendTokensFromVaultToLiquidatorOperation # operations;
+    } else skip;
 
-        // send tokens from vault to treasury
-        const sendTokensFromVaultToTreasuryOperation : operation = liquidateFromVaultOperation(
-            treasuryAddress,                    // receiver (i.e. to_)
-            collateralTokenName,                // token name
-            treasuryTokenAmount,                // token amount to be withdrawn
-            vaultAddress                        // vault address
-        );
-        operations := sendTokensFromVaultToTreasuryOperation # operations;
-
-    };
-
-} with(operations)
+} with operations
 
 
 
 // helper function to calculate the ratio used in the collateral token amount receive calculation
-function processCollateralTokenLiquidation(const liquidatorAddress : address; const treasuryAddress : address; const loanTokenDecimals : nat; const loanTokenLastCompletedData : lastCompletedDataReturnType; const vaultAddress : address; const vaultCollateralValueRebased; const collateralTokenName : string; const collateralTokenBalance : nat; const liquidationAmount : nat; var operations : list(operation); const s : lendingControllerStorageType) : list(operation) * nat is
+function processCollateralTokenLiquidation(
+    const liquidatorAddress : address; 
+    const treasuryAddress : address;
+    const loanTokenDecimals : nat; 
+    const loanTokenLastCompletedData : lastCompletedDataReturnType; 
+    const vaultAddress : address; 
+    const liquidationFeePercent : nat;
+    const adminLiquidationFeePercent : nat;
+    const vaultCollateralValueRebased : nat; 
+    const collateralTokenName : string; 
+    const collateralTokenBalance : nat; 
+    const liquidationAmount : nat; 
+    var onLiquidateList : onLiquidateListType; 
+    var operations : list(operation); 
+    const s : lendingControllerStorageType
+) : onLiquidateListType * list(operation) * nat is
 block {
 
     // get collateral token record through on-chain view
@@ -1312,7 +1636,13 @@ block {
         else collateralTokenBalance;
 
     // get proportion of collateral token balance against total vault's collateral value
-    const tokenProportion : nat = calculateCollateralTokenProportion(collateralTokenRecord, collateralTokenLastCompletedData, collateralTokenBalance, vaultCollateralValueRebased, s);
+    const tokenProportion : nat = calculateCollateralTokenProportion(
+        collateralTokenRecord, 
+        collateralTokenLastCompletedData, 
+        collateralTokenBalance, 
+        vaultCollateralValueRebased, 
+        s.config.maxDecimalsForCalculation
+    );
 
     // ------------------------------------------------------------------
     // Rebase decimals for calculation
@@ -1330,10 +1660,9 @@ block {
     // Calculate Liquidator's Amount 
     // ------------------------------------------------------------------
 
-    const liquidationFeePercent         : nat   = s.config.liquidationFeePercent;       // liquidation fee - penalty fee paid by vault owner to liquidator 
     const liquidationIncentive          : nat   = ((liquidationFeePercent * liquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
     const liquidatorAmountAndIncentive  : nat   = liquidationAmount + liquidationIncentive;
-    const liquidatorTokenQuantityTotal : nat    = calculateCollateralAmountReceived(
+    const liquidatorTokenQuantityTotal  : nat   = calculateCollateralAmountReceived(
         loanTokenPrice,
         tokenPrice,
         tokenProportion,
@@ -1350,7 +1679,6 @@ block {
     // ------------------------------------------------------------------
 
     // calculate final amounts to be liquidated
-    const adminLiquidationFeePercent    : nat   = s.config.adminLiquidationFeePercent;  // admin liquidation fee - penalty fee paid by vault owner to treasury
     const adminLiquidationFee           : nat   = ((adminLiquidationFeePercent * liquidationAmount * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
     const treasuryTokenQuantityTotal    : nat   = calculateCollateralAmountReceived(
         loanTokenPrice,
@@ -1367,16 +1695,32 @@ block {
     // ------------------------------------------------------------------
     // Process liquidation transfer of collateral token
     // ------------------------------------------------------------------
-    
-    operations := processLiquidationCollateralTransferOperations(
-        collateralTokenRecord,
-        vaultAddress,
-        (liquidatorAddress, liquidatorTokenQuantityTotal),
-        (treasuryAddress, treasuryTokenQuantityTotal),
-        operations
-    );
+     
+    if collateralTokenRecord.isStakedToken then {
 
-} with (operations, newCollateralTokenBalance)
+        // collateral token is a staked token 
+        operations := processLiquidationCollateralStakedTokenTransferOperations(
+            collateralTokenRecord,
+            vaultAddress,
+            (liquidatorAddress, liquidatorTokenQuantityTotal),
+            (treasuryAddress, treasuryTokenQuantityTotal),
+            operations
+        );
+
+    } else {
+
+        // collateral token is a non-staked token
+        onLiquidateList := processLiquidationCollateralTokenTransferRecord(
+            collateralTokenRecord,
+            // vaultAddress,
+            (liquidatorAddress, liquidatorTokenQuantityTotal),
+            (treasuryAddress, treasuryTokenQuantityTotal),
+            onLiquidateList
+        );
+
+    }
+
+} with (onLiquidateList, operations, newCollateralTokenBalance)
 
 // ------------------------------------------------------------------------------
 // Liquidate Vault Helper Functions End

@@ -8,13 +8,21 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: 'MAVEN Doorman Contract',
+        name: 'Maven Finance - Doorman',
         version: 'v1.0.0',
-        authors: ['MAVEN Dev Team <info@mavryk.io>'],
-        source: {
-            tools: ['Ligo', 'Flexmasa'],
-            location: 'https://ligolang.org/',
+        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+        homepage: "https://mavenfinance.io",
+        license: {
+            name: "MIT"
         },
+        source: {
+            tools: [
+                "MavrykLIGO 0.60.0",
+                "Flexmasa atlas-update-run"
+            ],
+            location: "https://github.com/MavrykDynamics/maven-finance"
+        },
+        interfaces: [ 'MIP-16' ],
         }),
         'ascii',
     ).toString('hex'),

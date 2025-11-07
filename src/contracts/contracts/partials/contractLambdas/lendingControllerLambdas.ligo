@@ -55,24 +55,23 @@ block {
     verifySenderIsAdmin(s.admin); // verify that sender is admin (i.e. Governance Proxy Contract address)
 
     case lendingControllerLambdaAction of [
-        |   LambdaUpdateConfig(updateConfigParams) -> {
+        |   LambdaUpdateConfig(updateConfigListParams) -> {
                 
-                const updateConfigAction    : lendingControllerUpdateConfigActionType   = updateConfigParams.updateConfigAction;
-                const updateConfigNewValue  : lendingControllerUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+                for updateConfigParams in list updateConfigListParams {
 
-                case updateConfigAction of [
-                        ConfigCollateralRatio (_v)          -> s.config.collateralRatio                 := updateConfigNewValue
-                    |   ConfigLiquidationRatio (_v)         -> s.config.liquidationRatio                := updateConfigNewValue
-                    |   ConfigLiquidationFeePercent (_v)    -> s.config.liquidationFeePercent           := updateConfigNewValue
-                    |   ConfigAdminLiquidationFee (_v)      -> s.config.adminLiquidationFeePercent      := updateConfigNewValue
-                    |   ConfigMinimumLoanFeePercent (_v)    -> s.config.minimumLoanFeePercent           := updateConfigNewValue
-                    |   ConfigMinLoanFeeTreasuryShare (_v)  -> s.config.minimumLoanFeeTreasuryShare     := updateConfigNewValue
-                    |   ConfigInterestTreasuryShare (_v)    -> s.config.interestTreasuryShare           := updateConfigNewValue
-                    |   ConfigLastCompletedDataMaxDelay (_v)-> s.config.lastCompletedDataMaxDelay       := updateConfigNewValue
-                    |   ConfigMaxVaultLiqPercent (_v)       -> s.config.maxVaultLiquidationPercent      := updateConfigNewValue
-                    |   ConfigLiquidationDelayInMins (_v)   -> s.config.liquidationDelayInMins          := updateConfigNewValue
-                    |   ConfigLiquidationMaxDuration (_v)   -> s.config.liquidationMaxDuration          := updateConfigNewValue
-                ];
+                    const configName : string = updateConfigParams.configName;
+                    const newValue : nat      = updateConfigParams.newValue;
+
+                    if configName = "decimals" or 
+                       configName = "interestRateDecimals" or 
+                       configName = "maxDecimalsForCalculation" 
+                    then failwith("error_INVALID_CONFIG_NOT_ALLOWED") 
+                    else if configName = "lastCompletedDataMaxDelay" then {
+                        s.config.lastCompletedDataMaxDelay := newValue;
+                    } else failwith(error_INVALID_CONFIG_NAME);
+
+                };
+
             }
         |   _ -> skip
     ];
@@ -89,171 +88,6 @@ block {
 // Break Glass Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(* pauseAll lambda *)
-function lambdaPauseAll(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-block {
-
-    // Steps Overview:    
-    // 1. Check that sender is from Admin or the the Governance Contract
-    // 2. Pause all main entrypoints in the Delegation Contract
-    
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
-
-    case lendingControllerLambdaAction of [
-        |   LambdaPauseAll(_parameters) -> {
-                
-                // Lending Controller Admin Entrypoints
-                if s.breakGlassConfig.setLoanTokenIsPaused then skip
-                else s.breakGlassConfig.setLoanTokenIsPaused := True;
-
-                if s.breakGlassConfig.setCollateralTokenIsPaused then skip
-                else s.breakGlassConfig.setCollateralTokenIsPaused := True;
-
-                if s.breakGlassConfig.registerVaultCreationIsPaused then skip
-                else s.breakGlassConfig.registerVaultCreationIsPaused := True;
-
-
-                // Lending Controller Token Pool Entrypoints
-                if s.breakGlassConfig.addLiquidityIsPaused then skip
-                else s.breakGlassConfig.addLiquidityIsPaused := True;
-
-                if s.breakGlassConfig.removeLiquidityIsPaused then skip
-                else s.breakGlassConfig.removeLiquidityIsPaused := True;
-
-
-                // Lending Controller Vault Entrypoints
-                if s.breakGlassConfig.closeVaultIsPaused then skip
-                else s.breakGlassConfig.closeVaultIsPaused := True;
-
-                if s.breakGlassConfig.registerDepositIsPaused then skip
-                else s.breakGlassConfig.registerDepositIsPaused := True;
-
-                if s.breakGlassConfig.registerWithdrawalIsPaused then skip
-                else s.breakGlassConfig.registerWithdrawalIsPaused := True;
-
-                if s.breakGlassConfig.markForLiquidationIsPaused then skip
-                else s.breakGlassConfig.markForLiquidationIsPaused := True;
-
-                if s.breakGlassConfig.liquidateVaultIsPaused then skip
-                else s.breakGlassConfig.liquidateVaultIsPaused := True;
-
-                if s.breakGlassConfig.borrowIsPaused then skip
-                else s.breakGlassConfig.borrowIsPaused := True;
-
-                if s.breakGlassConfig.repayIsPaused then skip
-                else s.breakGlassConfig.repayIsPaused := True;
-
-
-                // Vault Entrypoints
-                if s.breakGlassConfig.vaultDepositIsPaused then skip
-                else s.breakGlassConfig.vaultDepositIsPaused := True;
-
-                if s.breakGlassConfig.vaultWithdrawIsPaused then skip
-                else s.breakGlassConfig.vaultWithdrawIsPaused := True;
-
-                if s.breakGlassConfig.vaultOnLiquidateIsPaused then skip
-                else s.breakGlassConfig.vaultOnLiquidateIsPaused := True;
-
-
-                // Vault Staked Token Entrypoints
-                if s.breakGlassConfig.vaultDepositStakedTokenIsPaused then skip
-                else s.breakGlassConfig.vaultDepositStakedTokenIsPaused := True;
-
-                if s.breakGlassConfig.vaultWithdrawStakedTokenIsPaused then skip
-                else s.breakGlassConfig.vaultWithdrawStakedTokenIsPaused := True;
-
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* unpauseAll lambda *)
-function lambdaUnpauseAll(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-block {
-
-    // Steps Overview:    
-    // 1. Check that sender is from Admin or the the Governance Contract
-    // 2. Unpause all main entrypoints in the Delegation Contract
-
-    // verify that sender is admin or the Governance Contract address
-    verifySenderIsAdminOrGovernance(s.admin, s.governanceAddress);
-
-    // set all pause configs to False
-    case lendingControllerLambdaAction of [
-        |   LambdaUnpauseAll(_parameters) -> {
-            
-                // Lending Controller Admin Entrypoints
-                if s.breakGlassConfig.setLoanTokenIsPaused then s.breakGlassConfig.setLoanTokenIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.setCollateralTokenIsPaused then s.breakGlassConfig.setCollateralTokenIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.registerVaultCreationIsPaused then s.breakGlassConfig.registerVaultCreationIsPaused := False
-                else skip;
-
-
-                // Lending Controller Token Pool Entrypoints
-                if s.breakGlassConfig.addLiquidityIsPaused then s.breakGlassConfig.addLiquidityIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.removeLiquidityIsPaused then s.breakGlassConfig.removeLiquidityIsPaused := False
-                else skip;
-
-
-                // Lending Controller Vault Entrypoints
-                if s.breakGlassConfig.closeVaultIsPaused then s.breakGlassConfig.closeVaultIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.registerDepositIsPaused then s.breakGlassConfig.registerDepositIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.registerWithdrawalIsPaused then s.breakGlassConfig.registerWithdrawalIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.markForLiquidationIsPaused then s.breakGlassConfig.markForLiquidationIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.liquidateVaultIsPaused then s.breakGlassConfig.liquidateVaultIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.borrowIsPaused then s.breakGlassConfig.borrowIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.repayIsPaused then s.breakGlassConfig.repayIsPaused := False
-                else skip;
-
-
-                // Vault Entrypoints
-                if s.breakGlassConfig.vaultDepositIsPaused then s.breakGlassConfig.vaultDepositIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.vaultWithdrawIsPaused then s.breakGlassConfig.vaultWithdrawIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.vaultOnLiquidateIsPaused then s.breakGlassConfig.vaultOnLiquidateIsPaused := False
-                else skip;
-
-
-                // Vault Staked Token Entrypoints
-                if s.breakGlassConfig.vaultDepositStakedTokenIsPaused then s.breakGlassConfig.vaultDepositStakedTokenIsPaused := False
-                else skip;
-
-                if s.breakGlassConfig.vaultWithdrawStakedTokenIsPaused then s.breakGlassConfig.vaultWithdrawStakedTokenIsPaused := False
-                else skip;
-            
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
 (*  togglePauseEntrypoint lambda *)
 function lambdaTogglePauseEntrypoint(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
@@ -265,45 +99,21 @@ block {
     verifySenderIsAdmin(s.admin); // verify that sender is admin
 
     case lendingControllerLambdaAction of [
-        |   LambdaTogglePauseEntrypoint(params) -> {
+        |   LambdaTogglePauseEntrypoint(togglePauseListParams) -> {
 
-                case params.targetEntrypoint of [
+                for togglePauseEntrypoint in list togglePauseListParams {
 
-                        // Lending Controller Admin Entrypoints
-                    |   SetLoanToken (_v)                    -> s.breakGlassConfig.setLoanTokenIsPaused                  := _v
-                    |   SetCollateralToken (_v)              -> s.breakGlassConfig.setCollateralTokenIsPaused            := _v
-                    |   RegisterVaultCreation (_v)           -> s.breakGlassConfig.registerVaultCreationIsPaused         := _v
+                    const entrypoint : string = togglePauseEntrypoint.entrypoint;
+                    const pauseBool : bool    = togglePauseEntrypoint.pauseBool;
 
-                        // Lending Controller Token Pool Entrypoints
-                    |   AddLiquidity (_v)                    -> s.breakGlassConfig.addLiquidityIsPaused                  := _v
-                    |   RemoveLiquidity (_v)                 -> s.breakGlassConfig.removeLiquidityIsPaused               := _v
+                    s.breakGlassLedger[entrypoint] := pauseBool;
+                };
 
-                        // Lending Controller Vault Entrypoints
-                    |   CloseVault (_v)                      -> s.breakGlassConfig.closeVaultIsPaused                    := _v
-                    |   RegisterDeposit (_v)                 -> s.breakGlassConfig.registerDepositIsPaused               := _v
-                    |   RegisterWithdrawal (_v)              -> s.breakGlassConfig.registerWithdrawalIsPaused            := _v
-                    |   MarkForLiquidation (_v)              -> s.breakGlassConfig.markForLiquidationIsPaused            := _v
-                    |   LiquidateVault (_v)                  -> s.breakGlassConfig.liquidateVaultIsPaused                := _v
-                    |   Borrow (_v)                          -> s.breakGlassConfig.borrowIsPaused                        := _v
-                    |   Repay (_v)                           -> s.breakGlassConfig.repayIsPaused                         := _v
-
-                        // Vault Entrypoints
-                    |   VaultDeposit (_v)                    -> s.breakGlassConfig.vaultDepositIsPaused                  := _v
-                    |   VaultWithdraw (_v)                   -> s.breakGlassConfig.vaultWithdrawIsPaused                 := _v
-                    |   VaultOnLiquidate (_v)                -> s.breakGlassConfig.vaultOnLiquidateIsPaused              := _v
-
-                        // Vault Staked Token Entrypoints
-                    |   VaultDepositStakedToken (_v)         -> s.breakGlassConfig.vaultDepositStakedTokenIsPaused       := _v
-                    |   VaultWithdrawStakedToken (_v)        -> s.breakGlassConfig.vaultWithdrawStakedTokenIsPaused      := _v
-
-                ]
-                
             }
         |   _ -> skip
     ];
 
 } with (noOperations, s)
-
 
 // ------------------------------------------------------------------------------
 // Break Glass Lambdas End
@@ -314,6 +124,108 @@ block {
 // ------------------------------------------------------------------------------
 // Admin Lambdas Begin
 // ------------------------------------------------------------------------------
+
+(* setVaultConfig lambda *)
+function lambdaSetVaultConfig(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+block {
+
+    verifyNoAmountSent(Unit);           // entrypoint should not receive any mav amount  
+    verifySenderIsAdmin(s.admin);       // verify that sender is admin
+
+    case lendingControllerLambdaAction of [
+        |   LambdaSetVaultConfig(setVaultConfigParams) -> {
+
+                case setVaultConfigParams of [
+                    |   SetNewVaultConfig(setNewVaultConfigParams) -> {
+
+                            const vaultConfigId : nat                       = setNewVaultConfigParams.0;
+                            const vaultConfigRecord : vaultConfigRecordType = setNewVaultConfigParams.1;
+                            s.vaultConfigLedger[vaultConfigId] := vaultConfigRecord;
+
+                        }
+                    |   UpdateVaultConfig(updateVaultConfigParams) -> {
+
+                            const vaultConfigId : nat = updateVaultConfigParams.0;
+                            const updateConfigListParams : lendingControllerUpdateConfigActionType = updateVaultConfigParams.1;
+
+                            var vaultConfigRecord : vaultConfigRecordType := case s.vaultConfigLedger[vaultConfigId] of [
+                                    Some(_record) -> _record
+                                |   None          -> failwith(error_VAULT_CONFIG_RECORD_NOT_FOUND)
+                            ];
+
+                            for updateConfigParams in list updateConfigListParams {
+
+                                const configName : string = updateConfigParams.configName;
+                                const newValue : nat      = updateConfigParams.newValue;
+
+                                if configName = "collateralRatio" then {
+                                    vaultConfigRecord.collateralRatio := newValue;
+                                
+                                } else if configName = "liquidationRatio" then {
+                                    vaultConfigRecord.liquidationRatio := newValue;
+                                
+                                } else if configName = "liquidationFeePercent" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
+                                    vaultConfigRecord.liquidationFeePercent := newValue;
+
+                                } else if configName = "adminLiquidationFeePercent" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
+                                    vaultConfigRecord.adminLiquidationFeePercent := newValue;
+                                
+                                } else if configName = "minimumLoanFeePercent" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
+                                    vaultConfigRecord.minimumLoanFeePercent := newValue;
+                                
+                                } else if configName = "minimumLoanFeeTreasuryShare" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
+                                    vaultConfigRecord.minimumLoanFeeTreasuryShare := newValue;
+                                
+                                } else if configName = "interestTreasuryShare" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
+                                    vaultConfigRecord.interestTreasuryShare := newValue;
+                                
+                                } else if configName = "maxVaultLiquidationPercent" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
+                                    vaultConfigRecord.maxVaultLiquidationPercent := newValue;
+                                
+                                } else if configName = "liquidationDelayInMins" then {
+                                    vaultConfigRecord.liquidationDelayInMins := newValue;
+                                
+                                } else if configName = "liquidationMaxDuration" then {
+                                    vaultConfigRecord.liquidationMaxDuration := newValue;
+                                
+                                } else if configName = "interestRepaymentPeriod" then {
+                                    vaultConfigRecord.interestRepaymentPeriod := newValue;
+                                
+                                } else if configName = "missedPeriodsForLiquidation" then {
+                                    vaultConfigRecord.missedPeriodsForLiquidation := newValue;
+                                
+                                } else if configName = "repaymentWindow" then {
+                                    vaultConfigRecord.repaymentWindow := newValue;
+                                
+                                } else if configName = "penaltyFeePercentage" then {
+                                    if newValue > 10000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else skip;
+                                    vaultConfigRecord.penaltyFeePercentage := newValue;
+                                
+                                } else if configName = "liquidationConfig" then {
+                                    vaultConfigRecord.liquidationConfig := newValue;
+                                
+                                } else failwith(error_INVALID_CONFIG_NAME);
+                            };
+
+                            // update vault config record
+                            s.vaultConfigLedger[vaultConfigId] := vaultConfigRecord;
+
+                        }
+                ];
+
+            }
+        |   _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
 
 (* setLoanToken lambda *)
 function lambdaSetLoanToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
@@ -336,7 +248,7 @@ block {
     verifySenderIsAdmin(s.admin);       // verify that sender is admin
     
     // verify that %setLoanToken entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.setLoanTokenIsPaused, error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("setLoanToken", error_SET_LOAN_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     case lendingControllerLambdaAction of [
         |   LambdaSetLoanToken(setLoanTokenParams) -> {
@@ -391,7 +303,7 @@ block {
     verifySenderIsAdmin(s.admin);             // verify that sender is admin
     
     // Verify that %setCollateralToken entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.setCollateralTokenIsPaused, error_SET_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("setCollateralToken", error_SET_COLLATERAL_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     case lendingControllerLambdaAction of [
         |   LambdaSetCollateralToken(setCollateralTokenParams) -> {
@@ -445,7 +357,7 @@ block {
     var operations : list(operation) := nil;
     
     // verify that %registerVaultCreation entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.registerVaultCreationIsPaused, error_REGISTER_VAULT_CREATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("registerVaultCreation", error_REGISTER_VAULT_CREATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     case lendingControllerLambdaAction of [
         |   LambdaRegisterVaultCreation(registerVaultCreationParams) -> {
@@ -457,6 +369,7 @@ block {
                 const vaultOwner     : address = registerVaultCreationParams.vaultOwner;
                 const vaultId        : nat     = registerVaultCreationParams.vaultId;
                 const vaultAddress   : address = registerVaultCreationParams.vaultAddress;
+                const vaultConfig    : nat     = registerVaultCreationParams.vaultConfig;
                 const loanTokenName  : string  = registerVaultCreationParams.loanTokenName;
 
                 // Make vault handle
@@ -468,6 +381,7 @@ block {
                 // Create vault record - loan token borrow index initialised to 0
                 const vault : vaultRecordType = createVaultRecord(
                     vaultAddress,                   // vault address
+                    vaultConfig,                    // vault config
                     loanTokenRecord.tokenName,      // loan token name
                     loanTokenRecord.tokenDecimals   // loan token decimals
                 );
@@ -513,7 +427,7 @@ block {
     var operations : list(operation) := nil;
     
     // Verify that %addLiquidity entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.addLiquidityIsPaused, error_ADD_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("addLiquidity", error_ADD_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     case lendingControllerLambdaAction of [
         |   LambdaAddLiquidity(addLiquidityParams) -> {
@@ -585,7 +499,7 @@ block {
     verifyNoAmountSent(Unit);                   // entrypoint should not receive any mav amount  
     
     // Verify that %removeLiquidity entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.removeLiquidityIsPaused, error_REMOVE_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("removeLiquidity", error_REMOVE_LIQUIDITY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     // init operations
     var operations : list(operation) := nil;
@@ -606,7 +520,7 @@ block {
                 const loanTotalRemaining        : nat         = loanTokenRecord.totalRemaining;
                 
                 const mTokenAddress             : address     = loanTokenRecord.mTokenAddress;
-                const rawMTokensTotalSupply              : nat         = loanTokenRecord.rawMTokensTotalSupply;
+                const rawMTokensTotalSupply     : nat         = loanTokenRecord.rawMTokensTotalSupply;
                 const mTokensBurned             : nat         = amount;
 
                 // Calculate new total of LP Tokens - verify that mTokensBurned is less than rawMTokensTotalSupply
@@ -627,7 +541,7 @@ block {
 
                 // send tokens from token pool to initiator
                 const sendTokensToInitiatorOperation : operation = tokenPoolTransfer(
-                    Mavryk.get_self_address(),   // from_
+                    Mavryk.get_self_address(),  // from_
                     initiator,                  // to_    
                     amount,                     // amount
                     loanTokenType               // token type (e.g. mav, fa12, fa2)
@@ -668,7 +582,7 @@ block {
     var operations : list(operation) := nil;
 
     // Verify that %closeVault entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.closeVaultIsPaused, error_CLOSE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("closeVault", error_CLOSE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     case lendingControllerLambdaAction of [
         |   LambdaCloseVault(closeVaultParams) -> {
@@ -684,11 +598,49 @@ block {
 
                 // Get vault if exists
                 var vault : vaultRecordType := getVaultByHandle(vaultHandle, s);
-
                 const vaultAddress : address = vault.address;
+
+                // get vault config record
+                const vaultConfigRecord : vaultConfigRecordType = getVaultConfigRecord(vault.vaultConfig, s);
+                const interestRepaymentPeriod : nat             = vaultConfigRecord.interestRepaymentPeriod;
+                const penaltyFeePercentage : nat                = vaultConfigRecord.penaltyFeePercentage;
+                const repaymentWindow : nat                     = vaultConfigRecord.repaymentWindow;
 
                 // Check that vault has zero loan outstanding
                 checkZeroLoanOutstanding(vault);
+
+                // ------------------------------------------------------------------
+                // Calculate penalty fees if applicable
+                // ------------------------------------------------------------------
+
+                if interestRepaymentPeriod > 0n then {
+                    
+                    case vault.loanStartTimestamp of [
+                            Some(_loanStartTimestamp) -> {
+                                // calculate vault penalty fee 
+                                const vaultPenaltyFee : nat = applyVaultPenaltyFee(
+                                    vault.loanInterestTotal, 
+                                    penaltyFeePercentage, 
+                                    repaymentWindow,
+                                    interestRepaymentPeriod, 
+                                    _loanStartTimestamp,
+                                    vault.lastInterestCleared,
+                                    vault.penaltyAppliedTimestamp
+                                );
+                                // prevent vault from closing until penalty fee has been cleared
+                                if vaultPenaltyFee > 0n then failwith(error_VAULT_HAS_PENALTY_FEE) else skip;
+                            }
+                        |   None -> skip
+                    ];
+
+                } else skip;
+
+                // ------------------------------------------------------------------
+                // Process liquidation of vault collateral back to vault owner
+                // ------------------------------------------------------------------
+
+                // init list records of transfers from the closed vault
+                var onLiquidateList : onLiquidateListType := list [];
 
                 // get tokens and token balances and initiate transfer back to the vault owner
                 for collateralTokenName -> collateralTokenBalance in map vault.collateralBalanceLedger block {
@@ -739,26 +691,28 @@ block {
 
                             // for other collateral token types besides sMVN and scaled tokens
                             if finalTokenBalance > 0n then {
-                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                    vaultOwner,                         // to_
-                                    collateralTokenName,                // token name
-                                    finalTokenBalance,                  // token amount to be withdrawn
-                                    vaultAddress                        // vault address
-                                );
-                                operations := withdrawTokenOperation # operations;
+
+                                const withdrawTokenOperation : onLiquidateSingleType = record [
+                                    receiver   = vaultOwner;
+                                    amount     = finalTokenBalance;
+                                    tokenName  = collateralTokenName;
+                                ];
+                                onLiquidateList := withdrawTokenOperation # onLiquidateList;
+
                             } else skip;
 
                         } else {
 
                             // for other collateral token types besides sMVN and scaled tokens
                             if finalTokenBalance > 0n then {
-                                const withdrawTokenOperation : operation = liquidateFromVaultOperation(
-                                    vaultOwner,                         // to_
-                                    collateralTokenName,                // token name
-                                    finalTokenBalance,                  // token amount to be withdrawn
-                                    vaultAddress                        // vault address
-                                );
-                                operations := withdrawTokenOperation # operations;
+
+                                const withdrawTokenOperation : onLiquidateSingleType = record [
+                                    receiver   = vaultOwner;
+                                    amount     = finalTokenBalance;
+                                    tokenName  = collateralTokenName;
+                                ];
+                                onLiquidateList := withdrawTokenOperation # onLiquidateList;
+                                
                             } else skip;
 
                         };
@@ -770,6 +724,15 @@ block {
 
                 }; // end loop for withdraw operations of mav/tokens in vault collateral 
 
+                // ------------------------------------------------------------------
+                // Set Close Vault Params and operation
+                // ------------------------------------------------------------------
+
+                const closeVaultOperation : operation = liquidateFromVaultOperation(
+                    onLiquidateList, 
+                    vaultAddress
+                );
+                operations := closeVaultOperation # operations;
 
                 // remove vault from storage
                 var ownerVaultSet : ownerVaultSetType := getOwnerVaultSet(vaultOwner, s);
@@ -791,7 +754,7 @@ block {
     var operations : list(operation) := nil;
     
     // Verify that %markForLiquidation entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.markForLiquidationIsPaused, error_MARK_FOR_LIQUIDATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("markForLiquidation", error_MARK_FOR_LIQUIDATION_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     case lendingControllerLambdaAction of [
         |   LambdaMarkForLiquidation(markForLiquidationParams) -> {
@@ -801,14 +764,6 @@ block {
                 // init parameters 
                 const vaultId     : vaultIdType      = markForLiquidationParams.vaultId;
                 const vaultOwner  : vaultOwnerType   = markForLiquidationParams.vaultOwner;
-
-                const currentBlockLevel             : nat = Mavryk.get_level();
-                const configLiquidationDelayInMins  : nat = s.config.liquidationDelayInMins;
-                const configLiquidationMaxDuration  : nat = s.config.liquidationMaxDuration;
-                const blocksPerMinute               : nat = 60n / Mavryk.get_min_block_time();
-
-                const liquidationDelayInBlockLevel  : nat = configLiquidationDelayInMins * blocksPerMinute;                 
-                const liquidationEndLevel           : nat = currentBlockLevel + (configLiquidationMaxDuration * blocksPerMinute);                 
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
@@ -820,12 +775,44 @@ block {
                 const updatedVaultState : (vaultRecordType*loanTokenRecordType) = updateVaultState(vaultHandle, s);
                 var vault               : vaultRecordType                       := updatedVaultState.0;
                 var loanTokenRecord     : loanTokenRecordType                   := updatedVaultState.1;
+
+                // get vault config record
+                const vaultConfigRecord : vaultConfigRecordType = getVaultConfigRecord(vault.vaultConfig, s);
+                const configLiquidationDelayInMins : nat        = vaultConfigRecord.liquidationDelayInMins;
+                const configLiquidationMaxDuration : nat        = vaultConfigRecord.liquidationMaxDuration;
+                const liquidationRatio : nat                    = vaultConfigRecord.liquidationRatio;
+                const liquidationConfig : nat                   = vaultConfigRecord.liquidationConfig;
+
+                const interestRepaymentPeriod : nat             = vaultConfigRecord.interestRepaymentPeriod;
+                const missedPeriodsForLiquidation : nat         = vaultConfigRecord.missedPeriodsForLiquidation;
+
+                const currentBlockLevel             : nat = Mavryk.get_level();
+                const blocksPerMinute               : nat = 60n / Mavryk.get_min_block_time();
+                const liquidationDelayInBlockLevel  : nat = configLiquidationDelayInMins * blocksPerMinute;                 
+                const liquidationEndLevel           : nat = currentBlockLevel + (configLiquidationMaxDuration * blocksPerMinute);                 
                 
                 // ------------------------------------------------------------------
                 // Check if vault is liquidatable
                 // ------------------------------------------------------------------
 
-                const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
+                var vaultIsLiquidatable : bool := False;
+                if liquidationConfig = 1n then { // rwa vault config -> 1n
+
+                    const vaultIsUnderCollaterized : bool = isLiquidatable(vault, liquidationRatio, s);
+                    const vaultIsPenalized : bool = isPenalizedForLiquidation(
+                        interestRepaymentPeriod,
+                        vault.lastInterestCleared,
+                        missedPeriodsForLiquidation
+                    );
+
+                    if vaultIsUnderCollaterized or vaultIsPenalized then {
+                        vaultIsLiquidatable := True;
+                    };
+
+                } else {
+                    vaultIsLiquidatable := isLiquidatable(vault, liquidationRatio, s);
+                };
+                
                 
                 // Check if vault is liquidatable
                 if vaultIsLiquidatable then block {
@@ -871,7 +858,7 @@ block {
     var operations : list(operation) := nil;
     
     // Verify that %liquidateVault entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.liquidateVaultIsPaused, error_LIQUIDATE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("liquidateVault", error_LIQUIDATE_VAULT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     case lendingControllerLambdaAction of [
         |   LambdaLiquidateVault(liquidateVaultParams) -> {
@@ -883,7 +870,7 @@ block {
                 const liquidator         : address   = Mavryk.get_sender();
 
                 // Get Treasury Address from the General Contracts map on the Governance Contract
-                const treasuryAddress           : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+                const treasuryAddress    : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
                 // ------------------------------------------------------------------
                 // Get Vault record and parameters
@@ -893,19 +880,34 @@ block {
                 const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
 
                 // Update vault state
-                const updatedVaultState : (vaultRecordType*loanTokenRecordType) = updateVaultState(vaultHandle, s);
-                var vault               : vaultRecordType                       := updatedVaultState.0;
-                var loanTokenRecord     : loanTokenRecordType                   := updatedVaultState.1;
-                const vaultAddress      : address                               = vault.address;
+                const updatedVaultState : (vaultRecordType * loanTokenRecordType)  = updateVaultState(vaultHandle, s);
+                var vault               : vaultRecordType                         := updatedVaultState.0;
+                var loanTokenRecord     : loanTokenRecordType                     := updatedVaultState.1;
+                const vaultAddress      : address                                  = vault.address;
 
                 // init vault parameters
-                const vaultLoanTokenName            : string    = vault.loanToken;
+                const vaultLoanTokenName : string = vault.loanToken;
+
+                // get vault config record
+                const vaultConfigRecord : vaultConfigRecordType = getVaultConfigRecord(vault.vaultConfig, s);
+                const liquidationFeePercent : nat               = vaultConfigRecord.liquidationFeePercent;
+                const adminLiquidationFeePercent : nat          = vaultConfigRecord.adminLiquidationFeePercent;
+                const maxVaultLiquidationPercent : nat          = vaultConfigRecord.maxVaultLiquidationPercent;
+                const interestTreasuryShare : nat               = vaultConfigRecord.interestTreasuryShare;
+                const liquidationRatio : nat                    = vaultConfigRecord.liquidationRatio;
+                const liquidationDelayInMins : nat              = vaultConfigRecord.liquidationDelayInMins;
+                const liquidationConfig : nat                   = vaultConfigRecord.liquidationConfig;
+
+                const interestRepaymentPeriod : nat             = vaultConfigRecord.interestRepaymentPeriod;
+                const missedPeriodsForLiquidation : nat         = vaultConfigRecord.missedPeriodsForLiquidation;
+                const penaltyFeePercentage : nat                = vaultConfigRecord.penaltyFeePercentage;
+                const repaymentWindow : nat                     = vaultConfigRecord.repaymentWindow;
 
                 // ------------------------------------------------------------------
                 // Check correct duration has passed after being marked for liquidation
                 // ------------------------------------------------------------------
 
-                checkMarkedVaultLiquidationDuration(vault, s);
+                checkMarkedVaultLiquidationDuration(vault, liquidationDelayInMins);
 
                 // ------------------------------------------------------------------
                 // Check that vault is still within window of opportunity for liquidation to occur
@@ -932,7 +934,66 @@ block {
                 // Check if vault is liquidatable
                 // ------------------------------------------------------------------
 
-                const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
+                var vaultIsLiquidatable : bool := False;
+                if liquidationConfig = 1n then { // rwa vault config -> 1n
+
+                    // check if vault is penalized
+                    const vaultIsUnderCollaterized : bool = isLiquidatable(vault, liquidationRatio, s);
+                    const vaultIsPenalized : bool = isPenalizedForLiquidation(
+                        interestRepaymentPeriod,
+                        vault.lastInterestCleared,
+                        missedPeriodsForLiquidation
+                    );
+
+                    if vaultIsUnderCollaterized or vaultIsPenalized then {
+                        vaultIsLiquidatable := True;
+                    };
+
+                    case vault.loanStartTimestamp of [
+                            Some(_loanStartTimestamp) -> {
+                                // calculate vault penalty fee 
+                                const vaultPenaltyFee : nat = applyVaultPenaltyFee(
+                                    vault.loanInterestTotal, 
+                                    penaltyFeePercentage, 
+                                    repaymentWindow,
+                                    interestRepaymentPeriod, 
+                                    _loanStartTimestamp,
+                                    vault.lastInterestCleared,
+                                    vault.penaltyAppliedTimestamp
+                                );
+                                
+                                // factor penalty fee into loan principal and outstanding total
+                                if vaultPenaltyFee > 0n then {
+                                    
+                                    vault.loanOutstandingTotal := vault.loanOutstandingTotal + vaultPenaltyFee;
+                                    vault.loanPrincipalTotal := vault.loanPrincipalTotal + vaultPenaltyFee;
+
+                                    // record event
+                                    const vaultPenaltyCounter : nat = vault.penaltyCounter;
+
+                                    // penalty event record
+                                    const vaultPenaltyRecord : vaultPenaltyRecordType = record [
+                                        entrypoint       = "liquidateVault";
+                                        penaltyFee       = vaultPenaltyFee;
+                                        penaltyTimestamp = Mavryk.get_now();
+                                    ];
+                                    s.vaultPenaltyEventLedger[(vaultAddress, vaultPenaltyCounter)] := vaultPenaltyRecord;
+
+                                    // update vault penalty counter
+                                    vault.penaltyCounter := vault.penaltyCounter + 1n;
+
+                                    // update vault penalty timestamp
+                                    vault.penaltyAppliedTimestamp := Some(Mavryk.get_now());
+                                    vault.penaltyAppliedLevel := Some(Mavryk.get_level());
+
+                                } else skip;
+                            }
+                        |   None -> skip
+                    ];
+
+                } else {
+                    vaultIsLiquidatable := isLiquidatable(vault, liquidationRatio, s);
+                };
 
                 // fail if vault is not liquidatable
                 if vaultIsLiquidatable then skip else failwith(error_VAULT_IS_NOT_LIQUIDATABLE);
@@ -944,7 +1005,7 @@ block {
                 // get max vault liquidation amount
                 const newLoanOutstandingTotal      : nat = vault.loanOutstandingTotal;
                 var newLoanInterestTotal           : nat := vault.loanInterestTotal;
-                const vaultMaxLiquidationAmount    : nat = (newLoanOutstandingTotal * s.config.maxVaultLiquidationPercent) / 10000n;
+                const vaultMaxLiquidationAmount    : nat = (newLoanOutstandingTotal * maxVaultLiquidationPercent) / 10000n;
 
                 // if total liquidation amount is greater than vault max liquidation amount, set the max to the vault max liquidation amount
                 // e.g. helpful in race conditions where instead of reverting failure, the transaction can still go through
@@ -961,6 +1022,9 @@ block {
                 // Calculate vault collateral value rebased (1e32 or 10^32)
                 // - this will be the denominator used to calculate proportion of collateral to be liquidated
                 const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vaultAddress, vault.collateralBalanceLedger, s);
+
+                // init list records of transfers from the vault from liquidation
+                var onLiquidateList : onLiquidateListType := list [];
                 
                 // loop tokens in vault collateral balance ledger to be liquidated
                 for collateralTokenName -> collateralTokenBalance in map vault.collateralBalanceLedger block {
@@ -969,27 +1033,32 @@ block {
                     if collateralTokenBalance = 0n then skip else block {
 
                         // process liquidation in a helper function
-                        const liquidationProcess : (list(operation)*nat)  = processCollateralTokenLiquidation(
+                        const liquidationProcess : (onLiquidateListType * list(operation) * nat)  = processCollateralTokenLiquidation(
                             liquidator,
                             treasuryAddress,
                             loanTokenDecimals,
                             loanTokenLastCompletedData,
                             vaultAddress,
+                            liquidationFeePercent,
+                            adminLiquidationFeePercent,
                             vaultCollateralValueRebased,
                             collateralTokenName,
                             collateralTokenBalance,
                             totalLiquidationAmount,
+                            onLiquidateList,
                             operations,
                             s
                         );
-                        const updatedOperationList  : list(operation)       = liquidationProcess.0;
-                        const collateralBalance     : nat                   = liquidationProcess.1;
+                        const updatedOnLiquidateList  : onLiquidateListType     = liquidationProcess.0;
+                        const updatedOperations       : list(operation)         = liquidationProcess.1;
+                        const collateralBalance       : nat                     = liquidationProcess.2;
 
                         // ------------------------------------------------------------------
-                        // Update operations
+                        // Update operations and list params
                         // ------------------------------------------------------------------
 
-                        operations  := updatedOperationList;
+                        operations := updatedOperations;
+                        onLiquidateList := updatedOnLiquidateList;
 
                         // ------------------------------------------------------------------
                         // Update collateral balance
@@ -1001,6 +1070,16 @@ block {
                     };
 
                 };
+
+                // ------------------------------------------------------------------
+                // Set On Liquidate Vault Params and operation
+                // ------------------------------------------------------------------
+
+                const liquidateFromVaultOperation : operation = liquidateFromVaultOperation(
+                    onLiquidateList, 
+                    vaultAddress
+                );
+                operations := liquidateFromVaultOperation # operations;
 
                 // ------------------------------------------------------------------
                 // Update Interest Records
@@ -1053,7 +1132,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Calculate amount of interest that goes to the Treasury 
-                const interestSentToTreasury : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+                const interestSentToTreasury : nat = ((totalInterestPaid * interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
                 // Calculate amount of interest - verify that interestSentToTreasury is less than totalInterestPaid
                 verifyLessThanOrEqual(interestSentToTreasury, totalInterestPaid, error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID);
@@ -1065,7 +1144,7 @@ block {
 
                 // Send interest payment from Lending Controller Token Pool to treasury
                 const sendInterestToTreasuryOperation : operation = tokenPoolTransfer(
-                    Mavryk.get_self_address(),    // from_    
+                    Mavryk.get_self_address(),   // from_    
                     treasuryAddress,             // to_
                     interestSentToTreasury,      // amount
                     loanTokenType                // token type
@@ -1110,7 +1189,7 @@ block {
                 // transfer operation should take place first before refund operation (N.B. First In Last Out operations)
                 const transferLiquidationAmountOperation : operation = tokenPoolTransfer(
                     liquidator,                 // from_
-                    Mavryk.get_self_address(),   // to_
+                    Mavryk.get_self_address(),  // to_
                     totalLiquidationAmount,     // totalLiquidationAmount
                     loanTokenType               // token type
                 );
@@ -1134,11 +1213,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Update token storage
-                loanTokenRecord.rawMTokensTotalSupply                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply       := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;
+                loanTokenRecord.tokenRewardIndex            := newAccRewardsPerShare;
 
                 // Update Loan Token State again: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
@@ -1150,6 +1229,7 @@ block {
                 vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
                 vault.loanPrincipalTotal        := newLoanPrincipalTotal;
                 vault.loanInterestTotal         := newLoanInterestTotal;
+                vault.lastUpdatedBlockLevel     := Mavryk.get_level();
 
                 // Update vault                
                 s.vaults[vaultHandle]           := vault;                
@@ -1167,7 +1247,7 @@ function lambdaRegisterDeposit(const lendingControllerLambdaAction : lendingCont
 block {
     
     // Verify that %registerDeposit entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.registerDepositIsPaused, error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("registerDeposit", error_REGISTER_DEPOSIT_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     case lendingControllerLambdaAction of [
         |   LambdaRegisterDeposit(registerDepositParams) -> {
@@ -1198,6 +1278,10 @@ block {
                 // Verify that sender is vault or vault factory
                 verifySenderIsVaultOrVaultFactory(vault.address, s);
 
+                // get vault config record
+                const vaultConfigRecord : vaultConfigRecordType = getVaultConfigRecord(vault.vaultConfig, s);
+                const liquidationRatio : nat                    = vaultConfigRecord.liquidationRatio;
+
                 // ------------------------------------------------------------------
                 // Register token deposit in vault collateral balance ledger
                 // ------------------------------------------------------------------
@@ -1220,7 +1304,7 @@ block {
                 vault.collateralBalanceLedger[tokenName] := newCollateralBalance;
 
                 // reset vault liquidation levels if vault is no longer liquidatable
-                const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
+                const vaultIsLiquidatable : bool = isLiquidatable(vault, liquidationRatio, s);
                 if vaultIsLiquidatable then skip else {
                     vault.markedForLiquidationLevel  := 0n;
                     vault.liquidationEndLevel        := 0n;
@@ -1243,7 +1327,7 @@ function lambdaRegisterWithdrawal(const lendingControllerLambdaAction : lendingC
 block {
     
     // Verify that %registerWithdrawal entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.registerWithdrawalIsPaused, error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("registerWithdrawal", error_REGISTER_WITHDRAWAL_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     case lendingControllerLambdaAction of [
         |   LambdaRegisterWithdrawal(registerWithdrawalParams) -> {
@@ -1271,6 +1355,11 @@ block {
                 // Verify that initiator (sender) matches vault address
                 verifySenderIsVault(vault.address, initiator);
 
+                // get vault config record
+                const vaultConfigRecord : vaultConfigRecordType = getVaultConfigRecord(vault.vaultConfig, s);
+                const collateralRatio : nat                     = vaultConfigRecord.collateralRatio;
+                const liquidationRatio : nat                    = vaultConfigRecord.liquidationRatio;
+
                 // ------------------------------------------------------------------
                 // Register token withdrawal in vault collateral balance ledger
                 // ------------------------------------------------------------------
@@ -1289,12 +1378,12 @@ block {
                 vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
 
                 // Check if vault is undercollaterized at the end
-                if isUnderCollaterized(vault, s) 
+                if isUnderCollaterized(vault, collateralRatio, s) 
                 then failwith(error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED) 
                 else skip;
 
                 // reset vault liquidation levels if vault is no longer liquidatable
-                const vaultIsLiquidatable : bool = isLiquidatable(vault, s);
+                const vaultIsLiquidatable : bool = isLiquidatable(vault, liquidationRatio, s);
                 if vaultIsLiquidatable then skip else {
                     vault.markedForLiquidationLevel  := 0n;
                     vault.liquidationEndLevel        := 0n;
@@ -1319,7 +1408,7 @@ block {
     var operations : list(operation):= nil;
     
     // Verify that %borrow entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.borrowIsPaused, error_BORROW_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("borrow", error_BORROW_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     case lendingControllerLambdaAction of [
         |   LambdaBorrow(borrowParams) -> {
@@ -1343,6 +1432,15 @@ block {
                 var vault               : vaultRecordType                       := updatedVaultState.0;
                 var loanTokenRecord     : loanTokenRecordType                   := updatedVaultState.1;
 
+                // get vault config record
+                const vaultConfigRecord : vaultConfigRecordType = getVaultConfigRecord(vault.vaultConfig, s);
+                const minimumLoanFeePercent : nat               = vaultConfigRecord.minimumLoanFeePercent;
+                const minimumLoanFeeTreasuryShare : nat         = vaultConfigRecord.minimumLoanFeeTreasuryShare;
+                const collateralRatio : nat                     = vaultConfigRecord.collateralRatio;
+                const interestRepaymentPeriod : nat             = vaultConfigRecord.interestRepaymentPeriod;
+                const penaltyFeePercentage : nat                = vaultConfigRecord.penaltyFeePercentage;
+                const repaymentWindow : nat                     = vaultConfigRecord.repaymentWindow;
+
                 // ------------------------------------------------------------------
                 // Get Loan Token parameters
                 // ------------------------------------------------------------------
@@ -1359,14 +1457,73 @@ block {
                 const accRewardsPerShare    : nat         = loanTokenRecord.tokenRewardIndex;
 
                 // ------------------------------------------------------------------
+                // Calculate penalty fees if applicable
+                // ------------------------------------------------------------------
+
+                // process vault penalty fee if interest repayment period greater than 0 (RWA-type vault)
+                if interestRepaymentPeriod > 0n then {
+
+                    // calculate if vault penalty fee applies after loan started
+                    case vault.loanStartTimestamp of [
+                            Some(_loanStartTimestamp) -> {
+                                // calculate vault penalty fee 
+                                const vaultPenaltyFee : nat = applyVaultPenaltyFee(
+                                    vault.loanInterestTotal, 
+                                    penaltyFeePercentage, 
+                                    repaymentWindow,
+                                    interestRepaymentPeriod, 
+                                    _loanStartTimestamp,
+                                    vault.lastInterestCleared,
+                                    vault.penaltyAppliedTimestamp
+                                );
+
+                                // factor penalty fee into loan principal and outstanding total, and record penalty applied
+                                if vaultPenaltyFee > 0n then {
+                                    
+                                    vault.loanOutstandingTotal := vault.loanOutstandingTotal + vaultPenaltyFee;
+                                    vault.loanPrincipalTotal := vault.loanPrincipalTotal + vaultPenaltyFee;
+
+                                    // record event
+                                    const vaultPenaltyCounter : nat = vault.penaltyCounter;
+
+                                    // penalty event record
+                                    const vaultPenaltyRecord : vaultPenaltyRecordType = record [
+                                        entrypoint       = "borrow";
+                                        penaltyFee       = vaultPenaltyFee;
+                                        penaltyTimestamp = Mavryk.get_now();
+                                    ];
+                                    s.vaultPenaltyEventLedger[(vault.address, vaultPenaltyCounter)] := vaultPenaltyRecord;
+
+                                    // update vault penalty counter
+                                    vault.penaltyCounter := vault.penaltyCounter + 1n;
+
+                                    // update vault penalty timestamp
+                                    vault.penaltyAppliedTimestamp := Some(Mavryk.get_now());
+                                    vault.penaltyAppliedLevel := Some(Mavryk.get_level());
+
+                                } else skip;
+                                
+                            }
+                        |   None -> skip
+                    ];
+
+                    // check if this is the first borrow
+                    if totalBorrowed = 0n then {
+                        vault.loanStartTimestamp := Some(Mavryk.get_now());
+                        vault.loanStartLevel := Some(Mavryk.get_level());
+                    } else skip;
+
+                };
+
+                // ------------------------------------------------------------------
                 // Calculate Service Loan Fees
                 // ------------------------------------------------------------------
                 
                 // Charge a minimum loan fee if user is borrowing
-                const minimumLoanFee : nat = ((initialLoanAmount * s.config.minimumLoanFeePercent * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+                const minimumLoanFee : nat = ((initialLoanAmount * minimumLoanFeePercent * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
                 // Calculate share of fees that goes to the Treasury 
-                const minimumLoanFeeToTreasury : nat = ((minimumLoanFee * s.config.minimumLoanFeeTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+                const minimumLoanFeeToTreasury : nat = ((minimumLoanFee * minimumLoanFeeTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
                 // Calculate share of fees that goes to Rewards - verify that minimumLoanFeeToTreasury is less than minimumLoanFee
                 verifyLessThanOrEqual(minimumLoanFeeToTreasury, minimumLoanFee, error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE);
@@ -1451,11 +1608,11 @@ block {
                 // ------------------------------------------------------------------
                 
                 // Update loan token storage
-                loanTokenRecord.rawMTokensTotalSupply                := newTokenPoolTotal; // mTokens to follow movement of token pool total
+                loanTokenRecord.rawMTokensTotalSupply       := newTokenPoolTotal; // mTokens to follow movement of token pool total
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;   
+                loanTokenRecord.tokenRewardIndex            := newAccRewardsPerShare;   
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
@@ -1465,12 +1622,13 @@ block {
                 // Update vault storage
                 vault.loanOutstandingTotal             := newLoanOutstandingTotal;
                 vault.loanPrincipalTotal               := newLoanPrincipalTotal;
+                vault.lastUpdatedBlockLevel            := Mavryk.get_level();
 
                 // Update vault
                 s.vaults[vaultHandle] := vault;
 
                 // Check if vault is undercollaterized after borrow; if it is not, then allow user to borrow
-                if isUnderCollaterized(vault, s) 
+                if isUnderCollaterized(vault, collateralRatio, s) 
                 then failwith(error_VAULT_IS_UNDERCOLLATERIZED)
                 else skip;
 
@@ -1489,7 +1647,7 @@ block {
     var operations : list(operation) := nil;
     
     // Verify that %repay entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.repayIsPaused, error_REPAY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("repay", error_REPAY_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     case lendingControllerLambdaAction of [
         |   LambdaRepay(repayParams) -> {
@@ -1497,14 +1655,16 @@ block {
                 // Init variables for convenience
                 const vaultId                   : nat                     = repayParams.vaultId; 
                 const initialRepaymentAmount    : nat                     = repayParams.quantity;
+                const vaultOwner                : address                 = repayParams.vaultOwner;
                 const initiator                 : initiatorAddressType    = Mavryk.get_sender();
+                
                 var finalRepaymentAmount        : nat                    := initialRepaymentAmount;
 
                 // Get Treasury Address from the General Contracts map on the Governance Contract
                 const treasuryAddress : address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
                 // Make vault handle
-                const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, initiator);
+                const vaultHandle : vaultHandleType = makeVaultHandle(vaultId, vaultOwner);
 
                 // ------------------------------------------------------------------
                 // Update vault state
@@ -1513,6 +1673,13 @@ block {
                 const updatedVaultState : (vaultRecordType*loanTokenRecordType) = updateVaultState(vaultHandle, s);
                 var vault               : vaultRecordType                       := updatedVaultState.0;
                 var loanTokenRecord     : loanTokenRecordType                   := updatedVaultState.1;
+
+                // get vault config record
+                const vaultConfigRecord : vaultConfigRecordType = getVaultConfigRecord(vault.vaultConfig, s);
+                const interestTreasuryShare : nat               = vaultConfigRecord.interestTreasuryShare;
+                const interestRepaymentPeriod : nat             = vaultConfigRecord.interestRepaymentPeriod;
+                const penaltyFeePercentage : nat                = vaultConfigRecord.penaltyFeePercentage;
+                const repaymentWindow : nat                     = vaultConfigRecord.repaymentWindow;
 
                 // ------------------------------------------------------------------
                 // Get Loan Token parameters
@@ -1529,6 +1696,54 @@ block {
                 // Check that minimum repayment amount is reached - verify that initialRepaymentAmount is greater than minRepaymentAmount
                 verifyGreaterThanOrEqual(initialRepaymentAmount, minRepaymentAmount, error_MIN_REPAYMENT_AMOUNT_NOT_REACHED);
 
+                // process vault penalty fee if interest repayment period greater than 0 (RWA-type vault)
+                if interestRepaymentPeriod > 0n then {
+
+                    case vault.loanStartTimestamp of [
+                            Some(_loanStartTimestamp) -> {
+                                // calculate vault penalty fee 
+                                const vaultPenaltyFee : nat = applyVaultPenaltyFee(
+                                    vault.loanInterestTotal, 
+                                    penaltyFeePercentage, 
+                                    repaymentWindow,
+                                    interestRepaymentPeriod, 
+                                    _loanStartTimestamp,
+                                    vault.lastInterestCleared,
+                                    vault.penaltyAppliedTimestamp
+                                );
+
+                                // factor penalty fee into loan principal and outstanding total, and record penalty applied
+                                if vaultPenaltyFee > 0n then {
+                                    
+                                    vault.loanOutstandingTotal := vault.loanOutstandingTotal + vaultPenaltyFee;
+                                    vault.loanPrincipalTotal := vault.loanPrincipalTotal + vaultPenaltyFee;
+
+                                    // record event
+                                    const vaultPenaltyCounter : nat = vault.penaltyCounter;
+
+                                    // penalty event record
+                                    const vaultPenaltyRecord : vaultPenaltyRecordType = record [
+                                        entrypoint       = "repay";
+                                        penaltyFee       = vaultPenaltyFee;
+                                        penaltyTimestamp = Mavryk.get_now();
+                                    ];
+                                    s.vaultPenaltyEventLedger[(vault.address, vaultPenaltyCounter)] := vaultPenaltyRecord;
+
+                                    // update vault penalty counter
+                                    vault.penaltyCounter := vault.penaltyCounter + 1n;
+
+                                    // update vault penalty timestamp
+                                    vault.penaltyAppliedTimestamp := Some(Mavryk.get_now());
+                                    vault.penaltyAppliedLevel := Some(Mavryk.get_level());
+
+                                } else skip;
+                                
+                            }
+                        |   None -> skip
+                    ];
+
+                };
+
                 // ------------------------------------------------------------------
                 // Calculate Principal / Interest Repayments
                 // ------------------------------------------------------------------
@@ -1538,9 +1753,10 @@ block {
                 var refundTotal                    : nat := 0n;
                 var newLoanOutstandingTotal        : nat := vault.loanOutstandingTotal;
                 var newLoanPrincipalTotal          : nat := vault.loanPrincipalTotal;
-                var newLoanInterestTotal           : nat := vault.loanInterestTotal;
-                const initialLoanPrincipalTotal    : nat = vault.loanPrincipalTotal;
+                var newLoanInterestTotal           : nat := vault.loanInterestTotal; 
+                const initialLoanPrincipalTotal    : nat  = vault.loanPrincipalTotal;
 
+                // process interest payments
                 if finalRepaymentAmount > newLoanInterestTotal then {
                     
                     // final repayment amount covers both interest and principal
@@ -1594,7 +1810,7 @@ block {
                 newLoanOutstandingTotal := abs(newLoanOutstandingTotal - finalRepaymentAmount);
 
                 // Calculate amount of interest that goes to the Treasury 
-                const interestSentToTreasury : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
+                const interestSentToTreasury : nat = ((totalInterestPaid * interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
 
                 // Calculate amount of interest that goes to the Reward Pool - verify that interestSentToTreasury is less than totalInterestPaid
                 verifyLessThanOrEqual(interestSentToTreasury, totalInterestPaid, error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID);
@@ -1606,7 +1822,7 @@ block {
 
                 // Send interest payment to treasury
                 const sendInterestToTreasuryOperation : operation = tokenPoolTransfer(
-                    Mavryk.get_self_address(),    // from_
+                    Mavryk.get_self_address(),   // from_
                     treasuryAddress,             // to_
                     interestSentToTreasury,      // amount
                     loanTokenType                // token type
@@ -1639,7 +1855,7 @@ block {
                 if refundTotal > 0n then {
 
                     const processRefundOperation : operation = tokenPoolTransfer(
-                        Mavryk.get_self_address(),   // from_
+                        Mavryk.get_self_address(),  // from_
                         initiator,                  // to_
                         refundTotal,                // amount
                         loanTokenType               // token type
@@ -1652,7 +1868,7 @@ block {
                 // transfer operation should take place first before refund operation (N.B. First In Last Out operations)
                 const processRepayOperation : operation = tokenPoolTransfer(
                     initiator,                  // from_
-                    Mavryk.get_self_address(),   // to_
+                    Mavryk.get_self_address(),  // to_
                     initialRepaymentAmount,     // amount
                     loanTokenType               // token type
                 );
@@ -1680,7 +1896,7 @@ block {
                 loanTokenRecord.tokenPoolTotal              := newTokenPoolTotal;
                 loanTokenRecord.totalBorrowed               := newTotalBorrowed;
                 loanTokenRecord.totalRemaining              := newTotalRemaining;
-                loanTokenRecord.tokenRewardIndex  := newAccRewardsPerShare;
+                loanTokenRecord.tokenRewardIndex            := newAccRewardsPerShare;
 
                 // Update Loan Token State: Latest utilisation rate, current interest rate, compounded interest and borrow index
                 loanTokenRecord := updateLoanTokenState(loanTokenRecord);
@@ -1692,6 +1908,22 @@ block {
                 vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
                 vault.loanPrincipalTotal        := newLoanPrincipalTotal;
                 vault.loanInterestTotal         := newLoanInterestTotal;
+                vault.lastUpdatedBlockLevel     := Mavryk.get_level();
+
+                // update loan start timestamp if loan outstanding is cleared
+                if newLoanOutstandingTotal = 0n then {
+                    vault.loanStartTimestamp := (None : option(timestamp));
+                    vault.loanStartLevel := (None : option(nat));
+                } else skip;
+
+                // set last interest cleared and reset penalty applied timestamp if loan interest total is cleared
+                if newLoanInterestTotal = 0n then {
+                    vault.lastInterestCleared := Mavryk.get_now();
+                    vault.lastInterestClearedLevel := Mavryk.get_level();
+                    
+                    vault.penaltyAppliedTimestamp := (None : option(timestamp));
+                    vault.penaltyAppliedLevel := (None : option(nat));
+                } else skip;
 
                 // Update vault
                 s.vaults[vaultHandle] := vault;
@@ -1719,7 +1951,7 @@ block {
     var operations : list(operation) := nil;
     
     // Verify that %vaultDepositStakedMvn entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.vaultDepositStakedTokenIsPaused, error_VAULT_DEPOSIT_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("vaultDepositStakedToken", error_VAULT_DEPOSIT_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     case lendingControllerLambdaAction of [
         |   LambdaVaultDepositStakedToken(vaultDepositStakedTokenParams) -> {
@@ -1805,7 +2037,7 @@ block {
     var operations : list(operation)  := nil;
     
     // Verify that %vaultWithdrawStakedToken entrypoint is not paused (e.g. if glass broken)
-    verifyEntrypointIsNotPaused(s.breakGlassConfig.vaultWithdrawStakedTokenIsPaused, error_VAULT_WITHDRAW_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED);
+    verifyLendingControllerEntrypointIsNotPaused("vaultWithdrawStakedToken", error_VAULT_WITHDRAW_STAKED_TOKEN_ENTRYPOINT_IN_LENDING_CONTROLLER_CONTRACT_PAUSED, s);
 
     case lendingControllerLambdaAction of [
         |   LambdaVaultWithdrawStakedToken(vaultWithdrawStakedTokenParams) -> {

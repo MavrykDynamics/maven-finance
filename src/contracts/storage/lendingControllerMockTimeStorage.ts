@@ -5,69 +5,111 @@ import { zeroAddress } from "../test/helpers/Utils"
 import { lendingControllerMockTimeStorageType } from "./storageTypes/lendingControllerMockTimeStorageType"
 
 const config = {
-
-    collateralRatio             : 2000,    // collateral ratio (%)
-    liquidationRatio            : 1500,    // liquidation ratio (%)
-
-    liquidationFeePercent       : 600,     // 6%
-    adminLiquidationFeePercent  : 600,     // 6%
-
-    minimumLoanFeePercent       : 100,
-
-    minimumLoanFeeTreasuryShare : 4000,
-    interestTreasuryShare       : 100,     // i.e. 1%
-
     decimals                    : 4,       // decimals 
     interestRateDecimals        : 27,      // interest rate decimals
     maxDecimalsForCalculation   : 32,
     lastCompletedDataMaxDelay   : 9999999999, // for testing purposes - prod: 300 (i.e. 5 mins) 
-
-    maxVaultLiquidationPercent  : 5000,    // 50%
-    liquidationDelayInMins      : 120,
-    liquidationMaxDuration      : 1440,
-
     mockLevel                   : 0
 }
 
-const breakGlassConfig = {
+const vaultConfig = {
+    collateralRatio             : 2000,    // collateral ratio (%)
+    liquidationRatio            : 1500,    // liquidation ratio (%)
 
-    // Token Pool Entrypoints
-    setLoanTokenIsPaused                : false,
-    addLiquidityIsPaused                : false,
-    removeLiquidityIsPaused             : false,
+    liquidationFeePercent       : 600,
+    adminLiquidationFeePercent  : 600,
+    minimumLoanFeePercent       : 100,
 
-    // Vault Entrypoints
-    updateCollateralTokenIsPaused       : false,
-    createVaultIsPaused                 : false,
-    closeVaultIsPaused                  : false,
-    registerDepositIsPaused             : false,
-    registerWithdrawalIsPaused          : false,
-    markForLiquidationIsPaused          : false,
-    liquidateVaultIsPaused              : false,
-    borrowIsPaused                      : false,
-    repayIsPaused                       : false,
+    minimumLoanFeeTreasuryShare : 4000,
+    interestTreasuryShare       : 100,
 
-    // Vault Staked Token Entrypoints
-    vaultDepositStakedTokenIsPaused     : false,
-    vaultWithdrawStakedTokenIsPaused    : false
+    maxVaultLiquidationPercent  : 5000,    // 50%      
+    liquidationDelayInMins      : 120,
+    liquidationMaxDuration      : 1440,
+
+    interestRepaymentPeriod      : 0,
+    missedPeriodsForLiquidation  : 0,
+    repaymentWindow              : 0,    
+    penaltyFeePercentage         : 0,    
+    liquidationConfig            : 0
 }
+
+const vaultRwaConfig = {
+    collateralRatio             : 2000,    // collateral ratio (%)
+    liquidationRatio            : 1500,    // liquidation ratio (%)
+
+    liquidationFeePercent       : 300,
+    adminLiquidationFeePercent  : 300,
+    minimumLoanFeePercent       : 300,
+
+    minimumLoanFeeTreasuryShare : 4000,
+    interestTreasuryShare       : 100,
+
+    maxVaultLiquidationPercent  : 5000,    // 50%      
+    liquidationDelayInMins      : 120,
+    liquidationMaxDuration      : 1440,
+
+    interestRepaymentPeriod      : 30 * 1440, // in minutes
+    missedPeriodsForLiquidation  : 4,
+    repaymentWindow              : 1440 * 7,  // in minutes  
+    penaltyFeePercentage         : 10,    
+    liquidationConfig            : 1
+}
+
+const vaultConfigLedger = MichelsonMap.fromLiteral({
+    0: vaultConfig,
+    1: vaultRwaConfig
+})
+
+const breakGlassLedger = MichelsonMap.fromLiteral({
+    
+    "vaultDeposit" : false,
+    "vaultWithdraw" : false,
+    "onLiquidate" : false,
+
+    "setLoanToken" : false,
+    "addLiquidity" : false,
+    "removeLiquidity" : false,
+
+    "setCollateralToken" : false,
+    "createVault" : false,
+    "closeVault" : false,
+    "registerDeposit" : false,
+    "registerWithdrawal" : false,
+    "markForLiquidation" : false,
+
+    "registerVaultCreation": false,
+    "liquidateVault" : false,
+    "borrow" : false,
+    "repay" : false,
+
+    "vaultDepositStakedToken" : false,
+    "vaultWithdrawStakedToken" : false,
+})
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-            name: 'MAVEN Lending Controller Contract',
-            version: 'v1.0.0',
-            authors: ['MAVEN Dev Team <info@mavryk.io>'],
-            source: {
-                tools: ['Ligo', 'Flexmasa'],
-                location: 'https://ligolang.org/',
-            },
-            }),
-            'ascii',
-        ).toString('hex'),
-    })
-
+        name: 'Maven Finance - Lending Controller',
+        version: 'v1.0.0',
+        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+        homepage: "https://mavenfinance.io",
+        license: {
+            name: "MIT"
+        },
+        source: {
+            tools: [
+                "MavrykLIGO 0.60.0",
+                "Flexmasa atlas-update-run"
+            ],
+            location: "https://github.com/MavrykDynamics/maven-finance"
+        },
+        interfaces: [ 'MIP-16' ],
+        }),
+        'ascii',
+    ).toString('hex'),
+})
 
 export const lendingControllerMockTimeStorage : lendingControllerMockTimeStorageType = {
   
@@ -75,17 +117,14 @@ export const lendingControllerMockTimeStorage : lendingControllerMockTimeStorage
     tester                          : bob.pkh,
     metadata                        : metadata,
     config                          : config,
-    breakGlassConfig                : breakGlassConfig,
+
+    vaultConfigLedger               : vaultConfigLedger,
+    breakGlassLedger                : breakGlassLedger,
 
     mvnTokenAddress                 : zeroAddress,
     governanceAddress               : zeroAddress,
 
-    whitelistContracts              : MichelsonMap.fromLiteral({}),
-    generalContracts                : MichelsonMap.fromLiteral({}),
-    whitelistTokenContracts         : MichelsonMap.fromLiteral({}),
-    
     vaults                          : MichelsonMap.fromLiteral({}),
-    vaultCounter                    : new BigNumber(1),
     ownerLedger                     : MichelsonMap.fromLiteral({}),
 
     collateralTokenLedger           : MichelsonMap.fromLiteral({}),
@@ -93,4 +132,7 @@ export const lendingControllerMockTimeStorage : lendingControllerMockTimeStorage
 
     lambdaLedger                    : MichelsonMap.fromLiteral({}),
     vaultLambdaLedger               : MichelsonMap.fromLiteral({}),
+    vaultPenaltyEventLedger         : MichelsonMap.fromLiteral({}),
+
+    tempBoolMap                     : MichelsonMap.fromLiteral({}),
 }

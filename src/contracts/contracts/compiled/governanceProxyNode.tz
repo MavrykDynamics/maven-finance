@@ -1,0 +1,742 @@
+{ parameter
+    (or (or (or (or (or %dataPackingHelper
+                       (or (or (or (or (address %closeFarm)
+                                       (pair %initFarm
+                                          (address %targetFarmAddress)
+                                          (pair %farmConfig
+                                             (nat %totalBlocks)
+                                             (nat %currentRewardPerBlock)
+                                             (bool %forceRewardFromTransfer)
+                                             (bool %infinite))))
+                                   (or (pair %setContractName (address %targetContractAddress) (string %contractName))
+                                       (pair %stakeMvkTreasury (address %targetTreasuryAddress) (nat %stakeAmount))))
+                               (or (or (address %trackAggregator) (address %trackFarm))
+                                   (or (address %trackTreasury)
+                                       (pair %unstakeMvkTreasury (address %targetTreasuryAddress) (nat %unstakeAmount)))))
+                           (or (or (or (address %untrackAggregator) (address %untrackFarm))
+                                   (or (address %untrackTreasury)
+                                       (pair %updateAggregatorConfig
+                                          (address %targetAggregatorAddress)
+                                          (pair %aggregatorConfig
+                                             (nat %updateConfigNewValue)
+                                             (or %updateConfigAction
+                                                (or (or (unit %configAlphaPercentPerThousand) (unit %configDecimals))
+                                                    (or (unit %configHeartBeatSeconds) (unit %configPercentOracleThreshold)))
+                                                (or (unit %configRewardAmountStakedMvk) (unit %configRewardAmountXtz)))))))
+                               (or (or (pair %updateAggregatorFactoryConfig
+                                          (nat %updateConfigNewValue)
+                                          (or %updateConfigAction (unit %configAggregatorNameMaxLength) (unit %empty)))
+                                       (pair %updateBreakGlassConfig
+                                          (nat %updateConfigNewValue)
+                                          (or %updateConfigAction
+                                             (or (or (unit %configActionExpiryDays) (unit %configCouncilImageMaxLength))
+                                                 (or (unit %configCouncilNameMaxLength) (unit %configCouncilWebsiteMaxLength)))
+                                             (unit %configThreshold))))
+                                   (or (pair %updateContractGeneralMap
+                                          (address %targetContractAddress)
+                                          (string %generalContractName)
+                                          (address %generalContractAddress))
+                                       (pair %updateContractMetadata
+                                          (address %targetContractAddress)
+                                          (string %metadataKey)
+                                          (bytes %metadataHash))))))
+                       (or (or (or (or (pair %updateCouncilConfig
+                                          (nat %updateConfigNewValue)
+                                          (or %updateConfigAction
+                                             (or (or (unit %configActionExpiryDays) (unit %configCouncilImageMaxLength))
+                                                 (or (unit %configCouncilNameMaxLength) (unit %configCouncilWebsiteMaxLength)))
+                                             (or (or (unit %configRequestPurposeMaxLength) (unit %configRequestTokenNameMaxLength))
+                                                 (unit %configThreshold))))
+                                       (pair %updateDelegationConfig
+                                          (nat %updateConfigNewValue)
+                                          (or %updateConfigAction
+                                             (or (or (unit %configDelegationRatio) (unit %configMaxSatellites))
+                                                 (or (unit %configMinimumStakedMvkBalance) (unit %configSatDescMaxLength)))
+                                             (or (or (unit %configSatImageMaxLength) (unit %configSatNameMaxLength))
+                                                 (unit %configSatWebsiteMaxLength)))))
+                                   (or (pair %updateDoormanConfig
+                                          (nat %updateConfigNewValue)
+                                          (or %updateConfigAction (unit %configMinMvkAmount) (unit %empty)))
+                                       (pair %updateEmergencyConfig
+                                          (nat %updateConfigNewValue)
+                                          (or %updateConfigAction
+                                             (or (or (unit %configMinStakedMvkForTrigger) (unit %configMinStakedMvkForVoting))
+                                                 (or (unit %configProposalDescMaxLength) (unit %configProposalTitleMaxLength)))
+                                             (or (or (unit %configRequiredFeeMutez) (unit %configStakedMvkPercentRequired))
+                                                 (unit %configVoteExpiryDays))))))
+                               (or (or (pair %updateFarmConfig
+                                          (address %targetFarmAddress)
+                                          (pair %farmConfig
+                                             (nat %updateConfigNewValue)
+                                             (or %updateConfigAction
+                                                (unit %configForceRewardFromTransfer)
+                                                (unit %configRewardPerBlock))))
+                                       (pair %updateFarmFactoryConfig
+                                          (nat %updateConfigNewValue)
+                                          (or %updateConfigAction (unit %configFarmNameMaxLength) (unit %empty))))
+                                   (or (pair %updateGovernanceConfig
+                                          (nat %updateConfigNewValue)
+                                          (or %updateConfigAction
+                                             (or (or (or (unit %configBlocksPerProposalRound) (unit %configBlocksPerTimelockRound))
+                                                     (or (unit %configBlocksPerVotingRound) (unit %configCycleVotersReward)))
+                                                 (or (or (unit %configMaxProposalsPerSatellite) (unit %configMinProposalRoundVotePct))
+                                                     (or (unit %configMinProposalRoundVotesReq) (unit %configMinQuorumPercentage))))
+                                             (or (or (or (unit %configMinYayVotePercentage) (unit %configProposalCodeMaxLength))
+                                                     (or (unit %configProposalDatTitleMaxLength) (unit %configProposalDescMaxLength)))
+                                                 (or (or (unit %configProposalInvoiceMaxLength) (unit %configProposalTitleMaxLength))
+                                                     (or (unit %configProposeFeeMutez) (unit %configSuccessReward))))))
+                                       (pair %updateGovernanceFinancialConfig
+                                          (nat %updateConfigNewValue)
+                                          (or %updateConfigAction
+                                             (unit %configFinancialReqApprovalPct)
+                                             (unit %configFinancialReqDurationDays))))))
+                           (or (or (pair %updateGovernanceSatelliteConfig
+                                      (nat %updateConfigNewValue)
+                                      (or %updateConfigAction
+                                         (or (unit %configApprovalPercentage) (unit %configMaxActionsPerSatellite))
+                                         (or (unit %configPurposeMaxLength) (unit %configSatelliteDurationInDays))))
+                                   (pair %updateMvkOperatorsTreasury
+                                      (address %targetTreasuryAddress)
+                                      (list %treasuryUpdatedOperators
+                                         (or (pair %add_operator (address %owner) (address %operator) (nat %token_id))
+                                             (pair %remove_operator (address %owner) (address %operator) (nat %token_id))))))
+                               (or (pair %updateProxyLambda (string %lambdaName) (bytes %func_bytes))
+                                   (pair %updateTreasuryFactoryConfig
+                                      (nat %updateConfigNewValue)
+                                      (or %updateConfigAction (unit %configTreasuryNameMaxLength) (unit %empty)))))))
+                    (bytes %executeGovernanceAction))
+                (or (list %mistakenTransfer
+                       (pair (address %to_)
+                             (nat %amount)
+                             (or %token
+                                (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                (unit %tez))))
+                    (address %setAdmin)))
+            (or (or (address %setGovernance) (pair %setLambda (string %name) (bytes %func_bytes)))
+                (or (pair %setProxyLambda (string %lambdaName) (bytes %func_bytes))
+                    (pair %updateGeneralContracts
+                       (string %generalContractName)
+                       (address %generalContractAddress)))))
+        (or (or (pair %updateMetadata (string %metadataKey) (bytes %metadataHash))
+                (pair %updateWhitelistContracts
+                   (string %whitelistContractName)
+                   (address %whitelistContractAddress)))
+            (pair %updateWhitelistTokenContracts
+               (string %tokenContractName)
+               (address %tokenContractAddress)))) ;
+  storage
+    (pair (pair (pair (pair (address %admin) (map %generalContracts string address))
+                      (address %governanceAddress)
+                      (map %lambdaLedger string bytes))
+                (pair (big_map %metadata string bytes) (address %mvkTokenAddress))
+                (map %proxyLambdaLedger string bytes)
+                (map %whitelistContracts string address))
+          (map %whitelistTokenContracts string address)) ;
+  code { LAMBDA
+           (pair address address)
+           unit
+           { UNPAIR ;
+             SENDER ;
+             DIG 2 ;
+             COMPARE ;
+             EQ ;
+             SENDER ;
+             DIG 2 ;
+             COMPARE ;
+             EQ ;
+             OR ;
+             IF {} { PUSH nat 16 ; FAILWITH } ;
+             UNIT } ;
+         LAMBDA
+           (pair string (map string bytes))
+           bytes
+           { UNPAIR ; GET ; IF_NONE { PUSH nat 2 ; FAILWITH } {} } ;
+         NIL operation ;
+         LAMBDA
+           (pair (pair bytes
+                       (or (or (or (list (pair address nat (or (or address (pair address nat)) unit))) address)
+                               (or address (pair string address)))
+                           (or (or (pair string bytes) (pair string address)) (pair string address))))
+                 (pair (pair (pair address (map string address)) address (map string bytes))
+                       (pair (big_map string bytes) address)
+                       (map string bytes)
+                       (map string address))
+                 (map string address))
+           (pair (list operation)
+                 (pair (pair (pair address (map string address)) address (map string bytes))
+                       (pair (big_map string bytes) address)
+                       (map string bytes)
+                       (map string address))
+                 (map string address))
+           { UNPAIR ;
+             UNPAIR ;
+             UNPACK
+               (lambda
+                  (pair (or (or (or (list %lambdaMistakenTransfer
+                                       (pair (address %to_)
+                                             (nat %amount)
+                                             (or %token
+                                                (or (address %fa12) (pair %fa2 (address %tokenContractAddress) (nat %tokenId)))
+                                                (unit %tez))))
+                                    (address %lambdaSetAdmin))
+                                (or (address %lambdaSetGovernance)
+                                    (pair %lambdaUpdateGeneralContracts
+                                       (string %generalContractName)
+                                       (address %generalContractAddress))))
+                            (or (or (pair %lambdaUpdateMetadata (string %metadataKey) (bytes %metadataHash))
+                                    (pair %lambdaUpdateWhitelistContracts
+                                       (string %whitelistContractName)
+                                       (address %whitelistContractAddress)))
+                                (pair %lambdaUpdateWhitelistTokens
+                                   (string %tokenContractName)
+                                   (address %tokenContractAddress))))
+                        (pair (pair (pair (address %admin) (map %generalContracts string address))
+                                    (address %governanceAddress)
+                                    (map %lambdaLedger string bytes))
+                              (pair (big_map %metadata string bytes) (address %mvkTokenAddress))
+                              (map %proxyLambdaLedger string bytes)
+                              (map %whitelistContracts string address))
+                        (map %whitelistTokenContracts string address))
+                  (pair (list operation)
+                        (pair (pair (pair (address %admin) (map %generalContracts string address))
+                                    (address %governanceAddress)
+                                    (map %lambdaLedger string bytes))
+                              (pair (big_map %metadata string bytes) (address %mvkTokenAddress))
+                              (map %proxyLambdaLedger string bytes)
+                              (map %whitelistContracts string address))
+                        (map %whitelistTokenContracts string address))) ;
+             IF_NONE { DROP 2 ; PUSH nat 3 ; FAILWITH } { DUG 2 ; PAIR ; EXEC } } ;
+         DIG 4 ;
+         UNPAIR ;
+         PUSH mutez 0 ;
+         AMOUNT ;
+         COMPARE ;
+         EQ ;
+         IF {} { PUSH nat 0 ; FAILWITH } ;
+         IF_LEFT
+           { IF_LEFT
+               { IF_LEFT
+                   { DIG 2 ;
+                     DIG 4 ;
+                     DROP 2 ;
+                     IF_LEFT
+                       { DIG 3 ; DROP 2 ; SWAP ; PAIR }
+                       { DIG 2 ;
+                         DROP ;
+                         DUP 2 ;
+                         CAR ;
+                         CAR ;
+                         CDR ;
+                         CAR ;
+                         DUP 3 ;
+                         CAR ;
+                         CAR ;
+                         CAR ;
+                         CAR ;
+                         PAIR ;
+                         DIG 3 ;
+                         SWAP ;
+                         EXEC ;
+                         DROP ;
+                         UNPACK
+                           (or (or (or (or (or (address %closeFarm)
+                                               (pair %initFarm
+                                                  (address %targetFarmAddress)
+                                                  (pair %farmConfig
+                                                     (nat %totalBlocks)
+                                                     (nat %currentRewardPerBlock)
+                                                     (bool %forceRewardFromTransfer)
+                                                     (bool %infinite))))
+                                           (or (pair %setContractName (address %targetContractAddress) (string %contractName))
+                                               (pair %stakeMvkTreasury (address %targetTreasuryAddress) (nat %stakeAmount))))
+                                       (or (or (address %trackAggregator) (address %trackFarm))
+                                           (or (address %trackTreasury)
+                                               (pair %unstakeMvkTreasury (address %targetTreasuryAddress) (nat %unstakeAmount)))))
+                                   (or (or (or (address %untrackAggregator) (address %untrackFarm))
+                                           (or (address %untrackTreasury)
+                                               (pair %updateAggregatorConfig
+                                                  (address %targetAggregatorAddress)
+                                                  (pair %aggregatorConfig
+                                                     (nat %updateConfigNewValue)
+                                                     (or %updateConfigAction
+                                                        (or (or (unit %configAlphaPercentPerThousand) (unit %configDecimals))
+                                                            (or (unit %configHeartBeatSeconds) (unit %configPercentOracleThreshold)))
+                                                        (or (unit %configRewardAmountStakedMvk) (unit %configRewardAmountXtz)))))))
+                                       (or (or (pair %updateAggregatorFactoryConfig
+                                                  (nat %updateConfigNewValue)
+                                                  (or %updateConfigAction (unit %configAggregatorNameMaxLength) (unit %empty)))
+                                               (pair %updateBreakGlassConfig
+                                                  (nat %updateConfigNewValue)
+                                                  (or %updateConfigAction
+                                                     (or (or (unit %configActionExpiryDays) (unit %configCouncilImageMaxLength))
+                                                         (or (unit %configCouncilNameMaxLength) (unit %configCouncilWebsiteMaxLength)))
+                                                     (unit %configThreshold))))
+                                           (or (pair %updateContractGeneralMap
+                                                  (address %targetContractAddress)
+                                                  (string %generalContractName)
+                                                  (address %generalContractAddress))
+                                               (pair %updateContractMetadata
+                                                  (address %targetContractAddress)
+                                                  (string %metadataKey)
+                                                  (bytes %metadataHash))))))
+                               (or (or (or (or (pair %updateCouncilConfig
+                                                  (nat %updateConfigNewValue)
+                                                  (or %updateConfigAction
+                                                     (or (or (unit %configActionExpiryDays) (unit %configCouncilImageMaxLength))
+                                                         (or (unit %configCouncilNameMaxLength) (unit %configCouncilWebsiteMaxLength)))
+                                                     (or (or (unit %configRequestPurposeMaxLength) (unit %configRequestTokenNameMaxLength))
+                                                         (unit %configThreshold))))
+                                               (pair %updateDelegationConfig
+                                                  (nat %updateConfigNewValue)
+                                                  (or %updateConfigAction
+                                                     (or (or (unit %configDelegationRatio) (unit %configMaxSatellites))
+                                                         (or (unit %configMinimumStakedMvkBalance) (unit %configSatDescMaxLength)))
+                                                     (or (or (unit %configSatImageMaxLength) (unit %configSatNameMaxLength))
+                                                         (unit %configSatWebsiteMaxLength)))))
+                                           (or (pair %updateDoormanConfig
+                                                  (nat %updateConfigNewValue)
+                                                  (or %updateConfigAction (unit %configMinMvkAmount) (unit %empty)))
+                                               (pair %updateEmergencyConfig
+                                                  (nat %updateConfigNewValue)
+                                                  (or %updateConfigAction
+                                                     (or (or (unit %configMinStakedMvkForTrigger) (unit %configMinStakedMvkForVoting))
+                                                         (or (unit %configProposalDescMaxLength) (unit %configProposalTitleMaxLength)))
+                                                     (or (or (unit %configRequiredFeeMutez) (unit %configStakedMvkPercentRequired))
+                                                         (unit %configVoteExpiryDays))))))
+                                       (or (or (pair %updateFarmConfig
+                                                  (address %targetFarmAddress)
+                                                  (pair %farmConfig
+                                                     (nat %updateConfigNewValue)
+                                                     (or %updateConfigAction
+                                                        (unit %configForceRewardFromTransfer)
+                                                        (unit %configRewardPerBlock))))
+                                               (pair %updateFarmFactoryConfig
+                                                  (nat %updateConfigNewValue)
+                                                  (or %updateConfigAction (unit %configFarmNameMaxLength) (unit %empty))))
+                                           (or (pair %updateGovernanceConfig
+                                                  (nat %updateConfigNewValue)
+                                                  (or %updateConfigAction
+                                                     (or (or (or (unit %configBlocksPerProposalRound) (unit %configBlocksPerTimelockRound))
+                                                             (or (unit %configBlocksPerVotingRound) (unit %configCycleVotersReward)))
+                                                         (or (or (unit %configMaxProposalsPerSatellite) (unit %configMinProposalRoundVotePct))
+                                                             (or (unit %configMinProposalRoundVotesReq) (unit %configMinQuorumPercentage))))
+                                                     (or (or (or (unit %configMinYayVotePercentage) (unit %configProposalCodeMaxLength))
+                                                             (or (unit %configProposalDatTitleMaxLength) (unit %configProposalDescMaxLength)))
+                                                         (or (or (unit %configProposalInvoiceMaxLength) (unit %configProposalTitleMaxLength))
+                                                             (or (unit %configProposeFeeMutez) (unit %configSuccessReward))))))
+                                               (pair %updateGovernanceFinancialConfig
+                                                  (nat %updateConfigNewValue)
+                                                  (or %updateConfigAction
+                                                     (unit %configFinancialReqApprovalPct)
+                                                     (unit %configFinancialReqDurationDays))))))
+                                   (or (or (pair %updateGovernanceSatelliteConfig
+                                              (nat %updateConfigNewValue)
+                                              (or %updateConfigAction
+                                                 (or (unit %configApprovalPercentage) (unit %configMaxActionsPerSatellite))
+                                                 (or (unit %configPurposeMaxLength) (unit %configSatelliteDurationInDays))))
+                                           (pair %updateMvkOperatorsTreasury
+                                              (address %targetTreasuryAddress)
+                                              (list %treasuryUpdatedOperators
+                                                 (or (pair %add_operator (address %owner) (address %operator) (nat %token_id))
+                                                     (pair %remove_operator (address %owner) (address %operator) (nat %token_id))))))
+                                       (or (pair %updateProxyLambda (string %lambdaName) (bytes %func_bytes))
+                                           (pair %updateTreasuryFactoryConfig
+                                              (nat %updateConfigNewValue)
+                                              (or %updateConfigAction (unit %configTreasuryNameMaxLength) (unit %empty))))))) ;
+                         IF_NONE { PUSH nat 473 ; FAILWITH } {} ;
+                         DUP 2 ;
+                         CAR ;
+                         CDR ;
+                         CDR ;
+                         CAR ;
+                         PUSH string "lambdaExecuteGovernanceAction" ;
+                         GET ;
+                         IF_NONE { PUSH nat 476 ; FAILWITH } {} ;
+                         UNPACK
+                           (lambda
+                              (pair (or (or (or (or (or (address %closeFarm)
+                                                        (pair %initFarm
+                                                           (address %targetFarmAddress)
+                                                           (pair %farmConfig
+                                                              (nat %totalBlocks)
+                                                              (nat %currentRewardPerBlock)
+                                                              (bool %forceRewardFromTransfer)
+                                                              (bool %infinite))))
+                                                    (or (pair %setContractName (address %targetContractAddress) (string %contractName))
+                                                        (pair %stakeMvkTreasury (address %targetTreasuryAddress) (nat %stakeAmount))))
+                                                (or (or (address %trackAggregator) (address %trackFarm))
+                                                    (or (address %trackTreasury)
+                                                        (pair %unstakeMvkTreasury (address %targetTreasuryAddress) (nat %unstakeAmount)))))
+                                            (or (or (or (address %untrackAggregator) (address %untrackFarm))
+                                                    (or (address %untrackTreasury)
+                                                        (pair %updateAggregatorConfig
+                                                           (address %targetAggregatorAddress)
+                                                           (pair %aggregatorConfig
+                                                              (nat %updateConfigNewValue)
+                                                              (or %updateConfigAction
+                                                                 (or (or (unit %configAlphaPercentPerThousand) (unit %configDecimals))
+                                                                     (or (unit %configHeartBeatSeconds) (unit %configPercentOracleThreshold)))
+                                                                 (or (unit %configRewardAmountStakedMvk) (unit %configRewardAmountXtz)))))))
+                                                (or (or (pair %updateAggregatorFactoryConfig
+                                                           (nat %updateConfigNewValue)
+                                                           (or %updateConfigAction (unit %configAggregatorNameMaxLength) (unit %empty)))
+                                                        (pair %updateBreakGlassConfig
+                                                           (nat %updateConfigNewValue)
+                                                           (or %updateConfigAction
+                                                              (or (or (unit %configActionExpiryDays) (unit %configCouncilImageMaxLength))
+                                                                  (or (unit %configCouncilNameMaxLength) (unit %configCouncilWebsiteMaxLength)))
+                                                              (unit %configThreshold))))
+                                                    (or (pair %updateContractGeneralMap
+                                                           (address %targetContractAddress)
+                                                           (string %generalContractName)
+                                                           (address %generalContractAddress))
+                                                        (pair %updateContractMetadata
+                                                           (address %targetContractAddress)
+                                                           (string %metadataKey)
+                                                           (bytes %metadataHash))))))
+                                        (or (or (or (or (pair %updateCouncilConfig
+                                                           (nat %updateConfigNewValue)
+                                                           (or %updateConfigAction
+                                                              (or (or (unit %configActionExpiryDays) (unit %configCouncilImageMaxLength))
+                                                                  (or (unit %configCouncilNameMaxLength) (unit %configCouncilWebsiteMaxLength)))
+                                                              (or (or (unit %configRequestPurposeMaxLength) (unit %configRequestTokenNameMaxLength))
+                                                                  (unit %configThreshold))))
+                                                        (pair %updateDelegationConfig
+                                                           (nat %updateConfigNewValue)
+                                                           (or %updateConfigAction
+                                                              (or (or (unit %configDelegationRatio) (unit %configMaxSatellites))
+                                                                  (or (unit %configMinimumStakedMvkBalance) (unit %configSatDescMaxLength)))
+                                                              (or (or (unit %configSatImageMaxLength) (unit %configSatNameMaxLength))
+                                                                  (unit %configSatWebsiteMaxLength)))))
+                                                    (or (pair %updateDoormanConfig
+                                                           (nat %updateConfigNewValue)
+                                                           (or %updateConfigAction (unit %configMinMvkAmount) (unit %empty)))
+                                                        (pair %updateEmergencyConfig
+                                                           (nat %updateConfigNewValue)
+                                                           (or %updateConfigAction
+                                                              (or (or (unit %configMinStakedMvkForTrigger) (unit %configMinStakedMvkForVoting))
+                                                                  (or (unit %configProposalDescMaxLength) (unit %configProposalTitleMaxLength)))
+                                                              (or (or (unit %configRequiredFeeMutez) (unit %configStakedMvkPercentRequired))
+                                                                  (unit %configVoteExpiryDays))))))
+                                                (or (or (pair %updateFarmConfig
+                                                           (address %targetFarmAddress)
+                                                           (pair %farmConfig
+                                                              (nat %updateConfigNewValue)
+                                                              (or %updateConfigAction
+                                                                 (unit %configForceRewardFromTransfer)
+                                                                 (unit %configRewardPerBlock))))
+                                                        (pair %updateFarmFactoryConfig
+                                                           (nat %updateConfigNewValue)
+                                                           (or %updateConfigAction (unit %configFarmNameMaxLength) (unit %empty))))
+                                                    (or (pair %updateGovernanceConfig
+                                                           (nat %updateConfigNewValue)
+                                                           (or %updateConfigAction
+                                                              (or (or (or (unit %configBlocksPerProposalRound) (unit %configBlocksPerTimelockRound))
+                                                                      (or (unit %configBlocksPerVotingRound) (unit %configCycleVotersReward)))
+                                                                  (or (or (unit %configMaxProposalsPerSatellite) (unit %configMinProposalRoundVotePct))
+                                                                      (or (unit %configMinProposalRoundVotesReq) (unit %configMinQuorumPercentage))))
+                                                              (or (or (or (unit %configMinYayVotePercentage) (unit %configProposalCodeMaxLength))
+                                                                      (or (unit %configProposalDatTitleMaxLength) (unit %configProposalDescMaxLength)))
+                                                                  (or (or (unit %configProposalInvoiceMaxLength) (unit %configProposalTitleMaxLength))
+                                                                      (or (unit %configProposeFeeMutez) (unit %configSuccessReward))))))
+                                                        (pair %updateGovernanceFinancialConfig
+                                                           (nat %updateConfigNewValue)
+                                                           (or %updateConfigAction
+                                                              (unit %configFinancialReqApprovalPct)
+                                                              (unit %configFinancialReqDurationDays))))))
+                                            (or (or (pair %updateGovernanceSatelliteConfig
+                                                       (nat %updateConfigNewValue)
+                                                       (or %updateConfigAction
+                                                          (or (unit %configApprovalPercentage) (unit %configMaxActionsPerSatellite))
+                                                          (or (unit %configPurposeMaxLength) (unit %configSatelliteDurationInDays))))
+                                                    (pair %updateMvkOperatorsTreasury
+                                                       (address %targetTreasuryAddress)
+                                                       (list %treasuryUpdatedOperators
+                                                          (or (pair %add_operator (address %owner) (address %operator) (nat %token_id))
+                                                              (pair %remove_operator (address %owner) (address %operator) (nat %token_id))))))
+                                                (or (pair %updateProxyLambda (string %lambdaName) (bytes %func_bytes))
+                                                    (pair %updateTreasuryFactoryConfig
+                                                       (nat %updateConfigNewValue)
+                                                       (or %updateConfigAction (unit %configTreasuryNameMaxLength) (unit %empty)))))))
+                                    (pair (pair (pair (address %admin) (map %generalContracts string address))
+                                                (address %governanceAddress)
+                                                (map %lambdaLedger string bytes))
+                                          (pair (big_map %metadata string bytes) (address %mvkTokenAddress))
+                                          (map %proxyLambdaLedger string bytes)
+                                          (map %whitelistContracts string address))
+                                    (map %whitelistTokenContracts string address))
+                              (pair (list operation)
+                                    (pair (pair (pair (address %admin) (map %generalContracts string address))
+                                                (address %governanceAddress)
+                                                (map %lambdaLedger string bytes))
+                                          (pair (big_map %metadata string bytes) (address %mvkTokenAddress))
+                                          (map %proxyLambdaLedger string bytes)
+                                          (map %whitelistContracts string address))
+                                    (map %whitelistTokenContracts string address))) ;
+                         IF_NONE { DROP 2 ; PUSH nat 3 ; FAILWITH } { DUG 2 ; PAIR ; EXEC } } }
+                   { DIG 3 ;
+                     DIG 5 ;
+                     DROP 2 ;
+                     IF_LEFT
+                       { DUP 2 ;
+                         CAR ;
+                         CAR ;
+                         CDR ;
+                         CDR ;
+                         PUSH string "lambdaMistakenTransfer" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         DUG 2 ;
+                         LEFT address ;
+                         LEFT (or address (pair string address)) ;
+                         LEFT (or (or (pair string bytes) (pair string address)) (pair string address)) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DUP 2 ;
+                         CAR ;
+                         CAR ;
+                         CDR ;
+                         CDR ;
+                         PUSH string "lambdaSetAdmin" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         DUG 2 ;
+                         RIGHT (list (pair address nat (or (or address (pair address nat)) unit))) ;
+                         LEFT (or address (pair string address)) ;
+                         LEFT (or (or (pair string bytes) (pair string address)) (pair string address)) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } } }
+               { IF_LEFT
+                   { DIG 5 ;
+                     DROP ;
+                     IF_LEFT
+                       { DIG 3 ;
+                         DROP ;
+                         DUP 2 ;
+                         CAR ;
+                         CAR ;
+                         CDR ;
+                         CDR ;
+                         PUSH string "lambdaSetGovernance" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         DUG 2 ;
+                         LEFT (pair string address) ;
+                         RIGHT (or (list (pair address nat (or (or address (pair address nat)) unit))) address) ;
+                         LEFT (or (or (pair string bytes) (pair string address)) (pair string address)) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC }
+                       { DIG 2 ;
+                         DIG 4 ;
+                         DROP 2 ;
+                         SWAP ;
+                         DUP ;
+                         CAR ;
+                         CAR ;
+                         CAR ;
+                         CAR ;
+                         SENDER ;
+                         SWAP ;
+                         COMPARE ;
+                         EQ ;
+                         IF {} { PUSH nat 14 ; FAILWITH } ;
+                         DUP ;
+                         DUP ;
+                         CDR ;
+                         DUP 2 ;
+                         CAR ;
+                         CDR ;
+                         DIG 3 ;
+                         CAR ;
+                         CAR ;
+                         CDR ;
+                         CDR ;
+                         DUP 5 ;
+                         CDR ;
+                         DIG 5 ;
+                         CAR ;
+                         SWAP ;
+                         SOME ;
+                         SWAP ;
+                         UPDATE ;
+                         DUP 4 ;
+                         CAR ;
+                         CAR ;
+                         CDR ;
+                         CAR ;
+                         PAIR ;
+                         DIG 3 ;
+                         CAR ;
+                         CAR ;
+                         CAR ;
+                         PAIR ;
+                         PAIR ;
+                         PAIR ;
+                         SWAP ;
+                         PAIR } }
+                   { IF_LEFT
+                       { DIG 2 ;
+                         DIG 4 ;
+                         DROP 2 ;
+                         SWAP ;
+                         DUP ;
+                         CAR ;
+                         CAR ;
+                         CDR ;
+                         CAR ;
+                         DUP 2 ;
+                         CAR ;
+                         CAR ;
+                         CAR ;
+                         CAR ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         DROP ;
+                         DUP ;
+                         DUP ;
+                         CDR ;
+                         DUP 2 ;
+                         CAR ;
+                         CDR ;
+                         CDR ;
+                         CDR ;
+                         DIG 3 ;
+                         CAR ;
+                         CDR ;
+                         CDR ;
+                         CAR ;
+                         DUP 5 ;
+                         CDR ;
+                         DIG 5 ;
+                         CAR ;
+                         SWAP ;
+                         SOME ;
+                         SWAP ;
+                         UPDATE ;
+                         PAIR ;
+                         DUP 3 ;
+                         CAR ;
+                         CDR ;
+                         CAR ;
+                         PAIR ;
+                         DIG 2 ;
+                         CAR ;
+                         CAR ;
+                         PAIR ;
+                         PAIR ;
+                         SWAP ;
+                         PAIR }
+                       { DIG 3 ;
+                         DIG 5 ;
+                         DROP 2 ;
+                         DUP 2 ;
+                         CAR ;
+                         CAR ;
+                         CDR ;
+                         CDR ;
+                         PUSH string "lambdaUpdateGeneralContracts" ;
+                         PAIR ;
+                         DIG 4 ;
+                         SWAP ;
+                         EXEC ;
+                         DUG 2 ;
+                         RIGHT address ;
+                         RIGHT (or (list (pair address nat (or (or address (pair address nat)) unit))) address) ;
+                         LEFT (or (or (pair string bytes) (pair string address)) (pair string address)) ;
+                         DIG 2 ;
+                         PAIR ;
+                         PAIR ;
+                         EXEC } } } }
+           { DIG 3 ;
+             DIG 5 ;
+             DROP 2 ;
+             IF_LEFT
+               { IF_LEFT
+                   { DUP 2 ;
+                     CAR ;
+                     CAR ;
+                     CDR ;
+                     CDR ;
+                     PUSH string "lambdaUpdateMetadata" ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     DUG 2 ;
+                     LEFT (pair string address) ;
+                     LEFT (pair string address) ;
+                     RIGHT
+                       (or (or (list (pair address nat (or (or address (pair address nat)) unit))) address)
+                           (or address (pair string address))) ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC }
+                   { DUP 2 ;
+                     CAR ;
+                     CAR ;
+                     CDR ;
+                     CDR ;
+                     PUSH string "lambdaUpdateWhitelistContracts" ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     DUG 2 ;
+                     RIGHT (pair string bytes) ;
+                     LEFT (pair string address) ;
+                     RIGHT
+                       (or (or (list (pair address nat (or (or address (pair address nat)) unit))) address)
+                           (or address (pair string address))) ;
+                     DIG 2 ;
+                     PAIR ;
+                     PAIR ;
+                     EXEC } }
+               { DUP 2 ;
+                 CAR ;
+                 CAR ;
+                 CDR ;
+                 CDR ;
+                 PUSH string "lambdaUpdateWhitelistTokenContracts" ;
+                 PAIR ;
+                 DIG 4 ;
+                 SWAP ;
+                 EXEC ;
+                 DUG 2 ;
+                 RIGHT (or (pair string bytes) (pair string address)) ;
+                 RIGHT
+                   (or (or (list (pair address nat (or (or address (pair address nat)) unit))) address)
+                       (or address (pair string address))) ;
+                 DIG 2 ;
+                 PAIR ;
+                 PAIR ;
+                 EXEC } } } ;
+  view "getAdmin" unit address { CDR ; CAR ; CAR ; CAR ; CAR } ;
+  view "getWhitelistContracts"
+       unit
+       (map string address)
+       { CDR ; CAR ; CDR ; CDR ; CDR } ;
+  view "getGeneralContracts"
+       unit
+       (map string address)
+       { CDR ; CAR ; CAR ; CAR ; CDR } ;
+  view "getWhitelistTokenContracts" unit (map string address) { CDR ; CDR } ;
+  view "getProxyLambdaOpt"
+       string
+       (option bytes)
+       { UNPAIR ; SWAP ; CAR ; CDR ; CDR ; CAR ; SWAP ; GET } }
+

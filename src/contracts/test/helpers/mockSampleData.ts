@@ -16,26 +16,31 @@ export const mockTokenData = {
             '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
             data: Buffer.from(
                 JSON.stringify({
-                    name: 'MAVEN',
-                    description: 'MAVEN Token',
-                    authors: ['MAVEN Dev Team <info@mavryk.io>'],
-                    source: {
-                        tools: ['Ligo', 'Flexmasa'],
-                        location: 'https://ligolang.org/',
-                    },
-                    interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
-                    errors: [],
-                    views: [],
-                    assets: [
-                        {
-                        symbol: Buffer.from('MVN').toString('hex'),
-                        name: Buffer.from('MAVEN').toString('hex'),
-                        decimals: Buffer.from(mvnTokenDecimals.toString()).toString('hex'),
-                        icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
-                        shouldPreferSymbol: true,
-                        thumbnailUri: 'https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg',
-                        },
+                name: 'Maven Finance - Maven Token (MVN)',
+                version: 'v1.0.0',
+                authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                homepage: "https://mavenfinance.io",
+                license: {
+                    name: "MIT"
+                },
+                source: {
+                    tools: [
+                        "MavrykLIGO 0.60.0",
+                        "Flexmasa atlas-update-run"
                     ],
+                    location: "https://github.com/MavrykDynamics/maven-finance"
+                },
+                interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
+                assets: [
+                    {
+                        symbol: Buffer.from('MVN').toString('hex'),
+                        name: Buffer.from('Maven').toString('hex'),
+                        decimals: Buffer.from(mvnTokenDecimals.toString()).toString('hex'),
+                        icon: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex'),
+                        shouldPreferSymbol: '74727565',
+                        thumbnailUri: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex')
+                    },
+                ],
                 }),
                 'ascii',
             ).toString('hex'),
@@ -43,25 +48,30 @@ export const mockTokenData = {
 
         "metadataHex": Buffer.from(
             JSON.stringify({
-                name: 'MAVEN',
-                description: 'MAVEN Token',
-                authors: ['MAVEN Dev Team <info@mavryk.io>'],
+                name: 'Maven Finance - Maven Token (MVN)',
+                version: 'v1.0.0',
+                authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                homepage: "https://mavenfinance.io",
+                license: {
+                    name: "MIT"
+                },
                 source: {
-                tools: ['Ligo', 'Flexmasa'],
-                location: 'https://ligolang.org/',
+                    tools: [
+                        "MavrykLIGO 0.60.0",
+                        "Flexmasa atlas-update-run"
+                    ],
+                    location: "https://github.com/MavrykDynamics/maven-finance"
                 },
-                interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
-                errors: [],
-                views: [],
+                interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
-                {
-                    symbol: Buffer.from('MVN').toString('hex'),
-                    name: Buffer.from('MAVEN').toString('hex'),
-                    decimals: Buffer.from("9").toString('hex'),
-                    icon: Buffer.from('https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg').toString('hex'),
-                    shouldPreferSymbol: true,
-                    thumbnailUri: 'https://front-dev.mavryk-finance-dapp-frontend.pages.dev/images/MVN_token.svg',
-                },
+                    {
+                        symbol: Buffer.from('MVN').toString('hex'),
+                        name: Buffer.from('Maven').toString('hex'),
+                        decimals: Buffer.from("9").toString('hex'),
+                        icon: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex'),
+                        shouldPreferSymbol: '74727565',
+                        thumbnailUri: Buffer.from('ipfs://QmYQq6R3xkEhZdEThD6dGftF5wohrmeL7VgjU7jpqAkS5H').toString('hex'),
+                    },
                 ],
             }),
             'ascii',
@@ -79,24 +89,29 @@ export const mTokenMockData = {
             '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
             data: Buffer.from(
                 JSON.stringify({
+                name: 'Maven Finance - mUSDT Token (mUSDT)',
                 version: 'v1.0.0',
-                description: 'Maven mUSDT Token',
-                authors: ['Maven Dev Team <info@mavryk.io>'],
-                source: {
-                    tools: ['Ligo', 'Flexmasa'],
-                    location: 'https://ligolang.org/',
+                authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                homepage: "https://mavenfinance.io",
+                license: {
+                    name: "MIT"
                 },
-                interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
-                errors: [],
-                views: [],
+                source: {
+                    tools: [
+                        "MavrykLIGO 0.60.0",
+                        "Flexmasa atlas-update-run"
+                    ],
+                    location: "https://github.com/MavrykDynamics/maven-finance"
+                },
+                interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
                     {
                     symbol: Buffer.from('mUSDT').toString('hex'),
                     name: Buffer.from('mUSDT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
                     icon: Buffer.from('ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD').toString('hex'),
-                    shouldPreferSymbol: true,
-                    thumbnailUri: 'ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD'
+                    shouldPreferSymbol: '74727565',
+                    thumbnailUri: Buffer.from('ipfs://QmPNgiLzuYqqhC176pZFNzSE99iFsXJHPeht3fdyJKnnTD').toString('hex')
                     }
                 ]
                 }),
@@ -125,24 +140,29 @@ export const mTokenMockData = {
             '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
             data: Buffer.from(
                 JSON.stringify({
+                name: 'Maven Finance - mEURT Token (mEURT)',
                 version: 'v1.0.0',
-                description: 'Maven mEURT Token',
-                authors: ['Maven Dev Team <info@mavryk.io>'],
-                source: {
-                    tools: ['Ligo', 'Flexmasa'],
-                    location: 'https://ligolang.org/',
+                authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                homepage: "https://mavenfinance.io",
+                license: {
+                    name: "MIT"
                 },
-                interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
-                errors: [],
-                views: [],
+                source: {
+                    tools: [
+                        "MavrykLIGO 0.60.0",
+                        "Flexmasa atlas-update-run"
+                    ],
+                    location: "https://github.com/MavrykDynamics/maven-finance"
+                },
+                interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
                     {
                     symbol: Buffer.from('mEURT').toString('hex'),
                     name: Buffer.from('mEURT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex'),
-                    shouldPreferSymbol: true,
-                    thumbnailUri: 'https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4'
+                    icon: Buffer.from('ipfs://QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex'),
+                    shouldPreferSymbol: '74727565',
+                    thumbnailUri: Buffer.from('ipfs://QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex')
                     }
                 ]
                 }),
@@ -156,9 +176,9 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mEURT').toString('hex'),
                     name: Buffer.from('mEURT').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex'),
+                    icon: Buffer.from('ipfs://QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex'),
                     shouldPreferSymbol: '74727565',
-                    thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex')
+                    thumbnailUri: Buffer.from('ipfs://QmY9jnbME9dxEsHapLsqt7b2juRgJXUpn41NgweMqCm5L4').toString('hex')
                 }),
             },
         })
@@ -171,24 +191,29 @@ export const mTokenMockData = {
             '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
             data: Buffer.from(
                 JSON.stringify({
+                name: 'Maven Finance - mMVRK Token (mMVRK)',
                 version: 'v1.0.0',
-                description: 'Maven mMVRK Token',
-                authors: ['Maven Dev Team <info@mavryk.io>'],
-                source: {
-                    tools: ['Ligo', 'Flexmasa'],
-                    location: 'https://ligolang.org/',
+                authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                homepage: "https://mavenfinance.io",
+                license: {
+                    name: "MIT"
                 },
-                interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
-                errors: [],
-                views: [],
+                source: {
+                    tools: [
+                        "MavrykLIGO 0.60.0",
+                        "Flexmasa atlas-update-run"
+                    ],
+                    location: "https://github.com/MavrykDynamics/maven-finance"
+                },
+                interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
                     {
                     symbol: Buffer.from('mMVRK').toString('hex'),
                     name: Buffer.from('mMVRK').toString('hex'),
                     decimals: Buffer.from('6').toString('hex'),
                     icon: Buffer.from('ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n').toString('hex'),
-                    shouldPreferSymbol: true,
-                    thumbnailUri: 'ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n'
+                    shouldPreferSymbol: '74727565',
+                    thumbnailUri: Buffer.from('ipfs://QmYVtd3h6rExUqBNBhMnEoyTtuDV1uPC9jVqmYh2ZMEM6n').toString('hex')
                     }
                 ]
                 }),
@@ -217,24 +242,29 @@ export const mTokenMockData = {
             '': Buffer.from('mavryk-storage:data', 'ascii').toString('hex'),
             data: Buffer.from(
                 JSON.stringify({
+                name: 'Maven Finance - mWBTC Token (mWBTC)',
                 version: 'v1.0.0',
-                description: 'Maven mWBTC Token',
-                authors: ['Maven Dev Team <info@mavryk.io>'],
-                source: {
-                    tools: ['Ligo', 'Flexmasa'],
-                    location: 'https://ligolang.org/',
+                authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                homepage: "https://mavenfinance.io",
+                license: {
+                    name: "MIT"
                 },
-                interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
-                errors: [],
-                views: [],
+                source: {
+                    tools: [
+                        "MavrykLIGO 0.60.0",
+                        "Flexmasa atlas-update-run"
+                    ],
+                    location: "https://github.com/MavrykDynamics/maven-finance"
+                },
+                interfaces: ['MIP-12', 'MIP-16', 'MIP-21'],
                 assets: [
                     {
                     symbol: Buffer.from('mWBTC').toString('hex'),
                     name: Buffer.from('mWBTC').toString('hex'),
                     decimals: Buffer.from('8').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex'),
-                    shouldPreferSymbol: true,
-                    thumbnailUri: 'https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME'
+                    icon: Buffer.from('ipfs://Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex'),
+                    shouldPreferSymbol: '74727565',
+                    thumbnailUri: Buffer.from('ipfs://Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex')
                     }
                 ]
                 }),
@@ -248,9 +278,9 @@ export const mTokenMockData = {
                     symbol: Buffer.from('mWBTC').toString('hex'),
                     name: Buffer.from('mWBTC').toString('hex'),
                     decimals: Buffer.from('8').toString('hex'),
-                    icon: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex'),
+                    icon: Buffer.from('ipfs://Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex'),
                     shouldPreferSymbol: '74727565',
-                    thumbnailUri: Buffer.from('https://infura-ipfs.io/ipfs/Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex')
+                    thumbnailUri: Buffer.from('ipfs://Qme1GSg6KA3kbh3T6pwzVf3VcDRKY88fDYG6dzT6yFueME').toString('hex')
                 }),
             },
         })
@@ -267,64 +297,118 @@ export const mockMetadata = {
 
     "aggregator": Buffer.from(
         JSON.stringify({
-            name: 'MAVEN Aggregator Contract',
-            icon: 'https://logo.chainbit.xyz/mvrk',
+            name: 'Maven Finance - Aggregator',
             version: 'v1.0.0',
-            authors: ['MAVEN Dev Team <info@mavryk.io>'],
-        }),
+            authors: ['Mavryk Dynamics <info@mavryk.io>'],
+            icon: 'https://logo.chainbit.xyz/mvrk',
+            category: 'cryptocurrency',
+            homepage: "https://mavenfinance.io",
+            license: {
+                name: "MIT"
+            },
+            source: {
+                tools: [
+                    "MavrykLIGO 0.60.0",
+                    "Flexmasa atlas-update-run"
+                ],
+                location: "https://github.com/MavrykDynamics/maven-finance"
+            },
+            interfaces: [ 'MIP-16' ],
+            }),
         'ascii',
     ).toString('hex'),
 
     "treasury": Buffer.from(
         JSON.stringify({
-            name: 'MAVEN PLENTY-USDTz Treasury',
-            description: 'MAVEN Treasury Contract',
+            name: 'Maven Finance - PLENTY-USDTz Treasury',
             version: 'v1.0.0',
-            authors: ['MAVEN Dev Team <info@mavryk.io>'],
-        }),
+            authors: ['Mavryk Dynamics <info@mavryk.io>'],
+            homepage: "https://mavenfinance.io",
+            license: {
+                name: "MIT"
+            },
+            source: {
+                tools: [
+                    "MavrykLIGO 0.60.0",
+                    "Flexmasa atlas-update-run"
+                ],
+                location: "https://github.com/MavrykDynamics/maven-finance"
+            },
+            interfaces: [ 'MIP-16' ],
+            }),
         'ascii',
     ).toString('hex'),
 
     "farm": Buffer.from(
         JSON.stringify({
-          name: 'MAVEN PLENTY-USDTz Farm',
-          description: 'MAVEN Farm Contract',
+          name: 'Maven Finance - PLENTY-USDTz Farm',
           version: 'v1.0.0',
-          liquidityPairToken: {
-            tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-            origin: ['Plenty'],
-            token0: {
-              symbol: ['PLENTY'],
-              tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-            },
-            token1: {
-              symbol: ['USDtz'],
-              tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-            }
+          authors: ['Mavryk Dynamics <info@mavryk.io>'],
+          homepage: "https://mavenfinance.io",
+          license: {
+              name: "MIT"
           },
-          authors: ['MAVEN Dev Team <info@mavryk.io>'],
+          source: {
+              tools: [
+                  "MavrykLIGO 0.60.0",
+                  "Flexmasa atlas-update-run"
+              ],
+              location: "https://github.com/MavrykDynamics/maven-finance"
+          },
+          interfaces: [ 'MIP-16' ],
+          liquidityPairToken: {
+              tokenAddress: ["KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu"],
+              origin: ["PLENTY"],
+              symbol: ["PLP"],
+              thumbnailUri: "https://raw.githubusercontent.com/Plenty-DeFi/Plenty-Logo/main/Plenty%20Liquidity%20Provider%20Token.png",
+              decimals: 12,
+              token0: {
+                  symbol: ["PLENTY"],
+                  tokenAddress: ["KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"],
+                  thumbnailUri: "https://raw.githubusercontent.com/Plenty-DeFi/Plenty-Logo/main/PlentyTokenIcon.png"
+              },
+              token1: {
+                  symbol: ["USDtz"],
+                  tokenAddress: ["KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9"],
+              }
+          },
         }),
         'ascii',
       ).toString('hex'),
 
     "farmMToken": Buffer.from(
       JSON.stringify({
-        name: 'MAVEN mUSDT Farm',
-        description: 'MAVEN Farm Contract',
+        name: 'Maven Finance - mUSDT Farm',
         version: 'v1.0.0',
-        liquidityPairToken: {
-          tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-          origin: ['Plenty'],
-          token0: {
-            symbol: ['PLENTY'],
-            tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-          },
-          token1: {
-            symbol: ['USDtz'],
-            tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-          }
+        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+        homepage: "https://mavenfinance.io",
+        license: {
+            name: "MIT"
         },
-        authors: ['MAVEN Dev Team <info@mavryk.io>'],
+        source: {
+            tools: [
+                "MavrykLIGO 0.60.0",
+                "Flexmasa atlas-update-run"
+            ],
+            location: "https://github.com/MavrykDynamics/maven-finance"
+        },
+        interfaces: [ 'MIP-16' ],
+        liquidityPairToken: {
+            tokenAddress: ["KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu"],
+            origin: ["PLENTY"],
+            symbol: ["PLP"],
+            thumbnailUri: "https://raw.githubusercontent.com/Plenty-DeFi/Plenty-Logo/main/Plenty%20Liquidity%20Provider%20Token.png",
+            decimals: 12,
+            token0: {
+                symbol: ["PLENTY"],
+                tokenAddress: ["KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"],
+                thumbnailUri: "https://raw.githubusercontent.com/Plenty-DeFi/Plenty-Logo/main/PlentyTokenIcon.png"
+            },
+            token1: {
+                symbol: ["USDtz"],
+                tokenAddress: ["KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9"],
+            }
+        },
       }),
       'ascii',
     ).toString('hex')
@@ -336,11 +420,24 @@ export const aggregatorMockData = {
     'mockAggregator': {
         metadata : Buffer.from(
             JSON.stringify({
-                name: 'MAVEN Aggregator Contract',
-                icon: 'https://logo.chainbit.xyz/mvrk',
+                name: 'Maven Finance - Aggregator',
                 version: 'v1.0.0',
-                authors: ['MAVEN Dev Team <info@mavryk.io>'],
-            }),
+                authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                icon: 'https://logo.chainbit.xyz/mvrk',
+                category: 'cryptocurrency',
+                homepage: "https://mavenfinance.io",
+                license: {
+                    name: "MIT"
+                },
+                source: {
+                    tools: [
+                        "MavrykLIGO 0.60.0",
+                        "Flexmasa atlas-update-run"
+                    ],
+                    location: "https://github.com/MavrykDynamics/maven-finance"
+                },
+                interfaces: [ 'MIP-16' ],
+                }),
             'ascii',
         ).toString('hex')
     }
@@ -353,7 +450,7 @@ export const mockSatelliteData = {
     "alice" : {
         name            : "Alice Dynamics",
         desc            : "The Alice Dynamics belongs to one of the core teams contributing to Maven Finance. The team as Maven Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
-        image           : "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
+        image           : "ipfs://QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
         website         : "https://mavenfinance.io/", 
         satelliteFee    : 500,
         oraclePublicKey : alice.pk,
@@ -363,7 +460,7 @@ export const mockSatelliteData = {
     "bob" : {
         name            : "Maven Dynamics",
         desc            : "The Maven Dynamics belongs to one of the core teams contributing to Maven Finance. The team as Maven Dynamics are heavily focused on building the future of financial independence while ensuring a smooth and simple user experience.",
-        image           : "https://infura-ipfs.io/ipfs/QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
+        image           : "ipfs://QmaqwZAnSWj89kGomozvk8Ng2M5SrSzwibvFyRijWeRbjg",
         website         : "https://mavenfinance.io/", 
         satelliteFee    : 500,
         oraclePublicKey : bob.pk,
@@ -373,7 +470,7 @@ export const mockSatelliteData = {
     "eve" : {
         name            : "Buzz Lightyear",
         desc            : "Buzz is a fabled part of our childhood. He was created by Disney and Pixar mainly voiced by Tim Allen. He is a Superhero toy action figure based on the in-universe media franchise Toy Story, consisting of a blockbuster feature film and animated series, a Space Ranger.", 
-        image           : "https://infura-ipfs.io/ipfs/QmcbigzB5PVfawr1jhctTWDgGTmLBZFbHPNfosDfq9zckQ",
+        image           : "ipfs://QmcbigzB5PVfawr1jhctTWDgGTmLBZFbHPNfosDfq9zckQ",
         website         : "https://toystory.disney.com/buzz-lightyear", 
         satelliteFee    : 350,
         oraclePublicKey : eve.pk,
@@ -383,7 +480,7 @@ export const mockSatelliteData = {
     "mallory" : {
         name            : "Captain Kirk",
         desc            : "James Tiberius \"Jim\" Kirk is a legendary Starfleet officer who lived during the 23rd century. His time in Starfleet, made Kirk arguably one of the most famous and sometimes infamous starship captains in Starfleet history.",
-        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        image           : "ipfs://QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
         website         : "https://intl.startrek.com/",
         satelliteFee    : 700,
         oraclePublicKey : mallory.pk,
@@ -393,7 +490,7 @@ export const mockSatelliteData = {
     "oscar" : {
         name            : "Oscar Wilde",
         desc            : "Oscar Fingal O'Fflahertie Wills Wilde was an Irish poet and playwright. After writing in different forms throughout the 1880s, he became one of the most popular playwrights in London in the early 1890s.",
-        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        image           : "ipfs://QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
         website         : "https://intl.startrek.com/",
         satelliteFee    : 700,
         oraclePublicKey : oscar.pk,
@@ -403,7 +500,7 @@ export const mockSatelliteData = {
     "ivan" : {
         name            : "Ivan Pavlov",
         desc            : "Ivan Petrovich Pavlov, was a Russian and Soviet experimental neurologist, psychologist and physiologist known for his discovery of classical conditioning through his experiments with dogs.",
-        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        image           : "ipfs://QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
         website         : "https://intl.startrek.com/",
         satelliteFee    : 600,
         oraclePublicKey : ivan.pk,
@@ -413,7 +510,7 @@ export const mockSatelliteData = {
     "trudy" : {
         name            : "Trudy",
         desc            : "Lorem ipsum about trudy.",
-        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        image           : "ipfs://QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
         website         : "https://intl.startrek.com/",
         satelliteFee    : 500,
         oraclePublicKey : trudy.pk,
@@ -423,7 +520,7 @@ export const mockSatelliteData = {
     "susie" : {
         name            : "Susie",
         desc            : "Lorem ipsum about susie.",
-        image           : "https://infura-ipfs.io/ipfs/QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
+        image           : "ipfs://QmT5aHNdawngnruJ2QtKxGd38H642fYjV7xqZ7HX5CuwRn",
         website         : "https://intl.startrek.com/",
         satelliteFee    : 500,
         oraclePublicKey : susie.pk,

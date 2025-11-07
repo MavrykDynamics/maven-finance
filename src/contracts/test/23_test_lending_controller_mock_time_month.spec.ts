@@ -144,11 +144,11 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
         mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
         mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
-        mTokenMvrkInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
+        mTokenMvrkInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
 
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
-        mockUsdMvrkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
+        mockUsdMvrkAggregatorInstance           = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
         mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress);
@@ -1186,15 +1186,17 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const vaultName     = "newVault";
-            const loanTokenName = "usdt";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const vaultName         = "newVault";
+            const loanTokenName     = "usdt";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,            // vault config - standard type
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -1209,6 +1211,8 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -1313,7 +1317,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1331,7 +1342,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await signerFactory(tezos, eve.sk);  
 
             // treasury share of interest repaid
-            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
+            const configInterestTreasuryShare = vaultConfigRecord.interestTreasuryShare;
 
             // repayment amount
             const repayAmount = 500000; // 0.5 Mock FA12 Tokens
@@ -1367,7 +1378,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             initialTokenPoolTotal   = loanTokenRecordView.Some.tokenPoolTotal;
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -1453,15 +1464,17 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // Create Vault
             // ----------------------------------------------------------------------------------------------
             
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const loanTokenName = "usdt";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const loanTokenName     = "usdt";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,            // vault config - standard type
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -1476,6 +1489,8 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -1580,7 +1595,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1598,7 +1620,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await signerFactory(tezos, eve.sk);  
 
             // treasury share of interest repaid
-            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
+            const configInterestTreasuryShare = vaultConfigRecord.interestTreasuryShare;
 
             // repayment amount
             const repayAmount = 10000; // 0.01 Mock FA12 Tokens
@@ -1637,7 +1659,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -1723,15 +1745,17 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const loanTokenName = "usdt";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const loanTokenName     = "usdt";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,            // vault config - standard type
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -1746,6 +1770,8 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -1850,7 +1876,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -1868,7 +1901,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await signerFactory(tezos, eve.sk);  
 
             // treasury share of interest repaid
-            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
+            const configInterestTreasuryShare = vaultConfigRecord.interestTreasuryShare;
 
             // repayment amount
             const repayAmount = 500000; // 0.5 Mock FA12 Tokens
@@ -1907,7 +1940,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -1994,15 +2027,17 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const loanTokenName = "usdt";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const loanTokenName     = "usdt";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,            // vault config - standard type
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -2017,6 +2052,8 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -2119,7 +2156,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -2137,7 +2181,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await signerFactory(tezos, eve.sk);  
 
             // treasury share of interest repaid
-            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
+            const configInterestTreasuryShare = vaultConfigRecord.interestTreasuryShare;
 
             // repayment amount
             const repayAmount = 10000; // 0.01 Mock FA12 Tokens
@@ -2176,7 +2220,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -2266,15 +2310,17 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const loanTokenName = "eurt";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const loanTokenName     = "eurt";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,            // vault config - standard type
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -2289,6 +2335,8 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -2393,7 +2441,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -2411,7 +2466,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await signerFactory(tezos, eve.sk);  
 
             // treasury share of interest repaid
-            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
+            const configInterestTreasuryShare = vaultConfigRecord.interestTreasuryShare;
 
             // repayment amount
             const repayAmount = 500000; // 0.5 Mock FA12 Tokens
@@ -2450,7 +2505,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -2537,15 +2592,17 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const loanTokenName = "eurt";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const loanTokenName     = "eurt";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,            // vault config - standard type
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -2560,6 +2617,8 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -2664,7 +2723,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -2682,7 +2748,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await signerFactory(tezos, eve.sk);  
 
             // treasury share of interest repaid
-            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
+            const configInterestTreasuryShare = vaultConfigRecord.interestTreasuryShare;
 
             // repayment amount
             const repayAmount = 10000; // 0.01 Mock FA12 Tokens
@@ -2721,7 +2787,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -2808,15 +2874,17 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const loanTokenName = "eurt";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const loanTokenName     = "eurt";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,            // vault config - standard type
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -2831,6 +2899,8 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -2935,7 +3005,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -2953,7 +3030,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await signerFactory(tezos, eve.sk);  
 
             // treasury share of interest repaid
-            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
+            const configInterestTreasuryShare = vaultConfigRecord.interestTreasuryShare;
 
             // repayment amount
             const repayAmount = 500000; // 0.5 Mock FA12 Tokens
@@ -2992,7 +3069,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -3078,15 +3155,17 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const loanTokenName = "eurt";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const loanTokenName     = "eurt";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,            // vault config - standard type
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -3101,6 +3180,8 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+            
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -3205,7 +3286,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -3223,7 +3311,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await signerFactory(tezos, eve.sk);  
 
             // treasury share of interest repaid
-            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
+            const configInterestTreasuryShare = vaultConfigRecord.interestTreasuryShare;
 
             // repayment amount
             const repayAmount = 10000; // 0.01 Mock FA12 Tokens
@@ -3262,7 +3350,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -3353,16 +3441,18 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const loanTokenName = "mav";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const loanTokenName     = "mav";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             // user (eve) creates a new vault with no mav
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,            // vault config - standard type
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -3377,6 +3467,8 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -3481,7 +3573,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -3499,7 +3598,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await signerFactory(tezos, eve.sk);  
 
             // treasury share of interest repaid
-            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
+            const configInterestTreasuryShare = vaultConfigRecord.interestTreasuryShare;
 
             // repayment amount
             const repayAmount = 500000; // 0.5 Mav
@@ -3523,7 +3622,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mumav : true, amount : repayAmount});
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send({ mumav : true, amount : repayAmount});
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -3611,16 +3710,18 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const loanTokenName = "mav";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const loanTokenName     = "mav";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             // user (eve) creates a new vault with no mav
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,            // vault config - standard type
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -3635,6 +3736,8 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -3739,7 +3842,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -3757,7 +3867,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await signerFactory(tezos, eve.sk);  
 
             // treasury share of interest repaid
-            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
+            const configInterestTreasuryShare = vaultConfigRecord.interestTreasuryShare;
 
             // repayment amount
             const repayAmount = 10000; // 0.01 Mav
@@ -3781,7 +3891,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mumav : true, amount : repayAmount});
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send({ mumav : true, amount : repayAmount});
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -3870,16 +3980,18 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const loanTokenName = "mav";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const loanTokenName     = "mav";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             // user (eve) creates a new vault with no mav
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,            // vault config - standard type
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -3894,6 +4006,8 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -3998,7 +4112,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -4016,7 +4137,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await signerFactory(tezos, eve.sk);  
 
             // treasury share of interest repaid
-            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
+            const configInterestTreasuryShare = vaultConfigRecord.interestTreasuryShare;
 
             // repayment amount
             const repayAmount = 500000; // 0.5 Mav
@@ -4040,7 +4161,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mumav : true, amount : repayAmount});
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send({ mumav : true, amount : repayAmount});
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);
@@ -4128,16 +4249,18 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // Create Vault
             // ----------------------------------------------------------------------------------------------
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const loanTokenName = "mav";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const loanTokenName     = "mav";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             // user (eve) creates a new vault with no mav
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,            // vault config - standard type
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -4152,6 +4275,8 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             const newVaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = newVaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(newVaultRecord.vaultConfig);
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -4256,7 +4381,14 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
 
             const newBlockLevel = lastUpdatedBlockLevel.toNumber() + oneMonthLevelBlocks;
 
-            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(newBlockLevel, 'configMockLevel').send();
+            const setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newBlockLevel
+                    },
+                ]
+            ).send();
             await setMockLevelOperation.confirmation();
 
             const mockTimeLendingControllerStorage = await lendingControllerInstance.storage();
@@ -4274,7 +4406,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             await signerFactory(tezos, eve.sk);  
 
             // treasury share of interest repaid
-            const configInterestTreasuryShare = await lendingControllerStorage.config.interestTreasuryShare;
+            const configInterestTreasuryShare = vaultConfigRecord.interestTreasuryShare;
 
             // repayment amount
             const repayAmount = 10000; // 0.01 Mav
@@ -4298,7 +4430,7 @@ describe("Lending Controller (Mock Time - One Month) tests", async () => {
             // console.log("REPAY OP ESTIMATION: ", estimate);
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send({ mumav : true, amount : repayAmount});
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send({ mumav : true, amount : repayAmount});
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);

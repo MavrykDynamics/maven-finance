@@ -164,7 +164,7 @@ export const setGeneralContractLambdas = async (tezosToolkit: TezosToolkit, cont
 
     // lambdas for lending controller are much larger than other contracts
     if(contractName == "lendingController" || contractName == "lendingControllerMockTime"){
-        lambdasPerBatch = 4;
+        lambdasPerBatch = 3;
     }
 
     const lambdas = generalContractLambdas[contractName];

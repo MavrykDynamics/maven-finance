@@ -945,59 +945,63 @@ block{
     var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
-        | LambdaOnVaultLiquidateStake(onVaultLiquidateStakeParams) -> {
+        | LambdaOnVaultLiquidateStake(onVaultLiquidateStakeListParams) -> {
 
                 // verify sender is Lending Controller 
                 verifySenderIsLendingControllerContract(s);
 
-                // init parameters
-                const vaultAddress      : address  = onVaultLiquidateStakeParams.vaultAddress;
-                const liquidator        : address  = onVaultLiquidateStakeParams.liquidator;
-                const liquidatedAmount  : nat      = onVaultLiquidateStakeParams.liquidatedAmount;
+                for onVaultLiquidateStakeParams in list onVaultLiquidateStakeListParams {
 
-                // Get Delegation Address from the General Contracts map on the Governance Contract
-                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+                    // init parameters
+                    const vaultAddress      : address  = onVaultLiquidateStakeParams.vaultAddress;
+                    const liquidator        : address  = onVaultLiquidateStakeParams.liquidator;
+                    const liquidatedAmount  : nat      = onVaultLiquidateStakeParams.liquidatedAmount;
 
-                // Compound rewards for liquidator, and vault before any changes in balance takes place
-                s := compoundUserRewards(liquidator, s);
-                s := compoundUserRewards(vaultAddress, s);
+                    // Get Delegation Address from the General Contracts map on the Governance Contract
+                    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
-                // find vault record in stake balance ledger
-                var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
-                        Some(_val)  -> _val
-                    |   None        -> failwith(error_VAULT_STAKE_RECORD_NOT_FOUND)
-                ];
-                const vaultInitBalance : nat = vaultStakeBalanceRecord.balance;
+                    // Compound rewards for liquidator, and vault before any changes in balance takes place
+                    s := compoundUserRewards(liquidator, s);
+                    s := compoundUserRewards(vaultAddress, s);
 
-                // find or create liquidator record in stake balance ledger 
-                var liquidatorStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[liquidator] of [
-                        Some(_v) -> _v
-                    |   None -> record[
-                            balance                        = 0n;
-                            totalExitFeeRewardsClaimed     = 0n;
-                            totalSatelliteRewardsClaimed   = 0n;
-                            totalFarmRewardsClaimed        = 0n;
-                            participationFeesPerShare      = s.accumulatedFeesPerShare;
-                        ]
-                ];
-                const userInitBalance : nat = liquidatorStakeBalanceRecord.balance;
+                    // find vault record in stake balance ledger
+                    var vaultStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
+                            Some(_val)  -> _val
+                        |   None        -> failwith(error_VAULT_STAKE_RECORD_NOT_FOUND)
+                    ];
+                    const vaultInitBalance : nat = vaultStakeBalanceRecord.balance;
 
-                // calculate new vault staked balance (check if vault has enough staked MVN to be liquidated)
-                if liquidatedAmount > vaultInitBalance then failwith(error_INSUFFICIENT_STAKED_MVN_BALANCE) else skip;
-                const newVaultStakedBalance : nat = abs(vaultInitBalance - liquidatedAmount);
+                    // find or create liquidator record in stake balance ledger 
+                    var liquidatorStakeBalanceRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[liquidator] of [
+                            Some(_v) -> _v
+                        |   None -> record[
+                                balance                        = 0n;
+                                totalExitFeeRewardsClaimed     = 0n;
+                                totalSatelliteRewardsClaimed   = 0n;
+                                totalFarmRewardsClaimed        = 0n;
+                                participationFeesPerShare      = s.accumulatedFeesPerShare;
+                            ]
+                    ];
+                    const userInitBalance : nat = liquidatorStakeBalanceRecord.balance;
 
-                // update vault stake balance in stake balance ledger
-                vaultStakeBalanceRecord.balance           := newVaultStakedBalance; 
-                s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
+                    // calculate new vault staked balance (check if vault has enough staked MVN to be liquidated)
+                    if liquidatedAmount > vaultInitBalance then failwith(error_INSUFFICIENT_STAKED_MVN_BALANCE) else skip;
+                    const newVaultStakedBalance : nat = abs(vaultInitBalance - liquidatedAmount);
 
-                // update liquidator stake balance in stake balance ledger
-                liquidatorStakeBalanceRecord.balance      := userInitBalance + liquidatedAmount;
-                s.userStakeBalanceLedger[liquidator]      := liquidatorStakeBalanceRecord;
+                    // update vault stake balance in stake balance ledger
+                    vaultStakeBalanceRecord.balance           := newVaultStakedBalance; 
+                    s.userStakeBalanceLedger[vaultAddress]    := vaultStakeBalanceRecord;
 
-                // update satellite balance if user/vault is delegated to a satellite
-                const onStakeChangeOperation : operation    = Mavryk.transaction(set[(vaultAddress, vaultInitBalance); (liquidator, userInitBalance)]  , 0mav, delegationOnStakeChange(delegationAddress));
+                    // update liquidator stake balance in stake balance ledger
+                    liquidatorStakeBalanceRecord.balance      := userInitBalance + liquidatedAmount;
+                    s.userStakeBalanceLedger[liquidator]      := liquidatorStakeBalanceRecord;
 
-                operations  := list [onStakeChangeOperation]
+                    // update satellite balance if user/vault is delegated to a satellite
+                    const onStakeChangeOperation : operation    = Mavryk.transaction(set[(vaultAddress, vaultInitBalance); (liquidator, userInitBalance)]  , 0mav, delegationOnStakeChange(delegationAddress));
+
+                    operations  := list [onStakeChangeOperation];
+
+                };
             }
         | _ -> skip
     ];

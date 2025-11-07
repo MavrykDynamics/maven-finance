@@ -21,6 +21,7 @@ type vaultFactoryConfigType is [@layout:comb] record [
 
 type createVaultType is [@layout:comb] record[
     baker                       : option(key_hash); 
+    vaultConfig                 : nat;
     loanTokenName               : string;            // use string, not variant, to account for future loan types using the same controller contract
     name                        : string;
     collateral                  : option(list(depositType));
@@ -82,7 +83,6 @@ type vaultFactoryLambdaActionType is
 type vaultFactoryStorageType is [@layout:comb] record[
     admin                  : address;
     metadata               : metadataType;
-    vaultMetadata          : metadataType;
     config                 : vaultFactoryConfigType;
 
     mvnTokenAddress        : address;

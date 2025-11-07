@@ -95,11 +95,11 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
 
         mTokenUsdtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
         mTokenEurtInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
-        mTokenMvrkInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
+        mTokenMvrkInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
 
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
-        mockUsdMvrkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
+        mockUsdMvrkAggregatorInstance           = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
         mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(contractDeployments.lendingController.address);
@@ -161,11 +161,12 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                     const vaultOwner                = eve.pkh;
                     const vaultName                 = "newVault";
                     const loanTokenName             = "eurt";
-
+                    const vaultConfig               = 0; // vault config - standard type
                     const depositorsConfig          = "whitelist";
 
                     const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                         baker.pkh,  
+                        vaultConfig,
                         loanTokenName,
                         vaultName,
                         null,
@@ -561,17 +562,18 @@ describe("Lending Controller Pause Loan/Collateral Token tests", async () => {
                 const vaultOwner         = eve.pkh;
                 const borrowAmount       = 1000000; // 1 Mock FA2 Tokens
 
-                const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
-                const minimumLoanFeePercent  = lendingControllerStorage.config.minimumLoanFeePercent; // e.g. 1%
-                const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
-                const finalLoanAmount        = borrowAmount - minimumLoanFee;
-
                 // setup vault handle and vault record
                 const vaultHandle = {
                     "id"    : vaultId,
                     "owner" : vaultOwner
                 };
                 const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
+
+                const vaultConfigRecord      = await lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+                const decimals               = lendingControllerStorage.config.decimals;       // e.g. 3
+                const minimumLoanFeePercent  = vaultConfigRecord.minimumLoanFeePercent;        // e.g. 1%
+                const minimumLoanFee         = (borrowAmount * minimumLoanFeePercent) / (10 ** decimals);
+                const finalLoanAmount        = borrowAmount - minimumLoanFee;
 
                 // get initial variables
                 const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal.toNumber();

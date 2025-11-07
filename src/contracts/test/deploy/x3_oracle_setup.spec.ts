@@ -74,55 +74,115 @@ describe('Oracle Setup', async () => {
 
                 const btcUsdMetadata = Buffer.from(
                     JSON.stringify({
-                        name: 'BTC/USD Aggregator Contract',
-                        icon: 'https://infura-ipfs.io/ipfs/QmNyMFPuh43K9wkYHV6shtLYMusqXf3YCkes9aWAgird6u',
+                        name: 'Maven Finance - BTC/USD Aggregator',
                         version: 'v1.0.0',
-                        authors: ['Maven Dev Team <info@mavryk.io>'],
-                        category: 'cryptocurrency'
-                    }),
+                        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                        icon: 'ipfs://QmQ3mno4hNt9ENMUhVGFhv49RdnkPpJQmxwRMHRmAmrLaS',
+                        category: 'cryptocurrency',
+                        homepage: "https://mavenfinance.io",
+                        license: {
+                            name: "MIT"
+                        },
+                        source: {
+                            tools: [
+                                "MavrykLIGO 0.60.0",
+                                "Flexmasa atlas-update-run"
+                            ],
+                            location: "https://github.com/MavrykDynamics/maven-finance"
+                        },
+                        interfaces: [ 'MIP-16' ],
+                        }),
                     'ascii',
                 ).toString('hex')
 
                 const mvrkUsdMetadata = Buffer.from(
                     JSON.stringify({
-                        name: 'MVRK/USD Aggregator Contract',
-                        icon: '',
+                        name: 'Maven Finance - MVRK/USD Aggregator',
                         version: 'v1.0.0',
-                        authors: ['Maven Dev Team <info@mavryk.io>'],
-                        category: 'cryptocurrency'
-                    }),
+                        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                        icon: 'ipfs://QmVKuChbrLg9nt5VCsm8ABXxoCaju2a2KSbTeSbt8vHR1W',
+                        category: 'cryptocurrency',
+                        homepage: "https://mavenfinance.io",
+                        license: {
+                            name: "MIT"
+                        },
+                        source: {
+                            tools: [
+                                "MavrykLIGO 0.60.0",
+                                "Flexmasa atlas-update-run"
+                            ],
+                            location: "https://github.com/MavrykDynamics/maven-finance"
+                        },
+                        interfaces: [ 'MIP-16' ],
+                        }),
                     'ascii',
                 ).toString('hex')
 
                 const usdtUsdMetadata = Buffer.from(
                     JSON.stringify({
-                        name: 'USDT/USD Aggregator Contract',
-                        icon: 'https://infura-ipfs.io/ipfs/QmVvUnYu7jfKFR6KDVhPbPXC89tYCCajDvDHuYgPdH6unK',
+                        name: 'Maven Finance - USDT/USD Aggregator',
                         version: 'v1.0.0',
-                        authors: ['Maven Dev Team <info@mavryk.io>'],
-                        category: 'stablecoin'
+                        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                        icon: 'ipfs://QmdsFRYNuJX6HRamC2pXp3FiuEa4jB9uCZdg3sr3HD6KT7',
+                        category: 'stablecoin',
+                        homepage: "https://mavenfinance.io",
+                        license: {
+                            name: "MIT"
+                        },
+                        source: {
+                            tools: [
+                                "MavrykLIGO 0.60.0",
+                                "Flexmasa atlas-update-run"
+                            ],
+                            location: "https://github.com/MavrykDynamics/maven-finance"
+                        },
+                        interfaces: [ 'MIP-16' ]
                     }),
                     'ascii',
                 ).toString('hex')
 
                 const oceanUsdMetadata = Buffer.from(
                     JSON.stringify({
-                        name: 'OCEAN/USD Aggregator Contract',
-                        icon: 'https://infura-ipfs.io/ipfs/QmVvUnYu7jfKFR6KDVhPbPXC89tYCCajDvDHuYgPdH6unK',
+                        name: 'Maven Finance - OCEAN/USD Aggregator',
                         version: 'v1.0.0',
-                        authors: ['Equiteez <info@mavryk.io>'],
-                        category: 'rwa'
+                        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                        icon: 'ipfs://QmVvUnYu7jfKFR6KDVhPbPXC89tYCCajDvDHuYgPdH6unK',
+                        category: 'rwa',
+                        homepage: "https://mavenfinance.io",
+                        license: {
+                            name: "MIT"
+                        },
+                        source: {
+                            tools: [
+                                "MavrykLIGO 0.60.0",
+                                "Flexmasa atlas-update-run"
+                            ],
+                            location: "https://github.com/MavrykDynamics/maven-finance"
+                        },
+                        interfaces: [ 'MIP-16' ]
                     }),
                     'ascii',
                 ).toString('hex')
 
                 const mars1UsdMetadata = Buffer.from(
                     JSON.stringify({
-                        name: 'MARS1/USD Aggregator Contract',
-                        icon: 'https://cloudflare-ipfs.com/ipfs/QmdkDb6KnboFNknuyK72eFdM1qKgetYZegBoQkcjDYhG5k',
+                        name: 'Maven Finance - MARS1/USD Aggregator',
                         version: 'v1.0.0',
-                        authors: ['Equiteez <info@mavryk.io>'],
-                        category: 'rwa'
+                        authors: ['Mavryk Dynamics <info@mavryk.io>'],
+                        icon: 'ipfs://QmdkDb6KnboFNknuyK72eFdM1qKgetYZegBoQkcjDYhG5k',
+                        category: 'rwa',
+                        homepage: "https://mavenfinance.io",
+                        license: {
+                            name: "MIT"
+                        },
+                        source: {
+                            tools: [
+                                "MavrykLIGO 0.60.0",
+                                "Flexmasa atlas-update-run"
+                            ],
+                            location: "https://github.com/MavrykDynamics/maven-finance"
+                        },
+                        interfaces: [ 'MIP-16' ]
                     }),
                     'ascii',
                 ).toString('hex')

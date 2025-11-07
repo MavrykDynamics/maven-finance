@@ -88,7 +88,7 @@ block {
                         }
                     |   Deposit(depositParams) -> {
 
-                            // verify that %deposit is not paused on Lending Controller
+                            // verify that %vaultDeposit is not paused on Lending Controller
                             verifyVaultDepositIsNotPaused(s);
 
                             // init deposit operation params
@@ -142,7 +142,7 @@ block {
                         }
                     |   Withdraw(withdrawParams) -> {
 
-                            // verify that %withdraw is not paused on Lending Controller
+                            // verify that %vaultWithdraw is not paused on Lending Controller
                             verifyVaultWithdrawIsNotPaused(s);
 
                             // verify sender is vault owner
@@ -185,35 +185,37 @@ block {
 
                         }
 
-                    |   OnLiquidate(onLiquidateParams) -> {
+                    |   OnLiquidate(onLiquidateListParams) -> {
 
                             // verify that %onLiquidate is not paused on Lending Controller
                             verifyVaultOnLiquidateIsNotPaused(s);
 
                             verifySenderIsLendingControllerContract(s);
 
-                            // onLiquidate operation
-                            const receiver   : address    = onLiquidateParams.receiver;
-                            const amount     : nat        = onLiquidateParams.amount;
-                            const tokenName  : string     = onLiquidateParams.tokenName;
+                            for onLiquidateParams in list onLiquidateListParams {
 
-                            // get collateral token record from Lending Controller through on-chain view
-                            const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
+                                // onLiquidate operation
+                                const receiver   : address    = onLiquidateParams.receiver;
+                                const amount     : nat        = onLiquidateParams.amount;
+                                const tokenName  : string     = onLiquidateParams.tokenName;
 
-                            // get collateral token's token type
-                            const tokenType : tokenType = collateralTokenRecord.tokenType;
+                                // get collateral token record from Lending Controller through on-chain view
+                                const collateralTokenRecord : collateralTokenRecordType = getCollateralTokenRecordByName(tokenName, s);
 
-                            // process withdrawal from vault to liquidator
-                            if amount > 0n then {
-                                const processVaultWithdrawalOperation : operation = processVaultTransfer(
-                                    Mavryk.get_self_address(),   // from_
-                                    receiver,                   // to_
-                                    amount,                     // amount
-                                    tokenType                   // tokenType
-                                );
-                                operations := processVaultWithdrawalOperation # operations;
-                            } else skip;
+                                // get collateral token's token type
+                                const tokenType : tokenType = collateralTokenRecord.tokenType;
 
+                                // process withdrawal from vault to liquidator
+                                if amount > 0n then {
+                                    const processVaultWithdrawalOperation : operation = processVaultTransfer(
+                                        Mavryk.get_self_address(),  // from_
+                                        receiver,                   // to_
+                                        amount,                     // amount
+                                        tokenType                   // tokenType
+                                    );
+                                    operations := processVaultWithdrawalOperation # operations;
+                                } else skip;
+                            };
                         }
 
                     |   UpdateDepositor(updateDepositorParams) -> {

@@ -49,11 +49,12 @@ type depositType  is [@layout:comb] record [
     tokenName       : string
 ]
 
-type onLiquidateType  is [@layout:comb] record [
+type onLiquidateSingleType  is [@layout:comb] record [
     receiver        : address;
     amount          : nat;
     tokenName       : string
 ]
+type onLiquidateListType is list(onLiquidateSingleType)
 
 type updateTokenOperatorsType is [@layout:comb] record [
     tokenName        : string;
@@ -66,7 +67,7 @@ type initVaultActionType is
     |   DelegateToSatellite     of delegateToSatelliteType
     |   Deposit                 of depositType
     |   Withdraw                of withdrawType
-    |   OnLiquidate             of onLiquidateType
+    |   OnLiquidate             of onLiquidateListType
     |   UpdateDepositor         of updateDepositorType
     |   UpdateTokenOperators    of updateTokenOperatorsType
     |   UpdateVaultName         of string
@@ -80,7 +81,7 @@ type initVaultActionType is
 type vaultLambdaActionType is 
 
         // Vault Entrypoints
-    |   LambdaDepositMvrk                 of unit
+    |   LambdaDepositMvrk                of unit
     |   LambdaInitVaultAction            of initVaultActionType
 
 // ------------------------------------------------------------------------------
@@ -93,5 +94,6 @@ type vaultStorageType is record [
     name                    : string;                   // vault name
     handle                  : vaultHandleType;          // owner of the vault
     depositors              : depositorsType;           // users who can deposit into the vault    
+    vaultConfig             : nat;                      // vault config
 ]
 

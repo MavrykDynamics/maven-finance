@@ -457,11 +457,11 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
         mUsdtTokenInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenUsdt.address);
         mEurtTokenInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenEurt.address);
-        mMvrkTokenInstance                       = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
+        mMvrkTokenInstance                      = await utils.tezos.contract.at(contractDeployments.mTokenMvrk.address);
 
         mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa12TokenAggregator.address);
         mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(contractDeployments.mockUsdMockFa2TokenAggregator.address);
-        mockUsdMvrkAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
+        mockUsdMvrkAggregatorInstance           = await utils.tezos.contract.at(contractDeployments.mockUsdMvrkAggregator.address);
         mockUsdMvnAggregatorInstance            = await utils.tezos.contract.at(contractDeployments.mockUsdMvnAggregator.address);
 
         lendingControllerInstance               = await utils.tezos.contract.at(lendingControllerAddress);
@@ -482,7 +482,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
         // set up token oracles for testing
         mockUsdMockFa12TokenAggregatorStorage   = await mockUsdMockFa12TokenAggregatorInstance.storage();
         mockUsdMockFa2TokenAggregatorStorage    = await mockUsdMockFa2TokenAggregatorInstance.storage();
-        mockUsdMvrkAggregatorStorage             = await mockUsdMvrkAggregatorInstance.storage();
+        mockUsdMvrkAggregatorStorage            = await mockUsdMvrkAggregatorInstance.storage();
         mockUsdMvnAggregatorStorage             = await mockUsdMvnAggregatorInstance.storage();
 
         // ------------------------------------------------------------------
@@ -1659,15 +1659,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             currentMockLevel      = lendingControllerStorage.mockLevel;
 
-            // config variables
-            const liquidationDelayInMins        = lendingControllerStorage.config.liquidationDelayInMins.toNumber();
-            const liquidationMaxDuration        = lendingControllerStorage.config.liquidationMaxDuration.toNumber();
-            const maxVaultLiquidationPercent    = lendingControllerStorage.config.maxVaultLiquidationPercent.toNumber();
-            const adminLiquidationFeePercent    = lendingControllerStorage.config.adminLiquidationFeePercent.toNumber();
-            const liquidationFeePercent         = lendingControllerStorage.config.liquidationFeePercent.toNumber();
-            const interestTreasuryShare         = lendingControllerStorage.config.interestTreasuryShare.toNumber();
-            
-
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
@@ -1675,16 +1666,18 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             await signerFactory(tezos, eve.sk);
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const liquidator    = mallory.pkh;
-            const loanTokenName = "usdt";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const liquidator        = mallory.pkh;
+            const loanTokenName     = "usdt";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -1699,6 +1692,16 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = vaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+
+            // config variables
+            const liquidationDelayInMins        = vaultConfigRecord.liquidationDelayInMins.toNumber();
+            const liquidationMaxDuration        = vaultConfigRecord.liquidationMaxDuration.toNumber();
+            const maxVaultLiquidationPercent    = vaultConfigRecord.maxVaultLiquidationPercent.toNumber();
+            const adminLiquidationFeePercent    = vaultConfigRecord.adminLiquidationFeePercent.toNumber();
+            const liquidationFeePercent         = vaultConfigRecord.liquidationFeePercent.toNumber();
+            const interestTreasuryShare         = vaultConfigRecord.interestTreasuryShare.toNumber();
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -1806,8 +1809,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             mockLevelChange = yearsPassed * oneYearLevelBlocks;
             newMockLevel = lastUpdatedBlockLevel.toNumber() + mockLevelChange;
 
-            const setMockLevelOperationOne = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
-            await setMockLevelOperationOne.confirmation();
+            let setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newMockLevel
+                    },
+                ]
+            ).send();
+            await setMockLevelOperation.confirmation();
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             currentMockLevel = lendingControllerStorage.config.mockLevel;
@@ -1864,8 +1874,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
             newMockLevel = markedForLiquidationLevel.toNumber() + mockLevelChange;
 
-            const setMockLevelOperationTwo = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
-            await setMockLevelOperationTwo.confirmation();
+            setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newMockLevel
+                    },
+                ]
+            ).send();
+            await setMockLevelOperation.confirmation();
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             currentMockLevel = lendingControllerStorage.config.mockLevel;
@@ -1899,8 +1916,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
             newMockLevel = markedForLiquidationLevel.toNumber() + mockLevelChange;
 
-            const setMockLevelOperationThree = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
-            await setMockLevelOperationThree.confirmation();
+            setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newMockLevel
+                    },
+                ]
+            ).send();
+            await setMockLevelOperation.confirmation();
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             currentMockLevel = lendingControllerStorage.config.mockLevel;
@@ -1992,19 +2016,19 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
 
             // get updated Mock FA12 Token balance for Eve (vault owner), liquidator, vault, Treasury and Token Pool Reward Contract
-            vaultOwnerMockFa12TokenAccount          =  await usdtTokenStorage.ledger.get(vaultOwner);            
+            vaultOwnerMockFa12TokenAccount          = await usdtTokenStorage.ledger.get(vaultOwner);            
             updatedVaultOwnerMockFa12TokenBalance   = vaultOwnerMockFa12TokenAccount == undefined ? 0 : vaultOwnerMockFa12TokenAccount.balance.toNumber();
 
-            vaultMockFa12TokenAccount               =  await usdtTokenStorage.ledger.get(vaultAddress);            
+            vaultMockFa12TokenAccount               = await usdtTokenStorage.ledger.get(vaultAddress);            
             updatedVaultMockFa12TokenBalance        = vaultMockFa12TokenAccount == undefined ? 0 : vaultMockFa12TokenAccount.balance.toNumber();
 
-            liquidatorMockFa12TokenAccount          =  await usdtTokenStorage.ledger.get(liquidator);            
+            liquidatorMockFa12TokenAccount          = await usdtTokenStorage.ledger.get(liquidator);            
             updatedLiquidatorMockFa12TokenBalance   = liquidatorMockFa12TokenAccount == undefined ? 0 : liquidatorMockFa12TokenAccount.balance.toNumber();
 
-            treasuryMockFa12TokenAccount            =  await usdtTokenStorage.ledger.get(contractDeployments.treasury.address);            
+            treasuryMockFa12TokenAccount            = await usdtTokenStorage.ledger.get(contractDeployments.treasury.address);            
             updatedTreasuryMockFa12TokenBalance     = treasuryMockFa12TokenAccount == undefined ? 0 : treasuryMockFa12TokenAccount.balance.toNumber();
 
-            lendingControllerMockFa12TokenAccount            =  await usdtTokenStorage.ledger.get(lendingControllerAddress);            
+            lendingControllerMockFa12TokenAccount            = await usdtTokenStorage.ledger.get(lendingControllerAddress);            
             updatedLendingControllerMockFa12TokenBalance     = lendingControllerMockFa12TokenAccount == undefined ? 0 : lendingControllerMockFa12TokenAccount.balance.toNumber();
 
 
@@ -2180,15 +2204,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             currentMockLevel      = lendingControllerStorage.mockLevel;
 
-            // config variables
-            const liquidationDelayInMins        = lendingControllerStorage.config.liquidationDelayInMins.toNumber();
-            const liquidationMaxDuration        = lendingControllerStorage.config.liquidationMaxDuration.toNumber();
-            const maxVaultLiquidationPercent    = lendingControllerStorage.config.maxVaultLiquidationPercent.toNumber();
-            const adminLiquidationFeePercent    = lendingControllerStorage.config.adminLiquidationFeePercent.toNumber();
-            const liquidationFeePercent         = lendingControllerStorage.config.liquidationFeePercent.toNumber();
-            const interestTreasuryShare         = lendingControllerStorage.config.interestTreasuryShare.toNumber();
-            
-
             // ----------------------------------------------------------------------------------------------
             // Create Vault
             // ----------------------------------------------------------------------------------------------
@@ -2196,16 +2211,18 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             await signerFactory(tezos, eve.sk);
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const liquidator    = mallory.pkh;
-            const loanTokenName = "eurt";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const liquidator        = mallory.pkh;
+            const loanTokenName     = "eurt";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -2220,6 +2237,16 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             vaultRecord          = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = vaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+
+            // config variables
+            const liquidationDelayInMins        = vaultConfigRecord.liquidationDelayInMins.toNumber();
+            const liquidationMaxDuration        = vaultConfigRecord.liquidationMaxDuration.toNumber();
+            const maxVaultLiquidationPercent    = vaultConfigRecord.maxVaultLiquidationPercent.toNumber();
+            const adminLiquidationFeePercent    = vaultConfigRecord.adminLiquidationFeePercent.toNumber();
+            const liquidationFeePercent         = vaultConfigRecord.liquidationFeePercent.toNumber();
+            const interestTreasuryShare         = vaultConfigRecord.interestTreasuryShare.toNumber();
 
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -2422,8 +2449,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             mockLevelChange             = minutesPassed * oneMinuteLevelBlocks;
             newMockLevel                = markedForLiquidationLevel.toNumber() + mockLevelChange;
 
-            const setMockLevelOperationTwo = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
-            await setMockLevelOperationTwo.confirmation();
+            let setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newMockLevel
+                    },
+                ]
+            ).send();
+            await setMockLevelOperation.confirmation();
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             currentMockLevel         = lendingControllerStorage.config.mockLevel;
@@ -2456,8 +2490,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             mockLevelChange             = minutesPassed * oneMinuteLevelBlocks;
             newMockLevel                = markedForLiquidationLevel.toNumber() + mockLevelChange;
 
-            const setMockLevelOperationThree = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
-            await setMockLevelOperationThree.confirmation();
+            setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newMockLevel
+                    },
+                ]
+            ).send();
+            await setMockLevelOperation.confirmation();
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             currentMockLevel = lendingControllerStorage.config.mockLevel;
@@ -2661,14 +2702,6 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             currentMockLevel         = lendingControllerStorage.mockLevel;
             maxDecimals              = lendingControllerStorage.config.maxDecimalsForCalculation;
     
-            // config variables
-            const liquidationDelayInMins        = lendingControllerStorage.config.liquidationDelayInMins.toNumber();
-            const liquidationMaxDuration        = lendingControllerStorage.config.liquidationMaxDuration.toNumber();
-            const maxVaultLiquidationPercent    = lendingControllerStorage.config.maxVaultLiquidationPercent.toNumber();
-            const adminLiquidationFeePercent    = lendingControllerStorage.config.adminLiquidationFeePercent.toNumber();
-            const liquidationFeePercent         = lendingControllerStorage.config.liquidationFeePercent.toNumber();
-            const interestTreasuryShare         = lendingControllerStorage.config.interestTreasuryShare.toNumber();
-            
             // ----------------------------------------------------------------------------------------------
             // Reset token prices back to default
             // ----------------------------------------------------------------------------------------------
@@ -2765,10 +2798,12 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             const liquidator            = mallory.pkh;
             const loanTokenName         = "eurt";
             const vaultName             = "newVault";
+            const vaultConfig           = 0; // vault config - standard type
             const depositorsConfig      = "any";
     
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -2783,6 +2818,16 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
             const vaultAddress   = vaultRecord.address;
             const vaultInstance  = await utils.tezos.contract.at(vaultAddress);
+
+            const vaultConfigRecord = await lendingControllerStorage.vaultConfigLedger.get(vaultRecord.vaultConfig);
+
+            // config variables
+            const liquidationDelayInMins        = vaultConfigRecord.liquidationDelayInMins.toNumber();
+            const liquidationMaxDuration        = vaultConfigRecord.liquidationMaxDuration.toNumber();
+            const maxVaultLiquidationPercent    = vaultConfigRecord.maxVaultLiquidationPercent.toNumber();
+            const adminLiquidationFeePercent    = vaultConfigRecord.adminLiquidationFeePercent.toNumber();
+            const liquidationFeePercent         = vaultConfigRecord.liquidationFeePercent.toNumber();
+            const interestTreasuryShare         = vaultConfigRecord.interestTreasuryShare.toNumber();
     
             // console.log('   - vault originated: ' + vaultAddress);
             // console.log('   - vault id: ' + vaultId);
@@ -3113,8 +3158,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
             newMockLevel    = markedForLiquidationLevel.toNumber() + mockLevelChange;
     
-            const setMockLevelOperationTwo = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
-            await setMockLevelOperationTwo.confirmation();
+            let setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newMockLevel
+                    },
+                ]
+            ).send();
+            await setMockLevelOperation.confirmation();
     
             lendingControllerStorage = await lendingControllerInstance.storage();
             currentMockLevel         = lendingControllerStorage.config.mockLevel;
@@ -3147,8 +3199,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             mockLevelChange = minutesPassed * oneMinuteLevelBlocks;
             newMockLevel    = markedForLiquidationLevel.toNumber() + mockLevelChange;
     
-            const setMockLevelOperationThree = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
-            await setMockLevelOperationThree.confirmation();
+            setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newMockLevel
+                    },
+                ]
+            ).send();
+            await setMockLevelOperation.confirmation();
     
             lendingControllerStorage = await lendingControllerInstance.storage();
             currentMockLevel         = lendingControllerStorage.config.mockLevel;
@@ -3548,15 +3607,17 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
 
             await signerFactory(tezos, eve.sk);
 
-            const vaultCounter  = vaultFactoryStorage.vaultCounter;
-            const vaultId       = vaultCounter.toNumber();
-            const vaultOwner    = eve.pkh;
-            const loanTokenName = "usdt";
-            const vaultName     = "newVault";
-            const depositorsConfig      = "any";    
+            const vaultCounter      = vaultFactoryStorage.vaultCounter;
+            const vaultId           = vaultCounter.toNumber();
+            const vaultOwner        = eve.pkh;
+            const loanTokenName     = "usdt";
+            const vaultName         = "newVault";
+            const vaultConfig       = 0; // vault config - standard type
+            const depositorsConfig  = "any";    
 
             const userCreatesNewVaultOperation = await vaultFactoryInstance.methods.createVault(
                 baker.pkh,              // delegate to
+                vaultConfig,
                 loanTokenName,          // loan token type
                 vaultName,              // vault name
                 null,                   // collateral tokens
@@ -3746,8 +3807,15 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             mockLevelChange = monthsPassed * oneMonthLevelBlocks;
             newMockLevel = lastUpdatedBlockLevel.toNumber() + mockLevelChange;
 
-            const setMockLevelOperationOne = await lendingControllerInstance.methods.updateConfig(newMockLevel, 'configMockLevel').send();
-            await setMockLevelOperationOne.confirmation();
+            let setMockLevelOperation = await lendingControllerInstance.methods.updateConfig(
+                [
+                    {
+                        configName: "mockLevel",
+                        newValue: newMockLevel
+                    },
+                ]
+            ).send();
+            await setMockLevelOperation.confirmation();
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             currentMockLevel = lendingControllerStorage.config.mockLevel;
@@ -3820,7 +3888,7 @@ describe("Lending Controller (Mock Time - Liquidation) tests", async () => {
             await setNewTokenAllowance.confirmation();
 
             // repay operation
-            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, repayAmount).send();
+            const eveRepayOperation = await lendingControllerInstance.methods.repay(vaultId, vaultOwner, repayAmount).send();
             await eveRepayOperation.confirmation();
 
             // console.log('   - repaid: ' + repayAmount + " | type: " + loanTokenName);

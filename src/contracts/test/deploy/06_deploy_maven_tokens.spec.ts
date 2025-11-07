@@ -78,9 +78,9 @@ describe('Maven Token', async () => {
                         location: "https://github.com/airgap-it/usdt-smart-contracts"
                     },
                     interfaces: [
-                        'TZIP-012', 
-                        'TZIP-016', 
-                        'TZIP-021'
+                        'MIP-012', 
+                        'MIP-016', 
+                        'MIP-021'
                     ],
                     errors: [
                         {
@@ -195,12 +195,12 @@ describe('Maven Token', async () => {
                         tools: [
                             "LIGO 0.60.0"
                         ],
-                        location: "https://github.com/mavenfinance/maven-finance"
+                        location: "https://github.com/MavrykDynamics/maven-finance"
                     },
                     interfaces: [
-                        'TZIP-012', 
-                        'TZIP-016', 
-                        'TZIP-021'
+                        'MIP-012', 
+                        'MIP-016', 
+                        'MIP-021'
                     ],
                     errors: []
                     }),

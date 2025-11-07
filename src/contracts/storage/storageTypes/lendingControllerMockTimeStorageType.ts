@@ -7,18 +7,15 @@ export type lendingControllerMockTimeStorageType = {
     tester                      : string;
     metadata                    : MichelsonMap<MichelsonMapKey, unknown>;    
     config                      : {};
-    breakGlassConfig            : {};
+
+    vaultConfigLedger           : MichelsonMap<MichelsonMapKey, unknown>;    
+    breakGlassLedger            : MichelsonMap<MichelsonMapKey, unknown>;    
 
     mvnTokenAddress             : string;
     governanceAddress           : string;
 
-    whitelistContracts          : MichelsonMap<MichelsonMapKey, unknown>;    
-    generalContracts            : MichelsonMap<MichelsonMapKey, unknown>;    
-    whitelistTokenContracts     : MichelsonMap<MichelsonMapKey, unknown>;
-
     // vaults and owners
     vaults                      : MichelsonMap<MichelsonMapKey, unknown>;
-    vaultCounter                : BigNumber;
     ownerLedger                 : MichelsonMap<MichelsonMapKey, unknown>;
 
     // collateral tokens
@@ -27,5 +24,8 @@ export type lendingControllerMockTimeStorageType = {
 
     lambdaLedger                : MichelsonMap<MichelsonMapKey, unknown>;
     vaultLambdaLedger           : MichelsonMap<MichelsonMapKey, unknown>;
+    vaultPenaltyEventLedger     : MichelsonMap<MichelsonMapKey, unknown>;
+
+    tempBoolMap     : MichelsonMap<MichelsonMapKey, unknown>;
 
 }

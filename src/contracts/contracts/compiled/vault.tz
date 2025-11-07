@@ -1,0 +1,125 @@
+{ parameter
+    (or (unit %default)
+        (or %initVaultAction
+           (or (or (address %delegateToSatellite) (pair %deposit (nat %amount) (string %tokenName)))
+               (or (pair %onLiquidate (address %receiver) (nat %amount) (string %tokenName))
+                   (option %setBaker key_hash)))
+           (or (or (pair %updateDepositor
+                      (or %allowance (bool %any) (pair %whitelist bool address))
+                      (unit %empty))
+                   (pair %updateTokenOperators
+                      (string %tokenName)
+                      (list %updateOperators
+                         (or (pair %add_operator (address %owner) (address %operator) (nat %token_id))
+                             (pair %remove_operator (address %owner) (address %operator) (nat %token_id))))))
+               (or (string %updateVaultName) (pair %withdraw (nat %amount) (string %tokenName)))))) ;
+  storage
+    (pair (pair (address %admin) (or %depositors (unit %any) (set %whitelist address)))
+          (pair %handle (nat %id) (address %owner))
+          (string %name)) ;
+  code { UNIT ;
+         LAMBDA
+           (pair unit (pair string (pair address (or unit (set address))) (pair nat address) string))
+           bytes
+           { UNPAIR ;
+             SWAP ;
+             UNPAIR ;
+             SWAP ;
+             CAR ;
+             CAR ;
+             DIG 2 ;
+             VIEW "getGovernanceAddress" address ;
+             IF_NONE { PUSH nat 824 ; FAILWITH } {} ;
+             PUSH string "vaultFactory" ;
+             VIEW "getGeneralContractOpt" (option address) ;
+             IF_NONE
+               { PUSH nat 431 ; FAILWITH }
+               { IF_NONE { PUSH nat 819 ; FAILWITH } {} } ;
+             SWAP ;
+             VIEW "getVaultLambdaOpt" (option bytes) ;
+             IF_NONE
+               { PUSH nat 823 ; FAILWITH }
+               { IF_NONE { PUSH nat 805 ; FAILWITH } {} } } ;
+         DUP 2 ;
+         APPLY ;
+         LAMBDA
+           (pair (pair bytes
+                       (or unit
+                           (or (or (or address (pair nat string)) (or (pair address nat string) (option key_hash)))
+                               (or (or (pair (or bool (pair bool address)) unit)
+                                       (pair string (list (or (pair address address nat) (pair address address nat)))))
+                                   (or string (pair nat string))))))
+                 (pair address (or unit (set address)))
+                 (pair nat address)
+                 string)
+           (pair (list operation) (pair address (or unit (set address))) (pair nat address) string)
+           { UNPAIR ;
+             UNPAIR ;
+             UNPACK
+               (lambda
+                  (pair (or (unit %lambdaDepositMvrk)
+                            (or %lambdaInitVaultAction
+                               (or (or (address %delegateToSatellite) (pair %deposit (nat %amount) (string %tokenName)))
+                                   (or (pair %onLiquidate (address %receiver) (nat %amount) (string %tokenName))
+                                       (option %setBaker key_hash)))
+                               (or (or (pair %updateDepositor
+                                          (or %allowance (bool %any) (pair %whitelist bool address))
+                                          (unit %empty))
+                                       (pair %updateTokenOperators
+                                          (string %tokenName)
+                                          (list %updateOperators
+                                             (or (pair %add_operator (address %owner) (address %operator) (nat %token_id))
+                                                 (pair %remove_operator (address %owner) (address %operator) (nat %token_id))))))
+                                   (or (string %updateVaultName) (pair %withdraw (nat %amount) (string %tokenName))))))
+                        (pair (address %admin) (or %depositors (unit %any) (set %whitelist address)))
+                        (pair %handle (nat %id) (address %owner))
+                        (string %name))
+                  (pair (list operation)
+                        (pair (address %admin) (or %depositors (unit %any) (set %whitelist address)))
+                        (pair %handle (nat %id) (address %owner))
+                        (string %name))) ;
+             IF_NONE { DROP 2 ; PUSH nat 3 ; FAILWITH } { DUG 2 ; PAIR ; EXEC } } ;
+         DIG 3 ;
+         UNPAIR ;
+         IF_LEFT
+           { DROP ;
+             DUP ;
+             PUSH string "lambdaDepositMvrk" ;
+             PAIR ;
+             DIG 3 ;
+             SWAP ;
+             EXEC ;
+             DIG 3 ;
+             LEFT (or (or (or address (pair nat string)) (or (pair address nat string) (option key_hash)))
+                      (or (or (pair (or bool (pair bool address)) unit)
+                              (pair string (list (or (pair address address nat) (pair address address nat)))))
+                          (or string (pair nat string)))) ;
+             DIG 2 ;
+             SWAP ;
+             DIG 2 ;
+             PAIR ;
+             PAIR ;
+             EXEC }
+           { DIG 4 ;
+             DROP ;
+             DUP 2 ;
+             PUSH string "lambdaInitVaultAction" ;
+             PAIR ;
+             DIG 4 ;
+             SWAP ;
+             EXEC ;
+             SWAP ;
+             RIGHT unit ;
+             DIG 2 ;
+             SWAP ;
+             DIG 2 ;
+             PAIR ;
+             PAIR ;
+             EXEC } } ;
+  view "getVaultHandle" unit (pair (nat %id) (address %owner)) { CDR ; CDR ; CAR } ;
+  view "getVaultName" unit string { CDR ; CDR ; CDR } ;
+  view "getVaultDepositors"
+       unit
+       (or (unit %any) (set %whitelist address))
+       { CDR ; CAR ; CDR } }
+
