@@ -415,7 +415,7 @@ describe("Testnet setup helper", async () => {
 
                     "fa2",
                     // contractDeployments.fakeWBTCToken.address,
-                    "KT1C69d3yp4VaMW5v9dNoR6rBwTtg6x7h9K2s",
+                    "KT1C69d3yp4VaMW5v9dNoR6rBwTtg6x7h9K2",
                     0
                 ).send();
                 await setCollateralTokenOperation.confirmation();

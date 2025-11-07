@@ -433,8 +433,8 @@ indexes:
     - farm_factory
     - treasury_factory
     - vault_factory
-    - lending_controller
-    # - lending_controller_mock_time
+    # - lending_controller
+    - lending_controller_mock_time
     handlers:
     # Contracts origination
     # Index contracts originations first
@@ -502,14 +502,14 @@ indexes:
       pattern:
       - type: origination
         originated_contract: vault_factory
-    - callback: lending_controller.origination
-      pattern:
-      - type: origination
-        originated_contract: lending_controller
-    # - callback: lending_controller_mock_time.origination
+    # - callback: lending_controller.origination
     #   pattern:
     #   - type: origination
-    #     originated_contract: lending_controller_mock_time
+    #     originated_contract: lending_controller
+    - callback: lending_controller_mock_time.origination
+      pattern:
+      - type: origination
+        originated_contract: lending_controller_mock_time
 
     # Contracts entrypoints
     # MVN Token handlers
@@ -1372,24 +1372,24 @@ indexes:
       pattern:
       - destination: vault_factory
         entrypoint: togglePauseEntrypoint
-    - callback: vault_factory.create_vault
-      pattern:
-      - destination: vault_factory
-        entrypoint: createVault
-      - type: origination
-        originated_contract: vault
-      - source: vault_factory
-        destination: lending_controller
-        entrypoint: registerVaultCreation
-    # - callback: vault_factory.create_vault_mock_time
+    # - callback: vault_factory.create_vault
     #   pattern:
     #   - destination: vault_factory
     #     entrypoint: createVault
     #   - type: origination
     #     originated_contract: vault
     #   - source: vault_factory
-    #     destination: lending_controller_mock_time
+    #     destination: lending_controller
     #     entrypoint: registerVaultCreation
+    - callback: vault_factory.create_vault_mock_time
+      pattern:
+      - destination: vault_factory
+        entrypoint: createVault
+      - type: origination
+        originated_contract: vault
+      - source: vault_factory
+        destination: lending_controller_mock_time
+        entrypoint: registerVaultCreation
     - callback: vault_factory.set_lambda
       pattern:
       - destination: vault_factory
@@ -1400,168 +1400,168 @@ indexes:
         entrypoint: setProductLambda
 
     # Lending Controller Handlers
-    - callback: lending_controller.set_admin
-      pattern:
-      - destination: lending_controller
-        entrypoint: setAdmin
-    - callback: lending_controller.set_governance
-      pattern:
-      - destination: lending_controller
-        entrypoint: setGovernance
-    - callback: lending_controller.update_config
-      pattern:
-      - destination: lending_controller
-        entrypoint: updateConfig
-    - callback: lending_controller.pause_all
-      pattern:
-      - destination: lending_controller
-        entrypoint: pauseAll
-    - callback: lending_controller.unpause_all
-      pattern:
-      - destination: lending_controller
-        entrypoint: unpauseAll
-    - callback: lending_controller.toggle_pause_entrypoint
-      pattern:
-      - destination: lending_controller
-        entrypoint: togglePauseEntrypoint
-    - callback: lending_controller.set_loan_token
-      pattern:
-      - destination: lending_controller
-        entrypoint: setLoanToken
-    - callback: lending_controller.set_collateral_token
-      pattern:
-      - destination: lending_controller
-        entrypoint: setCollateralToken
-    - callback: lending_controller.add_liquidity
-      pattern:
-      - destination: lending_controller
-        entrypoint: addLiquidity
-    - callback: lending_controller.remove_liquidity
-      pattern:
-      - destination: lending_controller
-        entrypoint: removeLiquidity
-    - callback: lending_controller.close_vault
-      pattern:
-      - destination: lending_controller
-        entrypoint: closeVault
-    - callback: lending_controller.register_deposit
-      pattern:
-      - destination: lending_controller
-        entrypoint: registerDeposit
-    - callback: lending_controller.register_withdrawal
-      pattern:
-      - destination: lending_controller
-        entrypoint: registerWithdrawal
-    - callback: lending_controller.mark_for_liquidation
-      pattern:
-      - destination: lending_controller
-        entrypoint: markForLiquidation
-    - callback: lending_controller.liquidate_vault
-      pattern:
-      - destination: lending_controller
-        entrypoint: liquidateVault
-    - callback: lending_controller.borrow
-      pattern:
-      - destination: lending_controller
-        entrypoint: borrow
-    - callback: lending_controller.repay
-      pattern:
-      - destination: lending_controller
-        entrypoint: repay
-    - callback: lending_controller.vault_deposit_staked_token
-      pattern:
-      - destination: lending_controller
-        entrypoint: vaultDepositStakedToken
-    - callback: lending_controller.vault_withdraw_staked_token
-      pattern:
-      - destination: lending_controller
-        entrypoint: vaultWithdrawStakedToken
-    - callback: lending_controller.set_lambda
-      pattern:
-      - destination: lending_controller
-        entrypoint: setLambda
+    # - callback: lending_controller.set_admin
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: setAdmin
+    # - callback: lending_controller.set_governance
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: setGovernance
+    # - callback: lending_controller.update_config
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: updateConfig
+    # - callback: lending_controller.pause_all
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: pauseAll
+    # - callback: lending_controller.unpause_all
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: unpauseAll
+    # - callback: lending_controller.toggle_pause_entrypoint
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: togglePauseEntrypoint
+    # - callback: lending_controller.set_loan_token
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: setLoanToken
+    # - callback: lending_controller.set_collateral_token
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: setCollateralToken
+    # - callback: lending_controller.add_liquidity
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: addLiquidity
+    # - callback: lending_controller.remove_liquidity
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: removeLiquidity
+    # - callback: lending_controller.close_vault
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: closeVault
+    # - callback: lending_controller.register_deposit
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: registerDeposit
+    # - callback: lending_controller.register_withdrawal
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: registerWithdrawal
+    # - callback: lending_controller.mark_for_liquidation
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: markForLiquidation
+    # - callback: lending_controller.liquidate_vault
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: liquidateVault
+    # - callback: lending_controller.borrow
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: borrow
+    # - callback: lending_controller.repay
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: repay
+    # - callback: lending_controller.vault_deposit_staked_token
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: vaultDepositStakedToken
+    # - callback: lending_controller.vault_withdraw_staked_token
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: vaultWithdrawStakedToken
+    # - callback: lending_controller.set_lambda
+    #   pattern:
+    #   - destination: lending_controller
+    #     entrypoint: setLambda
 
     # Lending Controller Mock Time Handlers
-    # - callback: lending_controller_mock_time.set_admin
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: setAdmin
-    # - callback: lending_controller_mock_time.set_governance
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: setGovernance
-    # - callback: lending_controller_mock_time.update_config
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: updateConfig
-    # - callback: lending_controller_mock_time.pause_all
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: pauseAll
-    # - callback: lending_controller_mock_time.unpause_all
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: unpauseAll
-    # - callback: lending_controller_mock_time.toggle_pause_entrypoint
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: togglePauseEntrypoint
-    # - callback: lending_controller_mock_time.set_loan_token
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: setLoanToken
-    # - callback: lending_controller_mock_time.set_collateral_token
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: setCollateralToken
-    # - callback: lending_controller_mock_time.add_liquidity
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: addLiquidity
-    # - callback: lending_controller_mock_time.remove_liquidity
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: removeLiquidity
-    # - callback: lending_controller_mock_time.close_vault
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: closeVault
-    # - callback: lending_controller_mock_time.register_deposit
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: registerDeposit
-    # - callback: lending_controller_mock_time.register_withdrawal
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: registerWithdrawal
-    # - callback: lending_controller_mock_time.mark_for_liquidation
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: markForLiquidation
-    # - callback: lending_controller_mock_time.liquidate_vault
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: liquidateVault
-    # - callback: lending_controller_mock_time.borrow
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: borrow
-    # - callback: lending_controller_mock_time.repay
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: repay
-    # - callback: lending_controller_mock_time.vault_deposit_staked_token
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: vaultDepositStakedToken
-    # - callback: lending_controller_mock_time.vault_withdraw_staked_token
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: vaultWithdrawStakedToken
-    # - callback: lending_controller_mock_time.set_lambda
-    #   pattern:
-    #   - destination: lending_controller_mock_time
-    #     entrypoint: setLambda
+    - callback: lending_controller_mock_time.set_admin
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: setAdmin
+    - callback: lending_controller_mock_time.set_governance
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: setGovernance
+    - callback: lending_controller_mock_time.update_config
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: updateConfig
+    - callback: lending_controller_mock_time.pause_all
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: pauseAll
+    - callback: lending_controller_mock_time.unpause_all
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: unpauseAll
+    - callback: lending_controller_mock_time.toggle_pause_entrypoint
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: togglePauseEntrypoint
+    - callback: lending_controller_mock_time.set_loan_token
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: setLoanToken
+    - callback: lending_controller_mock_time.set_collateral_token
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: setCollateralToken
+    - callback: lending_controller_mock_time.add_liquidity
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: addLiquidity
+    - callback: lending_controller_mock_time.remove_liquidity
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: removeLiquidity
+    - callback: lending_controller_mock_time.close_vault
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: closeVault
+    - callback: lending_controller_mock_time.register_deposit
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: registerDeposit
+    - callback: lending_controller_mock_time.register_withdrawal
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: registerWithdrawal
+    - callback: lending_controller_mock_time.mark_for_liquidation
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: markForLiquidation
+    - callback: lending_controller_mock_time.liquidate_vault
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: liquidateVault
+    - callback: lending_controller_mock_time.borrow
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: borrow
+    - callback: lending_controller_mock_time.repay
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: repay
+    - callback: lending_controller_mock_time.vault_deposit_staked_token
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: vaultDepositStakedToken
+    - callback: lending_controller_mock_time.vault_withdraw_staked_token
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: vaultWithdrawStakedToken
+    - callback: lending_controller_mock_time.set_lambda
+      pattern:
+      - destination: lending_controller_mock_time
+        entrypoint: setLambda
   m_token_mvrk:
     template: m_token_template
     values:

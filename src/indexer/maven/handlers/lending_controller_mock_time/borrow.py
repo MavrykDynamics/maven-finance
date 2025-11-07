@@ -38,7 +38,7 @@ async def borrow(
         loan_token_total_remaining              = float(loan_token_storage.totalRemaining)
         loan_token_total_borrowed               = float(loan_token_storage.totalBorrowed)
         loan_token_last_updated_block_level     = int(loan_token_storage.lastUpdatedBlockLevel)
-        loan_token_token_reward_index           = float(loan_token_storage.tokenRewardIndex) 
+        loan_token_token_reward_index           = float(loan_token_storage.tokenRewardIndex)
         loan_token_borrow_index                 = float(loan_token_storage.borrowIndex)
         loan_token_utilisation_rate             = float(loan_token_storage.utilisationRate)
         loan_token_current_interest_rate        = float(loan_token_storage.currentInterestRate)

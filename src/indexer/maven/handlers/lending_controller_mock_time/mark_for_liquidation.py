@@ -1,9 +1,9 @@
 from maven.utils.error_reporting import save_error_report
 
-from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage, TokenType3 as fa12, TokenType4 as fa2, TokenType5 as mav
-from dipdup.models.tezos_tzkt import TzktTransaction
-from dipdup.context import HandlerContext
+from maven.types.lending_controller_mock_time.tezos_storage import LendingControllerMockTimeStorage
 from maven.types.lending_controller_mock_time.tezos_parameters.mark_for_liquidation import MarkForLiquidationParameter
+from dipdup.context import HandlerContext
+from dipdup.models.tezos_tzkt import TzktTransaction
 import maven.models as models
 from dateutil import parser
 
