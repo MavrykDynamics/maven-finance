@@ -1322,18 +1322,12 @@ templates:
         entrypoint: createVault
       - type: origination
         originated_contract: vault
-      - source: <vault_factory_contract>
-        destination: <lending_controller_contract>
-        entrypoint: registerVaultCreation
     # - callback: vault_factory.create_vault_mock_time
     #   pattern:
     #   - destination: <vault_factory_contract>
     #     entrypoint: createVault
     #   - type: origination
     #     originated_contract: vault
-    #   - source: <vault_factory_contract>
-    #     destination: <lending_controller_mock_time_contract>
-    #     entrypoint: registerVaultCreation
     - callback: vault_factory.set_lambda
       pattern:
       - destination: <vault_factory_contract>
@@ -1368,6 +1362,10 @@ templates:
       pattern:
       - destination: <lending_controller_contract>
         entrypoint: togglePauseEntrypoint
+    - callback: lending_controller.register_vault_creation
+      pattern:
+      - destination:  <lending_controller_contract>
+        entrypoint: registerVaultCreation
     - callback: lending_controller.set_loan_token
       pattern:
       - destination: <lending_controller_contract>
@@ -1450,6 +1448,10 @@ templates:
     #   pattern:
     #   - destination: <lending_controller_mock_time_contract>
     #     entrypoint: togglePauseEntrypoint
+    # - callback: lending_controller.register_vault_creation
+    #   pattern:
+    #   - destination:  <lending_controller_contract>
+    #     entrypoint: registerVaultCreation
     # - callback: lending_controller_mock_time.set_loan_token
     #   pattern:
     #   - destination: <lending_controller_mock_time_contract>
