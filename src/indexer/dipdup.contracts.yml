@@ -93,10 +93,7 @@ contracts:
     typename: m_token
   vault:
     kind: tezos
-    # Matched by code hash so every factory-created vault is indexed. A reference
-    # vault was originated on basenet (KT19mmXTcazxavGeqgACapuBV4gUqiEwrZLc) and
-    # confirms this codeHash, which is identical to atlasnet's vault.
-    code_hash: -1516111379
+    code_hash: KT19mmXTcazxavGeqgACapuBV4gUqiEwrZLc
     typename: vault
   vault_factory:
     kind: tezos
