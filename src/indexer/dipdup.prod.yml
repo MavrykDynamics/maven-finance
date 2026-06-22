@@ -35,11 +35,11 @@ advanced:
     schema_modified: ignore
 
 datasources:
-  metadata_atlasnet:
+  metadata_basenet:
     kind: tzip_metadata
-    url: https://dipdup-metadata-api.mavryk.network
+    url: https://basenet.metadata.mavryk.network
     network: oxfordnet
-  mvkt_atlasnet:
+  mvkt_basenet:
     kind: tezos.tzkt
-    url: ${MVKT_ATLASNET_URL:-changeme}
+    url: ${MVKT_BASENET_URL:-changeme}
     merge_subscriptions: true

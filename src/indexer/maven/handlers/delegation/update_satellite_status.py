@@ -23,8 +23,8 @@ async def update_satellite_status(
             status_type = models.SatelliteStatus.BANNED
     
         # Create or update record
-        delegation          = await models.Delegation.get(network='atlasnet', address= delegation_address)
-        user                = await models.get_user(network='atlasnet', address=satellite_address)
+        delegation          = await models.Delegation.get(network=models.NETWORK, address= delegation_address)
+        user                = await models.get_user(network=models.NETWORK, address=satellite_address)
         await models.Satellite.filter(
             delegation  = delegation,
             user        = user

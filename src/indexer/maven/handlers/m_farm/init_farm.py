@@ -33,10 +33,10 @@ async def init_farm(
     
         # Create record
         governance      = await models.Governance.get(
-            network = 'atlasnet'
+            network = models.NETWORK
         )
         farm            = models.Farm(
-            network                         = 'atlasnet',
+            network                         = models.NETWORK,
             address                         = farm_address,
             admin                           = admin,
             governance                      = governance,

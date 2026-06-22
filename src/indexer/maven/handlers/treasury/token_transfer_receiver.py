@@ -29,7 +29,7 @@ async def token_transfer_receiver(
         token, _            = await models.Token.get_or_create(
             token_address       = token_address,
             token_id            = token_id,
-            network             = 'atlasnet'
+            network             = models.NETWORK
         )
         token.token_standard    = standard
         if metadata:
@@ -38,7 +38,7 @@ async def token_transfer_receiver(
     
         # Update records
         treasury            = await models.Treasury.get(
-            network         = 'atlasnet',
+            network         = models.NETWORK,
             address         = treasury_address
         )
         treasury_balance, _ = await models.TreasuryBalance.get_or_create(

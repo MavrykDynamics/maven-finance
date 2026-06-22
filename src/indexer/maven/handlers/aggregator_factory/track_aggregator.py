@@ -18,10 +18,10 @@ async def track_aggregator(
     
         # Update record
         aggregator_factory  = await models.AggregatorFactory.get(
-            network='atlasnet', address = aggregator_factory_address
+            network=models.NETWORK, address = aggregator_factory_address
         )
         await models.Aggregator.filter(
-            network='atlasnet', address = aggregator_address
+            network=models.NETWORK, address = aggregator_address
         ).update(
             factory = aggregator_factory
         )

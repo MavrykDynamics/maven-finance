@@ -21,7 +21,7 @@ async def update_proposal_data(
         payment_data_storage    = storage_proposal.paymentData
         
         # Update or create record
-        governance      = await models.Governance.get(network='atlasnet', address= governance_address)
+        governance      = await models.Governance.get(network=models.NETWORK, address= governance_address)
         proposal        = await models.GovernanceProposal.get(
             internal_id         = proposal_id,
             governance          = governance
@@ -100,7 +100,7 @@ async def update_proposal_data(
                 token, _            = await models.Token.get_or_create(
                     token_address       = token_address,
                     token_id            = token_id,
-                    network             = 'atlasnet'
+                    network             = models.NETWORK
                 )
                 token.metadata          = token_contract_metadata
                 token.token_standard    = standard
@@ -108,7 +108,7 @@ async def update_proposal_data(
 
                 # Get receiver
                 receiver_address                = payment_single_data.transaction.to_
-                receiver                        = await models.get_user(network='atlasnet', address=receiver_address)
+                receiver                        = await models.get_user(network=models.NETWORK, address=receiver_address)
 
                 # Save the payment record
                 payment_data.title              = payment_single_data.title

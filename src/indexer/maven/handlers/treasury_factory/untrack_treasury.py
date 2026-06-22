@@ -18,11 +18,11 @@ async def untrack_treasury(
     
         # Update record
         treasury_factory            = await models.TreasuryFactory.get(
-            network             = 'atlasnet',
+            network             = models.NETWORK,
             address             = treasury_factory_address
         )
         treasury                    = await models.Treasury.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             factory = treasury_factory,
             address = treasury_address
         )

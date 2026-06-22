@@ -34,7 +34,7 @@ async def pause_all(
     
         # Update record
         await models.LendingController.filter(
-            network         = 'atlasnet',
+            network         = models.NETWORK,
             address         = lending_controller_address
         ).update(
             add_liquidity_paused                     = add_liquidity_paused,

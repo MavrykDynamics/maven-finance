@@ -32,7 +32,7 @@ async def create_treasury(
     
         # Check treasury does not already exists
         treasury_exists                     = await models.Treasury.filter(
-            network     = 'atlasnet',
+            network     = models.NETWORK,
             address     = treasury_address
         ).exists()
     
@@ -74,15 +74,15 @@ async def create_treasury(
     
             # Create record
             treasury_factory    = await models.TreasuryFactory.get(
-                network = 'atlasnet',
+                network = models.NETWORK,
                 address = treasury_factory_address
             )
             governance          = await models.Governance.get(
-                network = 'atlasnet'
+                network = models.NETWORK
             )
             treasury            = models.Treasury(
                 address                         = treasury_address,
-                network                         = 'atlasnet',
+                network                         = models.NETWORK,
                 metadata                        = contract_metadata,
                 governance                      = governance,
                 admin                           = admin,
@@ -98,7 +98,7 @@ async def create_treasury(
     
             # Create a baker or not
             if baker_address:
-                baker       = await models.get_user(network='atlasnet', address=baker_address)
+                baker       = await models.get_user(network=models.NETWORK, address=baker_address)
                 treasury.baker = baker
     
             await treasury.save()

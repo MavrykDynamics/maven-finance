@@ -17,7 +17,7 @@ async def transfer(
         treasury_address    = transfer.data.target_address
         txs                 = transfer.parameter.root
         timestamp           = transfer.data.timestamp
-        treasury            = await models.Treasury.get(network='atlasnet', address= treasury_address)
+        treasury            = await models.Treasury.get(network=models.NETWORK, address= treasury_address)
         await treasury.save()
     
         # Create records
@@ -57,7 +57,7 @@ async def transfer(
                 token_id=str(token_id)
             )
     
-            receiver                = await models.get_user(network='atlasnet', address=receiver_address)
+            receiver                = await models.get_user(network=models.NETWORK, address=receiver_address)
             treasury_transfer_data  = models.TreasuryTransferHistoryData(
                 timestamp                       = timestamp,
                 treasury                        = treasury,
@@ -71,7 +71,7 @@ async def transfer(
             token, _                = await models.Token.get_or_create(
                 token_address   = token_contract_address,
                 token_id        = token_id,
-                network         = 'atlasnet'
+                network         = models.NETWORK
             )
             if token_contract_metadata:
                 token.metadata          = token_contract_metadata

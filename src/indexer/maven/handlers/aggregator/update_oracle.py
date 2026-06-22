@@ -19,8 +19,8 @@ async def update_oracle(
         oracle_peer_id          = oracle_storage.oraclePeerId
     
         # Create record
-        oracle                  = await models.get_user(network='atlasnet', address=oracle_address)
-        aggregator              = await models.Aggregator.get(network='atlasnet', address=aggregator_address)
+        oracle                  = await models.get_user(network=models.NETWORK, address=oracle_address)
+        aggregator              = await models.Aggregator.get(network=models.NETWORK, address=aggregator_address)
         await models.AggregatorOracle.filter(
             aggregator  = aggregator,
             user        = oracle

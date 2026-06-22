@@ -28,12 +28,12 @@ async def unstake_mvn(
         timestamp                               = unstake_mvn.data.timestamp
         desired_amount                          = float(unstake_mvn.parameter.root)
         final_amount                            = float(transfer.parameter.root[0].txs[0].amount)
-        doorman                                 = await models.Doorman.get(network='atlasnet', address=doorman_address)
+        doorman                                 = await models.Doorman.get(network=models.NETWORK, address=doorman_address)
         unclaimed_rewards                       = float(unstake_mvn.storage.unclaimedRewards)
         accumulated_fees_per_share              = float(unstake_mvn.storage.accumulatedFeesPerShare)
 
         # Get or create the interacting user
-        user                                    = await models.get_user(network='atlasnet', address=initiator_address)
+        user                                    = await models.get_user(network=models.NETWORK, address=initiator_address)
         user.mvn_balance                        = mvn_balance
         user.smvn_balance                       = smvn_balance
         await user.save()

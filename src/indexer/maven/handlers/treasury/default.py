@@ -25,7 +25,7 @@ async def default(
         # Create the MVRK token record
         token, _            = await models.Token.get_or_create(
             token_address       = token_address,
-            network             = 'atlasnet'
+            network             = models.NETWORK
         )
         token.token_standard    = token_standard
         token.metadata          = metadata
@@ -33,7 +33,7 @@ async def default(
 
         # Update records
         treasury            = await models.Treasury.get(
-            network         = 'atlasnet',
+            network         = models.NETWORK,
             address         = treasury_address
         )
         treasury_balance, _ = await models.TreasuryBalance.get_or_create(

@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.BreakGlass.filter(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = break_glass_address
         ).update(
             last_updated_at                     = timestamp,
@@ -31,7 +31,7 @@ async def update_config(
 
         # Update threshold for current actions
         break_glass = await models.BreakGlass.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = break_glass_address
         )
         await models.BreakGlassAction.filter(

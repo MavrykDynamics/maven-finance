@@ -33,12 +33,12 @@ async def origination(
         )
     
         # Get governance record
-        governance                  = await models.Governance.get(network = 'atlasnet')
+        governance                  = await models.Governance.get(network = models.NETWORK)
     
         # Create record
         break_glass  = models.BreakGlass(
             address                             = address,
-            network                             = 'atlasnet',
+            network                             = models.NETWORK,
             metadata                            = contract_metadata,
             admin                               = admin,
             last_updated_at                     = timestamp,
@@ -55,7 +55,7 @@ async def origination(
         await break_glass.save()
     
         for member_address in council_members:
-            user                = await models.get_user(network='atlasnet', address=member_address)
+            user                = await models.get_user(network=models.NETWORK, address=member_address)
             memberInfo          = council_members[member_address]
             council_member      = models.BreakGlassCouncilMember(
                 user        = user,

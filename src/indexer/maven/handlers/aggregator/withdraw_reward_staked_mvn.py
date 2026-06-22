@@ -19,8 +19,8 @@ async def withdraw_reward_staked_mvn(
             oracle_reward_smvn_storage  = withdraw_reward_staked_mvn.storage.oracleRewardStakedMvn[oracle_address]
         
             # Update record
-            user                            = await models.get_user(network='atlasnet', address=oracle_address)
-            aggregator                      = await models.Aggregator.get(network='atlasnet', address= aggregator_address)
+            user                            = await models.get_user(network=models.NETWORK, address=oracle_address)
+            aggregator                      = await models.Aggregator.get(network=models.NETWORK, address= aggregator_address)
             oracle                          = await models.AggregatorOracle.get(
                 aggregator  = aggregator,
                 user        = user

@@ -1,3 +1,6 @@
+from maven.utils.constants import NETWORK
+
+
 # Get token contract standard
 async def get_token_standard(ctx, contract_address):
     standard                = None
@@ -8,7 +11,7 @@ async def get_token_standard(ctx, contract_address):
     elif contract_address[0:3] == 'KT1' and len(contract_address) == 36:
         contract_summary        = None
         try:
-            datasource          = ctx.get_tezos_tzkt_datasource('mvkt_atlasnet')
+            datasource          = ctx.get_tezos_tzkt_datasource('mvkt_' + NETWORK.lower())
             contract_summary    = await datasource.get_contract_summary(
                 address = contract_address
             )
@@ -27,7 +30,7 @@ async def get_token_standard(ctx, contract_address):
 
 # Get contract metadata
 async def get_contract_metadata(ctx, contract_address):
-    network                     = 'atlasnet'
+    network                     = NETWORK
     metadata_datasource_name    = 'metadata_' + network.lower()
     metadata_datasource         = None
     contract_metadata           = None
@@ -47,7 +50,7 @@ async def get_contract_metadata(ctx, contract_address):
 
 # Get contract token metadata
 async def get_contract_token_metadata(ctx, token_address, token_id='0'):
-    network                     = 'atlasnet'
+    network                     = NETWORK
     metadata_datasource_name    = 'metadata_' + network.lower()
     token_metadata              = None
 

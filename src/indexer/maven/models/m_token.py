@@ -11,7 +11,7 @@ class MToken(MavenContract, Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='m_tokens', index=True)
     token                                   = fields.ForeignKeyField('models.Token', related_name='m_tokens', index=True)
     loan_token_name                         = fields.CharField(max_length=36, default="", index=True)
-    metadata                                = fields.JSONField(default={})
+    metadata                                = fields.JSONField(default={}, null=True)
     total_supply                            = fields.FloatField(default=0.0, index=True)
     token_reward_index                      = fields.FloatField(default=0.0)
     is_scaled_token                         = fields.BooleanField(default=False, index=True)

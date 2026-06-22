@@ -30,12 +30,12 @@ async def origination(
         )
         
         # Get governance record
-        governance                  = await models.Governance.get(network = 'atlasnet')
+        governance                  = await models.Governance.get(network = models.NETWORK)
     
         # Save Doorman in DB
         doorman = models.Doorman(
             address                     = doorman_address,
-            network                     = 'atlasnet',
+            network                     = models.NETWORK,
             metadata                    = contract_metadata,
             admin                       = admin,
             last_updated_at             = timestamp,

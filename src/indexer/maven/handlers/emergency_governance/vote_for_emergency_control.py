@@ -34,7 +34,7 @@ async def vote_for_emergency_control(
                 execution_level     = int(emergency_storage.executedLevel)
         
             # Create and update record
-            emergency                   = await models.EmergencyGovernance.get(network='atlasnet', address= emergency_address)
+            emergency                   = await models.EmergencyGovernance.get(network=models.NETWORK, address= emergency_address)
             emergency_record            = await models.EmergencyGovernanceRecord.get(
                 emergency_governance        = emergency,
                 internal_id                 = int(emergency_id)
@@ -45,7 +45,7 @@ async def vote_for_emergency_control(
             emergency_record.execution_level       = execution_level
             await emergency_record.save()
         
-            voter                       = await models.get_user(network='atlasnet', address=voter_address)
+            voter                       = await models.get_user(network=models.NETWORK, address=voter_address)
 
             emergency_vote_record       = models.EmergencyGovernanceVote(
                 timestamp                   = timestamp,

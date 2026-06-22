@@ -14,7 +14,7 @@ async def propose(
     try:
         # Get operation values
         governance              = await models.Governance.get(
-            network = 'atlasnet'
+            network = models.NETWORK
         )
         next_proposal_id        = int(propose.storage.nextProposalId)
         current_id              = str(next_proposal_id - 1)
@@ -56,7 +56,7 @@ async def propose(
         satellite_snapshots     = propose.storage.snapshotLedger
     
         # Proposal record
-        user                    = await models.get_user(network='atlasnet', address=proposer_address)
+        user                    = await models.get_user(network=models.NETWORK, address=proposer_address)
     
         proposalRecord              = models.GovernanceProposal(
             internal_id                     = int(current_id),

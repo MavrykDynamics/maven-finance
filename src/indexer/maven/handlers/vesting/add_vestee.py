@@ -36,9 +36,9 @@ async def add_vestee(
             locked    = True
     
         # Create and update records
-        user    = await models.get_user(network='atlasnet', address=vestee_address)
+        user    = await models.get_user(network=models.NETWORK, address=vestee_address)
         vesting = await models.Vesting.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = vesting_address
         )
         vestee_record   = models.VestingVestee(

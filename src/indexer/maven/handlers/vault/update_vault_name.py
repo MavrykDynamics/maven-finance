@@ -17,7 +17,7 @@ async def update_vault_name(
     
         # Update record
         vault, _            = await models.Vault.get_or_create(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = vault_address
         )
         vault.name  = updated_name

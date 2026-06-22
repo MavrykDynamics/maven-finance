@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.GovernanceFinancial.filter(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = financial_address
         ).update(
             last_updated_at             = timestamp,

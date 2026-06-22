@@ -19,7 +19,7 @@ async def update_depositor(
     
         # Update record
         vault, _            = await models.Vault.get_or_create(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = vault_address
         )
     
@@ -36,7 +36,7 @@ async def update_depositor(
             allowance_type      = models.VaultAllowance.WHITELIST
             depositor_address   = depositor.whitelist.address
             add_depositor       = depositor.whitelist.bool
-            user                = await models.get_user(network='atlasnet', address=depositor_address)
+            user                = await models.get_user(network=models.NETWORK, address=depositor_address)
             vault_depositor, _  = await models.VaultDepositor.get_or_create(
                 vault       = vault,
                 depositor   = user

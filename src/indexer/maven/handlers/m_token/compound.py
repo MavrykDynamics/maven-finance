@@ -21,18 +21,18 @@ async def compound(
 
         # Update mToken record
         token                       = await models.Token.get(
-            network         = 'atlasnet',
+            network         = models.NETWORK,
             token_address   = m_token_address,
             token_id        = 0
         )
-        m_token                     = await models.MToken.get(network='atlasnet', address=m_token_address, token=token)
+        m_token                     = await models.MToken.get(network=models.NETWORK, address=m_token_address, token=token)
         m_token.token_reward_index  = token_reward_index
         m_token.total_supply        = total_supply
         await m_token.save()
 
         # Update users
         for user_address in user_addresses:
-            user                        = await models.get_user(network='atlasnet', address=user_address)
+            user                        = await models.get_user(network=models.NETWORK, address=user_address)
             user_account, _             = await models.MTokenAccount.get_or_create(
                 m_token = m_token,
                 user    = user

@@ -25,8 +25,8 @@ async def proposal_round_vote(
         timestamp               = proposal_round_vote.data.timestamp
     
         # Create and update records
-        governance  = await models.Governance.get(network='atlasnet', address= governance_address)
-        voter       = await models.get_user(network='atlasnet', address=voter_address)
+        governance  = await models.Governance.get(network=models.NETWORK, address= governance_address)
+        voter       = await models.get_user(network=models.NETWORK, address=voter_address)
     
         # Update or a satellite snapshot record
         governance_snapshot = await models.GovernanceSatelliteSnapshot.get_or_none(

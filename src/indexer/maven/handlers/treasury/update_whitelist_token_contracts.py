@@ -29,11 +29,11 @@ async def update_whitelist_token_contracts(
         
         # Update the record
         treasury            = await models.Treasury.get(
-            network             = 'atlasnet',
+            network             = models.NETWORK,
             address             = treasury_address
         )
         token, _            = await models.Token.get_or_create(
-            network             = 'atlasnet',
+            network             = models.NETWORK,
             token_address       = token_address
         )
         token.token_standard    = standard

@@ -25,11 +25,11 @@ async def transfer(
     
         # Get MVN Token
         token                       = await models.Token.get(
-            network         = 'atlasnet',
+            network         = models.NETWORK,
             token_address   = m_token_address,
             token_id        = 0
         )
-        m_token                     = await models.MToken.get(network='atlasnet', address=m_token_address, token=token)
+        m_token                     = await models.MToken.get(network=models.NETWORK, address=m_token_address, token=token)
         m_token.token_reward_index  = token_reward_index
         m_token.total_supply        = total_supply
         await m_token.save()
@@ -39,7 +39,7 @@ async def transfer(
             transactions            = entry.txs
     
             # Get or create from
-            from_user               = await models.get_user(network='atlasnet', address=from_address)
+            from_user               = await models.get_user(network=models.NETWORK, address=from_address)
             from_account, _         = await models.MTokenAccount.get_or_create(
                 m_token = m_token,
                 user    = from_user
@@ -65,7 +65,7 @@ async def transfer(
                 to_address          = transaction.to_
     
                 # Get or create to
-                to_user             = await models.get_user(network='atlasnet', address=to_address)
+                to_user             = await models.get_user(network=models.NETWORK, address=to_address)
                 to_account, _       = await models.MTokenAccount.get_or_create(
                     m_token = m_token,
                     user    = to_user

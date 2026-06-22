@@ -40,10 +40,10 @@ async def init_farm(
 
         # Create record
         governance      = await models.Governance.get(
-            network = 'atlasnet'
+            network = models.NETWORK
         )
         await models.Farm.filter(
-            network                         = 'atlasnet',
+            network                         = models.NETWORK,
             address                         = farm_address
         ).update(
             start_timestamp                 = start_timestamp,

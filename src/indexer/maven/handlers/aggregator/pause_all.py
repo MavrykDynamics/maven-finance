@@ -19,7 +19,7 @@ async def pause_all(
         withdraw_reward_smvn_paused                         = pause_all.storage.breakGlassConfig.withdrawRewardStakedMvnIsPaused
     
         # Update record
-        await models.Aggregator.filter(network='atlasnet', address= aggregator_address).update(
+        await models.Aggregator.filter(network=models.NETWORK, address= aggregator_address).update(
             update_data_paused                       = update_data_paused,
             withdraw_reward_mvrk_paused              = withdraw_reward_mvrk_paused,
             withdraw_reward_smvn_paused              = withdraw_reward_smvn_paused,

@@ -27,10 +27,10 @@ async def claim(
     
         # Update and create record
         vesting = await models.Vesting.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = vesting_address
         )
-        vestee  = await models.get_user(network='atlasnet', address=vestee_address)
+        vestee  = await models.get_user(network=models.NETWORK, address=vestee_address)
         await models.VestingVestee.filter(
             vestee  = vestee,
             vesting = vesting

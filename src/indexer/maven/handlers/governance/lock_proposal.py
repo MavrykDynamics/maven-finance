@@ -17,7 +17,7 @@ async def lock_proposal(
     
         # Update record
         governance          = await models.Governance.get(
-            network = 'atlasnet'
+            network = models.NETWORK
         )
         await models.GovernanceProposal.filter(
             governance  = governance,

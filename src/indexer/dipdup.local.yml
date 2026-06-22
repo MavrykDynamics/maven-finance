@@ -31,11 +31,11 @@ advanced:
     schema_modified: wipe
 
 datasources:
-  metadata_atlasnet:
+  metadata_basenet:
     kind: tzip_metadata
-    url: https://dipdup-metadata-api.mavryk.network
+    url: https://basenet.metadata.mavryk.network
     network: oxfordnet
-  mvkt_atlasnet:
+  mvkt_basenet:
     kind: tezos.tzkt
-    url: https://atlasnet.api.mavryk.network
+    url: https://basenet.api.mavryk.network
     merge_subscriptions: true

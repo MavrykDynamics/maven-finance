@@ -21,8 +21,8 @@ async def update_council_member_info(
         image                   = council_member_storage.image
     
         # Update record
-        break_glass             = await models.BreakGlass.get(network='atlasnet', address= break_glass_address)
-        user                    = await models.get_user(network='atlasnet', address=council_member_address)
+        break_glass             = await models.BreakGlass.get(network=models.NETWORK, address= break_glass_address)
+        user                    = await models.get_user(network=models.NETWORK, address=council_member_address)
         council_member          = await models.BreakGlassCouncilMember.get(
             break_glass = break_glass,
             user        = user

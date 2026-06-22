@@ -16,7 +16,7 @@ async def pause_all(
         treasury_factory_address    = pause_all.data.target_address
     
         # Update record
-        await models.TreasuryFactory.filter(network='atlasnet', address=treasury_factory_address).update(
+        await models.TreasuryFactory.filter(network=models.NETWORK, address=treasury_factory_address).update(
             create_treasury_paused     = pause_all.storage.breakGlassConfig.createTreasuryIsPaused,
             track_treasury_paused      = pause_all.storage.breakGlassConfig.trackTreasuryIsPaused,
             untrack_treasury_paused    = pause_all.storage.breakGlassConfig.untrackTreasuryIsPaused

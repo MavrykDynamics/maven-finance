@@ -72,17 +72,17 @@ async def set_loan_token(
     
         # Create / Update record
         lending_controller                  = await models.LendingController.get(
-            network         = 'atlasnet',
+            network         = models.NETWORK,
             address         = lending_controller_address,
         )
-        oracle                  = await models.Aggregator.get_or_none(network='atlasnet', address=loan_token_oracle_address)
+        oracle                  = await models.Aggregator.get_or_none(network=models.NETWORK, address=loan_token_oracle_address)
         token                               = await models.Token.get(
-            network         = 'atlasnet',
+            network         = models.NETWORK,
             token_address   = loan_token_m_token_address,
             token_id        = 0
         )
         m_token, _                          = await models.MToken.get_or_create(
-            network         = 'atlasnet',
+            network         = models.NETWORK,
             address         = loan_token_m_token_address,
             token           = token
         )
@@ -97,7 +97,7 @@ async def set_loan_token(
         token, _                                    = await models.Token.get_or_create(
             token_address       = loan_token_address,
             token_id            = loan_token_id,
-            network             = 'atlasnet'
+            network             = models.NETWORK
         )
         token.metadata          = token_contract_metadata
         token.token_standard    = standard

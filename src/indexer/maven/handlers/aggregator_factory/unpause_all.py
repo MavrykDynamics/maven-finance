@@ -21,7 +21,7 @@ async def unpause_all(
         distribute_reward_smvn_paused                       = unpause_all.storage.breakGlassConfig.distributeRewardStakedMvnIsPaused
     
         # Update record
-        await models.AggregatorFactory.filter(network='atlasnet',address    = aggregator_factory_address).update(
+        await models.AggregatorFactory.filter(network=models.NETWORK,address    = aggregator_factory_address).update(
             create_aggregator_paused         = create_aggregator_paused,
             track_aggregator_paused          = track_aggregator_paused,
             untrack_aggregator_paused        = untrack_aggregator_paused,

@@ -18,7 +18,7 @@ async def break_glass(
     
         # Update record
         breakGlass  = await models.BreakGlass.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = breakGlassAddress
         )
         breakGlass.glass_broken = breakGlassGlassBroken

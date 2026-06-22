@@ -37,8 +37,8 @@ async def vote_for_request(
             vote_type       = models.GovernanceVoteType.PASS
     
         # Create and update records
-        governance              = await models.Governance.get(network='atlasnet', address= governance_address)
-        governance_financial    = await models.GovernanceFinancial.get(network='atlasnet', address= financial_address)
+        governance              = await models.Governance.get(network=models.NETWORK, address= governance_address)
+        governance_financial    = await models.GovernanceFinancial.get(network=models.NETWORK, address= financial_address)
         await models.GovernanceFinancialRequest.filter(
             governance_financial    = governance_financial,
             internal_id             = request_id
@@ -56,7 +56,7 @@ async def vote_for_request(
                 execution_datetime    = execution_datetime
             )
     
-        voter                   = await models.get_user(network='atlasnet', address=voter_address)
+        voter                   = await models.get_user(network=models.NETWORK, address=voter_address)
     
         # Register vote
         satellite_snapshot, _   = await models.GovernanceSatelliteSnapshot.get_or_create(

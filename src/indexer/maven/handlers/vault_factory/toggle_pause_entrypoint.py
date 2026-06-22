@@ -18,7 +18,7 @@ async def toggle_pause_entrypoint(
     
         # Update record
         await models.VaultFactory.filter(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = vault_factory_address
         ).update(
             create_vault_paused   = create_vault_paused

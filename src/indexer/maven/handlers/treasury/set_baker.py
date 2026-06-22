@@ -18,8 +18,8 @@ async def set_baker(
         # Update record
         baker               = None
         if baker_address:
-            baker   = await models.get_user(network='atlasnet', address=baker_address)
-        await models.Treasury.filter(network='atlasnet', address= treasury_address).update(
+            baker   = await models.get_user(network=models.NETWORK, address=baker_address)
+        await models.Treasury.filter(network=models.NETWORK, address= treasury_address).update(
             baker   = baker
         )
 

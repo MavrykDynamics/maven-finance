@@ -21,7 +21,7 @@ async def toggle_pause_entrypoint(
         distribute_reward_smvn_paused                       = toggle_pause_entrypoint.storage.breakGlassConfig.distributeRewardStakedMvnIsPaused
     
         # Update record
-        await models.AggregatorFactory.get(network='atlasnet', address    = aggregator_factory_address).update(
+        await models.AggregatorFactory.get(network=models.NETWORK, address    = aggregator_factory_address).update(
             create_aggregator_paused         = create_aggregator_paused,
             track_aggregator_paused          = track_aggregator_paused,
             untrack_aggregator_paused        = untrack_aggregator_paused,
