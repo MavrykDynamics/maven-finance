@@ -18,7 +18,7 @@ hasura:
   select_limit: 1000
   rest: false
   http:
-    request_timeout: 600
+    request_timeout: 1200
 
 prometheus:
   host: 0.0.0.0
