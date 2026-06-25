@@ -17,6 +17,8 @@ hasura:
   admin_secret: ${ADMIN_SECRET:-changeme}
   select_limit: 1000
   rest: false
+  http:
+    request_timeout: 600
 
 prometheus:
   host: 0.0.0.0
