@@ -7,10 +7,10 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.12.4,<3.13"
-dipdup = "8.2.2"
+dipdup = { git = "https://github.com/mavryk-network/dipdup.git", branch = "hasura-model-comment" }
 python-dateutil = "^2.8.2"
 PyYAML = "^6.0"
-python-telegram-bot = "^20.2"
+python-telegram-bot = "^21.0"
 
 [tool.poetry.dev-dependencies]
 

@@ -1,6 +1,6 @@
 services:
   maven-db:
-    image: timescale/timescaledb:latest-pg15
+    image: timescale/timescaledb:2.26.4-pg16
     ports:
       - 127.0.0.1:5432:5432
     restart: always
@@ -17,7 +17,7 @@ services:
       retries: 5
 
   maven-hasura:
-    image: hasura/graphql-engine:v2.38.1
+    image: hasura/graphql-engine:v2.46.0
     ports:
       - 127.0.0.1:42000:8080
     depends_on:
