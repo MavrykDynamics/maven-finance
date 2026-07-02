@@ -10,14 +10,6 @@ from maven.utils.contracts import (
 async def refresh_tokens(
     ctx: HookContext,
 ) -> None:
-    # Periodically re-pull metadata from the metadata service. Metadata is
-    # otherwise only fetched inside on-chain event handlers (at origination /
-    # creation), so a token indexed before the service had published its
-    # metadata would stay empty forever, and later metadata changes would be
-    # missed. This job closes both gaps. Only non-empty, changed values are
-    # written (see the refresh_* helpers), so a failing/empty service response
-    # never overwrites good data.
-
     updated_tokens = 0
     updated_contracts = 0
 
