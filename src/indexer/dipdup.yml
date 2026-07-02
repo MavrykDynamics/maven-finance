@@ -1547,8 +1547,14 @@ hooks:
   refresh_views:
     callback: refresh_views
     atomic: False
+  refresh_tokens:
+    callback: refresh_tokens
+    atomic: False
 
 jobs:
   refresh_views:
     hook: refresh_views
     interval: 300
+  refresh_tokens:
+    hook: refresh_tokens
+    interval: 600
