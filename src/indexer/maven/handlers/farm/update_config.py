@@ -29,7 +29,7 @@ async def update_config(
 
         # Update contract
         farm    = await models.Farm.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = farm_address
         )
         farm.last_updated_at                = timestamp

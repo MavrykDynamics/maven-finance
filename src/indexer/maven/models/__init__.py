@@ -27,3 +27,7 @@ from maven.models.treasury import *
 from maven.models.vault import *
 from maven.models.vault_factory import *
 from maven.models.vesting import *
+
+# Network discriminator, re-exported so handlers can use `models.NETWORK`
+# (they already `from maven import models`) without an extra import.
+from maven.utils.constants import NETWORK

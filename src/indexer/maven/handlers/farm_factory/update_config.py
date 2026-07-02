@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.FarmFactory.filter(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = farm_factory_address
         ).update(
             last_updated_at         = timestamp,

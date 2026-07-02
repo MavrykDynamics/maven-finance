@@ -23,7 +23,7 @@ async def borrow(
         vault_internal_id                       = int(borrow.parameter.vaultId)
         vaults_storage                          = borrow.storage.vaults
         lending_controller                      = await models.LendingController.get(
-            network             = 'atlasnet',
+            network             = models.NETWORK,
             address             = lending_controller_address,
         )
         lending_controller_vault                = await models.LendingControllerVault.filter(
@@ -86,7 +86,7 @@ async def borrow(
                     await lending_controller_vault.save()
         
                     # Save history data
-                    sender                                                      = await models.get_user(network='atlasnet', address=sender_address)
+                    sender                                                      = await models.get_user(network=models.NETWORK, address=sender_address)
                     history_data                            = models.LendingControllerHistoryData(
                         lending_controller  = lending_controller,
                         loan_token          = loan_token,

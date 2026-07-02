@@ -17,8 +17,8 @@ async def remove_oracle(
         oracle_address                  = remove_oracle.parameter.root
     
         # Remove records
-        oracle                          = await models.get_user(network='atlasnet', address=oracle_address)
-        aggregator                      = await models.Aggregator.get(network='atlasnet', address= aggregator_address)
+        oracle                          = await models.get_user(network=models.NETWORK, address=oracle_address)
+        aggregator                      = await models.Aggregator.get(network=models.NETWORK, address= aggregator_address)
         aggregator_oracle               = await models.AggregatorOracle.get(
             aggregator  = aggregator,
             user        = oracle

@@ -25,7 +25,7 @@ async def update_metadata(
         # Update record
         await models.Aggregator.filter(
             address = aggregator_address,
-            network = 'atlasnet'
+            network = models.NETWORK
         ).update(
             metadata = contract_metadata
         )

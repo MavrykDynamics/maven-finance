@@ -24,10 +24,10 @@ async def origination(
         )
         
         # Create record# Get governance record
-        governance                  = await models.Governance.get(network = 'atlasnet')
+        governance                  = await models.Governance.get(network = models.NETWORK)
         governance_proxy            = models.GovernanceProxy(
             address             = governance_proxy_address,
-            network             = 'atlasnet',
+            network             = models.NETWORK,
             metadata            = contract_metadata,
             admin               = admin_address,
             last_updated_at     = timestamp,

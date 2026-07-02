@@ -52,7 +52,7 @@ async def set_collateral_token(
             token, _                                    = await models.Token.get_or_create(
                 token_address       = collateral_token_address,
                 token_id            = collateral_token_id,
-                network             = 'atlasnet'
+                network             = models.NETWORK
             )
             if token_contract_metadata:
                 token.metadata          = token_contract_metadata
@@ -61,10 +61,10 @@ async def set_collateral_token(
     
             # Create / Update record
             lending_controller          = await models.LendingController.get(
-                network         = 'atlasnet',
+                network         = models.NETWORK,
                 address         = lending_controller_address,
             )
-            oracle                  = await models.Aggregator.get_or_none(network='atlasnet', address=collateral_token_oracle_address)
+            oracle                  = await models.Aggregator.get_or_none(network=models.NETWORK, address=collateral_token_oracle_address)
             lending_controller_collateral_token, _  = await models.LendingControllerCollateralToken.get_or_create(
                 lending_controller  = lending_controller,
                 token               = token,

@@ -21,14 +21,14 @@ async def transfer(
         mvn_total_supply    = float(transfer.storage.totalSupply)
     
         # Get MVN Token
-        mvn_token = await models.MVNToken.get(network='atlasnet', address=mvn_address)
+        mvn_token = await models.MVNToken.get(network=models.NETWORK, address=mvn_address)
     
         for entry in transaction_batch:
             sender_address = entry.from_
             transactions = entry.txs
     
             # Get or create sender
-            sender    = await models.get_user(network='atlasnet', address=sender_address)
+            sender    = await models.get_user(network=models.NETWORK, address=sender_address)
             sender.mvn_balance = user_ledger[sender_address]
             await sender.save()
     
@@ -37,7 +37,7 @@ async def transfer(
                 amount = int(transaction.amount)
     
                 # Get or create receiver
-                receiver    = await models.get_user(network='atlasnet', address=receiver_address)
+                receiver    = await models.get_user(network=models.NETWORK, address=receiver_address)
                 receiver.mvn_balance = user_ledger[receiver_address]
                 await receiver.save()
     
@@ -52,8 +52,8 @@ async def transfer(
                 await transfer_record.save()
     
                 # Check if doorman
-                doorman_sender      = await models.Doorman.get_or_none(network='atlasnet', address= sender_address)
-                doorman_receiver    = await models.Doorman.get_or_none(network='atlasnet', address= receiver_address)
+                doorman_sender      = await models.Doorman.get_or_none(network=models.NETWORK, address= sender_address)
+                doorman_receiver    = await models.Doorman.get_or_none(network=models.NETWORK, address= receiver_address)
                 if doorman_sender or doorman_receiver:
                     smvn_total_supply   = 0
                     doorman             = None

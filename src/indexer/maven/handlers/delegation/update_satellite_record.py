@@ -25,9 +25,9 @@ async def update_satellite_record(
         rewards_record          = update_satellite_record.storage.satelliteRewardsLedger[satellite_address]
     
         # Create and/or update record
-        user                    = await models.get_user(network='atlasnet', address=satellite_address)
+        user                    = await models.get_user(network=models.NETWORK, address=satellite_address)
         delegation = await models.Delegation.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = delegation_address
         )
         await models.Satellite.filter(

@@ -19,7 +19,7 @@ async def update_data(
         timestamp                       = update_data.data.timestamp
         last_completed_data             = update_data.storage.lastCompletedData
         aggregator                      = await models.Aggregator.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = aggregator_address
         )
         
@@ -37,7 +37,7 @@ async def update_data(
             aggregator.last_completed_data_last_updated_at  = parser.parse(last_completed_data.lastUpdatedAt)
             await aggregator.save()
         
-            user                            = await models.get_user(network='atlasnet', address=oracle_address)
+            user                            = await models.get_user(network=models.NETWORK, address=oracle_address)
             oracle                          = await models.AggregatorOracle.get(
                 aggregator  = aggregator,
                 user        = user
@@ -78,7 +78,7 @@ async def update_data(
                 round                           = int(oracle_observation.round)
         
                 # Create observation records
-                user                            = await models.get_user(network='atlasnet', address=oracle_address)
+                user                            = await models.get_user(network=models.NETWORK, address=oracle_address)
                 oracle                          = await models.AggregatorOracle.get(
                     aggregator  = aggregator,
                     user        = user

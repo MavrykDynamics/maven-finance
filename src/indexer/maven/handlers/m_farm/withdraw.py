@@ -33,7 +33,7 @@ async def withdraw(
     
         # Create and update records
         farm                            = await models.Farm.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = farm_address
         )
         farm.total_rewards              = total_rewards
@@ -48,7 +48,7 @@ async def withdraw(
         farm.paid_rewards               = paid_rewards
         await farm.save()
     
-        user                            = await models.get_user(network='atlasnet', address=depositor_address)
+        user                            = await models.get_user(network=models.NETWORK, address=depositor_address)
     
         farm_account, _                 = await models.FarmAccount.get_or_create(
             user = user,

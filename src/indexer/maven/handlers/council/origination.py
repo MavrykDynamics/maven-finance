@@ -34,12 +34,12 @@ async def origination(
         )
         
         # Get governance record
-        governance                  = await models.Governance.get(network = 'atlasnet')
+        governance                  = await models.Governance.get(network = models.NETWORK)
     
         # Update and create record
         council = models.Council(
             address                             = address,
-            network                             = 'atlasnet',
+            network                             = models.NETWORK,
             metadata                            = contract_metadata,
             admin                               = admin,
             last_updated_at                     = timestamp,
@@ -57,7 +57,7 @@ async def origination(
         await council.save()
     
         for member_address in council_members:
-            user            = await models.get_user(network='atlasnet', address=member_address)
+            user            = await models.get_user(network=models.NETWORK, address=member_address)
             user.council    = council
             await user.save()
     

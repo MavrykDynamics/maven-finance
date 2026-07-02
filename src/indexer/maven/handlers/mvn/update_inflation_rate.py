@@ -17,7 +17,7 @@ async def update_inflation_rate(
         inflation_rate              = int(update_inflation_rate.parameter.root)
     
         # Update record
-        await models.MVNToken.filter(network='atlasnet', address= mvn_address).update(
+        await models.MVNToken.filter(network=models.NETWORK, address= mvn_address).update(
             inflation_rate    = inflation_rate
         )
 

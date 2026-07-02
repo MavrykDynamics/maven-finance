@@ -16,7 +16,7 @@ async def unpause_all(
         doorman_address                         = unpause_all.data.target_address
     
         # Update doorman
-        await models.Doorman.filter(network='atlasnet', address=doorman_address).update(
+        await models.Doorman.filter(network=models.NETWORK, address=doorman_address).update(
             stake_mvn_paused                    = unpause_all.storage.breakGlassConfig.stakeMvnIsPaused,
             unstake_mvn_paused                  = unpause_all.storage.breakGlassConfig.unstakeMvnIsPaused,
             compound_paused                 = unpause_all.storage.breakGlassConfig.compoundIsPaused,

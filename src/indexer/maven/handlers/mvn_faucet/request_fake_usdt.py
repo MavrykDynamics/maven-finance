@@ -19,10 +19,10 @@ async def request_fake_usdt(
     
         # Create request record
         mvn_faucet          = await models.MVNFaucet.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = mvn_faucet_address
         )
-        user                = await models.get_user(network='atlasnet', 
+        user                = await models.get_user(network=models.NETWORK, 
             address = requester_address
         )
         requester           = models.MVNFaucetRequester(

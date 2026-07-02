@@ -26,7 +26,7 @@ async def close_farm(
         infinite                        = close_farm.storage.config.infinite
 
         # Update record
-        farm = await models.Farm.get(network='atlasnet', address= farm_address)
+        farm = await models.Farm.get(network=models.NETWORK, address= farm_address)
         farm.last_block_update              = last_block_update
         farm.open                           = open
         farm.accumulated_rewards_per_share  = accumulated_rewards_per_share

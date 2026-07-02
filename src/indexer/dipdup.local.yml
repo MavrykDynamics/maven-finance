@@ -5,7 +5,7 @@ package: maven
 database:
   kind: postgres
   host: 127.0.0.1
-  port: '5432'
+  port: '5433'
   user: dipdup
   password: dipdup12345
   database: dipdup
@@ -18,6 +18,8 @@ hasura:
   admin_secret: hasura12345
   select_limit: 1000
   rest: false
+  http:
+    request_timeout: 1200
 
 advanced:
   scheduler:
@@ -31,11 +33,11 @@ advanced:
     schema_modified: wipe
 
 datasources:
-  metadata_atlasnet:
+  metadata_basenet:
     kind: tzip_metadata
-    url: https://dipdup-metadata-api.mavryk.network
+    url: https://basenet.metadata.mavryk.network
     network: oxfordnet
-  mvkt_atlasnet:
+  mvkt_basenet:
     kind: tezos.tzkt
-    url: https://atlasnet.api.mavryk.network
+    url: https://basenet.api.mavryk.network
     merge_subscriptions: true

@@ -20,7 +20,7 @@ async def origination(
         # Create record
         mvn_faucet          = models.MVNFaucet(
             address                     = address,
-            network                     = 'atlasnet',
+            network                     = models.NETWORK,
             mvn_token_address           = mvn_token_address,
             fake_usdt_token_address     = fake_usdt_token_address,
             mvn_amount_per_user         = mvn_amount_per_user,

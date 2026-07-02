@@ -1,6 +1,9 @@
 FROM python:3.12.4-slim
 
 RUN pip install poetry==1.8.4
+RUN apt-get update && \
+    apt-get -y install gcc && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /indexer
 COPY src/indexer/poetry.lock src/indexer/pyproject.toml /indexer/

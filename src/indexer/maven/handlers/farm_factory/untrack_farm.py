@@ -18,11 +18,11 @@ async def untrack_farm(
     
         # Update record
         farm_factory            = await models.FarmFactory.get(
-            network             = 'atlasnet',
+            network             = models.NETWORK,
             address             = farm_factory_address
         )
         farm            = await models.Farm.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             factory = farm_factory,
             address = farm_address
         )

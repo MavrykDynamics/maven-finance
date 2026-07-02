@@ -21,8 +21,8 @@ async def update_council_member_info(
         image                   = council_member_storage.image
     
         # Update record
-        council                 = await models.Council.get(network='atlasnet', address= council_address)
-        user                    = await models.get_user(network='atlasnet', address=council_member_address)
+        council                 = await models.Council.get(network=models.NETWORK, address= council_address)
+        user                    = await models.get_user(network=models.NETWORK, address=council_member_address)
         await models.CouncilCouncilMember.filter(
             council     = council,
             user        = user

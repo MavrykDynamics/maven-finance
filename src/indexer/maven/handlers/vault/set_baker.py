@@ -18,9 +18,9 @@ async def set_baker(
         # Update record
         baker               = None
         if baker_address:
-            baker   = await models.get_user(network='atlasnet', address=baker_address)       
+            baker   = await models.get_user(network=models.NETWORK, address=baker_address)       
         vault, _            = await models.Vault.get_or_create(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = vault_address
         )
         vault.baker  = baker

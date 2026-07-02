@@ -32,8 +32,8 @@ async def snapshot_ledger_update(
                 next_snapshot_cycle_id  = int(next_snapshot_cycle_id)
     
             # Get governance record
-            governance                      = await models.Governance.get(network = 'atlasnet')
-            user                            = await models.get_user(network='atlasnet', address=satellite_address)
+            governance                      = await models.Governance.get(network = models.NETWORK)
+            user                            = await models.get_user(network=models.NETWORK, address=satellite_address)
             snapshot_record, _              = await models.GovernanceSatelliteSnapshot.get_or_create(
                 governance              = governance,
                 user                    = user,

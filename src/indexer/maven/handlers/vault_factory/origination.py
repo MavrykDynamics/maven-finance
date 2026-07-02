@@ -26,10 +26,10 @@ async def origination(
         )
     
         # Get governance record
-        governance                  = await models.Governance.get(network = 'atlasnet')
+        governance                  = await models.Governance.get(network = models.NETWORK)
         vault_factory           = models.VaultFactory(
             address                 = vault_factory_address,
-            network                 = 'atlasnet',
+            network                 = models.NETWORK,
             metadata                = contract_metadata,
             admin                   = admin,
             governance              = governance,

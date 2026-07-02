@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.Council.filter(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = council_address
         ).update(
             last_updated_at                     = timestamp,
@@ -33,7 +33,7 @@ async def update_config(
 
         # Update threshold for current actions
         council = await models.Council.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = council_address
         )
         await models.CouncilAction.filter(

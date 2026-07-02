@@ -27,7 +27,7 @@ async def claim(
 
         # Update farm
         farm                            = await models.Farm.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = farm_address
         )
         farm.total_rewards              = total_rewards
@@ -51,7 +51,7 @@ async def claim(
             unclaimed_rewards               = float(depositor_storage.unclaimedRewards)
             token_reward_index              = float(depositor_storage.tokenRewardIndex)
         
-            user                            = await models.get_user(network='atlasnet', address=depositor_address)
+            user                            = await models.get_user(network=models.NETWORK, address=depositor_address)
         
             farm_account, _                 = await models.FarmAccount.get_or_create(
                 user = user,

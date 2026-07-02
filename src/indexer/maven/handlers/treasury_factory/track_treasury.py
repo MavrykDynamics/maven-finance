@@ -18,11 +18,11 @@ async def track_treasury(
     
         # Update record
         treasury_factory    = await models.TreasuryFactory.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = treasury_factory_address
         )
         await models.Treasury.filter(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = treasury_address
         ).update(
             factory        = treasury_factory

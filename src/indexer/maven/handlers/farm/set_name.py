@@ -17,7 +17,7 @@ async def set_name(
     
         # Update contract
         await models.Farm.filter(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = farm_address
         ).update(
             name    = name

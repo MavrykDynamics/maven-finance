@@ -22,17 +22,17 @@ async def mint(
         total_supply        = float(mint.storage.totalSupply)
 
         # Get mint account
-        user                = await models.get_user(network='atlasnet', address=mint_address)
+        user                = await models.get_user(network=models.NETWORK, address=mint_address)
         user.mvn_balance    = new_user_balance
         await user.save()
     
         # Create record
         token               = await models.Token.get(
-            network         = 'atlasnet',
+            network         = models.NETWORK,
             token_address   = mvn_token_address,
             token_id        = 0
         )
-        mvn_token               = await models.MVNToken.get(network='atlasnet', address= mvn_token_address, token=token)
+        mvn_token               = await models.MVNToken.get(network=models.NETWORK, address= mvn_token_address, token=token)
         mvn_token.total_supply  = total_supply
         await mvn_token.save()
         

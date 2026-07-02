@@ -3,7 +3,7 @@ templates:
   treasury_token_transfer_receiver_template:
     kind: tezos.token_transfers
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     handlers:
     - callback: treasury.token_transfer_receiver
       contract: <treasury_contract>
@@ -12,7 +12,7 @@ templates:
   farm_template:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - transaction
     handlers:
@@ -81,7 +81,7 @@ templates:
   m_farm_template:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - transaction
     handlers:
@@ -150,7 +150,7 @@ templates:
   treasury_template:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - transaction
     handlers:
@@ -207,7 +207,7 @@ templates:
   aggregator_template:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - transaction
     handlers:
@@ -284,7 +284,7 @@ templates:
   vault_template:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - transaction
     handlers:
@@ -305,7 +305,7 @@ templates:
   m_token_template:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - origination
     - transaction
@@ -349,7 +349,7 @@ templates:
   governance_satellite_snapshot_template:
     kind: tezos.big_maps
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     skip_history: never
     handlers:
     - callback: governance.snapshot_ledger_update
@@ -360,7 +360,7 @@ templates:
   maven_finance_template:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - origination
     - transaction
@@ -1508,10 +1508,10 @@ templates:
     #     entrypoint: setLambda
 
 indexes:
-  maven_finance_atlasnet_init:
+  maven_finance_basenet_init:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - origination
     contracts:
@@ -1526,7 +1526,7 @@ indexes:
   vault:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - transaction
     handlers:
@@ -1547,8 +1547,14 @@ hooks:
   refresh_views:
     callback: refresh_views
     atomic: False
+  refresh_tokens:
+    callback: refresh_tokens
+    atomic: False
 
 jobs:
   refresh_views:
     hook: refresh_views
     interval: 300
+  refresh_tokens:
+    hook: refresh_tokens
+    interval: 600

@@ -2,7 +2,7 @@ templates:
   m_token_template:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - origination
     - transaction
@@ -46,14 +46,14 @@ indexes:
   treasury_token_transfer_receiver:
     kind: tezos.token_transfers
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     handlers:
     - callback: treasury.token_transfer_receiver
       contract: doorman
   farm:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - transaction
     handlers:
@@ -120,7 +120,7 @@ indexes:
   m_farm:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - transaction
     handlers:
@@ -187,7 +187,7 @@ indexes:
   aggregator:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - transaction
     handlers:
@@ -262,7 +262,7 @@ indexes:
   treasury:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - transaction
     handlers:
@@ -317,7 +317,7 @@ indexes:
   vault:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - transaction
     handlers:
@@ -336,7 +336,7 @@ indexes:
   governance_satellite_snapshot:
     kind: tezos.big_maps
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     skip_history: never
     handlers:
     - callback: governance.snapshot_ledger_update
@@ -345,7 +345,7 @@ indexes:
   initializer:
     kind: tezos.operations
     datasources:
-    - mvkt_atlasnet
+    - mvkt_basenet
     types:
     - origination
     - transaction

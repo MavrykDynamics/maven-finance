@@ -16,7 +16,7 @@ async def pause_all(
         treasury_address    = pause_all.data.target_address
     
         # Update record
-        await models.Treasury.filter(network='atlasnet', address=treasury_address).update(
+        await models.Treasury.filter(network=models.NETWORK, address=treasury_address).update(
             transfer_paused                 = pause_all.storage.breakGlassConfig.transferIsPaused,
             mint_mvn_and_transfer_paused    = pause_all.storage.breakGlassConfig.mintMvnAndTransferIsPaused,
             update_token_operators_paused   = pause_all.storage.breakGlassConfig.updateTokenOperatorsIsPaused,

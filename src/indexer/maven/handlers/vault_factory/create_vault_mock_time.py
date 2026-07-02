@@ -70,13 +70,13 @@ async def create_vault_mock_time(
 
         # Create vault record
         vault_factory       = await models.VaultFactory.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = vault_factory_address
         )
         
         vault, _            = await models.Vault.get_or_create(
             address             = vault_address,
-            network             = 'atlasnet'
+            network             = models.NETWORK
         )
         
         vault.metadata            = contract_metadata
@@ -89,7 +89,7 @@ async def create_vault_mock_time(
 
         # Create a baker or not
         if baker_address:
-            baker       = await models.get_user(network='atlasnet', address=baker_address)
+            baker       = await models.get_user(network=models.NETWORK, address=baker_address)
             vault.baker = baker
 
         # Save vault
@@ -97,7 +97,7 @@ async def create_vault_mock_time(
 
         # Register depositors
         for depositor_address in whitelisted_addresses:
-            depositor           = await models.get_user(network='atlasnet', address=depositor_address)
+            depositor           = await models.get_user(network=models.NETWORK, address=depositor_address)
             vault_depositor, _  = await models.VaultDepositor.get_or_create(
                 vault       = vault,
                 depositor   = depositor
@@ -107,10 +107,10 @@ async def create_vault_mock_time(
         # Register vault creation
         # Create / Update record
         lending_controller          = await models.LendingController.get(
-            network         = 'atlasnet',
+            network         = models.NETWORK,
             address         = lending_controller_address,
         )
-        vault_owner                 = await models.get_user(network='atlasnet', address=vault_owner_address)
+        vault_owner                 = await models.get_user(network=models.NETWORK, address=vault_owner_address)
 
         for vault_storage in vaults_storage:
             vault_address                           = vault_storage.value.address
@@ -156,7 +156,7 @@ async def create_vault_mock_time(
                 await lending_controller_vault.save()
 
                 # Save history data
-                sender                                  = await models.get_user(network='atlasnet', address=sender_address)
+                sender                                  = await models.get_user(network=models.NETWORK, address=sender_address)
                 history_data                            = models.LendingControllerHistoryData(
                     lending_controller  = lending_controller,
                     loan_token          = lending_controller_loan_token,

@@ -18,7 +18,7 @@ async def update_operators(
     
         # Update records
         mvn_token           = await models.MVNToken.get(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = mvn_token_address
         )
         for operatorChange in operator_changes:
@@ -26,8 +26,8 @@ async def update_operators(
                 owner_address       = operatorChange.add_operator.owner
                 operator_address    = operatorChange.add_operator.operator
                 
-                owner               = await models.get_user(network='atlasnet', address=owner_address)            
-                operator            = await models.get_user(network='atlasnet', address=operator_address)
+                owner               = await models.get_user(network=models.NETWORK, address=owner_address)            
+                operator            = await models.get_user(network=models.NETWORK, address=operator_address)
     
                 operator_record, _  = await models.MVNTokenOperator.get_or_create(
                     mvn_token   = mvn_token,
@@ -39,8 +39,8 @@ async def update_operators(
                 owner_address       = operatorChange.remove_operator.owner
                 operator_address    = operatorChange.remove_operator.operator
                 
-                owner               = await models.get_user(network='atlasnet', address=owner_address)
-                operator            = await models.get_user(network='atlasnet', address=operator_address)
+                owner               = await models.get_user(network=models.NETWORK, address=owner_address)
+                operator            = await models.get_user(network=models.NETWORK, address=operator_address)
     
                 operator_record, _  = await models.MVNTokenOperator.get_or_create(
                     mvn_token   = mvn_token,

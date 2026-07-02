@@ -18,7 +18,7 @@ async def update_config(
     
         # Update contract
         await models.GovernanceSatellite.filter(
-            network = 'atlasnet',
+            network = models.NETWORK,
             address = satellite_address
         ).update(
             last_updated_at                 = timestamp,

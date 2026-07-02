@@ -66,7 +66,7 @@ async def origination(
         # Create record
         governance          = models.Governance(
             address                                 = address,
-            network                                 = 'atlasnet',
+            network                                 = models.NETWORK,
             metadata                                = contract_metadata,
             admin                                   = admin,
             last_updated_at                         = timestamp,
@@ -103,7 +103,7 @@ async def origination(
     
         # Add whitelisted developers
         for whitelisted_developer_address in whitelisted_developers:
-            user                                    = await models.get_user(network='atlasnet', address=whitelisted_developer_address)
+            user                                    = await models.get_user(network=models.NETWORK, address=whitelisted_developer_address)
             whitelist_developer, _                  = await models.WhitelistDeveloper.get_or_create(
                 governance  = governance,
                 developer   = user
@@ -134,13 +134,13 @@ async def origination(
         #         m_token_contract="m_token_eurt"
         #     )
         # )
-        # await ctx.add_index(
-        #     name="m_token_wbtc",
-        #     template="m_token_template",
-        #     values=dict(
-        #         m_token_contract="m_token_wbtc"
-        #     )
-        # )
+        await ctx.add_index(
+            name="m_token_wbtc",
+            template="m_token_template",
+            values=dict(
+                m_token_contract="m_token_wbtc"
+            )
+        )
         await ctx.add_index(
             name="m_token_usdt",
             template="m_token_template",
