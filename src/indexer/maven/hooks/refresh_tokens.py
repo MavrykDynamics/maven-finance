@@ -32,8 +32,3 @@ async def refresh_tokens(
                     updated_contracts += 1
             except BaseException as e:
                 print(f"refresh_tokens: failed to refresh contract {contract.address}: {e}")
-
-    print(
-        f"refresh_tokens: updated metadata for {updated_tokens} token(s) "
-        f"and {updated_contracts} contract(s)"
-    )
