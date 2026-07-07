@@ -117,66 +117,118 @@
   dependencies:
     "@mavrykdynamics/taquito" "^17.5.0"
 
-"@mavrykdynamics/taquito-core@^17.5.0":
-  version "17.5.0"
-  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-core/-/taquito-core-17.5.0.tgz"
-  integrity sha512-P3GQVMoWvUDhAXotAUYKzEufuh/RkAzStkd4892Y1mOy3DdPSD/1Dw0eTpmd3orhnuVVcu6JXwpMVFe0N9kvPA==
+"@mavrykdynamics/taquito-core@^17.5.2":
+  version "17.5.2"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-core/-/taquito-core-17.5.2.tgz"
+  integrity sha512-Zn2QIRZJsBIkU4te+kzPr7qxCkkCmdDlzdaXIxlodF0bV1L+le6NJG9VbAwQgM2rqkXv1xrqg4dG4R9d0c/SIw==
   dependencies:
     json-stringify-safe "^5.0.1"
 
-"@mavrykdynamics/taquito-http-utils@^17.5.0":
-  version "17.5.0"
-  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-http-utils/-/taquito-http-utils-17.5.0.tgz"
-  integrity sha512-HW+BP2zR6HL2MO/wE5QOMDFZamFOTAk/Iu7aL9zZi9fH0hMnPdI7VIeYmYv8/QXTVWDto4Ob2g92VPJjHPYJIQ==
+"@mavrykdynamics/taquito-core@^19.2.3":
+  version "19.2.3"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-core/-/taquito-core-19.2.3.tgz"
+  integrity sha512-mwHOJCJoBsb/S5BiUe7hDuvn9imzMvkJn6KGF5/Xk/VZ8b43y37FjfV6lw7haGEnOzrkE1lWG/q1/fKIka5qkw==
   dependencies:
-    "@mavrykdynamics/taquito-core" "^17.5.0"
+    json-stringify-safe "^5.0.1"
+
+"@mavrykdynamics/taquito-http-utils@^17.5.2":
+  version "17.5.2"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-http-utils/-/taquito-http-utils-17.5.2.tgz"
+  integrity sha512-QgPpMwuWAs/V6w44a9Q/Nng+Ams1EYw702auPF+uA8wmxZ/vC4elJRJKZwfZRI/6K5mM3q1N7dzxCDP6LBfHqA==
+  dependencies:
+    "@mavrykdynamics/taquito-core" "^17.5.2"
     node-fetch "^2.7.0"
 
-"@mavrykdynamics/taquito-local-forging@^17.5.0":
-  version "17.5.0"
-  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-local-forging/-/taquito-local-forging-17.5.0.tgz"
-  integrity sha512-BvK74ZSRmKDqJNf+GFk7K/m50wXEACeEDRraIieHk/hT13rZtr3zyBb1n8MZyneunTq7H7Y+GVCwBTep3ISagg==
+"@mavrykdynamics/taquito-http-utils@^19.2.3":
+  version "19.2.3"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-http-utils/-/taquito-http-utils-19.2.3.tgz"
+  integrity sha512-GhAkzIJOWFyKIriXPFJ2Nbh29DAgPFgo27Fzy09ILdp5x+ERh+1nUjj3F3UeCqhQT0W3MofGdoXK2k2ueRDGWg==
   dependencies:
-    "@mavrykdynamics/taquito-core" "^17.5.0"
-    "@mavrykdynamics/taquito-utils" "^17.5.0"
+    "@mavrykdynamics/taquito-core" "^19.2.3"
+    node-fetch "^2.7.0"
+
+"@mavrykdynamics/taquito-local-forging@^17.5.2":
+  version "17.5.2"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-local-forging/-/taquito-local-forging-17.5.2.tgz"
+  integrity sha512-w8Bg9Nn9oceMU2k/eHfUYPxdYdf88euV1dW7cb+drtOFgGkDDNUj1yBpaQlQqTA2f6e/plRc/kMmt2GGCMTJJQ==
+  dependencies:
+    "@mavrykdynamics/taquito-core" "^17.5.2"
+    "@mavrykdynamics/taquito-utils" "^17.5.2"
     bignumber.js "^9.1.2"
 
-"@mavrykdynamics/taquito-michel-codec@^17.5.0":
-  version "17.5.0"
-  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-michel-codec/-/taquito-michel-codec-17.5.0.tgz"
-  integrity sha512-6WtsPnSy7XWyx6HlR6ISW71O404AsbGPFJAKe8XrfaK96pHHb9uKyFT/ugCdym5lCPFx8fF2qEaAWkDlT1Nhnw==
+"@mavrykdynamics/taquito-local-forging@^19.2.3":
+  version "19.2.3"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-local-forging/-/taquito-local-forging-19.2.3.tgz"
+  integrity sha512-VzM2NRCvcNe/IcBjMrn9h9MwmLN6O0TPNsZmldOCnjUZjruGSmG8EzWGf6nFgZPPpwT34uuU5SNyEyRjh+Fn/g==
   dependencies:
-    "@mavrykdynamics/taquito-core" "^17.5.0"
+    "@mavrykdynamics/taquito-core" "^19.2.3"
+    "@mavrykdynamics/taquito-utils" "^19.2.3"
+    bignumber.js "^9.1.2"
 
-"@mavrykdynamics/taquito-michelson-encoder@^17.5.0":
-  version "17.5.0"
-  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-michelson-encoder/-/taquito-michelson-encoder-17.5.0.tgz"
-  integrity sha512-p5fWbbCJWVS2zugZNL76f9CgXF6cYi8Iv4YnvSjQC3eoA2vwt1Xf4mjZLp5XQg06wgLIB/QIQLByZirpQAWFlg==
+"@mavrykdynamics/taquito-michel-codec@^17.5.2":
+  version "17.5.2"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-michel-codec/-/taquito-michel-codec-17.5.2.tgz"
+  integrity sha512-1v6XKysTEN4wYXi7S+jaj7ii5zoZ74m+YQlR4r+z99RFmYUvAgy+vvYBmlP7YnclnZM1yQe7uM81s9ix0z2suw==
   dependencies:
-    "@mavrykdynamics/taquito-core" "^17.5.0"
-    "@mavrykdynamics/taquito-rpc" "^17.5.0"
-    "@mavrykdynamics/taquito-utils" "^17.5.0"
+    "@mavrykdynamics/taquito-core" "^17.5.2"
+
+"@mavrykdynamics/taquito-michel-codec@^19.2.3":
+  version "19.2.3"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-michel-codec/-/taquito-michel-codec-19.2.3.tgz"
+  integrity sha512-EayMuyFl10DJTm6E/57ZsVOl6zFObOX7F/6N9WZ1JZsQ0HDafXf3YWt7JCX3/UpYcBzyMvQhsMdwUAKrOfassA==
+  dependencies:
+    "@mavrykdynamics/taquito-core" "^19.2.3"
+
+"@mavrykdynamics/taquito-michelson-encoder@^17.5.2":
+  version "17.5.2"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-michelson-encoder/-/taquito-michelson-encoder-17.5.2.tgz"
+  integrity sha512-063zj86aRXXVeu4DeMlygiBPBlnRC2EGOwFb5ABLxERD5r/CEuwc5XRitRtkLcOWhoERHjNeuLvnCUXJJVIuEw==
+  dependencies:
+    "@mavrykdynamics/taquito-core" "^17.5.2"
+    "@mavrykdynamics/taquito-rpc" "^17.5.2"
+    "@mavrykdynamics/taquito-utils" "^17.5.2"
     bignumber.js "^9.1.2"
     fast-json-stable-stringify "^2.1.0"
 
-"@mavrykdynamics/taquito-rpc@^17.5.0":
-  version "17.5.0"
-  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-rpc/-/taquito-rpc-17.5.0.tgz"
-  integrity sha512-5uBoACxLZ2LrUoGzWf9rTp8sp195TG1uNUQ2bc+3h0pe+/7QgV0WkgHXshIlqvts3647+1wJdDW1Gsami6bYsw==
+"@mavrykdynamics/taquito-michelson-encoder@^19.2.3":
+  version "19.2.3"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-michelson-encoder/-/taquito-michelson-encoder-19.2.3.tgz"
+  integrity sha512-pJnW1DTXAKJzwZ7gSoXOilUMKKRAmy+x6y74z/04Q/Pae2sqxoeTCP3LDyaW53QCjvb7xMS1JQ97AyFL6EgAjw==
   dependencies:
-    "@mavrykdynamics/taquito-core" "^17.5.0"
-    "@mavrykdynamics/taquito-http-utils" "^17.5.0"
-    "@mavrykdynamics/taquito-utils" "^17.5.0"
+    "@mavrykdynamics/taquito-core" "^19.2.3"
+    "@mavrykdynamics/taquito-rpc" "^19.2.3"
+    "@mavrykdynamics/taquito-utils" "^19.2.3"
+    bignumber.js "^9.1.2"
+    fast-json-stable-stringify "^2.1.0"
+
+"@mavrykdynamics/taquito-rpc@^17.5.2":
+  version "17.5.2"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-rpc/-/taquito-rpc-17.5.2.tgz"
+  integrity sha512-ogtkCvJZU++Xv8ApeA1dWdGm1A8lL6JdRaDCsUSxfWhxtQAkceWzbeA01aGrqAy29eMf6eXIbkVhuHYdDLGB8w==
+  dependencies:
+    "@mavrykdynamics/taquito-core" "^17.5.2"
+    "@mavrykdynamics/taquito-http-utils" "^17.5.2"
+    "@mavrykdynamics/taquito-utils" "^17.5.2"
     bignumber.js "^9.1.2"
 
-"@mavrykdynamics/taquito-signer@^17.5.0":
-  version "17.5.0"
-  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-signer/-/taquito-signer-17.5.0.tgz"
-  integrity sha512-MAeIMtqObQI1o2JUpdZnMPgZuKj/EEBlhv4hKGhqaacGWoVs2Km+/ccIHhgwvIzrnRiIWtKduYSCIlkR2jXdEw==
+"@mavrykdynamics/taquito-rpc@^19.2.3":
+  version "19.2.3"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-rpc/-/taquito-rpc-19.2.3.tgz"
+  integrity sha512-dRB4XcO/0nq7IBHRrjhMBbQLsxebvXxr0q8DH/fRKvsudtg8mLX+HNWzcsHIzpTQCF54THcyrcw69DqG42Kodw==
   dependencies:
-    "@mavrykdynamics/taquito" "^17.5.0"
-    "@mavrykdynamics/taquito-core" "^17.5.0"
-    "@mavrykdynamics/taquito-utils" "^17.5.0"
+    "@mavrykdynamics/taquito-core" "^19.2.3"
+    "@mavrykdynamics/taquito-http-utils" "^19.2.3"
+    "@mavrykdynamics/taquito-utils" "^19.2.3"
+    bignumber.js "^9.1.2"
+
+"@mavrykdynamics/taquito-signer@^19.2.3":
+  version "19.2.3"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-signer/-/taquito-signer-19.2.3.tgz"
+  integrity sha512-ZM1uoURdBo9Tx8VHA5/qwRclSmCENeQz8fSOeitvRxLrGMIDhM+YNpZ/5LbTtvgMzLKrGJy7fF++LMeqsghI8Q==
+  dependencies:
+    "@mavrykdynamics/taquito" "^19.2.3"
+    "@mavrykdynamics/taquito-core" "^19.2.3"
+    "@mavrykdynamics/taquito-utils" "^19.2.3"
     "@stablelib/blake2b" "^1.0.1"
     "@stablelib/ed25519" "^1.0.3"
     "@stablelib/hmac" "^1.0.1"
@@ -189,12 +241,28 @@
     pbkdf2 "^3.1.2"
     typedarray-to-buffer "^4.0.0"
 
-"@mavrykdynamics/taquito-utils@^17.5.0":
-  version "17.5.0"
-  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-utils/-/taquito-utils-17.5.0.tgz"
-  integrity sha512-tDQLzYshjz3Zd1LuLO6BNAw4ANKmQg4ArjZWHYGFo+PZ95tg1PRh0qN1oD90zaboJ0oYYc0ETEyOGNemoTz3QQ==
+"@mavrykdynamics/taquito-utils@^17.5.2":
+  version "17.5.2"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-utils/-/taquito-utils-17.5.2.tgz"
+  integrity sha512-GOYvJdnQj1T4v2/n5XfmbAF6BOTqop7Iaui0Yh2Za3fwGdG5a9ZQAgS5WTAvmFvXateRyhsFyNlFTa/jA8e8gA==
   dependencies:
-    "@mavrykdynamics/taquito-core" "^17.5.0"
+    "@mavrykdynamics/taquito-core" "^17.5.2"
+    "@stablelib/blake2b" "^1.0.1"
+    "@stablelib/ed25519" "^1.0.3"
+    "@types/bs58check" "^2.1.0"
+    bignumber.js "^9.1.2"
+    blakejs "^1.2.1"
+    bs58check "^3.0.1"
+    buffer "^6.0.3"
+    elliptic "^6.5.4"
+    typedarray-to-buffer "^4.0.0"
+
+"@mavrykdynamics/taquito-utils@^19.2.3":
+  version "19.2.3"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito-utils/-/taquito-utils-19.2.3.tgz"
+  integrity sha512-5FEK29k1Oh/RPCayuBTH+ZkXz0WNrQBUbZaKJjTsJeYzWTzgWnmI3IV2gxiR7ZYyy7DJ8eWfUap+pPszMx5e2g==
+  dependencies:
+    "@mavrykdynamics/taquito-core" "^19.2.3"
     "@stablelib/blake2b" "^1.0.1"
     "@stablelib/ed25519" "^1.0.3"
     "@types/bs58check" "^2.1.0"
@@ -206,17 +274,32 @@
     typedarray-to-buffer "^4.0.0"
 
 "@mavrykdynamics/taquito@^17.5.0":
-  version "17.5.0"
-  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito/-/taquito-17.5.0.tgz"
-  integrity sha512-SO87bCcBJpPRqCmZHhw0hgqJRyY903oRRxfrDGFxZOHv3NhHKoXFKeQaqsYFI+RVa6pJg1+zz2m/khQKW9pRLw==
+  version "17.5.2"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito/-/taquito-17.5.2.tgz"
+  integrity sha512-tzxPmqk5xNjkGEy6QsCiKKquFigUZOQRjIa6GWbOBvSBiQFRavWNjyd8DnNOtgnDkdGEQ7F02WlXsXz2xP6klQ==
   dependencies:
-    "@mavrykdynamics/taquito-core" "^17.5.0"
-    "@mavrykdynamics/taquito-http-utils" "^17.5.0"
-    "@mavrykdynamics/taquito-local-forging" "^17.5.0"
-    "@mavrykdynamics/taquito-michel-codec" "^17.5.0"
-    "@mavrykdynamics/taquito-michelson-encoder" "^17.5.0"
-    "@mavrykdynamics/taquito-rpc" "^17.5.0"
-    "@mavrykdynamics/taquito-utils" "^17.5.0"
+    "@mavrykdynamics/taquito-core" "^17.5.2"
+    "@mavrykdynamics/taquito-http-utils" "^17.5.2"
+    "@mavrykdynamics/taquito-local-forging" "^17.5.2"
+    "@mavrykdynamics/taquito-michel-codec" "^17.5.2"
+    "@mavrykdynamics/taquito-michelson-encoder" "^17.5.2"
+    "@mavrykdynamics/taquito-rpc" "^17.5.2"
+    "@mavrykdynamics/taquito-utils" "^17.5.2"
+    bignumber.js "^9.1.2"
+    rxjs "^7.8.1"
+
+"@mavrykdynamics/taquito@^19.2.3":
+  version "19.2.3"
+  resolved "https://registry.npmjs.org/@mavrykdynamics/taquito/-/taquito-19.2.3.tgz"
+  integrity sha512-LMtnaF9SwM11Bwtcy3lciEbXWAMrHQcgiX9zsUghHHgHfqmyDvCFkodWTStqZ8UB9S0JuHyvefGe4o9Vwv4YEw==
+  dependencies:
+    "@mavrykdynamics/taquito-core" "^19.2.3"
+    "@mavrykdynamics/taquito-http-utils" "^19.2.3"
+    "@mavrykdynamics/taquito-local-forging" "^19.2.3"
+    "@mavrykdynamics/taquito-michel-codec" "^19.2.3"
+    "@mavrykdynamics/taquito-michelson-encoder" "^19.2.3"
+    "@mavrykdynamics/taquito-rpc" "^19.2.3"
+    "@mavrykdynamics/taquito-utils" "^19.2.3"
     bignumber.js "^9.1.2"
     rxjs "^7.8.1"
 
@@ -374,6 +457,47 @@
     "@stablelib/salsa20" "^1.0.2"
     "@stablelib/wipe" "^1.0.1"
 
+"@taquito/core@^19.2.1":
+  version "19.2.1"
+  resolved "https://registry.npmjs.org/@taquito/core/-/core-19.2.1.tgz"
+  integrity sha512-OlGiZlpsb11HvgM9Wvv66/uAjh97d+D09IF9dMydSiVZPYXgtkzEtY0qcl3pXCyFrGU6/Hxn4YGVQzdWF3oUGg==
+  dependencies:
+    json-stringify-safe "^5.0.1"
+
+"@taquito/http-utils@^19.2.1":
+  version "19.2.1"
+  resolved "https://registry.npmjs.org/@taquito/http-utils/-/http-utils-19.2.1.tgz"
+  integrity sha512-RvvSJjiX2cSej950k7BC5zDz87xmAfxRu6xpVEkkQRf4mLBx1llyQ1bwjCK4xBwMPMCdmDv1L2d9Di7qI0X9cQ==
+  dependencies:
+    "@taquito/core" "^19.2.1"
+    node-fetch "^2.7.0"
+
+"@taquito/rpc@^19.1.0":
+  version "19.2.1"
+  resolved "https://registry.npmjs.org/@taquito/rpc/-/rpc-19.2.1.tgz"
+  integrity sha512-/dszltZSiljrg7hIvjyqDzcRlDh/8yWSb/8q37OewJVhSDChikVvVCWiMjgj5/c/o8nUT/N3xzNHzXGf8ITsuA==
+  dependencies:
+    "@taquito/core" "^19.2.1"
+    "@taquito/http-utils" "^19.2.1"
+    "@taquito/utils" "^19.2.1"
+    bignumber.js "^9.1.2"
+
+"@taquito/utils@^19.2.1":
+  version "19.2.1"
+  resolved "https://registry.npmjs.org/@taquito/utils/-/utils-19.2.1.tgz"
+  integrity sha512-Nh5ArtFHXCHV33r8PpSK4n3VdSzwUtZDMdSyTqkiu/wWReXbIbo3itO+iR/2YaQw5pwMJWjK9GY2AahBbJ5bpg==
+  dependencies:
+    "@stablelib/blake2b" "^1.0.1"
+    "@stablelib/ed25519" "^1.0.3"
+    "@taquito/core" "^19.2.1"
+    "@types/bs58check" "^2.1.0"
+    bignumber.js "^9.1.2"
+    blakejs "^1.2.1"
+    bs58check "^3.0.1"
+    buffer "^6.0.3"
+    elliptic "^6.5.4"
+    typedarray-to-buffer "^4.0.0"
+
 "@tsconfig/node10@^1.0.7":
   version "1.0.9"
   resolved "https://registry.npmjs.org/@tsconfig/node10/-/node10-1.0.9.tgz"
@@ -402,9 +526,9 @@
     "@types/node" "*"
 
 "@types/bs58check@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.npmjs.org/@types/bs58check/-/bs58check-2.1.0.tgz"
-  integrity sha512-OxsysnJQh82vy9DRbOcw9m2j/WiyqZLn0YBhKxdQ+aCwoHj+tWzyCgpwAkr79IfDXZKxc6h7k89T9pwS78CqTQ==
+  version "2.1.2"
+  resolved "https://registry.npmjs.org/@types/bs58check/-/bs58check-2.1.2.tgz"
+  integrity sha512-xpXaQlOIY1KoXlA/ytHGHpEIU87PJt+g9SH7nC6HdCgaBwT2IEZIwBMHbjuX6BpnfbiUMlmwqurdLDwXpcdmSA==
   dependencies:
     "@types/node" "*"
 
@@ -562,9 +686,9 @@ balanced-match@^1.0.0:
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
 
 base-x@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/base-x/-/base-x-4.0.0.tgz"
-  integrity sha512-FuwxlW4H5kh37X/oW59pwTzzTKRzfrrQwhmyspRM7swOEZcHtDZSCt45U6oKgtuFE+WYPblePMVIPR4RZrh/hw==
+  version "4.0.1"
+  resolved "https://registry.npmjs.org/base-x/-/base-x-4.0.1.tgz"
+  integrity sha512-uAZ8x6r6S3aUM9rbHGVOIsR15U/ZSc82b3ymnCPsT45Gk1DDvhDPdIgB5MrhirZWt+5K0EEPQH985kNqZgNPFw==
 
 base64-js@^1.3.1:
   version "1.5.1"
@@ -594,9 +718,9 @@ blakejs@^1.2.1:
   integrity sha512-QXUSXI3QVc/gJME0dBpXrag1kbzOqCjCX8/b54ntNyW6sjtoqxqRk3LTmXzaJoh71zMsDCjM+47jS7XiwN/+fQ==
 
 bn.js@^4.11.9:
-  version "4.12.0"
-  resolved "https://registry.npmjs.org/bn.js/-/bn.js-4.12.0.tgz"
-  integrity sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==
+  version "4.12.4"
+  resolved "https://registry.npmjs.org/bn.js/-/bn.js-4.12.4.tgz"
+  integrity sha512-njR1b+ixG2ufvL9Zn9JGneW+b5GV6jqpYyPPpg4QVt723b5kJPGUczkUyWEH9BwEA74UakJZ43I4FDLBF7ci0g==
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -893,9 +1017,9 @@ diff@5.0.0:
   integrity sha512-/VTCrvm5Z0JGty/BWHljh+BAiw3IK+2j87NGMu8Nwc/f48WoDAC395uomO9ZD117ZOBaHmkX1oyLvkVM/aIT3w==
 
 elliptic@^6.5.4:
-  version "6.5.4"
-  resolved "https://registry.npmjs.org/elliptic/-/elliptic-6.5.4.tgz"
-  integrity sha512-iLhC6ULemrljPZb+QutR5TQGB+pdW6KGD5RSegS+8sorOZT+rdQFbsQFJgvN3eRqNALqJer4oQ16YvJHlU8hzQ==
+  version "6.6.1"
+  resolved "https://registry.npmjs.org/elliptic/-/elliptic-6.6.1.tgz"
+  integrity sha512-RaddvvMatK2LJHqFJ+YA4WysVN5Ita9E35botqIYspQ4TkRAlCicdzKOjlyv/1Za5RyTNn7di//eEV0uTAfe3g==
   dependencies:
     bn.js "^4.11.9"
     brorand "^1.1.0"

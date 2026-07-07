@@ -1,29 +1,52 @@
 #!/bin/bash
 
-# Get the generation script
-GENERATION_SCRIPT="./generate_mavryk_accounts_helper.ligo"
-TEMP_GENERATED_FILE="./temp.ligo_accounts"
-STRING_TO_REMOVE="Everything at the top-level was executed."
-JSON_FILE="./test/helpers/random_accounts.json"
+set -euo pipefail
 
-# Generate multiple accounts
-docker run --rm -v "$PWD":"$PWD" -w "$PWD" mavrykdynamics/ligo:0.60.0 run test $GENERATION_SCRIPT | sed -e "s/$STRING_TO_REMOVE$//" | grep "\S" > $TEMP_GENERATED_FILE
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ACCOUNT_COUNT="${1:-6}"
+JSON_FILE="${2:-$SCRIPT_DIR/test/helpers/mavryk-oracle-accounts.generated.json}"
 
-# Create the JSON account file
-JSON_TEXT=$(echo -e "[\n")
-while read line; do
-    FORMATTED_ACCOUNT=$(echo "$line" | tr -d '()')
-    SECRET_KEY=$(echo -e "$FORMATTED_ACCOUNT" | cut -c1-56)
-    PUBLIC_KEY=$(echo -e "$FORMATTED_ACCOUNT" | cut -c60-113)
-    PUBLIC_KEY_HASH=$(echo -e "$FORMATTED_ACCOUNT" | cut -c117-154)
-    echo $SECRET_KEY
-    echo $PUBLIC_KEY
-    echo $PUBLIC_KEY_HASH
-    JSON_TEXT=$(echo -e "$JSON_TEXT\n\t{\n\t\t\"pkh\": \"$PUBLIC_KEY_HASH\",\n\t\t\"pk\": \"$PUBLIC_KEY\",\n\t\t\"sk\": $SECRET_KEY\n\t},")
-done < $TEMP_GENERATED_FILE
-JSON_TEXT=$(echo -e "$JSON_TEXT" | sed '$ s/.$//')
-JSON_TEXT=$(echo -e "$JSON_TEXT\n]")
+if ! [[ "$ACCOUNT_COUNT" =~ ^[0-9]+$ ]] || [ "$ACCOUNT_COUNT" -lt 1 ]; then
+    echo "Usage: $0 [account_count] [output_json_file]"
+    echo "account_count must be a positive integer"
+    exit 1
+fi
 
-echo -e "$JSON_TEXT" > $JSON_FILE
+mkdir -p "$(dirname "$JSON_FILE")"
 
-rm -rf $TEMP_GENERATED_FILE
+cd "$SCRIPT_DIR"
+node - "$ACCOUNT_COUNT" "$JSON_FILE" <<'NODE'
+const crypto = require('crypto');
+const fs = require('fs');
+const { generateSecretKey, InMemorySigner } = require('@mavrykdynamics/taquito-signer');
+
+const [accountCountArg, outputFile] = process.argv.slice(2);
+const accountCount = Number(accountCountArg);
+
+async function generateAccount(index) {
+  const seed = crypto.randomBytes(64);
+  const derivationPath = `m/44'/1729'/${index}'/0'`;
+  const sk = generateSecretKey(seed, derivationPath, 'ed25519');
+  const signer = await InMemorySigner.fromSecretKey(sk);
+
+  return {
+    pkh: await signer.publicKeyHash(),
+    pk: await signer.publicKey(),
+    sk,
+    peerId: `oracle-peer-${index + 1}`,
+  };
+}
+
+(async () => {
+  const accounts = [];
+  for (let index = 0; index < accountCount; index += 1) {
+    accounts.push(await generateAccount(index));
+  }
+
+  fs.writeFileSync(outputFile, `${JSON.stringify(accounts, null, 2)}\n`);
+  console.log(`Generated ${accounts.length} Mavryk account(s) in ${outputFile}`);
+})().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
+NODE

@@ -7,6 +7,9 @@ venv/
 deployments/*.json
 compiled/*.mv
 contractDeployments.json
+test/helpers/random_accounts.json
+test/helpers/mavryk-oracle-accounts.generated.json
+test/helpers/*accounts*.local.json
 # Webstorm IDE
 ./.idea
 **/.idea/**

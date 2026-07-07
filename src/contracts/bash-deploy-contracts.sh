@@ -18,6 +18,9 @@ while [ $# -gt 0 ] ; do
         CONTRACTS=$2
         IFS=',' read -r -a CONTRACTS_DEPLOY_ARRAY <<< "$CONTRACTS"
     ;;
+    *=*)
+        export "$1"
+    ;;
   esac
   shift
 done
@@ -213,7 +216,8 @@ for contract_test in "${CONTRACTS_DEPLOY_ARRAY[@]}"; do
             ;;
         oracleSetup)
             echo "Deploying oracleSetup"
-            COMMANDS+=("yarn ts-mocha --paths test/deploy/x3_oracle_setup.spec.ts --bail --timeout 9000000 --exit")
+            # COMMANDS+=("yarn ts-mocha --paths test/deploy/x3_satellites_setup.spec.ts --bail --timeout 9000000 --exit")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x4_oracle_setup.spec.ts --bail --timeout 9000000 --exit")
             ;;
         linkContracts)
             echo "Linking contracts"
@@ -246,7 +250,8 @@ for contract_test in "${CONTRACTS_DEPLOY_ARRAY[@]}"; do
             COMMANDS+=("yarn ts-mocha --paths test/deploy/24_deploy_faucet.spec.ts --bail --timeout 9000000 --exit")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 9000000 --exit")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/x2_setup_funds.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/deploy/x3_oracle_setup.spec.ts --bail --timeout 9000000 --exit")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x3_satellites_setup.spec.ts --bail --timeout 9000000 --exit")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x4_oracle_setup.spec.ts --bail --timeout 9000000 --exit")
             ;;
         allMockTime)
             echo "Deploy all contracts"
@@ -275,7 +280,8 @@ for contract_test in "${CONTRACTS_DEPLOY_ARRAY[@]}"; do
             COMMANDS+=("yarn ts-mocha --paths test/deploy/24_deploy_faucet.spec.ts --bail --timeout 9000000 --exit")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/x1_update_linked_contracts.spec.ts --bail --timeout 9000000 --exit")
             COMMANDS+=("yarn ts-mocha --paths test/deploy/x2_setup_funds.spec.ts --bail --timeout 9000000 --exit")
-            COMMANDS+=("yarn ts-mocha --paths test/deploy/x3_oracle_setup.spec.ts --bail --timeout 9000000 --exit")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x3_satellites_setup.spec.ts --bail --timeout 9000000 --exit")
+            COMMANDS+=("yarn ts-mocha --paths test/deploy/x4_oracle_setup.spec.ts --bail --timeout 9000000 --exit")
             ;;
         *)
             echo "Unknown contract test: $contract_test"

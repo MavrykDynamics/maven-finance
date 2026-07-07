@@ -20,6 +20,10 @@ export class Utils {
     this.network = process.env.NETWORK_TO_MIGRATE_TO || network
     this.production = process.env.PRODUCTION || "false"
     const networkConfig = env.networks[this.network]
+    if (networkConfig === undefined) {
+      throw new Error(`Unknown network: ${this.network}`)
+    }
+    console.log(`Using network ${this.network}: ${networkConfig.rpc}`)
     this.tezos = new TezosToolkit(networkConfig.rpc)
 
     this.tezos.setProvider({

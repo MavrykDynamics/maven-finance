@@ -1,6 +1,6 @@
 import { Estimate, OpKind } from "@mavrykdynamics/taquito";
 
-import randomUserAccounts from "./helpers/random_accounts.json";
+import { getOracleAccounts } from "./helpers/oracleAccounts";
 import { MVN, Utils } from "./helpers/Utils";
 
 const chai              = require("chai");
@@ -35,6 +35,7 @@ describe("Stress tests", async () => {
     
     var utils: Utils
     let tezos
+    const randomUserAccounts = getOracleAccounts()
 
     let admin
     let adminSk
