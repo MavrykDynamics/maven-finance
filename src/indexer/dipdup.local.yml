@@ -37,7 +37,19 @@ datasources:
     kind: tzip_metadata
     url: https://basenet.metadata.mavryk.network
     network: oxfordnet
+    http:
+      retry_count: 60
+      retry_sleep: 1
+      retry_multiplier: 1.1
+      connection_timeout: 60
+      request_timeout: 120
   mvkt_basenet:
     kind: tezos.tzkt
     url: https://basenet.api.mavryk.network
     merge_subscriptions: true
+    http:
+      retry_count: 60
+      retry_sleep: 1
+      retry_multiplier: 1.1
+      connection_timeout: 60
+      request_timeout: 120
